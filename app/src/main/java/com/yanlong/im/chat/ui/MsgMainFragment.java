@@ -17,6 +17,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,7 @@ import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -49,6 +51,7 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.wight.avatar.MultiImageView;
+import com.zhaoss.weixinrecorded.util.RxJavaUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventNetStatus;
@@ -397,21 +400,21 @@ public class MsgMainFragment extends Fragment {
                                         int newIndex = listData.indexOf(session);//获取重排后新位置
                                         int start = index > newIndex ? newIndex : index;//谁小，取谁
                                         int count = Math.abs(newIndex - index) + 1;
-                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(start+1, count);////范围刷新,刷新旧位置和新位置之间即可
+                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(start + 1, count);////范围刷新,刷新旧位置和新位置之间即可
                                         LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "取消置顶刷新--session=" + session.getSid());
 
                                     }
                                 } else {
                                     listData.set(index, session);
                                     if (s != null && s.getUp_time().equals(session.getUp_time())) {//时间未更新，所以不要重新排序
-                                        mtListView.getListView().getAdapter().notifyItemChanged(index+1, index);
+                                        mtListView.getListView().getAdapter().notifyItemChanged(index + 1, index);
                                         LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "时间未更新--session=" + session.getSid());
                                     } else {//有时间更新,需要重排
                                         sortSession(index == 0);
                                         int newIndex = listData.indexOf(session);
                                         int start = index > newIndex ? newIndex : index;//谁小，取谁
                                         int count = Math.abs(newIndex - index) + 1;
-                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(start+1, count);//范围刷新
+                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(start + 1, count);//范围刷新
                                         LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "时间更新重排--session=" + session.getSid());
                                     }
                                 }
@@ -421,7 +424,7 @@ public class MsgMainFragment extends Fragment {
                                 if (position == 0) {
                                     mtListView.notifyDataSetChange();
                                 } else {
-                                    mtListView.getListView().getAdapter().notifyItemRangeInserted(position+1, 1);
+                                    mtListView.getListView().getAdapter().notifyItemRangeInserted(position + 1, 1);
                                     mtListView.getListView().scrollToPosition(0);
                                 }
                             }
@@ -431,7 +434,7 @@ public class MsgMainFragment extends Fragment {
                             if (position == 0) {
                                 mtListView.notifyDataSetChange();
                             } else {
-                                mtListView.getListView().getAdapter().notifyItemRangeInserted(position+1, 1);
+                                mtListView.getListView().getAdapter().notifyItemRangeInserted(position + 1, 1);
                                 mtListView.getListView().scrollToPosition(0);
                             }
                         }
@@ -581,7 +584,7 @@ public class MsgMainFragment extends Fragment {
 
         @Override
         public int getItemCount() { // TODO　增加文件头，默认的位置加1
-            return listData == null ? 1 : listData.size()+1;
+            return listData == null ? 1 : listData.size() + 1;
         }
 
         @Override
@@ -606,7 +609,8 @@ public class MsgMainFragment extends Fragment {
 
             if (viewHolder instanceof RCViewHolder) {
                 RCViewHolder holder = (RCViewHolder) viewHolder;
-                final Session bean = listData.get(position-1);
+                final Session bean = listData.get(position - 1);
+//                Log.i("1212", "Session:" + new Gson().toJson(bean));
                 String icon = bean.getAvatar();
                 String title = bean.getName();
                 MsgAllBean msginfo = bean.getMessage();
@@ -638,8 +642,6 @@ public class MsgMainFragment extends Fragment {
                             showMessage(holder.txtInfo, info, null);
                         }
                     }
-//                    Glide.with(getActivity()).load(icon)
-//                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
                     headList.add(icon);
                     holder.imgHead.setList(headList);
 
@@ -662,17 +664,13 @@ public class MsgMainFragment extends Fragment {
                             if (StringUtil.isNotNull(bean.getAtMessage())) {
                                 if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
                                     SpannableString style = new SpannableString("[有人@你]" + info);
-//                                style.append("[有人@你]" + info);
                                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                     style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//                                holder.txtInfo.setText(style);
                                     showMessage(holder.txtInfo, info, style);
                                 } else {
                                     SpannableString style = new SpannableString("[有人@你]" + info);
-//                                style.append("[有人@你]" + info);
                                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                     style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//                                holder.txtInfo.setText(style);
                                     showMessage(holder.txtInfo, info, style);
                                 }
                             }
@@ -684,33 +682,24 @@ public class MsgMainFragment extends Fragment {
                                 }
                                 if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
                                     SpannableString style = new SpannableString("[@所有人]" + info);
-//                                style.append("[@所有人]" + info);
                                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                     style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//                                holder.txtInfo.setText(style);
                                     showMessage(holder.txtInfo, info, style);
                                 } else {
                                     SpannableString style = new SpannableString("[@所有人]" + info);
-//                                style.append("[@所有人]" + info);
                                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                     style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//                                holder.txtInfo.setText(style);
                                     showMessage(holder.txtInfo, info, style);
                                 }
                             }
                             break;
                         case 2:
                             if (StringUtil.isNotNull(bean.getDraft())) {
-//                            info = "草稿:" + bean.getDraft();
                                 SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
-//                            style.append("[草稿]" + bean.getDraft());
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//                            holder.txtInfo.setText(style);
                                 showMessage(holder.txtInfo, bean.getDraft(), style);
                             } else {
-//                            holder.txtInfo.setText(info);
-//                            showMessage(holder.txtInfo, info, null);
                                 // 判断是否是动画表情
                                 Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
                                 Matcher matcher = patten.matcher(info);
@@ -736,32 +725,10 @@ public class MsgMainFragment extends Fragment {
                     }
 
                     if (StringUtil.isNotNull(icon)) {
-//                        Glide.with(getActivity()).load(icon)
-//                                .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
                         headList.add(icon);
                         holder.imgHead.setList(headList);
                     } else {
-                        creatAndSaveImg(bean, holder.imgHead);
-//                        if (bean.getType() == 1) {
-//                            String imgUrl = "";
-//                            try {
-//                                imgUrl = ( DaoUtil.findOne(GroupImageHead.class, "gid", bean.getGid())).getImgHeadUrl();
-//                            } catch (Exception e) {
-//                                creatAndSaveImg(bean, holder.imgHead);
-//                            }
-//
-////                        LogUtil.getLog().e("TAG", "----------" + imgUrl.toString());
-//                            if (StringUtil.isNotNull(imgUrl)) {
-////                                Glide.with(getActivity()).load(imgUrl)
-////                                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-//                                headList.add(imgUrl);
-//                                holder.imgHead.setList(headList);
-//                            } else {
-//
-//                                creatAndSaveImg(bean, holder.imgHead);
-//
-//                            }
-//                        }
+                        loadGroupHeads(bean, holder.imgHead, title, holder.txtName);
                     }
                 }
 
@@ -848,10 +815,18 @@ public class MsgMainFragment extends Fragment {
             } else {
                 spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, spannableString);
             }
-            txtInfo.setText(spannableString,TextView.BufferType.SPANNABLE);
+            txtInfo.setText(spannableString, TextView.BufferType.SPANNABLE);
         }
 
-        private void creatAndSaveImg(Session bean, MultiImageView imgHead) {
+        /**
+         * 加载群头像
+         *
+         * @param bean
+         * @param imgHead
+         * @param groupName
+         * @param txtGroupName
+         */
+        private synchronized void loadGroupHeads(Session bean, MultiImageView imgHead, String groupName, TextView txtGroupName) {
             Group gginfo = msgDao.getGroup4Id(bean.getGid());
             if (gginfo != null) {
                 int i = gginfo.getUsers().size();
@@ -863,12 +838,6 @@ public class MsgMainFragment extends Fragment {
                     headList.add(userInfo.getHead());
                 }
                 imgHead.setList(headList);
-//                File file = GroupHeadImageUtil.synthesis(getContext(), url);
-//                Glide.with(getActivity()).load(file)
-//                        .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
-
-//                MsgDao msgDao = new MsgDao();
-//                msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
             }
         }
 
@@ -928,6 +897,7 @@ public class MsgMainFragment extends Fragment {
 
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();
+    private MsgAction msgAction = new MsgAction();
     private List<Session> listData = new ArrayList<>();
 
     @SuppressLint("CheckResult")
@@ -957,6 +927,42 @@ public class MsgMainFragment extends Fragment {
                     }
                 });
 
+    }
+
+    /**
+     * TODO　临时处理办法 异步检查Sessiong列表是否有异常数据，比如头像、群名称没有,如果有则重新拉取在刷新列表
+     *
+     * @param list
+     */
+    private void checkSessionData(List<Session> list) {
+        RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<Object>() {
+
+            @Override
+            public Object doInBackground() throws Throwable {
+                if (list != null && list.size() > 0) {
+                    for (Session session : list) {
+                        // 群聊的时候 检查头像跟群名是否存在
+                        if (session.getType() == 1 && (TextUtils.isEmpty(session.getAvatar()) || TextUtils.isEmpty(session.getName()))) {
+                            if(!TextUtils.isEmpty(session.getGid())){
+                                Log.i("1212","异常数据Gid:"+session.getGid());
+                                MessageManager.getInstance().refreshGroupInfo(session.getGid());
+                            }
+                        }
+                    }
+                }
+                return null;
+            }
+
+            @Override
+            public void onFinish(Object result) {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+        });
     }
 
     private void doListDataSort() {

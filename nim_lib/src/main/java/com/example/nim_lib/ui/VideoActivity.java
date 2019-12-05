@@ -503,7 +503,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         for (ActivityManager.RunningTaskInfo info : recentList) {
             if (info.topActivity.getPackageName().equals(getPackageName())) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    am.moveTaskToFront(info.id,0);
+                    am.moveTaskToFront(info.id, 0);
                 }
                 return;
             }
@@ -1771,7 +1771,11 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                             }
                         } else {
                             finish();
-                            ToastUtil.show(VideoActivity.this, response.body().getMsg());
+                            if (response.body() != null) {
+                                ToastUtil.show(VideoActivity.this, response.body().getMsg());
+                            } else {
+                                ToastUtil.show(VideoActivity.this, "点对点语音发起失败");
+                            }
                         }
                     }
 
