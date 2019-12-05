@@ -8,6 +8,8 @@ import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.databinding.ActivityBankDetailBinding;
 
+import net.cb.cb.library.view.ActionbarView;
+
 /**
  * @anthor Liszt
  * @data 2019/11/30
@@ -28,6 +30,18 @@ public class BankDetailActivity extends BasePayActivity {
             ui.tvBankNum.setText(bank.getCardNo());
             ui.tvBankType.setText("借记卡");
         }
+
+        ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+            @Override
+            public void onBack() {
+                onBackPressed();
+            }
+
+            @Override
+            public void onRight() {
+
+            }
+        });
 
 
     }

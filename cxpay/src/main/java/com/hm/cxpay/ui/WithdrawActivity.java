@@ -64,6 +64,7 @@ public class WithdrawActivity extends AppActivity {
     private List<BankBean> bankList = null;//我所绑定的所有银行卡列表数据
     private StringBuilder builder;
     private RequestOptions options;
+    private CommonBean rateBean;//银行卡费率
 
     public static final int WITHDRAW = 98;//提现操作
     private double balanceValue = 0;//double类型的余额
@@ -261,14 +262,12 @@ public class WithdrawActivity extends AppActivity {
                 .subscribe(new FGObserver<BaseResponse<CommonBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
-                        CommonBean bean = null;
+                        rateBean = null;
                         if (baseResponse.getData() != null) {
-                            bean = baseResponse.getData();
+                            rateBean = baseResponse.getData();
                         } else {
-                            bean = new CommonBean();
+                            rateBean = new CommonBean();
                         }
-                        //TODO 相关处理
-
                     }
 
                     @Override
