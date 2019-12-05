@@ -58,7 +58,7 @@ public class FragmentRedEnvelopeReceived extends Fragment {
      * 获取收到红包记录
      */
     private void getRedEnvelopeDetails() {
-        long startTime = ((RedEnvelopeDetailsActivity) getActivity()).getCurrentCalendar();
+        long startTime = ((RedEnvelopeRecordActivity) getActivity()).getCurrentCalendar();
         PayHttpUtils.getInstance().getRedEnvelopeDetails(currentPage, startTime, 7)
                 .compose(RxSchedulers.<BaseResponse<RedDetailsBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<RedDetailsBean>>handleResult())
@@ -67,8 +67,8 @@ public class FragmentRedEnvelopeReceived extends Fragment {
                     public void onHandleSuccess(BaseResponse<RedDetailsBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
                             RedDetailsBean details = baseResponse.getData();
-                            if (((RedEnvelopeDetailsActivity) getActivity()).getCurrentTab() == 0) {
-                                ((RedEnvelopeDetailsActivity) getActivity()).initDetails(details, true);
+                            if (((RedEnvelopeRecordActivity) getActivity()).getCurrentTab() == 0) {
+                                ((RedEnvelopeRecordActivity) getActivity()).initDetails(details, true);
                             }
                             adapter.bindData(details.getItems());
                         } else {

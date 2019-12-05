@@ -10,15 +10,6 @@ import android.view.ViewGroup;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.view.VoiceView;
-import com.yanlong.im.pay.ui.view.RedPacketDialog;
-import com.yanlong.im.test.bean.Test2Bean;
-
-import com.yanlong.im.utils.DaoUtil;
-import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.view.PySortView;
-
-import java.util.List;
-import java.util.UUID;
 
 
 public class OtherFragment extends Fragment {

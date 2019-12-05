@@ -37,7 +37,7 @@ import java.util.List;
  * Description 红包明细界面
  */
 @Route(path = "/app/redEnvelopeDetailsActivity")
-public class RedEnvelopeDetailsActivity extends AppActivity {
+public class RedEnvelopeRecordActivity extends AppActivity {
 
     private ActivityRedEnvelopeDetailBinding ui;
     private Calendar currentCalendar;
@@ -141,7 +141,7 @@ public class RedEnvelopeDetailsActivity extends AppActivity {
         end.set(2100, 11, 31);//2100-12-31
 
         //时间选择器
-        TimePickerView pvTime = new TimePickerBuilder(RedEnvelopeDetailsActivity.this, new OnTimeSelectListener() {
+        TimePickerView pvTime = new TimePickerBuilder(RedEnvelopeRecordActivity.this, new OnTimeSelectListener() {
             @Override
             public void onTimeSelect(Date date, View v) {
                 Calendar calendar = Calendar.getInstance();
