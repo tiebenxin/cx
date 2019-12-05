@@ -60,6 +60,10 @@ public class DaoMigration implements RealmMigration {
                 updateV11(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 11) {
+                updateV12(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -179,16 +183,16 @@ public class DaoMigration implements RealmMigration {
                 .addField("survivaltime", int.class);
 
         schema.create("ChangeSurvivalTimeMessage")
-                .addField("msgid",String.class,FieldAttribute.PRIMARY_KEY)
-                .addField("survival_time",int.class);
+                .addField("msgid", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("survival_time", int.class);
 
         schema.get("MsgAllBean")
                 .addField("survival_time", int.class)
-                .addField("serverTime",long.class)
+                .addField("serverTime", long.class)
                 .addField("endTime", long.class)
-                .addField("readTime",long.class)
-                .addField("startTime",long.class)
-                .addField("read",int.class)
+                .addField("readTime", long.class)
+                .addField("startTime", long.class)
+                .addField("read", int.class)
                 .addRealmObjectField("changeSurvivalTimeMessage", schema.get("ChangeSurvivalTimeMessage"));
 
         schema.get("UserInfo")
@@ -218,9 +222,16 @@ public class DaoMigration implements RealmMigration {
                 .addField("inviterName", String.class)
                 .addField("time", long.class);
 
-        schema.get("Group") .addField("merchantEntry", String.class);
+        schema.get("Group").addField("merchantEntry", String.class);
     }
 
+    //更新红包消息
+    private void updateV12(RealmSchema schema) {
+        schema.get("RedEnvelopeMessage")
+                .addField("traceId", long.class)
+                .addField("actionId", String.class);
+
+    }
 
 
     @Override
