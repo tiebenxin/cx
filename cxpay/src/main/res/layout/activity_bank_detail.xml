@@ -61,6 +61,7 @@
                     android:text="借记卡" />
 
             </LinearLayout>
+            <View style="@style/app_line" />
 
             <LinearLayout style="@style/app_layout_list2_item">
 

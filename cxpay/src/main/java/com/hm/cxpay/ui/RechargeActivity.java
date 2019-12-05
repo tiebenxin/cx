@@ -298,6 +298,8 @@ public class RechargeActivity extends AppActivity {
                 if(!TextUtils.isEmpty(selectBankcard.getLogo())){
                     Glide.with(activity).load(selectBankcard.getLogo())
                             .apply(options).into(ivBankIconTwo);
+                }else {
+                    ivBankIconTwo.setImageResource(R.mipmap.ic_bank_zs);
                 }
             }
             //关闭弹框

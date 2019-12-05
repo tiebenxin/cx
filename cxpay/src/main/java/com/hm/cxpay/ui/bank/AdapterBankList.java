@@ -72,6 +72,8 @@ public class AdapterBankList extends AbstractRecyclerAdapter<BankBean> {
             if(!TextUtils.isEmpty(bank.getLogo())){
                 Glide.with(context).load(bank.getLogo())
                         .apply(options).into(ivIcon);
+            }else {
+                ivIcon.setImageResource(R.mipmap.ic_bank_zs);
             }
             if(!TextUtils.isEmpty(bank.getBankName())){
                 tvBankName.setText(bank.getBankName());

@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -32,6 +34,7 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +61,7 @@ public class WithdrawActivity extends AppActivity {
     private TextView tvBankName;//银行卡名+尾号
     private ImageView ivBankIcon;//银行卡图标
     private BankBean selectBankcard;//选中的银行卡
+    private TextView tvRateNotice;//服务费提示
     private Context activity;
 
     private boolean ifAddBankcard = false;//判断是否添加过银行卡
@@ -66,8 +70,15 @@ public class WithdrawActivity extends AppActivity {
     private RequestOptions options;
     private CommonBean rateBean;//银行卡费率
 
+    private Double minMoney = 10.0;//最低提现金额，默认10元，单位分
+    private Double serviceMoney = 0.0;//服务费，单位分
+    private Double rate = 0.005;//费率，默认0.005
+    private Double doubleRate = 0.0;//显示费率
+    private Double withDrawMoney = 0.0;//用户提现金额
+
     public static final int WITHDRAW = 98;//提现操作
     private double balanceValue = 0;//double类型的余额
+    private Double realMoney = 0.0;//实际到账金额
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +101,7 @@ public class WithdrawActivity extends AppActivity {
         tvQuestion = findViewById(R.id.tv_question);
         tvBankName = findViewById(R.id.tv_bank_name);
         ivBankIcon = findViewById(R.id.iv_bank_icon);
+        tvRateNotice = findViewById(R.id.tv_rate_notice);
         actionbar = headView.getActionbar();
 
     }
@@ -129,8 +141,8 @@ public class WithdrawActivity extends AppActivity {
             public void onClick(View v) {
                 //1 金额不能为空
                 if (!TextUtils.isEmpty(etWithdraw.getText().toString())) {
-                    //2 提现金额不低于10元
-                    if (Double.valueOf(etWithdraw.getText().toString()) >= 10) {
+                    //2 提现金额不低于最低提现金额(默认10元)
+                    if (Double.valueOf(etWithdraw.getText().toString()) >= minMoney) {
                         //3 不能超过余额
                         if (Double.valueOf(etWithdraw.getText().toString()) <= balanceValue) {
                             //4 有银行卡
@@ -140,10 +152,10 @@ public class WithdrawActivity extends AppActivity {
                                 ToastUtil.show(context, "请先添加一张银行卡");
                             }
                         } else {
-                            ToastUtil.show(context, "您的余额不足");
+                            ToastUtil.show(context, "您的可提现余额不足");
                         }
                     } else {
-                        ToastUtil.show(context, "最小提现金额不低于10元");
+                        ToastUtil.show(context, "最小提现金额不低于"+minMoney+"元");
                     }
                 } else {
                     ToastUtil.show(context, "提现金额不能为空");
@@ -160,6 +172,33 @@ public class WithdrawActivity extends AppActivity {
             @Override
             public void onClick(View view) {
 
+            }
+        });
+        etWithdraw.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(!TextUtils.isEmpty(etWithdraw.getText().toString())){
+                    withDrawMoney = Double.valueOf(etWithdraw.getText().toString());
+                    serviceMoney = computeRateMoney(withDrawMoney,rate);
+                    realMoney = withDrawMoney - serviceMoney;
+                    doubleRate = rate*100;
+                    //实际值以分为单位，显示转为元
+                    tvRateNotice.setText("服务费 "+serviceMoney+"元 (服务费=提现金额 X "+doubleRate+"%)");
+                    tvSubmit.setText("提现 (实际到账金额 "+realMoney+")");
+                }else {
+                    tvRateNotice.setText("服务费 0.0元 (服务费=提现金额 X "+rate*100+"%)");
+                    tvSubmit.setText("提现 (实际到账金额 0.0)");
+                }
             }
         });
     }
@@ -236,6 +275,8 @@ public class WithdrawActivity extends AppActivity {
                                     if (!TextUtils.isEmpty(selectBankcard.getLogo())) {
                                         Glide.with(activity).load(selectBankcard.getLogo())
                                                 .apply(options).into(ivBankIcon);
+                                    }else {
+                                        ivBankIcon.setImageResource(R.mipmap.ic_bank_zs);
                                     }
                                 }
                             }
@@ -265,6 +306,12 @@ public class WithdrawActivity extends AppActivity {
                         rateBean = null;
                         if (baseResponse.getData() != null) {
                             rateBean = baseResponse.getData();
+                            minMoney = Double.valueOf(rateBean.getMinAmt());
+                            etWithdraw.setHint("最小提现金额不低于"+minMoney+"元");
+                            if(!TextUtils.isEmpty(rateBean.getRate())){
+                                rate = Double.valueOf(rateBean.getRate());
+                                tvRateNotice.setText("服务费 0.0元 (服务费=提现金额 X "+rate*100+"%)");
+                            }
                         } else {
                             rateBean = new CommonBean();
                         }
@@ -301,6 +348,8 @@ public class WithdrawActivity extends AppActivity {
                         if (!TextUtils.isEmpty(selectBankcard.getLogo())) {
                             Glide.with(activity).load(selectBankcard.getLogo())
                                     .apply(options).into(ivBankIcon);
+                        }else {
+                            ivBankIcon.setImageResource(R.mipmap.ic_bank_zs);
                         }
                     }
                 }
@@ -327,5 +376,25 @@ public class WithdrawActivity extends AppActivity {
         if(isFinishing()){
             setResult(REFRESH_BANKCARD_NUM);
         }
+    }
+
+    /**
+     * 计算服务费(单位分)
+     * @param money 提现金额
+     * @param rate 费率
+     * @return
+     */
+    private double computeRateMoney(Double money,Double rate){
+        return money*rate;
+    }
+
+    /**
+     * 展示百分比的费率
+     * @param rate
+     */
+    private void showRates(Double rate){
+        BigDecimal rateValue = new BigDecimal(rate);
+        BigDecimal percent = new BigDecimal(100);
+        rateValue.divide(percent, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 }

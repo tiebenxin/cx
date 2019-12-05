@@ -2,6 +2,7 @@ package com.hm.cxpay.ui.bank;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import com.bumptech.glide.Glide;
 import com.hm.cxpay.R;
@@ -25,7 +26,11 @@ public class BankDetailActivity extends BasePayActivity {
         ui = DataBindingUtil.setContentView(this, R.layout.activity_bank_detail);
         BankBean bank = getIntent().getParcelableExtra("bank");
         if (bank != null) {
-            Glide.with(this).load(bank.getLogo()).into(ui.ivIcon);
+            if(!TextUtils.isEmpty(bank.getLogo())){
+                Glide.with(this).load(bank.getLogo()).into(ui.ivIcon);
+            }else {
+                ui.ivIcon.setImageResource(R.mipmap.ic_bank_zs);
+            }
             ui.tvBankName.setText(bank.getBankName());
             ui.tvBankNum.setText(bank.getCardNo());
             ui.tvBankType.setText("借记卡");
