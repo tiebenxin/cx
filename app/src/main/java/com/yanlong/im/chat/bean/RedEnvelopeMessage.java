@@ -6,16 +6,17 @@ import io.realm.annotations.PrimaryKey;
 public class RedEnvelopeMessage extends RealmObject implements IMsgContent {
     @PrimaryKey
     private String msgid;
-
     private String id;
-    // ALIPAY = 0; // 支付宝红包,红包类型——运营商
-    private Integer re_type;
+    private Integer re_type;    // MFPAY - 0; SYSTEM -1
     private String comment;
 
     //红包的状态0:没拆,1拆了
     private int isInvalid = 0;
     //红包玩法种类:0普通1拼手气
     private int style = 0;
+
+    private long traceId;//交易订单号
+    private String actionId;
 
     public int getStyle() {
         return style;
