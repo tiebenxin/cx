@@ -314,17 +314,24 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
 
     private void showSelectPayStyleDialog() {
         dialogSelectPayStyle = new DialogSelectPayStyle(this, R.style.MyDialogTheme);
-        dialogSelectPayStyle.bindData(PayEnvironment.getInstance().getBanks());
+        BankBean selectBank = null;
+        if (dialogPayPassword != null) {
+            selectBank = dialogPayPassword.getSelectedBank();
+        }
+        dialogSelectPayStyle.bindData(PayEnvironment.getInstance().getBanks(), selectBank);
         dialogSelectPayStyle.setListener(new AdapterSelectPayStyle.ISelectPayStyleListener() {
             @Override
             public void onSelectPay(int style, BankBean bank) {
+                dialogSelectPayStyle.dismiss();
                 if (dialogPayPassword != null) {
                     dialogPayPassword.init(UIUtils.getFen(money), style, bank);
+                    dialogPayPassword.show();
                 }
             }
 
             @Override
             public void onAddBank() {
+                dialogSelectPayStyle.dismiss();
                 Intent intent = new Intent(MultiRedPacketActivity.this, BindBankActivity.class);
                 startActivity(intent);
             }
@@ -348,7 +355,6 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
 
             @Override
             public void onTry() {
-
                 resetShowDialogPayPassword();
             }
         });

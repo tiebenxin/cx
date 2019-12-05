@@ -21,6 +21,12 @@ import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.global.PayEnvironment;
+import com.hm.cxpay.net.FGObserver;
+import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.bank.BankBean;
+import com.hm.cxpay.utils.UIUtils;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
@@ -123,7 +129,6 @@ public class MainActivity extends AppActivity {
     private boolean testMe = true;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -150,7 +155,6 @@ public class MainActivity extends AppActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
-
 
 
     //自动寻找控件
@@ -423,15 +427,13 @@ public class MainActivity extends AppActivity {
         if (info != null) {
             UserBean bean = PayEnvironment.getInstance().getUser();
             if (bean == null || (bean != null && bean.getUid() != info.getUid().intValue())) {
-                bean = new UserBean();
-                bean.setUid(info.getUid());
-                bean.setIsVerify(0);
-                bean.setCardId("5*********6");
-                bean.setRealName("*白");
-                PayEnvironment.getInstance().setUser(bean);
+                httpGetUserInfo();
             }
         }
         PayEnvironment.getInstance().setContext(AppConfig.getContext());
+        if (PayEnvironment.getInstance().getBanks() == null) {//初始化银行
+            getBankList();
+        }
     }
 
     private void checkToken() {
@@ -503,7 +505,7 @@ public class MainActivity extends AppActivity {
         if (event.getRosterAction() == CoreEnum.ERosterAction.LOAD_ALL_SUCCESS) {
             taskLoadSavedGroups();
         } else if (event.getRosterAction() == CoreEnum.ERosterAction.REQUEST_FRIEND
-                ||event.getRosterAction() == CoreEnum.ERosterAction.DEFAULT) {//请求添加为好友 申请进群
+                || event.getRosterAction() == CoreEnum.ERosterAction.DEFAULT) {//请求添加为好友 申请进群
             taskGetFriendNum();
         }
     }
@@ -827,6 +829,62 @@ public class MainActivity extends AppActivity {
         } else if (survivalTimeAdd.list != null) {
             timeUtils.addMsgAllBeans(survivalTimeAdd.list);
         }
+    }
+
+
+    /**
+     * 获取 绑定的银行卡列表
+     * <p>
+     * 备注：主要用于零钱首页更新"我的银行卡" 张数，暂时仅"充值、提现、我的银行卡"返回此界面后需要刷新
+     */
+    private void getBankList() {
+        PayHttpUtils.getInstance().getBankList()
+                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>compose())
+                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<List<BankBean>>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<List<BankBean>> baseResponse) {
+                        List<BankBean> info = baseResponse.getData();
+                        if (info != null) {
+                            PayEnvironment.getInstance().setBanks(info);
+                        }
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        super.onHandleError(baseResponse);
+                    }
+                });
+    }
+
+    /**
+     * 请求零钱红包用户信息
+     */
+    private void httpGetUserInfo() {
+        PayHttpUtils.getInstance().getUserInfo()
+                .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<UserBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<UserBean> baseResponse) {
+                        if (baseResponse.isSuccess()) {
+                            UserBean userBean = null;
+                            if (baseResponse.getData() != null) {
+                                userBean = baseResponse.getData();
+                            } else {
+                                userBean = new UserBean();
+                            }
+                            //刷新最新余额
+                            PayEnvironment.getInstance().setUser(userBean);
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse<UserBean> baseResponse) {
+                        super.onHandleError(baseResponse);
+                    }
+                });
     }
 
 

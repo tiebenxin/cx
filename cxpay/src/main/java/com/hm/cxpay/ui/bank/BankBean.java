@@ -3,12 +3,14 @@ package com.hm.cxpay.ui.bank;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.Nullable;
+
 /**
  * @anthor Liszt
  * @data 2019/11/30
  * Description  绑定银行卡基本数据
  */
-public class BankBean  implements Parcelable {
+public class BankBean implements Parcelable {
     String bankName;//银行名
     String cardNo;//银行卡号
     long id;//id,传到后台需要此字段
@@ -87,5 +89,18 @@ public class BankBean  implements Parcelable {
         dest.writeLong(id);
         dest.writeString(logo);
         dest.writeInt(seqNo);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof BankBean) {
+            if (((BankBean) obj).id == (this.id)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

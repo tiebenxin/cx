@@ -3,7 +3,6 @@ package com.hm.cxpay.dailog;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -64,21 +63,6 @@ public class DialogInputPayPassword extends BaseDialog {
 
         ivClose.setOnClickListener(this);
         llPayStyle.setOnClickListener(this);
-
-//        pswView.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                pswView.measure(View.MeasureSpec.EXACTLY, View.MeasureSpec.EXACTLY);
-//                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//                int width = pswView.getMeasuredWidth();
-//                int height = width / 6;
-//                params.weight = width;
-//                params.height = height;
-//                pswView.setLayoutParams(params);
-//            }
-//        }, 100);
-
-
     }
 
     @Override
@@ -96,9 +80,7 @@ public class DialogInputPayPassword extends BaseDialog {
 
     public void init(long money, @PayEnum.EPayStyle int payStyle, BankBean info) {
         this.payStyle = payStyle;
-        if (info != null) {
-            bankBean = info;
-        }
+        bankBean = info;
         tvMoney.setText("￥" + UIUtils.getYuan(money));
         if (payStyle == PayEnum.EPayStyle.LOOSE) {
             tvPayer.setText("零钱");
@@ -135,5 +117,10 @@ public class DialogInputPayPassword extends BaseDialog {
 
         //选择支付方式
         void selectPayStyle();
+    }
+
+    //获取选中银行卡
+    public BankBean getSelectedBank() {
+        return bankBean;
     }
 }

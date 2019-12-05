@@ -26,6 +26,7 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
+import com.hm.cxpay.ui.bank.BindBankActivity;
 import com.hm.cxpay.ui.redenvelope.AdapterSelectPayStyle;
 import com.hm.cxpay.ui.redenvelope.BaseSendRedEnvelopeActivity;
 import com.hm.cxpay.ui.redenvelope.RedSendBean;
@@ -241,18 +242,26 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
 
     private void showSelectPayStyleDialog() {
         dialogSelectPayStyle = new DialogSelectPayStyle(this, R.style.MyDialogTheme);
-        dialogSelectPayStyle.bindData(PayEnvironment.getInstance().getBanks());
+        BankBean selectBank = null;
+        if (dialogPayPassword != null) {
+            selectBank = dialogPayPassword.getSelectedBank();
+        }
+        dialogSelectPayStyle.bindData(PayEnvironment.getInstance().getBanks(), selectBank);
         dialogSelectPayStyle.setListener(new AdapterSelectPayStyle.ISelectPayStyleListener() {
             @Override
             public void onSelectPay(int style, BankBean bank) {
+                dialogSelectPayStyle.dismiss();
                 if (dialogPayPassword != null) {
                     dialogPayPassword.init(UIUtils.getFen(money), style, bank);
+                    dialogPayPassword.show();
                 }
             }
 
             @Override
             public void onAddBank() {
-
+                dialogSelectPayStyle.dismiss();
+                Intent intent = new Intent(SingleRedPacketActivity.this, BindBankActivity.class);
+                startActivity(intent);
             }
 
             @Override

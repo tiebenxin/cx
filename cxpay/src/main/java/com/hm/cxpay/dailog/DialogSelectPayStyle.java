@@ -1,13 +1,13 @@
 package com.hm.cxpay.dailog;
 
 import android.content.Context;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.hm.cxpay.R;
-import com.hm.cxpay.ui.bank.AdapterBankList;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.redenvelope.AdapterSelectPayStyle;
 
@@ -31,8 +31,14 @@ public class DialogSelectPayStyle extends BaseDialog {
         super(context, theme);
     }
 
-    public void bindData(List<BankBean> list) {
+    public void bindData(List<BankBean> list, BankBean selectBank) {
         if (adapterBankList != null && list != null) {
+            if (selectBank != null) {
+                int position = list.indexOf(selectBank);
+                if (position >= 0) {
+                    adapterBankList.setSelectPosition(position + 1);
+                }
+            }
             adapterBankList.bindData(list);
         }
     }
@@ -42,9 +48,11 @@ public class DialogSelectPayStyle extends BaseDialog {
         setContentView(R.layout.dialog_select_pay_style);
         ivBack = findViewById(R.id.iv_close);
         recyclerView = findViewById(R.id.recyclerView);
+        //添加分割线
         LinearLayoutManager manager = new LinearLayoutManager(getContext());
         manager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(manager);
+        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         adapterBankList = new AdapterSelectPayStyle(getContext());
         recyclerView.setAdapter(adapterBankList);
         if (listener != null) {
@@ -65,5 +73,6 @@ public class DialogSelectPayStyle extends BaseDialog {
         listener = l;
         adapterBankList.setListener(listener);
     }
+
 
 }

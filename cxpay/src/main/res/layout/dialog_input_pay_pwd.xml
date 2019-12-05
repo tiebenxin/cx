@@ -76,9 +76,10 @@
 
         <ImageView
             android:id="@+id/iv_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="13dp"
+            android:layout_height="13dp"
             android:layout_marginLeft="23dp"
+            android:scaleType="centerCrop"
             android:src="@mipmap/ic_loose" />
 
         <TextView
@@ -105,7 +106,7 @@
     <com.hm.cxpay.widget.PswView
         android:id="@+id/psw_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:layout_below="@+id/line_two"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"

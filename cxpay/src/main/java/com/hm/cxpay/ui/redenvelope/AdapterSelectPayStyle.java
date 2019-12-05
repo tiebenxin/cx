@@ -26,14 +26,18 @@ import net.cb.cb.library.base.AbstractRecyclerAdapter;
 public class AdapterSelectPayStyle extends AbstractRecyclerAdapter<BankBean> {
 
     private ISelectPayStyleListener listener;
+    public int currentSelectPosition = 0;
 
     public AdapterSelectPayStyle(Context ctx) {
         super(ctx);
     }
 
+    public void setSelectPosition(int p) {
+        currentSelectPosition = p;
+    }
+
     @Override
     public int getItemCount() {
-
         //零钱 和 使用新卡支付 各占一个item
         return mBeanList != null ? mBeanList.size() + 2 : 2;
     }
@@ -68,12 +72,12 @@ public class AdapterSelectPayStyle extends AbstractRecyclerAdapter<BankBean> {
         super.onBindViewHolder(holder, position);
         if (position == 0) {
             BankViewHolder firstBank = (BankViewHolder) holder;
-            firstBank.bindUserBean(PayEnvironment.getInstance().getUser());
+            firstBank.bindUserBean(PayEnvironment.getInstance().getUser(), position);
         } else if (position == getItemCount() - 1) {
             AddBankViewHolder add = (AddBankViewHolder) holder;
         } else {
             BankViewHolder bank = (BankViewHolder) holder;
-            bank.bindData(mBeanList.get(position - 1));
+            bank.bindData(mBeanList.get(position - 1), position);
         }
     }
 
@@ -90,7 +94,7 @@ public class AdapterSelectPayStyle extends AbstractRecyclerAdapter<BankBean> {
             ivSelected = itemView.findViewById(R.id.iv_selected);
         }
 
-        public void bindData(final BankBean bean) {
+        public void bindData(final BankBean bean, int position) {
             Glide.with(getContext()).load(bean.getLogo()).into(ivIcon);
             String num = bean.getCardNo();
             String cardNum = num.substring(num.length() - 4);
@@ -99,13 +103,18 @@ public class AdapterSelectPayStyle extends AbstractRecyclerAdapter<BankBean> {
                 @Override
                 public void onClick(View v) {
                     if (listener != null) {
-                        listener.onSelectPay(PayEnum.EPayStyle.LOOSE, bean);
+                        listener.onSelectPay(PayEnum.EPayStyle.BANK, bean);
                     }
                 }
             });
+            if (position == currentSelectPosition) {
+                ivSelected.setVisibility(View.VISIBLE);
+            } else {
+                ivSelected.setVisibility(View.GONE);
+            }
         }
 
-        public void bindUserBean(UserBean bean) {
+        public void bindUserBean(UserBean bean, int position) {
             ivIcon.setImageResource(R.mipmap.ic_loose);
             tvContent.setText("零钱(剩余￥" + UIUtils.getYuan(bean.getBalance()) + ")");
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -116,6 +125,12 @@ public class AdapterSelectPayStyle extends AbstractRecyclerAdapter<BankBean> {
                     }
                 }
             });
+            if (position == currentSelectPosition) {
+                ivSelected.setVisibility(View.VISIBLE);
+            } else {
+                ivSelected.setVisibility(View.GONE);
+            }
+
         }
 
 

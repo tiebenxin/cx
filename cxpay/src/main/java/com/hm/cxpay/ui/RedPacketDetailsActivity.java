@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RedPacketDetailsActivity extends BasePayActivity {
-
-
     private ActionbarView mActionBar;
     private ImageView mSdImageHead;
     private TextView mTvUserName;

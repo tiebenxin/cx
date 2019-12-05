@@ -49,5 +49,16 @@ public class BankDetailActivity extends BasePayActivity {
         });
 
 
+        ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+            @Override
+            public void onBack() {
+                onBackPressed();
+            }
+
+            @Override
+            public void onRight() {
+            }
+        });
+
     }
 }
