@@ -73,6 +73,7 @@ public class CheckPaywordActivity extends AppActivity {
                 httpCheckPayword(password);
             }
         });
+        showSoftKeyword(pswView);
     }
 
     /**
@@ -139,5 +140,4 @@ public class CheckPaywordActivity extends AppActivity {
                     }
                 });
     }
-
 }
