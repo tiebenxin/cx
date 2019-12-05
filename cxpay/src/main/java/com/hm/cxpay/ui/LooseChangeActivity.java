@@ -29,14 +29,16 @@ import net.cb.cb.library.view.HeadView;
 
 import java.util.List;
 
-/*
+/**
  * 零钱首页
- * */
+ */
 public class LooseChangeActivity extends BasePayActivity {
 
     private ControllerPaySetting viewSettingOfPsw;
     private ControllerPaySetting viewMyCard;
     private ControllerPaySetting viewMyRedEnvelope;
+    private ControllerPaySetting layoutChangeDetails;//零钱明细
+    private ControllerPaySetting layoutAuthRealName;//实名认证
 
     private HeadView mHeadView;
     private TextView tvBalance;//余额
@@ -100,6 +102,16 @@ public class LooseChangeActivity extends BasePayActivity {
                 startActivityForResult(new Intent(LooseChangeActivity.this, WithdrawActivity.class), REFRESH_BALANCE);
             }
         });
+        //零钱明细
+        layoutChangeDetails = new ControllerPaySetting(findViewById(R.id.layout_change_details));
+        layoutChangeDetails.init(R.mipmap.ic_change_details, R.string.change_details, "");
+        layoutChangeDetails.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
+            @Override
+            public void onClick() {
+                ToastUtil.show(context, "零钱明细");
+//                IntentUtil.gotoActivity(LooseChangeActivity.this, ManagePaywordActivity.class);
+            }
+        });
         //红包明细
         viewMyRedEnvelope = new ControllerPaySetting(findViewById(R.id.viewMyRedEnvelope));
         viewMyRedEnvelope.init(R.mipmap.ic_red_packet_info, R.string.my_red_envelope, "");
@@ -117,6 +129,15 @@ public class LooseChangeActivity extends BasePayActivity {
             @Override
             public void onClick() {
                 IntentUtil.gotoActivity(LooseChangeActivity.this, IdentificationInfoActivity.class);
+            }
+        });
+        //实名认证
+        layoutAuthRealName = new ControllerPaySetting(findViewById(R.id.layout_auth_realname));
+        layoutAuthRealName.init(R.mipmap.ic_auth_realname, R.string.auth_realname, "");
+        layoutAuthRealName.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
+            @Override
+            public void onClick() {
+                IntentUtil.gotoActivity(LooseChangeActivity.this, IdentificationUserActivity.class);
             }
         });
         //我的银行卡

@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import com.umeng.analytics.MobclickAgent;
@@ -18,8 +19,6 @@ import net.cb.cb.library.event.EventFactory;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import org.greenrobot.eventbus.EventBus;
 
 /***
  * 统一的activity
@@ -130,6 +129,29 @@ public class AppActivity extends AppCompatActivity {
             im.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
         }
     }
+
+    /**
+     * 新增->强制弹出软键盘
+     * @param view
+     * 备注：延迟任务解决之前无法弹出问题
+     */
+    public void showSoftKeyword(final View view) {
+        if (view == null) {
+            return;
+        }
+        view.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                view.requestFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.showSoftInput(view, 0);
+                }
+            }
+        }, 100);
+
+    }
+
 
 
 }

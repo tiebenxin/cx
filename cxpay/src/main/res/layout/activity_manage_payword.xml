@@ -3,7 +3,7 @@
     android:id="@+id/headView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:headview_title="设置支付密码">
+    app:headview_title="安全设置">
 
 
     <LinearLayout
@@ -11,44 +11,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@color/c_0f0f0f"
-            android:layout_marginTop="11dp"
-            android:layout_marginBottom="11dp"
-            android:layout_marginLeft="15dp"
-            android:text="支付密码设置/修改"/>
-
-
-        <View style="@style/money_change_line"
-            android:layout_below="@+id/layout_change_bankcard"/>
-
-        <LinearLayout
-            android:id="@+id/layout_set_payword"
-            android:layout_width="match_parent"
-            android:gravity="center_vertical"
-            android:background="@color/white"
-            android:layout_height="50dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:textColor="@color/c_000000"
-                android:textSize="14sp"
-                android:layout_marginLeft="15dp"
-                android:text="设置支付密码"/>
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="18dp"
-                android:src="@mipmap/ic_right_arrow_one"/>
-        </LinearLayout>
-
-        <View style="@style/money_change_line"
-            android:layout_below="@+id/layout_change_bankcard"/>
 
         <LinearLayout
             android:id="@+id/layout_modify_payword"
@@ -65,6 +27,31 @@
                 android:textSize="14sp"
                 android:layout_marginLeft="15dp"
                 android:text="修改支付密码"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="18dp"
+                android:src="@mipmap/ic_right_arrow_one"/>
+        </LinearLayout>
+
+        <View style="@style/money_change_line"
+            android:layout_below="@+id/layout_change_bankcard"/>
+
+        <LinearLayout
+            android:id="@+id/layout_findback_payword"
+            android:layout_width="match_parent"
+            android:gravity="center_vertical"
+            android:background="@color/white"
+            android:layout_height="50dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:textColor="@color/c_000000"
+                android:textSize="14sp"
+                android:layout_marginLeft="15dp"
+                android:text="找回支付密码"/>
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

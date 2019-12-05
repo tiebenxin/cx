@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -328,14 +327,7 @@ public class RechargeActivity extends AppActivity {
             });
             dialogTwo.show();
             //强制唤起软键盘
-            if (pswView != null) {
-                pswView.setFocusable(true);
-                pswView.setFocusableInTouchMode(true);
-                pswView.requestFocus();
-                InputMethodManager inputManager = (InputMethodManager) pswView
-                        .getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputManager.showSoftInput(pswView, 0);
-            }
+            showSoftKeyword(pswView);
             //解决dialog里edittext不响应键盘的问题
             dialogTwo.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
             Window window = dialogTwo.getWindow();
