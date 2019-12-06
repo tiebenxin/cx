@@ -310,7 +310,6 @@ public class WithdrawActivity extends AppActivity {
                     @Override
                     public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
                         rateBean = null;
-                        showFailDialog();
                         if (baseResponse.getData() != null) {
                             rateBean = baseResponse.getData();
                             minMoney = Double.valueOf(rateBean.getMinAmt());
@@ -420,8 +419,8 @@ public class WithdrawActivity extends AppActivity {
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         //设置宽高
         WindowManager.LayoutParams lp = window.getAttributes();
-        lp.height = DensityUtil.dip2px(activity, 195);
-        lp.width = DensityUtil.dip2px(activity, 277);
+        lp.height = DensityUtil.dip2px(activity, 180);
+        lp.width = DensityUtil.dip2px(activity, 260);
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
     }
