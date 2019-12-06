@@ -1,22 +1,32 @@
 package com.yanlong.im.chat.task;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.socket.MsgBean;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.utils.LogUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @anthor Liszt
@@ -76,8 +86,7 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
     protected void onPostExecute(Boolean aBoolean) {
         super.onPostExecute(aBoolean);
         if (aBoolean) {
-            doPendingData();
-            notifyUIRefresh();
+            saveAndRefresh();
         }
     }
 
@@ -106,8 +115,7 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
         cutTaskCount();
         System.out.println(TaskDealWithMsgList.class.getSimpleName() + "更新异步任务数-taskCount=" + taskCount + "--requestId=" + requestId);
         if (taskCount == 0) {
-            doPendingData();
-            notifyUIRefresh();
+            saveAndRefresh();
         }
     }
 
@@ -140,7 +148,7 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
         gids.clear();
     }
 
-    private void doPendingData() {
+    private boolean doPendingData() {
         System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--requestId=" + requestId + "--doPendingData--" + Log.getStackTraceString(new Throwable()));
         try {
             Map<Long, Integer> mapUSession = /*MessageManager.getInstance().*/getPendingUserUnreadMap();
@@ -206,10 +214,11 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
             }
             clearPendingList();
             MessageManager.getInstance().removeMsgTask(requestId);
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        return false;
     }
 
     //获取私聊未读map
@@ -286,6 +295,27 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
 
     public Map<Long, UserInfo> getUserMap() {
         return pendingUsers;
+    }
+
+    @SuppressLint("CheckResult")
+    public void saveAndRefresh() {
+        Observable.just(0)
+                .map(new Function<Integer, Boolean>() {
+                    @Override
+                    public Boolean apply(Integer integer) throws Exception {
+                        return doPendingData();
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<Boolean>empty())
+                .subscribe(new Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean b) throws Exception {
+                        if (b) {
+                            notifyUIRefresh();
+                        }
+                    }
+                });
     }
 
 }
