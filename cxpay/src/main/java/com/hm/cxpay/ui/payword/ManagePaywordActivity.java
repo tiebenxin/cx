@@ -1,6 +1,5 @@
-package com.hm.cxpay.ui;
+package com.hm.cxpay.ui.payword;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -24,14 +23,10 @@ public class ManagePaywordActivity extends AppActivity {
     private LinearLayout layoutModifyPayword;//修改支付密码
     private LinearLayout layoutFindbackPayword;//找回支付密码
 
-    private Context activity;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_payword);
-        activity = this;
         initView();
         initData();
     }

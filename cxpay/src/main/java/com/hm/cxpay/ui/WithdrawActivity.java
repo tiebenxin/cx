@@ -33,6 +33,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BindBankActivity;
 import com.hm.cxpay.ui.bank.SelectBankCardActivity;
+import com.hm.cxpay.ui.payword.CheckPaywordActivity;
 import com.hm.cxpay.utils.UIUtils;
 
 import net.cb.cb.library.utils.DensityUtil;

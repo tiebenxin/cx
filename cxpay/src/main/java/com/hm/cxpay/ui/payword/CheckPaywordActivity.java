@@ -1,4 +1,4 @@
-package com.hm.cxpay.ui;
+package com.hm.cxpay.ui.payword;
 
 import android.content.Context;
 import android.content.Intent;

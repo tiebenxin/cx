@@ -31,7 +31,7 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.LooseChangeActivity;
-import com.hm.cxpay.ui.SetPaywordActivity;
+import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.jrmf360.walletlib.JrmfWalletClient;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;

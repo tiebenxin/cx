@@ -16,7 +16,7 @@
             android:name=".ui.RechargeActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.CheckPaywordActivity"
+            android:name=".ui.payword.CheckPaywordActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.bank.InputPhoneActivity"
@@ -40,13 +40,13 @@
             android:name=".ui.WithdrawActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.SetPaywordActivity"
+            android:name=".ui.payword.SetPaywordActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.ManagePaywordActivity"
+            android:name=".ui.payword.ManagePaywordActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.ModifyPaywordActivity"
+            android:name=".ui.payword.ModifyPaywordActivity"
             android:screenOrientation="portrait" />
 
         <!-- 发送单个红包-->
