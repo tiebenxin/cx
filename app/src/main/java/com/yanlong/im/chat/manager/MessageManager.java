@@ -152,7 +152,7 @@ public class MessageManager {
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify, String requestId) {
 //        LogUtil.getLog().d("a=", TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
-        System.out.println("a=" + TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
+        System.out.println("a=" + TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType() + "--requestId=" + requestId);
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
             return true;
         }
@@ -723,7 +723,7 @@ public class MessageManager {
     /*
      * 网络加载群信息
      * */
-    private synchronized void loadGroupInfo(final String gid, final long uid, boolean isList, MsgAllBean bean) {
+    private void loadGroupInfo(final String gid, final long uid, boolean isList, MsgAllBean bean) {
         new MsgAction().groupInfo(gid, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
