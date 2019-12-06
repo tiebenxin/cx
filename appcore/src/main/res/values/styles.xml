@@ -64,7 +64,7 @@
 
     <!--app中常规字体-->
     <style name="app_txt_title_1" parent="app_txt_base">
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:textColor">@color/black</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
