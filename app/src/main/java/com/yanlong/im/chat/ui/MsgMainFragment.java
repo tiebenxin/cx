@@ -17,7 +17,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -728,7 +727,7 @@ public class MsgMainFragment extends Fragment {
                         headList.add(icon);
                         holder.imgHead.setList(headList);
                     } else {
-                        loadGroupHeads(bean, holder.imgHead, title, holder.txtName);
+                        loadGroupHeads(bean, holder.imgHead);
                     }
                 }
 
@@ -823,10 +822,8 @@ public class MsgMainFragment extends Fragment {
          *
          * @param bean
          * @param imgHead
-         * @param groupName
-         * @param txtGroupName
          */
-        private synchronized void loadGroupHeads(Session bean, MultiImageView imgHead, String groupName, TextView txtGroupName) {
+        public synchronized void loadGroupHeads(Session bean, MultiImageView imgHead) {
             Group gginfo = msgDao.getGroup4Id(bean.getGid());
             if (gginfo != null) {
                 int i = gginfo.getUsers().size();
@@ -923,6 +920,7 @@ public class MsgMainFragment extends Fragment {
                     @Override
                     public void accept(List<Session> list) throws Exception {
                         mtListView.notifyDataSetChange();
+                        checkSessionData(list);
 //                        LogUtil.getLog().d("a=", "MsgMainFragment --获取session数据后刷新" + System.currentTimeMillis());
                     }
                 });
@@ -941,11 +939,15 @@ public class MsgMainFragment extends Fragment {
             public Object doInBackground() throws Throwable {
                 if (list != null && list.size() > 0) {
                     for (Session session : list) {
-                        // 群聊的时候 检查头像跟群名是否存在
-                        if (session.getType() == 1 && (TextUtils.isEmpty(session.getAvatar()) || TextUtils.isEmpty(session.getName()))) {
-                            if(!TextUtils.isEmpty(session.getGid())){
-                                Log.i("1212","异常数据Gid:"+session.getGid());
-                                MessageManager.getInstance().refreshGroupInfo(session.getGid());
+                        if (session.getType() == 1 && !TextUtils.isEmpty(session.getGid())) {
+                            Group gginfo = msgDao.getGroup4Id(session.getGid());
+                            if (gginfo != null) {
+                                // 群聊的时候 检查头像跟群名是否存在
+                                if (gginfo.getUsers() == null || gginfo.getUsers().size() == 0 ||
+                                        (TextUtils.isEmpty(gginfo.getName()) && TextUtils.isEmpty(session.getName()))) {
+//                                    Log.i("1212", "checkSessionData:" + session.getGid());
+                                    MessageManager.getInstance().refreshGroupInfo(session.getGid());
+                                }
                             }
                         }
                     }

@@ -1,5 +1,8 @@
 package com.yanlong.im.user.bean;
 
+import android.text.TextUtils;
+
+import net.cb.cb.library.utils.PinyinUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
 
 public class FriendInfoBean implements Comparable<FriendInfoBean> {
@@ -87,7 +90,18 @@ public class FriendInfoBean implements Comparable<FriendInfoBean> {
         if (n == null) {
             setTag("" + (nickname.toUpperCase()).charAt(0));
         } else {
-            setTag("" + n[0].toUpperCase().charAt(0));
+            String value = "";
+            // 判断是否为多音字
+            if (n.length > 1) {
+                value = PinyinUtil.getUserName(nickname.charAt(0) + "");
+                if (TextUtils.isEmpty(value)) {
+                    setTag("" + n[0].toUpperCase().charAt(0));
+                } else {
+                    setTag(value);
+                }
+            } else {
+                setTag("" + n[0].toUpperCase().charAt(0));
+            }
         }
     }
 
