@@ -128,7 +128,7 @@
                     <TextView
                         style="@style/app_txt_title_2"
                         android:layout_marginRight="@dimen/app_margin_item"
-                        android:text="我在本群的昵称" />
+                        android:text="我在本群的信息" />
 
                     <TextView
                         android:id="@+id/txt_group_nick"

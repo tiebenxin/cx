@@ -30,6 +30,7 @@ import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.CloseActivityEvent;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.EventRefreshChat;
@@ -95,14 +96,6 @@ public class ChatInfoActivity extends AppActivity {
         EventBus.getDefault().unregister(this);
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void setingReadDestroy(ReadDestroyBean bean) {
-        if (bean.uid == fuid) {
-            destroyTime = bean.survivaltime;
-            String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
-            tvDestroyTime.setText(content);
-        }
-    }
 
 
     //自动寻找控件
@@ -423,6 +416,23 @@ public class ChatInfoActivity extends AppActivity {
                 EventBus.getDefault().post(new EventIsShowRead());
             }
         });
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void setingReadDestroy(ReadDestroyBean bean) {
+        if (bean.uid == fuid) {
+            destroyTime = bean.survivaltime;
+            String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
+            tvDestroyTime.setText(content);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void closeActivityEvent(CloseActivityEvent event) {
+        if(event.type.contains("ChatInfoActivity")){
+            finish();
+        }
     }
 
 }

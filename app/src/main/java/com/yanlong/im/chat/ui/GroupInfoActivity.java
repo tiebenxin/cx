@@ -43,6 +43,7 @@ import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.CloseActivityEvent;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.EventRefreshChat;
@@ -1011,6 +1012,13 @@ public class GroupInfoActivity extends AppActivity {
         super.onStop();
         if (isSessionChange) {//免打扰，群名变化
             MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void closeActivityEvent(CloseActivityEvent event) {
+        if(event.type.contains("GroupInfoActivity")){
+            finish();
         }
     }
 }

@@ -682,10 +682,10 @@ public class PictureFileUtils {
         if (!TextUtils.isEmpty(filePath)) {
             File file = new File(filePath);
             if (file.exists()) {
-                long fileSize = file.length();
-                if (size == fileSize) {
+//                long fileSize = file.length();
+//                if (size == fileSize) {
                     return true;
-                }
+//                }
             }
         }
         return false;
