@@ -148,7 +148,7 @@ public class LooseChangeActivity extends BasePayActivity {
         viewMyCard.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
-                startActivityForResult(new Intent(LooseChangeActivity.this, BankSettingActivity.class), REFRESH_BALANCE);
+                startActivityForResult(new Intent(LooseChangeActivity.this, BankSettingActivity.class), REFRESH_BANKCARD_NUM);
             }
         });
         //支付密码管理
@@ -168,8 +168,10 @@ public class LooseChangeActivity extends BasePayActivity {
         if (requestCode == REFRESH_BALANCE) {
             if (resultCode == RESULT_OK) {
                 httpGetUserInfo();
+                getBankList();
             }
-            if (resultCode == REFRESH_BANKCARD_NUM) {
+        }else if(requestCode == REFRESH_BANKCARD_NUM){
+            if (resultCode == RESULT_OK) {
                 getBankList();
             }
         }

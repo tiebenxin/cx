@@ -21,8 +21,6 @@ import net.cb.cb.library.view.ActionbarView;
 
 import java.util.List;
 
-import static com.hm.cxpay.ui.LooseChangeActivity.REFRESH_BANKCARD_NUM;
-
 /**
  * @anthor Liszt
  * @data 2019/11/30
@@ -31,9 +29,11 @@ import static com.hm.cxpay.ui.LooseChangeActivity.REFRESH_BANKCARD_NUM;
 public class BankSettingActivity extends BasePayActivity {
 
     public static final int REQUEST_BIND = 1;
+    public static final int DELETE_BANK_CARD = 2;
 
     private ActivityBankSettingBinding ui;
     private AdapterBankList adapter;
+    private int cardNum = 0;//最新的银行卡数
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +75,7 @@ public class BankSettingActivity extends BasePayActivity {
                     Bundle bundle = new Bundle();
                     bundle.putParcelable("bank", bankBean);
                     intent.putExtras(bundle);
-                    startActivity(intent);
+                    startActivityForResult(intent,DELETE_BANK_CARD);
 
                 }
 
@@ -95,6 +95,7 @@ public class BankSettingActivity extends BasePayActivity {
                             List<BankBean> info = baseResponse.getData();
                             if (info != null) {
                                 adapter.bindData(info);
+                                cardNum = info.size();
                             }
 
                         } else {
@@ -113,7 +114,7 @@ public class BankSettingActivity extends BasePayActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_BIND) {
+        if (requestCode == REQUEST_BIND || requestCode == DELETE_BANK_CARD) {
             if (resultCode == RESULT_OK) {
                 getBankList();//重新获取银行列表
             }
@@ -121,10 +122,8 @@ public class BankSettingActivity extends BasePayActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        if(isFinishing()){
-            setResult(REFRESH_BANKCARD_NUM);
-        }
+    public void onBackPressed() {
+        setResult(RESULT_OK);
+        finish();
     }
 }

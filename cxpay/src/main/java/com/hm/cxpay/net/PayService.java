@@ -59,6 +59,10 @@ public interface PayService {
     @POST(Route.CHECK_PAYWORD)
     Observable<BaseResponse> checkPayword(@Body RequestBody body);
 
+    //解绑银行卡
+    @POST(Route.UNBIND_BANK_CARD)
+    Observable<BaseResponse> deleteBankcard(@Body RequestBody body);
+
     //充值
     @POST(Route.TO_RECHARGE)
     Observable<BaseResponse<CommonBean>> toRecharge(@Body RequestBody body);

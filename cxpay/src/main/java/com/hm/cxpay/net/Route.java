@@ -39,6 +39,9 @@ public class Route {
     //检查支付密码
     public static final String CHECK_PAYWORD = "/user/check_pay_pwd";
 
+    //解绑银行卡
+    public static final String UNBIND_BANK_CARD = "/user/unbind_bank_card";
+
     //充值
     public static final String TO_RECHARGE = "/order/deposit";
 

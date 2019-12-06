@@ -375,14 +375,6 @@ public class WithdrawActivity extends AppActivity {
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if(isFinishing()){
-            setResult(REFRESH_BANKCARD_NUM);
-        }
-    }
-
     /**
      * 计算服务费(单位分)
      * @param money 提现金额
@@ -424,5 +416,11 @@ public class WithdrawActivity extends AppActivity {
         lp.width = DensityUtil.dip2px(activity, 260);
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult(REFRESH_BANKCARD_NUM);
+        finish();
     }
 }

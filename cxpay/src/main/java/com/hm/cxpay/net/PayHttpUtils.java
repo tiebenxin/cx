@@ -123,6 +123,13 @@ public class PayHttpUtils {
         return HttpChannel.getInstance().getPayService().checkPayword(getRequestBody(map));
     }
 
+    //解绑银行卡
+    public Observable<BaseResponse> deleteBankcard(String bankCardId) {
+        Map<String, String> map = new HashMap<>();
+        map.put("bankCardId", bankCardId);
+        return HttpChannel.getInstance().getPayService().deleteBankcard(getRequestBody(map));
+    }
+
     //充值
     public Observable<BaseResponse<CommonBean>> toRecharge(int amt, long bankCardId, String payPwd) {
         Map<String, String> map = new HashMap<>();

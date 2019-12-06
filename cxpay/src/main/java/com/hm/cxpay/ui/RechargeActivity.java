@@ -436,11 +436,10 @@ public class RechargeActivity extends AppActivity {
         }
     }
 
+
     @Override
-    protected void onStop() {
-        super.onStop();
-        if(isFinishing()){
-            setResult(REFRESH_BANKCARD_NUM);
-        }
+    public void onBackPressed() {
+        setResult(REFRESH_BANKCARD_NUM);
+        finish();
     }
 }

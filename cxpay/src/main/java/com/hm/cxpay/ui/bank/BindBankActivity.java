@@ -102,7 +102,7 @@ public class BindBankActivity extends BasePayActivity {
                             BankInfo info = baseResponse.getData();
                             if (user != null) {
                                 info.setOwnerName(user.getRealName());
-                                info.setOwnerId(user.getCardId());
+                                info.setOwnerId(user.getIdentityNo());
                                 info.setBankNumber(bankCardNo);
                             }
                             Bundle bundle = new Bundle();

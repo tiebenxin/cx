@@ -97,47 +97,53 @@ public class CheckPaywordActivity extends AppActivity {
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
                         super.onHandleError(baseResponse);
-
                         if (baseResponse.getCode() == (-21000)) {
-                            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
-                            dialogBuilder.setCancelable(false);
-                            final AlertDialog dialog = dialogBuilder.create();
-                            //获取界面
-                            View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_payword_error, null);
-                            //初始化控件
-                            TextView tvTryAgain = dialogView.findViewById(R.id.tv_try_again);
-                            TextView tvForgetPsw = dialogView.findViewById(R.id.tv_forget_psw);
-                            //重试
-                            tvTryAgain.setOnClickListener(new android.view.View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    dialog.dismiss();
-                                    pswView.setText("");
-                                }
-                            });
-                            //忘记密码
-                            tvForgetPsw.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    //TODO 跳 忘记密码
-                                    ToastUtil.show(activity, "忘记密码");
-                                }
-                            });
-                            //展示界面
-                            dialog.show();
-                            //解决圆角shape背景无效问题
-                            Window window = dialog.getWindow();
-                            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                            //设置宽高
-                            WindowManager.LayoutParams lp = window.getAttributes();
-                            lp.height = DensityUtil.dip2px(activity, 139);
-                            lp.width = DensityUtil.dip2px(activity, 277);
-                            dialog.getWindow().setAttributes(lp);
-                            dialog.setContentView(dialogView);
+                            showErrorDialog();
                         }else {
                             ToastUtil.show(context, baseResponse.getMessage());
                         }
                     }
                 });
+    }
+
+    /**
+     * 支付密码错误弹框
+     */
+    private void showErrorDialog(){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+        dialogBuilder.setCancelable(false);
+        final AlertDialog dialog = dialogBuilder.create();
+        //获取界面
+        View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_payword_error, null);
+        //初始化控件
+        TextView tvTryAgain = dialogView.findViewById(R.id.tv_try_again);
+        TextView tvForgetPsw = dialogView.findViewById(R.id.tv_forget_psw);
+        //重试
+        tvTryAgain.setOnClickListener(new android.view.View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                pswView.setText("");
+            }
+        });
+        //忘记密码
+        tvForgetPsw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO 跳 忘记密码
+                ToastUtil.show(activity, "忘记密码");
+            }
+        });
+        //展示界面
+        dialog.show();
+        //解决圆角shape背景无效问题
+        Window window = dialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        //设置宽高
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.height = DensityUtil.dip2px(activity, 139);
+        lp.width = DensityUtil.dip2px(activity, 277);
+        dialog.getWindow().setAttributes(lp);
+        dialog.setContentView(dialogView);
     }
 }

@@ -139,6 +139,7 @@ public class BindBankFinishActivity extends BasePayActivity {
                     public void onHandleSuccess(BaseResponse baseResponse) {
                         if (baseResponse.isSuccess()) {
 //                            IntentUtil.gotoActivity(BindBankFinishActivity.this, BankSettingActivity.class);
+                            ToastUtil.show(BindBankFinishActivity.this, "银行卡绑定成功! ");
                             setResult(RESULT_OK);
                             finish();
                         } else {
