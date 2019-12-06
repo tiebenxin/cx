@@ -44,8 +44,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
-            android:paddingLeft="110dp"
-            android:paddingRight="110dp"
+            android:paddingLeft="100dp"
+            android:paddingRight="100dp"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -58,7 +58,6 @@
 
                 <TextView
                     android:id="@+id/txt_title"
-                    style="@style/app_txt_title_1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
@@ -66,6 +65,7 @@
                     android:maxWidth="150dp"
                     android:text="主标题"
                     android:visibility="visible"
+                    android:textSize="18sp"
                     android:gravity="center_vertical"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="@color/white" />
@@ -74,19 +74,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center">
+
                     <TextView
                         android:id="@+id/tv_chat_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
                         android:layout_toLeftOf="@+id/tv_number"
                         android:ellipsize="end"
                         android:maxLines="1"
                         android:text="聊天标题"
-                        android:textSize="16sp"
-                        android:visibility="gone"
-                        android:layout_marginTop="1dp"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:textColor="@color/white" />
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:visibility="gone" />
                     <TextView
                         android:id="@+id/tv_number"
                         android:layout_width="wrap_content"
@@ -94,7 +95,7 @@
                         android:layout_alignParentRight="true"
                         android:text="(0)"
                         android:maxLines="1"
-                        android:textSize="16sp"
+                        android:textSize="15sp"
                         android:visibility="gone"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textColor="@color/white" />
@@ -134,10 +135,12 @@
 
         <LinearLayout
             android:id="@+id/action_left"
-            android:layout_width="55dp"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
 
             <ImageView
                 android:id="@+id/btn_icon"
@@ -148,19 +151,18 @@
 
             <TextView
                 android:id="@+id/txt_back"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignLeft="@+id/btn_icon"
                 android:gravity="center"
                 android:textColor="@drawable/txt_actionbar"
                 android:textSize="18sp"
-                android:text=""
-                android:visibility="gone" />
+                android:visibility="visible" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/action_right"
-            android:layout_width="55dp"
+            android:layout_width="50dp"
             android:layout_height="match_parent"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
@@ -201,7 +203,6 @@
                 android:layout_height="12dp"
                 android:src="@mipmap/ic_disturb_new"
                 android:layout_marginRight="5dp"
-                android:layout_marginLeft="5dp"
                 android:visibility="gone" />
 
             <ImageView
