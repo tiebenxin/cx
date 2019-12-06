@@ -8,18 +8,22 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MemberUser;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.wight.avatar.MultiImageView;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @anthor Liszt
@@ -60,7 +64,8 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
     //自动生成ViewHold
     class RCViewHolder extends RecyclerView.ViewHolder {
         private LinearLayout viewIt;
-        private ImageView imgHead,ivSelect;
+        private ImageView ivSelect;
+        private MultiImageView imgHead;
         private TextView txtName;
 
         //自动寻找ViewHold
@@ -76,7 +81,8 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
             String icon = "";
             String title = "";
             boolean isGroup = false;
-
+            // 头像集合
+            List<String> headList = new ArrayList<>();
             if (bean.getType() == 0) {//单人
                 userDao = new UserDao();
                 UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
@@ -103,8 +109,15 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
                 }
             }
             //imgHead.setImageURI(Uri.parse(icon));
-            Glide.with(context).load(icon)
-                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+//            Glide.with(context).load(icon)
+//                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+
+            if (StringUtil.isNotNull(icon)) {
+                headList.add(icon);
+                imgHead.setList(headList);
+            } else {
+                loadGroupHeads(bean, imgHead);
+            }
 
             txtName.setText(title);
 
@@ -115,6 +128,9 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
             viewIt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if(ViewUtils.isFastDoubleClick()){
+                        return;
+                    }
                     if(MsgForwardActivity.isSingleSelected){
                         if (listener != null) {
                             listener.onForward(finalIsGroup ? -1L : bean.getFrom_uid(), bean.getGid(), finalIcon, finalTitle);
@@ -156,6 +172,27 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
                     bean.setSelect(false);
                     ivSelect.setSelected(false);
                 }
+            }
+        }
+
+        /**
+         * 加载群头像
+         *
+         * @param bean
+         * @param imgHead
+         */
+        public synchronized void loadGroupHeads(Session bean, MultiImageView imgHead) {
+            Group gginfo = msgDao.getGroup4Id(bean.getGid());
+            if (gginfo != null) {
+                int i = gginfo.getUsers().size();
+                i = i > 9 ? 9 : i;
+                //头像地址
+                List<String> headList = new ArrayList<>();
+                for (int j = 0; j < i; j++) {
+                    MemberUser userInfo = gginfo.getUsers().get(j);
+                    headList.add(userInfo.getHead());
+                }
+                imgHead.setList(headList);
             }
         }
 

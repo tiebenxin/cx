@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 
+import net.cb.cb.library.utils.PinyinUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
 
@@ -173,7 +174,18 @@ public class MemberUser extends RealmObject implements Comparable<MemberUser> {
             if (n == null) {
                 tag = name.toUpperCase().charAt(0) + "";
             } else {
-                tag = n[0].toUpperCase().charAt(0) + "";
+                String value = "";
+                // 判断是否为多音字
+                if (n.length > 1) {
+                    value = PinyinUtil.getUserName(name.charAt(0) + "");
+                    if (TextUtils.isEmpty(value)) {
+                        setTag("" + n[0].toUpperCase().charAt(0));
+                    } else {
+                        setTag(value);
+                    }
+                } else {
+                    setTag("" + n[0].toUpperCase().charAt(0));
+                }
             }
         }
         return tag;

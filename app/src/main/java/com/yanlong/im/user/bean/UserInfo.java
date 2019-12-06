@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import com.google.gson.annotations.SerializedName;
 
 import net.cb.cb.library.manager.Constants;
+import net.cb.cb.library.utils.PinyinUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
 
@@ -428,11 +429,23 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
             setTag("#");
             return;
         }
+
         String[] n = PinyinHelper.toHanyuPinyinStringArray(name.charAt(0));
         if (n == null) {
             setTag("" + (name.toUpperCase()).charAt(0));
         } else {
-            setTag("" + n[0].toUpperCase().charAt(0));
+            String value = "";
+            // 判断是否为多音字
+            if (n.length > 1) {
+                value = PinyinUtil.getUserName(name.charAt(0) + "");
+                if (TextUtils.isEmpty(value)) {
+                    setTag("" + n[0].toUpperCase().charAt(0));
+                } else {
+                    setTag(value);
+                }
+            } else {
+                setTag("" + n[0].toUpperCase().charAt(0));
+            }
         }
     }
 
@@ -509,11 +522,11 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     //判断该用户是否官方系统用户
-    public boolean isSystemUser(){
-        if(uid == null){
+    public boolean isSystemUser() {
+        if (uid == null) {
             return false;
         }
-        if(uid.equals(Constants.CX888_UID)||uid.equals(Constants.CX999_UID)||uid.equals(Constants.CX_HELPER_UID)){
+        if (uid.equals(Constants.CX888_UID) || uid.equals(Constants.CX999_UID) || uid.equals(Constants.CX_HELPER_UID)) {
             return true;
         }
         return false;
