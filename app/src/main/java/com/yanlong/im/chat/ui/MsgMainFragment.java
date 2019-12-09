@@ -653,10 +653,11 @@ public class MsgMainFragment extends Fragment {
                             info = name + info;
 
                         }
-                    } else {//草稿除外
-                        if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {
-                            info = name + info;
-                        }
+                    } else if(msginfo!=null&&(ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME+"").equals(msginfo.getMsg_type()+"")){
+                    //阅后即焚不通知 不显示谁发的 肯定是群主修改的
+                    // info=info;
+                    }else if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {//草稿除外
+                        info = name + info;
                     }
                     switch (type) {
                         case 0:

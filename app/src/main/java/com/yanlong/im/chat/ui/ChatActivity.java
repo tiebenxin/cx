@@ -2221,13 +2221,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     private void showBigPic(String msgid, String uri) {
         List<LocalMedia> selectList = new ArrayList<>();
+        List<LocalMedia> temp = new ArrayList<>();
         int pos = 0;
-
         List<MsgAllBean> listdata = msgAction.getMsg4UserImg(toGid, toUId);
-        for (MsgAllBean msgl : listdata) {
-
+        for (int i = 0; i < listdata.size(); i++) {
+            MsgAllBean msgl=listdata.get(i);
             if (msgid.equals(msgl.getMsg_id())) {
-                pos = selectList.size();
+                pos = i;
             }
 
             LocalMedia lc = new LocalMedia();
@@ -2238,11 +2238,30 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             lc.setSize(msgl.getImage().getSize());
             lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
             lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
-            lc.setMsg_id(msgid);
-            selectList.add(lc);
-
+            lc.setMsg_id(msgl.getMsg_id());
+            temp.add(lc);
+        }
+        int size=temp.size();
+        //取中间100张
+        if(size<=100) {
+            selectList.addAll(temp);
+        }else {
+            if(pos-50<=0){//取前面
+                selectList.addAll(temp.subList(0,100));
+            }else if(pos+50>=size){//取后面
+                selectList.addAll(temp.subList(size-100,size));
+            }else {//取中间
+                selectList.addAll(temp.subList(pos-50,pos+50));
+            }
         }
 
+        pos = 0;
+        for (int i = 0; i < selectList.size(); i++) {
+            if (msgid.equals(selectList.get(i).getMsg_id())) {
+                pos = i;
+                break;
+            }
+        }
         PictureSelector.create(ChatActivity.this)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
