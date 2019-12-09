@@ -43,10 +43,6 @@
         android:allowBackup="true"
         android:label="@string/app_name">
 
-        <!-- 语音通话 -->
-        <activity android:name=".ui.VoiceCallActivity"
-            android:launchMode="singleInstance"
-            android:screenOrientation="portrait"/>
         <!-- 视频通话 -->
         <activity android:name=".ui.VideoActivity"
             android:launchMode="singleInstance"

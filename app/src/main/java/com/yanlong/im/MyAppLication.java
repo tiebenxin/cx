@@ -7,7 +7,6 @@ import android.text.TextUtils;
 
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.controll.AVChatSoundPlayer;
-import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.jrmf360.tools.JrmfClient;
 import com.lansosdk.box.LSLog;
@@ -28,6 +27,7 @@ import com.yanlong.im.view.face.FaceView;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.MainApplication;
 import net.cb.cb.library.bean.EventRunState;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.AppFrontBackHelper;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SpUtil;

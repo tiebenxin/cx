@@ -26,11 +26,12 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-
-        <ImageView
+        <com.yanlong.im.wight.avatar.MultiImageView
             android:id="@+id/img_head"
             style="@style/app_img_head"
-            android:layout_marginRight="@dimen/app_margin_item" />
+            android:layout_marginRight="@dimen/app_margin_item"
+            android:background="@drawable/bg_head_gray_shape"
+            android:layout_gravity="center|left"/>
 
         <TextView
             android:id="@+id/txt_name"

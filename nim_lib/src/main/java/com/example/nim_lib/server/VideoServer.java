@@ -1,6 +1,6 @@
 package com.example.nim_lib.server;
 
-import com.example.nim_lib.bean.ReturnBean;
+import net.cb.cb.library.bean.ReturnBean;
 
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -20,7 +20,7 @@ public interface VideoServer {
 
     @POST("au-video/dial")
     @FormUrlEncoded
-    Call<ReturnBean> auVideoDial(@Field("friend") Long friend,@Field("type") int type,@Field("roomId") String roomId);
+    Call<ReturnBean> auVideoDial(@Field("friend") Long friend, @Field("type") int type, @Field("roomId") String roomId);
 
     @POST("au-video/hang-up")
     @FormUrlEncoded
