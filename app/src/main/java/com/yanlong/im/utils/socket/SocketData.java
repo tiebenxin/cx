@@ -1109,13 +1109,25 @@ public class SocketData {
                 break;
             case ChatEnum.EMessageType.RED_ENVELOPE://红包
                 RedEnvelopeMessage red = bean.getRed_envelope();
-                MsgBean.RedEnvelopeMessage.Builder redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
-                        .setId(red.getId())
-                        .setComment(red.getComment())
-                        .setReType(MsgBean.RedEnvelopeMessage.RedEnvelopeType.forNumber(red.getRe_type()))
-                        .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
-                value = redBuild.build();
-                type = MsgBean.MessageType.RED_ENVELOPER;
+                int reType = red.getRe_type().intValue();
+                MsgBean.RedEnvelopeMessage.Builder redBuild = null;
+                if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
+                    redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
+                            .setId(red.getId())
+                            .setComment(red.getComment())
+                            .setReType(MsgBean.RedEnvelopeMessage.RedEnvelopeType.forNumber(red.getRe_type()))
+                            .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
+                } else if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {
+                    redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
+                            .setId(red.getTraceId() + "")
+                            .setComment(red.getComment())
+                            .setReType(MsgBean.RedEnvelopeMessage.RedEnvelopeType.forNumber(red.getRe_type()))
+                            .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
+                }
+                if (redBuild != null) {
+                    value = redBuild.build();
+                    type = MsgBean.MessageType.RED_ENVELOPER;
+                }
                 break;
             case ChatEnum.EMessageType.READ://已读消息，不需要保存
 
