@@ -51,6 +51,15 @@ public class Route {
     //提现
     public static final String GET_RATE = "/user/get_rate";
 
+    //获取验证码
+    public static final String GET_PHONE_CODE = "/user/get_sms_code_for_bind_phone";
+
+    //获取当前用户IM手机号
+    public static final String GET_MY_PHONE = "/user/get_user_im_phone";
+
+    //绑定手机号
+    public static final String BIND_PHONE = "/user/bind_phone";
+
     //获取红包明细
     public static final String GET_RED_ENVELOPE_DETAILS = "/order/get_red_envelope_list";
 

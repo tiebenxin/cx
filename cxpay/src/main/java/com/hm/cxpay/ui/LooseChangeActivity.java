@@ -21,6 +21,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BankSettingActivity;
 import com.hm.cxpay.ui.payword.ManagePaywordActivity;
+import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.utils.UIUtils;
 
 import net.cb.cb.library.utils.IntentUtil;
@@ -93,14 +94,28 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutRecharge.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivityForResult(new Intent(LooseChangeActivity.this, RechargeActivity.class), REFRESH_BALANCE);
+                // 1 已设置支付密码 -> 允许跳转
+                if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
+                    startActivityForResult(new Intent(LooseChangeActivity.this, RechargeActivity.class), REFRESH_BALANCE);
+                } else {
+                    //2 未设置支付密码 -> 需要先设置
+                    ToastUtil.show(context, "检测到您还未设置支付密码，请先设置");
+                    context.startActivity(new Intent(context, SetPaywordActivity.class));
+                }
             }
         });
         //提现
         layoutWithdrawDeposit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivityForResult(new Intent(LooseChangeActivity.this, WithdrawActivity.class), REFRESH_BALANCE);
+                // 1 已设置支付密码 -> 允许跳转
+                if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
+                    startActivityForResult(new Intent(LooseChangeActivity.this, WithdrawActivity.class), REFRESH_BALANCE);
+                } else {
+                    //2 未设置支付密码 -> 需要先设置
+                    ToastUtil.show(context, "检测到您还未设置支付密码，请先设置");
+                    context.startActivity(new Intent(context, SetPaywordActivity.class));
+                }
             }
         });
         //零钱明细
@@ -138,7 +153,15 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutAuthRealName.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
-                IntentUtil.gotoActivity(LooseChangeActivity.this, IdentificationUserActivity.class);
+                IntentUtil.gotoActivity(LooseChangeActivity.this, BindPhoneNumActivity.class);
+//                //1 已经绑定手机
+//                if(PayEnvironment.getInstance().getUser().getPhoneBindStat()==1){
+//                    //TODO 还有一个认证信息展示界面未出
+//                    ToastUtil.show(activity,"检测到您已绑定手机，即将展示认证信息界面");
+//                }else {
+//                    //2 没有绑定手机
+//                    IntentUtil.gotoActivity(LooseChangeActivity.this, BindPhoneNumActivity.class);
+//                }
             }
         });
         //我的银行卡
@@ -157,7 +180,14 @@ public class LooseChangeActivity extends BasePayActivity {
         viewSettingOfPsw.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
-                IntentUtil.gotoActivity(LooseChangeActivity.this, ManagePaywordActivity.class);
+                // 1 已设置支付密码 -> 允许跳转
+                if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
+                    IntentUtil.gotoActivity(LooseChangeActivity.this, ManagePaywordActivity.class);
+                } else {
+                    //2 未设置支付密码 -> 需要先设置
+                    ToastUtil.show(context, "检测到您还未设置支付密码，请先设置");
+                    context.startActivity(new Intent(context, SetPaywordActivity.class));
+                }
             }
         });
     }
@@ -170,7 +200,7 @@ public class LooseChangeActivity extends BasePayActivity {
                 httpGetUserInfo();
                 getBankList();
             }
-        }else if(requestCode == REFRESH_BANKCARD_NUM){
+        } else if (requestCode == REFRESH_BANKCARD_NUM) {
             if (resultCode == RESULT_OK) {
                 getBankList();
             }
@@ -213,7 +243,7 @@ public class LooseChangeActivity extends BasePayActivity {
 
     /**
      * 请求->绑定的银行卡列表
-     *
+     * <p>
      * 备注：主要用于零钱首页更新"我的银行卡" 张数，暂时仅"充值、提现、我的银行卡"返回此界面后需要刷新
      */
     private void getBankList() {
@@ -229,7 +259,7 @@ public class LooseChangeActivity extends BasePayActivity {
                         } else {
                             myCardListSize = 0;
                         }
-                        viewMyCard.getRightTitle().setText(myCardListSize+"张");
+                        viewMyCard.getRightTitle().setText(myCardListSize + "张");
                     }
 
                     @Override

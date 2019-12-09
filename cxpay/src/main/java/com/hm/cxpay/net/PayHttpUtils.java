@@ -155,6 +155,26 @@ public class PayHttpUtils {
         return HttpChannel.getInstance().getPayService().getRate();
     }
 
+    //绑定手机-获取验证码
+    public Observable<BaseResponse> getCode(String phoneNum) {
+        Map<String, String> map = new HashMap<>();
+        map.put("phone", phoneNum);
+        return HttpChannel.getInstance().getPayService().getCode(getRequestBody(map));
+    }
+
+    //绑定手机-获取当前用户IM手机号
+    public Observable<BaseResponse> getMyPhone() {
+        return HttpChannel.getInstance().getPayService().getMyPhone();
+    }
+
+    //绑定手机号
+    public Observable<BaseResponse> bindPhoneNum(String phone, String verificationCode) {
+        Map<String, String> map = new HashMap<>();
+        map.put("phone", phone);
+        map.put("verificationCode", verificationCode);
+        return HttpChannel.getInstance().getPayService().bindPhoneNum(getRequestBody(map));
+    }
+
 
     //获取红包明细  type—— 7：收到红包； 2 —— 发出红包
     public Observable<BaseResponse<RedDetailsBean>> getRedEnvelopeDetails(int pageNum, long startTime, int type) {

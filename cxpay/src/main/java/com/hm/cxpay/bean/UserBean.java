@@ -12,6 +12,7 @@ public class UserBean {
     private String identityNo = "";//证件号码
     private String identityType = "";//证件类型 1身份证 2护照
     private int payPwdStat = 0;//支付密码设置状态 1:已设置, 其他情况未设置
+    private int phoneBindStat = 0;//手机绑定状态 1:已设置, 其他情况未设置
     private int realNameStat = 0;//实名认证状态 1:已认证, 其他情况未认证
 
 
@@ -93,5 +94,13 @@ public class UserBean {
 
     public void setRealNameStat(int realNameStat) {
         this.realNameStat = realNameStat;
+    }
+
+    public int getPhoneBindStat() {
+        return phoneBindStat;
+    }
+
+    public void setPhoneBindStat(int phoneBindStat) {
+        this.phoneBindStat = phoneBindStat;
     }
 }
