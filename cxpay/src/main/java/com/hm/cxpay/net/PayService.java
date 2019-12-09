@@ -75,6 +75,18 @@ public interface PayService {
     @POST(Route.GET_RATE)
     Observable<BaseResponse<CommonBean>> getRate();
 
+    //绑定手机-获取验证码
+    @POST(Route.GET_PHONE_CODE)
+    Observable<BaseResponse> getCode(@Body RequestBody body);
+
+    //绑定手机-获取当前用户IM手机号
+    @POST(Route.GET_MY_PHONE)
+    Observable<BaseResponse> getMyPhone();
+
+    //绑定手机号
+    @POST(Route.BIND_PHONE)
+    Observable<BaseResponse> bindPhoneNum(@Body RequestBody body);
+
     //获取红包明细
     @POST(Route.GET_RED_ENVELOPE_DETAILS)
     Observable<BaseResponse<RedDetailsBean>> getRedEnvelopeDetails(@Body RequestBody body);
