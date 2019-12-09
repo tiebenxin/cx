@@ -9,9 +9,7 @@ import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.ChangeSurvivalTimeMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
-import com.yanlong.im.chat.bean.ContactNameBean;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.bean.GroupAccept;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.GroupImageHead;
 import com.yanlong.im.chat.bean.ImageMessage;
@@ -2240,7 +2238,7 @@ public class MsgDao {
     public String getUsername4Show(String gid, Long uid, String uname, String groupName) {
         String name = "";
         Realm realm = DaoUtil.open();
-        realm.beginTransaction();
+//        realm.beginTransaction();
 
         UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
         if (userInfo != null) {
@@ -2275,7 +2273,7 @@ public class MsgDao {
         }
 
 
-        realm.commitTransaction();
+//        realm.commitTransaction();
         realm.close();
 
         return name;
@@ -3124,7 +3122,7 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         String result = "";
         try {
-            realm.beginTransaction();
+//            realm.beginTransaction();
             Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
             if (group == null) {
                 return "";
@@ -3136,7 +3134,7 @@ public class MsgDao {
                     result = !TextUtils.isEmpty(memberUser.getMembername()) ? memberUser.getMembername() : memberUser.getName();
                 }
             }
-            realm.commitTransaction();
+//            realm.commitTransaction();
         } catch (Exception e) {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);

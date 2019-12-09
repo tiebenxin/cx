@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 
+import com.luck.picture.lib.photoview.LogManager;
 import com.luck.picture.lib.tools.PictureFileUtils;
 
 import java.io.BufferedInputStream;
@@ -63,6 +64,11 @@ public class PicSaveUtils {
         if (fileSrc.exists()) {
             String fileName = PictureFileUtils.getFileName(filePath);
             String path = PictureFileUtils.createDir(context, fileName, null);
+            LogManager.getLogger().e("=","filePath======"+filePath);
+            LogManager.getLogger().e("=","path=========="+filePath);
+            if(filePath!=null&&filePath.equals(path)){
+                return true;//本身图片就在常信文件夹
+            }
             File fileDest = new File(path);//目标文件
             FileInputStream fis = null;
             FileOutputStream fos = null;

@@ -153,6 +153,7 @@ import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.DownloadUtil;
+import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -1783,17 +1784,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
         try {
             if (mUri != null) {
-//                HashMap<String, String> headers = null;
-//                if (headers == null)
-//                {
-//                    headers = new HashMap<String, String>();
-//                    headers.put("User-Agent", "Mozilla/5.0 (Linux; U; Android 4.4.2; zh-CN; MW-KW-001 Build/JRO03C) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 UCBrowser/1.0.0.001 U4/0.8.0 Mobile Safari/533.1");
-//                }
                 FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
                 mmr.setDataSource(inputStream.getFD());
-//                mmr.setDataSource(mUri, headers);
-            } else {
-                //mmr.setDataSource(mFD, mOffset, mLength);
             }
             duration = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
 
@@ -1905,9 +1897,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         LogUtil.getLog().e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
                         VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), file);
 
-//                        LogUtil.getLog().e("TAG",videoMessage.toString()+videoMessage.getHeight()+"----"+videoMessage.getWidth()+"----"+videoMessage.getDuration()+"----"+videoMessage.getBg_url()+"----");
-//                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),file);
-//                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, System.currentTimeMillis(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
                         videoMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
                         msgListData.add(videoMsgBean);
                         // 不等于常信小助手
@@ -1977,21 +1966,25 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 startService(new Intent(getContext(), UpLoadService.class));
                             }
                         } else {
-//                            ToastUtil.show(this, "图片已损坏，请重新选择");
-
                             String videofile = localMedia.getPath();
                             if (null != videofile) {
-                                //                            int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
-//                            int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
-//                            int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME, 0);
+                                long length = ImgSizeUtil.getVideoSize(videofile);
+                                long duration = Long.parseLong(getVideoAtt(videofile));
+                                // 大于50M、5分钟不发送
+                                if (ImgSizeUtil.formetFileSize(length) > 50 ) {
+                                    ToastUtil.show(this, "不能选择超过50M的视频");
+                                    continue;
+                                }
+                                if (duration > 5*60000) {
+                                    ToastUtil.show(this, "不能选择超过5分钟的视频");
+                                    continue;
+                                }
                                 final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                                 final String imgMsgId = SocketData.getUUID();
                                 VideoMessage videoMessage = new VideoMessage();
-//                                videoMessage.setHeight(Long.parseLong(getVideoAttWeith(videofile)));
-//                                videoMessage.setWidth(Long.parseLong(getVideoAttHeigh(videofile)));
                                 videoMessage.setHeight(Long.parseLong(getVideoAttHeigh(videofile)));
                                 videoMessage.setWidth(Long.parseLong(getVideoAttWeith(videofile)));
-                                videoMessage.setDuration(Long.parseLong(getVideoAtt(videofile)));
+                                videoMessage.setDuration(duration);
                                 videoMessage.setBg_url(getVideoAttBitmap(videofile));
                                 videoMessage.setLocalUrl(videofile);
                                 LogUtil.getLog().e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
@@ -2010,7 +2003,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, imgMsgBean);
                     notifyData2Bottom(true);
-
 
                     break;
                 case REQ_RP://红包
