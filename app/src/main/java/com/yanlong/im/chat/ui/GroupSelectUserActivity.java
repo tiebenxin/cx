@@ -28,7 +28,6 @@ import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
@@ -114,7 +113,6 @@ public class GroupSelectUserActivity extends AppActivity {
 
             @Override
             public void onTextChanged(CharSequence sequence, int i, int i1, int i2) {
-                ToastUtil.show(GroupSelectUserActivity.this, sequence.toString() + "");
                 adapter.getFilter().filter(sequence.toString());
             }
 
