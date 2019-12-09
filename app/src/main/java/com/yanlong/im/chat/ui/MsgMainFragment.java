@@ -663,12 +663,12 @@ public class MsgMainFragment extends Fragment {
                         case 0:
                             if (StringUtil.isNotNull(bean.getAtMessage())) {
                                 if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
-                                    SpannableString style = new SpannableString("[有人@你]" + info);
+                                    SpannableString style = new SpannableString("[有人@我]" + info);
                                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                     style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                     showMessage(holder.txtInfo, info, style);
                                 } else {
-                                    SpannableString style = new SpannableString("[有人@你]" + info);
+                                    SpannableString style = new SpannableString("[有人@我]" + info);
                                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                     style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                     showMessage(holder.txtInfo, info, style);

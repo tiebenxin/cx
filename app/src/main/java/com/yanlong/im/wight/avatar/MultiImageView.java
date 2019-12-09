@@ -170,9 +170,6 @@ public class MultiImageView extends LinearLayout {
             } else {
                 MAX_PER_ROW_COUNT = 3;
             }
-//            int rowCount = MAX_PER_ROW_COUNT;
-//                    allCount / MAX_PER_ROW_COUNT
-//                    + (allCount % MAX_PER_ROW_COUNT > 0 ? 1 : 0);// 行数
             for (int rowCursor = 0; rowCursor < MAX_PER_ROW_COUNT; rowCursor++) {
                 LinearLayout rowLayout = new LinearLayout(getContext());
                 rowLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -235,8 +232,8 @@ public class MultiImageView extends LinearLayout {
         if (!TextUtils.isEmpty(url)) {
             imageView.setId(url.hashCode());
         }
-        imageView.setOnClickListener(new ImageOnClickListener(position));
-        imageView.setOnLongClickListener(new ImageOnLongClickListener(position));
+//        imageView.setOnClickListener(new ImageOnClickListener(position));
+//        imageView.setOnLongClickListener(new ImageOnLongClickListener(position));
         loadImage(url, imageView);
         return imageView;
     }

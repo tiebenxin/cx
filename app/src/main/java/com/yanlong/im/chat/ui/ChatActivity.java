@@ -270,6 +270,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private TextView tv_ban;
     private String draft;
     private int isFirst;
+    private UserInfo mFinfo;// 聊天用户信息，刷新时更新
 
     // 气泡视图
     private PopupWindow mPopupWindow;// 长按消息弹出气泡PopupWindow
@@ -1960,11 +1961,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 long length = ImgSizeUtil.getVideoSize(videofile);
                                 long duration = Long.parseLong(getVideoAtt(videofile));
                                 // 大于50M、5分钟不发送
-                                if (ImgSizeUtil.formetFileSize(length) > 50 ) {
+                                if (ImgSizeUtil.formetFileSize(length) > 50) {
                                     ToastUtil.show(this, "不能选择超过50M的视频");
                                     continue;
                                 }
-                                if (duration > 5*60000) {
+                                if (duration > 5 * 60000) {
                                     ToastUtil.show(this, "不能选择超过5分钟的视频");
                                     continue;
                                 }
@@ -2576,10 +2577,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public boolean onLongClick(View v) {
                         //TODO:优先显示群备注
-                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid());
-                        if (TextUtils.isEmpty(name)) {
-                            name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
-                        }
+                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid(),null,null);
+//                        if (TextUtils.isEmpty(name)) {
+//                            name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
+//                        }
                         String txt = editChat.getText().toString().trim();
                         if (!txt.contains("@" + name)) {
                             if (!TextUtils.isEmpty(name)) {
@@ -2610,14 +2611,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             return;
                         }
                         //TODO:优先显示群备注、查询最新的在本群的昵称
-                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid());
-                        if (TextUtils.isEmpty(name)) {
-                            name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
+                        String name = "";
+                        if (isGroup()) {
+                            name = msgDao.getGroupMemberName2(toGid, msgbean.getFrom_uid());
+                        } else if (mFinfo != null) {
+                            name = mFinfo.getName4Show();
                         }
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, msgbean.getFrom_uid())
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
                                 .putExtra(UserInfoActivity.GID, toGid)
+                                .putExtra(UserInfoActivity.IS_GROUP, isGroup())
                                 .putExtra(UserInfoActivity.MUC_NICK, name));
                     }
                 });
@@ -3689,20 +3693,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             taskGroupConf();
 
         } else {
-            UserInfo finfo = userDao.findUserInfo(toUId);
-            if (finfo == null && toUId == 100121L) {
-                finfo = new UserInfo();
-                finfo.setUid(100121L);
-                finfo.setName("常信客服");
+            mFinfo = userDao.findUserInfo(toUId);
+            if (mFinfo == null && toUId == 100121L) {
+                mFinfo = new UserInfo();
+                mFinfo.setUid(100121L);
+                mFinfo.setName("常信客服");
             }
-            if (finfo != null) {
-                title = finfo.getName4Show();
-                if (finfo.getLastonline() > 0) {
+            if (mFinfo != null) {
+                title = mFinfo.getName4Show();
+                if (mFinfo.getLastonline() > 0) {
                     // 客服不显示时间状态
                     if (onlineState && !UserUtil.isSystemUser(toUId)) {
-                        actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), true);
+                        actionbar.setTitleMore(TimeToString.getTimeOnline(mFinfo.getLastonline(), mFinfo.getActiveType(), true), true);
                     } else {
-                        actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), false);
+                        actionbar.setTitleMore(TimeToString.getTimeOnline(mFinfo.getLastonline(), mFinfo.getActiveType(), true), false);
                     }
                 }
             }
