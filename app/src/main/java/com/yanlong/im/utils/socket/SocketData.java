@@ -1601,5 +1601,17 @@ public class SocketData {
         return message;
     }
 
+    //创建系统红包消息
+    public static RedEnvelopeMessage createSystemRbMessage(String msgId, long traceId, String actionId, String info, int reType, int style) {
+        RedEnvelopeMessage message = new RedEnvelopeMessage();
+        message.setMsgid(msgId);
+        message.setTraceId(traceId);
+        message.setActionId(actionId);
+        message.setComment(info);
+        message.setRe_type(reType);
+        message.setStyle(style);
+        return message;
+    }
+
 
 }

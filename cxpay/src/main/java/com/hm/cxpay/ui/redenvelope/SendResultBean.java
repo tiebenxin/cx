@@ -8,14 +8,14 @@ import android.os.Parcelable;
  * @data 2019/12/3
  * Description 发送红包结果bean
  */
-public class RedSendBean implements Parcelable {
+public class SendResultBean implements Parcelable {
     String actionId;
     int code;//1:成功 2:失败 99:处理中 客户端暂不考虑[1010:需要下一步验证
     long createTime;
     String errMsg;
     long tradeId;
 
-    protected RedSendBean(Parcel in) {
+    protected SendResultBean(Parcel in) {
         actionId = in.readString();
         code = in.readInt();
         createTime = in.readLong();
@@ -23,15 +23,15 @@ public class RedSendBean implements Parcelable {
         tradeId = in.readLong();
     }
 
-    public static final Creator<RedSendBean> CREATOR = new Creator<RedSendBean>() {
+    public static final Creator<SendResultBean> CREATOR = new Creator<SendResultBean>() {
         @Override
-        public RedSendBean createFromParcel(Parcel in) {
-            return new RedSendBean(in);
+        public SendResultBean createFromParcel(Parcel in) {
+            return new SendResultBean(in);
         }
 
         @Override
-        public RedSendBean[] newArray(int size) {
-            return new RedSendBean[size];
+        public SendResultBean[] newArray(int size) {
+            return new SendResultBean[size];
         }
     };
 

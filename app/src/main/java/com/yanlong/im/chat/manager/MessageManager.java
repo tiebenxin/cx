@@ -3,6 +3,7 @@ package com.yanlong.im.chat.manager;
 import android.content.Intent;
 import android.text.TextUtils;
 
+import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ApplyBean;
@@ -471,7 +472,8 @@ public class MessageManager {
                 break;
             case PAY_RESULT://支付结果
                 MsgBean.PayResultMessage payResult = wrapMessage.getPayResult();
-                MsgBean.PayResultMessage.PayResult resultType = payResult.getResult();
+                System.out.println(TAG + "--支付结果=" + payResult.getResult());
+                notifyPayResult(payResult);
                 break;
         }
         //刷新单个,接收到音视频通话消息不需要刷新
@@ -1505,6 +1507,20 @@ public class MessageManager {
 
     public TaskDealWithMsgList getMsgTask(String requestId) {
         return taskMaps.get(requestId);
+    }
+
+    //通知支付结果
+    public void notifyPayResult(MsgBean.PayResultMessage resultMessage) {
+        if (resultMessage == null) {
+            return;
+        }
+        PayResultEvent event = new PayResultEvent();
+        MsgBean.PayResultMessage.PayResult result = resultMessage.getResult();
+        event.setActionId(resultMessage.getActionId());
+        event.setTradeId(resultMessage.getTradeId());
+        event.setErrMsg(resultMessage.getErrorMsg());
+        event.setResult(result.getNumber());
+        EventBus.getDefault().post(event);
     }
 
 

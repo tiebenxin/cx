@@ -15,10 +15,12 @@ import android.view.View;
 import androidx.annotation.RequiresApi;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.dailog.DialogErrorPassword;
 import com.hm.cxpay.dailog.DialogInputPayPassword;
 import com.hm.cxpay.dailog.DialogSelectPayStyle;
 import com.hm.cxpay.databinding.ActivityMultiRedPacketBinding;
+import com.hm.cxpay.eventbus.PayResultEvent;
 import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
@@ -29,7 +31,7 @@ import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BindBankActivity;
 import com.hm.cxpay.ui.redenvelope.AdapterSelectPayStyle;
 import com.hm.cxpay.ui.redenvelope.BaseSendRedEnvelopeActivity;
-import com.hm.cxpay.ui.redenvelope.RedSendBean;
+import com.hm.cxpay.ui.redenvelope.SendResultBean;
 import com.hm.cxpay.utils.BankUtils;
 import com.hm.cxpay.utils.UIUtils;
 
@@ -37,6 +39,9 @@ import net.cb.cb.library.utils.NumRangeInputFilter;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.PopupSelectView;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import static com.hm.cxpay.global.PayConstants.MAX_AMOUNT;
 
@@ -53,6 +58,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     private DialogSelectPayStyle dialogSelectPayStyle;
     private String money;
     private DialogErrorPassword dialogErrorPassword;
+    private CxEnvelopeBean envelopeBean;
 
     /**
      * @param gid         群id
@@ -93,6 +99,14 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             dialogErrorPassword = null;
         }
         super.onDestroy();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventPayResult(PayResultEvent event) {
+        dismissWaitDialog();
+        if (envelopeBean != null && event.getTradeId() == envelopeBean.getTradeId()) {
+            setResultOk();
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -242,25 +256,40 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
 
 
     /**
-     * 发送单个红包
+     * 发送群红包
      */
-    private void sendRedEnvelope(String actionId, long money, int count, String psw, int type, String note, long bankCardId) {
+    private void sendRedEnvelope(String actionId, long money, final int count, String psw, int type, final String note, long bankCardId) {
         if (TextUtils.isEmpty(gid)) {
             return;
         }
         PayHttpUtils.getInstance().sendRedEnvelopeToGroup(actionId, money, count, psw, type, bankCardId, note, gid)
-                .compose(RxSchedulers.<BaseResponse<RedSendBean>>compose())
-                .compose(RxSchedulers.<BaseResponse<RedSendBean>>handleResult())
-                .subscribe(new FGObserver<BaseResponse<RedSendBean>>() {
+                .compose(RxSchedulers.<BaseResponse<SendResultBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<SendResultBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<SendResultBean>>() {
                     @Override
-                    public void onHandleSuccess(BaseResponse<RedSendBean> baseResponse) {
+                    public void onHandleSuccess(BaseResponse<SendResultBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
-                            RedSendBean sendBean = baseResponse.getData();
+                            SendResultBean sendBean = baseResponse.getData();
                             if (sendBean != null) {
+                                envelopeBean = convertToEnvelopeBean(sendBean, redPacketType, note, count);
                                 if (sendBean.getCode() == 1) {//code  1表示成功，2失败，99处理中
-
+                                    setResultOk();
+                                } else if (sendBean.getCode() == 99) {
+                                    showWaitDialog();
+//                                    Intent intent = new Intent();
+//                                    Bundle bundle = new Bundle();
+//                                    bundle.putParcelable("envelope", sendBean);
+//                                    intent.putExtras(bundle);
+//                                    setResult(RESULT_OK, intent);
+                                } else if (sendBean.getCode() == -21000) {//密码错误
+                                    showPswErrorDialog();
                                 } else {
                                     ToastUtil.show(getContext(), sendBean.getErrMsg());
+                                    Intent intent = new Intent();
+                                    Bundle bundle = new Bundle();
+                                    bundle.putParcelable("envelope", sendBean);
+                                    intent.putExtras(bundle);
+                                    setResult(RESULT_OK, intent);
                                 }
                             }
                         } else {
@@ -279,6 +308,17 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                         }
                     }
                 });
+    }
+
+    private void setResultOk() {
+        if (envelopeBean != null) {
+            Intent intent = new Intent();
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("envelope", envelopeBean);
+            intent.putExtras(bundle);
+            setResult(RESULT_OK, intent);
+            finish();
+        }
     }
 
     //输入密码弹窗

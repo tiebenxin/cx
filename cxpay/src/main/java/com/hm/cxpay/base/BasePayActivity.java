@@ -4,9 +4,15 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.eventbus.PayResultEvent;
 
 import net.cb.cb.library.utils.StatusBarUtils;
+import net.cb.cb.library.view.AlertWait;
 import net.cb.cb.library.view.AppActivity;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * @anthor Liszt
@@ -14,10 +20,13 @@ import net.cb.cb.library.view.AppActivity;
  * Description
  */
 public class BasePayActivity extends AppActivity {
+    AlertWait payWaitDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        payWaitDialog = new AlertWait(this);
+
 //        StatusBarUtils.with(this)
 //                .setIsActionBar(false)
 //                .clearActionBarShadow()
@@ -34,5 +43,18 @@ public class BasePayActivity extends AppActivity {
             setSupportActionBar(bar);
         }
         getSupportActionBar().setDisplayHomeAsUpEnabled(isHasBack);
+    }
+
+    public void showWaitDialog() {
+        if (payWaitDialog == null) {
+            payWaitDialog = new AlertWait(this);
+        }
+        payWaitDialog.show();
+    }
+
+    public void dismissWaitDialog() {
+        if (payWaitDialog != null) {
+            payWaitDialog.dismiss();
+        }
     }
 }

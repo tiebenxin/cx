@@ -59,7 +59,6 @@ public class HttpChannel {
             retrofit = new Retrofit.Builder()
                     .baseUrl(PayHostUtils.getHttpsUrl())
                     .addConverterFactory(GsonConverterFactory.create())
-//                    .addConverterFactory(MGsonConverterFactory.create())
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create()) // 支持RxJava
                     .client(okHttpClient) // 打印请求参数
                     .build();

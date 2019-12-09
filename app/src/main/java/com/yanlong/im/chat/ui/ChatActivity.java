@@ -50,9 +50,10 @@ import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
-import com.hm.cxpay.global.PayConstants;
+import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.ui.MultiRedPacketActivity;
 import com.hm.cxpay.ui.SingleRedPacketActivity;
+import com.hm.cxpay.ui.redenvelope.SendResultBean;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
 import com.jrmf360.rplib.bean.GrabRpBean;
@@ -257,7 +258,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     public static final int REQ_RP = 9653;
     public static final int VIDEO_RP = 9419;
     public static final int REQ_TRANS = 9653;
-    public static final int REQUEST_RED_ENVELOPE = 1<<2;
+    public static final int REQUEST_RED_ENVELOPE = 1 << 2;
 
     private MessageAdapter messageAdapter;
     private int lastOffset = -1;
@@ -1971,11 +1972,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 long length = ImgSizeUtil.getVideoSize(videofile);
                                 long duration = Long.parseLong(getVideoAtt(videofile));
                                 // 大于50M、5分钟不发送
-                                if (ImgSizeUtil.formetFileSize(length) > 50 ) {
+                                if (ImgSizeUtil.formetFileSize(length) > 50) {
                                     ToastUtil.show(this, "不能选择超过50M的视频");
                                     continue;
                                 }
-                                if (duration > 5*60000) {
+                                if (duration > 5 * 60000) {
                                     ToastUtil.show(this, "不能选择超过5分钟的视频");
                                     continue;
                                 }
@@ -2026,6 +2027,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                        MsgAllBean msgAllbean = SocketData.send4Rb(toUId, toGid, rid, info, style);
 //                        showSendObj(msgAllbean);
 //                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+                    }
+                    break;
+
+                case REQUEST_RED_ENVELOPE:
+                    CxEnvelopeBean envelopeBean = data.getParcelableExtra("envelope");
+                    if (envelopeBean != null) {
+                        RedEnvelopeMessage message = SocketData.createSystemRbMessage(SocketData.getUUID(), envelopeBean.getTradeId(), envelopeBean.getActionId(), envelopeBean.getMessage(), MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM.getNumber(), envelopeBean.getEnvelopeType());
+                        sendMessage(message, ChatEnum.EMessageType.RED_ENVELOPE);
                     }
                     break;
                 case GroupSelectUserActivity.RET_CODE_SELECTUSR:

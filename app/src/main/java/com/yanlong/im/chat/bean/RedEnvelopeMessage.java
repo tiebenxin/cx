@@ -66,4 +66,20 @@ public class RedEnvelopeMessage extends RealmObject implements IMsgContent {
     public void setMsgid(String msgid) {
         this.msgid = msgid;
     }
+
+    public long getTraceId() {
+        return traceId;
+    }
+
+    public void setTraceId(long traceId) {
+        this.traceId = traceId;
+    }
+
+    public String getActionId() {
+        return actionId;
+    }
+
+    public void setActionId(String actionId) {
+        this.actionId = actionId;
+    }
 }

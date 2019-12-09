@@ -5,6 +5,8 @@ import android.text.TextUtils;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
+import com.hm.cxpay.global.PayEnvironment;
+import com.hm.cxpay.rx.interceptor.CommonInterceptor;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.http.model.BaseModel;
 import com.jrmf360.tools.http.OkHttpModelCallBack;
@@ -158,7 +160,7 @@ public class UserAction {
                     setToken(response.body().getData());
                     //如果是手机号码登录，则删除上次常信号登陆的账号
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).save2Json("");
-                    getMyInfo4Web(response.body().getData().getUid(),"");
+                    getMyInfo4Web(response.body().getData().getUid(), "");
                 }
 
                 callback.onResponse(call, response);
@@ -190,7 +192,7 @@ public class UserAction {
 
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
-                    getMyInfo4Web(response.body().getData().getUid(),imid);
+                    getMyInfo4Web(response.body().getData().getUid(), imid);
                 }
 
                 callback.onResponse(call, response);
@@ -208,7 +210,7 @@ public class UserAction {
     /***
      * 拉取服务器的自己的信息到数据库
      */
-    private void getMyInfo4Web(Long usrid,String imid) {
+    private void getMyInfo4Web(Long usrid, String imid) {
         NetUtil.getNet().exec(server.getUserInfo(usrid), new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
@@ -216,7 +218,7 @@ public class UserAction {
                     UserInfo userInfo = response.body().getData();
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead() + "");
                     //保存手机或常信号登录
-                    if(StringUtil.isNotNull(imid)){
+                    if (StringUtil.isNotNull(imid)) {
                         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).save2Json(imid);
                     }
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone());
@@ -297,9 +299,12 @@ public class UserAction {
      * 无网登录
      */
     public void login4tokenNotNet(TokenBean token) {
-
         initDB("" + token.getUid());
-        NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
+        setToken(token);
+//        NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
+//        TokenManager.initToken(token.getAccessToken());
+//        PayEnvironment.getInstance().setToken(token.getAccessToken());
+
     }
 
     public void login4token(String dev_id, final Callback<ReturnBean<TokenBean>> callback) {
@@ -311,7 +316,10 @@ public class UserAction {
         }
 
         //设置token
-        NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
+        setToken(token);
+//        NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
+//        TokenManager.initToken(token.getAccessToken());
+//        PayEnvironment.getInstance().setToken(token.getAccessToken());
         //或者把token传给后端
 
         NetUtil.getNet().exec(server.login4token(dev_id, "android"), new CallBack<ReturnBean<TokenBean>>() {
@@ -320,7 +328,7 @@ public class UserAction {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
-                    getMyInfo4Web(response.body().getData().getUid(),"");
+                    getMyInfo4Web(response.body().getData().getUid(), "");
                     callback.onResponse(call, response);
                 } else {
                     callback.onFailure(call, null);
@@ -371,7 +379,8 @@ public class UserAction {
         token.setValidTime(validTime);
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
         NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
-        TokenManager.initToken(token.getAccessToken());
+        PayEnvironment.getInstance().setToken(token.getAccessToken());
+//        TokenManager.initToken(token.getAccessToken());
     }
 
 
@@ -580,7 +589,7 @@ public class UserAction {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
-                    getMyInfo4Web(response.body().getData().getUid(),"");
+                    getMyInfo4Web(response.body().getData().getUid(), "");
                 }
                 callback.onResponse(call, response);
             }
@@ -605,7 +614,7 @@ public class UserAction {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
-                    getMyInfo4Web(response.body().getData().getUid(),"");
+                    getMyInfo4Web(response.body().getData().getUid(), "");
                 }
                 callback.onResponse(call, response);
             }

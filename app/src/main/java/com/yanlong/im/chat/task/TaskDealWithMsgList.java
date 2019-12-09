@@ -149,7 +149,7 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
     }
 
     private boolean doPendingData() {
-        System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--requestId=" + requestId + "--doPendingData--" + Log.getStackTraceString(new Throwable()));
+        System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--requestId=" + requestId + "--doPendingData--" /*+ Log.getStackTraceString(new Throwable())*/);
         try {
             Map<Long, Integer> mapUSession = /*MessageManager.getInstance().*/getPendingUserUnreadMap();
             if (mapUSession != null && mapUSession.size() > 0) {

@@ -25,8 +25,8 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.rx.interceptor.CommonInterceptor;
 import com.hm.cxpay.ui.bank.BankBean;
-import com.hm.cxpay.utils.UIUtils;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
@@ -93,6 +93,7 @@ import java.util.Locale;
 
 import cn.jpush.android.api.JPluginPlatformInterface;
 import cn.jpush.android.api.JPushInterface;
+import okhttp3.Headers;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -422,7 +423,7 @@ public class MainActivity extends AppActivity {
 
     //检测支付环境的初始化
     private void checkPayEnvironmentInit() {
-        checkToken();
+        checkPayToken();
         UserInfo info = UserAction.getMyInfo();
         if (info != null) {
             UserBean bean = PayEnvironment.getInstance().getUser();
@@ -436,12 +437,13 @@ public class MainActivity extends AppActivity {
         }
     }
 
-    private void checkToken() {
-        if (TextUtils.isEmpty(TokenManager.getToken())) {
+    private void checkPayToken() {
+        if (TextUtils.isEmpty(PayEnvironment.getInstance().getToken())) {
             TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
             if (token != null) {
                 TokenManager.initToken(token.getAccessToken());
                 PayEnvironment.getInstance().setToken(token.getAccessToken());
+//                CommonInterceptor.headers = Headers.of(TokenManager.TOKEN_KEY, token.getAccessToken());
             }
         }
     }

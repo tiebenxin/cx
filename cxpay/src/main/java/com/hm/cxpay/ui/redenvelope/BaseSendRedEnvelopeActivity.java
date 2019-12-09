@@ -5,7 +5,9 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import com.hm.cxpay.base.BasePayActivity;
+import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.bean.UserBean;
+import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
@@ -14,6 +16,8 @@ import com.hm.cxpay.rx.data.BaseResponse;
 
 import net.cb.cb.library.utils.ToastUtil;
 
+import org.greenrobot.eventbus.EventBus;
+
 /**
  * @anthor Liszt
  * @data 2019/12/4
@@ -21,12 +25,21 @@ import net.cb.cb.library.utils.ToastUtil;
  */
 public class BaseSendRedEnvelopeActivity extends BasePayActivity {
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
         httpGetUserInfo();//更新余额
-
     }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().register(this);
+    }
+
 
     /**
      * 请求->获取用户信息
@@ -84,5 +97,17 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
             imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 
         }
+    }
+
+
+    public CxEnvelopeBean convertToEnvelopeBean(SendResultBean bean, @PayEnum.ERedEnvelopeType int redType, String info, int count) {
+        CxEnvelopeBean envelopeBean = new CxEnvelopeBean();
+        envelopeBean.setActionId(bean.getActionId());
+        envelopeBean.setTradeId(bean.getTradeId());
+        envelopeBean.setCreateTime(bean.getCreateTime());
+        envelopeBean.setMessage(info);
+        envelopeBean.setEnvelopeType(redType);
+        envelopeBean.setEnvelopeAmount(count);
+        return envelopeBean;
     }
 }

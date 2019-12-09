@@ -19,9 +19,10 @@ import java.util.List;
 //发出的红包
 public class FragmentRedEnvelopeSend extends Fragment {
     private View rootView;
-    private MultiListView mMtListView;
+    private RecyclerView mMtListView;
 
     private List<String> list = new ArrayList<>();
+    private RedPacketAdapter adapter;
 
     public FragmentRedEnvelopeSend() {
 
@@ -47,15 +48,19 @@ public class FragmentRedEnvelopeSend extends Fragment {
 
     private void initView() {
         mMtListView = rootView.findViewById(R.id.mtListView);
-        mMtListView.init(new FragmentRedEnvelopeSend.RedPacketAdapter());
-        mMtListView.getLoadView().setStateNormal();
+//        mMtListView.init(new FragmentRedEnvelopeSend.RedPacketAdapter());
+        //        mMtListView.getLoadView().setStateNormal();
+
+        adapter = new RedPacketAdapter();
+        mMtListView.setAdapter(adapter);
     }
 
-    private void initData(){
+    private void initData() {
         for (int i = 0; i < 15; i++) {
             list.add("1111");
         }
-        mMtListView.getListView().getAdapter().notifyDataSetChanged();
+//        mMtListView.getListView().getAdapter().notifyDataSetChanged();
+        adapter.notifyDataSetChanged();
 
     }
 
@@ -92,14 +97,12 @@ public class FragmentRedEnvelopeSend extends Fragment {
 
             public ViewHodler(@NonNull View itemView) {
                 super(itemView);
-                mTvUserName =  itemView.findViewById(R.id.tv_user_name);
-                mTvMoney =  itemView.findViewById(R.id.tv_money);
-                mTvDate =  itemView.findViewById(R.id.tv_date);
+                mTvUserName = itemView.findViewById(R.id.tv_user_name);
+                mTvMoney = itemView.findViewById(R.id.tv_money);
+                mTvDate = itemView.findViewById(R.id.tv_date);
             }
         }
     }
-
-
 
 
 }

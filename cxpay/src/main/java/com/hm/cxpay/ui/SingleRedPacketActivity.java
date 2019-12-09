@@ -15,10 +15,12 @@ import android.view.View;
 import androidx.annotation.RequiresApi;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.dailog.DialogErrorPassword;
 import com.hm.cxpay.dailog.DialogInputPayPassword;
 import com.hm.cxpay.dailog.DialogSelectPayStyle;
 import com.hm.cxpay.databinding.ActivitySingleRedPacketBinding;
+import com.hm.cxpay.eventbus.PayResultEvent;
 import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
@@ -29,7 +31,7 @@ import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BindBankActivity;
 import com.hm.cxpay.ui.redenvelope.AdapterSelectPayStyle;
 import com.hm.cxpay.ui.redenvelope.BaseSendRedEnvelopeActivity;
-import com.hm.cxpay.ui.redenvelope.RedSendBean;
+import com.hm.cxpay.ui.redenvelope.SendResultBean;
 import com.hm.cxpay.utils.BankUtils;
 import com.hm.cxpay.utils.UIUtils;
 
@@ -37,6 +39,9 @@ import net.cb.cb.library.utils.NumRangeInputFilter;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.PopupSelectView;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import static com.hm.cxpay.global.PayConstants.MAX_AMOUNT;
 
@@ -51,6 +56,8 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
     private String money;
     private DialogSelectPayStyle dialogSelectPayStyle;//选择支付方式弹窗
     private DialogErrorPassword dialogErrorPassword;
+    private CxEnvelopeBean envelopeBean;
+
 
     public static Intent newIntent(Context context, long uid) {
         Intent intent = new Intent(context, SingleRedPacketActivity.class);
@@ -84,6 +91,15 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
             dialogErrorPassword = null;
         }
         super.onDestroy();
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventPayResult(PayResultEvent event) {
+        dismissWaitDialog();
+        if (envelopeBean != null && event.getTradeId() == envelopeBean.getTradeId()) {
+            setResultOk();
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -177,24 +193,41 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
     /**
      * 发送单个红包
      */
-    private void sendRedEnvelope(String actionId, long money, String psw, String note, long bankCardId) {
+    private void sendRedEnvelope(String actionId, long money, String psw, final String note, long bankCardId) {
         if (uid <= 0) {
             return;
         }
         PayHttpUtils.getInstance().sendRedEnvelopeToUser(actionId, money, 1, psw, 0, bankCardId, note, uid)
-                .compose(RxSchedulers.<BaseResponse<RedSendBean>>compose())
-                .compose(RxSchedulers.<BaseResponse<RedSendBean>>handleResult())
-                .subscribe(new FGObserver<BaseResponse<RedSendBean>>() {
+                .compose(RxSchedulers.<BaseResponse<SendResultBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<SendResultBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<SendResultBean>>() {
                     @Override
-                    public void onHandleSuccess(BaseResponse<RedSendBean> baseResponse) {
+                    public void onHandleSuccess(BaseResponse<SendResultBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
-                            RedSendBean sendBean = baseResponse.getData();
-                            if (sendBean != null && sendBean.getCode() == 1) {//code  1表示成功，2失败，99处理中
-
-                            } else if (sendBean.getCode() == -21000) {//密码错误
-                                showPswErrorDialog();
-                            } else {
-                                ToastUtil.show(getContext(), baseResponse.getMessage());
+                            SendResultBean sendBean = baseResponse.getData();
+                            if (sendBean != null) {
+                                envelopeBean = convertToEnvelopeBean(sendBean, PayEnum.ERedEnvelopeType.NORMAL, note, 1);
+                                if (sendBean.getCode() == 1) {//成功
+                                    setResultOk();
+                                } else if (sendBean.getCode() == 2) {//失败
+                                    ToastUtil.show(getContext(), sendBean.getErrMsg());
+//                                    Intent intent = new Intent();
+//                                    Bundle bundle = new Bundle();
+//                                    bundle.putParcelable("envelope", sendBean);
+//                                    intent.putExtras(bundle);
+//                                    setResult(RESULT_OK, intent);
+                                } else if (sendBean.getCode() == 99) {//待处理
+                                    showWaitDialog();
+//                                    Intent intent = new Intent();
+//                                    Bundle bundle = new Bundle();
+//                                    bundle.putParcelable("envelope", sendBean);
+//                                    intent.putExtras(bundle);
+//                                    setResult(RESULT_OK, intent);
+                                } else if (sendBean.getCode() == -21000) {//密码错误
+                                    showPswErrorDialog();
+                                } else {
+                                    ToastUtil.show(getContext(), baseResponse.getMessage());
+                                }
                             }
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -208,6 +241,17 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                         ToastUtil.show(getContext(), baseResponse.getMessage());
                     }
                 });
+    }
+
+    private void setResultOk() {
+        if (envelopeBean != null) {
+            Intent intent = new Intent();
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("envelope", envelopeBean);
+            intent.putExtras(bundle);
+            setResult(RESULT_OK, intent);
+            finish();
+        }
     }
 
     //输入密码弹窗
@@ -295,7 +339,6 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
             dialogPayPassword.clearPsw();
             dialogPayPassword.show();
             showSoftKeyword(dialogPayPassword.getPswView());
-
         }
     }
 
