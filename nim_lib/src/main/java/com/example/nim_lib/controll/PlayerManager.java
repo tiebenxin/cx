@@ -141,6 +141,20 @@ public class PlayerManager {
     }
 
     /**
+     * 铃声模式
+     * RINGER_MODE_NORMAL（普通）
+     *
+     * RINGER_MODE_SILENT（静音）
+     *
+     * RINGER_MODE_VIBRATE（震动）
+     * @return
+     */
+    public int getRingerMode(){
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        return audioManager.getRingerMode();
+    }
+
+    /**
      * 是否打开声声器
      *
      * @return
@@ -151,6 +165,7 @@ public class PlayerManager {
             //判断扬声器是否在打开
             AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
             audioManager.setMode(AudioManager.ROUTE_SPEAKER);
+
             //获取当前通话音量
             currVolume = audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
             isOpen = audioManager.isSpeakerphoneOn();
