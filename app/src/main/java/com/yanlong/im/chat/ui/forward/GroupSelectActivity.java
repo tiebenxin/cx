@@ -28,6 +28,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.socket.SocketData;
+import com.yanlong.im.wight.avatar.MultiImageView;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
@@ -288,17 +289,15 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
             final Group groupInfoBean = groupInfoBeans.get(position);
+            // 头像集合
+            List<String> headList = new ArrayList<>();
 
             String imageHead = groupInfoBean.getAvatar();
             if (imageHead != null && !imageHead.isEmpty() && StringUtil.isNotNull(imageHead)) {
-                Glide.with(context).load(imageHead).apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                headList.add(imageHead);
+                holder.imgHead.setList(headList);
             } else {
-                String url = msgDao.groupHeadImgGet(groupInfoBean.getGid());
-                if (StringUtil.isNotNull(url)) {
-                    Glide.with(context).load(url).apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-                } else {
-                    creatAndSaveImg(groupInfoBean, holder.imgHead);
-                }
+                loadGroupHeads(groupInfoBean.getGid(), holder.imgHead);
             }
 
             // holder.txtName.setText(groupInfoBean.getName());
@@ -363,6 +362,26 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
             }
         }
 
+        /**
+         * 加载群头像
+         *
+         * @param gid
+         * @param imgHead
+         */
+        public synchronized void loadGroupHeads(String gid, MultiImageView imgHead) {
+            Group gginfo = msgDao.getGroup4Id(gid);
+            if (gginfo != null) {
+                int i = gginfo.getUsers().size();
+                i = i > 9 ? 9 : i;
+                //头像地址
+                List<String> headList = new ArrayList<>();
+                for (int j = 0; j < i; j++) {
+                    MemberUser userInfo = gginfo.getUsers().get(j);
+                    headList.add(userInfo.getHead());
+                }
+                imgHead.setList(headList);
+            }
+        }
 
         //自动寻找ViewHold
         @Override
@@ -374,7 +393,8 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
-            private ImageView imgHead, ivSelect;
+            private ImageView ivSelect;
+            private MultiImageView imgHead;
             private TextView txtName;
             private TextView txtNum;
 
