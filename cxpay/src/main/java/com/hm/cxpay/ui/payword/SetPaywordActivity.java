@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
@@ -169,6 +170,7 @@ public class SetPaywordActivity extends AppActivity {
                     public void onHandleSuccess(BaseResponse baseResponse) {
                         if(baseResponse.isSuccess()){
                             ToastUtil.show(activity, "设置成功!");
+                            PayEnvironment.getInstance().getUser().setPayPwdStat(1);
                             go(LooseChangeActivity.class);
                             finish();
                         }else {
