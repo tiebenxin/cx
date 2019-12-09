@@ -671,7 +671,7 @@ public class ChatItemView extends LinearLayout {
     }
 
     //红包消息
-    public void setData3(final boolean isInvalid, String title, String info, String typeName, int typeIconRes, final EventRP eventRP) {
+    public void setData3(final boolean isInvalid, String title, String info, String typeName, int typeIconRes, int reType,final EventRP eventRP) {
         if (isInvalid) {//失效
             imgMeRbState.setImageResource(R.mipmap.ic_rb_zfb_n);
             imgOtRbState.setImageResource(R.mipmap.ic_rb_zfb_n);
@@ -693,7 +693,7 @@ public class ChatItemView extends LinearLayout {
             viewMeTouch.setOnClickListener(onk = new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    eventRP.onClick(isInvalid);
+                    eventRP.onClick(isInvalid,reType);
                 }
             });
             viewOtTouch.setOnClickListener(onk);
@@ -721,7 +721,7 @@ public class ChatItemView extends LinearLayout {
 
 
     //转账消息
-    public void setData6(final boolean isInvalid, String title, String info, String typeName, int typeIconRes, final EventRP eventRP) {
+    public void setData6(final boolean isInvalid, String title, String info, String typeName, int typeIconRes, int reType,final EventRP eventRP) {
         if (isInvalid) {//失效
             imgMeTsState.setImageResource(R.mipmap.ic_rb_zfb_n);
             imgOtTsState.setImageResource(R.mipmap.ic_rb_zfb_n);
@@ -739,7 +739,7 @@ public class ChatItemView extends LinearLayout {
             viewMeTouch.setOnClickListener(onk = new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    eventRP.onClick(isInvalid);
+                    eventRP.onClick(isInvalid,reType);
                 }
             });
             viewOtTouch.setOnClickListener(onk);
@@ -865,7 +865,7 @@ public class ChatItemView extends LinearLayout {
 
 
     public interface EventRP {
-        void onClick(boolean isInvalid);
+        void onClick(boolean isInvalid,int reType);
     }
 
     //视频消息

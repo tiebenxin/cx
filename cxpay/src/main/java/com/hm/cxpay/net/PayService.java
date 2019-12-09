@@ -6,6 +6,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BankInfo;
 import com.hm.cxpay.ui.bank.BindBankInfo;
+import com.hm.cxpay.ui.redenvelope.GrabEnvelopeBean;
 import com.hm.cxpay.ui.redenvelope.RedDetailsBean;
 import com.hm.cxpay.ui.redenvelope.SendResultBean;
 
@@ -94,6 +95,10 @@ public interface PayService {
     //发红包
     @POST(Route.SEND_RED_ENVELOPE)
     Observable<BaseResponse<SendResultBean>> sendRedEnvelope(@Body RequestBody body);
+
+    //抢红包
+    @POST(Route.SNATCH_RED_ENVELOPE)
+    Observable<BaseResponse<GrabEnvelopeBean>> grabRedEnvelope(@Body RequestBody body);
 
 
 }

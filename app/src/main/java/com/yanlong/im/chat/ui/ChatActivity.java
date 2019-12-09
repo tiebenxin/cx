@@ -399,7 +399,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             viewFunc.removeView(viewChatRobot);
         }
         viewFunc.removeView(ll_part_chat_video);
-        viewFunc.removeView(viewRb);
+//        viewFunc.removeView(viewRb);
         //test 6.26
         viewFunc.removeView(viewTransfer);
     }
@@ -418,6 +418,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewCamera = findViewById(R.id.view_camera);
         viewRb = findViewById(R.id.view_rb);
         viewRbZfb = findViewById(R.id.view_rb_zfb);
+//        viewRbSys = findViewById(R.id.view_rb_system);
         viewAction = findViewById(R.id.view_action);
         viewTransfer = findViewById(R.id.view_transfer);
         viewCard = findViewById(R.id.view_card);
@@ -980,14 +981,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
             }
         });
-        //支付宝红包
-        viewRbZfb.setOnClickListener(new View.OnClickListener() {
+        //系统红包
+        viewRb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-//                taskPayRb();
                 if (isGroup()) {
                     Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivity.this, toGid, groupInfo.getUsers().size());
                     startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
@@ -995,6 +995,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     Intent intentMulti = SingleRedPacketActivity.newIntent(ChatActivity.this, toUId);
                     startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
                 }
+            }
+        });
+        //支付宝红包，魔方红包
+        viewRbZfb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                taskPayRb();
             }
         });
         viewTransfer.setOnClickListener(new View.OnClickListener() {
@@ -2719,27 +2729,26 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     final Long touid = msgbean.getFrom_uid();
                     final int style = msgbean.getRed_envelope().getStyle();
                     String type = null;
-                    if (rb.getRe_type().intValue() == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
+                    int reType = rb.getRe_type().intValue();//红包类型
+                    if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
                         type = "云红包";
+                    } else if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {
+                        type = "零钱红包";
                     }
 
-
-                    holder.viewChatItem.setData3(isInvalid, title, info, type, R.color.transparent, new ChatItemView.EventRP() {
+                    holder.viewChatItem.setData3(isInvalid, title, info, type, R.color.transparent, reType, new ChatItemView.EventRP() {
                         @Override
-                        public void onClick(boolean isInvalid) {
+                        public void onClick(boolean isInvalid, int reType) {
+                            if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {//魔方红包
+                                if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
+                                    //ToastUtil.show(getContext(), "红包详情");
+                                    taskPayRbDetail(msgbean, rid);
 
-                            /*if (!isInvalid) {//红包没拆,先检查已经领完没
-                                taskPayRbCheck(msgbean, rid);
+                                } else {
+                                    taskPayRbGet(msgbean, touid, rid);
+                                }
+                            } else {//零钱红包
 
-                            }*/
-
-
-                            if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
-                                //ToastUtil.show(getContext(), "红包详情");
-                                taskPayRbDetail(msgbean, rid);
-
-                            } else {
-                                taskPayRbGet(msgbean, touid, rid);
                             }
                         }
                     });
@@ -2854,15 +2863,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     String titleTs = ts.getTransaction_amount() + "元";
                     final String tsId = ts.getId();
                     String typeTs = "好友转账";
-
-
-                    holder.viewChatItem.setData6(isInvalidTs, titleTs, infoTs, typeTs, R.color.transparent, new ChatItemView.EventRP() {
+                    int tranType = 0;//转账类型
+                    holder.viewChatItem.setData6(isInvalidTs, titleTs, infoTs, typeTs, R.color.transparent, tranType, new ChatItemView.EventRP() {
                         @Override
-                        public void onClick(boolean isInvalid) {
+                        public void onClick(boolean isInvalid, int tranType) {
                             tsakTransGet(tsId);
                         }
                     });
-
 
                     break;
                 case ChatEnum.EMessageType.VOICE://语音消息

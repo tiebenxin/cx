@@ -8,6 +8,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BankInfo;
 import com.hm.cxpay.ui.bank.BindBankInfo;
+import com.hm.cxpay.ui.redenvelope.GrabEnvelopeBean;
 import com.hm.cxpay.ui.redenvelope.RedDetailsBean;
 import com.hm.cxpay.ui.redenvelope.SendResultBean;
 import com.hm.cxpay.utils.UIUtils;
@@ -109,7 +110,7 @@ public class PayHttpUtils {
     }
 
     //修改支付密码
-    public Observable<BaseResponse> modifyPayword(String oldPayword,String newPayword) {
+    public Observable<BaseResponse> modifyPayword(String oldPayword, String newPayword) {
         Map<String, String> map = new HashMap<>();
         map.put("currentPwd", MD5.md5(oldPayword));
         map.put("newPwd", MD5.md5(newPayword));
@@ -133,7 +134,7 @@ public class PayHttpUtils {
     //充值
     public Observable<BaseResponse<CommonBean>> toRecharge(int amt, long bankCardId, String payPwd) {
         Map<String, String> map = new HashMap<>();
-        map.put("amt", UIUtils.getFen(amt+"")+"");
+        map.put("amt", UIUtils.getFen(amt + "") + "");
         map.put("bankCardId", bankCardId + "");
         map.put("payPwd", MD5.md5(payPwd));
         map.put("actionId", UIUtils.getUUID());
@@ -143,7 +144,7 @@ public class PayHttpUtils {
     //提现
     public Observable<BaseResponse<CommonBean>> toWithdraw(int amt, long bankCardId, String payPwd) {
         Map<String, String> map = new HashMap<>();
-        map.put("amt", UIUtils.getFen(amt+"")+"");
+        map.put("amt", UIUtils.getFen(amt + "") + "");
         map.put("bankCardId", bankCardId + "");
         map.put("payPwd", MD5.md5(payPwd));
         map.put("actionId", UIUtils.getUUID());
@@ -225,6 +226,19 @@ public class PayHttpUtils {
         map.put("toGid", gid);
         return HttpChannel.getInstance().getPayService().sendRedEnvelope(getRequestBody(map));
     }
+
+    /**
+     * 抢红包
+     *
+     * @param rid 红包id 及 tradeId
+     */
+    public Observable<BaseResponse<GrabEnvelopeBean>> grabRedEnvelope(long rid) {
+        Map<String, String> map = new HashMap<>();
+        map.put("rid", rid + "");
+        return HttpChannel.getInstance().getPayService().grabRedEnvelope(getRequestBody(map));
+    }
+
+
 
 
 }

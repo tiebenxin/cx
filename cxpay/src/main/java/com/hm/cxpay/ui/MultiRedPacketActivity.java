@@ -105,7 +105,11 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     public void eventPayResult(PayResultEvent event) {
         dismissWaitDialog();
         if (envelopeBean != null && event.getTradeId() == envelopeBean.getTradeId()) {
-            setResultOk();
+            if (event.getResult() == PayEnum.EPayResult.SUCCESS) {
+                setResultOk();
+            } else {
+                ToastUtil.show(this, event.getErrMsg());
+            }
         }
     }
 
