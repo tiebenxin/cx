@@ -23,6 +23,7 @@ import com.hm.cxpay.ui.bill.BillDetailListAdapter;
 import com.hm.cxpay.utils.DateUtils;
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 
+import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -83,6 +84,7 @@ public class ChangeDetailListActivity extends AppActivity {
 
     private void initData() {
         selectTimeDataValue = DateUtils.getMonthBegin(new Date());
+        tvChangeSelectDate.setText(TimeToString.getSelectMouth(Calendar.getInstance().getTimeInMillis()));//默认显示当前年月
         getChangeDetailsList();//先拿当前的时间戳去请求
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override

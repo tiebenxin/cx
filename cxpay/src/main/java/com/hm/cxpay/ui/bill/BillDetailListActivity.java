@@ -30,6 +30,7 @@ import com.hm.cxpay.utils.DateUtils;
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -100,7 +101,8 @@ public class BillDetailListActivity extends AppActivity {
     }
 
     private void initData() {
-        selectTimeDataValue = DateUtils.getMonthBegin(new Date());
+        selectTimeDataValue = DateUtils.getMonthBegin(new Date());//拿当前月份第一天的时间戳
+        tvSelectDate.setText(TimeToString.getSelectMouth(Calendar.getInstance().getTimeInMillis()));//默认显示当前年月
         getBillDetailsList();//先拿当前的时间戳去请求
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -266,6 +268,7 @@ public class BillDetailListActivity extends AppActivity {
                 tvAll.setTextColor(getResources().getColor(R.color.white));
                 selectTypeDialog.dismiss();
                 //刷新数据
+                tvSelectType.setText("全部");
                 page=1;
                 selectType =1 ;
                 getBillDetailsList();
@@ -279,6 +282,7 @@ public class BillDetailListActivity extends AppActivity {
                 tvTransfer.setTextColor(getResources().getColor(R.color.white));
                 selectTypeDialog.dismiss();
                 //刷新数据
+                tvSelectType.setText("转账");
                 page=1;
                 selectType =2 ;
                 getBillDetailsList();
@@ -292,6 +296,7 @@ public class BillDetailListActivity extends AppActivity {
                 tvRedpacket.setTextColor(getResources().getColor(R.color.white));
                 selectTypeDialog.dismiss();
                 //刷新数据
+                tvSelectType.setText("红包");
                 page=1;
                 selectType =3 ;
                 getBillDetailsList();
@@ -305,6 +310,7 @@ public class BillDetailListActivity extends AppActivity {
                 tvRechargeWithdraw.setTextColor(getResources().getColor(R.color.white));
                 selectTypeDialog.dismiss();
                 //刷新数据
+                tvSelectType.setText("充值/提现");
                 page=1;
                 selectType =4 ;
                 getBillDetailsList();
@@ -318,6 +324,7 @@ public class BillDetailListActivity extends AppActivity {
                 tvRefund.setTextColor(getResources().getColor(R.color.white));
                 selectTypeDialog.dismiss();
                 //刷新数据
+                tvSelectType.setText("退款");
                 page=1;
                 selectType =5 ;
                 getBillDetailsList();

@@ -1,7 +1,5 @@
 package com.hm.cxpay.utils;
 
-import com.umeng.commonsdk.debug.D;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -29,9 +27,9 @@ public class DateUtils {
     }
 
     /**
-     * 获取指定日期所在月份开始的时间戳
+     * 获取指定日期所在月份第一天开始的时间戳
      * @param date 指定日期
-     * @return
+      @return
      */
     public static Long getMonthBegin(Date date) {
         Calendar c = Calendar.getInstance();

@@ -42,6 +42,7 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -195,13 +196,19 @@ public class WithdrawActivity extends AppActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 if(!TextUtils.isEmpty(etWithdraw.getText().toString())){
-                    withDrawMoney = Double.valueOf(etWithdraw.getText().toString());
-                    serviceMoney = computeRateMoney(withDrawMoney,rate);
-                    realMoney = withDrawMoney - serviceMoney;
-                    doubleRate = rate*100;
-                    //实际值以分为单位，显示转为元
-                    tvRateNotice.setText("服务费 "+serviceMoney+"元 (服务费=提现金额 X "+doubleRate+"%)");
-                    tvSubmit.setText("提现 (实际到账金额 "+realMoney+")");
+                    //单笔限额5000
+                    if(Double.valueOf(etWithdraw.getText().toString()) <= 5000){
+                        withDrawMoney = Double.valueOf(etWithdraw.getText().toString());
+                        serviceMoney = computeRateMoney(withDrawMoney,rate);
+                        realMoney = withDrawMoney - serviceMoney;
+                        doubleRate = rate*100;
+                        //实际值以分为单位，显示转为元
+                        tvRateNotice.setText("服务费 "+serviceMoney+"元 (服务费=提现金额 X "+doubleRate+"%)");
+                        tvSubmit.setText("提现 (实际到账金额 "+realMoney+")");
+                    }else {
+                        ToastUtil.show(activity,"单笔最高不能超过5000元");
+                        etWithdraw.setText("");
+                    }
                 }else {
                     tvRateNotice.setText("服务费 0.0元 (服务费=提现金额 X "+rate*100+"%)");
                     tvSubmit.setText("提现 (实际到账金额 0.0)");
@@ -382,7 +389,10 @@ public class WithdrawActivity extends AppActivity {
      * @return
      */
     private double computeRateMoney(Double money,Double rate){
-        return money*rate;
+        BigDecimal a1 = new BigDecimal(Double.toString(money));
+        BigDecimal aa = new BigDecimal(Double.toString(rate));
+        Double dd = a1.multiply(aa).doubleValue();
+        return dd;
     }
 
 

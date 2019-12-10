@@ -61,7 +61,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/c_878787"
         android:textSize="12sp"
-        android:visibility="gone"
+        android:visibility="visible"
         android:text="余额 : 0.0"/>
 
     <TextView
@@ -75,6 +75,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/c_32b053"
         android:textSize="12sp"
+        android:visibility="gone"
         android:text=""/>
 
 
