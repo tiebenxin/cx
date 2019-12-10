@@ -382,7 +382,6 @@ public class RechargeActivity extends AppActivity {
                 .subscribe(new FGObserver<BaseResponse<CommonBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
-                        if(baseResponse.isSuccess()){
                             if(baseResponse.getData()!=null){
                                 if(baseResponse.getData().getCode()==1){
                                     ToastUtil.show(activity, "充值成功!");
@@ -395,9 +394,6 @@ public class RechargeActivity extends AppActivity {
                                     ToastUtil.show(activity, baseResponse.getMessage());
                                 }
                             }
-                        }else {
-                            ToastUtil.show(activity, baseResponse.getMessage());
-                        }
                         finish();
                     }
 

@@ -1,5 +1,6 @@
 package com.hm.cxpay.net;
 
+import com.hm.cxpay.bean.BillBean;
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.rx.data.BaseResponse;
@@ -86,6 +87,10 @@ public interface PayService {
     //绑定手机号
     @POST(Route.BIND_PHONE)
     Observable<BaseResponse> bindPhoneNum(@Body RequestBody body);
+
+    //获取账单明细
+    @POST(Route.GET_BILL_DETAILS_LIST)
+    Observable<BaseResponse<BillBean>> getBillDetailsList(@Body RequestBody body);
 
     //获取红包明细
     @POST(Route.GET_RED_ENVELOPE_DETAILS)

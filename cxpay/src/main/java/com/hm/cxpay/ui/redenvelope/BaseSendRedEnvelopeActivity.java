@@ -37,7 +37,7 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().register(this);
+        EventBus.getDefault().unregister(this);
     }
 
 

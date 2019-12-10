@@ -23,6 +23,29 @@ public class DateUtils {
     }
 
     /**
+     * 获取指定日期所在月份开始的时间戳
+     * @param date 指定日期
+     * @return
+     */
+    public static Long getMonthBegin(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        //设置为1号,当前日期既为本月第一天
+        c.set(Calendar.DAY_OF_MONTH, 1);
+        //将小时至0
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        //将分钟至0
+        c.set(Calendar.MINUTE, 0);
+        //将秒至0
+        c.set(Calendar.SECOND,0);
+        //将毫秒至0
+        c.set(Calendar.MILLISECOND, 0);
+        // 获取本月第一天的时间戳
+        return c.getTimeInMillis();
+    }
+
+
+    /**
      * 根据某个时间戳获取当月的结束时间（最后一天的最后一毫秒）
      *
      * @return
@@ -39,4 +62,6 @@ public class DateUtils {
         first.add(Calendar.MILLISECOND, -1);
         return first.getTime();
     }
+
+
 }

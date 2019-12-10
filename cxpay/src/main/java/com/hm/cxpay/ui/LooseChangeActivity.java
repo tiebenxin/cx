@@ -20,6 +20,7 @@ import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BankSettingActivity;
+import com.hm.cxpay.ui.bill.BillDetailListActivity;
 import com.hm.cxpay.ui.payword.ManagePaywordActivity;
 import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.utils.UIUtils;
@@ -84,8 +85,7 @@ public class LooseChangeActivity extends BasePayActivity {
 
             @Override
             public void onRight() {
-                ToastUtil.show(context, "账单");
-
+                startActivity(new Intent(context, BillDetailListActivity.class));
             }
         });
         //显示余额

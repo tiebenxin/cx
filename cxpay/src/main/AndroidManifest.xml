@@ -43,6 +43,9 @@
             android:name=".ui.BindPhoneNumActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".ui.bill.BillDetailListActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".ui.payword.SetPaywordActivity"
             android:screenOrientation="portrait" />
         <activity
