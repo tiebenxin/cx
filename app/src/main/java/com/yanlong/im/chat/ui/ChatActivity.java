@@ -51,8 +51,13 @@ import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.hm.cxpay.bean.CxEnvelopeBean;
+import com.hm.cxpay.net.FGObserver;
+import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.MultiRedPacketActivity;
 import com.hm.cxpay.ui.SingleRedPacketActivity;
+import com.hm.cxpay.ui.redenvelope.GrabEnvelopeBean;
 import com.hm.cxpay.ui.redenvelope.SendResultBean;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -2747,8 +2752,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 } else {
                                     taskPayRbGet(msgbean, touid, rid);
                                 }
-                            } else {//零钱红包
+                            } else if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
+                                if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
+                                    taskPayRbDetail(msgbean, rid);
 
+                                } else {
+                                    taskPayRbGet(msgbean, touid, rid);
+                                }
                             }
                         }
                     });
@@ -4573,6 +4583,36 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         }
         return isOk;
+    }
+
+    //抢红包，获取token
+    public void grabRedEnvelope(long rid) {
+        PayHttpUtils.getInstance().grabRedEnvelope(rid)
+                .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<GrabEnvelopeBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<GrabEnvelopeBean> baseResponse) {
+                        if (baseResponse.isSuccess()) {
+                            GrabEnvelopeBean bean = baseResponse.getData();
+                            if (bean != null) {
+
+                            }
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        super.onHandleError(baseResponse);
+                        if (baseResponse.getCode() == -21000) {
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
+                    }
+                });
     }
 
 

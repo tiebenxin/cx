@@ -103,7 +103,7 @@ public interface PayService {
     Observable<BaseResponse<GrabEnvelopeBean>> grabRedEnvelope(@Body RequestBody body);
 
     //拆红包
-    @POST(Route.SNATCH_RED_ENVELOPE)
+    @POST(Route.OPEN_RED_ENVELOPE)
     Observable<BaseResponse<OpenEnvelopeBean>> openRedEnvelope(@Body RequestBody body);
 
     //查看红包记录详情
