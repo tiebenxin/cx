@@ -64,6 +64,10 @@ public class DaoMigration implements RealmMigration {
                 updateV12(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 12) {
+                updateV13(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -230,6 +234,12 @@ public class DaoMigration implements RealmMigration {
         schema.get("RedEnvelopeMessage")
                 .addField("traceId", long.class)
                 .addField("actionId", String.class);
+    }
+
+    //更新红包消息token
+    private void updateV13(RealmSchema schema) {
+        schema.get("RedEnvelopeMessage")
+                .addField("accessToken", String.class);
 
     }
 
