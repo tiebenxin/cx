@@ -1,130 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
-<net.cb.cb.library.view.HeadView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/headView"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:headview_title="群管理">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-    <LinearLayout
-        style="@style/app_layout_list2"
+    <net.cb.cb.library.view.HeadView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/headView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        app:headview_title="群管理">
+
 
         <LinearLayout
-            android:id="@+id/view_group_transfer"
-            style="@style/app_layout_list2_item">
+            style="@style/app_layout_list2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/view_group_transfer"
+                style="@style/app_layout_list2_item">
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:layout_weight="1"
+                    android:text="群主管理权转让" />
+
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_btn_goto" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/view_group_verif"
+                style="@style/app_layout_list2_item"
+                android:layout_marginTop="@dimen/app_margin_item_top">
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:layout_weight="1"
+                    android:text="加群验证" />
+
+                <CheckBox
+                    android:id="@+id/ck_group_verif"
+                    style="@style/app_check" />
+            </LinearLayout>
 
             <TextView
-                style="@style/app_txt_title_2"
-                android:layout_marginRight="@dimen/app_margin_item"
-                android:layout_weight="1"
-                android:text="群主管理权转让" />
+                style="@style/app_txt_content_2"
+                android:paddingLeft="@dimen/app_margin_main"
+                android:paddingRight="@dimen/app_margin_main"
+                android:text="开启后，需要管理员同意才能加入群聊" />
+
+            <LinearLayout
+                android:id="@+id/view_group_intimately"
+                style="@style/app_layout_list2_item"
+                android:layout_marginTop="@dimen/app_margin_item_top">
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:layout_weight="1"
+                    android:text="是否开启群成员保护" />
+
+                <CheckBox
+                    android:id="@+id/ck_group_intimately"
+                    style="@style/app_check" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/app_txt_content_2"
+                android:paddingLeft="@dimen/app_margin_main"
+                android:paddingRight="@dimen/app_margin_main"
+                android:text="开启后，群成员无法通过该群添加好友" />
+
+            <LinearLayout
+                android:id="@+id/view_group_robot"
+                style="@style/app_layout_list2_item"
+                android:layout_marginTop="@dimen/app_margin_item_top">
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_marginRight="@dimen/app_margin_item"
+
+                    android:text="群机器人" />
+
+                <TextView
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:id="@+id/txt_group_robot"
+                    style="@style/app_txt_title_4"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:text="未配置" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_btn_goto" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/view_group_add"
+                style="@style/app_layout_list2_item"
+                android:layout_marginTop="@dimen/app_margin_item_top">
+
+                <TextView
+                    style="@style/app_txt_title_red"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:text="增加群人数上限至1000人" />
+
+                <TextView
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:id="@+id/txt_group_add"
+                    style="@style/app_txt_title_4"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:text="" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_btn_goto" />
+            </LinearLayout>
 
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@mipmap/ic_btn_goto" />
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/view_group_verif"
-            style="@style/app_layout_list2_item"
-            android:layout_marginTop="@dimen/app_margin_item_top">
 
-            <TextView
-                style="@style/app_txt_title_2"
-                android:layout_marginRight="@dimen/app_margin_item"
-                android:layout_weight="1"
-                android:text="加群验证" />
-
-            <CheckBox
-                android:id="@+id/ck_group_verif"
-                style="@style/app_check" />
-        </LinearLayout>
-
-        <TextView
-            style="@style/app_txt_content_2"
-            android:paddingLeft="@dimen/app_margin_main"
-            android:paddingRight="@dimen/app_margin_main"
-            android:text="开启后，需要管理员同意才能加入群聊" />
-
-        <LinearLayout
-            android:id="@+id/view_group_intimately"
-            style="@style/app_layout_list2_item"
-            android:layout_marginTop="@dimen/app_margin_item_top">
-
-            <TextView
-                style="@style/app_txt_title_2"
-                android:layout_marginRight="@dimen/app_margin_item"
-                android:layout_weight="1"
-                android:text="是否开启群成员保护" />
-
-            <CheckBox
-                android:id="@+id/ck_group_intimately"
-                style="@style/app_check" />
-        </LinearLayout>
-
-        <TextView
-            style="@style/app_txt_content_2"
-            android:paddingLeft="@dimen/app_margin_main"
-            android:paddingRight="@dimen/app_margin_main"
-            android:text="开启后，群成员无法通过该群添加好友" />
-
-        <LinearLayout
-            android:id="@+id/view_group_robot"
-            style="@style/app_layout_list2_item"
-            android:layout_marginTop="@dimen/app_margin_item_top">
-
-            <TextView
-                style="@style/app_txt_title_2"
-                android:layout_marginRight="@dimen/app_margin_item"
-
-                android:text="群机器人" />
-
-            <TextView
-                android:layout_weight="1"
-                android:gravity="right"
-                android:id="@+id/txt_group_robot"
-                style="@style/app_txt_title_4"
-                android:layout_marginRight="@dimen/app_margin_item"
-                android:text="未配置" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@mipmap/ic_btn_goto" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/view_group_add"
-            style="@style/app_layout_list2_item"
-            android:layout_marginTop="@dimen/app_margin_item_top">
-
-            <TextView
-                style="@style/app_txt_title_red"
-                android:layout_marginRight="@dimen/app_margin_item"
-                android:text="增加群人数上限至1000人" />
-
-            <TextView
-                android:layout_weight="1"
-                android:gravity="right"
-                android:id="@+id/txt_group_add"
-                style="@style/app_txt_title_4"
-                android:layout_marginRight="@dimen/app_margin_item"
-                android:text="" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@mipmap/ic_btn_goto" />
-        </LinearLayout>
-
-
-    </LinearLayout>
-
-
-</net.cb.cb.library.view.HeadView>
+    </net.cb.cb.library.view.HeadView>
+</layout>

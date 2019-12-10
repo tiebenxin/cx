@@ -4,15 +4,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
+import com.example.nim_lib.ui.BaseBindActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.databinding.ActivityGroupManageBinding;
 import com.yanlong.im.user.ui.GroupAddActivity;
 
 import net.cb.cb.library.bean.EventGroupChange;
@@ -20,11 +19,9 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
-import net.cb.cb.library.view.AppActivity;
-import net.cb.cb.library.view.HeadView;
 
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -32,64 +29,44 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 /**
- * 群管理
+ * @version V1.0
+ * @createAuthor （Shenxin）
+ * @createDate 2019-7-9
+ * @updateAuthor （Geoff）
+ * @updateDate 2019-12-9
+ * @description 群管理
+ * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
-public class GroupManageActivity extends AppActivity {
+public class GroupManageActivity extends BaseBindActivity<ActivityGroupManageBinding> implements View.OnClickListener {
 
     public static final String AGM_GID = "AGM_GID";
     public static final String PERCENTAGE = "percentage";
-    private HeadView mHeadView;
-    private LinearLayout mViewGroupTransfer, view_group_add;
-    private LinearLayout viewGroupRobot;
-    private TextView txtGroupRobot;
-    private CheckBox mCkGroupVerif;
-    private CheckBox mCkGroupIntimately;
     private MsgAction msgAction;
-    private String gid;
-    private Group ginfo;
-
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group_manage);
-        if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this);
-        }
-        initView();
-        initData();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().unregister(this);
-        }
-
-    }
-
     private boolean isPercentage;
+    private String mGid;
+    private Group mGinfo;
 
-    private void initView() {
+    @Override
+    protected int setView() {
+        return R.layout.activity_group_manage;
+    }
 
+    @Override
+    protected void init(Bundle savedInstanceState) {
         msgAction = new MsgAction();
-        gid = getIntent().getStringExtra(AGM_GID);
-        mHeadView = findViewById(R.id.headView);
-        mViewGroupTransfer = findViewById(R.id.view_group_transfer);
-        view_group_add = findViewById(R.id.view_group_add);
-        mCkGroupVerif = findViewById(R.id.ck_group_verif);
-        mCkGroupIntimately = findViewById(R.id.ck_group_intimately);
-        viewGroupRobot = findViewById(R.id.view_group_robot);
-        txtGroupRobot = findViewById(R.id.txt_group_robot);
+        mGid = getIntent().getStringExtra(AGM_GID);
         isPercentage = getIntent().getBooleanExtra(PERCENTAGE, false);
+
         if (!isPercentage) {
-            view_group_add.setVisibility(View.GONE);
+            bindingView.viewGroupAdd.setVisibility(View.GONE);
         }
     }
 
-    private void initEvent() {
-        mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+    @Override
+    protected void initEvent() {
+        bindingView.viewGroupAdd.setOnClickListener(this);
+        bindingView.viewGroupTransfer.setOnClickListener(this);
+        bindingView.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
                 onBackPressed();
@@ -101,37 +78,24 @@ public class GroupManageActivity extends AppActivity {
             }
         });
 
-        mCkGroupVerif.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        bindingView.ckGroupVerif.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                taskSetState(gid, null, null, null, isChecked ? 1 : 0);
+                taskSetState(mGid, null, null, null, isChecked ? 1 : 0);
             }
         });
         //TODO 群成员相互加好友
-        mCkGroupIntimately.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        bindingView.ckGroupIntimately.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                taskSetIntimatelyState(gid, isChecked ? 1 : 0);
+                taskSetIntimatelyState(mGid, isChecked ? 1 : 0);
             }
         });
+    }
 
-        mViewGroupTransfer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(GroupManageActivity.this, GroupSelectUserActivity.class);
-                intent.putExtra(GroupSelectUserActivity.GID, gid);
-                startActivityForResult(intent, GroupSelectUserActivity.RET_CODE_SELECTUSR);
-            }
-        });
-        view_group_add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(GroupManageActivity.this, GroupAddActivity.class).putExtra("gid", gid);
-                startActivity(intent);
-            }
-        });
-
-
+    @Override
+    protected void loadData() {
+        initData();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -144,64 +108,62 @@ public class GroupManageActivity extends AppActivity {
     }
 
     private void taskGetInfoNetwork() {
-        msgAction.groupInfo(gid, new CallBack<ReturnBean<Group>>() {
+        msgAction.groupInfo(mGid, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
-                    ginfo = response.body().getData();
+                    mGinfo = response.body().getData();
                     //群机器人
-                    String rname = ginfo.getRobotname();
+                    String rname = mGinfo.getRobotname();
                     rname = StringUtil.isNotNull(rname) ? rname : "未配置";
-                    txtGroupRobot.setText(rname);
-                    viewGroupRobot.setOnClickListener(new View.OnClickListener() {
+                    bindingView.txtGroupRobot.setText(rname);
+                    bindingView.viewGroupRobot.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             startActivity(new Intent(getContext(), GroupRobotActivity.class)
-                                    .putExtra(GroupRobotActivity.AGM_GID, ginfo.getGid())
-                                    .putExtra(GroupRobotActivity.AGM_RID, ginfo.getRobotid()));
+                                    .putExtra(GroupRobotActivity.AGM_GID, mGinfo.getGid())
+                                    .putExtra(GroupRobotActivity.AGM_RID, mGinfo.getRobotid()));
                         }
                     });
                     //群验证
-                    mCkGroupVerif.setChecked(ginfo.getNeedVerification() == 1);
-                    mCkGroupIntimately.setChecked(ginfo.getContactIntimately() == 1);
+                    bindingView.ckGroupVerif.setChecked(mGinfo.getNeedVerification() == 1);
+                    bindingView.ckGroupIntimately.setChecked(mGinfo.getContactIntimately() == 1);
                     initEvent();
                 }
             }
         });
     }
-
 
     private void initData() {
         taskGetInfo();
     }
 
     private void taskGetInfo() {
-        msgAction.groupInfo4Db(gid, new CallBack<ReturnBean<Group>>() {
+        msgAction.groupInfo4Db(mGid, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
-                    ginfo = response.body().getData();
+                    mGinfo = response.body().getData();
                     //群机器人
-                    String rname = ginfo.getRobotname();
+                    String rname = mGinfo.getRobotname();
                     rname = StringUtil.isNotNull(rname) ? rname : "未配置";
-                    txtGroupRobot.setText(rname);
-                    viewGroupRobot.setOnClickListener(new View.OnClickListener() {
+                    bindingView.txtGroupRobot.setText(rname);
+                    bindingView.viewGroupRobot.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             startActivity(new Intent(getContext(), GroupRobotActivity.class)
-                                    .putExtra(GroupRobotActivity.AGM_GID, ginfo.getGid())
-                                    .putExtra(GroupRobotActivity.AGM_RID, ginfo.getRobotid()));
+                                    .putExtra(GroupRobotActivity.AGM_GID, mGinfo.getGid())
+                                    .putExtra(GroupRobotActivity.AGM_RID, mGinfo.getRobotid()));
                         }
                     });
                     //群验证
-                    mCkGroupVerif.setChecked(ginfo.getNeedVerification() == 1);
-                    mCkGroupIntimately.setChecked(ginfo.getContactIntimately() == 1);
+                    bindingView.ckGroupVerif.setChecked(mGinfo.getNeedVerification() == 1);
+                    bindingView.ckGroupIntimately.setChecked(mGinfo.getContactIntimately() == 1);
                     initEvent();
                 }
             }
         });
     }
-
 
     private void taskSetState(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
         msgAction.groupSwitch(gid, isTop, notNotify, saved, needVerification, new CallBack<ReturnBean>() {
@@ -231,7 +193,6 @@ public class GroupManageActivity extends AppActivity {
         });
     }
 
-
     private void changeMaster(String gid, String uid, String membername) {
         msgAction.changeMaster(gid, uid, membername, new CallBack<ReturnBean>() {
             @Override
@@ -250,7 +211,6 @@ public class GroupManageActivity extends AppActivity {
         });
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -260,10 +220,29 @@ public class GroupManageActivity extends AppActivity {
             String uid = data.getStringExtra(GroupSelectUserActivity.UID);
             if (StringUtil.isNotNull(uid)) {
                 String membername = data.getStringExtra(GroupSelectUserActivity.MEMBERNAME);
-                changeMaster(gid, uid, membername);
+                changeMaster(mGid, uid, membername);
             }
 
         }
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (ViewUtils.isFastDoubleClick()) {
+            return;
+        }
+        Intent intent;
+        switch (v.getId()) {
+            case R.id.view_group_transfer:// 群主管理权转让
+                intent = new Intent(GroupManageActivity.this, GroupSelectUserActivity.class);
+                intent.putExtra(GroupSelectUserActivity.GID, mGid);
+                startActivityForResult(intent, GroupSelectUserActivity.RET_CODE_SELECTUSR);
+                break;
+            case R.id.view_group_add:// 增加群人数上限至1000人
+                intent = new Intent(GroupManageActivity.this, GroupAddActivity.class).putExtra("gid", mGid);
+                startActivity(intent);
+                break;
+        }
     }
 }

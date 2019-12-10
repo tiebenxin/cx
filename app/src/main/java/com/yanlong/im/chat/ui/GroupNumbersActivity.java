@@ -3,7 +3,6 @@ package com.yanlong.im.chat.ui;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -17,10 +16,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -29,7 +26,6 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.UserUtil;
 
-import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
@@ -39,9 +35,6 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
 
-import org.greenrobot.eventbus.EventBus;
-
-import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -154,7 +147,6 @@ public class GroupNumbersActivity extends AppActivity {
 
             final UserInfo bean = listData.get(position);
 
-
             hd.txtType.setText(bean.getTag());
             // hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
             Glide.with(context).load(bean.getHead())
@@ -163,10 +155,19 @@ public class GroupNumbersActivity extends AppActivity {
             hd.txtName.setText(bean.getName4Show());
 
             hd.viewType.setVisibility(View.VISIBLE);
+            hd.viewLine.setVisibility(View.VISIBLE);
             if (position > 0 && listData.size() > 1) {
                 UserInfo lastbean = listData.get(position - 1);
                 if (lastbean.getTag().equals(bean.getTag())) {
                     hd.viewType.setVisibility(View.GONE);
+                }
+            }
+            if (position == getItemCount() - 1) {
+                hd.viewLine.setVisibility(View.GONE);
+            } else {
+                UserInfo lastbean = listData.get(position + 1);
+                if (!lastbean.getTag().equals(bean.getTag())) {
+                    hd.viewLine.setVisibility(View.GONE);
                 }
             }
 
@@ -207,6 +208,7 @@ public class GroupNumbersActivity extends AppActivity {
             private ImageView imgHead;
             private TextView txtName;
             private CheckBox ckSelect;
+            private View viewLine;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
@@ -216,6 +218,7 @@ public class GroupNumbersActivity extends AppActivity {
                 imgHead = convertView.findViewById(R.id.img_head);
                 txtName = convertView.findViewById(R.id.txt_name);
                 ckSelect = convertView.findViewById(R.id.ck_select);
+                viewLine = convertView.findViewById(R.id.view_line);
             }
 
         }

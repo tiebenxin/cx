@@ -486,6 +486,7 @@ public class GroupInfoActivity extends AppActivity {
                                 .putExtra(UserInfoActivity.ID, number.getUid())
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
                                 .putExtra(UserInfoActivity.GID, gid)
+                                .putExtra(UserInfoActivity.IS_GROUP, true)
                                 .putExtra(UserInfoActivity.MUC_NICK, number.getMembername()));
 
                     }

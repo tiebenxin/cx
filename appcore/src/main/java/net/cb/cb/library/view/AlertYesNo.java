@@ -96,6 +96,10 @@ public class AlertYesNo {
 
     }
 
+    public boolean isShowing() {
+        return alertDialog.isShowing();
+    }
+
     public void show() {
 
         alertDialog.show();

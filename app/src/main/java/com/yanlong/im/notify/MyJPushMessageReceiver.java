@@ -2,16 +2,14 @@ package com.yanlong.im.notify;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
-import com.example.nim_lib.event.EventFactory;
 import com.google.gson.Gson;
 import com.yanlong.im.user.ui.SplashActivity;
 import com.yanlong.im.utils.socket.MsgBean;
 
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
-import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 

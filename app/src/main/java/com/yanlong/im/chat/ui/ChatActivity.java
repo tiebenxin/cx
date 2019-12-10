@@ -47,7 +47,6 @@ import androidx.annotation.RequiresApi;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
-import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.hm.cxpay.bean.CxEnvelopeBean;
@@ -152,6 +151,7 @@ import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.inter.ICustomerItemClick;
 import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
@@ -280,6 +280,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private TextView tv_ban;
     private String draft;
     private int isFirst;
+    private UserInfo mFinfo;// 聊天用户信息，刷新时更新
 
     // 气泡视图
     private PopupWindow mPopupWindow;// 长按消息弹出气泡PopupWindow
@@ -2256,13 +2257,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     private void showBigPic(String msgid, String uri) {
         List<LocalMedia> selectList = new ArrayList<>();
+        List<LocalMedia> temp = new ArrayList<>();
         int pos = 0;
-
         List<MsgAllBean> listdata = msgAction.getMsg4UserImg(toGid, toUId);
-        for (MsgAllBean msgl : listdata) {
-
+        for (int i = 0; i < listdata.size(); i++) {
+            MsgAllBean msgl=listdata.get(i);
             if (msgid.equals(msgl.getMsg_id())) {
-                pos = selectList.size();
+                pos = i;
             }
 
             LocalMedia lc = new LocalMedia();
@@ -2273,11 +2274,30 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             lc.setSize(msgl.getImage().getSize());
             lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
             lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
-            lc.setMsg_id(msgid);
-            selectList.add(lc);
-
+            lc.setMsg_id(msgl.getMsg_id());
+            temp.add(lc);
+        }
+        int size=temp.size();
+        //取中间100张
+        if(size<=100) {
+            selectList.addAll(temp);
+        }else {
+            if(pos-50<=0){//取前面
+                selectList.addAll(temp.subList(0,100));
+            }else if(pos+50>=size){//取后面
+                selectList.addAll(temp.subList(size-100,size));
+            }else {//取中间
+                selectList.addAll(temp.subList(pos-50,pos+50));
+            }
         }
 
+        pos = 0;
+        for (int i = 0; i < selectList.size(); i++) {
+            if (msgid.equals(selectList.get(i).getMsg_id())) {
+                pos = i;
+                break;
+            }
+        }
         PictureSelector.create(ChatActivity.this)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
@@ -2592,10 +2612,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public boolean onLongClick(View v) {
                         //TODO:优先显示群备注
-                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid());
-                        if (TextUtils.isEmpty(name)) {
-                            name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
-                        }
+                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid(),null,null);
+//                        if (TextUtils.isEmpty(name)) {
+//                            name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
+//                        }
                         String txt = editChat.getText().toString().trim();
                         if (!txt.contains("@" + name)) {
                             if (!TextUtils.isEmpty(name)) {
@@ -2626,14 +2646,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             return;
                         }
                         //TODO:优先显示群备注、查询最新的在本群的昵称
-                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid());
-                        if (TextUtils.isEmpty(name)) {
-                            name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
+                        String name = "";
+                        if (isGroup()) {
+                            name = msgDao.getGroupMemberName2(toGid, msgbean.getFrom_uid());
+                        } else if (mFinfo != null) {
+                            name = mFinfo.getName4Show();
                         }
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, msgbean.getFrom_uid())
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
                                 .putExtra(UserInfoActivity.GID, toGid)
+                                .putExtra(UserInfoActivity.IS_GROUP, isGroup())
                                 .putExtra(UserInfoActivity.MUC_NICK, name));
                     }
                 });
@@ -3707,20 +3730,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             taskGroupConf();
 
         } else {
-            UserInfo finfo = userDao.findUserInfo(toUId);
-            if (finfo == null && toUId == 100121L) {
-                finfo = new UserInfo();
-                finfo.setUid(100121L);
-                finfo.setName("常信客服");
+            mFinfo = userDao.findUserInfo(toUId);
+            if (mFinfo == null && toUId == 100121L) {
+                mFinfo = new UserInfo();
+                mFinfo.setUid(100121L);
+                mFinfo.setName("常信客服");
             }
-            if (finfo != null) {
-                title = finfo.getName4Show();
-                if (finfo.getLastonline() > 0) {
+            if (mFinfo != null) {
+                title = mFinfo.getName4Show();
+                if (mFinfo.getLastonline() > 0) {
                     // 客服不显示时间状态
                     if (onlineState && !UserUtil.isSystemUser(toUId)) {
-                        actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), true);
+                        actionbar.setTitleMore(TimeToString.getTimeOnline(mFinfo.getLastonline(), mFinfo.getActiveType(), true), true);
                     } else {
-                        actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), false);
+                        actionbar.setTitleMore(TimeToString.getTimeOnline(mFinfo.getLastonline(), mFinfo.getActiveType(), true), false);
                     }
                 }
             }

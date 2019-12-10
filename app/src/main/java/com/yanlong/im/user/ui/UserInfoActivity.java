@@ -67,7 +67,7 @@ public class UserInfoActivity extends AppActivity {
     public static final String IS_BUSINESS_CARD = "isBusinessCard"; //是否是群名片路径
     public static final String MUC_NICK = "mucNick";//
     public static final String FROM = "from";//从哪个页面跳转过来
-
+    public static final String IS_GROUP = "isGroup";// 是否是群跳转过来
 
     private HeadView headView;
     private ActionbarView actionbar;
@@ -92,6 +92,7 @@ public class UserInfoActivity extends AppActivity {
     private int joinType;
     private String gid;
     private String inviterName;
+    private boolean mIsFromGroup;// 是否是来自群聊
     private long inviter;
     private long id;
     private String sayHi;
@@ -306,7 +307,7 @@ public class UserInfoActivity extends AppActivity {
         contactIntimately = intent.getIntExtra(IS_BUSINESS_CARD, 0);
         gid = intent.getStringExtra(GID);
         from = intent.getIntExtra(FROM, ChatEnum.EFromType.DEFAULT);
-        //     resetLayout();
+        mIsFromGroup = intent.getBooleanExtra(IS_GROUP, false);
         taskFindExist();
         taskUserInfo(id);
 
@@ -643,7 +644,7 @@ public class UserInfoActivity extends AppActivity {
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     notifyRefreshRoster(uid, CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS);
-                    EventBus.getDefault().post(new RefreshApplyEvent(uid, CoreEnum.EChatType.PRIVATE,1));
+                    EventBus.getDefault().post(new RefreshApplyEvent(uid, CoreEnum.EChatType.PRIVATE, 1));
                     finish();
                 }
             }
@@ -687,7 +688,7 @@ public class UserInfoActivity extends AppActivity {
         }
         if (userInfo.getuType() == ChatEnum.EUserType.FRIEND || userInfo.getStat() == 0) {//有好友关系
             if (!TextUtils.isEmpty(userRemark)) {
-                if (!TextUtils.isEmpty(mucNick)) {
+                if (!TextUtils.isEmpty(mucNick) && mIsFromGroup) {
                     tvFirstName.setText(userRemark);
                     tvSecondName.setText("昵称: " + userNick);
                     tvThirdName.setText("群昵称: " + mucNick);
@@ -697,7 +698,7 @@ public class UserInfoActivity extends AppActivity {
                     tvThirdName.setText("常信号: " + imId);
                 }
             } else {
-                if (!TextUtils.isEmpty(mucNick)) {
+                if (!TextUtils.isEmpty(mucNick) && mIsFromGroup) {
                     tvFirstName.setText(userNick);
                     tvSecondName.setText("常信号: " + imId);
                     tvThirdName.setText("群昵称: " + mucNick);
@@ -709,7 +710,7 @@ public class UserInfoActivity extends AppActivity {
             }
         } else {//无好友关系
             if (!TextUtils.isEmpty(userRemark)) {// 拉黑名单后需要优先显示备注名称
-                if (!TextUtils.isEmpty(mucNick)) {
+                if (!TextUtils.isEmpty(mucNick) && mIsFromGroup) {
                     tvFirstName.setText(userRemark);
                     tvSecondName.setText("昵称: " + userNick);
                     tvThirdName.setText("群昵称: " + mucNick);
@@ -718,7 +719,7 @@ public class UserInfoActivity extends AppActivity {
                     tvSecondName.setText("昵称: " + userNick);
                     tvThirdName.setText("常信号: " + DataUtils.getHideData(imId, 3));
                 }
-            } else if (!TextUtils.isEmpty(mucNick)) {
+            } else if (!TextUtils.isEmpty(mucNick) && mIsFromGroup) {
                 tvFirstName.setText(userNick);
                 tvSecondName.setText("群昵称: " + mucNick);
                 tvThirdName.setText("常信号: " + DataUtils.getHideData(imId, 3));

@@ -7,7 +7,7 @@ public class RedEnvelopeMessage extends RealmObject implements IMsgContent {
     @PrimaryKey
     private String msgid;
     private String id;
-    private Integer re_type;    // MFPAY - 0; SYSTEM -1
+    private Integer re_type;    // MFPAY = 0; SYSTEM =1
     private String comment;
 
     //红包的状态0:没拆,1拆了
@@ -17,6 +17,7 @@ public class RedEnvelopeMessage extends RealmObject implements IMsgContent {
 
     private long traceId;//交易订单号
     private String actionId;
+    private String accessToken;//查看系统红包token
 
     public int getStyle() {
         return style;
@@ -81,5 +82,13 @@ public class RedEnvelopeMessage extends RealmObject implements IMsgContent {
 
     public void setActionId(String actionId) {
         this.actionId = actionId;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 }

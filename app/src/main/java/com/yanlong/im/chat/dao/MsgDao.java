@@ -938,7 +938,7 @@ public class MsgDao {
                         .findAll();
             } else {//单人
                 msg = realm.where(MsgAllBean.class).equalTo("gid", "").equalTo("msg_type", 1)
-                        .contains("chat.msg", key,Case.INSENSITIVE).beginGroup()
+                        .contains("chat.msg", key, Case.INSENSITIVE).beginGroup()
                         .equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
@@ -1807,8 +1807,6 @@ public class MsgDao {
     }
 
 
-
-
     //申请加好友
     public void applyFriend(ApplyBean bean) {
         Realm realm = DaoUtil.open();
@@ -1836,7 +1834,7 @@ public class MsgDao {
         realm.beginTransaction();
         List<ApplyBean> beans = new ArrayList<>();
 //        RealmResults<ApplyBean> res = realm.where(ApplyBean.class).notEqualTo("stat", 3).sort("time", Sort.DESCENDING).findAll();
-        RealmResults<ApplyBean> res = realm.where(ApplyBean.class).sort("stat",Sort.ASCENDING,"time", Sort.DESCENDING).findAll();
+        RealmResults<ApplyBean> res = realm.where(ApplyBean.class).sort("stat", Sort.ASCENDING, "time", Sort.DESCENDING).findAll();
         if (res != null) {
             beans = realm.copyFromRealm(res);
         }
@@ -1857,9 +1855,6 @@ public class MsgDao {
         DaoUtil.deleteOne(ApplyBean.class, "aid", aid);
 
     }
-
-
-
 
 
 //
@@ -1955,10 +1950,6 @@ public class MsgDao {
 //        DaoUtil.deleteOne(GroupAccept.class, "aid", aid);
 //
 //    }
-
-
-
-
 
 
     /***
@@ -3115,14 +3106,19 @@ public class MsgDao {
         }
     }
 
-    /*
+    /**
      * 动态获取用户群昵称
-     * */
-    public String getGroupMemberName(String gid, long uid) {
+     * @param gid
+     * @param uid
+     * @param uname
+     * @param groupName
+     * @return
+     */
+    public String getGroupMemberName(String gid, long uid,String uname, String groupName) {
         Realm realm = DaoUtil.open();
-        String result = "";
+        String name = "";
         try {
-//            realm.beginTransaction();
+            realm.beginTransaction();
             Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
             if (group == null) {
                 return "";
@@ -3131,10 +3127,74 @@ public class MsgDao {
             if (users != null) {
                 MemberUser memberUser = users.where().equalTo("uid", uid).findFirst();
                 if (memberUser != null) {
-                    result = !TextUtils.isEmpty(memberUser.getMembername()) ? memberUser.getMembername() : memberUser.getName();
+                    name = !TextUtils.isEmpty(memberUser.getMembername()) ? memberUser.getMembername() : memberUser.getName();
                 }
             }
-//            realm.commitTransaction();
+
+            if(TextUtils.isEmpty(name)){
+                UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+                if (userInfo != null) {
+                    //1.获取本地用户昵称
+                    name = userInfo.getName();
+                    //1.5如果有带过来的昵称先显示昵称
+                    name = StringUtil.isNotNull(uname) ? uname : name;
+
+                    //1.8  如果有带过来的群昵称先显示群昵称
+                    if (StringUtil.isNotNull(groupName)) {
+                        name = groupName;
+                    } else {
+                        MemberUser memberUser = realm.where(MemberUser.class)
+                                .beginGroup().equalTo("uid", uid).endGroup()
+                                .beginGroup().equalTo("gid", gid).endGroup()
+                                .findFirst();
+                        if (memberUser != null) {
+                            name = StringUtil.isNotNull(memberUser.getMembername()) ? memberUser.getMembername() : name;
+                        }
+                    }
+                    //3.获取用户备注名
+                    name = StringUtil.isNotNull(userInfo.getMkName()) ? userInfo.getMkName() : name;
+                } else {
+                    MemberUser memberUser = realm.where(MemberUser.class)
+                            .beginGroup().equalTo("uid", uid).endGroup()
+                            .beginGroup().equalTo("gid", gid).endGroup()
+                            .findFirst();
+                    if (memberUser != null) {
+                        name = StringUtil.isNotNull(memberUser.getMembername()) ? memberUser.getMembername() : memberUser.getName();
+                    }
+                }
+            }
+            realm.commitTransaction();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+
+        return name;
+    }
+
+    /**
+     * 动态获取用户群昵称
+     * @param gid
+     * @param uid
+     * @return
+     */
+    public String getGroupMemberName2(String gid, long uid) {
+        Realm realm = DaoUtil.open();
+        String result = "";
+        try {
+            realm.beginTransaction();
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group == null) {
+                return "";
+            }
+            RealmList<MemberUser> users = group.getUsers();
+            if (users != null) {
+                MemberUser memberUser = users.where().equalTo("uid", uid).findFirst();
+                if (memberUser != null) {
+                    result = memberUser.getMembername();
+                }
+            }
+            realm.commitTransaction();
         } catch (Exception e) {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);

@@ -1,8 +1,6 @@
 package com.yanlong.im.wight.avatar;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.PorterDuff.Mode;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -41,11 +39,11 @@ public class ColorFilterImageView extends PerformanceImageView implements OnTouc
     public boolean onTouch(View v, MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:  // 按下时图像变灰
-                setColorFilter(Color.GRAY, Mode.MULTIPLY);
+//                setColorFilter(Color.GRAY, Mode.MULTIPLY);
                 break;
             case MotionEvent.ACTION_UP:   // 手指离开或取消操作时恢复原色
             case MotionEvent.ACTION_CANCEL:
-                setColorFilter(Color.TRANSPARENT);
+//                setColorFilter(Color.TRANSPARENT);
                 break;
             default:
                 break;
