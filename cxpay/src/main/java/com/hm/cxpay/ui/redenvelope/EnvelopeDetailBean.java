@@ -1,5 +1,8 @@
 package com.hm.cxpay.ui.redenvelope;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
 
 /**
@@ -7,7 +10,7 @@ import java.util.List;
  * @date 2019/12/10
  * Description 查看红包详情
  */
-public class EnvelopeDetailBean {
+public class EnvelopeDetailBean implements Parcelable {
     long amt;//红包总金额
     int cnt; //红包个数
     long finishTime;//红包全部领完时间
@@ -18,6 +21,30 @@ public class EnvelopeDetailBean {
     long time;//红包发送时间
     int type;//红包类型：0 普通红包，1拼手气红包
     List<EnvelopeReceiverBean> recvList;//领取记录
+
+    protected EnvelopeDetailBean(Parcel in) {
+        amt = in.readLong();
+        cnt = in.readInt();
+        finishTime = in.readLong();
+        imUserInfo = in.readParcelable(FromUserBean.class.getClassLoader());
+        note = in.readString();
+        remainAmt = in.readLong();
+        remainCnt = in.readInt();
+        time = in.readLong();
+        type = in.readInt();
+    }
+
+    public static final Creator<EnvelopeDetailBean> CREATOR = new Creator<EnvelopeDetailBean>() {
+        @Override
+        public EnvelopeDetailBean createFromParcel(Parcel in) {
+            return new EnvelopeDetailBean(in);
+        }
+
+        @Override
+        public EnvelopeDetailBean[] newArray(int size) {
+            return new EnvelopeDetailBean[size];
+        }
+    };
 
     public long getAmt() {
         return amt;
@@ -97,5 +124,23 @@ public class EnvelopeDetailBean {
 
     public void setRecvList(List<EnvelopeReceiverBean> recvList) {
         this.recvList = recvList;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(amt);
+        dest.writeInt(cnt);
+        dest.writeLong(finishTime);
+        dest.writeParcelable(imUserInfo, flags);
+        dest.writeString(note);
+        dest.writeLong(remainAmt);
+        dest.writeInt(remainCnt);
+        dest.writeLong(time);
+        dest.writeInt(type);
     }
 }

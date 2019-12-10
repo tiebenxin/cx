@@ -50,14 +50,16 @@ import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.hm.cxpay.bean.CxEnvelopeBean;
+import com.hm.cxpay.dailog.DialogEnvelope;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.MultiRedPacketActivity;
+import com.hm.cxpay.ui.RedPacketDetailsActivity;
 import com.hm.cxpay.ui.SingleRedPacketActivity;
+import com.hm.cxpay.ui.redenvelope.EnvelopeDetailBean;
 import com.hm.cxpay.ui.redenvelope.GrabEnvelopeBean;
-import com.hm.cxpay.ui.redenvelope.SendResultBean;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
 import com.jrmf360.rplib.bean.GrabRpBean;
@@ -108,6 +110,7 @@ import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
+import com.yanlong.im.pay.ui.view.RedPacketDialog;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -2261,7 +2264,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         int pos = 0;
         List<MsgAllBean> listdata = msgAction.getMsg4UserImg(toGid, toUId);
         for (int i = 0; i < listdata.size(); i++) {
-            MsgAllBean msgl=listdata.get(i);
+            MsgAllBean msgl = listdata.get(i);
             if (msgid.equals(msgl.getMsg_id())) {
                 pos = i;
             }
@@ -2277,17 +2280,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             lc.setMsg_id(msgl.getMsg_id());
             temp.add(lc);
         }
-        int size=temp.size();
+        int size = temp.size();
         //取中间100张
-        if(size<=100) {
+        if (size <= 100) {
             selectList.addAll(temp);
-        }else {
-            if(pos-50<=0){//取前面
-                selectList.addAll(temp.subList(0,100));
-            }else if(pos+50>=size){//取后面
-                selectList.addAll(temp.subList(size-100,size));
-            }else {//取中间
-                selectList.addAll(temp.subList(pos-50,pos+50));
+        } else {
+            if (pos - 50 <= 0) {//取前面
+                selectList.addAll(temp.subList(0, 100));
+            } else if (pos + 50 >= size) {//取后面
+                selectList.addAll(temp.subList(size - 100, size));
+            } else {//取中间
+                selectList.addAll(temp.subList(pos - 50, pos + 50));
             }
         }
 
@@ -2612,7 +2615,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public boolean onLongClick(View v) {
                         //TODO:优先显示群备注
-                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid(),null,null);
+                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid(), null, null);
 //                        if (TextUtils.isEmpty(name)) {
 //                            name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
 //                        }
@@ -2777,10 +2780,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 }
                             } else if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
                                 if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
-                                    taskPayRbDetail(msgbean, rid);
-
+                                    getRedEnvelopeDetail(rb.getTraceId(), rb.getAccessToken());
                                 } else {
-                                    taskPayRbGet(msgbean, touid, rid);
+                                    grabRedEnvelope(msgbean, rb.getTraceId(), reType);
                                 }
                             }
                         }
@@ -4190,13 +4192,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             //0 正常状态未领取，1 红包已经被领取，2 红包失效不能领取，3 红包未失效但已经被领完，4 普通红包并且用户点击自己红包
                             int envelopeStatus = grabRpBean.getEnvelopeStatus();
                             if (envelopeStatus == 0 && grabRpBean.isHadGrabRp()) {
-                                MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid);
+                                MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid, MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE);
                                 showSendObj(msgAllbean);
                                 MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
-                                taskPayRbCheck(msgbean, rbid);
+                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE);
                             }
                             if (envelopeStatus == 2 || envelopeStatus == 3) {
-                                taskPayRbCheck(msgbean, rbid);
+                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE);
                             }
                         }
                     };
@@ -4287,9 +4289,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 红包是否已经被抢,红包改为失效
      * @param rid
      */
-    private void taskPayRbCheck(MsgAllBean msgAllBean, final String rid) {
+    private void taskPayRbCheck(MsgAllBean msgAllBean, final String rid, int reType) {
         msgAllBean.getRed_envelope().setIsInvalid(1);
-        msgDao.redEnvelopeOpen(rid, true);
+        msgDao.redEnvelopeOpen(rid, true, reType);
         replaceListDataAndNotify(msgAllBean);
     }
 
@@ -4609,7 +4611,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     //抢红包，获取token
-    public void grabRedEnvelope(long rid) {
+    public void grabRedEnvelope(MsgAllBean msgBean, long rid, int reType) {
         PayHttpUtils.getInstance().grabRedEnvelope(rid)
                 .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>handleResult())
@@ -4619,7 +4621,43 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         if (baseResponse.isSuccess()) {
                             GrabEnvelopeBean bean = baseResponse.getData();
                             if (bean != null) {
+                                taskPayRbCheck(msgBean, rid + "", reType);
+                                DialogEnvelope dialogEnvelope = new DialogEnvelope(ChatActivity.this, com.hm.cxpay.R.style.MyDialogTheme);
+                                RedEnvelopeMessage message = msgBean.getRed_envelope();
+                                dialogEnvelope.setInfo(bean.getAccessToken(), bean.getStat(), msgBean.getFrom_avatar(), msgBean.getFrom_nickname(), message.getTraceId(), message.getComment());
+                                dialogEnvelope.show();
 
+                            }
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        super.onHandleError(baseResponse);
+                        if (baseResponse.getCode() == -21000) {
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
+                    }
+                });
+    }
+
+    //获取红包详情
+    public void getRedEnvelopeDetail(long rid, String token) {
+        PayHttpUtils.getInstance().getEnvelopeDetail(rid, token)
+                .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<EnvelopeDetailBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<EnvelopeDetailBean> baseResponse) {
+                        if (baseResponse.isSuccess()) {
+                            EnvelopeDetailBean bean = baseResponse.getData();
+                            if (bean != null) {
+                                Intent intent = RedPacketDetailsActivity.newIntent(ChatActivity.this, bean);
+                                startActivity(intent);
                             }
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());

@@ -66,6 +66,23 @@ public class SocketData {
     }
 
     /***
+     * 处理一些统一的数据,用于发送消息时获取
+     * @return
+     */
+    public static MsgBean.UniversalMessage.Builder getMsgBuild(String requestId) {
+        MsgBean.UniversalMessage.Builder msg = MsgBean.UniversalMessage.newBuilder();
+        MsgBean.UniversalMessage.WrapMessage.Builder wp = MsgBean.UniversalMessage.WrapMessage.newBuilder();
+        if (TextUtils.isEmpty(requestId)) {
+            msg.setRequestId("" + getSysTime());
+        } else {
+            msg.setRequestId(requestId);
+        }
+        msg.addWrapMsg(0, wp.build());
+
+        return msg;
+    }
+
+    /***
      * 授权
      * @return
      */
@@ -351,7 +368,7 @@ public class SocketData {
      * */
     private static MsgAllBean send4Base(boolean isSave, boolean isSend, String msgId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
         LogUtil.getLog().i(TAG, ">>>---发送到toid" + toId + "--gid" + toGid);
-        MsgBean.UniversalMessage.Builder msg = toMsgBuilder(msgId, toId, toGid, time > 0 ? time : getFixTime(), type, value);
+        MsgBean.UniversalMessage.Builder msg = toMsgBuilder("", msgId, toId, toGid, time > 0 ? time : getFixTime(), type, value);
 
         if (isSave && msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
             msgSave4MeSendFront(msg); //5.27 发送前先保存到库,
@@ -385,8 +402,8 @@ public class SocketData {
      * @param value
      * @return
      */
-    private static MsgBean.UniversalMessage.Builder toMsgBuilder(String msgid, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
-        MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild();
+    private static MsgBean.UniversalMessage.Builder toMsgBuilder(String requestId, String msgid, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
+        MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild(requestId);
         MsgBean.UniversalMessage.WrapMessage.Builder wmsg = msg.getWrapMsgBuilder(0);
         UserInfo userInfo = UserAction.getMyInfo();
         wmsg.setFromUid(userInfo.getUid());
@@ -931,14 +948,14 @@ public class SocketData {
      * @param rid
      * @return
      */
-    public static MsgAllBean send4RbRev(Long toId, String toGid, String rid) {
-        msgDao.redEnvelopeOpen(rid, true);
+    public static MsgAllBean send4RbRev(Long toId, String toGid, String rid, int reType) {
+        msgDao.redEnvelopeOpen(rid, true, reType);
         MsgBean.ReceiveRedEnvelopeMessage msg = MsgBean.ReceiveRedEnvelopeMessage.newBuilder()
                 .setId(rid)
                 .build();
 
         if (toId.longValue() == UserAction.getMyId().longValue()) {//自己的不发红包通知,只保存
-            MsgBean.UniversalMessage.Builder umsg = toMsgBuilder(null, toId, toGid, getFixTime(), MsgBean.MessageType.RECEIVE_RED_ENVELOPER, msg);
+            MsgBean.UniversalMessage.Builder umsg = toMsgBuilder("", null, toId, toGid, getFixTime(), MsgBean.MessageType.RECEIVE_RED_ENVELOPER, msg);
             msgSave4Me(umsg, 0);
             return MsgConversionBean.ToBean(umsg.getWrapMsg(0));
         }
@@ -1031,6 +1048,9 @@ public class SocketData {
      * @param isSend 是否需要发送服务器
      */
     public static void sendAndSaveMessage(MsgAllBean bean, boolean isSend) {
+        if (TextUtils.isEmpty(bean.getRequest_id())) {
+            bean.setRequest_id(getUUID());
+        }
         int msgType = bean.getMsg_type();
         MsgBean.MessageType type = null;
         Object value = null;
@@ -1137,11 +1157,13 @@ public class SocketData {
 
                 break;
         }
+
         if (needSave) {
             saveMessage(bean);
         }
         if (type != null && value != null && isSend) {
-            MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
+            SendList.addMsgToSendSequence(bean.getRequest_id(), bean);//添加到发送队列
+            MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getRequest_id(), bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
             //立即发送
             SocketUtil.getSocketUtil().sendData4Msg(msg);
         }
@@ -1264,6 +1286,7 @@ public class SocketData {
         }
 
         MsgAllBean msg = new MsgAllBean();
+        msg.setMsg_id(obj.getMsgId());
         msg.setMsg_id(obj.getMsgId());
         msg.setMsg_type(msgType);
         msg.setTimestamp(time > 0 ? time : getFixTime());
@@ -1623,6 +1646,22 @@ public class SocketData {
         message.setRe_type(reType);
         message.setStyle(style);
         return message;
+    }
+
+    //更新发送状态，根据ack
+    public static boolean updateMsgSendStatusByAck(MsgBean.AckMessage ackMessage) {
+        MsgAllBean msgAllBean = SendList.getMsgFromSendSequence(ackMessage.getRequestId());
+        if (msgAllBean != null) {
+            SendList.removeMsgFromSendSequence(ackMessage.getRequestId());
+            SendList.removeSendListJust(ackMessage.getRequestId());
+            msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
+            if (msgAllBean.getVideoMessage() != null && !TextUtils.isEmpty(videoLocalUrl)) {
+                msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
+            }
+            DaoUtil.update(msgAllBean);
+            return true;
+        }
+        return false;
     }
 
 

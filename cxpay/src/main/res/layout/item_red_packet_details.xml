@@ -30,7 +30,7 @@
                 tool:text="单号记得哈" />
 
             <TextView
-                android:id="@+id/tv_dete"
+                android:id="@+id/tv_date"
                 style="@style/app_txt_content_1"
                 android:layout_marginTop="8dp"
                 tool:text="10:00" />
