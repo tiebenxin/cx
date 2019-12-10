@@ -1,5 +1,7 @@
 package com.hm.cxpay.utils;
 
+import com.umeng.commonsdk.debug.D;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -10,6 +12,10 @@ import java.util.GregorianCalendar;
  * Description
  */
 public class DateUtils {
+    public final static long MILLISECOND = 1000;
+    public final static long MINUTE = MILLISECOND * 60;
+    public final static long HOUR = MINUTE * 60;
+    public final static long DAY = HOUR * 24;
 
 
     //获取每月第一天的最初时间
@@ -63,5 +69,27 @@ public class DateUtils {
         return first.getTime();
     }
 
-
+    //获取红包抢完时间
+    public static String getGrabFinishedTime(long start, long end) {
+        String result = "0秒";
+        if (end > start) {
+            long diff = end - start;
+            if (diff <= MILLISECOND) {
+                result = "1秒";
+            } else if (diff > MILLISECOND && diff < MINUTE) {
+                int sec = (int) (diff / MILLISECOND);
+                result = sec + "秒";
+            } else if (diff > MINUTE && diff < HOUR) {
+                int min = (int) (diff / MINUTE);
+                result = min + "分钟";
+            } else if (diff > HOUR && diff < DAY) {
+                int hour = (int) (diff / HOUR);
+                result = hour + "小时";
+            } else if (diff > DAY) {
+                int day = (int) (diff / DAY);
+                result = day + "天";
+            }
+        }
+        return result;
+    }
 }

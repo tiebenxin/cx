@@ -1,5 +1,8 @@
 package com.hm.cxpay.ui;
 
+import android.content.Context;
+import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -9,64 +12,104 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
+import com.hm.cxpay.bean.UserBean;
+import com.hm.cxpay.databinding.ActivityRedPacketDetailsBinding;
+import com.hm.cxpay.global.PayEnvironment;
+import com.hm.cxpay.ui.redenvelope.EnvelopeDetailBean;
+import com.hm.cxpay.ui.redenvelope.EnvelopeReceiverBean;
+import com.hm.cxpay.ui.redenvelope.FromUserBean;
+import com.hm.cxpay.utils.DateUtils;
+import com.hm.cxpay.utils.UIUtils;
 
+import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
-import net.cb.cb.library.view.MultiListView;
 import net.cb.cb.library.view.PopupSelectView;
 
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * 红包详情页面
+ */
 public class RedPacketDetailsActivity extends BasePayActivity {
-    private ActionbarView mActionBar;
-    private ImageView mSdImageHead;
-    private TextView mTvUserName;
-    private TextView mTvContent;
-    private TextView mTvMoney;
-    private TextView mTvHint;
-    private MultiListView mMtListView;
-    private List<String> list = new ArrayList<>();
+    private List<EnvelopeReceiverBean> list = new ArrayList<>();
 
     private String[] strings = {"查看支付宝红包记录", "取消"};
     private PopupSelectView popupSelectView;
+    private EnvelopeDetailBean envelopeDetailBean;
+    private ActivityRedPacketDetailsBinding ui;
+
+    public static Intent newIntent(Context context, EnvelopeDetailBean bean) {
+        Intent intent = new Intent(context, RedPacketDetailsActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("data", bean);
+        intent.putExtras(bundle);
+        return intent;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_red_packet_details);
+        ui = DataBindingUtil.setContentView(this, R.layout.activity_red_packet_details);
+        envelopeDetailBean = getIntent().getParcelableExtra("data");
         initView();
         initEvent();
     }
 
     private void initView() {
-        mActionBar = findViewById(R.id.action_bar);
-        mSdImageHead = findViewById(R.id.sd_image_head);
-        mTvUserName = findViewById(R.id.tv_user_name);
-        mTvContent = findViewById(R.id.tv_content);
-        mTvMoney = findViewById(R.id.tv_money);
-        mTvHint = findViewById(R.id.tv_hint);
-        mMtListView = findViewById(R.id.mtListView);
-
-        mActionBar.getBtnRight().setImageResource(R.mipmap.ic_more);
-        mMtListView.init(new RedPacketAdapter());
-        mMtListView.getLoadView().setStateNormal();
+        ui.headView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_more);
+        ui.mtListView.init(new RedPacketAdapter());
+        ui.mtListView.getLoadView().setStateNormal();
         initData();
     }
 
 
     private void initData() {
-        for (int i = 0; i < 30; i++) {
-            list.add("1111");
+        if (envelopeDetailBean == null) {
+            return;
         }
-        mMtListView.getListView().getAdapter().notifyDataSetChanged();
+        FromUserBean userBean = envelopeDetailBean.getImUserInfo();
+        if (userBean != null) {
+            Glide.with(this).load(userBean.getAvatar()).into(ui.ivAvatar);
+            ui.tvName.setText(userBean.getNickname() + "的红包");
+        }
+        ui.tvContent.setText(envelopeDetailBean.getNote());
+        ui.tvMoney.setText(UIUtils.getYuan(envelopeDetailBean.getAmt()));
+        list = envelopeDetailBean.getRecvList();
+        ui.mtListView.getListView().getAdapter().notifyDataSetChanged();
+        UserBean user = PayEnvironment.getInstance().getUser();
+        int remainCount = envelopeDetailBean.getRemainCnt();
+        int totalCount = envelopeDetailBean.getCnt();
+        String remainMoney = UIUtils.getYuan(envelopeDetailBean.getRemainAmt());
+        String totalMoney = UIUtils.getYuan(envelopeDetailBean.getAmt());
+
+        if (user != null) {
+            if (userBean.getUid() == user.getUid()) {//是自己发的
+                if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
+                    ui.tvHint.setText("已领取" + remainCount + "/" + totalCount + "个，共" + remainMoney + "/" + totalMoney + "元");
+                } else {
+                    String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getTime(), envelopeDetailBean.getFinishTime());
+                    ui.tvHint.setText(totalCount + "个红包共" + totalMoney + "元，" + time + "被抢光");
+                }
+            } else {
+                if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
+                    ui.tvHint.setText("已领取" + remainCount + "/" + totalCount + "个");
+                } else {
+                    String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getTime(), envelopeDetailBean.getFinishTime());
+                    ui.tvHint.setText(totalCount + "个红包，" + time + "被抢光");
+                }
+            }
+        }
 
     }
 
 
     private void initEvent() {
-        mActionBar.setOnListenEvent(new ActionbarView.ListenEvent() {
+        ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
                 onBackPressed();
@@ -81,7 +124,7 @@ public class RedPacketDetailsActivity extends BasePayActivity {
 
     private void initPopup() {
         popupSelectView = new PopupSelectView(this, strings);
-        popupSelectView.showAtLocation(mActionBar, Gravity.BOTTOM, 0, 0);
+        popupSelectView.showAtLocation(ui.headView.getActionbar(), Gravity.BOTTOM, 0, 0);
         popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
             @Override
             public void onItem(String string, int postsion) {
@@ -97,18 +140,20 @@ public class RedPacketDetailsActivity extends BasePayActivity {
     }
 
 
-    class RedPacketAdapter extends RecyclerView.Adapter<RedPacketAdapter.ViewHodler> {
+    class RedPacketAdapter extends RecyclerView.Adapter<RedPacketAdapter.RbViewHolder> {
 
 
         @Override
-        public ViewHodler onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            ViewHodler holder = new ViewHodler(inflater.inflate(R.layout.item_red_packet_details, viewGroup, false));
+        public RbViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+            RbViewHolder holder = new RbViewHolder(inflater.inflate(R.layout.item_red_packet_details, viewGroup, false));
             return holder;
         }
 
         @Override
-        public void onBindViewHolder(@NonNull ViewHodler viewHolder, int i) {
-
+        public void onBindViewHolder(@NonNull RbViewHolder viewHolder, int position) {
+            RbViewHolder holder = viewHolder;
+            EnvelopeReceiverBean envelopeReceiverBean = list.get(position);
+            holder.bindData(envelopeReceiverBean);
         }
 
         @Override
@@ -120,19 +165,33 @@ public class RedPacketDetailsActivity extends BasePayActivity {
         }
 
 
-        class ViewHodler extends RecyclerView.ViewHolder {
-            private ImageView mSdImageHead;
-            private TextView mTvUserName;
-            private TextView mTvDete;
-            private TextView mTvMoney;
+        class RbViewHolder extends RecyclerView.ViewHolder {
+            private ImageView ivAvatar;
+            private TextView tvName;
+            private TextView tvTime;
+            private TextView tvMoney;
 
 
-            public ViewHodler(@NonNull View itemView) {
+            public RbViewHolder(@NonNull View itemView) {
                 super(itemView);
-                mSdImageHead = itemView.findViewById(R.id.sd_image_head);
-                mTvUserName = itemView.findViewById(R.id.tv_user_name);
-                mTvDete = itemView.findViewById(R.id.tv_dete);
-                mTvMoney = itemView.findViewById(R.id.tv_money);
+                ivAvatar = itemView.findViewById(R.id.sd_image_head);
+                tvName = itemView.findViewById(R.id.tv_user_name);
+                tvTime = itemView.findViewById(R.id.tv_date);
+                tvMoney = itemView.findViewById(R.id.tv_money);
+            }
+
+            public void bindData(EnvelopeReceiverBean bean) {
+                if (bean == null) {
+                    return;
+                }
+                FromUserBean userBean = bean.getImUserInfo();
+                if (userBean != null) {
+                    Glide.with(ivAvatar.getContext()).load(userBean.getAvatar()).into(ivAvatar);
+                    tvName.setText(userBean.getNickname());
+                }
+                tvTime.setText(TimeToString.YYYY_MM_DD_HH_MM_SS(bean.getTime()));
+                tvMoney.setText(UIUtils.getYuan(bean.getAmt()));
+
             }
         }
     }

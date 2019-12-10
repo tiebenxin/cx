@@ -1,5 +1,7 @@
 package com.yanlong.im.utils.socket;
 
+import android.text.TextUtils;
+
 import com.yanlong.im.chat.bean.MsgAllBean;
 
 import net.cb.cb.library.utils.LogUtil;
@@ -105,14 +107,8 @@ public class SendList {
             } else {//超过发送次数,取消队列,返回失败
                 LogUtil.getLog().e(TAG, ">>>>发送条件次数不符合" + kid);
                 removeSendList(kid);
-
-
             }
-
-
         }
-
-
     }
 
 
@@ -121,33 +117,32 @@ public class SendList {
      */
     public static void endList() {
         Iterator<Map.Entry<String, SendListBean>> entrys = SEND_LIST.entrySet().iterator();
-
         while (entrys.hasNext()) {
             Map.Entry<String, SendListBean> entry = entrys.next();
             String kid = entry.getKey();
-
             removeSendList(kid);
-
-
         }
     }
 
     /*
      * 将消息添加到发送队列
      * */
-    public static void addMsgToSendSequence(MsgAllBean msg) {
+    public static void addMsgToSendSequence(String requestId, MsgAllBean msg) {
+        if (TextUtils.isEmpty(requestId)) {
+            return;
+        }
         if (sendSequence == null) {
             sendSequence = new HashMap<>();
         }
-        sendSequence.put(msg.getMsg_id(), msg);
+        sendSequence.put(requestId, msg);
     }
 
     /*
      * 从发送队列获取消息
      * */
-    public static MsgAllBean getMsgFromSendSequence(String msgId) {
+    public static MsgAllBean getMsgFromSendSequence(String requestId) {
         if (sendSequence != null) {
-            return sendSequence.get(msgId);
+            return sendSequence.get(requestId);
         }
         return null;
     }
@@ -155,9 +150,9 @@ public class SendList {
     /*
      * 从发送队列移出
      * */
-    public static void removeMsgFromSendSequence(String msgId) {
+    public static void removeMsgFromSendSequence(String requestId) {
         if (sendSequence != null) {
-            sendSequence.remove(msgId);
+            sendSequence.remove(requestId);
         }
     }
 

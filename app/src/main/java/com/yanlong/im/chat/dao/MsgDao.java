@@ -32,6 +32,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
+import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventRefreshChat;
@@ -2020,16 +2021,19 @@ public class MsgDao {
      * @param rid
      * @param isOpen
      */
-    public void redEnvelopeOpen(String rid, boolean isOpen) {
+    public void redEnvelopeOpen(String rid, boolean isOpen, int reType) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
-
-        RedEnvelopeMessage envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("id", rid).findFirst();
+        RedEnvelopeMessage envelopeMessage=null;
+        if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
+            envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("id", rid).findFirst();
+        } else if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {
+            envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("traceId", rid).findFirst();
+        }
         if (envelopeMessage != null) {
             envelopeMessage.setIsInvalid(isOpen ? 1 : 0);
             realm.insertOrUpdate(envelopeMessage);
         }
-
         realm.commitTransaction();
         realm.close();
     }
@@ -3108,13 +3112,14 @@ public class MsgDao {
 
     /**
      * 动态获取用户群昵称
+     *
      * @param gid
      * @param uid
      * @param uname
      * @param groupName
      * @return
      */
-    public String getGroupMemberName(String gid, long uid,String uname, String groupName) {
+    public String getGroupMemberName(String gid, long uid, String uname, String groupName) {
         Realm realm = DaoUtil.open();
         String name = "";
         try {
@@ -3131,7 +3136,7 @@ public class MsgDao {
                 }
             }
 
-            if(TextUtils.isEmpty(name)){
+            if (TextUtils.isEmpty(name)) {
                 UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
                 if (userInfo != null) {
                     //1.获取本地用户昵称
@@ -3174,6 +3179,7 @@ public class MsgDao {
 
     /**
      * 动态获取用户群昵称
+     *
      * @param gid
      * @param uid
      * @return
