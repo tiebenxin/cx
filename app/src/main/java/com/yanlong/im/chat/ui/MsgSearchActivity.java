@@ -36,6 +36,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
+import com.yanlong.im.wight.avatar.MultiImageView;
 
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -181,6 +182,8 @@ public class MsgSearchActivity extends AppActivity {
             String title = bean.getName();
             MsgAllBean msginfo = bean.getMessage();
             String name = bean.getSenderName();
+            // 头像集合
+            List<String> headList = new ArrayList<>();
 
             String info = "";
             if (msginfo != null) {
@@ -198,8 +201,10 @@ public class MsgSearchActivity extends AppActivity {
                     holder.txtInfo.setText(info);
                 }
 
-                Glide.with(getContext()).load(icon)
-                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+//                Glide.with(getContext()).load(icon)
+//                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                headList.add(icon);
+                holder.imgHead.setList(headList);
 
             } else if (bean.getType() == 1) {//群
                 int type = bean.getMessageType();
@@ -271,30 +276,33 @@ public class MsgSearchActivity extends AppActivity {
                 }
 
                 if (StringUtil.isNotNull(icon)) {
-                    Glide.with(getContext()).load(icon)
-                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+//                    Glide.with(getContext()).load(icon)
+//                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                    headList.add(icon);
+                    holder.imgHead.setList(headList);
                 } else {
-                    if (bean.getType() == 1) {
-                        String imgUrl = "";
-                        try {
-                            imgUrl = ((GroupImageHead) DaoUtil.findOne(GroupImageHead.class, "gid", bean.getGid())).getImgHeadUrl();
-                        } catch (Exception e) {
-                            creatAndSaveImg(bean, holder.imgHead);
-                        }
-
-//                        LogUtil.getLog().e("TAG", "----------" + imgUrl.toString());
-                        if (StringUtil.isNotNull(imgUrl)) {
-                            Glide.with(getContext()).load(imgUrl)
-                                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-                        } else {
-
-                            creatAndSaveImg(bean, holder.imgHead);
-
-                        }
-                    } else {
-                        Glide.with(getContext()).load(icon)
-                                .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-                    }
+//                    if (bean.getType() == 1) {
+//                        String imgUrl = "";
+//                        try {
+//                            imgUrl = ((GroupImageHead) DaoUtil.findOne(GroupImageHead.class, "gid", bean.getGid())).getImgHeadUrl();
+//                        } catch (Exception e) {
+//                            creatAndSaveImg(bean, holder.imgHead);
+//                        }
+//
+////                        LogUtil.getLog().e("TAG", "----------" + imgUrl.toString());
+//                        if (StringUtil.isNotNull(imgUrl)) {
+//                            Glide.with(getContext()).load(imgUrl)
+//                                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+//                        } else {
+//
+//                            creatAndSaveImg(bean, holder.imgHead);
+//
+//                        }
+//                    } else {
+//                        Glide.with(getContext()).load(icon)
+//                                .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+//                    }
+                    loadGroupHeads(bean, holder.imgHead);
                 }
             }
 
@@ -326,23 +334,39 @@ public class MsgSearchActivity extends AppActivity {
 
         }
 
-        private void creatAndSaveImg(Session bean, ImageView imgHead) {
+//        private void creatAndSaveImg(Session bean, MultiImageView imgHead) {
+//            Group gginfo = msgDao.getGroup4Id(bean.getGid());
+//            if (gginfo != null) {
+//                int i = gginfo.getUsers().size();
+//                i = i > 9 ? 9 : i;
+//                //头像地址
+//                String url[] = new String[i];
+//                for (int j = 0; j < i; j++) {
+//                    MemberUser userInfo = gginfo.getUsers().get(j);
+//                    url[j] = userInfo.getHead();
+//                }
+//                File file = GroupHeadImageUtil.synthesis(getContext(), url);
+//                Glide.with(getContext()).load(file)
+//                        .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+//
+//                MsgDao msgDao = new MsgDao();
+//                msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+//            }
+//        }
+
+        //加载群头像
+        public synchronized void loadGroupHeads(Session bean, MultiImageView imgHead) {
             Group gginfo = msgDao.getGroup4Id(bean.getGid());
             if (gginfo != null) {
                 int i = gginfo.getUsers().size();
                 i = i > 9 ? 9 : i;
                 //头像地址
-                String url[] = new String[i];
+                List<String> headList = new ArrayList<>();
                 for (int j = 0; j < i; j++) {
                     MemberUser userInfo = gginfo.getUsers().get(j);
-                    url[j] = userInfo.getHead();
+                    headList.add(userInfo.getHead());
                 }
-                File file = GroupHeadImageUtil.synthesis(getContext(), url);
-                Glide.with(getContext()).load(file)
-                        .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
-
-                MsgDao msgDao = new MsgDao();
-                msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+                imgHead.setList(headList);
             }
         }
 
@@ -357,7 +381,7 @@ public class MsgSearchActivity extends AppActivity {
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
-            private ImageView imgHead;
+            private MultiImageView imgHead;
             private StrikeButton sb;
 
             private View viewIt;
