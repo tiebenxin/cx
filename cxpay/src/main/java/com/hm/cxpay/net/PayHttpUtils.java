@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.hm.cxpay.bean.BillBean;
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.rx.data.BaseResponse;
@@ -178,6 +179,16 @@ public class PayHttpUtils {
         map.put("phone", phone);
         map.put("verificationCode", verificationCode);
         return HttpChannel.getInstance().getPayService().bindPhoneNum(getRequestBody(map));
+    }
+
+    //获取账单明细
+    public Observable<BaseResponse<BillBean>> getBillDetailsList(int pageNum, long startTime, int type) {
+        Map<String, String> map = new HashMap<>();
+        map.put("pageNum", pageNum+"");
+        map.put("pageSize", 20+"");
+        map.put("startTime", startTime+"");
+        map.put("type", type+"");
+        return HttpChannel.getInstance().getPayService().getBillDetailsList(getRequestBody(map));
     }
 
 

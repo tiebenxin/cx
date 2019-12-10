@@ -20,6 +20,7 @@ import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BankSettingActivity;
+import com.hm.cxpay.ui.bill.BillDetailListActivity;
 import com.hm.cxpay.ui.payword.ManagePaywordActivity;
 import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.utils.UIUtils;
@@ -84,8 +85,7 @@ public class LooseChangeActivity extends BasePayActivity {
 
             @Override
             public void onRight() {
-                ToastUtil.show(context, "账单");
-
+                startActivity(new Intent(context, BillDetailListActivity.class));
             }
         });
         //显示余额
@@ -153,15 +153,14 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutAuthRealName.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
-                IntentUtil.gotoActivity(LooseChangeActivity.this, BindPhoneNumActivity.class);
-//                //1 已经绑定手机
-//                if(PayEnvironment.getInstance().getUser().getPhoneBindStat()==1){
-//                    //TODO 还有一个认证信息展示界面未出
-//                    ToastUtil.show(activity,"检测到您已绑定手机，即将展示认证信息界面");
-//                }else {
-//                    //2 没有绑定手机
-//                    IntentUtil.gotoActivity(LooseChangeActivity.this, BindPhoneNumActivity.class);
-//                }
+                //1 已经绑定手机
+                if(PayEnvironment.getInstance().getUser().getPhoneBindStat()==1){
+                    //TODO 还有一个认证信息展示界面未出
+                    ToastUtil.show(activity,"您已绑定手机号，即将展示认证信息界面");
+                }else {
+                    //2 没有绑定手机
+                    IntentUtil.gotoActivity(LooseChangeActivity.this, BindPhoneNumActivity.class);
+                }
             }
         });
         //我的银行卡

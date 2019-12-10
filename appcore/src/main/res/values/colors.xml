@@ -76,6 +76,7 @@
     <color name="c_0f000000">#0f000000</color>
     <color name="c_f0f0f0">#f0f0f0</color>
     <color name="c_868686">#868686</color>
+    <color name="c_878787">#878787</color>
     <color name="c_517da2">#517da2</color>
     <color name="c_32b053">#32b053</color>
     <color name="c_000000">#000000</color>
@@ -86,5 +87,8 @@
     <color name="c_374882">#374882</color>
     <color name="c_353535">#353535</color>
     <color name="c_31a156">#31a156</color>
+    <color name="c_f6f6f6">#f6f6f6</color>
+    <color name="c_121516">#121516</color>
+    <color name="c_dcdddd">#dcdddd</color>
 
 </resources>

@@ -60,6 +60,9 @@ public class Route {
     //绑定手机号
     public static final String BIND_PHONE = "/user/bind_phone";
 
+    //获取账单明细
+    public static final String GET_BILL_DETAILS_LIST = "/bill/get_trans_list";
+
     //获取红包明细
     public static final String GET_RED_ENVELOPE_DETAILS = "/order/get_red_envelope_list";
 

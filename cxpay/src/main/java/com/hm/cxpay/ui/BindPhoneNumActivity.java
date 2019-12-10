@@ -201,6 +201,7 @@ public class BindPhoneNumActivity extends AppActivity {
                         ToastUtil.show(context, "手机号码验证成功!");
                         PayEnvironment.getInstance().getUser().setPhoneBindStat(1);
                         go(LooseChangeActivity.class);
+                        finish();
                     }
 
                     @Override
