@@ -9,8 +9,8 @@ import com.hm.cxpay.R;
 import net.cb.cb.library.base.BaseDialog;
 
 /**
- * @anthor Liszt
- * @data 2019/12/4
+ * @author Liszt
+ * @date 2019/12/4
  * Description 发送红包时，支付密码错误弹窗
  */
 public class DialogErrorPassword extends BaseDialog {

@@ -1,8 +1,8 @@
 package com.hm.cxpay.net;
 
 /**
- * @anthor Liszt
- * @data 2019/11/28
+ * @author Liszt
+ * @date 2019/11/28
  * Description
  */
 public class Route {

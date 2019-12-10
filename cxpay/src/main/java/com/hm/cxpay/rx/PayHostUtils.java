@@ -1,8 +1,8 @@
 package com.hm.cxpay.rx;
 
 /**
- * @anthor Liszt
- * @data 2019/11/27
+ * @author Liszt
+ * @date 2019/11/27
  * Description
  */
 public class PayHostUtils {

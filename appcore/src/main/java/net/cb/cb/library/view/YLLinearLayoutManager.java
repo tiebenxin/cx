@@ -6,8 +6,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
 /**
- * @anthor Liszt
- * @data 2019/8/14
+ * @author Liszt
+ * @date 2019/8/14
  * Description  自定义LinearLayoutManager 避免RecyclerView刷新月结
  */
 public class YLLinearLayoutManager extends LinearLayoutManager {

@@ -1,8 +1,8 @@
 package com.hm.cxpay.ui.redenvelope;
 
 /**
- * @anthor Liszt
- * @data 2019/12/9
+ * @author Liszt
+ * @date 2019/12/9
  * Description 抢红包接口bean
  */
 public class GrabEnvelopeBean {

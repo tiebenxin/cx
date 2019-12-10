@@ -4,8 +4,8 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 
 /**
- * @anthor Liszt
- * @data 2019/8/10
+ * @author Liszt
+ * @date 2019/8/10
  * Description mvp Fragment 基类
  */
 public abstract class BaseMvpFragment<M extends IModel, V extends IView, P extends BasePresenter> extends Fragment implements BaseMvp<M, V, P> {

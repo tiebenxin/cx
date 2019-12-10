@@ -8,8 +8,8 @@ import net.cb.cb.library.base.IView;
 import java.util.List;
 
 /**
- * @anthor Liszt
- * @data 2019/8/10
+ * @author Liszt
+ * @date 2019/8/10
  * Description
  */
 public interface ForwardView extends IView {

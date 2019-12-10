@@ -3,8 +3,8 @@ package net.cb.cb.library.base;
 import io.reactivex.observers.DefaultObserver;
 
 /**
- * @anthor Liszt
- * @data 2019/8/10
+ * @author Liszt
+ * @date 2019/8/10
  * Description  数据库操作观察者
  */
 

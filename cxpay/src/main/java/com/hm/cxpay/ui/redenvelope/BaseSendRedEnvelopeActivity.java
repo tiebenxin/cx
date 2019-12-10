@@ -19,8 +19,8 @@ import net.cb.cb.library.utils.ToastUtil;
 import org.greenrobot.eventbus.EventBus;
 
 /**
- * @anthor Liszt
- * @data 2019/12/4
+ * @author Liszt
+ * @date 2019/12/4
  * Description
  */
 public class BaseSendRedEnvelopeActivity extends BasePayActivity {

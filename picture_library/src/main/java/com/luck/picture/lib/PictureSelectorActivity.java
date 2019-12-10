@@ -68,7 +68,7 @@ import io.reactivex.disposables.Disposable;
 
 /**
  * @author：luck
- * @data：2018/1/27 19:12
+ * @date：2018/1/27 19:12
  * @描述: Media 选择页面
  */
 public class PictureSelectorActivity extends PictureBaseActivity implements View.OnClickListener, PictureAlbumDirectoryAdapter.OnItemClickListener,

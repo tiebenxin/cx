@@ -4,8 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * @anthor Liszt
- * @data 2019/11/30
+ * @author Liszt
+ * @date 2019/11/30
  * Description 申请绑定银行卡返回信息
  */
 public class BindBankInfo implements Parcelable {

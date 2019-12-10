@@ -1,5 +1,7 @@
 package com.hm.cxpay.net;
 
+import android.text.TextUtils;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hm.cxpay.bean.CommonBean;
@@ -8,7 +10,9 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BankInfo;
 import com.hm.cxpay.ui.bank.BindBankInfo;
+import com.hm.cxpay.ui.redenvelope.EnvelopeDetailBean;
 import com.hm.cxpay.ui.redenvelope.GrabEnvelopeBean;
+import com.hm.cxpay.ui.redenvelope.OpenEnvelopeBean;
 import com.hm.cxpay.ui.redenvelope.RedDetailsBean;
 import com.hm.cxpay.ui.redenvelope.SendResultBean;
 import com.hm.cxpay.utils.UIUtils;
@@ -24,8 +28,8 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
 /**
- * @anthor Liszt
- * @data 2019/11/28
+ * @author Liszt
+ * @date 2019/11/28
  * Description
  */
 public class PayHttpUtils {
@@ -238,7 +242,33 @@ public class PayHttpUtils {
         return HttpChannel.getInstance().getPayService().grabRedEnvelope(getRequestBody(map));
     }
 
+    /**
+     * 拆红包
+     *
+     * @param rid 红包id 及 tradeId
+     */
+    public Observable<BaseResponse<OpenEnvelopeBean>> openRedEnvelope(long rid, String token) {
+        Map<String, String> map = new HashMap<>();
+        map.put("rid", rid + "");
+        if (!TextUtils.isEmpty(token)) {
+            map.put("accessToken", token);
+        }
+        return HttpChannel.getInstance().getPayService().openRedEnvelope(getRequestBody(map));
+    }
 
+    /**
+     * 查看红包记录
+     *
+     * @param rid 红包id 及 tradeId
+     */
+    public Observable<BaseResponse<EnvelopeDetailBean>> getEnvelopeDetail(long rid, String token) {
+        Map<String, String> map = new HashMap<>();
+        map.put("rid", rid + "");
+        if (!TextUtils.isEmpty(token)) {
+            map.put("accessToken", token);
+        }
+        return HttpChannel.getInstance().getPayService().getEnvelopeDetail(getRequestBody(map));
+    }
 
 
 }

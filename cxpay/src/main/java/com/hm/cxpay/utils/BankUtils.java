@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @anthor Liszt
- * @data 2019/11/30
+ * @author Liszt
+ * @date 2019/11/30
  * Description
  */
 public class BankUtils {

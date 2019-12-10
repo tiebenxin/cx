@@ -6,8 +6,8 @@ import android.os.Parcelable;
 import com.hm.cxpay.global.PayEnum;
 
 /**
- * @anthor Liszt
- * @data 2019/12/9
+ * @author Liszt
+ * @date 2019/12/9
  * Description 常信红包封装类
  */
 public class CxEnvelopeBean implements Parcelable {

@@ -20,8 +20,8 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 
 /**
- * @anthor Liszt
- * @data 2019/11/30
+ * @author Liszt
+ * @date 2019/11/30
  * Description
  */
 public class BindBankFinishActivity extends BasePayActivity {

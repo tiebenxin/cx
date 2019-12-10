@@ -6,8 +6,8 @@ import android.os.Parcelable;
 import java.util.List;
 
 /**
- * @anthor Liszt
- * @data 2019/12/2
+ * @author Liszt
+ * @date 2019/12/2
  * Description 红包明细详情
  */
 public class RedDetailsBean implements Parcelable {

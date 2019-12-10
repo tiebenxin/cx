@@ -4,8 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * @anthor Liszt
- * @data 2019/11/29
+ * @author Liszt
+ * @date 2019/11/29
  * Description  银行卡信息
  */
 public class BankInfo implements Parcelable {

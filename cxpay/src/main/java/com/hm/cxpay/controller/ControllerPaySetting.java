@@ -11,8 +11,8 @@ import com.hm.cxpay.utils.UIUtils;
 import net.cb.cb.library.AppConfig;
 
 /**
- * @anthor Liszt
- * @data 2019/11/27
+ * @author Liszt
+ * @date 2019/11/27
  * Description 支付设置controller
  */
 public class ControllerPaySetting {

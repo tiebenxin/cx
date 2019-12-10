@@ -1,8 +1,8 @@
 package net.cb.cb.library.manager;
 
 /**
- * @anthor Liszt
- * @data 2019/11/27
+ * @author Liszt
+ * @date 2019/11/27
  * Description token 管理类
  */
 public class TokenManager {

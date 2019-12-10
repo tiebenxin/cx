@@ -1,8 +1,8 @@
 package com.yanlong.im.chat.ui.forward;
 
 /**
- * @anthor Liszt
- * @data 2019/8/10
+ * @author Liszt
+ * @date 2019/8/10
  * Description
  */
 public interface IForwardListener {

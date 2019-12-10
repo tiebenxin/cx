@@ -17,8 +17,8 @@ import com.hm.cxpay.R;
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
 
 /**
- * @anthor Liszt
- * @data 2019/11/30
+ * @author Liszt
+ * @date 2019/11/30
  * Description
  */
 public class AdapterBankList extends AbstractRecyclerAdapter<BankBean> {

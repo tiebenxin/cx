@@ -79,8 +79,8 @@ import java.util.List;
 import okhttp3.Call;
 
 /**
- * @anthor Liszt
- * @data 2019/11/11
+ * @author Liszt
+ * @date 2019/11/11
  * Description
  */
 public class AdapterPreviewImage extends PagerAdapter {

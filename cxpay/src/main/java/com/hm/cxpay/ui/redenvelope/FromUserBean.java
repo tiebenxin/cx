@@ -4,8 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * @anthor Liszt
- * @data 2019/12/2
+ * @author Liszt
+ * @date 2019/12/2
  * Description 红包 from User
  */
 public class FromUserBean implements Parcelable {

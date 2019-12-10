@@ -16,8 +16,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * @anthor Liszt
- * @data 2019/8/28
+ * @author Liszt
+ * @date 2019/8/28
  * Description 通知帮助类
  */
 public class NotificationsUtils {

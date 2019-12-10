@@ -4,8 +4,8 @@ import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
- * @anthor Liszt
- * @data 2019/8/6
+ * @author Liszt
+ * @date 2019/8/6
  * Description 小助手消息
  */
 public class AssistantMessage extends RealmObject implements IMsgContent{

@@ -17,8 +17,8 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 /**
- * @anthor Liszt
- * @data 2019/11/28
+ * @author Liszt
+ * @date 2019/11/28
  * Description
  */
 public class StatusBarUtils {

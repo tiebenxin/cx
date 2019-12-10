@@ -9,8 +9,8 @@ import com.yanlong.im.R;
 import net.cb.cb.library.base.BaseDialog;
 
 /**
- * @anthor Liszt
- * @data 2019/8/29
+ * @author Liszt
+ * @date 2019/8/29
  * Description 设置允许通知
  */
 public class NotifySettingDialog extends BaseDialog {

@@ -6,8 +6,8 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 
 /**
- * @anthor Liszt
- * @data 2019/11/30
+ * @author Liszt
+ * @date 2019/11/30
  * Description  绑定银行卡基本数据
  */
 public class BankBean implements Parcelable {

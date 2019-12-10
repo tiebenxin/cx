@@ -17,8 +17,8 @@ import com.hm.cxpay.widget.PswView;
 import net.cb.cb.library.base.BaseDialog;
 
 /**
- * @anthor Liszt
- * @data 2019/12/3
+ * @author Liszt
+ * @date 2019/12/3
  * Description 输入支付密码dialog
  */
 public class DialogInputPayPassword extends BaseDialog {

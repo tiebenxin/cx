@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
 
 /**
  * @author：luck
- * @data：2018/3/28 下午1:02
+ * @date：2018/3/28 下午1:02
  * @描述: Rom版本管理
  */
 

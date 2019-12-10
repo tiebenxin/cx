@@ -1,8 +1,8 @@
 package com.yanlong.im.chat.bean;
 
 /**
- * @anthor Liszt
- * @data 2019/8/19
+ * @author Liszt
+ * @date 2019/8/19
  * Description  滚动位置config
  */
 public class ScrollConfig {

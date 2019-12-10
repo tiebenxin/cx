@@ -16,8 +16,8 @@ import net.cb.cb.library.base.BaseDialog;
 import java.util.List;
 
 /**
- * @anthor Liszt
- * @data 2019/12/4
+ * @author Liszt
+ * @date 2019/12/4
  * Description 选择支付方式弹窗
  */
 public class DialogSelectPayStyle extends BaseDialog {

@@ -3,8 +3,8 @@ package net.cb.cb.library.utils;
 import android.os.Build;
 
 /**
- * @anthor Liszt
- * @data 2019/11/8
+ * @author Liszt
+ * @date 2019/11/8
  * Description
  */
 public class DeviceUtils {

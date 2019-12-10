@@ -3,8 +3,8 @@ package net.cb.cb.library.utils;
 import com.google.gson.Gson;
 
 /**
- * @anthor Liszt
- * @data 2019/8/12
+ * @author Liszt
+ * @date 2019/8/12
  * Description bean 转 json ，json转bean
  */
 public class GsonUtils {

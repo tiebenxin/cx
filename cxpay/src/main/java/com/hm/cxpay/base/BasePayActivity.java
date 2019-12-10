@@ -15,8 +15,8 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 /**
- * @anthor Liszt
- * @data 2019/11/27
+ * @author Liszt
+ * @date 2019/11/27
  * Description
  */
 public class BasePayActivity extends AppActivity {

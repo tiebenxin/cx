@@ -5,8 +5,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 /**
- * @anthor Liszt
- * @data 2019/12/4
+ * @author Liszt
+ * @date 2019/12/4
  * Description
  */
 public class DateUtils {
