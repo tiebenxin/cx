@@ -8,10 +8,12 @@
 
         <LinearLayout style="@style/app_layout_list1_item">
 
-            <ImageView
+            <com.yanlong.im.wight.avatar.MultiImageView
                 android:id="@+id/img_head"
                 style="@style/app_img_head"
-                android:layout_marginRight="@dimen/app_margin_item" />
+                android:background="@drawable/bg_head_gray_shape"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:layout_gravity="center|left"/>
 
             <LinearLayout
                 android:layout_width="0dp"

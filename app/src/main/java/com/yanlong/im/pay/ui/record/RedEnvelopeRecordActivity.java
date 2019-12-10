@@ -32,8 +32,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @anthor Liszt
- * @data 2019/12/2
+ * @author Liszt
+ * @date 2019/12/2
  * Description 红包明细界面
  */
 @Route(path = "/app/redEnvelopeDetailsActivity")

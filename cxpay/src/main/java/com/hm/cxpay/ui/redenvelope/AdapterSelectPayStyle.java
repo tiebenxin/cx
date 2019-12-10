@@ -19,8 +19,8 @@ import com.hm.cxpay.utils.UIUtils;
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
 
 /**
- * @anthor Liszt
- * @data 2019/12/4
+ * @author Liszt
+ * @date 2019/12/4
  * Description  选择支付方式adapter
  */
 public class AdapterSelectPayStyle extends AbstractRecyclerAdapter<BankBean> {

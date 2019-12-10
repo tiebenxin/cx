@@ -8,8 +8,8 @@ import com.hm.cxpay.ui.bank.BankBean;
 import java.util.List;
 
 /**
- * @anthor Liszt
- * @data 2019/11/29
+ * @author Liszt
+ * @date 2019/11/29
  * Description 支付环境：token,context, 用户信息
  */
 public class PayEnvironment {

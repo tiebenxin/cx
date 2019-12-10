@@ -20,8 +20,8 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.MultiListView;
 
 /**
- * @anthor Liszt
- * @data 2019/12/2
+ * @author Liszt
+ * @date 2019/12/2
  * Description 接收到的红包
  */
 public class FragmentRedEnvelopeReceived extends Fragment {

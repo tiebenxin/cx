@@ -184,6 +184,7 @@ public class LooseChangeActivity extends BasePayActivity {
                     IntentUtil.gotoActivity(LooseChangeActivity.this, ManagePaywordActivity.class);
                 } else {
                     //2 未设置支付密码 -> 需要先设置
+                    ToastUtil.show(context, "检测到您还未设置支付密码，请先设置");
                     startActivity(new Intent(context, SetPaywordActivity.class));
                 }
             }

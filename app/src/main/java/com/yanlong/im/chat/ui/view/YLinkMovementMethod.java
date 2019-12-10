@@ -9,8 +9,8 @@ import android.view.MotionEvent;
 import android.widget.TextView;
 
 /**
- * @anthor Liszt
- * @data 2019/8/16
+ * @author Liszt
+ * @date 2019/8/16
  * Description
  */
 public class YLinkMovementMethod extends LinkMovementMethod {

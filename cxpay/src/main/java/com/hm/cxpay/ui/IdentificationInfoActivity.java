@@ -12,8 +12,8 @@ import com.hm.cxpay.global.PayEnvironment;
 import net.cb.cb.library.view.ActionbarView;
 
 /**
- * @anthor Liszt
- * @data 2019/11/29
+ * @author Liszt
+ * @date 2019/11/29
  * Description  认证账号信息展示页面
  */
 public class IdentificationInfoActivity extends BasePayActivity {

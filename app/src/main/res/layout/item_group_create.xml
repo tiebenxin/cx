@@ -21,44 +21,49 @@
             android:paddingRight="@dimen/app_margin_main"
             android:paddingBottom="1dp"
             android:text="xxx" />
-
-        <View style="@style/app_line" />
     </LinearLayout>
 
-    <LinearLayout style="@style/app_layout_list1">
+    <LinearLayout
+        android:id="@+id/layout_root"
+        android:paddingRight="0dp"
+        style="@style/app_layout_list1_item">
+
+        <ImageView
+            android:id="@+id/img_head"
+            style="@style/app_img_head"
+            android:layout_marginRight="@dimen/app_margin_item" />
 
         <LinearLayout
-            android:id="@+id/layout_root"
-            style="@style/app_layout_list1_item">
-
-            <ImageView
-                android:id="@+id/img_head"
-                style="@style/app_img_head"
-                android:layout_marginRight="@dimen/app_margin_item" />
+            style="@style/app_layout_list1">
 
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="@dimen/app_margin_item"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:paddingRight="@dimen/app_margin_main"
+                android:layout_height="67dp"
+                style="@style/app_layout_list1_item">
 
-                <TextView
-                    android:id="@+id/txt_name"
-                    style="@style/app_txt_title_2"
-                    android:text="xxxx" />
+                    <TextView
+                        android:id="@+id/txt_name"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        style="@style/app_txt_title_2"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="xxxx" />
 
+                    <CheckBox
+                        android:id="@+id/ck_select"
+                        style="@style/app_check_green"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="10dp"/>
             </LinearLayout>
 
-            <CheckBox
-                android:id="@+id/ck_select"
-                style="@style/app_check_green"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"/>
+            <View
+                android:id="@+id/view_line"
+                style="@style/app_line"
+                android:layout_marginLeft="@dimen/app_margin_main"/>
 
         </LinearLayout>
     </LinearLayout>
 
-    <View style="@style/app_line" />
+
 </LinearLayout>

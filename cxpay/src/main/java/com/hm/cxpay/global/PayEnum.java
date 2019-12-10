@@ -6,8 +6,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * @anthor Liszt
- * @data 2019/12/3
+ * @author Liszt
+ * @date 2019/12/3
  * Description
  */
 public class PayEnum {

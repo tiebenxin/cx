@@ -10,8 +10,8 @@ import android.widget.EditText;
 import java.util.UUID;
 
 /**
- * @anthor Liszt
- * @data 2019/11/29
+ * @author Liszt
+ * @date 2019/11/29
  * Description
  */
 public class UIUtils {

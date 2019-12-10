@@ -1,8 +1,8 @@
 package com.hm.cxpay.net;
 
 /**
- * @anthor Liszt
- * @data 2019/11/28
+ * @author Liszt
+ * @date 2019/11/28
  * Description
  */
 public class Route {
@@ -68,4 +68,13 @@ public class Route {
 
     //发送红包
     public static final String SEND_RED_ENVELOPE = "/order/send_red_envelope";
+
+    //抢红包
+    public static final String SNATCH_RED_ENVELOPE = "/order/snatch_red_envelope";
+
+    //获取单个红包详情
+    public static final String GET_RED_ENVELOPE_DETAIL = "/order/get_red_envelope_detail";
+
+    //拆红包
+    public static final String OPEN_RED_ENVELOPE = "/order/open_red_envelope";
 }

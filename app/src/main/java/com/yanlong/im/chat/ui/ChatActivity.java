@@ -47,12 +47,16 @@ import androidx.annotation.RequiresApi;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
-import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.hm.cxpay.bean.CxEnvelopeBean;
+import com.hm.cxpay.net.FGObserver;
+import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.MultiRedPacketActivity;
 import com.hm.cxpay.ui.SingleRedPacketActivity;
+import com.hm.cxpay.ui.redenvelope.GrabEnvelopeBean;
 import com.hm.cxpay.ui.redenvelope.SendResultBean;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -147,6 +151,7 @@ import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.inter.ICustomerItemClick;
 import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
@@ -275,6 +280,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private TextView tv_ban;
     private String draft;
     private int isFirst;
+    private UserInfo mFinfo;// 聊天用户信息，刷新时更新
 
     // 气泡视图
     private PopupWindow mPopupWindow;// 长按消息弹出气泡PopupWindow
@@ -399,7 +405,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             viewFunc.removeView(viewChatRobot);
         }
         viewFunc.removeView(ll_part_chat_video);
-        viewFunc.removeView(viewRb);
+//        viewFunc.removeView(viewRb);
         //test 6.26
         viewFunc.removeView(viewTransfer);
     }
@@ -418,6 +424,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewCamera = findViewById(R.id.view_camera);
         viewRb = findViewById(R.id.view_rb);
         viewRbZfb = findViewById(R.id.view_rb_zfb);
+//        viewRbSys = findViewById(R.id.view_rb_system);
         viewAction = findViewById(R.id.view_action);
         viewTransfer = findViewById(R.id.view_transfer);
         viewCard = findViewById(R.id.view_card);
@@ -980,14 +987,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
             }
         });
-        //支付宝红包
-        viewRbZfb.setOnClickListener(new View.OnClickListener() {
+        //系统红包
+        viewRb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-//                taskPayRb();
                 if (isGroup()) {
                     Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivity.this, toGid, groupInfo.getUsers().size());
                     startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
@@ -995,6 +1001,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     Intent intentMulti = SingleRedPacketActivity.newIntent(ChatActivity.this, toUId);
                     startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
                 }
+            }
+        });
+        //支付宝红包，魔方红包
+        viewRbZfb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                taskPayRb();
             }
         });
         viewTransfer.setOnClickListener(new View.OnClickListener() {
@@ -2241,13 +2257,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     private void showBigPic(String msgid, String uri) {
         List<LocalMedia> selectList = new ArrayList<>();
+        List<LocalMedia> temp = new ArrayList<>();
         int pos = 0;
-
         List<MsgAllBean> listdata = msgAction.getMsg4UserImg(toGid, toUId);
-        for (MsgAllBean msgl : listdata) {
-
+        for (int i = 0; i < listdata.size(); i++) {
+            MsgAllBean msgl=listdata.get(i);
             if (msgid.equals(msgl.getMsg_id())) {
-                pos = selectList.size();
+                pos = i;
             }
 
             LocalMedia lc = new LocalMedia();
@@ -2258,11 +2274,30 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             lc.setSize(msgl.getImage().getSize());
             lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
             lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
-            lc.setMsg_id(msgid);
-            selectList.add(lc);
-
+            lc.setMsg_id(msgl.getMsg_id());
+            temp.add(lc);
+        }
+        int size=temp.size();
+        //取中间100张
+        if(size<=100) {
+            selectList.addAll(temp);
+        }else {
+            if(pos-50<=0){//取前面
+                selectList.addAll(temp.subList(0,100));
+            }else if(pos+50>=size){//取后面
+                selectList.addAll(temp.subList(size-100,size));
+            }else {//取中间
+                selectList.addAll(temp.subList(pos-50,pos+50));
+            }
         }
 
+        pos = 0;
+        for (int i = 0; i < selectList.size(); i++) {
+            if (msgid.equals(selectList.get(i).getMsg_id())) {
+                pos = i;
+                break;
+            }
+        }
         PictureSelector.create(ChatActivity.this)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
@@ -2577,10 +2612,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public boolean onLongClick(View v) {
                         //TODO:优先显示群备注
-                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid());
-                        if (TextUtils.isEmpty(name)) {
-                            name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
-                        }
+                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid(),null,null);
+//                        if (TextUtils.isEmpty(name)) {
+//                            name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
+//                        }
                         String txt = editChat.getText().toString().trim();
                         if (!txt.contains("@" + name)) {
                             if (!TextUtils.isEmpty(name)) {
@@ -2611,14 +2646,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             return;
                         }
                         //TODO:优先显示群备注、查询最新的在本群的昵称
-                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid());
-                        if (TextUtils.isEmpty(name)) {
-                            name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
+                        String name = "";
+                        if (isGroup()) {
+                            name = msgDao.getGroupMemberName2(toGid, msgbean.getFrom_uid());
+                        } else if (mFinfo != null) {
+                            name = mFinfo.getName4Show();
                         }
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, msgbean.getFrom_uid())
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
                                 .putExtra(UserInfoActivity.GID, toGid)
+                                .putExtra(UserInfoActivity.IS_GROUP, isGroup())
                                 .putExtra(UserInfoActivity.MUC_NICK, name));
                     }
                 });
@@ -2719,27 +2757,31 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     final Long touid = msgbean.getFrom_uid();
                     final int style = msgbean.getRed_envelope().getStyle();
                     String type = null;
-                    if (rb.getRe_type().intValue() == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
+                    int reType = rb.getRe_type().intValue();//红包类型
+                    if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
                         type = "云红包";
+                    } else if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {
+                        type = "零钱红包";
                     }
 
-
-                    holder.viewChatItem.setData3(isInvalid, title, info, type, R.color.transparent, new ChatItemView.EventRP() {
+                    holder.viewChatItem.setData3(isInvalid, title, info, type, R.color.transparent, reType, new ChatItemView.EventRP() {
                         @Override
-                        public void onClick(boolean isInvalid) {
+                        public void onClick(boolean isInvalid, int reType) {
+                            if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {//魔方红包
+                                if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
+                                    //ToastUtil.show(getContext(), "红包详情");
+                                    taskPayRbDetail(msgbean, rid);
 
-                            /*if (!isInvalid) {//红包没拆,先检查已经领完没
-                                taskPayRbCheck(msgbean, rid);
+                                } else {
+                                    taskPayRbGet(msgbean, touid, rid);
+                                }
+                            } else if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
+                                if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
+                                    taskPayRbDetail(msgbean, rid);
 
-                            }*/
-
-
-                            if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
-                                //ToastUtil.show(getContext(), "红包详情");
-                                taskPayRbDetail(msgbean, rid);
-
-                            } else {
-                                taskPayRbGet(msgbean, touid, rid);
+                                } else {
+                                    taskPayRbGet(msgbean, touid, rid);
+                                }
                             }
                         }
                     });
@@ -2854,15 +2896,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     String titleTs = ts.getTransaction_amount() + "元";
                     final String tsId = ts.getId();
                     String typeTs = "好友转账";
-
-
-                    holder.viewChatItem.setData6(isInvalidTs, titleTs, infoTs, typeTs, R.color.transparent, new ChatItemView.EventRP() {
+                    int tranType = 0;//转账类型
+                    holder.viewChatItem.setData6(isInvalidTs, titleTs, infoTs, typeTs, R.color.transparent, tranType, new ChatItemView.EventRP() {
                         @Override
-                        public void onClick(boolean isInvalid) {
+                        public void onClick(boolean isInvalid, int tranType) {
                             tsakTransGet(tsId);
                         }
                     });
-
 
                     break;
                 case ChatEnum.EMessageType.VOICE://语音消息
@@ -3690,20 +3730,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             taskGroupConf();
 
         } else {
-            UserInfo finfo = userDao.findUserInfo(toUId);
-            if (finfo == null && toUId == 100121L) {
-                finfo = new UserInfo();
-                finfo.setUid(100121L);
-                finfo.setName("常信客服");
+            mFinfo = userDao.findUserInfo(toUId);
+            if (mFinfo == null && toUId == 100121L) {
+                mFinfo = new UserInfo();
+                mFinfo.setUid(100121L);
+                mFinfo.setName("常信客服");
             }
-            if (finfo != null) {
-                title = finfo.getName4Show();
-                if (finfo.getLastonline() > 0) {
+            if (mFinfo != null) {
+                title = mFinfo.getName4Show();
+                if (mFinfo.getLastonline() > 0) {
                     // 客服不显示时间状态
                     if (onlineState && !UserUtil.isSystemUser(toUId)) {
-                        actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), true);
+                        actionbar.setTitleMore(TimeToString.getTimeOnline(mFinfo.getLastonline(), mFinfo.getActiveType(), true), true);
                     } else {
-                        actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), false);
+                        actionbar.setTitleMore(TimeToString.getTimeOnline(mFinfo.getLastonline(), mFinfo.getActiveType(), true), false);
                     }
                 }
             }
@@ -4566,6 +4606,36 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         }
         return isOk;
+    }
+
+    //抢红包，获取token
+    public void grabRedEnvelope(long rid) {
+        PayHttpUtils.getInstance().grabRedEnvelope(rid)
+                .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<GrabEnvelopeBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<GrabEnvelopeBean> baseResponse) {
+                        if (baseResponse.isSuccess()) {
+                            GrabEnvelopeBean bean = baseResponse.getData();
+                            if (bean != null) {
+
+                            }
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        super.onHandleError(baseResponse);
+                        if (baseResponse.getCode() == -21000) {
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
+                    }
+                });
     }
 
 

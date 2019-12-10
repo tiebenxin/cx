@@ -653,21 +653,22 @@ public class MsgMainFragment extends Fragment {
                             info = name + info;
 
                         }
-                    } else {//草稿除外
-                        if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {
-                            info = name + info;
-                        }
+                    } else if(msginfo!=null&&(ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME+"").equals(msginfo.getMsg_type()+"")){
+                    //阅后即焚不通知 不显示谁发的 肯定是群主修改的
+                    // info=info;
+                    }else if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {//草稿除外
+                        info = name + info;
                     }
                     switch (type) {
                         case 0:
                             if (StringUtil.isNotNull(bean.getAtMessage())) {
                                 if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
-                                    SpannableString style = new SpannableString("[有人@你]" + info);
+                                    SpannableString style = new SpannableString("[有人@我]" + info);
                                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                     style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                     showMessage(holder.txtInfo, info, style);
                                 } else {
-                                    SpannableString style = new SpannableString("[有人@你]" + info);
+                                    SpannableString style = new SpannableString("[有人@我]" + info);
                                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                     style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                     showMessage(holder.txtInfo, info, style);

@@ -31,8 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @anthor Liszt
- * @data 2019/8/10
+ * @author Liszt
+ * @date 2019/8/10
  * Description  转发session选择列表 最近聊天列表
  */
 

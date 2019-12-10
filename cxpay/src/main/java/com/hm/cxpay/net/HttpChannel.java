@@ -25,8 +25,8 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * @anthor Liszt
- * @data 2019/11/28
+ * @author Liszt
+ * @date 2019/11/28
  * Description http
  */
 public class HttpChannel {

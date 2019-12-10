@@ -1,5 +1,7 @@
 package com.hm.cxpay.net;
 
+import android.text.TextUtils;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hm.cxpay.bean.BillBean;
@@ -9,6 +11,9 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BankInfo;
 import com.hm.cxpay.ui.bank.BindBankInfo;
+import com.hm.cxpay.ui.redenvelope.EnvelopeDetailBean;
+import com.hm.cxpay.ui.redenvelope.GrabEnvelopeBean;
+import com.hm.cxpay.ui.redenvelope.OpenEnvelopeBean;
 import com.hm.cxpay.ui.redenvelope.RedDetailsBean;
 import com.hm.cxpay.ui.redenvelope.SendResultBean;
 import com.hm.cxpay.utils.UIUtils;
@@ -24,8 +29,8 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
 /**
- * @anthor Liszt
- * @data 2019/11/28
+ * @author Liszt
+ * @date 2019/11/28
  * Description
  */
 public class PayHttpUtils {
@@ -110,7 +115,7 @@ public class PayHttpUtils {
     }
 
     //修改支付密码
-    public Observable<BaseResponse> modifyPayword(String oldPayword,String newPayword) {
+    public Observable<BaseResponse> modifyPayword(String oldPayword, String newPayword) {
         Map<String, String> map = new HashMap<>();
         map.put("currentPwd", MD5.md5(oldPayword));
         map.put("newPwd", MD5.md5(newPayword));
@@ -134,7 +139,7 @@ public class PayHttpUtils {
     //充值
     public Observable<BaseResponse<CommonBean>> toRecharge(int amt, long bankCardId, String payPwd) {
         Map<String, String> map = new HashMap<>();
-        map.put("amt", UIUtils.getFen(amt+"")+"");
+        map.put("amt", UIUtils.getFen(amt + "") + "");
         map.put("bankCardId", bankCardId + "");
         map.put("payPwd", MD5.md5(payPwd));
         map.put("actionId", UIUtils.getUUID());
@@ -144,7 +149,7 @@ public class PayHttpUtils {
     //提现
     public Observable<BaseResponse<CommonBean>> toWithdraw(int amt, long bankCardId, String payPwd) {
         Map<String, String> map = new HashMap<>();
-        map.put("amt", UIUtils.getFen(amt+"")+"");
+        map.put("amt", UIUtils.getFen(amt + "") + "");
         map.put("bankCardId", bankCardId + "");
         map.put("payPwd", MD5.md5(payPwd));
         map.put("actionId", UIUtils.getUUID());
@@ -235,6 +240,45 @@ public class PayHttpUtils {
         map.put("type", type + "");
         map.put("toGid", gid);
         return HttpChannel.getInstance().getPayService().sendRedEnvelope(getRequestBody(map));
+    }
+
+    /**
+     * 抢红包
+     *
+     * @param rid 红包id 及 tradeId
+     */
+    public Observable<BaseResponse<GrabEnvelopeBean>> grabRedEnvelope(long rid) {
+        Map<String, String> map = new HashMap<>();
+        map.put("rid", rid + "");
+        return HttpChannel.getInstance().getPayService().grabRedEnvelope(getRequestBody(map));
+    }
+
+    /**
+     * 拆红包
+     *
+     * @param rid 红包id 及 tradeId
+     */
+    public Observable<BaseResponse<OpenEnvelopeBean>> openRedEnvelope(long rid, String token) {
+        Map<String, String> map = new HashMap<>();
+        map.put("rid", rid + "");
+        if (!TextUtils.isEmpty(token)) {
+            map.put("accessToken", token);
+        }
+        return HttpChannel.getInstance().getPayService().openRedEnvelope(getRequestBody(map));
+    }
+
+    /**
+     * 查看红包记录
+     *
+     * @param rid 红包id 及 tradeId
+     */
+    public Observable<BaseResponse<EnvelopeDetailBean>> getEnvelopeDetail(long rid, String token) {
+        Map<String, String> map = new HashMap<>();
+        map.put("rid", rid + "");
+        if (!TextUtils.isEmpty(token)) {
+            map.put("accessToken", token);
+        }
+        return HttpChannel.getInstance().getPayService().getEnvelopeDetail(getRequestBody(map));
     }
 
 

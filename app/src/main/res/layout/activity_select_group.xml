@@ -11,15 +11,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
         <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true"
             android:scrollbars="none">
-
-
-
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -66,7 +62,7 @@
                         android:id="@+id/img_head"
                         style="@style/app_img_head"
                         android:layout_marginRight="@dimen/app_margin_item"
-                        android:src="@mipmap/ic_launcher" />
+                        android:src="@mipmap/img_chat_at_all" />
 
                     <TextView
                         android:id="@+id/txt_name"

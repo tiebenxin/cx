@@ -79,8 +79,8 @@ import java.util.List;
 import okhttp3.Call;
 
 /**
- * @anthor Liszt
- * @data 2019/11/11
+ * @author Liszt
+ * @date 2019/11/11
  * Description
  */
 public class AdapterPreviewImage extends PagerAdapter {
@@ -898,6 +898,8 @@ public class AdapterPreviewImage extends PagerAdapter {
                     LogUtil.getLog().e("=======网络图片=bitmap不为空=");
                     Result result = scanningImage(path, bitmap);
                     QRCodeManage.toZhifubao(context, result);
+                }else {
+                    ToastUtil.show(context, "识别二维码失败");
                 }
             } else {
                 LogUtil.getLog().d(TAG, "scanningQrImage: path" + path);

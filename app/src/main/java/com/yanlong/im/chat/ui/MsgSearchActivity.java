@@ -220,13 +220,13 @@ public class MsgSearchActivity extends AppActivity {
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
                             if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
-                                style.append("[有人@你]" + info);
+                                style.append("[有人@我]" + info);
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 holder.txtInfo.setText(style);
                             } else {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
-                                style.append("[有人@你]" + info);
+                                style.append("[有人@我]" + info);
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 holder.txtInfo.setText(style);

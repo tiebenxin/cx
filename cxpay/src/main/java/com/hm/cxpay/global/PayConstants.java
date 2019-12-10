@@ -1,8 +1,8 @@
 package com.hm.cxpay.global;
 
 /**
- * @anthor Liszt
- * @data 2019/12/4
+ * @author Liszt
+ * @date 2019/12/4
  * Description 支付模块常量
  */
 public class PayConstants {

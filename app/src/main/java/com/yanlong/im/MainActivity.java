@@ -17,7 +17,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.nim_lib.controll.AVChatProfile;
-import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.global.PayEnvironment;
@@ -66,6 +65,7 @@ import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.manager.TokenManager;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;

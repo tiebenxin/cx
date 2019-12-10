@@ -69,8 +69,8 @@ import static com.yanlong.im.utils.socket.SocketData.createMsgBean;
 import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
 
 /**
- * @anthor Liszt
- * @data 2019/9/24
+ * @author Liszt
+ * @date 2019/9/24
  * Description 消息管理类
  */
 public class MessageManager {

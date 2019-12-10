@@ -73,8 +73,8 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 /**
- * @anthor Liszt
- * @data 2019/9/19
+ * @author Liszt
+ * @date 2019/9/19
  * Description
  */
 public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements SocketEvent {

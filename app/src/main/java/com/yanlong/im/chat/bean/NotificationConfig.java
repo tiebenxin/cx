@@ -1,8 +1,8 @@
 package com.yanlong.im.chat.bean;
 
 /**
- * @anthor Liszt
- * @data 2019/8/28
+ * @author Liszt
+ * @date 2019/8/28
  * Description 通知config信息
  */
 public class NotificationConfig {

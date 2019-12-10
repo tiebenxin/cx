@@ -1,8 +1,8 @@
 package net.cb.cb.library.bean;
 
 /**
- * @anthor Liszt
- * @data 2019/10/24
+ * @author Liszt
+ * @date 2019/10/24
  * Description
  */
 public class EventGroupChange {

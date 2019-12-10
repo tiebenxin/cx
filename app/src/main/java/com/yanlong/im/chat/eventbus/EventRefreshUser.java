@@ -3,8 +3,8 @@ package com.yanlong.im.chat.eventbus;
 import com.yanlong.im.user.bean.UserInfo;
 
 /**
- * @anthor Liszt
- * @data 2019/11/5
+ * @author Liszt
+ * @date 2019/11/5
  * Description 登陆成功后,获取自己信息后通知刷新MyFragment
  */
 public class EventRefreshUser {

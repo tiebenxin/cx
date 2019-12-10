@@ -7,6 +7,9 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BankInfo;
 import com.hm.cxpay.ui.bank.BindBankInfo;
+import com.hm.cxpay.ui.redenvelope.EnvelopeDetailBean;
+import com.hm.cxpay.ui.redenvelope.GrabEnvelopeBean;
+import com.hm.cxpay.ui.redenvelope.OpenEnvelopeBean;
 import com.hm.cxpay.ui.redenvelope.RedDetailsBean;
 import com.hm.cxpay.ui.redenvelope.SendResultBean;
 
@@ -18,8 +21,8 @@ import retrofit2.http.Body;
 import retrofit2.http.POST;
 
 /**
- * @anthor Liszt
- * @data 2019/11/28
+ * @author Liszt
+ * @date 2019/11/28
  * Description
  */
 public interface PayService {
@@ -99,6 +102,18 @@ public interface PayService {
     //发红包
     @POST(Route.SEND_RED_ENVELOPE)
     Observable<BaseResponse<SendResultBean>> sendRedEnvelope(@Body RequestBody body);
+
+    //抢红包
+    @POST(Route.SNATCH_RED_ENVELOPE)
+    Observable<BaseResponse<GrabEnvelopeBean>> grabRedEnvelope(@Body RequestBody body);
+
+    //拆红包
+    @POST(Route.OPEN_RED_ENVELOPE)
+    Observable<BaseResponse<OpenEnvelopeBean>> openRedEnvelope(@Body RequestBody body);
+
+    //查看红包记录详情
+    @POST(Route.GET_RED_ENVELOPE_DETAIL)
+    Observable<BaseResponse<EnvelopeDetailBean>> getEnvelopeDetail(@Body RequestBody body);
 
 
 }

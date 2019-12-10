@@ -1,8 +1,8 @@
 package net.cb.cb.library.manager;
 
 /**
- * @anthor Liszt
- * @data 2019/11/12
+ * @author Liszt
+ * @date 2019/11/12
  * Description 常量
  */
 public class Constants {

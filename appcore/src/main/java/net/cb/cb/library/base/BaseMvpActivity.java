@@ -5,8 +5,8 @@ import android.os.Bundle;
 import net.cb.cb.library.view.AppActivity;
 
 /**
- * @anthor Liszt
- * @data 2019/8/10
+ * @author Liszt
+ * @date 2019/8/10
  * Description mvp Activity 基类
  */
 public abstract class BaseMvpActivity<M extends IModel, V extends IView, P extends BasePresenter> extends AppActivity implements BaseMvp<M, V, P> {

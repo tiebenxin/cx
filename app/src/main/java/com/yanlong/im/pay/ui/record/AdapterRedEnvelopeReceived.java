@@ -15,8 +15,8 @@ import net.cb.cb.library.base.AbstractRecyclerAdapter;
 import net.cb.cb.library.utils.TimeToString;
 
 /**
- * @anthor Liszt
- * @data 2019/12/3
+ * @author Liszt
+ * @date 2019/12/3
  * Description
  */
 public class AdapterRedEnvelopeReceived extends AbstractRecyclerAdapter<RedEnvelopeItemBean> {

@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @anthor Liszt
- * @data 2019/8/10
+ * @author Liszt
+ * @date 2019/8/10
  * Description
  */
 public abstract class AbstractRecyclerAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

@@ -3,8 +3,8 @@ package com.hm.cxpay.eventbus;
 import com.hm.cxpay.global.PayEnum;
 
 /**
- * @anthor Liszt
- * @data 2019/12/9
+ * @author Liszt
+ * @date 2019/12/9
  * Description 支付结果event
  */
 public class PayResultEvent {

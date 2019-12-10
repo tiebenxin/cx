@@ -3,7 +3,6 @@ package com.yanlong.im.chat.ui.forward;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,8 +12,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
-
-import androidx.annotation.RequiresApi;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -31,7 +28,6 @@ import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.GsonUtils;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -67,10 +63,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     private String json;
 
     public static boolean isSingleSelected = true;//转发单人 转发多人
-    public static List<MoreSessionBean> moreSessionBeanList=new ArrayList<>();//转发多人集合
-    public static int maxNumb=9;
-    public static String searchKey=null;
-
+    public static List<MoreSessionBean> moreSessionBeanList = new ArrayList<>();//转发多人集合
+    public static int maxNumb = 9;
+    public static String searchKey = null;
 
 
     @Override
@@ -101,9 +96,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     //自动生成的控件事件
     private void initEvent() {
-        searchKey=null;
-        isSingleSelected=true;
-        moreSessionBeanList=new ArrayList<>();
+        searchKey = null;
+        isSingleSelected = true;
+        moreSessionBeanList = new ArrayList<>();
 
         json = getIntent().getStringExtra(AGM_JSON);
         msgAllBean = GsonUtils.getObject(json, MsgAllBean.class);
@@ -112,10 +107,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
-                if(isSingleSelected){
+                if (isSingleSelected) {
                     onBackPressed();
-                }else {
-                    isSingleSelected=true;
+                } else {
+                    isSingleSelected = true;
                     resetRightText();
 
                     EventBus.getDefault().post(new SingleOrMoreEvent(isSingleSelected));
@@ -124,9 +119,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
             @Override
             public void onRight() {
-                if(!isSingleSelected&&moreSessionBeanList.size()>0){
-                    onForward(0L,"","","");//仅仅是唤起弹窗
-                }else {
+                if (!isSingleSelected && moreSessionBeanList.size() > 0) {
+                    onForward(0L, "", "", "");//仅仅是唤起弹窗
+                } else {
                     isSingleSelected = !isSingleSelected;
                     resetRightText();
                     EventBus.getDefault().post(new SingleOrMoreEvent(isSingleSelected));
@@ -155,10 +150,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (edtSearch.getText().toString().length() == 0) {
-                    searchKey=null;
+                    searchKey = null;
                     EventBus.getDefault().post(new SearchKeyEvent());
-                }else {
-                    searchKey=s.toString();
+                } else {
+                    searchKey = s.toString();
                     EventBus.getDefault().post(new SearchKeyEvent());
                 }
             }
@@ -188,7 +183,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             actionbar.getBtnLeft().setVisibility(View.GONE);
             actionbar.setTxtLeft("取消");
 
-            actionbar.setTxtRight("完成("+moreSessionBeanList.size()+")");
+            actionbar.setTxtRight("完成(" + moreSessionBeanList.size() + ")");
         }
     }
 
@@ -245,18 +240,18 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     @Override
     public void onForward(final long toUid, final String toGid, String mIcon, String mName) {
-        if (msgAllBean == null){
+        if (msgAllBean == null) {
             return;
         }
 
-        String btm="发送";
-        if(!isSingleSelected&&moreSessionBeanList.size()>0){
-            btm="发送("+moreSessionBeanList.size()+")";
+        String btm = "发送";
+        if (!isSingleSelected && moreSessionBeanList.size() > 0) {
+            btm = "发送(" + moreSessionBeanList.size() + ")";
         }
 
         AlertForward alertForward = new AlertForward();
         if (msgAllBean.getChat() != null) {//转换文字
-            alertForward.init(MsgForwardActivity.this, mIcon, mName, msgAllBean.getChat().getMsg(), null, btm, new AlertForward.Event() {
+            alertForward.init(MsgForwardActivity.this, mIcon, mName, msgAllBean.getChat().getMsg(), null, btm, toGid, new AlertForward.Event() {
 
 
                 @Override
@@ -266,7 +261,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
                 @Override
                 public void onYes(String content) {
-                    if(isSingleSelected){
+                    if (isSingleSelected) {
                         ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getChat().getMsg());
                         MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
                         if (allBean != null) {
@@ -277,9 +272,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 //                    sendMesage = SocketData.send4Chat(toUid, toGid, msgAllBean.getChat().getMsg());
                         sendLeaveMessage(content, toUid, toGid);
                         notifyRefreshMsg(toGid, toUid);
-                    }else {
+                    } else {
                         for (int i = 0; i < moreSessionBeanList.size(); i++) {
-                            MoreSessionBean bean=moreSessionBeanList.get(i);
+                            MoreSessionBean bean = moreSessionBeanList.get(i);
 
                             ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getChat().getMsg());
                             MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
@@ -290,7 +285,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                             sendLeaveMessage(content, bean.getUid(), bean.getGid());
                             notifyRefreshMsg(bean.getGid(), bean.getUid());
                         }
-                        isSingleSelected=true;
+                        isSingleSelected = true;
                     }
 
                     doSendSuccess();
@@ -298,7 +293,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             });
         } else if (msgAllBean.getImage() != null) {
 
-            alertForward.init(MsgForwardActivity.this, mIcon, mName, null, msgAllBean.getImage().getThumbnail(), btm, new AlertForward.Event() {
+            alertForward.init(MsgForwardActivity.this, mIcon, mName, null, msgAllBean.getImage().getThumbnail(), btm, toGid, new AlertForward.Event() {
                 @Override
                 public void onON() {
 
@@ -306,7 +301,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
                 @Override
                 public void onYes(String content) {
-                    if(isSingleSelected){
+                    if (isSingleSelected) {
                         ImageMessage imagesrc = msgAllBean.getImage();
                         if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
                             imagesrc.setReadOrigin(true);
@@ -322,9 +317,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 //                    msgDao.ImgReadStatSet(imagesrc.getOrigin(), imagesrc.isReadOrigin());
                         sendLeaveMessage(content, toUid, toGid);
                         notifyRefreshMsg(toGid, toUid);
-                    }else {
+                    } else {
                         for (int i = 0; i < moreSessionBeanList.size(); i++) {
-                            MoreSessionBean bean=moreSessionBeanList.get(i);
+                            MoreSessionBean bean = moreSessionBeanList.get(i);
 
                             ImageMessage imagesrc = msgAllBean.getImage();
                             if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
@@ -339,7 +334,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                             sendLeaveMessage(content, bean.getUid(), bean.getGid());
                             notifyRefreshMsg(bean.getGid(), bean.getUid());
                         }
-                        isSingleSelected=true;
+                        isSingleSelected = true;
                     }
 
                     doSendSuccess();
@@ -347,7 +342,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             });
 
         } else if (msgAllBean.getAtMessage() != null) {
-            alertForward.init(MsgForwardActivity.this, mIcon, mName, msgAllBean.getAtMessage().getMsg(), null, btm, new AlertForward.Event() {
+            alertForward.init(MsgForwardActivity.this, mIcon, mName, msgAllBean.getAtMessage().getMsg(), null, btm, toGid, new AlertForward.Event() {
                 @Override
                 public void onON() {
 
@@ -360,16 +355,16 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 //                        sendMesage = SocketData.send4Chat(toUid, toGid, content);
 //                    }
 
-                    if(isSingleSelected){
+                    if (isSingleSelected) {
                         ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getAtMessage().getMsg());
-                        MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid,ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
+                        MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
                         if (allBean != null) {
                             SocketData.sendAndSaveMessage(allBean);
                             sendMesage = allBean;
                         }
                         sendLeaveMessage(content, toUid, toGid);
                         notifyRefreshMsg(toGid, toUid);
-                    }else {
+                    } else {
                         for (int i = 0; i < moreSessionBeanList.size(); i++) {
                             MoreSessionBean bean = moreSessionBeanList.get(i);
 
@@ -382,14 +377,14 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                             sendLeaveMessage(content, bean.getUid(), bean.getGid());
                             notifyRefreshMsg(bean.getGid(), bean.getUid());
                         }
-                        isSingleSelected=true;
+                        isSingleSelected = true;
                     }
 
                     doSendSuccess();
                 }
             });
         } else if (msgAllBean.getVideoMessage() != null) {
-            alertForward.init(MsgForwardActivity.this, mIcon, mName, null, msgAllBean.getVideoMessage().getBg_url(), btm, new AlertForward.Event() {
+            alertForward.init(MsgForwardActivity.this, mIcon, mName, null, msgAllBean.getVideoMessage().getBg_url(), btm, toGid, new AlertForward.Event() {
                 @Override
                 public void onON() {
 
@@ -399,7 +394,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 public void onYes(String content) {
 //                    sendMesage = SocketData.转发送视频整体信息(toUid, toGid, msgAllBean.getVideoMessage());
 
-                    if(isSingleSelected){
+                    if (isSingleSelected) {
                         VideoMessage video = msgAllBean.getVideoMessage();
                         VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), video.getBg_url(), video.getUrl(), video.getDuration(), video.getWidth(), video.getHeight(), video.isReadOrigin());
                         MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), videoMessage);
@@ -409,7 +404,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         }
                         sendLeaveMessage(content, toUid, toGid);
                         notifyRefreshMsg(toGid, toUid);
-                    }else {
+                    } else {
                         for (int i = 0; i < moreSessionBeanList.size(); i++) {
                             MoreSessionBean bean = moreSessionBeanList.get(i);
 
@@ -423,7 +418,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                             sendLeaveMessage(content, bean.getUid(), bean.getGid());
                             notifyRefreshMsg(bean.getGid(), bean.getUid());
                         }
-                        isSingleSelected=true;
+                        isSingleSelected = true;
                     }
 
                     doSendSuccess();
@@ -468,21 +463,21 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         }
     }
 
-    public static void addOrDelectMoreSessionBeanList(boolean isAdd,long uid, String gid, String avatar, String nick){
-        boolean has=false;
-        int hasInt=-1;
+    public static void addOrDelectMoreSessionBeanList(boolean isAdd, long uid, String gid, String avatar, String nick) {
+        boolean has = false;
+        int hasInt = -1;
         for (int i = 0; i < moreSessionBeanList.size(); i++) {
-            if(StringUtil.isNotNull(gid)&&uid==moreSessionBeanList.get(i).getUid()&&gid.equals(moreSessionBeanList.get(i).getGid())){
-                has=true;
-                hasInt=i;
-            }else if(!StringUtil.isNotNull(gid)&&uid==moreSessionBeanList.get(i).getUid()){
-                has=true;
-                hasInt=i;
+            if (StringUtil.isNotNull(gid) && uid == moreSessionBeanList.get(i).getUid() && gid.equals(moreSessionBeanList.get(i).getGid())) {
+                has = true;
+                hasInt = i;
+            } else if (!StringUtil.isNotNull(gid) && uid == moreSessionBeanList.get(i).getUid()) {
+                has = true;
+                hasInt = i;
             }
         }
 
-        if(isAdd&&!has){
-            MoreSessionBean bean=new MoreSessionBean();
+        if (isAdd && !has) {
+            MoreSessionBean bean = new MoreSessionBean();
             bean.setUid(uid);
             bean.setGid(gid);
             bean.setAvatar(avatar);
@@ -490,19 +485,19 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
             moreSessionBeanList.add(bean);
 //                LogUtil.getLog().e("======add==");
-        }else if(!isAdd&&hasInt>-1){
+        } else if (!isAdd && hasInt > -1) {
             moreSessionBeanList.remove(hasInt);
 //                LogUtil.getLog().e("======delete==");
         }
 
-        EventBus.getDefault().post(new SelectNumbEvent(moreSessionBeanList.size()+""));
+        EventBus.getDefault().post(new SelectNumbEvent(moreSessionBeanList.size() + ""));
     }
 
-    public static Boolean findMoreSessionBeanList(long uid, String gid){
+    public static Boolean findMoreSessionBeanList(long uid, String gid) {
         for (int i = 0; i < moreSessionBeanList.size(); i++) {
-            if(StringUtil.isNotNull(gid)&&uid==moreSessionBeanList.get(i).getUid()&&gid.equals(moreSessionBeanList.get(i).getGid())){
+            if (StringUtil.isNotNull(gid) && uid == moreSessionBeanList.get(i).getUid() && gid.equals(moreSessionBeanList.get(i).getGid())) {
                 return true;
-            }else if(!StringUtil.isNotNull(gid)&&uid==moreSessionBeanList.get(i).getUid()){
+            } else if (!StringUtil.isNotNull(gid) && uid == moreSessionBeanList.get(i).getUid()) {
                 return true;
             }
         }
@@ -512,7 +507,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void posting(SelectNumbEvent event) {
-        actionbar.setTxtRight("完成("+event.type+")");
+        actionbar.setTxtRight("完成(" + event.type + ")");
     }
 
 }

@@ -10,8 +10,8 @@ import retrofit2.http.Field;
 import retrofit2.http.POST;
 
 /**
- * @anthor Liszt
- * @data 2019/11/27
+ * @author Liszt
+ * @date 2019/11/27
  * Description 支付模块api
  */
 public class PayApi {

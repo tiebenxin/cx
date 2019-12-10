@@ -8,7 +8,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -43,8 +42,8 @@ import net.cb.cb.library.view.StrikeButton;
 import java.io.File;
 
 /**
- * @anthor Liszt
- * @data 2019/9/25
+ * @author Liszt
+ * @date 2019/9/25
  * Description
  */
 public class SessionAdapter extends AbstractRecyclerAdapter<Session> {
@@ -168,13 +167,13 @@ public class SessionAdapter extends AbstractRecyclerAdapter<Session> {
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
                             if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
-                                style.append("[有人@你]" + bean.getAtMessage());
+                                style.append("[有人@我]" + bean.getAtMessage());
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 txtInfo.setText(style);
                             } else {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
-                                style.append("[有人@你]" + info);
+                                style.append("[有人@我]" + info);
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 txtInfo.setText(style);
