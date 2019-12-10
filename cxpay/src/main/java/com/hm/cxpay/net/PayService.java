@@ -95,6 +95,10 @@ public interface PayService {
     @POST(Route.GET_BILL_DETAILS_LIST)
     Observable<BaseResponse<BillBean>> getBillDetailsList(@Body RequestBody body);
 
+    //获取零钱明细
+    @POST(Route.GET_CHANGE_DETAILS_LIST)
+    Observable<BaseResponse<BillBean>> getChangeDetailsList(@Body RequestBody body);
+
     //获取红包明细
     @POST(Route.GET_RED_ENVELOPE_DETAILS)
     Observable<BaseResponse<RedDetailsBean>> getRedEnvelopeDetails(@Body RequestBody body);

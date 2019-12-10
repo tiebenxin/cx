@@ -1,18 +1,11 @@
-package com.hm.cxpay.ui.bill;
+package com.hm.cxpay.ui;
 
 import android.app.Activity;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -26,10 +19,10 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.bill.BillDetailListAdapter;
 import com.hm.cxpay.utils.DateUtils;
 import com.hm.cxpay.widget.refresh.EndlessRecyclerOnScrollListener;
 
-import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -41,13 +34,13 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @类名：账单明细
+ * @类名：零钱明细
  * @Date：2019/12/9
  * @by zjy
  * @备注：
  */
 
-public class BillDetailListActivity extends AppActivity {
+public class ChangeDetailListActivity extends AppActivity {
 
     private HeadView headView;
     private ActionbarView actionbar;
@@ -55,14 +48,6 @@ public class BillDetailListActivity extends AppActivity {
     private Activity activity;
     private LinearLayout noDataLayout;
     private LinearLayout billLayout;
-    private TextView tvSelectDate;
-    private TextView tvSelectType;
-    private AlertDialog selectTypeDialog;
-    private TextView tvAll;//全部
-    private TextView tvTransfer;//转账
-    private TextView tvRedpacket;//红包
-    private TextView tvRechargeWithdraw;//充值提现
-    private TextView tvRefund;//有退款
     private TextView tvChangeSelectDate;//零钱专用选时间布局
 
 
@@ -71,7 +56,6 @@ public class BillDetailListActivity extends AppActivity {
 
     private List<CommonBean> list;
     private int page = 1;//默认第一页
-    private int selectType = 1;//交易类型 1.全部 2.转账 3.红包 4.充值提现 5.有退款
     private int year;
     private int month;
     private long selectTimeDataValue = 0L;//选择的月份转换后的时间戳
@@ -83,7 +67,7 @@ public class BillDetailListActivity extends AppActivity {
         activity = this;
         setContentView(R.layout.activity_bill_list);
         initView();
-        isBill(true);
+        isBill(false);
         initData();
     }
 
@@ -91,8 +75,6 @@ public class BillDetailListActivity extends AppActivity {
         headView = findViewById(R.id.headView);
         recyclerView = findViewById(R.id.rc_list);
         noDataLayout = findViewById(R.id.no_data_layout);
-        tvSelectDate = findViewById(R.id.tv_select_date);
-        tvSelectType = findViewById(R.id.tv_select_type);
         tvChangeSelectDate = findViewById(R.id.tv_change_select_date);
         billLayout = findViewById(R.id.layout_bill);
         actionbar = headView.getActionbar();
@@ -101,7 +83,7 @@ public class BillDetailListActivity extends AppActivity {
 
     private void initData() {
         selectTimeDataValue = DateUtils.getMonthBegin(new Date());
-        getBillDetailsList();//先拿当前的时间戳去请求
+        getChangeDetailsList();//先拿当前的时间戳去请求
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -113,7 +95,7 @@ public class BillDetailListActivity extends AppActivity {
 
             }
         });
-        adapter = new BillDetailListAdapter(activity,list,1);
+        adapter = new BillDetailListAdapter(activity,list,2);
         manager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(adapter);
@@ -121,36 +103,25 @@ public class BillDetailListActivity extends AppActivity {
         recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener() {
             @Override
             public void onLoadMore() {
-                getBillDetailsList();
+                getChangeDetailsList();
                 adapter.setLoadState(adapter.LOADING);
             }
         });
         //选日期
-        tvSelectDate.setOnClickListener(new View.OnClickListener() {
+        tvChangeSelectDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 initTimePicker();
-            }
-        });
-        //选类型
-        tvSelectType.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(selectTypeDialog!=null){
-                    selectTypeDialog.show();
-                }else {
-                    showSelectTypeDialog();
-                }
             }
         });
     }
 
 
     /**
-     * 请求->获取账单明细
+     * 请求->获取零钱明细
      */
-    private void getBillDetailsList(){
-        PayHttpUtils.getInstance().getBillDetailsList(page, selectTimeDataValue,selectType)
+    private void getChangeDetailsList(){
+        PayHttpUtils.getInstance().getChangeDetailsList(page, selectTimeDataValue)
                 .compose(RxSchedulers.<BaseResponse<BillBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<BillBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<BillBean>>() {
@@ -223,11 +194,11 @@ public class BillDetailListActivity extends AppActivity {
                 calendar.setTime(date);
                 year = calendar.get(Calendar.YEAR);
                 month = calendar.get(Calendar.MONTH) + 1;
-                tvSelectDate.setText(year + "年" + month + "月");
+                tvChangeSelectDate.setText(year + "年" + month + "月");
                 //选择日期后，页数和日期均重置，并重新发请求
                 page = 1;//页数重置为1
                 selectTimeDataValue = DateUtils.getMonthBegin(date);
-                getBillDetailsList();
+                getChangeDetailsList();
             }
         })
                 .setType(new boolean[]{true, true, false, false, false, false})
@@ -243,129 +214,18 @@ public class BillDetailListActivity extends AppActivity {
     }
 
     /**
-     * 选择切换交易类型弹框
-     */
-    private void showSelectTypeDialog(){
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
-        dialogBuilder.setCancelable(true);//取消点击外部消失弹窗
-        selectTypeDialog = dialogBuilder.create();
-        //获取界面
-        View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_select_bill_type, null);
-        //初始化控件
-        tvAll = dialogView.findViewById(R.id.tv_all);
-        tvTransfer = dialogView.findViewById(R.id.tv_transfer);
-        tvRedpacket = dialogView.findViewById(R.id.tv_redpacket);
-        tvRechargeWithdraw = dialogView.findViewById(R.id.tv_recharge_withdraw);
-        tvRefund = dialogView.findViewById(R.id.tv_refund);
-        //显示和点击事件
-        tvAll.setOnClickListener(new android.view.View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                clearSelectedStatus();
-                tvAll.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
-                tvAll.setTextColor(getResources().getColor(R.color.white));
-                selectTypeDialog.dismiss();
-                //刷新数据
-                page=1;
-                selectType =1 ;
-                getBillDetailsList();
-            }
-        });
-        tvTransfer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clearSelectedStatus();
-                tvTransfer.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
-                tvTransfer.setTextColor(getResources().getColor(R.color.white));
-                selectTypeDialog.dismiss();
-                //刷新数据
-                page=1;
-                selectType =2 ;
-                getBillDetailsList();
-            }
-        });
-        tvRedpacket.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clearSelectedStatus();
-                tvRedpacket.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
-                tvRedpacket.setTextColor(getResources().getColor(R.color.white));
-                selectTypeDialog.dismiss();
-                //刷新数据
-                page=1;
-                selectType =3 ;
-                getBillDetailsList();
-            }
-        });
-        tvRechargeWithdraw.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clearSelectedStatus();
-                tvRechargeWithdraw.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
-                tvRechargeWithdraw.setTextColor(getResources().getColor(R.color.white));
-                selectTypeDialog.dismiss();
-                //刷新数据
-                page=1;
-                selectType =4 ;
-                getBillDetailsList();
-            }
-        });
-        tvRefund.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clearSelectedStatus();
-                tvRefund.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
-                tvRefund.setTextColor(getResources().getColor(R.color.white));
-                selectTypeDialog.dismiss();
-                //刷新数据
-                page=1;
-                selectType =5 ;
-                getBillDetailsList();
-            }
-        });
-        //展示界面
-        selectTypeDialog.show();
-        //解决圆角shape背景无效问题
-        Window window = selectTypeDialog.getWindow();
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        window.setGravity(Gravity.BOTTOM);
-        //设置宽高
-        WindowManager.LayoutParams lp = window.getAttributes();
-        lp.height = DensityUtil.dip2px(activity, 195);
-        lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
-        selectTypeDialog.getWindow().setAttributes(lp);
-        selectTypeDialog.setContentView(dialogView);
-    }
-
-    /**
-     * 清除其他选中状态
-     */
-    public void clearSelectedStatus() {
-        tvAll.setBackgroundResource(R.drawable.shape_5radius_stroke_517da2);
-        tvTransfer.setBackgroundResource(R.drawable.shape_5radius_stroke_517da2);
-        tvRedpacket.setBackgroundResource(R.drawable.shape_5radius_stroke_517da2);
-        tvRechargeWithdraw.setBackgroundResource(R.drawable.shape_5radius_stroke_517da2);
-        tvRefund.setBackgroundResource(R.drawable.shape_5radius_stroke_517da2);
-        tvAll.setTextColor(getResources().getColor(R.color.c_517da2));
-        tvTransfer.setTextColor(getResources().getColor(R.color.c_517da2));
-        tvRedpacket.setTextColor(getResources().getColor(R.color.c_517da2));
-        tvRechargeWithdraw.setTextColor(getResources().getColor(R.color.c_517da2));
-        tvRefund.setTextColor(getResources().getColor(R.color.c_517da2));
-    }
-
-    /**
      * 账单 零钱 区分显示布局
      */
     private void isBill(boolean isTrue) {
         if(isTrue){
             tvChangeSelectDate.setVisibility(View.GONE);
             billLayout.setVisibility(View.VISIBLE);
+            actionbar.setTitle("账单明细");
         }else {
             tvChangeSelectDate.setVisibility(View.VISIBLE);
             billLayout.setVisibility(View.GONE);
+            actionbar.setTitle("零钱明细");
         }
     }
-
-
 
 }

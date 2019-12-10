@@ -124,8 +124,7 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutChangeDetails.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
-                ToastUtil.show(context, "零钱明细");
-//                IntentUtil.gotoActivity(LooseChangeActivity.this, ManagePaywordActivity.class);
+                startActivity(new Intent(context, ChangeDetailListActivity.class));
             }
         });
         //红包明细

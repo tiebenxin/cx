@@ -191,6 +191,15 @@ public class PayHttpUtils {
         return HttpChannel.getInstance().getPayService().getBillDetailsList(getRequestBody(map));
     }
 
+    //获取零钱明细
+    public Observable<BaseResponse<BillBean>> getChangeDetailsList(int pageNum, long startTime) {
+        Map<String, String> map = new HashMap<>();
+        map.put("pageNum", pageNum+"");
+        map.put("pageSize", 20+"");
+        map.put("startTime", startTime+"");
+        return HttpChannel.getInstance().getPayService().getChangeDetailsList(getRequestBody(map));
+    }
+
 
     //获取红包明细  type—— 7：收到红包； 2 —— 发出红包
     public Observable<BaseResponse<RedDetailsBean>> getRedEnvelopeDetails(int pageNum, long startTime, int type) {

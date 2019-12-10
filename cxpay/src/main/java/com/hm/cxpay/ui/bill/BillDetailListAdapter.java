@@ -50,12 +50,14 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private LayoutInflater inflater;
     private Activity activity;
     private List<CommonBean> dataList;//列表数据
+    private int type;//1 账单明细布局  2 零钱明细布局
 
-    public BillDetailListAdapter(Activity activity, List<CommonBean> dataList) {
+    public BillDetailListAdapter(Activity activity, List<CommonBean> dataList,int type) {
         inflater = LayoutInflater.from(activity);
         this.dataList = new ArrayList<>();
         this.dataList.addAll(dataList);
         this.activity = activity;
+        this.type = type;
     }
 
     //刷新数据
@@ -113,11 +115,18 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         holder.tvCost.setText("-"+UIUtils.getYuan(bean.getAmt()));
                     }
                     //图标：1转账 2发红包 3充值 4提现 5红包退款 6消费(忽略) 7红包收款 8转账收款 9转账退款
-                    holder.ivImage.setImageResource(selectImg(bean.getTradeType()));
-                    //充值提现不显示余额
+                    //TODO 注：账单明细显示图标/不显示余额，零钱明细不显示图标/显示余额
+                    if(type==1){
+                        holder.ivImage.setVisibility(View.VISIBLE);
+                        holder.ivImage.setImageResource(selectImg(bean.getTradeType()));
+                        holder.tvBalance.setVisibility(View.GONE);
+                    }else {
+                        holder.ivImage.setVisibility(View.GONE);
+                        holder.tvBalance.setVisibility(View.VISIBLE);
+                        holder.tvBalance.setText("余额: "+UIUtils.getYuan(bean.getBalance()));
+                    }
+                    //充值提现统一不显示余额只显示状态
                     checkStatus(bean.getTradeType(),holder);
-                    //余额
-                    holder.tvBalance.setText("余额: "+UIUtils.getYuan(bean.getBalance()));
                     //显示内容
                     if(bean.getTradeType()==1){
                         if(bean.getOtherUser()!=null && bean.getOtherUser().getNickname()!=null){
@@ -131,11 +140,11 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         if(bean.getStat()==1){
                             holder.tvStatus.setText("充值成功");
                         }else if(bean.getStat()==2){
-                            holder.tvStatus.setText("部分退款");
+                            holder.tvStatus.setText("已部分退款");
                         }else if(bean.getStat()==99){
                             holder.tvStatus.setText("处理中");
                         }else if(bean.getStat()==200){
-                            holder.tvStatus.setText("全额退款");
+                            holder.tvStatus.setText("已全额退款");
                         }
                         if(!TextUtils.isEmpty(bean.getBankCardInfo())){
                             holder.tvContent.setText("充值-"+bean.getBankCardInfo());
@@ -146,11 +155,11 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         if(bean.getStat()==1){
                             holder.tvStatus.setText("提现成功");
                         }else if(bean.getStat()==2){
-                            holder.tvStatus.setText("部分退款");
+                            holder.tvStatus.setText("已部分退款");
                         }else if(bean.getStat()==99){
                             holder.tvStatus.setText("处理中");
                         }else if(bean.getStat()==200){
-                            holder.tvStatus.setText("全额退款");
+                            holder.tvStatus.setText("已全额退款");
                         }
                         if(!TextUtils.isEmpty(bean.getBankCardInfo())){
                             holder.tvContent.setText("提现-"+bean.getBankCardInfo());
