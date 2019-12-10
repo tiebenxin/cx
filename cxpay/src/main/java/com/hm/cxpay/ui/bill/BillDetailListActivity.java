@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -244,7 +245,7 @@ public class BillDetailListActivity extends AppActivity {
         dialogBuilder.setCancelable(true);//取消点击外部消失弹窗
         selectTypeDialog = dialogBuilder.create();
         //获取界面
-        View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_add_bankcard, null);
+        View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_select_bill_type, null);
         //初始化控件
         tvAll = dialogView.findViewById(R.id.tv_all);
         tvTransfer = dialogView.findViewById(R.id.tv_transfer);
@@ -259,7 +260,10 @@ public class BillDetailListActivity extends AppActivity {
                 tvAll.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
                 tvAll.setTextColor(getResources().getColor(R.color.white));
                 selectTypeDialog.dismiss();
+                //刷新数据
+                page=1;
                 selectType =1 ;
+                getBillDetailsList();
             }
         });
         tvTransfer.setOnClickListener(new View.OnClickListener() {
@@ -269,6 +273,10 @@ public class BillDetailListActivity extends AppActivity {
                 tvTransfer.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
                 tvTransfer.setTextColor(getResources().getColor(R.color.white));
                 selectTypeDialog.dismiss();
+                //刷新数据
+                page=1;
+                selectType =2 ;
+                getBillDetailsList();
             }
         });
         tvRedpacket.setOnClickListener(new View.OnClickListener() {
@@ -278,6 +286,10 @@ public class BillDetailListActivity extends AppActivity {
                 tvRedpacket.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
                 tvRedpacket.setTextColor(getResources().getColor(R.color.white));
                 selectTypeDialog.dismiss();
+                //刷新数据
+                page=1;
+                selectType =3 ;
+                getBillDetailsList();
             }
         });
         tvRechargeWithdraw.setOnClickListener(new View.OnClickListener() {
@@ -287,6 +299,10 @@ public class BillDetailListActivity extends AppActivity {
                 tvRechargeWithdraw.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
                 tvRechargeWithdraw.setTextColor(getResources().getColor(R.color.white));
                 selectTypeDialog.dismiss();
+                //刷新数据
+                page=1;
+                selectType =4 ;
+                getBillDetailsList();
             }
         });
         tvRefund.setOnClickListener(new View.OnClickListener() {
@@ -296,6 +312,10 @@ public class BillDetailListActivity extends AppActivity {
                 tvRefund.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
                 tvRefund.setTextColor(getResources().getColor(R.color.white));
                 selectTypeDialog.dismiss();
+                //刷新数据
+                page=1;
+                selectType =5 ;
+                getBillDetailsList();
             }
         });
         //展示界面
@@ -303,6 +323,7 @@ public class BillDetailListActivity extends AppActivity {
         //解决圆角shape背景无效问题
         Window window = selectTypeDialog.getWindow();
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        window.setGravity(Gravity.BOTTOM);
         //设置宽高
         WindowManager.LayoutParams lp = window.getAttributes();
         lp.height = DensityUtil.dip2px(activity, 195);
