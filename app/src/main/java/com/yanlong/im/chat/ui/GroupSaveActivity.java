@@ -22,6 +22,7 @@ import com.yanlong.im.wight.avatar.MultiImageView;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
@@ -174,7 +175,9 @@ public class GroupSaveActivity extends AppActivity {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //  star(ChatActivity.class);
+                    if(ViewUtils.isFastDoubleClick()){
+                        return;
+                    }
                     startActivity(new Intent(getContext(), ChatActivity.class)
                             .putExtra(ChatActivity.AGM_TOGID, groupInfoBean.getGid())
                     );

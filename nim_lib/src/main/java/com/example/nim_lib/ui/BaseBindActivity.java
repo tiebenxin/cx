@@ -10,7 +10,9 @@ import com.example.nim_lib.R;
 import com.example.nim_lib.util.ViewUtils;
 import com.example.nim_lib.util.flyn.Eyes;
 
+import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+import net.cb.cb.library.view.HeadView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -42,7 +44,7 @@ public abstract class BaseBindActivity<SV extends ViewDataBinding> extends AppAc
         preCreate();
         super.onCreate(savedInstanceState);
         setContentView(setView());
-        setStatusBarColor(R.color.color_707);
+        setStatusBarColor(R.color.blue_title);
         init(savedInstanceState);
         initEvent();
         loadData();
@@ -117,7 +119,24 @@ public abstract class BaseBindActivity<SV extends ViewDataBinding> extends AppAc
         } else {
             finish();
         }
+    }
 
+    /**
+     * 设置返回事件
+     * @param headView
+     */
+    public void setActionBarLeft(HeadView headView) {
+        headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+            @Override
+            public void onBack() {
+                onBackPressed();
+            }
+
+            @Override
+            public void onRight() {
+
+            }
+        });
     }
 
     /**

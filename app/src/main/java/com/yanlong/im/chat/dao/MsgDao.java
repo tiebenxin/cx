@@ -1253,7 +1253,6 @@ public class MsgDao {
         return isSaveDraft;
     }
 
-
     /***
      * 获取会话
      * @param gid
@@ -3037,6 +3036,15 @@ public class MsgDao {
                     group.setSaved(0);
                 }
             }
+            // TODO　被移出群时要先清除草稿
+            Session session = realm.where(Session.class).equalTo("gid", gid).findFirst() ;
+            if (session != null) {
+                session.setDraft("");
+                session.setMessageType(2);
+                session.setUp_time(SocketData.getSysTime());
+                realm.insertOrUpdate(session);
+            }
+
             realm.commitTransaction();
         } catch (Exception e) {
             e.printStackTrace();
