@@ -1,4 +1,4 @@
-package com.hm.cxpay.ui;
+package com.hm.cxpay.ui.change;
 
 import android.app.Activity;
 import android.graphics.Color;
