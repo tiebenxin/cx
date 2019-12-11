@@ -1,12 +1,15 @@
 package com.hm.cxpay.bean;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * @类名：通用实体类
  * @Date：2019/12/3
  * @by zjy
  * @备注：
  */
-public class CommonBean {
+public class CommonBean implements Parcelable {
 
     //充值bean类
     private int code;//状态码(1:成功 2:失败 99:处理中)
@@ -33,6 +36,46 @@ public class CommonBean {
     private long tradeId;
     private int tradeType;
 
+
+    protected CommonBean(Parcel in) {
+        code = in.readInt();
+        minAmt = in.readInt();
+        minFee = in.readInt();
+        rate = in.readString();
+        serviceFee = in.readInt();
+        amt = in.readLong();
+        balance = in.readLong();
+        bankCardInfo = in.readString();
+        billType = in.readInt();
+        bzId = in.readLong();
+        createTime = in.readLong();
+        fee = in.readLong();
+        income = in.readInt();
+        luck = in.readInt();
+        note = in.readString();
+        otherUser = in.readParcelable(OtherUserBean.class.getClassLoader());
+        stat = in.readInt();
+        statConfirmTime = in.readLong();
+        toGroup = in.readInt();
+        tradeId = in.readLong();
+        tradeType = in.readInt();
+    }
+
+    public CommonBean(){
+
+    }
+
+    public static final Creator<CommonBean> CREATOR = new Creator<CommonBean>() {
+        @Override
+        public CommonBean createFromParcel(Parcel in) {
+            return new CommonBean(in);
+        }
+
+        @Override
+        public CommonBean[] newArray(int size) {
+            return new CommonBean[size];
+        }
+    };
 
     public int getCode() {
         return code;
@@ -203,11 +246,64 @@ public class CommonBean {
     }
 
 
-    public static class OtherUserBean {
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(code);
+        dest.writeInt(minAmt);
+        dest.writeInt(minFee);
+        dest.writeString(rate);
+        dest.writeInt(serviceFee);
+        dest.writeLong(amt);
+        dest.writeLong(balance);
+        dest.writeString(bankCardInfo);
+        dest.writeInt(billType);
+        dest.writeLong(bzId);
+        dest.writeLong(createTime);
+        dest.writeLong(fee);
+        dest.writeInt(income);
+        dest.writeInt(luck);
+        dest.writeString(note);
+        dest.writeParcelable(otherUser, flags);
+        dest.writeInt(stat);
+        dest.writeLong(statConfirmTime);
+        dest.writeInt(toGroup);
+        dest.writeLong(tradeId);
+        dest.writeInt(tradeType);
+    }
+
+
+    public static class OtherUserBean implements Parcelable{
 
         private String avatar;
         private String nickname;
         private long uid;
+
+        protected OtherUserBean(Parcel in) {
+            avatar = in.readString();
+            nickname = in.readString();
+            uid = in.readLong();
+        }
+
+        public OtherUserBean(){
+
+        }
+
+        public static final Creator<OtherUserBean> CREATOR = new Creator<OtherUserBean>() {
+            @Override
+            public OtherUserBean createFromParcel(Parcel in) {
+                return new OtherUserBean(in);
+            }
+
+            @Override
+            public OtherUserBean[] newArray(int size) {
+                return new OtherUserBean[size];
+            }
+        };
 
         public String getAvatar() {
             return avatar;
@@ -231,6 +327,18 @@ public class CommonBean {
 
         public void setUid(long uid) {
             this.uid = uid;
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(avatar);
+            dest.writeString(nickname);
+            dest.writeLong(uid);
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.hm.cxpay.ui.bill;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -105,7 +106,7 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             ContentHolder holder = (ContentHolder) viewHolder;
             if (dataList != null && dataList.size() > 0) {
                 if (dataList.get(position) != null) {
-                    CommonBean bean = dataList.get(position);
+                    final CommonBean bean = dataList.get(position);
                     //时间
                     holder.tvTime.setText(DateUtils.timeStamp2Date(bean.getCreateTime(),""));
                     //根据收支类型->显示操作金额
@@ -226,6 +227,13 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                             holder.tvStatus.setText("已全额退款");
                         }
                     }
+                    //点击跳转账单详情
+                    holder.itemLayout.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            activity.startActivity(new Intent(activity,BillDetailActivity.class).putExtra("item_data",bean));
+                        }
+                    });
                 }
             }
         } else {
