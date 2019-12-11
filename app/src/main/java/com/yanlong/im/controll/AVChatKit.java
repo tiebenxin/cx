@@ -187,7 +187,9 @@ public class AVChatKit {
                         intent.putExtra(Preferences.VOICE_TYPE, CoreEnum.VoiceType.RECEIVE);
                         intent.putExtra(Preferences.AVCHA_TTYPE, data.getChatType().getValue());
                         intent.setClass(context, VideoActivity.class);
+                        // TODO oppo 必须要改开机自启动，或开启悬浮窗权限才能生效 ，文章地址：https://www.jianshu.com/p/5f6d8379533b
                         context.startActivity(intent);
+                        LogUtil.getLog().e(TAG, "startActivity");
                     }
                 });
 
