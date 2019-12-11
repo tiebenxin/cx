@@ -1045,7 +1045,7 @@ public class MsgDao {
                 }
             } else {
                 if (canChangeUnread) {
-                    if (session.getIsMute() != 1) {//免打扰
+                    if (session.getIsMute() != 1) {//非免打扰
                         int num = isCancel ? session.getUnread_count() - 1 : session.getUnread_count() + 1;
                         num = num < 0 ? 0 : num;
                         session.setUnread_count(num);
@@ -1078,6 +1078,7 @@ public class MsgDao {
             } else {
                 if (canChangeUnread) {
                     if (session.getIsMute() != 1) {//非免打扰
+                        //没有撤回消息的id，要判断撤回的消息是已读还是未读
                         int num = isCancel ? session.getUnread_count() - 1 : session.getUnread_count() + 1;
                         num = num < 0 ? 0 : num;
                         session.setUnread_count(num);
