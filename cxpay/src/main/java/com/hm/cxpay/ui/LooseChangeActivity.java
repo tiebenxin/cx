@@ -21,6 +21,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BankSettingActivity;
 import com.hm.cxpay.ui.bill.BillDetailListActivity;
+import com.hm.cxpay.ui.change.ChangeDetailListActivity;
 import com.hm.cxpay.ui.payword.ManagePaywordActivity;
 import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.utils.UIUtils;
