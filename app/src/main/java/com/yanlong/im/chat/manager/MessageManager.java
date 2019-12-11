@@ -133,9 +133,14 @@ public class MessageManager {
 
                 } else {//收到多条消息（如离线）
 //                    LogUtil.getLog().d("a=", "--总任务数="  + "--当前时间-3=" + System.currentTimeMillis());
-                    TaskDealWithMsgList taskMsgList = new TaskDealWithMsgList(msgList, bean.getRequestId());
-                    System.out.println(TAG+"--MsgTask--add--requestId=" + bean.getRequestId());
-                    taskMaps.put(bean.getRequestId(), taskMsgList);
+                    TaskDealWithMsgList taskMsgList = getMsgTask(bean.getRequestId());
+                    if (taskMsgList == null) {
+                        taskMsgList = new TaskDealWithMsgList(msgList, bean.getRequestId());
+                        System.out.println(TAG + "--MsgTask--add--requestId=" + bean.getRequestId());
+                        taskMaps.put(bean.getRequestId(), taskMsgList);
+                    } else {
+                        taskMsgList.clearPendingList();
+                    }
                     taskMsgList.execute();
 //                    LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--总任务数="  + "--当前时间-4=" + System.currentTimeMillis());
                 }
