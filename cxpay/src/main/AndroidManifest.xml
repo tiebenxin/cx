@@ -43,7 +43,10 @@
             android:name=".ui.BindPhoneNumActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.ChangeDetailListActivity"
+            android:name=".ui.change.ChangeDetailListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.change.ChangeDetailActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.bill.BillDetailListActivity"

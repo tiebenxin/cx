@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CommonBean;
+import com.hm.cxpay.ui.change.ChangeDetailActivity;
 import com.hm.cxpay.utils.UIUtils;
 import com.luck.picture.lib.tools.DateUtils;
 
@@ -231,7 +232,11 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     holder.itemLayout.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            activity.startActivity(new Intent(activity,BillDetailActivity.class).putExtra("item_data",bean));
+                            if(type==1){
+                                activity.startActivity(new Intent(activity,BillDetailActivity.class).putExtra("item_data",bean));
+                            }else if(type==2){
+                                activity.startActivity(new Intent(activity,ChangeDetailActivity.class).putExtra("item_data",bean));
+                            }
                         }
                     });
                 }
