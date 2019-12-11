@@ -25,11 +25,13 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventMyUserInfo;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.GroupHeadImageUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
@@ -93,11 +95,17 @@ public class ImageHeadActivity extends AppActivity {
             if (isGroup) {
                 MsgDao msgDao = new MsgDao();
                 String url = msgDao.groupHeadImgGet(gGroupid);
+                if(!StringUtil.isNotNull(url)){
+                    //头像为空 创建一次
+                    GroupHeadImageUtil.creatAndSaveImg(context,gGroupid);
+                    url = msgDao.groupHeadImgGet(gGroupid);
+                }
                 urlImg = url;
                 Glide.with(this).load(url)
                         .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
             }
         }
+        LogUtil.getLog().e("=头像==urlImg=="+urlImg);
 
         mHeadView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         mHeadView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);

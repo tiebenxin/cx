@@ -9,7 +9,7 @@ public class MsgCancel extends RealmObject implements IMsgContent {
     private String msgid;
     private Long uid;
     private String note;
-    private String msgidCancel;
+    private String msgidCancel;//被撤回消息的id
     private String cancelContent;// 撤回内容
     private Integer cancelContentType;// 撤回内容类型
     private Integer msgType = MSG_TYPE_DEFAULT;
