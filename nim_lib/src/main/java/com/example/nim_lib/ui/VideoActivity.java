@@ -376,6 +376,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
             mRoomId = bundle.getString(Preferences.ROOM_ID);
             mFriend = bundle.getLong(Preferences.FRIEND);
+            LogUtil.getLog().i(TAG, "mFriend=====================================:" + mFriend);
+            LogUtil.getLog().i(TAG, "toUId=====================================:" + toUId);
             if (avChatData != null) {
                 mIsInComingCall = true;
                 account = avChatData.getAccount();
@@ -1141,11 +1143,11 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
      * @param exitCode
      */
     private void hangUpByOther(int exitCode) {
-        if (exitCode == AVChatExitCode.PEER_BUSY) {
-            if (avChatData != null) {
+        if (avChatData != null) {
+            if (exitCode == AVChatExitCode.PEER_BUSY) {
                 showQuitToast(AVChatExitCode.PEER_BUSY);
-                mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
             }
+            mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
         } else {
             if (mAVChatType == AVChatType.VIDEO.getValue()) {
                 releaseVideo();
@@ -1840,7 +1842,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         if (Build.VERSION.SDK_INT >= 23) {
             if (!Settings.canDrawOverlays(this)) {
                 showPermissionDialog();
-                return;
             } else {
                 showMinimizeButton();
             }
