@@ -739,7 +739,7 @@ public class MessageManager {
                         taskMsgList.updateTaskCount();
                     }
                 } else {
-                    updateSessionUnread(gid, uid, false);
+                    updateSessionUnread(gid, uid, null);
                     notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
                 }
             }
@@ -782,7 +782,7 @@ public class MessageManager {
                         taskMsgList.updateTaskCount();
                     }
                 } else {
-                    updateSessionUnread(gid, uid, false);
+                    updateSessionUnread(gid, uid, null);
                     notifyRefreshMsg(CoreEnum.EChatType.GROUP, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
                 }
             }
