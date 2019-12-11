@@ -2976,18 +2976,20 @@ public class MsgDao {
     /***
      * 保存批量消息
      */
-    public void insertOrUpdateMsgList(List<MsgAllBean> list) {
+    public boolean insertOrUpdateMsgList(List<MsgAllBean> list) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
             realm.insertOrUpdate(list);
             realm.commitTransaction();
             realm.close();
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
+        return false;
     }
 
     //移出群成员
@@ -3116,6 +3118,7 @@ public class MsgDao {
 
     /**
      * 动态获取用户群昵称
+     *
      * @param gid
      * @param uid
      * @param uname
@@ -3182,6 +3185,7 @@ public class MsgDao {
 
     /**
      * 动态获取用户群昵称
+     *
      * @param gid
      * @param uid
      * @return

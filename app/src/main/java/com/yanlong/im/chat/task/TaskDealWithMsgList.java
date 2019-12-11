@@ -149,7 +149,7 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
     }
 
     private boolean doPendingData() {
-        System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--requestId=" + requestId + "--doPendingData--" + Log.getStackTraceString(new Throwable()));
+        System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--requestId=" + requestId + "--doPendingData--" /*+ Log.getStackTraceString(new Throwable())*/);
         try {
             Map<Long, Integer> mapUSession = /*MessageManager.getInstance().*/getPendingUserUnreadMap();
             if (mapUSession != null && mapUSession.size() > 0) {
@@ -201,7 +201,12 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
             List<MsgAllBean> msgList = /*MessageManager.getInstance().*/getPendingMsgList();
             if (msgList != null) {
                 System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--doPendingData--更新消息--" + msgList.size() + "--requestId=" + requestId);
-                msgDao.insertOrUpdateMsgList(msgList);
+                boolean isSuccess = msgDao.insertOrUpdateMsgList(msgList);
+                if (isSuccess) {
+                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null),null);
+
+                    System.out.println(TAG + "--发送回执--requestId=" + requestId);
+                }
             }
             Map<String, MsgAllBean> mapCancel = /*MessageManager.getInstance().*/getPendingCancelMap();
             if (mapCancel != null && mapCancel.size() > 0) {
