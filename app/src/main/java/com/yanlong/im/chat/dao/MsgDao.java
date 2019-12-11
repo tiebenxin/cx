@@ -1046,7 +1046,7 @@ public class MsgDao {
                 }
             } else {
                 if (canChangeUnread) {
-                    if (session.getIsMute() != 1) {//免打扰
+                    if (session.getIsMute() != 1) {//非免打扰
                         int num = isCancel ? session.getUnread_count() - 1 : session.getUnread_count() + 1;
                         num = num < 0 ? 0 : num;
                         session.setUnread_count(num);
@@ -1079,6 +1079,7 @@ public class MsgDao {
             } else {
                 if (canChangeUnread) {
                     if (session.getIsMute() != 1) {//非免打扰
+                        //没有撤回消息的id，要判断撤回的消息是已读还是未读
                         int num = isCancel ? session.getUnread_count() - 1 : session.getUnread_count() + 1;
                         num = num < 0 ? 0 : num;
                         session.setUnread_count(num);
@@ -1253,7 +1254,6 @@ public class MsgDao {
         }
         return isSaveDraft;
     }
-
 
     /***
      * 获取会话
@@ -2981,18 +2981,20 @@ public class MsgDao {
     /***
      * 保存批量消息
      */
-    public void insertOrUpdateMsgList(List<MsgAllBean> list) {
+    public boolean insertOrUpdateMsgList(List<MsgAllBean> list) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
             realm.insertOrUpdate(list);
             realm.commitTransaction();
             realm.close();
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
+        return false;
     }
 
     //移出群成员
@@ -3041,6 +3043,15 @@ public class MsgDao {
                     group.setSaved(0);
                 }
             }
+            // TODO　被移出群时要先清除草稿
+            Session session = realm.where(Session.class).equalTo("gid", gid).findFirst() ;
+            if (session != null) {
+                session.setDraft("");
+                session.setMessageType(2);
+                session.setUp_time(SocketData.getSysTime());
+                realm.insertOrUpdate(session);
+            }
+
             realm.commitTransaction();
         } catch (Exception e) {
             e.printStackTrace();

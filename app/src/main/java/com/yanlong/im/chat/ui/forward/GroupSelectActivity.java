@@ -36,6 +36,7 @@ import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
@@ -309,7 +310,9 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 //                    Intent intent = new Intent();
 //                    intent.putExtra(GROUP_JSON, GsonUtils.optObject(groupInfoBean));
 //                    setResult(RESULT_OK, intent);
-
+                    if(ViewUtils.isFastDoubleClick()){
+                        return;
+                    }
 
                     if (MsgForwardActivity.isSingleSelected) {
                         onForward(-1L, groupInfoBean.getGid(), groupInfoBean.getAvatar(), /*groupInfoBean.getName()*/msgDao.getGroupName(groupInfoBean.getGid()));

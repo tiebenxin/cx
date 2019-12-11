@@ -30,6 +30,7 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.ClearEditText;
@@ -214,6 +215,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             rosterFragment.setForwardListener(new IForwardRosterListener() {
                 @Override
                 public void onSelectMuc() {
+                    if(ViewUtils.isFastDoubleClick()){
+                        return;
+                    }
                     Intent intent = new Intent(MsgForwardActivity.this, GroupSelectActivity.class);
                     intent.putExtra(AGM_JSON, json);
                     startActivityForResult(intent, 0);
