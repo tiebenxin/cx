@@ -86,7 +86,7 @@ public class MessageManager {
     private static List<String> loadGids = new ArrayList<>();//需要异步加载群数据的群id
     private static List<Long> loadUids = new ArrayList<>();//需要异步记载用户数据的用户id
 
-    private static Map<String, MsgAllBean> sequenceMap = new HashMap<>();//消息发送队列
+//    private static Map<String, MsgAllBean> sequenceMap = new HashMap<>();//消息发送队列
 
 
     //缓存
@@ -633,11 +633,11 @@ public class MessageManager {
             } else {
                 DaoUtil.update(msgAllBean);
             }
-            String cancelId=null;
+            String cancelId = null;
             boolean isCancel = msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL;
-            if(isCancel&&msgAllBean.getMsgCancel()!=null){
+            if (isCancel && msgAllBean.getMsgCancel() != null) {
 //                LogUtil.getLog().e("==isRead===getMsg_id="+msgAllBean.getMsg_id()+"==getMsgidCancel="+msgAllBean.getMsgCancel().getMsgidCancel());
-                cancelId=msgAllBean.getMsgCancel().getMsgidCancel();
+                cancelId = msgAllBean.getMsgCancel().getMsgidCancel();
             }
             if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid())) {
                 if (!loadGids.contains(msgAllBean.getGid())) {
@@ -1493,6 +1493,12 @@ public class MessageManager {
         }
         if (loadGids != null) {
             loadGids.clear();
+        }
+        if (oldMsgId != null) {
+            oldMsgId.clear();
+        }
+        if (taskMaps != null) {
+            taskMaps.clear();
         }
     }
 
