@@ -285,8 +285,16 @@ public class UserAction {
                     MessageManager.getInstance().updateCacheUser(userInfo);
                     cb.onResponse(call, response);
                 } else {
+                    cb.onFailure(call, new Throwable());
                     MessageManager.getInstance().removeLoadUids(usrid);
                 }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<UserInfo>> call, Throwable t) {
+                super.onFailure(call, t);
+                cb.onFailure(call, new Throwable());
+                MessageManager.getInstance().removeLoadUids(usrid);
             }
         });
 

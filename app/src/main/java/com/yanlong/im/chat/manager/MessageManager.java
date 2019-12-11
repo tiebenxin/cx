@@ -168,7 +168,8 @@ public class MessageManager {
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
             if (oldMsgId.contains(wrapMessage.getMsgId())) {
                 LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
-                return false;
+                System.out.println(TAG + ">>>>>重复消息: " + wrapMessage.getMsgId());
+                return true;
             } else {
                 if (oldMsgId.size() >= 500) {
                     oldMsgId.remove(0);
@@ -727,6 +728,21 @@ public class MessageManager {
                     notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
                 }
             }
+
+            @Override
+            public void onFailure(Call<ReturnBean<UserInfo>> call, Throwable t) {
+                super.onFailure(call, t);
+                if (isList) {
+                    updatePendingSessionUnreadCount(gid, uid, false, false, bean.getRequest_id());
+                    TaskDealWithMsgList taskMsgList = getMsgTask(bean.getRequest_id());
+                    if (taskMsgList != null) {
+                        taskMsgList.updateTaskCount();
+                    }
+                } else {
+                    updateSessionUnread(gid, uid, false);
+                    notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
+                }
+            }
         });
     }
 
@@ -752,6 +768,21 @@ public class MessageManager {
                 } else {
                     updateSessionUnread(gid, uid, null);
                     setMessageChange(true);
+                    notifyRefreshMsg(CoreEnum.EChatType.GROUP, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
+                super.onFailure(call, t);
+                if (isList) {
+                    updatePendingSessionUnreadCount(gid, uid, false, false, bean.getRequest_id());
+                    TaskDealWithMsgList taskMsgList = getMsgTask(bean.getRequest_id());
+                    if (taskMsgList != null) {
+                        taskMsgList.updateTaskCount();
+                    }
+                } else {
+                    updateSessionUnread(gid, uid, false);
                     notifyRefreshMsg(CoreEnum.EChatType.GROUP, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
                 }
             }

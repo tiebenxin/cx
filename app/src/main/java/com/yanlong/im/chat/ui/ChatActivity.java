@@ -28,6 +28,7 @@ import android.text.TextWatcher;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -2226,7 +2227,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         int pos = 0;
         List<MsgAllBean> listdata = msgAction.getMsg4UserImg(toGid, toUId);
         for (int i = 0; i < listdata.size(); i++) {
-            MsgAllBean msgl=listdata.get(i);
+            MsgAllBean msgl = listdata.get(i);
             if (msgid.equals(msgl.getMsg_id())) {
                 pos = i;
             }
@@ -2242,17 +2243,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             lc.setMsg_id(msgl.getMsg_id());
             temp.add(lc);
         }
-        int size=temp.size();
+        int size = temp.size();
         //取中间100张
-        if(size<=100) {
+        if (size <= 100) {
             selectList.addAll(temp);
-        }else {
-            if(pos-50<=0){//取前面
-                selectList.addAll(temp.subList(0,100));
-            }else if(pos+50>=size){//取后面
-                selectList.addAll(temp.subList(size-100,size));
-            }else {//取中间
-                selectList.addAll(temp.subList(pos-50,pos+50));
+        } else {
+            if (pos - 50 <= 0) {//取前面
+                selectList.addAll(temp.subList(0, 100));
+            } else if (pos + 50 >= size) {//取后面
+                selectList.addAll(temp.subList(size - 100, size));
+            } else {//取中间
+                selectList.addAll(temp.subList(pos - 50, pos + 50));
             }
         }
 
@@ -2577,7 +2578,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public boolean onLongClick(View v) {
                         //TODO:优先显示群备注
-                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid(),null,null);
+                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid(), null, null);
 //                        if (TextUtils.isEmpty(name)) {
 //                            name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
 //                        }
@@ -3378,14 +3379,26 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         popupWindowDismiss(listener);
         // 当View Y轴的位置小于ListView Y轴的位置时 气泡向下弹出来，否则向上弹出
-        if (locationView[1] < location[1]) {
+        if (v.getMeasuredHeight() >= mtListView.getMeasuredHeight() && locationView[1] < location[1]) {
+            // 内容展示完，向上弹出
+            if (locationView[1] < 0 && (v.getMeasuredHeight() - Math.abs(locationView[1]) < mtListView.getMeasuredHeight())) {
+                mImgTriangleUp.setVisibility(VISIBLE);
+                mImgTriangleDown.setVisibility(GONE);
+                mPopupWindow.showAsDropDown(v);
+            }else{
+                // 中间弹出
+                mImgTriangleUp.setVisibility(GONE);
+                mImgTriangleDown.setVisibility(VISIBLE);
+                showPopupWindowUp(v, 1);
+            }
+        } else if (locationView[1] < location[1]) {
             mImgTriangleUp.setVisibility(VISIBLE);
             mImgTriangleDown.setVisibility(GONE);
             mPopupWindow.showAsDropDown(v);
         } else {
             mImgTriangleUp.setVisibility(GONE);
             mImgTriangleDown.setVisibility(VISIBLE);
-            showPopupWindowUp(v);
+            showPopupWindowUp(v, 2);
         }
     }
 
@@ -3614,12 +3627,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      *
      * @param v
      */
-    public void showPopupWindowUp(View v) {
+    public void showPopupWindowUp(View v, int gravity) {
         //获取需要在其上方显示的控件的位置信息
         int[] location = new int[2];
         v.getLocationOnScreen(location);
-        //在控件上方显示
-        mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, (location[0] + v.getWidth() / 2) - popupWidth / 2, location[1] - popupHeight);
+        if (gravity == 1) {
+            DisplayMetrics dm = getResources().getDisplayMetrics();
+            mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, (location[0] + v.getWidth() / 2) - popupWidth / 2, dm.heightPixels / 2);
+        } else {
+            //在控件上方显示
+            mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, (location[0] + v.getWidth() / 2) - popupWidth / 2, location[1] - popupHeight);
+        }
     }
 
     /**

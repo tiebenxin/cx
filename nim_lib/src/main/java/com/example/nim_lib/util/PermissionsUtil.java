@@ -1,16 +1,17 @@
 package com.example.nim_lib.util;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AppOpsManager;
-import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
-import android.util.Log;
-import android.widget.Toast;
+import android.provider.Settings;
+
+import net.cb.cb.library.view.AlertYesNo;
 
 import java.lang.reflect.Method;
 
@@ -24,6 +25,8 @@ import java.lang.reflect.Method;
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
 public class PermissionsUtil {
+
+    private static AlertYesNo mAlertYesNo;
 
     /**
      * 检测 meizu 悬浮窗权限
@@ -124,6 +127,44 @@ public class PermissionsUtil {
             localIntent.putExtra("com.android.settings.ApplicationPkgName", context.getPackageName());
         }
         context.startActivity(localIntent);
+    }
+
+    /**
+     * 显示权限对话框
+     */
+    public static void showPermissionDialog(Activity activity) {
+        final String title = "权限申请";
+        final String content = "在设置-应用-常信-权限中开启悬浮窗权限，以保证功能的正常使用";
+        if (mAlertYesNo == null) {
+            mAlertYesNo = new AlertYesNo();
+            mAlertYesNo.init(activity, title, content, "去设置", null, new AlertYesNo.Event() {
+                @Override
+                public void onON() {
+
+                }
+
+                @Override
+                public void onYes() {
+                    if (Build.VERSION.SDK_INT >= 23) {
+                        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        activity.startActivity(intent);
+                    } else {
+                        String brand = android.os.Build.BRAND;
+                        brand = brand.toUpperCase();
+                        if (brand.equals("HUAWEI")) {
+                            PermissionsUtil.applyHuaWeiPermission(activity);
+                        } else if (brand.equals("MEIZU")) {
+                            PermissionsUtil.applyMeiZuOpPermission(activity);
+                        }
+                    }
+                }
+            });
+        }
+        if (mAlertYesNo.isShowing()) {
+            mAlertYesNo.dismiss();
+        }
+        mAlertYesNo.show();
     }
 
 }

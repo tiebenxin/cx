@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -18,6 +20,7 @@ import android.widget.TextView;
 
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
+import com.example.nim_lib.util.PermissionsUtil;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
@@ -405,6 +408,7 @@ public class MainActivity extends AppActivity {
     protected void onResume() {
         super.onResume();
         isActivityStop = false;
+        permissionCheck();
         taskGetMsgNum();
         //taskClearNotification();
         checkNotificationOK();
@@ -795,5 +799,29 @@ public class MainActivity extends AppActivity {
         }
     }
 
+    /**
+     * 检查是否开启悬浮窗权限
+     * OPPO 手机必须开启程序自动启动或开启悬浮窗权限，程序退到后台才能弹出音视频界面
+     */
+    private void permissionCheck() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (!Settings.canDrawOverlays(this)) {
+                PermissionsUtil.showPermissionDialog(this);
+            }
+        } else {
+            String brand = android.os.Build.BRAND;
+            brand = brand.toUpperCase();
+            if (brand.equals("HUAWEI")) {
+                if (!PermissionsUtil.checkHuaWeiFloatWindowPermission(this)) {
+                    PermissionsUtil.showPermissionDialog(this);
+                }
+            } else if (brand.equals("MEIZU")) {
+                if (!PermissionsUtil.checkMeiZuFloatWindowPermission(this)) {
+                    PermissionsUtil.showPermissionDialog(this);
+                }
+            } else {
 
+            }
+        }
+    }
 }

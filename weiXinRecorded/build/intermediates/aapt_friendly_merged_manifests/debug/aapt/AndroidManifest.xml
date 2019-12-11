@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.zhaoss.weixinrecorded"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="22"
+        android:targetSdkVersion="28" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:supportsRtl="true" >
+        <activity
+            android:name="com.zhaoss.weixinrecorded.activity.RecordedActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.zhaoss.weixinrecorded.activity.RecordedLocalActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.zhaoss.weixinrecorded.activity.EditVideoActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|adjustPan" />
+        <activity
+            android:name="com.zhaoss.weixinrecorded.activity.CutSizeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.zhaoss.weixinrecorded.activity.CutTimeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.zhaoss.weixinrecorded.activity.ImageShowActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.zhaoss.weixinrecorded.activity.VideoPreviewActivity"
+            android:screenOrientation="portrait" />
+    </application>
+
+</manifest>
