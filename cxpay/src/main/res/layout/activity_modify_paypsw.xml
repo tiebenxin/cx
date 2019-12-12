@@ -12,6 +12,7 @@
         android:orientation="vertical">
 
         <RelativeLayout
+            android:id="@+id/layout_old_payword"
             android:layout_width="match_parent"
             android:background="@color/white"
             android:layout_height="50dp">
@@ -165,6 +166,22 @@
             android:layout_gravity="center_horizontal"
             android:gravity="center"
             android:textSize="18sp"
+            android:layout_below="@+id/line_three"
+            android:background="@drawable/shape_5radius_solid_32b053"
+            android:textColor="@color/white"/>
+
+        <TextView
+            android:id="@+id/tv_submit_from_forget"
+            android:layout_width="322dp"
+            android:layout_height="40dp"
+            android:layout_centerHorizontal="true"
+            android:text="确认提交"
+            android:layout_marginTop="22dp"
+            android:layout_marginBottom="25dp"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:visibility="gone"
             android:layout_below="@+id/line_three"
             android:background="@drawable/shape_5radius_solid_32b053"
             android:textColor="@color/white"/>

@@ -85,12 +85,8 @@ public class BindPhoneNumActivity extends AppActivity {
                 if (hadPhoneNum) {
                     //1-2 验证码不为空
                     if (!TextUtils.isEmpty(etCode.getText().toString())) {
-                        String phone = PayEnvironment.getInstance().getPhone();
-                        if (!TextUtils.isEmpty(phone)) {
-                            httpBindPhone(phone);
-                        } else {
-                            httpBindPhone("");
-                        }
+//                        String phone = PayEnvironment.getInstance().getPhone();
+                        httpBindPhone("");//有手机号不用传，这里仅作展示
                     } else {
                         ToastUtil.show(activity, "验证码不能为空");
                     }
@@ -120,6 +116,7 @@ public class BindPhoneNumActivity extends AppActivity {
     }
 
     private void initCountDownUtil() {
+        //有手机号直接发验证码，没有手机号则需要对输入框进行判断
         if(!hadPhoneNum){
             if (TextUtils.isEmpty(etPhoneNum.getText().toString())) {
                 ToastUtil.show(activity, "手机号码不能为空");
@@ -129,13 +126,15 @@ public class BindPhoneNumActivity extends AppActivity {
                 ToastUtil.show(activity, "手机号码格式不正确");
                 return;
             }
-        }else {
-            //TODO 如果有IM号码则发给IM号码
         }
         CountDownUtil.getTimer(60, tvGetCode, "发送验证码", this, new CountDownUtil.CallTask() {
             @Override
             public void task() {
-                httpGetCode(etPhoneNum.getText().toString());
+                if(hadPhoneNum){
+                    httpGetCode(tvPhoneNum.getText().toString());
+                }else {
+                    httpGetCode(etPhoneNum.getText().toString());
+                }
             }
         });
     }

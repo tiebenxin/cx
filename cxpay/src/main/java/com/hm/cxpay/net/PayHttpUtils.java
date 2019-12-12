@@ -115,9 +115,14 @@ public class PayHttpUtils {
     }
 
     //修改支付密码
-    public Observable<BaseResponse> modifyPayword(String oldPayword, String newPayword) {
+    public Observable<BaseResponse> modifyPayword(String oldPayword, String newPayword,String token) {
         Map<String, String> map = new HashMap<>();
-        map.put("currentPwd", MD5.md5(oldPayword));
+        if(!TextUtils.isEmpty(oldPayword)){
+            map.put("currentPwd", MD5.md5(oldPayword));
+        }
+        if(!TextUtils.isEmpty(token)){
+            map.put("token", token);
+        }
         map.put("newPwd", MD5.md5(newPayword));
         return HttpChannel.getInstance().getPayService().modifyPayword(getRequestBody(map));
     }
@@ -176,7 +181,9 @@ public class PayHttpUtils {
     //绑定手机号
     public Observable<BaseResponse> bindPhoneNum(String phone, String verificationCode) {
         Map<String, String> map = new HashMap<>();
-        map.put("phone", phone);
+        if(!TextUtils.isEmpty(phone)){
+            map.put("phone", phone);
+        }
         map.put("verificationCode", verificationCode);
         return HttpChannel.getInstance().getPayService().bindPhoneNum(getRequestBody(map));
     }
@@ -219,6 +226,13 @@ public class PayHttpUtils {
         return HttpChannel.getInstance().getPayService().bindBankCard(getRequestBody(map));
     }
 
+    //验证短信验证码-忘记密码辅助验证第四步
+    public Observable<BaseResponse<CommonBean>> checkCode(String token,String verificationCode) {
+        Map<String, String> map = new HashMap<>();
+        map.put("token", token);
+        map.put("verificationCode", verificationCode);
+        return HttpChannel.getInstance().getPayService().checkCode(getRequestBody(map));
+    }
 
     //获取红包明细  type—— 7：收到红包； 2 —— 发出红包
     public Observable<BaseResponse<RedDetailsBean>> getRedEnvelopeDetails(int pageNum, long startTime, int type) {

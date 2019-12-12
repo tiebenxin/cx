@@ -41,6 +41,7 @@ public class ForgetPswStepThreeActivity extends AppActivity {
     private String cardNo;//得到银行卡号
     private String bankName;//得到银行名
     private String cardType  = "(借记卡)";//默认固定一种
+    private int from;//从哪里跳转过来的 (1 密码校验 2 密码管理)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,6 +124,7 @@ public class ForgetPswStepThreeActivity extends AppActivity {
                                 bundle.putString("bank_name",bankName);
                                 bundle.putString("phone_num",etPhone.getText().toString());
                                 bundle.putString("new_token",newToken);
+                                bundle.putInt("from",from);
                                 Intent intent = new Intent(activity,ForgetPswStepFourActivity.class);
                                 intent.putExtras(bundle);
                                 startActivity(intent);
@@ -150,6 +152,9 @@ public class ForgetPswStepThreeActivity extends AppActivity {
                 if (getIntent().getExtras().containsKey("bank_name")) {
                     bankName = getIntent().getExtras().getString("bank_name");
                     tvCardType.setText(bankName+cardType);
+                }
+                if (getIntent().getExtras().containsKey("from")) {
+                    from = getIntent().getExtras().getInt("from");
                 }
             }
         }

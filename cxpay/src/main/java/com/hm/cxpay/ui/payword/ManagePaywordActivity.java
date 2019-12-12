@@ -1,5 +1,7 @@
 package com.hm.cxpay.ui.payword;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -22,11 +24,15 @@ public class ManagePaywordActivity extends AppActivity {
     private ActionbarView actionbar;
     private LinearLayout layoutModifyPayword;//修改支付密码
     private LinearLayout layoutFindbackPayword;//找回支付密码
+    private Activity activity;
+
+    public static final int FROM_MANAGE_PAY_WORD = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_payword);
+        activity = this;
         initView();
         initData();
     }
@@ -59,7 +65,7 @@ public class ManagePaywordActivity extends AppActivity {
         layoutFindbackPayword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                go(ForgetPswStepOneActivity.class);
+                startActivity(new Intent(activity,ForgetPswStepOneActivity.class).putExtra("from",FROM_MANAGE_PAY_WORD));
             }
         });
 

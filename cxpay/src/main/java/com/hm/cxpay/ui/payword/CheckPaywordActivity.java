@@ -1,6 +1,6 @@
 package com.hm.cxpay.ui.payword;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -36,7 +36,9 @@ public class CheckPaywordActivity extends AppActivity {
     private HeadView headView;
     private ActionbarView actionbar;
     private PswView pswView;
-    private Context activity;
+    private Activity activity;
+
+    public static final int FROM_CHECK_PAY_WORD = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,8 +132,7 @@ public class CheckPaywordActivity extends AppActivity {
         tvForgetPsw.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO 跳 忘记密码
-                ToastUtil.show(activity, "忘记密码");
+                startActivity(new Intent(activity,ForgetPswStepOneActivity.class).putExtra("from",FROM_CHECK_PAY_WORD));
             }
         });
         //展示界面

@@ -36,6 +36,7 @@ public class ForgetPswStepOneActivity extends AppActivity {
 
     private Activity activity;
     private String token;//得到认证需要的token
+    private int from;//从哪里跳转过来的 (1 密码校验 2 密码管理)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +56,7 @@ public class ForgetPswStepOneActivity extends AppActivity {
     }
 
     private void initData() {
+        fromWhere();
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -84,6 +86,12 @@ public class ForgetPswStepOneActivity extends AppActivity {
         });
     }
 
+    private void fromWhere() {
+        if(getIntent()!=null){
+            from = getIntent().getIntExtra("from",0);
+        }
+    }
+
     /**
      * 发请求->找回密码第一步->验证实名信息
      */
@@ -100,6 +108,7 @@ public class ForgetPswStepOneActivity extends AppActivity {
                                 Bundle bundle = new Bundle();
                                 bundle.putString("token",token);
                                 bundle.putString("name",etName.getText().toString());
+                                bundle.putInt("from",from);
                                 Intent intent = new Intent(activity,ForgetPswStepTwoActivity.class);
                                 intent.putExtras(bundle);
                                 startActivity(intent);

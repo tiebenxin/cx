@@ -156,7 +156,8 @@ public class LooseChangeActivity extends BasePayActivity {
                 //1 已经绑定手机
                 if(PayEnvironment.getInstance().getUser().getPhoneBindStat()==1){
                     //TODO 还有一个认证信息展示界面未出
-                    ToastUtil.show(activity,"您已绑定手机号，即将展示认证信息界面");
+                    ToastUtil.show(activity,"您已绑定手机号(暂时允许进入)");
+                    IntentUtil.gotoActivity(LooseChangeActivity.this, BindPhoneNumActivity.class);
                 }else {
                     //2 没有绑定手机
                     IntentUtil.gotoActivity(LooseChangeActivity.this, BindPhoneNumActivity.class);
