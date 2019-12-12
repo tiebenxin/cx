@@ -107,6 +107,10 @@ public interface PayService {
     @POST(Route.BIND_BANK_CARD)
     Observable<BaseResponse<CommonBean>> bindBankCard(@Body RequestBody body);
 
+    //验证短信验证码-忘记密码辅助验证第四步
+    @POST(Route.CHECK_CODE)
+    Observable<BaseResponse<CommonBean>> checkCode(@Body RequestBody body);
+
 
     //获取红包明细
     @POST(Route.GET_RED_ENVELOPE_DETAILS)

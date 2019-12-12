@@ -37,6 +37,7 @@ public class ForgetPswStepTwoActivity extends AppActivity {
 
     private Activity activity;
     private String token;//得到认证需要的token
+    private int from;//从哪里跳转过来的 (1 密码校验 2 密码管理)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +106,7 @@ public class ForgetPswStepTwoActivity extends AppActivity {
                                 bundle.putString("token",token);
                                 bundle.putString("card_no",etBankCard.getText().toString());
                                 bundle.putString("bank_name",info.getBankName());
+                                bundle.putInt("from",from);
                                 Intent intent = new Intent(activity,ForgetPswStepThreeActivity.class);
                                 intent.putExtras(bundle);
                                 startActivity(intent);
@@ -129,6 +131,9 @@ public class ForgetPswStepTwoActivity extends AppActivity {
                 }
                 if (getIntent().getExtras().containsKey("name")) {
                     tvName.setText(getIntent().getExtras().getString("name"));
+                }
+                if (getIntent().getExtras().containsKey("from")) {
+                    from = getIntent().getExtras().getInt("from");
                 }
             }
         }

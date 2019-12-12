@@ -72,6 +72,9 @@ public class Route {
     //绑定银行卡-忘记密码辅助验证第三步
     public static final String BIND_BANK_CARD = "/user/apply_bind_bank_card_for_check_req";
 
+    //验证短信验证码-忘记密码辅助验证第四步
+    public static final String CHECK_CODE = "/user/verify_sms_code_for_bind_card_check";
+
     //获取红包明细
     public static final String GET_RED_ENVELOPE_DETAILS = "/order/get_red_envelope_list";
 
