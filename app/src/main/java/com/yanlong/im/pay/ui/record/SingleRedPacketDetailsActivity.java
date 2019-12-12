@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
+import com.alibaba.android.arouter.launcher.ARouter;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.UserBean;
@@ -40,7 +41,7 @@ import java.util.List;
 public class SingleRedPacketDetailsActivity extends BasePayActivity {
     private List<EnvelopeReceiverBean> list = new ArrayList<>();
 
-    private String[] strings = {"查看支付宝红包记录", "取消"};
+    private String[] strings = {"红包记录", "取消"};
     private PopupSelectView popupSelectView;
     private EnvelopeDetailBean envelopeDetailBean;
     private ActivityRedPacketDetailsBinding ui;
@@ -66,6 +67,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
 
     private void initView() {
         ui.headView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_more);
+        ui.headView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
         ui.mtListView.init(new RedPacketAdapter());
         ui.mtListView.getLoadView().setStateNormal();
         initData();
@@ -142,8 +144,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
             public void onItem(String string, int postsion) {
                 switch (postsion) {
                     case 0:
-
-
+                        ARouter.getInstance().build("/app/redEnvelopeDetailsActivity").navigation();
                         break;
                 }
                 popupSelectView.dismiss();

@@ -73,7 +73,7 @@ public class Route {
     public static final String BIND_BANK_CARD = "/user/apply_bind_bank_card_for_check_req";
 
     //获取红包明细
-    public static final String GET_RED_ENVELOPE_DETAILS = "/order/get_red_envelope_list";
+    public static final String GET_RED_ENVELOPE_DETAILS = "/bill/get_red_envelope_list";
 
     //发送红包
     public static final String SEND_RED_ENVELOPE = "/order/send_red_envelope";

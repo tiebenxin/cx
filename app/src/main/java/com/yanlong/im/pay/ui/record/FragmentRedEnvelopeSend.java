@@ -3,6 +3,7 @@ package com.yanlong.im.pay.ui.record;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +11,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.net.FGObserver;
+import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.redenvelope.RedDetailsBean;
 
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.MultiListView;
 
 import java.util.ArrayList;
@@ -20,9 +27,10 @@ import java.util.List;
 public class FragmentRedEnvelopeSend extends Fragment {
     private View rootView;
     private RecyclerView mMtListView;
+    int currentPage = 1;
 
     private List<String> list = new ArrayList<>();
-    private RedPacketAdapter adapter;
+    private AdapterRedEnvelopeSend adapter;
 
     public FragmentRedEnvelopeSend() {
 
@@ -39,69 +47,61 @@ public class FragmentRedEnvelopeSend extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fgm_red_packet_record, null);
-        ViewGroup.LayoutParams layparm = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        rootView.setLayoutParams(layparm);
+//        ViewGroup.LayoutParams layparm = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+//        rootView.setLayoutParams(layparm);
         initView();
-        initData();
+//        initData();
         return rootView;
     }
 
     private void initView() {
         mMtListView = rootView.findViewById(R.id.mtListView);
-//        mMtListView.init(new FragmentRedEnvelopeSend.RedPacketAdapter());
-        //        mMtListView.getLoadView().setStateNormal();
-
-        adapter = new RedPacketAdapter();
+        LinearLayoutManager manager = new LinearLayoutManager(getContext());
+        manager.setOrientation(LinearLayoutManager.VERTICAL);
+        mMtListView.setLayoutManager(manager);
+        adapter = new AdapterRedEnvelopeSend(getContext());
         mMtListView.setAdapter(adapter);
+        getRedEnvelopeDetails();
     }
 
     private void initData() {
         for (int i = 0; i < 15; i++) {
             list.add("1111");
         }
-//        mMtListView.getListView().getAdapter().notifyDataSetChanged();
         adapter.notifyDataSetChanged();
 
     }
 
 
-    class RedPacketAdapter extends RecyclerView.Adapter<RedPacketAdapter.ViewHodler> {
+    /**
+     * 获取收到红包记录
+     */
+    private void getRedEnvelopeDetails() {
+        long startTime = ((RedEnvelopeRecordActivity) getActivity()).getCurrentCalendar();
+        PayHttpUtils.getInstance().getRedEnvelopeDetails(currentPage, startTime, 2)
+                .compose(RxSchedulers.<BaseResponse<RedDetailsBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<RedDetailsBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<RedDetailsBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<RedDetailsBean> baseResponse) {
+                        if (baseResponse.isSuccess()) {
+                            RedDetailsBean details = baseResponse.getData();
+                            if (((RedEnvelopeRecordActivity) getActivity()).getCurrentTab() == 0) {
+                                ((RedEnvelopeRecordActivity) getActivity()).initDetails(details, true);
+                            }
+                            adapter.bindData(details.getItems());
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
 
+                    }
 
-        @Override
-        public ViewHodler onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            LayoutInflater inflater = getLayoutInflater();
-            ViewHodler holder = new ViewHodler(inflater.inflate(R.layout.item_red_packet_record, viewGroup, false));
-            return holder;
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHodler viewHolder, int i) {
-
-        }
-
-        @Override
-        public int getItemCount() {
-            if (list != null && list.size() > 0) {
-                return list.size();
-            }
-            return 0;
-        }
-
-
-        class ViewHodler extends RecyclerView.ViewHolder {
-            private TextView mTvUserName;
-            private TextView mTvMoney;
-            private TextView mTvDate;
-
-
-            public ViewHodler(@NonNull View itemView) {
-                super(itemView);
-                mTvUserName = itemView.findViewById(R.id.tv_user_name);
-                mTvMoney = itemView.findViewById(R.id.tv_money);
-                mTvDate = itemView.findViewById(R.id.tv_date);
-            }
-        }
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        super.onHandleError(baseResponse);
+                        ToastUtil.show(getActivity(), baseResponse.getMessage());
+                    }
+                });
     }
 
 

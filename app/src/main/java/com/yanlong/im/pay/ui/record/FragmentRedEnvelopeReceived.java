@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +29,7 @@ public class FragmentRedEnvelopeReceived extends Fragment {
 
     private View rootView;
     private RecyclerView recyclerView;
-    int currentPage = 0;
+    int currentPage = 1;
     private AdapterRedEnvelopeReceived adapter;
 
     public static FragmentRedEnvelopeReceived newInstance() {
@@ -49,6 +50,9 @@ public class FragmentRedEnvelopeReceived extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        LinearLayoutManager manager = new LinearLayoutManager(getContext());
+        manager.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(manager);
         adapter = new AdapterRedEnvelopeReceived(getActivity());
         recyclerView.setAdapter(adapter);
         getRedEnvelopeDetails();
