@@ -46,5 +46,14 @@ public class PayEnum {
         int REFUND = 2;//成功后退款了
     }
 
+    //支付结果
+    @IntDef({EPayResult.SUCCESS, EPayResult.FAIL, EPayResult.REFUND})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EEnvelopeOpenResult {
+        int SUCCESS = 0;//成功
+        int FAIL = 1;//失败
+        int REFUND = 2;//成功后退款了
+    }
+
 
 }

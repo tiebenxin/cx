@@ -76,11 +76,15 @@ public class SocketUtil {
         @Override
         public void onMsg(MsgBean.UniversalMessage bean) {
             //保存消息和处理回执
-            LogUtil.getLog().d(TAG, ">>>>>保存[收到]的消息到数据库 " + bean.getToUid());
+//            LogUtil.getLog().d(TAG, ">>>>>保存[收到]的消息到数据库 " + bean.getToUid());
             //在线离线消息不需要发送回执, 索引越界？？？？？
-            if (bean.getWrapMsgCount() > 0 && bean.getWrapMsg(0).getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
-                LogUtil.getLog().d(TAG, ">>>>>发送回执: " + bean.getRequestId());
-                SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null), null);
+            int count = bean.getWrapMsgCount();
+            if (count > 0 && bean.getWrapMsg(0).getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
+//                LogUtil.getLog().d(TAG, ">>>>>发送回执: " + bean.getRequestId());
+                if (count == 1) {//单条消息直接回执，多条消息待消息存成功后再回执
+                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null), null);
+                    System.out.println(TAG + "--发送回执--requestId=" + bean.getRequestId());
+                }
             }
             MessageManager.getInstance().onReceive(bean);
             for (SocketEvent ev : eventLists) {

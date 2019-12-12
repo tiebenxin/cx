@@ -9,8 +9,8 @@ import android.os.Parcelable;
  * Description 红包 from User
  */
 public class FromUserBean implements Parcelable {
-    String avatar;
-    String nickname;
+    String avatar="";
+    String nickname="";
     long uid;
 
     public String getAvatar() {

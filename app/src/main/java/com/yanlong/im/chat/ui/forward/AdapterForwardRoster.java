@@ -17,6 +17,7 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 
 /**
  * @author Liszt
@@ -122,6 +123,9 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if(ViewUtils.isFastDoubleClick()){
+                        return;
+                    }
                     if (listener == null) {
                         return;
                     }

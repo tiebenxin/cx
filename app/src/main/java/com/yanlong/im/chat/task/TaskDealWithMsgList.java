@@ -12,6 +12,8 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.socket.MsgBean;
+import com.yanlong.im.utils.socket.SocketData;
+import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.LogUtil;
@@ -201,7 +203,11 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
             List<MsgAllBean> msgList = /*MessageManager.getInstance().*/getPendingMsgList();
             if (msgList != null) {
                 System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--doPendingData--更新消息--" + msgList.size() + "--requestId=" + requestId);
-                msgDao.insertOrUpdateMsgList(msgList);
+                boolean isSuccess = msgDao.insertOrUpdateMsgList(msgList);
+                if (isSuccess) {
+                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null),null);
+                    System.out.println(TAG + "--发送回执--requestId=" + requestId);
+                }
             }
             Map<String, MsgAllBean> mapCancel = /*MessageManager.getInstance().*/getPendingCancelMap();
             if (mapCancel != null && mapCancel.size() > 0) {

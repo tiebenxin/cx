@@ -14,6 +14,7 @@ import android.view.View;
 
 import androidx.annotation.RequiresApi;
 
+import com.alibaba.android.arouter.launcher.ARouter;
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.dailog.DialogErrorPassword;
@@ -185,8 +186,10 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
             public void onItem(String string, int postsion) {
                 switch (postsion) {
                     case 0:
-                        Intent intent = new Intent(SingleRedPacketActivity.this, RedPacketDetailsActivity.class);
-                        startActivity(intent);
+                        ARouter.getInstance().build("/app/redEnvelopeDetailsActivity").navigation();
+//
+//                        Intent intent = new Intent(SingleRedPacketActivity.this, RedPacketDetailsActivity.class);
+//                        startActivity(intent);
                         break;
                 }
                 popupSelectView.dismiss();

@@ -88,7 +88,8 @@ public class UpLoadService extends Service {
         upProgress.setId(id);
         //  upProgress.setProgress(0);
         upProgress.setFile(file);
-        updateProgress(id, 0);
+        // updateProgress(id, 0);
+        updateProgress(id, new Random().nextInt(5)+1);//发送图片后默认给个进度，显示阴影表示正在上传
         final ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(file);
         // LogUtil.getLog().d("TAG", "----------onAdd: "+img.getSizeStr());
         //LogUtil.getLog().d("TAG", "----------: "+img.getWidth());
@@ -126,7 +127,7 @@ public class UpLoadService extends Service {
                 // ToastUtil.show(getContext(), "上传失败,请稍候重试");
 
                 //  upProgress.setProgress(100);
-                updateProgress(id, 100);
+                // updateProgress(id, 100);
 
                 System.out.println(UpLoadService.class.getSimpleName() + "--");
                 updateProgress(id, 0);
