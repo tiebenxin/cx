@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.example.nim_lib.util.PermissionsUtil;
@@ -67,6 +68,7 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.NotificationsUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.VersionUtil;
@@ -121,7 +123,6 @@ public class MainActivity extends AppActivity {
     private boolean testMe = true;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,6 +134,11 @@ public class MainActivity extends AppActivity {
         getSurvivalTimeData();
         checkRosters();
         doRegisterNetReceiver();
+        SpUtil spUtil = SpUtil.getSpUtil();
+        boolean isFist = spUtil.getSPValue(Preferences.IS_FIRST_DIALOG, false);
+        if (!isFist) {
+            permissionCheck();
+        }
     }
 
     @Override
@@ -148,7 +154,6 @@ public class MainActivity extends AppActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
-
 
 
     //自动寻找控件
@@ -408,7 +413,6 @@ public class MainActivity extends AppActivity {
     protected void onResume() {
         super.onResume();
         isActivityStop = false;
-        permissionCheck();
         taskGetMsgNum();
         //taskClearNotification();
         checkNotificationOK();
@@ -473,7 +477,7 @@ public class MainActivity extends AppActivity {
         if (event.getRosterAction() == CoreEnum.ERosterAction.LOAD_ALL_SUCCESS) {
             taskLoadSavedGroups();
         } else if (event.getRosterAction() == CoreEnum.ERosterAction.REQUEST_FRIEND
-                ||event.getRosterAction() == CoreEnum.ERosterAction.DEFAULT) {//请求添加为好友 申请进群
+                || event.getRosterAction() == CoreEnum.ERosterAction.DEFAULT) {//请求添加为好友 申请进群
             taskGetFriendNum();
         }
     }

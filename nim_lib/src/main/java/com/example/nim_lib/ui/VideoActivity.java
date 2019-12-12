@@ -76,6 +76,7 @@ import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
+import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AlertYesNo;
 
@@ -1871,7 +1872,10 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
      */
     public void showPermissionDialog() {
         final String title = "权限申请";
-        final String content = "在设置-应用-常信-权限中开启悬浮窗权限，以保证功能的正常使用";
+        final String content = "在设置-应用-常信-权限中开启悬浮窗权限，以保证音视频功能的正常使用，取消可能会接收不到音视频通话";
+        SpUtil spUtil = SpUtil.getSpUtil();
+        spUtil.putSPValue(Preferences.IS_FIRST_DIALOG, true);
+
         if (mAlertYesNo == null) {
             mAlertYesNo = new AlertYesNo();
             mAlertYesNo.init(this, title, content, "去设置", null, new AlertYesNo.Event() {

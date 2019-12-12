@@ -160,16 +160,7 @@ public class GroupSaveActivity extends AppActivity {
                 headList.add(imageHead);
                 holder.imgHead.setList(headList);
             } else {
-
-                String url = msgDao.groupHeadImgGet(groupInfoBean.getGid());
-                if (StringUtil.isNotNull(url)) {
-                    //头像地址
-                    List<String> headList = new ArrayList<>();
-                    headList.add(url);
-                    holder.imgHead.setList(headList);
-                } else {
-                    loadGroupHeads(groupInfoBean, holder.imgHead);
-                }
+                loadGroupHeads(groupInfoBean.getGid(), holder.imgHead);
             }
 
             holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -203,10 +194,11 @@ public class GroupSaveActivity extends AppActivity {
         /**
          * 加载群头像
          *
-         * @param gginfo
+         * @param gid
          * @param imgHead
          */
-        public synchronized void loadGroupHeads(Group gginfo, MultiImageView imgHead) {
+        public synchronized void loadGroupHeads(String gid, MultiImageView imgHead) {
+            Group gginfo = msgDao.getGroup4Id(gid);
             if (gginfo != null) {
                 int i = gginfo.getUsers().size();
                 i = i > 9 ? 9 : i;
@@ -220,28 +212,28 @@ public class GroupSaveActivity extends AppActivity {
             }
         }
 
-        private void creatAndSaveImg(Group bean, ImageView imgHead) {
-            Group gginfo = bean;
-            int i = gginfo.getUsers().size();
-            i = i > 9 ? 9 : i;
-            //头像地址
-            String url[] = new String[i];
-            for (int j = 0; j < i; j++) {
-                MemberUser userInfo = gginfo.getUsers().get(j);
-//            if (j == i - 1) {
-//                name += userInfo.getName();
-//            } else {
-//                name += userInfo.getName() + "、";
+//        private void creatAndSaveImg(Group bean, ImageView imgHead) {
+//            Group gginfo = bean;
+//            int i = gginfo.getUsers().size();
+//            i = i > 9 ? 9 : i;
+//            //头像地址
+//            String url[] = new String[i];
+//            for (int j = 0; j < i; j++) {
+//                MemberUser userInfo = gginfo.getUsers().get(j);
+////            if (j == i - 1) {
+////                name += userInfo.getName();
+////            } else {
+////                name += userInfo.getName() + "、";
+////            }
+//                url[j] = userInfo.getHead();
 //            }
-                url[j] = userInfo.getHead();
-            }
-            File file = GroupHeadImageUtil.synthesis(getContext(), url);
-            Glide.with(context).load(file)
-                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
-
-            MsgDao msgDao = new MsgDao();
-            msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
-        }
+//            File file = GroupHeadImageUtil.synthesis(getContext(), url);
+//            Glide.with(context).load(file)
+//                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+//
+//            MsgDao msgDao = new MsgDao();
+//            msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+//        }
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {

@@ -85,7 +85,7 @@ public class PlayerManager {
             file.close();
             mediaPlayer.setVolume(BEEP_VOLUME, BEEP_VOLUME);
             mediaPlayer.prepare();
-        } catch (IOException e) {
+        } catch (Exception e) {
             mediaPlayer = null;
         }
     }
@@ -105,7 +105,12 @@ public class PlayerManager {
 //                audioManager.setMode(AudioManager.MODE_NORMAL);// 铃声:MODE_RINGTONE    普通:MODE_NORMAL
                 audioManager.setSpeakerphoneOn(false);// 把模式调成外放模式
             }
-            mediaPlayer.start();
+            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mediaPlayer.start();
+                }
+            });
         }
     }
 
