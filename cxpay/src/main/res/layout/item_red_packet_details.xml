@@ -3,6 +3,7 @@
     xmlns:tool="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <LinearLayout
@@ -11,10 +12,11 @@
         android:layout_height="60dp"
         android:orientation="horizontal">
 
-        <ImageView
+        <com.hm.cxpay.widget.CircleImageView
             android:id="@+id/sd_image_head"
             style="@style/app_img_head"
             android:layout_width="46dp"
+            app:civ_border_width="0dp"
             android:layout_height="46dp" />
 
         <LinearLayout
