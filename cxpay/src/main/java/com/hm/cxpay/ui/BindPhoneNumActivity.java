@@ -82,24 +82,29 @@ public class BindPhoneNumActivity extends AppActivity {
             public void onClick(View v) {
                 //是否有手机号
                 //1-1 有则直接发请求
-                if(hadPhoneNum){
+                if (hadPhoneNum) {
                     //1-2 验证码不为空
-                    if(!TextUtils.isEmpty(etCode.getText().toString())){
-                        httpBindPhone(tvPhoneNum.getText().toString());
-                    }else {
-                        ToastUtil.show(activity,"验证码不能为空");
-                    }
-                }else {
-                    //2-1 没有则监听输入框
-                    if(!TextUtils.isEmpty(etPhoneNum.getText().toString())){
-                        //2-2 验证码不为空
-                        if(!TextUtils.isEmpty(etCode.getText().toString())){
-                            httpBindPhone(etPhoneNum.getText().toString());
-                        }else {
-                            ToastUtil.show(activity,"验证码不能为空");
+                    if (!TextUtils.isEmpty(etCode.getText().toString())) {
+                        String phone = PayEnvironment.getInstance().getPhone();
+                        if (!TextUtils.isEmpty(phone)) {
+                            httpBindPhone(phone);
+                        } else {
+                            httpBindPhone("");
                         }
-                    }else {
-                        ToastUtil.show(activity,"手机号码不能为空");
+                    } else {
+                        ToastUtil.show(activity, "验证码不能为空");
+                    }
+                } else {
+                    //2-1 没有则监听输入框
+                    if (!TextUtils.isEmpty(etPhoneNum.getText().toString())) {
+                        //2-2 验证码不为空
+                        if (!TextUtils.isEmpty(etCode.getText().toString())) {
+                            httpBindPhone(etPhoneNum.getText().toString());
+                        } else {
+                            ToastUtil.show(activity, "验证码不能为空");
+                        }
+                    } else {
+                        ToastUtil.show(activity, "手机号码不能为空");
                     }
                 }
             }
@@ -134,6 +139,7 @@ public class BindPhoneNumActivity extends AppActivity {
 
     /**
      * 请求->获取绑定手机的验证码
+     *
      * @param phoneNum
      */
     private void httpGetCode(String phoneNum) {
@@ -143,7 +149,7 @@ public class BindPhoneNumActivity extends AppActivity {
                 .subscribe(new FGObserver<BaseResponse>() {
                     @Override
                     public void onHandleSuccess(BaseResponse baseResponse) {
-                        LogUtil.getLog().i("TAG","获取验证码成功!");
+                        LogUtil.getLog().i("TAG", "获取验证码成功!");
                     }
 
                     @Override
@@ -157,7 +163,7 @@ public class BindPhoneNumActivity extends AppActivity {
 
     /**
      * 请求->获取当前用户IM手机号
-     *
+     * <p>
      * 备注：优先获取用户IM手机号，没有则自行输入，若有则直接取手机号
      */
     private void httpGetMyPhone() {
@@ -168,12 +174,12 @@ public class BindPhoneNumActivity extends AppActivity {
                     @Override
                     public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
                         if (baseResponse.getData() != null) {
-                            if(!TextUtils.isEmpty(baseResponse.getData().getPhone())){
+                            if (!TextUtils.isEmpty(baseResponse.getData().getPhone())) {
                                 hadPhoneNum = true;
                                 tvPhoneNum.setVisibility(View.VISIBLE);
                                 etPhoneNum.setVisibility(View.GONE);
-                                tvPhoneNum.setText(baseResponse.getData().getPhone()+"");
-                            }else {
+                                tvPhoneNum.setText(baseResponse.getData().getPhone() + "");
+                            } else {
                                 hadPhoneNum = false;
                                 tvPhoneNum.setVisibility(View.GONE);
                                 etPhoneNum.setVisibility(View.VISIBLE);
@@ -192,10 +198,11 @@ public class BindPhoneNumActivity extends AppActivity {
 
     /**
      * 请求->绑定手机号码
+     *
      * @param phoneNum
      */
     private void httpBindPhone(String phoneNum) {
-        PayHttpUtils.getInstance().bindPhoneNum(phoneNum,etCode.getText().toString())
+        PayHttpUtils.getInstance().bindPhoneNum(phoneNum, etCode.getText().toString())
                 .compose(RxSchedulers.<BaseResponse>compose())
                 .compose(RxSchedulers.<BaseResponse>handleResult())
                 .subscribe(new FGObserver<BaseResponse>() {

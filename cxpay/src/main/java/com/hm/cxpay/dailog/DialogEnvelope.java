@@ -90,7 +90,8 @@ public class DialogEnvelope extends BaseDialog {
     }
 
     private void updateUI(int envelopeStatus) {
-        Glide.with(getContext()).load(avatar).into(ivAvatar);
+        UIUtils.loadAvatar(avatar, ivAvatar);
+
         tvName.setText(nick);
         if (envelopeStatus == 1) {//正常，可以抢
             ivOpen.setVisibility(View.VISIBLE);
