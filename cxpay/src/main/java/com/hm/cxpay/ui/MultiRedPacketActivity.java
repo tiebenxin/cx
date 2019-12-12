@@ -212,8 +212,15 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             resetRedEnvelope(redPacketType);
         } else if (id == ui.btnCommit.getId()) {
             money = ui.edMoney.getText().toString();
-            if (!TextUtils.isEmpty(money)) {
-                showInputPasswordDialog(UIUtils.getFen(money));
+            int count = UIUtils.getRedEnvelopeCount(ui.edRedPacketNum.getText().toString().trim());
+            long totalMoney = 0;
+            if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {
+                totalMoney = UIUtils.getFen(money) * count;
+            } else {
+                totalMoney = UIUtils.getFen(money);
+            }
+            if (totalMoney > 0) {
+                showInputPasswordDialog(totalMoney);
             }
         }
     }

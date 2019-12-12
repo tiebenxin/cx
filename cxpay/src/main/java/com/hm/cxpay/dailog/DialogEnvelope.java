@@ -19,6 +19,7 @@ import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.redenvelope.GrabEnvelopeBean;
 import com.hm.cxpay.ui.redenvelope.OpenEnvelopeBean;
 import com.hm.cxpay.utils.UIUtils;
+import com.hm.cxpay.widget.CircleImageView;
 import com.hm.cxpay.widget.PswView;
 import com.hm.cxpay.widget.RedAmina;
 
@@ -33,7 +34,7 @@ import net.cb.cb.library.utils.ToastUtil;
 public class DialogEnvelope extends BaseDialog {
 
     private ImageView ivClose;
-    private ImageView ivAvatar;
+    private CircleImageView ivAvatar;
     private TextView tvName;
     private TextView tvInfo;
     private ImageView ivOpen;
@@ -62,6 +63,7 @@ public class DialogEnvelope extends BaseDialog {
 
         ivClose.setOnClickListener(this);
         ivOpen.setOnClickListener(this);
+        tvMore.setOnClickListener(this);
     }
 
     @Override
@@ -72,6 +74,10 @@ public class DialogEnvelope extends BaseDialog {
         } else if (id == ivOpen.getId()) {
             playAnim();
             openRedEnvelope(tradeId, token);
+        } else if (id == tvMore.getId()) {
+            if (listener != null) {
+                listener.viewRecord(tradeId, token);
+            }
         }
     }
 
@@ -188,7 +194,7 @@ public class DialogEnvelope extends BaseDialog {
     public interface IEnvelopeListener {
         void onOpen(long rid, int envelopeStatus);
 
-//        void onCancel(String token);
+        void viewRecord(long rid, String token);
     }
 
 

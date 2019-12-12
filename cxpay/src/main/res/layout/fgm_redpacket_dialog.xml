@@ -26,10 +26,11 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <ImageView
+            <com.hm.cxpay.widget.CircleImageView
                 android:id="@+id/img_uhead"
                 style="@style/app_img_head"
                 android:layout_width="58dp"
+                app:civ_border_width="0dp"
                 android:layout_height="58dp" />
 
             <TextView

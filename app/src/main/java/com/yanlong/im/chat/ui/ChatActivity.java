@@ -4693,6 +4693,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             public void onOpen(long rid, int envelopeStatus) {
                 taskPayRbCheck(msgBean, rid + "", reType, token);
             }
+
+            @Override
+            public void viewRecord(long rid,String token) {
+                getRedEnvelopeDetail(msgBean,rid,token,reType);
+            }
         });
         RedEnvelopeMessage message = msgBean.getRed_envelope();
         dialogEnvelope.setInfo(token, status, msgBean.getFrom_avatar(), msgBean.getFrom_nickname(), getEnvelopeId(message.getId(), message.getTraceId()), message.getComment());

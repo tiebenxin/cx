@@ -10,23 +10,22 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
-import com.bumptech.glide.Glide;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.databinding.ActivityRedPacketDetailsBinding;
+import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.ui.redenvelope.EnvelopeDetailBean;
 import com.hm.cxpay.ui.redenvelope.EnvelopeReceiverBean;
 import com.hm.cxpay.ui.redenvelope.FromUserBean;
 import com.hm.cxpay.utils.DateUtils;
 import com.hm.cxpay.utils.UIUtils;
+import com.hm.cxpay.widget.CircleImageView;
 
-import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.PopupSelectView;
 
@@ -85,7 +84,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
 
         ui.tvContent.setText(TextUtils.isEmpty(envelopeDetailBean.getNote()) ? "恭喜发财，大吉大利" : envelopeDetailBean.getNote());
         ui.tvMoney.setText(UIUtils.getYuan(envelopeDetailBean.getAmt()));
-        if (envelopeDetailBean.getType() == 0) {
+        if (envelopeDetailBean.getType() == PayEnum.ERedEnvelopeType.NORMAL && envelopeDetailBean.getCnt() == 1) {
             ui.llRecord.setVisibility(View.GONE);
             ui.tvNote.setVisibility(View.GONE);
         } else {
@@ -96,13 +95,13 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
             UserBean user = PayEnvironment.getInstance().getUser();
             int remainCount = envelopeDetailBean.getRemainCnt();
             int totalCount = envelopeDetailBean.getCnt();
-            String remainMoney = UIUtils.getYuan(envelopeDetailBean.getRemainAmt());
+            String receivedMoney = UIUtils.getYuan(envelopeDetailBean.getAmt() - envelopeDetailBean.getRemainAmt());//已经抢了的钱
             String totalMoney = UIUtils.getYuan(envelopeDetailBean.getAmt());
             int receivedCount = totalCount - remainCount;
             if (user != null) {
                 if (userBean.getUid() == user.getUid()) {//是自己发的
                     if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
-                        ui.tvHint.setText("已领取" + receivedCount + "/" + totalCount + "个，共" + remainMoney + "/" + totalMoney + "元");
+                        ui.tvHint.setText("已领取" + receivedCount + "/" + totalCount + "个，共" + receivedMoney + "/" + totalMoney + "元");
                     } else {
                         String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getTime(), envelopeDetailBean.getFinishTime());
                         ui.tvHint.setText(totalCount + "个红包共" + totalMoney + "元，" + time + "被抢光");
@@ -179,7 +178,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
 
 
         class RbViewHolder extends RecyclerView.ViewHolder {
-            private ImageView ivAvatar;
+            private CircleImageView ivAvatar;
             private TextView tvName;
             private TextView tvTime;
             private TextView tvMoney;
@@ -202,7 +201,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                     UIUtils.loadAvatar(userBean.getAvatar(), ivAvatar);
                     tvName.setText(userBean.getNickname());
                 }
-                tvTime.setText(TimeToString.YYYY_MM_DD_HH_MM_SS(bean.getTime()));
+                tvTime.setText(DateUtils.getGrabTime(bean.getTime()));
                 tvMoney.setText(UIUtils.getYuan(bean.getAmt()));
 
             }

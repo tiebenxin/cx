@@ -1,5 +1,6 @@
 package com.hm.cxpay.utils;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -28,8 +29,9 @@ public class DateUtils {
 
     /**
      * 获取指定日期所在月份第一天开始的时间戳
+     *
      * @param date 指定日期
-      @return
+     * @return
      */
     public static Long getMonthBegin(Date date) {
         Calendar c = Calendar.getInstance();
@@ -41,7 +43,7 @@ public class DateUtils {
         //将分钟至0
         c.set(Calendar.MINUTE, 0);
         //将秒至0
-        c.set(Calendar.SECOND,0);
+        c.set(Calendar.SECOND, 0);
         //将毫秒至0
         c.set(Calendar.MILLISECOND, 0);
         // 获取本月第一天的时间戳
@@ -89,5 +91,32 @@ public class DateUtils {
             }
         }
         return result;
+    }
+
+    //获取抢红包时间
+    public static String getGrabTime(long time) {
+        Calendar todayCalendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(time);
+        String hourTimeFormat = "HH:mm";
+        String dayTimeFormat = "MM-dd HH:mm";
+        String yearTimeFormat = "yyyy-MM-dd  HH:mm";
+        String result = "";
+        if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
+            if (todayCalendar.get(Calendar.DATE) == calendar.get(Calendar.DATE)) {//当天
+                result = getTime(time, hourTimeFormat);
+            } else {
+                result = getTime(time, dayTimeFormat);
+            }
+        } else {
+            result = getTime(time, yearTimeFormat);
+        }
+        return result;
+
+    }
+
+    public static String getTime(long time, String timeFormat) {
+        SimpleDateFormat format = new SimpleDateFormat(timeFormat);
+        return format.format(new Date(time));
     }
 }
