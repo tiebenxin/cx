@@ -22,6 +22,8 @@ import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.example.nim_lib.util.PermissionsUtil;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
@@ -138,6 +140,23 @@ public class MainActivity extends AppActivity {
         boolean isFist = spUtil.getSPValue(Preferences.IS_FIRST_DIALOG, false);
         if (!isFist) {
             permissionCheck();
+        }
+        checkNeteaseLogin();
+    }
+
+    /**
+     * 检查网易云是否登录，没登录重新登录
+     */
+    private void checkNeteaseLogin(){
+        if(NIMClient.getStatus()!= StatusCode.LOGINED){
+            LogUtil.getLog().i(MainActivity.class.getName(),"网易云登录失败，重新登录了:"+NIMClient.getStatus());
+            UserAction userAction=new UserAction();
+            SpUtil spUtil = SpUtil.getSpUtil();
+            String account = spUtil.getSPValue("account", "");
+            String token = spUtil.getSPValue("token", "");
+            userAction.doNeteaseLogin(account,token);
+        }else{
+            LogUtil.getLog().i(MainActivity.class.getName(),"网易云登录成功");
         }
     }
 
@@ -712,14 +731,19 @@ public class MainActivity extends AppActivity {
 //            builder.setMessage("由于目前未开通系统通知服务，为不影响使用，将在3秒后前往设置");
 //            notifyDialog = builder.create();
 //            notifyDialog.show();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    notifyDialog.dismiss();
-                    NotificationsUtils.toNotificationSetting(MainActivity.this);
-                    saveNotifyConfig();
-                }
-            }, 3000);
+            // TODO 解决IllegalArgumentException异常
+            if (!isFinishing()) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!isFinishing()) {
+                            notifyDialog.dismiss();
+                        }
+                        NotificationsUtils.toNotificationSetting(MainActivity.this);
+                        saveNotifyConfig();
+                    }
+                }, 3000);
+            }
         } else {
             LogUtil.getLog().i(MainActivity.class.getSimpleName(), "有推送权限" + canRemindToSetting());
         }

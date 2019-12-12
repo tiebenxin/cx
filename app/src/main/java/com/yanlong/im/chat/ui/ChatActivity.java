@@ -303,7 +303,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         //标题栏
@@ -764,11 +763,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     editChat.getText().clear();
                     return;
                 }
-                if (text.startsWith("@000")) {
-                    int count = Integer.parseInt(text.split("_")[1]);
-                    taskTestSend(count);
-                    return;
-                }
+//                if (text.startsWith("@000")) {
+//                    int count = Integer.parseInt(text.split("_")[1]);
+//                    taskTestSend(count);
+//                    return;
+//                }
 
                 int totalSize = text.length();
                 if (isGroup() && editChat.getUserIdList() != null && editChat.getUserIdList().size() > 0) {
