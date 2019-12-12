@@ -1,4 +1,4 @@
-package com.hm.cxpay.ui;
+package com.yanlong.im.pay.ui.record;
 
 import android.content.Context;
 import android.content.Intent;
@@ -6,12 +6,14 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.alibaba.android.arouter.facade.annotation.Route;
 import com.bumptech.glide.Glide;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
@@ -35,7 +37,8 @@ import java.util.List;
 /**
  * 红包详情页面
  */
-public class RedPacketDetailsActivity extends BasePayActivity {
+@Route(path = "/app/singleRedPacketDetailsActivity")
+public class SingleRedPacketDetailsActivity extends BasePayActivity {
     private List<EnvelopeReceiverBean> list = new ArrayList<>();
 
     private String[] strings = {"查看支付宝红包记录", "取消"};
@@ -44,7 +47,7 @@ public class RedPacketDetailsActivity extends BasePayActivity {
     private ActivityRedPacketDetailsBinding ui;
 
     public static Intent newIntent(Context context, EnvelopeDetailBean bean) {
-        Intent intent = new Intent(context, RedPacketDetailsActivity.class);
+        Intent intent = new Intent(context, SingleRedPacketDetailsActivity.class);
         Bundle bundle = new Bundle();
         bundle.putParcelable("data", bean);
         intent.putExtras(bundle);
@@ -55,6 +58,8 @@ public class RedPacketDetailsActivity extends BasePayActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_red_packet_details);
+        ui.headView.getActionbar().setChangeStyleBg();
+        ui.headView.getAppBarLayout().setBackgroundResource(com.hm.cxpay.R.color.c_c85749);
         envelopeDetailBean = getIntent().getParcelableExtra("data");
         initView();
         initEvent();
@@ -77,7 +82,8 @@ public class RedPacketDetailsActivity extends BasePayActivity {
             Glide.with(this).load(userBean.getAvatar()).into(ui.ivAvatar);
             ui.tvName.setText(userBean.getNickname() + "的红包");
         }
-        ui.tvContent.setText(envelopeDetailBean.getNote());
+
+        ui.tvContent.setText(TextUtils.isEmpty(envelopeDetailBean.getNote()) ? "恭喜发财，大吉大利" : envelopeDetailBean.getNote());
         ui.tvMoney.setText(UIUtils.getYuan(envelopeDetailBean.getAmt()));
         list = envelopeDetailBean.getRecvList();
         ui.mtListView.getListView().getAdapter().notifyDataSetChanged();
@@ -86,18 +92,18 @@ public class RedPacketDetailsActivity extends BasePayActivity {
         int totalCount = envelopeDetailBean.getCnt();
         String remainMoney = UIUtils.getYuan(envelopeDetailBean.getRemainAmt());
         String totalMoney = UIUtils.getYuan(envelopeDetailBean.getAmt());
-
+        int receivedCount = totalCount -remainCount;
         if (user != null) {
             if (userBean.getUid() == user.getUid()) {//是自己发的
                 if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
-                    ui.tvHint.setText("已领取" + remainCount + "/" + totalCount + "个，共" + remainMoney + "/" + totalMoney + "元");
+                    ui.tvHint.setText("已领取" + receivedCount + "/" + totalCount + "个，共" + remainMoney + "/" + totalMoney + "元");
                 } else {
                     String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getTime(), envelopeDetailBean.getFinishTime());
                     ui.tvHint.setText(totalCount + "个红包共" + totalMoney + "元，" + time + "被抢光");
                 }
             } else {
                 if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
-                    ui.tvHint.setText("已领取" + remainCount + "/" + totalCount + "个");
+                    ui.tvHint.setText("已领取" + receivedCount + "/" + totalCount + "个");
                 } else {
                     String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getTime(), envelopeDetailBean.getFinishTime());
                     ui.tvHint.setText(totalCount + "个红包，" + time + "被抢光");

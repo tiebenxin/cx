@@ -400,7 +400,7 @@
 <!--            android:theme="@style/RedAppThrme" />-->
         <!--红包详情-->
         <activity
-            android:name="com.hm.cxpay.ui.RedPacketDetailsActivity"
+            android:name=".pay.ui.record.SingleRedPacketDetailsActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/RedAppThrme" />

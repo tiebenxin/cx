@@ -44,6 +44,7 @@ public class DialogEnvelope extends BaseDialog {
     private String token;
     private int status;
     private String note;
+    private IEnvelopeListener listener;
 
     public DialogEnvelope(Context context, int theme) {
         super(context, theme);
@@ -60,12 +61,15 @@ public class DialogEnvelope extends BaseDialog {
         tvMore = findViewById(R.id.txt_more);
 
         ivClose.setOnClickListener(this);
+        ivOpen.setOnClickListener(this);
     }
 
     @Override
     public void processClick(View view) {
         int id = view.getId();
         if (id == ivClose.getId()) {
+            dismiss();
+        } else if (id == ivOpen.getId()) {
             playAnim();
             openRedEnvelope(tradeId, token);
         }
@@ -102,11 +106,18 @@ public class DialogEnvelope extends BaseDialog {
         } else if (envelopeStatus == 3) {//已经过期
             ivOpen.setVisibility(View.GONE);
             tvInfo.setText("红包已过期");
+        } else if (envelopeStatus == 4) {//已经抢过了
+            ivOpen.setVisibility(View.GONE);
+            if (!TextUtils.isEmpty(note)) {
+                tvInfo.setText(note);
+            } else {
+                tvInfo.setText("恭喜发财，大吉大利");
+            }
         }
     }
 
     //拆红包，获取token
-    public void openRedEnvelope(long tradeId, String token) {
+    public void openRedEnvelope(final long tradeId, String token) {
         if (TextUtils.isEmpty(token)) {
             return;
         }
@@ -121,6 +132,9 @@ public class DialogEnvelope extends BaseDialog {
                             OpenEnvelopeBean bean = baseResponse.getData();
                             if (bean != null) {
                                 updateUIAfterOpen(bean);
+                                if (listener != null) {
+                                    listener.onOpen(tradeId, bean.getStat());
+                                }
                             }
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -159,12 +173,21 @@ public class DialogEnvelope extends BaseDialog {
             tvInfo.setText("已领取" + UIUtils.getYuan(bean.getAmt()) + "元");
         } else if (result == 2) {//已领完
             tvInfo.setText("手慢了，红包已经派完");
-
         } else if (result == 3) {//已过期
             tvInfo.setText("红包已过期");
         } else if (result == 4) {//已领过
             tvInfo.setText("已领取" + UIUtils.getYuan(bean.getAmt()) + "元");
         }
+    }
+
+    public void setEnvelopeListener(IEnvelopeListener l) {
+        listener = l;
+    }
+
+    public interface IEnvelopeListener {
+        void onOpen(long rid, int envelopeStatus);
+
+//        void onCancel(String token);
     }
 
 

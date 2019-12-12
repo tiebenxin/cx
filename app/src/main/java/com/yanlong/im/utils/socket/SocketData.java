@@ -949,7 +949,7 @@ public class SocketData {
      * @return
      */
     public static MsgAllBean send4RbRev(Long toId, String toGid, String rid, int reType) {
-        msgDao.redEnvelopeOpen(rid, true, reType);
+        msgDao.redEnvelopeOpen(rid, true, reType,"");
         MsgBean.ReceiveRedEnvelopeMessage msg = MsgBean.ReceiveRedEnvelopeMessage.newBuilder()
                 .setId(rid)
                 .build();

@@ -2021,37 +2021,54 @@ public class MsgDao {
      * @param rid
      * @param isOpen
      */
-    public void redEnvelopeOpen(String rid, boolean isOpen, int reType) {
+    public void redEnvelopeOpen(String rid, boolean isOpen, int reType, String token) {
         Realm realm = DaoUtil.open();
-        realm.beginTransaction();
-        RedEnvelopeMessage envelopeMessage=null;
-        if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
-            envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("id", rid).findFirst();
-        } else if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {
-            envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("traceId", rid).findFirst();
+        try {
+            realm.beginTransaction();
+            RedEnvelopeMessage envelopeMessage = null;
+            if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
+                envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("id", rid).findFirst();
+            } else if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {
+                long traceId = Long.parseLong(rid);
+                envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("traceId", traceId).findFirst();
+                if (envelopeMessage != null && !TextUtils.isEmpty(token)) {
+                    envelopeMessage.setAccessToken(token);
+                }
+            }
+            if (envelopeMessage != null) {
+                if (envelopeMessage.getIsInvalid() == 0) {//没拆才更新，已经拆过了不更新
+                    envelopeMessage.setIsInvalid(isOpen ? 1 : 0);
+                }
+                realm.insertOrUpdate(envelopeMessage);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
-        if (envelopeMessage != null) {
-            envelopeMessage.setIsInvalid(isOpen ? 1 : 0);
-            realm.insertOrUpdate(envelopeMessage);
-        }
-        realm.commitTransaction();
-        realm.close();
     }
 
 
     //7.8 要写语音已读的处理
     public void msgRead(String msgid, boolean isRead) {
         Realm realm = DaoUtil.open();
-        realm.beginTransaction();
-
-        MsgAllBean msgBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
-        if (msgBean != null) {
-            msgBean.setRead(isRead);
-            realm.insertOrUpdate(msgBean);
+        try {
+            realm.beginTransaction();
+            MsgAllBean msgBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
+            if (msgBean != null) {
+                msgBean.setRead(isRead);
+                realm.insertOrUpdate(msgBean);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.reportException(e);
+            DaoUtil.close(realm);
         }
 
-        realm.commitTransaction();
-        realm.close();
     }
 
     /***
@@ -3044,7 +3061,7 @@ public class MsgDao {
                 }
             }
             // TODO　被移出群时要先清除草稿
-            Session session = realm.where(Session.class).equalTo("gid", gid).findFirst() ;
+            Session session = realm.where(Session.class).equalTo("gid", gid).findFirst();
             if (session != null) {
                 session.setDraft("");
                 session.setMessageType(2);

@@ -22,6 +22,7 @@ public class EnvelopeDetailBean implements Parcelable {
     int type;//红包类型：0 普通红包，1拼手气红包
     List<EnvelopeReceiverBean> recvList;//领取记录
 
+
     protected EnvelopeDetailBean(Parcel in) {
         amt = in.readLong();
         cnt = in.readInt();
@@ -32,6 +33,7 @@ public class EnvelopeDetailBean implements Parcelable {
         remainCnt = in.readInt();
         time = in.readLong();
         type = in.readInt();
+        recvList = in.createTypedArrayList(EnvelopeReceiverBean.CREATOR);
     }
 
     public static final Creator<EnvelopeDetailBean> CREATOR = new Creator<EnvelopeDetailBean>() {
@@ -142,5 +144,6 @@ public class EnvelopeDetailBean implements Parcelable {
         dest.writeInt(remainCnt);
         dest.writeLong(time);
         dest.writeInt(type);
+        dest.writeTypedList(recvList);
     }
 }
