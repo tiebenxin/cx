@@ -151,6 +151,7 @@ import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.DownloadUtil;
+import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.IntentUtil;
@@ -764,11 +765,22 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     editChat.getText().clear();
                     return;
                 }
-                if (text.startsWith("@000")) {
-                    int count = Integer.parseInt(text.split("_")[1]);
-                    taskTestSend(count);
-                    return;
+
+                try {
+                    if (text.startsWith("@000_")) { //文字测试
+                        int count = Integer.parseInt(text.split("_")[1]);
+                        taskTestSend(count);
+                        return;
+                    }
+                    if (text.startsWith("@111_")) {//图片测试
+                        int count = Integer.parseInt(text.split("_")[1]);
+                        taskTestImage(count);
+                        return;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+
 
                 int totalSize = text.length();
                 if (isGroup() && editChat.getUserIdList() != null && editChat.getUserIdList().size() > 0) {
@@ -1469,6 +1481,54 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }).run();
     }
 
+    //图片测试逻辑
+    private void taskTestImage(int count) {
+        ToastUtil.show(getContext(), "内部指令，请重新输入");
+        editChat.setText("");
+        return;
+
+//        String file = "/storage/emulated/0/changXin/zgd123.jpg";
+//        File f = new File(file);
+//        if (!f.exists()) {
+//            ToastUtil.show(getContext(), "图片不存在，请在changXin文件夹下构建 zgd123.jpg 图片");
+//            return;
+//        }
+//        ToastUtil.show(getContext(), "连续发送" + count + "图片测试开始");
+//        try {
+//            for (int i = 1; i <= count; i++) {
+//                MsgAllBean imgMsgBean = null;
+//                if (StringUtil.isNotNull(file)) {
+//                    final boolean isArtworkMaster = false;
+//                    final String imgMsgId = SocketData.getUUID();
+//                    // 记录本次上传图片的ID跟本地路径
+//                    //:使用file:
+//                    // 路径会使得检测本地路径不存在
+//                    ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" +*/ file, isArtworkMaster);
+//                    imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
+//                    msgListData.add(imgMsgBean);
+//                    // 不等于常信小助手
+//                    if (!Constants.CX_HELPER_UID.equals(toUId)) {
+//                        UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
+//                        startService(new Intent(getContext(), UpLoadService.class));
+//                    }
+//                }
+//
+//                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, imgMsgBean);
+//                notifyData2Bottom(true);
+//
+//                if (i % 10 == 0) {
+//                    Thread.sleep(2 * 1000);
+////                    SocketData.send4Chat(toUId, toGid, "连续测试发送" + i + "-------");
+////                    SocketData.send4Chat(toUId, toGid, "-------");
+//                }
+//
+//            }
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+    }
+
     private void saveScrollPosition() {
         if (lastPosition > 0) {
             SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
@@ -1933,6 +1993,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     // 图片选择结果回调
                     List<LocalMedia> obt = PictureSelector.obtainMultipleResult(data);
+                    if (obt != null && obt.size() > 0) {
+                        LogUtil.getLog().e("=图片选择结果回调===" + GsonUtils.optObject(obt.get(0)));
+                    }
                     MsgAllBean imgMsgBean = null;
                     for (LocalMedia localMedia : obt) {
                         String file = localMedia.getCompressPath();
@@ -3385,7 +3448,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 mImgTriangleUp.setVisibility(VISIBLE);
                 mImgTriangleDown.setVisibility(GONE);
                 mPopupWindow.showAsDropDown(v);
-            }else{
+            } else {
                 // 中间弹出
                 mImgTriangleUp.setVisibility(GONE);
                 mImgTriangleDown.setVisibility(VISIBLE);

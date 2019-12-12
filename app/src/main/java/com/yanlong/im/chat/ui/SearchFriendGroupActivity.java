@@ -32,6 +32,8 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
+import com.yanlong.im.wight.avatar.MultiImageView;
+
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
@@ -56,6 +58,13 @@ public class SearchFriendGroupActivity extends AppActivity {
     private List<Group> listDataGroup = new ArrayList<>();
     private String key;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_search_frd_grp);
+        findViews();
+        initEvent();
+    }
 
     //自动寻找控件
     private void findViews() {
@@ -122,13 +131,6 @@ public class SearchFriendGroupActivity extends AppActivity {
     }
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search_frd_grp);
-        findViews();
-        initEvent();
-    }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private Spannable getSpan(String message, String condition, int fromIndex) {
@@ -146,6 +148,18 @@ public class SearchFriendGroupActivity extends AppActivity {
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+        //自动寻找ViewHold
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup view, int viewType) {
+            if (viewType == 0) {
+                RSearchViewHolder holder = new RSearchViewHolder(getLayoutInflater().inflate(R.layout.item_search_net, view, false));
+                return holder;
+            } else {
+                RCViewHolder holder = new RCViewHolder(getLayoutInflater().inflate(R.layout.item_friend_group, view, false));
+                return holder;
+            }
+        }
 
         @Override
         public int getItemCount() {
@@ -167,6 +181,8 @@ public class SearchFriendGroupActivity extends AppActivity {
             } else if (h instanceof RCViewHolder) {
                 RCViewHolder holder = (RCViewHolder) h;
                 if (!TextUtils.isEmpty(key)) {
+                    //头像地址
+                    List<String> headList = new ArrayList<>();
                     String url = "";
                     holder.viewTagGroup.setVisibility(View.GONE);
                     holder.viewTagFried.setVisibility(View.GONE);
@@ -214,12 +230,14 @@ public class SearchFriendGroupActivity extends AppActivity {
                         });
                         holder.setGroupName(group, key);
                     }
-                    // holder.imgHead.setImageURI(Uri.parse("" + url));
-
-                    Glide.with(context).load(url)
-                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+//                    Glide.with(context).load(url)
+//                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                    headList.add(url);
+                    holder.imgHead.setList(headList);
 
                 } else {
+                    //头像地址
+                    List<String> headList = new ArrayList<>();
                     String url = "";
                     holder.viewTagGroup.setVisibility(View.GONE);
                     holder.viewTagFried.setVisibility(View.GONE);
@@ -248,6 +266,16 @@ public class SearchFriendGroupActivity extends AppActivity {
                         final Group group = listDataGroup.get(p);
 //                    name = group.getName();
                         url = group.getAvatar();
+                        if(!StringUtil.isNotNull(url)){
+                            MsgDao msgDao = new MsgDao();
+                            String localUrl = msgDao.groupHeadImgGet(group.getGid());
+                            if (StringUtil.isNotNull(url)) {
+                                url=localUrl;
+                            } else {
+                                url=creatAndSaveImg(group);
+                            }
+                        }
+
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -256,27 +284,18 @@ public class SearchFriendGroupActivity extends AppActivity {
                         });
                         holder.setGroupName(group, key);
                     }
-                    //holder.imgHead.setImageURI(Uri.parse("" + url));
-                    Glide.with(context).load(url)
-                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
+//                    Glide.with(context).load(url)
+//                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+
+                    headList.add(url);
+                    holder.imgHead.setList(headList);
                 }
             }
 
         }
 
 
-        //自动寻找ViewHold
-        @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup view, int viewType) {
-            if (viewType == 0) {
-                RSearchViewHolder holder = new RSearchViewHolder(getLayoutInflater().inflate(R.layout.item_search_net, view, false));
-                return holder;
-            } else {
-                RCViewHolder holder = new RCViewHolder(getLayoutInflater().inflate(R.layout.item_friend_group, view, false));
-                return holder;
-            }
-        }
 
         @Override
         public int getItemViewType(int position) {
@@ -292,7 +311,7 @@ public class SearchFriendGroupActivity extends AppActivity {
             private LinearLayout viewTagFried;
             private LinearLayout viewTagGroup;
             private LinearLayout viewIt;
-            private ImageView imgHead;
+            private MultiImageView imgHead;
             private TextView txtName;
             private TextView txtContent;
 
