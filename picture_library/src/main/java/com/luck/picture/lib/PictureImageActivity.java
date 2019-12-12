@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -161,6 +162,8 @@ public class PictureImageActivity extends PictureBaseActivity implements View.On
             final PhotoView imageView = (PhotoView) contentView.findViewById(R.id.preview_image);
             // 长图控件
             final SubsamplingScaleImageView longImg = (SubsamplingScaleImageView) contentView.findViewById(R.id.longImg);
+            // 常规图控件
+            final ImageView iv_download = (ImageView) contentView.findViewById(R.id.iv_download);
 
             LocalMedia media = images.get(position);
             if (media != null) {
@@ -251,6 +254,130 @@ public class PictureImageActivity extends PictureBaseActivity implements View.On
                         overridePendingTransition(0, R.anim.a3);
                     }
                 });
+
+            LocalMedia media = images.get(position);
+            if (media != null) {
+                final String pictureType = media.getPictureType();
+                final String path;
+                if (media.isCut() && !media.isCompressed()) {
+                    // 裁剪过
+                    path = media.getCutPath();
+                } else if (media.isCompressed() || (media.isCut() && media.isCompressed())) {
+                    // 压缩过,或者裁剪同时压缩过,以最终压缩过图片为准
+                    path = media.getCompressPath();
+                } else {
+                    path = media.getPath();
+                }
+                boolean isHttp = PictureMimeType.isHttp(path);
+                // 可以长按保存并且是网络图片显示一个对话框
+                if (isHttp) {
+                    showPleaseDialog();
+                }
+                boolean isGif = PictureMimeType.isGif(pictureType);
+                final boolean eqLongImg = PictureMimeType.isLongImg(media);
+                imageView.setVisibility(eqLongImg && !isGif ? View.GONE : View.VISIBLE);
+                longImg.setVisibility(eqLongImg && !isGif ? View.VISIBLE : View.GONE);
+                // 压缩过的gif就不是gif了
+                if (isGif && !media.isCompressed()) {
+                    RequestOptions gifOptions = new RequestOptions()
+                            .override(480, 800)
+                            .priority(Priority.HIGH)
+                            .diskCacheStrategy(DiskCacheStrategy.NONE);
+                    Glide.with(PictureImageActivity.this)
+                            .asGif()
+                            .apply(gifOptions)
+                            .load(path)
+                            .listener(new RequestListener<GifDrawable>() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model
+                                        , Target<GifDrawable> target, boolean isFirstResource) {
+                                    dismissDialog();
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(GifDrawable resource, Object model
+                                        , Target<GifDrawable> target, DataSource dataSource,
+                                                               boolean isFirstResource) {
+                                    dismissDialog();
+                                    return false;
+                                }
+                            })
+                            .into(imageView);
+                } else {
+                    RequestOptions options = new RequestOptions()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL);
+                    Glide.with(PictureImageActivity.this)
+                            .asBitmap()
+                            .load(path)
+                            .apply(options)
+                            .into(new SimpleTarget<Bitmap>(480, 800) {
+                                @Override
+                                public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                                    super.onLoadFailed(errorDrawable);
+                                    dismissDialog();
+                                    imageView.setImageResource(R.drawable.ic_info_head);
+                                }
+
+                                @Override
+                                public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                                    dismissDialog();
+                                    if (eqLongImg) {
+                                        displayLongPic(resource, longImg);
+                                    } else {
+                                        imageView.setImageBitmap(resource);
+                                    }
+                                }
+                            });
+                }
+                imageView.setOnViewTapListener(new OnViewTapListener() {
+                    @Override
+                    public void onViewTap(View view, float x, float y) {
+                        finish();
+                        overridePendingTransition(0, R.anim.a3);
+                    }
+                });
+                longImg.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        finish();
+                        overridePendingTransition(0, R.anim.a3);
+                    }
+                });
+
+                iv_download.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (rxPermissions == null) {
+                            rxPermissions = new RxPermissions(PictureImageActivity.this);
+                        }
+                        rxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                .subscribe(new Observer<Boolean>() {
+                                    @Override
+                                    public void onSubscribe(Disposable d) {
+                                    }
+
+                                    @Override
+                                    public void onNext(Boolean aBoolean) {
+                                        if (aBoolean) {
+                                            showDownLoadDialog(path);
+                                        } else {
+                                            ToastManage.s(mContext, getString(R.string.picture_jurisdiction));
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+                                    }
+                                });
+                    }
+                });
+
+
                 imageView.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
