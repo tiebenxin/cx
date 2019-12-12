@@ -8,6 +8,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
@@ -161,25 +162,27 @@ public class BindPhoneNumActivity extends AppActivity {
      */
     private void httpGetMyPhone() {
         PayHttpUtils.getInstance().getMyPhone()
-                .compose(RxSchedulers.<BaseResponse>compose())
-                .compose(RxSchedulers.<BaseResponse>handleResult())
-                .subscribe(new FGObserver<BaseResponse>() {
+                .compose(RxSchedulers.<BaseResponse<CommonBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<CommonBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<CommonBean>>() {
                     @Override
-                    public void onHandleSuccess(BaseResponse baseResponse) {
+                    public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
                         if (baseResponse.getData() != null) {
-                            hadPhoneNum = true;
-                            tvPhoneNum.setVisibility(View.VISIBLE);
-                            etPhoneNum.setVisibility(View.GONE);
-                            tvPhoneNum.setText(baseResponse.getData()+"");
-                        }else {
-                            hadPhoneNum = false;
-                            tvPhoneNum.setVisibility(View.GONE);
-                            etPhoneNum.setVisibility(View.VISIBLE);
+                            if(!TextUtils.isEmpty(baseResponse.getData().getPhone())){
+                                hadPhoneNum = true;
+                                tvPhoneNum.setVisibility(View.VISIBLE);
+                                etPhoneNum.setVisibility(View.GONE);
+                                tvPhoneNum.setText(baseResponse.getData().getPhone()+"");
+                            }else {
+                                hadPhoneNum = false;
+                                tvPhoneNum.setVisibility(View.GONE);
+                                etPhoneNum.setVisibility(View.VISIBLE);
+                            }
                         }
                     }
 
                     @Override
-                    public void onHandleError(BaseResponse baseResponse) {
+                    public void onHandleError(BaseResponse<CommonBean> baseResponse) {
                         super.onHandleError(baseResponse);
                         ToastUtil.show(activity, baseResponse.getMessage());
                     }

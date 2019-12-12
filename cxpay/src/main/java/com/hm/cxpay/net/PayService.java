@@ -85,7 +85,7 @@ public interface PayService {
 
     //绑定手机-获取当前用户IM手机号
     @POST(Route.GET_MY_PHONE)
-    Observable<BaseResponse> getMyPhone();
+    Observable<BaseResponse<CommonBean>> getMyPhone();
 
     //绑定手机号
     @POST(Route.BIND_PHONE)
@@ -98,6 +98,11 @@ public interface PayService {
     //获取零钱明细
     @POST(Route.GET_CHANGE_DETAILS_LIST)
     Observable<BaseResponse<BillBean>> getChangeDetailsList(@Body RequestBody body);
+
+    //验证实名信息-忘记密码辅助验证第一步
+    @POST(Route.CHECK_REALNAME_INFO)
+    Observable<BaseResponse<CommonBean>> checkRealNameInfo(@Body RequestBody body);
+
 
     //获取红包明细
     @POST(Route.GET_RED_ENVELOPE_DETAILS)

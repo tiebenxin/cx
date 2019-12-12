@@ -63,8 +63,11 @@ public class Route {
     //获取账单明细
     public static final String GET_BILL_DETAILS_LIST = "/bill/get_trans_list";
 
-    //获取账单明细
+    //获取零钱明细
     public static final String GET_CHANGE_DETAILS_LIST = "/bill/get_balance_trans_list";
+
+    //验证实名信息-忘记密码辅助验证第一步
+    public static final String CHECK_REALNAME_INFO = "/user/check_id_card";
 
     //获取红包明细
     public static final String GET_RED_ENVELOPE_DETAILS = "/order/get_red_envelope_list";

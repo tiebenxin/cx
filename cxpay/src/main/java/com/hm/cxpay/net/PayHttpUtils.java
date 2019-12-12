@@ -169,7 +169,7 @@ public class PayHttpUtils {
     }
 
     //绑定手机-获取当前用户IM手机号
-    public Observable<BaseResponse> getMyPhone() {
+    public Observable<BaseResponse<CommonBean>> getMyPhone() {
         return HttpChannel.getInstance().getPayService().getMyPhone();
     }
 
@@ -198,6 +198,15 @@ public class PayHttpUtils {
         map.put("pageSize", 20+"");
         map.put("startTime", startTime+"");
         return HttpChannel.getInstance().getPayService().getChangeDetailsList(getRequestBody(map));
+    }
+
+    //验证实名信息-忘记密码辅助验证第一步
+    public Observable<BaseResponse<CommonBean>> checkRealNameInfo(String idNumber, String realName) {
+        Map<String, String> map = new HashMap<>();
+        map.put("idNumber", idNumber);
+        map.put("idType", "1");
+        map.put("realName", realName);
+        return HttpChannel.getInstance().getPayService().checkRealNameInfo(getRequestBody(map));
     }
 
 

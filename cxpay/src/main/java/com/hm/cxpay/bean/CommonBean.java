@@ -7,7 +7,7 @@ import android.os.Parcelable;
  * @类名：通用实体类
  * @Date：2019/12/3
  * @by zjy
- * @备注：
+ * @备注：数据解析复用
  */
 public class CommonBean implements Parcelable {
 
@@ -35,6 +35,9 @@ public class CommonBean implements Parcelable {
     private int toGroup;
     private long tradeId;
     private int tradeType;
+    private String phone;
+    //忘记密码验证bean类
+    private String token;
 
 
     protected CommonBean(Parcel in) {
@@ -76,6 +79,26 @@ public class CommonBean implements Parcelable {
             return new CommonBean[size];
         }
     };
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public static Creator<CommonBean> getCREATOR() {
+        return CREATOR;
+    }
 
     public int getCode() {
         return code;
