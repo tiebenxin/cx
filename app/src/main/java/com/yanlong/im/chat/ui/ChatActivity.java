@@ -1351,7 +1351,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType) {
         MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getSysTime(), message);
         if (msgAllBean != null) {
-            if (Constants.CX_HELPER_UID.equals(toUId)) {
+            if (!filterMessage(message)) {
                 SocketData.sendAndSaveMessage(msgAllBean, false);
             } else {
                 SocketData.sendAndSaveMessage(msgAllBean);
@@ -1359,6 +1359,19 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             showSendObj(msgAllBean);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
         }
+    }
+
+    private boolean filterMessage(IMsgContent message) {
+        boolean isSend = true;
+        if (Constants.CX_HELPER_UID.equals(toUId)) {//常信小助手不需要发送到后台
+            isSend = false;
+        } else if (message instanceof RedEnvelopeMessage) {
+            RedEnvelopeMessage bean = (RedEnvelopeMessage) message;
+            if (bean.getRe_type() == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {//系统红包消息不需要发送到后台
+                isSend = false;
+            }
+        }
+        return isSend;
     }
 
 
@@ -2777,13 +2790,25 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                     taskPayRbGet(msgbean, touid, rid);
                                 }
                             } else if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
+                                long tradeId = rb.getTraceId();
+                                if (tradeId == 0 && !TextUtils.isEmpty(rid)) {
+                                    try {
+                                        tradeId = Long.parseLong(rid);
+                                    } catch (Exception e) {
+
+                                    }
+                                }
+                                if (tradeId == 0) {
+                                    ToastUtil.show(ChatActivity.this, "无红包id");
+                                    return;
+                                }
                                 if (isInvalid || (msgbean.isMe() && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE)) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
-                                    getRedEnvelopeDetail(msgbean, rb.getTraceId(), rb.getAccessToken(), reType);
+                                    getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType);
                                 } else {
                                     if (!TextUtils.isEmpty(rb.getAccessToken())) {
                                         showEnvelopeDialog(rb.getAccessToken(), 1, msgbean, reType);
                                     } else {
-                                        grabRedEnvelope(msgbean, rb.getTraceId(), reType);
+                                        grabRedEnvelope(msgbean, tradeId, reType);
                                     }
                                 }
                             }
@@ -4670,7 +4695,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         });
         RedEnvelopeMessage message = msgBean.getRed_envelope();
-        dialogEnvelope.setInfo(token, status, msgBean.getFrom_avatar(), msgBean.getFrom_nickname(), message.getTraceId(), message.getComment());
+        dialogEnvelope.setInfo(token, status, msgBean.getFrom_avatar(), msgBean.getFrom_nickname(), getEnvelopeId(message.getId(), message.getTraceId()), message.getComment());
         dialogEnvelope.show();
     }
 
@@ -4737,6 +4762,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                     }
                 });
+    }
+
+    public long getEnvelopeId(String rid, long tradeId) {
+        long result = tradeId;
+        if (tradeId == 0 && !TextUtils.isEmpty(rid)) {
+            try {
+                result = Long.parseLong(rid);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
     }
 
 

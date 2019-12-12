@@ -79,34 +79,41 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
         }
         FromUserBean userBean = envelopeDetailBean.getImUserInfo();
         if (userBean != null) {
-            Glide.with(this).load(userBean.getAvatar()).into(ui.ivAvatar);
+            UIUtils.loadAvatar(userBean.getAvatar(), ui.ivAvatar);
             ui.tvName.setText(userBean.getNickname() + "的红包");
         }
 
         ui.tvContent.setText(TextUtils.isEmpty(envelopeDetailBean.getNote()) ? "恭喜发财，大吉大利" : envelopeDetailBean.getNote());
         ui.tvMoney.setText(UIUtils.getYuan(envelopeDetailBean.getAmt()));
-        list = envelopeDetailBean.getRecvList();
-        ui.mtListView.getListView().getAdapter().notifyDataSetChanged();
-        UserBean user = PayEnvironment.getInstance().getUser();
-        int remainCount = envelopeDetailBean.getRemainCnt();
-        int totalCount = envelopeDetailBean.getCnt();
-        String remainMoney = UIUtils.getYuan(envelopeDetailBean.getRemainAmt());
-        String totalMoney = UIUtils.getYuan(envelopeDetailBean.getAmt());
-        int receivedCount = totalCount -remainCount;
-        if (user != null) {
-            if (userBean.getUid() == user.getUid()) {//是自己发的
-                if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
-                    ui.tvHint.setText("已领取" + receivedCount + "/" + totalCount + "个，共" + remainMoney + "/" + totalMoney + "元");
+        if (envelopeDetailBean.getType() == 0) {
+            ui.llRecord.setVisibility(View.GONE);
+            ui.tvNote.setVisibility(View.GONE);
+        } else {
+            ui.llRecord.setVisibility(View.VISIBLE);
+            ui.tvNote.setVisibility(View.VISIBLE);
+            list = envelopeDetailBean.getRecvList();
+            ui.mtListView.getListView().getAdapter().notifyDataSetChanged();
+            UserBean user = PayEnvironment.getInstance().getUser();
+            int remainCount = envelopeDetailBean.getRemainCnt();
+            int totalCount = envelopeDetailBean.getCnt();
+            String remainMoney = UIUtils.getYuan(envelopeDetailBean.getRemainAmt());
+            String totalMoney = UIUtils.getYuan(envelopeDetailBean.getAmt());
+            int receivedCount = totalCount - remainCount;
+            if (user != null) {
+                if (userBean.getUid() == user.getUid()) {//是自己发的
+                    if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
+                        ui.tvHint.setText("已领取" + receivedCount + "/" + totalCount + "个，共" + remainMoney + "/" + totalMoney + "元");
+                    } else {
+                        String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getTime(), envelopeDetailBean.getFinishTime());
+                        ui.tvHint.setText(totalCount + "个红包共" + totalMoney + "元，" + time + "被抢光");
+                    }
                 } else {
-                    String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getTime(), envelopeDetailBean.getFinishTime());
-                    ui.tvHint.setText(totalCount + "个红包共" + totalMoney + "元，" + time + "被抢光");
-                }
-            } else {
-                if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
-                    ui.tvHint.setText("已领取" + receivedCount + "/" + totalCount + "个");
-                } else {
-                    String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getTime(), envelopeDetailBean.getFinishTime());
-                    ui.tvHint.setText(totalCount + "个红包，" + time + "被抢光");
+                    if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
+                        ui.tvHint.setText("已领取" + receivedCount + "/" + totalCount + "个");
+                    } else {
+                        String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getTime(), envelopeDetailBean.getFinishTime());
+                        ui.tvHint.setText(totalCount + "个红包，" + time + "被抢光");
+                    }
                 }
             }
         }
@@ -192,7 +199,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                 }
                 FromUserBean userBean = bean.getImUserInfo();
                 if (userBean != null) {
-                    Glide.with(ivAvatar.getContext()).load(userBean.getAvatar()).into(ivAvatar);
+                    UIUtils.loadAvatar(userBean.getAvatar(), ivAvatar);
                     tvName.setText(userBean.getNickname());
                 }
                 tvTime.setText(TimeToString.YYYY_MM_DD_HH_MM_SS(bean.getTime()));

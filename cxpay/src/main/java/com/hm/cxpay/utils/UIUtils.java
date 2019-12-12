@@ -6,6 +6,12 @@ import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.widget.EditText;
+import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.util.UUID;
 
@@ -89,4 +95,20 @@ public class UIUtils {
     public static String getUUID() {
         return UUID.randomUUID().toString()/*.replace("-", "")*/;
     }
+
+    //加载头像
+    public static void loadAvatar(String avatar, ImageView ivAvatar) {
+        if (ivAvatar == null) {
+            return;
+        }
+        RoundedCorners roundedCorners = new RoundedCorners(5);
+        RequestOptions mRequestOptions = RequestOptions.bitmapTransform(roundedCorners)
+                .error(net.cb.cb.library.R.mipmap.ic_info_head)
+                .placeholder(net.cb.cb.library.R.mipmap.ic_info_head)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .dontAnimate()
+                .skipMemoryCache(false);
+        Glide.with(ivAvatar.getContext()).load(avatar).apply(mRequestOptions).into(ivAvatar);
+    }
+
 }

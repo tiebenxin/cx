@@ -426,6 +426,7 @@ public class MainActivity extends AppActivity {
         checkPayToken();
         UserInfo info = UserAction.getMyInfo();
         if (info != null) {
+            PayEnvironment.getInstance().setPhone(info.getPhone());
             UserBean bean = PayEnvironment.getInstance().getUser();
             if (bean == null || (bean != null && bean.getUid() != info.getUid().intValue())) {
                 httpGetUserInfo();

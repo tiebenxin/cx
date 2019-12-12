@@ -68,9 +68,9 @@ public class MsgConversionBean {
         msgAllBean.setTo_uid(bean.getToUid());
 
         msgAllBean.setGid(bean.getGid());
-        if (bean.getFromUid() == UserAction.getMyId().intValue()){//自己发的
+        if (bean.getFromUid() == UserAction.getMyId().intValue()) {//自己发的
             msgAllBean.setRead(true);
-        }else {
+        } else {
             if (!TextUtils.isEmpty(bean.getGid())) {//群聊
                 if (!TextUtils.isEmpty(MessageManager.SESSION_GID) && MessageManager.SESSION_GID.equals(bean.getGid())) {
                     msgAllBean.setRead(true);
@@ -208,7 +208,16 @@ public class MsgConversionBean {
                 RedEnvelopeMessage envelopeMessage = new RedEnvelopeMessage();
                 envelopeMessage.setMsgid(msgAllBean.getMsg_id());
                 envelopeMessage.setComment(bean.getRedEnvelope().getComment());
-                envelopeMessage.setId(bean.getRedEnvelope().getId());
+                if (bean.getRedEnvelope().getReTypeValue() == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
+                    envelopeMessage.setId(bean.getRedEnvelope().getId());
+                } else if (bean.getRedEnvelope().getReTypeValue() == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {
+                    try {
+                        long tradeId = Long.parseLong(bean.getRedEnvelope().getId());
+                        envelopeMessage.setTraceId(tradeId);
+                    } catch (Exception e) {
+                        envelopeMessage.setId(bean.getRedEnvelope().getId());
+                    }
+                }
                 envelopeMessage.setRe_type(bean.getRedEnvelope().getReTypeValue());
                 envelopeMessage.setStyle(bean.getRedEnvelope().getStyleValue());
                 msgAllBean.setRed_envelope(envelopeMessage);
@@ -429,19 +438,19 @@ public class MsgConversionBean {
                 String survivaNotice = "";
                 if (bean.getChangeSurvivalTime().getSurvivalTime() == -1) {
                     if (TextUtils.isEmpty(bean.getGid())) {
-                        survivaNotice = "\""+bean.getNickname()+"\""+ "设置了退出即焚";
+                        survivaNotice = "\"" + bean.getNickname() + "\"" + "设置了退出即焚";
                     } else {
                         survivaNotice = "\"群主\"设置了退出即焚";
                     }
                 } else if (bean.getChangeSurvivalTime().getSurvivalTime() == 0) {
                     if (TextUtils.isEmpty(bean.getGid())) {
-                        survivaNotice = "\""+bean.getNickname()+"\""+ "取消了阅后即焚";
+                        survivaNotice = "\"" + bean.getNickname() + "\"" + "取消了阅后即焚";
                     } else {
                         survivaNotice = "\"群主\"取消了阅后即焚";
                     }
                 } else {
                     if (TextUtils.isEmpty(bean.getGid())) {
-                        survivaNotice = "\""+bean.getNickname()+"\"" + "设置了消息" +
+                        survivaNotice = "\"" + bean.getNickname() + "\"" + "设置了消息" +
                                 new ReadDestroyUtil().getDestroyTimeContent(bean.getChangeSurvivalTime().getSurvivalTime()) + "后消失";
                     } else {
                         survivaNotice = "\"群主\"设置了消息" +

@@ -18,6 +18,7 @@ public class PayEnvironment {
     private String token;
     private Context context;
     private List<BankBean> banks;//绑定银行卡
+    private String phone;
 
     public static PayEnvironment getInstance() {
         if (INSTANCE == null) {
@@ -65,5 +66,13 @@ public class PayEnvironment {
             return banks.get(0);
         }
         return null;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }
