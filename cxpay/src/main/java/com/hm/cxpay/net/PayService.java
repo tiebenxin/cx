@@ -103,6 +103,10 @@ public interface PayService {
     @POST(Route.CHECK_REALNAME_INFO)
     Observable<BaseResponse<CommonBean>> checkRealNameInfo(@Body RequestBody body);
 
+    //绑定银行卡-忘记密码辅助验证第三步
+    @POST(Route.BIND_BANK_CARD)
+    Observable<BaseResponse<CommonBean>> bindBankCard(@Body RequestBody body);
+
 
     //获取红包明细
     @POST(Route.GET_RED_ENVELOPE_DETAILS)

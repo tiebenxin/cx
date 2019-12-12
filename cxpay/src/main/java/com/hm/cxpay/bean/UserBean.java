@@ -1,14 +1,16 @@
 package com.hm.cxpay.bean;
 
 
+import com.google.gson.annotations.SerializedName;
+
 public class UserBean {
+    @SerializedName("id")
     private long uid;
     private int isVerify = 0;//是否认证
     private String realName = "";//真实姓名
     private String cardId = "";//身份证号码
 
     private long balance = 0;//余额
-    private long id = 0;//用户id
     private String identityNo = "";//证件号码
     private String identityType = "";//证件类型 1身份证 2护照
     private int payPwdStat = 0;//支付密码设置状态 1:已设置, 其他情况未设置
@@ -54,14 +56,6 @@ public class UserBean {
 
     public void setBalance(long balance) {
         this.balance = balance;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getIdentityNo() {

@@ -1,6 +1,7 @@
 package com.hm.cxpay.ui.payword;
 
-import android.content.Context;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -8,11 +9,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.hm.cxpay.R;
-import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.bank.BankInfo;
 
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -34,7 +35,7 @@ public class ForgetPswStepTwoActivity extends AppActivity {
     private TextView tvSubmit;
     private TextView tvViewSupport;
 
-    private Context activity;
+    private Activity activity;
     private String token;//得到认证需要的token
 
     @Override
@@ -56,6 +57,7 @@ public class ForgetPswStepTwoActivity extends AppActivity {
     }
 
     private void initData() {
+        getBundle();
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -67,22 +69,17 @@ public class ForgetPswStepTwoActivity extends AppActivity {
 
             }
         });
-//        tvSubmit.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                //1 姓名不为空
-//                if(!TextUtils.isEmpty(etName.getText().toString())){
-//                    //2 身份证号不为空
-//                    if(!TextUtils.isEmpty(etIdcard.getText().toString())){
-//                        httpForgetPswStepOne(etIdcard.getText().toString(),etName.getText().toString());
-//                    }else {
-//                        ToastUtil.show(activity,"身份证号不能为空");
-//                    }
-//                }else {
-//                    ToastUtil.show(activity,"姓名不能为空");
-//                }
-//            }
-//        });
+        tvSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //银行卡号不为空
+                if(!TextUtils.isEmpty(etBankCard.getText().toString())){
+                    httpCheckBankCard(etBankCard.getText().toString());
+                }else {
+                    ToastUtil.show(activity,"银行卡号不能为空");
+                }
+            }
+        });
         tvViewSupport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,27 +90,49 @@ public class ForgetPswStepTwoActivity extends AppActivity {
     }
 
     /**
-     * 发请求->找回密码第一步->验证实名信息
+     * 发请求->绑定银行卡检查
      */
-    private void httpForgetPswStepOne(String idNumber,String realName) {
-        PayHttpUtils.getInstance().checkRealNameInfo(idNumber,realName)
-                .compose(RxSchedulers.<BaseResponse<CommonBean>>compose())
-                .compose(RxSchedulers.<BaseResponse<CommonBean>>handleResult())
-                .subscribe(new FGObserver<BaseResponse<CommonBean>>() {
+    public void httpCheckBankCard(String bankCardNo) {
+        PayHttpUtils.getInstance().checkBankCard(bankCardNo)
+                .compose(RxSchedulers.<BaseResponse<BankInfo>>compose())
+                .compose(RxSchedulers.<BaseResponse<BankInfo>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<BankInfo>>() {
                     @Override
-                    public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
-                        if(baseResponse.getData()!=null){
-                            if(!TextUtils.isEmpty(baseResponse.getData().getToken())){
-                                token = baseResponse.getData().getToken();
+                    public void onHandleSuccess(BaseResponse<BankInfo> baseResponse) {
+                            BankInfo info = baseResponse.getData();
+                            if (info != null) {
+                                Bundle bundle = new Bundle();
+                                bundle.putString("token",token);
+                                bundle.putString("card_no",etBankCard.getText().toString());
+                                bundle.putString("bank_name",info.getBankName());
+                                Intent intent = new Intent(activity,ForgetPswStepThreeActivity.class);
+                                intent.putExtras(bundle);
+                                startActivity(intent);
                             }
-                        }
                     }
 
                     @Override
-                    public void onHandleError(BaseResponse<CommonBean> baseResponse) {
+                    public void onHandleError(BaseResponse baseResponse) {
                         super.onHandleError(baseResponse);
+                        ToastUtil.show(activity, baseResponse.getMessage());
                     }
                 });
     }
+
+
+    //获取传过来的值
+    private void getBundle() {
+        if (getIntent() != null) {
+            if (getIntent().getExtras() != null) {
+                if (getIntent().getExtras().containsKey("token")) {
+                    token = getIntent().getExtras().getString("token");
+                }
+                if (getIntent().getExtras().containsKey("name")) {
+                    tvName.setText(getIntent().getExtras().getString("name"));
+                }
+            }
+        }
+    }
+
 
 }

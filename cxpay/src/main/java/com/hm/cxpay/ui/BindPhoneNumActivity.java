@@ -115,13 +115,17 @@ public class BindPhoneNumActivity extends AppActivity {
     }
 
     private void initCountDownUtil() {
-        if (TextUtils.isEmpty(etPhoneNum.getText().toString())) {
-            ToastUtil.show(activity, "手机号码不能为空");
-            return;
-        }
-        if (!CheckUtil.isMobileNO(etPhoneNum.getText().toString())) {
-            ToastUtil.show(activity, "手机号码格式不正确");
-            return;
+        if(!hadPhoneNum){
+            if (TextUtils.isEmpty(etPhoneNum.getText().toString())) {
+                ToastUtil.show(activity, "手机号码不能为空");
+                return;
+            }
+            if (!CheckUtil.isMobileNO(etPhoneNum.getText().toString())) {
+                ToastUtil.show(activity, "手机号码格式不正确");
+                return;
+            }
+        }else {
+            //TODO 如果有IM号码则发给IM号码
         }
         CountDownUtil.getTimer(60, tvGetCode, "发送验证码", this, new CountDownUtil.CallTask() {
             @Override
@@ -129,7 +133,6 @@ public class BindPhoneNumActivity extends AppActivity {
                 httpGetCode(etPhoneNum.getText().toString());
             }
         });
-
     }
 
     /**

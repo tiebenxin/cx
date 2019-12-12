@@ -69,6 +69,12 @@
         <activity
             android:name=".ui.payword.ForgetPswStepTwoActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.payword.ForgetPswStepThreeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.payword.ForgetPswStepFourActivity"
+            android:screenOrientation="portrait" />
 
         <!-- 发送单个红包-->
         <activity

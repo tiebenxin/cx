@@ -200,13 +200,23 @@ public class PayHttpUtils {
         return HttpChannel.getInstance().getPayService().getChangeDetailsList(getRequestBody(map));
     }
 
-    //验证实名信息-忘记密码辅助验证第一步
+    //验证实名信息-忘记密码辅助验证第一步 (第二步为检查银行卡)
     public Observable<BaseResponse<CommonBean>> checkRealNameInfo(String idNumber, String realName) {
         Map<String, String> map = new HashMap<>();
         map.put("idNumber", idNumber);
         map.put("idType", "1");
         map.put("realName", realName);
         return HttpChannel.getInstance().getPayService().checkRealNameInfo(getRequestBody(map));
+    }
+
+    //绑定银行卡-忘记密码辅助验证第三步
+    public Observable<BaseResponse<CommonBean>> bindBankCard(String bankCardNo, String bankName,String phone,String token) {
+        Map<String, String> map = new HashMap<>();
+        map.put("bankCardNo", bankCardNo);
+        map.put("bankName", bankName);
+        map.put("phone", phone);
+        map.put("token", token);
+        return HttpChannel.getInstance().getPayService().bindBankCard(getRequestBody(map));
     }
 
 

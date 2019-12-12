@@ -1,6 +1,7 @@
 package com.hm.cxpay.ui.payword;
 
-import android.content.Context;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -33,7 +34,7 @@ public class ForgetPswStepOneActivity extends AppActivity {
     private EditText etIdcard;
     private TextView tvSubmit;
 
-    private Context activity;
+    private Activity activity;
     private String token;//得到认证需要的token
 
     @Override
@@ -96,6 +97,12 @@ public class ForgetPswStepOneActivity extends AppActivity {
                         if(baseResponse.getData()!=null){
                             if(!TextUtils.isEmpty(baseResponse.getData().getToken())){
                                 token = baseResponse.getData().getToken();
+                                Bundle bundle = new Bundle();
+                                bundle.putString("token",token);
+                                bundle.putString("name",etName.getText().toString());
+                                Intent intent = new Intent(activity,ForgetPswStepTwoActivity.class);
+                                intent.putExtras(bundle);
+                                startActivity(intent);
                             }
                         }
                     }

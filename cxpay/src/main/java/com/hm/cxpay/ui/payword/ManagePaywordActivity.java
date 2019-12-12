@@ -59,7 +59,7 @@ public class ManagePaywordActivity extends AppActivity {
         layoutFindbackPayword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                go(SetPaywordActivity.class);
+                go(ForgetPswStepOneActivity.class);
             }
         });
 
