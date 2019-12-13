@@ -949,7 +949,7 @@ public class SocketData {
      * @return
      */
     public static MsgAllBean send4RbRev(Long toId, String toGid, String rid, int reType) {
-        msgDao.redEnvelopeOpen(rid, true, reType,"");
+        msgDao.redEnvelopeOpen(rid, true, reType, "");
         MsgBean.ReceiveRedEnvelopeMessage msg = MsgBean.ReceiveRedEnvelopeMessage.newBuilder()
                 .setId(rid)
                 .build();
@@ -1208,6 +1208,22 @@ public class SocketData {
         return note;
     }
 
+    public static MsgNotice createMsgNoticeOfRb(String msgId, Long uid, String gid) {
+        MsgNotice note = new MsgNotice();
+        note.setMsgid(msgId);
+        if (uid != null && uid.longValue() == UserAction.getMyId().longValue()) {
+            note.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF);
+            note.setNote("你领取了自己的<font color='#cc5944'>云红包</font>");
+        } else {
+            note.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED);
+            String name = msgDao.getUsername4Show(gid, uid);
+            String rname = "<font color='#276baa' id='" + uid + "'>" + name + "</font>";
+            note.setNote("你领取了\"" + rname + "的零钱红包" + "<div id= '" + gid + "'></div>");
+        }
+
+        return note;
+    }
+
     public static String getNoticeString(MsgAllBean bean, @ChatEnum.ENoticeType int type) {
         String note = "";
         if (bean != null) {
@@ -1235,7 +1251,6 @@ public class SocketData {
     }
 
     public static void setPreServerAckTime(long preServerAckTime) {
-//        LogUtil.getLog().i(TAG, "时间戳--preServerAckTime=" + preServerAckTime);
         SocketData.preServerAckTime = preServerAckTime;
     }
 
@@ -1250,7 +1265,6 @@ public class SocketData {
     //获取修正时间
     public static long getFixTime() {
         long currentTime = System.currentTimeMillis();
-//        LogUtil.getLog().i(TAG, "时间戳--currentTime=" + currentTime + "--preServerAckTime=" + preServerAckTime + "--preSendLocalTime=" + preSendLocalTime);
         if (preServerAckTime > preSendLocalTime && preServerAckTime > currentTime) {//服务器回执时间最新
             currentTime = preServerAckTime + 1;
             preServerAckTime = currentTime;
@@ -1260,7 +1274,6 @@ public class SocketData {
         } else {//本地系统时间最新
             preSendLocalTime = currentTime;
         }
-//        LogUtil.getLog().i(TAG, "时间戳--currentTime=" + currentTime);
         return currentTime;
     }
 
@@ -1664,5 +1677,24 @@ public class SocketData {
         return false;
     }
 
+    /***
+     * 发送领取红包消息, 不会加入发送队列，没有重发机制
+     * @param toId
+     * @param toGid
+     * @param rid
+     * @return
+     */
+    public static void sendReceivedEnvelopeMsg(Long toId, String toGid, String rid) {
+        //自己抢自己的红包，不需要发送
+        if (toId != null && UserAction.getMyId() != null && toId.longValue() == UserAction.getMyId().longValue()) {
+            return;
+        }
+        MsgBean.ReceiveRedEnvelopeMessage contentMsg = MsgBean.ReceiveRedEnvelopeMessage.newBuilder()
+                .setId(rid)
+                .build();
+        MsgBean.UniversalMessage.Builder msg = toMsgBuilder("", SocketData.getUUID(), toId, toGid, SocketData.getFixTime(), MsgBean.MessageType.RECEIVE_RED_ENVELOPER, contentMsg);
+        //立即发送
+        SocketUtil.getSocketUtil().sendData4Msg(msg);
+    }
 
 }

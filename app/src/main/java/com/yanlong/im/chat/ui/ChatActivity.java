@@ -1361,16 +1361,26 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
     }
 
+    //消息发送，canSend--是否需要发送
+    private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType, boolean canSend) {
+        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getSysTime(), message);
+        if (msgAllBean != null) {
+            SocketData.sendAndSaveMessage(msgAllBean, canSend);
+            showSendObj(msgAllBean);
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
+        }
+    }
+
     private boolean filterMessage(IMsgContent message) {
         boolean isSend = true;
         if (Constants.CX_HELPER_UID.equals(toUId)) {//常信小助手不需要发送到后台
             isSend = false;
-        } else if (message instanceof RedEnvelopeMessage) {
+        } /*else if (message instanceof RedEnvelopeMessage) {
             RedEnvelopeMessage bean = (RedEnvelopeMessage) message;
             if (bean.getRe_type() == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {//系统红包消息不需要发送到后台
                 isSend = false;
             }
-        }
+        }*/
         return isSend;
     }
 
@@ -2795,15 +2805,24 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                     try {
                                         tradeId = Long.parseLong(rid);
                                     } catch (Exception e) {
-
+                                        e.printStackTrace();
                                     }
                                 }
                                 if (tradeId == 0) {
                                     ToastUtil.show(ChatActivity.this, "无红包id");
                                     return;
                                 }
-                                if (isInvalid || (msgbean.isMe() && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE)) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
-                                    getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType);
+                                boolean isNormalStyle = style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE;
+                                if (isInvalid || (msgbean.isMe() && isNormalStyle)) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
+                                    if (!isInvalid && isGroup()) {
+                                        if (!TextUtils.isEmpty(rb.getAccessToken())) {
+                                            showEnvelopeDialog(rb.getAccessToken(), 1, msgbean, reType);
+                                        } else {
+                                            grabRedEnvelope(msgbean, tradeId, reType);
+                                        }
+                                    } else {
+                                        getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                                    }
                                 } else {
                                     if (!TextUtils.isEmpty(rb.getAccessToken())) {
                                         showEnvelopeDialog(rb.getAccessToken(), 1, msgbean, reType);
@@ -4222,10 +4241,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid, MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE);
                                 showSendObj(msgAllbean);
                                 MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
-                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE, "");
+                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE, "", true);
                             }
                             if (envelopeStatus == 2 || envelopeStatus == 3) {
-                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE, "");
+                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE, "", true);
                             }
                         }
                     };
@@ -4316,12 +4335,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 红包是否已经被抢,红包改为失效
      * @param rid
      */
-    private void taskPayRbCheck(MsgAllBean msgAllBean, final String rid, int reType, String token) {
-        msgAllBean.getRed_envelope().setIsInvalid(1);
+    private void taskPayRbCheck(MsgAllBean msgAllBean, String rid, int reType, String token, boolean needUpdateValid) {
+        if (needUpdateValid) {
+            msgAllBean.getRed_envelope().setIsInvalid(1);
+        }
         if (!TextUtils.isEmpty(token)) {
             msgAllBean.getRed_envelope().setAccessToken(token);
         }
-        msgDao.redEnvelopeOpen(rid, true, reType, token);
+        msgDao.redEnvelopeOpen(rid, needUpdateValid, reType, token);
         replaceListDataAndNotify(msgAllBean);
     }
 
@@ -4691,21 +4712,27 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         dialogEnvelope.setEnvelopeListener(new DialogEnvelope.IEnvelopeListener() {
             @Override
             public void onOpen(long rid, int envelopeStatus) {
-                taskPayRbCheck(msgBean, rid + "", reType, token);
+                //TODO: 开红包后，先发送领取红包消息给服务端，然后更新红包状态，最后保存领取红包通知消息到本地
+                if (!msgBean.isMe()) {
+                    SocketData.sendReceivedEnvelopeMsg(msgBean.getFrom_uid(), toGid, rid + "");//发送抢红包消息
+                }
+                taskPayRbCheck(msgBean, rid + "", reType, token, true);
+                MsgNotice message = SocketData.createMsgNoticeOfRb(SocketData.getUUID(), msgBean.getFrom_uid(), toGid);
+                sendMessage(message, ChatEnum.EMessageType.NOTICE, false);
             }
 
             @Override
-            public void viewRecord(long rid,String token) {
-                getRedEnvelopeDetail(msgBean,rid,token,reType);
+            public void viewRecord(long rid, String token, int style) {
+                getRedEnvelopeDetail(msgBean, rid, token, reType, style == 0);
             }
         });
         RedEnvelopeMessage message = msgBean.getRed_envelope();
-        dialogEnvelope.setInfo(token, status, msgBean.getFrom_avatar(), msgBean.getFrom_nickname(), getEnvelopeId(message.getId(), message.getTraceId()), message.getComment());
+        dialogEnvelope.setInfo(token, status, msgBean.getFrom_avatar(), msgBean.getFrom_nickname(), getEnvelopeId(message.getId(), message.getTraceId()), message.getComment(), message.getStyle());
         dialogEnvelope.show();
     }
 
     //获取红包详情
-    public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType) {
+    public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType, boolean isNormalStyle) {
         if (TextUtils.isEmpty(token)) {
             PayHttpUtils.getInstance().grabRedEnvelope(rid)
                     .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>compose())
@@ -4716,13 +4743,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             if (baseResponse.isSuccess()) {
                                 GrabEnvelopeBean bean = baseResponse.getData();
                                 if (bean != null) {
-//                                    taskPayRbCheck(msgBean, rid + "", reType, bean.getAccessToken());
+                                    if (isNormalStyle) {//普通玩法红包需要保存
+                                        taskPayRbCheck(msgBean, rid + "", reType, bean.getAccessToken(), false);
+                                    }
                                     getEnvelopeDetail(rid, token);
                                 }
                             } else {
                                 ToastUtil.show(getContext(), baseResponse.getMessage());
                             }
-
                         }
 
                         @Override

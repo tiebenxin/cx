@@ -105,14 +105,14 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                     if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
                         ui.tvHint.setText("已领取" + receivedCount + "/" + totalCount + "个，共" + receivedMoney + "/" + totalMoney + "元");
                     } else {
-                        String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getTime(), envelopeDetailBean.getFinishTime());
+                        String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getFinishTime());
                         ui.tvHint.setText(totalCount + "个红包共" + totalMoney + "元，" + time + "被抢光");
                     }
                 } else {
                     if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
                         ui.tvHint.setText("已领取" + receivedCount + "/" + totalCount + "个");
                     } else {
-                        String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getTime(), envelopeDetailBean.getFinishTime());
+                        String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getFinishTime());
                         ui.tvHint.setText(totalCount + "个红包，" + time + "被抢光");
                     }
                 }
@@ -183,6 +183,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
             private TextView tvName;
             private TextView tvTime;
             private TextView tvMoney;
+            private TextView tvLuck;
 
 
             public RbViewHolder(@NonNull View itemView) {
@@ -191,6 +192,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                 tvName = itemView.findViewById(R.id.tv_user_name);
                 tvTime = itemView.findViewById(R.id.tv_date);
                 tvMoney = itemView.findViewById(R.id.tv_money);
+                tvLuck = itemView.findViewById(R.id.tv_luck);
             }
 
             public void bindData(EnvelopeReceiverBean bean) {
@@ -204,7 +206,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                 }
                 tvTime.setText(DateUtils.getGrabTime(bean.getTime()));
                 tvMoney.setText(UIUtils.getYuan(bean.getAmt()));
-
+                tvLuck.setVisibility(bean.getBestLuck() == 1 ? View.VISIBLE : View.GONE);
             }
         }
     }

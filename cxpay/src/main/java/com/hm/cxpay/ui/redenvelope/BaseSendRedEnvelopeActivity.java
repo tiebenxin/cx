@@ -24,6 +24,7 @@ import org.greenrobot.eventbus.EventBus;
  * Description
  */
 public class BaseSendRedEnvelopeActivity extends BasePayActivity {
+    boolean isSending;
 
 
     @Override
@@ -109,5 +110,10 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
         envelopeBean.setEnvelopeType(redType);
         envelopeBean.setEnvelopeAmount(count);
         return envelopeBean;
+    }
+
+    //是否正在发送红包
+    public boolean isSending() {
+        return isSending;
     }
 }
