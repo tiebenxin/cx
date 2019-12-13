@@ -686,6 +686,7 @@
                     android:layout_below="@+id/title_tv_red_packet_detail"
                     android:layout_marginTop="15dp"
                     android:text="支付时间："
+                    android:visibility="visible"
                     android:textColor="@color/c_868686"
                     android:textSize="13sp" />
 
@@ -696,6 +697,7 @@
                     android:layout_below="@+id/title_tv_red_packet_pay_time"
                     android:layout_marginTop="15dp"
                     android:text="支付方式："
+                    android:visibility="visible"
                     android:textColor="@color/c_868686"
                     android:textSize="13sp" />
 
@@ -735,9 +737,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/tv_red_packet_status"
-                    android:layout_marginLeft="20dp"
+                    android:paddingLeft="20dp"
                     android:paddingTop="15dp"
-                    android:paddingBottom="15dp"
                     android:paddingRight="25dp"
                     android:layout_toRightOf="@+id/title_tv_red_packet_detail"
                     android:text="查看"
@@ -750,8 +751,10 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/tv_red_packet_detail"
                     android:layout_marginLeft="20dp"
+                    android:layout_marginTop="15dp"
                     android:layout_toRightOf="@+id/title_tv_red_packet_pay_time"
                     android:text=""
+                    android:visibility="visible"
                     android:textColor="@color/c_000000"
                     android:textSize="13sp" />
 
@@ -764,6 +767,7 @@
                     android:layout_marginTop="15dp"
                     android:layout_toRightOf="@+id/title_tv_red_packet_pay_style"
                     android:text=""
+                    android:visibility="visible"
                     android:textColor="@color/c_000000"
                     android:textSize="13sp" />
 

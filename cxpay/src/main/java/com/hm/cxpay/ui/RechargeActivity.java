@@ -1,6 +1,6 @@
 package com.hm.cxpay.ui;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -63,7 +63,7 @@ public class RechargeActivity extends AppActivity {
     private TextView tvSelectFour;//选中100
     private TextView tvSelectFive;//选中200
     private TextView tvSelectSix;//选中500
-    private Context activity;
+    private Activity activity;
     private boolean ifAddBankcard = false;//判断是否添加过银行卡
     private List<BankBean> bankList = null;//我所绑定的所有银行卡列表数据
 
@@ -384,14 +384,14 @@ public class RechargeActivity extends AppActivity {
                     public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
                             if(baseResponse.getData()!=null){
                                 if(baseResponse.getData().getCode()==1){
-                                    ToastUtil.show(activity, "充值成功!");
+                                    ToastUtil.show(context, "充值成功!");
                                     setResult(RESULT_OK);
                                 }else if(baseResponse.getData().getCode()==2){
-                                    ToastUtil.show(activity, "充值失败!如有疑问，请联系客服");
+                                    ToastUtil.show(context, "充值失败!如有疑问，请联系客服");
                                 }else if(baseResponse.getData().getCode()==99){
-                                    ToastUtil.show(activity, "交易处理中，请耐心等待，稍后会有系统通知...");
+                                    ToastUtil.show(context, "交易处理中，请耐心等待，稍后会有系统通知...");
                                 }else {
-                                    ToastUtil.show(activity, baseResponse.getMessage());
+                                    ToastUtil.show(context, baseResponse.getMessage());
                                 }
                             }
                         finish();

@@ -1,6 +1,6 @@
 package com.hm.cxpay.ui;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -70,7 +70,7 @@ public class WithdrawActivity extends AppActivity {
     private ImageView ivBankIcon;//银行卡图标
     private BankBean selectBankcard;//选中的银行卡
     private TextView tvRateNotice;//服务费提示
-    private Context activity;
+    private Activity activity;
 
     private boolean ifAddBankcard = false;//判断是否添加过银行卡
     private List<BankBean> bankList = null;//我所绑定的所有银行卡列表数据

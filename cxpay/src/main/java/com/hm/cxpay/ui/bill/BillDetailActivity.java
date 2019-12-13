@@ -59,6 +59,8 @@ public class BillDetailActivity extends AppActivity {
     private TextView tvRedPacketPayStyle;//红包-支付方式
     private TextView tvRedPacketGetMoneyTime;//红包-收款时间
     private TextView titleTvRedPacketGetMoneyTime;//红包-收款时间左侧标题
+    private TextView titleTvRedPacketPayTime;//红包-支付时间左侧标题
+    private TextView titleTvRedPacketPayStyle;//红包-支付方式左侧标题
     private TextView tvRedPacketOrderId;//红包-交易单号
 
 
@@ -141,6 +143,8 @@ public class BillDetailActivity extends AppActivity {
         tvWithdrawOrderId= findViewById(R.id.tv_withdraw_order_id);
         ivRedpacketImage= findViewById(R.id.iv_redpacket_image);
         titleTvRedPacketGetMoneyTime= findViewById(R.id.title_tv_red_packet_get_money_time);
+        titleTvRedPacketPayTime= findViewById(R.id.title_tv_red_packet_pay_time);
+        titleTvRedPacketPayStyle= findViewById(R.id.title_tv_red_packet_pay_style);
         actionbar = headView.getActionbar();
     }
 
@@ -225,6 +229,8 @@ public class BillDetailActivity extends AppActivity {
                 tvTitle.setText("零钱红包-过期退款");
                 tvRedPacketPayStyle.setVisibility(View.GONE);
                 tvRedPacketPayTime.setVisibility(View.GONE);
+                titleTvRedPacketPayTime.setVisibility(View.GONE);
+                titleTvRedPacketPayStyle.setVisibility(View.GONE);
             } else if (type == 7) {
                 if (data.getOtherUser() != null && !TextUtils.isEmpty(data.getOtherUser().getNickname())) {
                     tvTitle.setText("零钱红包-来自" + data.getOtherUser().getNickname());
@@ -233,6 +239,9 @@ public class BillDetailActivity extends AppActivity {
                 }
                 tvRedPacketPayStyle.setVisibility(View.GONE);
                 tvRedPacketPayTime.setVisibility(View.GONE);
+                titleTvRedPacketPayTime.setVisibility(View.GONE);
+                titleTvRedPacketPayStyle.setVisibility(View.GONE);
+
             }
             //根据收支类型->显示操作金额
             if (data.getIncome() == 1) { //1 收入 其他支出
