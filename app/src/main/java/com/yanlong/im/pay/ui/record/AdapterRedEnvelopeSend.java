@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.hm.cxpay.ui.redenvelope.RedEnvelopeItemBean;
+import com.hm.cxpay.utils.DateUtils;
 import com.hm.cxpay.utils.UIUtils;
 import com.yanlong.im.R;
 
@@ -42,18 +43,30 @@ public class AdapterRedEnvelopeSend extends AbstractRecyclerAdapter<RedEnvelopeI
         private TextView tvName;
         private TextView tvMoney;
         private TextView tvTime;
+        private RedEnvelopeItemBean model;
 
         public ReceivedViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(com.hm.cxpay.R.id.tv_user_name);
             tvMoney = itemView.findViewById(com.hm.cxpay.R.id.tv_money);
             tvTime = itemView.findViewById(com.hm.cxpay.R.id.tv_date);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mItemClickListener != null && model != null) {
+                        mItemClickListener.onItemClick(model);
+                    }
+                }
+            });
         }
 
         public void bindData(RedEnvelopeItemBean bean) {
-            tvName.setText(bean.getFromUser().getNickname());
+            model = bean;
+            if (bean.getFromUser() != null) {
+                tvName.setText(bean.getFromUser().getNickname());
+            }
             tvMoney.setText(UIUtils.getYuan(bean.getAmt()) + "元");
-            tvTime.setText(TimeToString.YYYY_MM_DD_HH_MM_SS(bean.getTime()));
+            tvTime.setText(DateUtils.getGrabTime(bean.getTime()));
         }
     }
 }
