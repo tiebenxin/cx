@@ -1266,6 +1266,8 @@ public class MessageManager {
      * 发出通知声音或者震动
      * */
     private void doNotify(MsgBean.UniversalMessage.WrapMessage msg) {
+    //        LogUtil.getLog().e("===msg.getMsgType()=="+msg.getMsgType()+"======SESSION_TYPE=="+SESSION_TYPE
+    //                +"======SESSION_FUID=="+SESSION_FUID+"======SESSION_GID=="+SESSION_GID);
         boolean isGroup = StringUtil.isNotNull(msg.getGid());
         //会话已经静音
         Session session = isGroup ? DaoUtil.findOne(Session.class, "gid", msg.getGid()) : DaoUtil.findOne(Session.class, "from_uid", msg.getFromUid());
@@ -1276,12 +1278,14 @@ public class MessageManager {
             //当前会话是本群不提示
 
         } else if (SESSION_TYPE == 1 && SESSION_FUID != null && SESSION_FUID.longValue() == msg.getFromUid()) {//单人
+            //当前会话就是这个人
             if (msg.getMsgType() == MsgBean.MessageType.STAMP) {
                 playVibration();
             }
         } else if (SESSION_TYPE == 3) {//静音模式
 
-        } else if (SESSION_TYPE == 0 && msg.getMsgType() == MsgBean.MessageType.STAMP) {//戳一戳
+        } else if (msg.getMsgType() == MsgBean.MessageType.STAMP) {//戳一戳
+            //不在聊天页 或 在聊天页，当前聊天人不是这个人
             AppConfig.getContext().startActivity(new Intent(AppConfig.getContext(), ChatActionActivity.class)
                     .putExtra(ChatActionActivity.AGM_DATA, msg.toByteArray())
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
