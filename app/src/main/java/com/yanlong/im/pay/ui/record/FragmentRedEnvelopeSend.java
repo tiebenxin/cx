@@ -17,6 +17,7 @@ import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.redenvelope.RedDetailsBean;
 
+import net.cb.cb.library.base.AbstractRecyclerAdapter;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.MultiListView;
 
@@ -60,6 +61,12 @@ public class FragmentRedEnvelopeSend extends Fragment {
         manager.setOrientation(LinearLayoutManager.VERTICAL);
         mMtListView.setLayoutManager(manager);
         adapter = new AdapterRedEnvelopeSend(getContext());
+        adapter.setItemClickListener(new AbstractRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Object bean) {
+
+            }
+        });
         mMtListView.setAdapter(adapter);
         getRedEnvelopeDetails();
     }

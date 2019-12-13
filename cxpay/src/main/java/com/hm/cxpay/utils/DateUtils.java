@@ -18,13 +18,13 @@ public class DateUtils {
 
 
     //获取每月第一天的最初时间
-    public static Calendar getStartTimeOfMonth(Calendar calendar) {
+    public static long getStartTimeOfMonth(Calendar calendar) {
         calendar.set(Calendar.DAY_OF_MONTH, 1);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        return calendar;
+        return calendar.getTimeInMillis();
     }
 
     /**

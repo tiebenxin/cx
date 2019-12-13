@@ -19,6 +19,8 @@ import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.databinding.ActivityRedEnvelopeDetailBinding;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.ui.redenvelope.RedDetailsBean;
+import com.hm.cxpay.utils.DateUtils;
+import com.hm.cxpay.utils.UIUtils;
 import com.hm.cxpay.widget.wheel.DateTimeWheelDialog;
 
 import net.cb.cb.library.utils.TimeToString;
@@ -163,65 +165,11 @@ public class RedEnvelopeRecordActivity extends AppActivity {
         pvTime.show();
     }
 
-    private DateTimeWheelDialog createDialog(int type) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, 2019);
-        calendar.set(Calendar.MONTH, 0);
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        Date startDate = calendar.getTime();
-        calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, 2099);
-        Date endDate = calendar.getTime();
-
-        DateTimeWheelDialog dialog = new DateTimeWheelDialog(this);
-//        dialog.setShowCount(7);
-//        dialog.setItemVerticalSpace(24);
-        dialog.show();
-        dialog.setTitle("选择时间");
-        int config = DateTimeWheelDialog.SHOW_YEAR_MONTH_DAY_HOUR_MINUTE;
-        switch (type) {
-            case 1:
-                config = DateTimeWheelDialog.SHOW_YEAR;
-                break;
-            case 2:
-                config = DateTimeWheelDialog.SHOW_YEAR_MONTH;
-                break;
-            case 3:
-                config = DateTimeWheelDialog.SHOW_YEAR_MONTH_DAY;
-                break;
-            case 4:
-                config = DateTimeWheelDialog.SHOW_YEAR_MONTH_DAY_HOUR;
-                break;
-            case 5:
-                config = DateTimeWheelDialog.SHOW_YEAR_MONTH_DAY_HOUR_MINUTE;
-                break;
-        }
-        dialog.configShowUI(config);
-        dialog.setCancelButton("取消", null);
-        dialog.setOKButton("确定", new DateTimeWheelDialog.OnClickCallBack() {
-            @Override
-            public boolean callBack(View v, @NonNull Date selectedDate) {
-                currentCalendar = Calendar.getInstance();
-                currentCalendar.setTime(selectedDate);
-                ui.tvTime.setText(TimeToString.getSelectMouth(selectedDate.getTime()));
-                return false;
-            }
-        });
-        dialog.setDateArea(startDate, endDate, true);
-        if (currentCalendar == null) {
-            currentCalendar = Calendar.getInstance();
-        }
-        dialog.updateSelectedDate(currentCalendar.getTime());
-        return dialog;
-    }
-
     public long getCurrentCalendar() {
         if (currentCalendar == null) {
             currentCalendar = Calendar.getInstance();
         }
-        return currentCalendar.getTimeInMillis();
+        return DateUtils.getStartTimeOfMonth(currentCalendar);
     }
 
     public int getCurrentTab() {
@@ -236,13 +184,16 @@ public class RedEnvelopeRecordActivity extends AppActivity {
             if (user != null) {
                 name = !TextUtils.isEmpty(user.getRealName()) ? user.getRealName() : "";
             }
+            if (!TextUtils.isEmpty(PayEnvironment.getInstance().getNick())) {
+                name = PayEnvironment.getInstance().getNick();
+            }
             if (isReceive && currentTab == 0) {//收到红包
                 ui.tvName.setText(name + "共收到红包");
-                ui.tvMoney.setText("￥" + bean.getSumAmt() + "元");
+                ui.tvMoney.setText("￥" + UIUtils.getYuan(bean.getSumAmt()) + "元");
                 ui.tvTotal.setText("共收到红包" + bean.getTotal() + "个");
             } else if (!isReceive && currentTab == 1) {//发出红包
                 ui.tvName.setText(name + "共发出红包");
-                ui.tvMoney.setText("￥" + bean.getSumAmt() + "元");
+                ui.tvMoney.setText("￥" + UIUtils.getYuan(bean.getSumAmt()) + "元");
                 ui.tvTotal.setText("共发出红包" + bean.getTotal() + "个");
             }
         }

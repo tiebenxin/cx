@@ -293,15 +293,20 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             //公告:
             //8.9 过滤拉人通知里面的颜色标签
             str = "" + StringUtil.delHTMLTag(getMsgNotice().getNote());
-
         } else if (msg_type == ChatEnum.EMessageType.TEXT) {//普通消息
             str = getChat().getMsg();
-
         } else if (msg_type == ChatEnum.EMessageType.STAMP) {
             str = "[戳一下]" + getStamp().getComment();
-
         } else if (msg_type == ChatEnum.EMessageType.RED_ENVELOPE) {
-            str = "[云红包]" + getRed_envelope().getComment();
+            RedEnvelopeMessage envelopeMessage = getRed_envelope();
+            if (envelopeMessage != null) {
+                int reType = envelopeMessage.getRe_type();
+                if (reType == 1) {
+                    str = "[零钱红包]" + getRed_envelope().getComment();
+                } else {
+                    str = "[云红包]" + getRed_envelope().getComment();
+                }
+            }
         } else if (msg_type == ChatEnum.EMessageType.IMAGE) {
             str = "[图片]";
         } else if (msg_type == ChatEnum.EMessageType.BUSINESS_CARD) {
@@ -316,15 +321,15 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             str = "[常信通知]";
         } else if (msg_type == ChatEnum.EMessageType.MSG_CENCAL) {//撤回消息
             str = "" + StringUtil.delHTMLTag(getMsgCancel().getNote());
-        }else if (msg_type == ChatEnum.EMessageType.MSG_VIDEO) {//撤回消息
+        } else if (msg_type == ChatEnum.EMessageType.MSG_VIDEO) {//撤回消息
             str = "[视频]";
-        }else if(msg_type == ChatEnum.EMessageType.MSG_VOICE_VIDEO){// 音视频消息
-            if(getP2PAuVideoMessage().getAv_type()== MsgBean.AuVideoType.Vedio.getNumber()){
+        } else if (msg_type == ChatEnum.EMessageType.MSG_VOICE_VIDEO) {// 音视频消息
+            if (getP2PAuVideoMessage().getAv_type() == MsgBean.AuVideoType.Vedio.getNumber()) {
                 str = "[视频通话]";
-            }else{
+            } else {
                 str = "[语音通话]";
             }
-        } else if(msg_type == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME){//阅后即焚
+        } else if (msg_type == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME) {//阅后即焚
             str = getMsgCancel().getNote();
         }
 

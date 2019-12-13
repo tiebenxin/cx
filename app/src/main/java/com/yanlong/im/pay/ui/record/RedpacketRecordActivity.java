@@ -61,7 +61,7 @@ public class RedpacketRecordActivity extends BasePayActivity {
 
     private void initViewpager() {
         fragments = new ArrayList<>();
-        fragments.add(FragmentRedEnvelopeSend.newInstance());
+        fragments.add(FragmentRedEnvelopeReceived.newInstance());
         fragments.add(FragmentRedEnvelopeSend.newInstance());
         mViewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override

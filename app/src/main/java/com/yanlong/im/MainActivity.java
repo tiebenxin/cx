@@ -427,6 +427,7 @@ public class MainActivity extends AppActivity {
         UserInfo info = UserAction.getMyInfo();
         if (info != null) {
             PayEnvironment.getInstance().setPhone(info.getPhone());
+            PayEnvironment.getInstance().setNick(info.getName());
             UserBean bean = PayEnvironment.getInstance().getUser();
             if (bean == null || (bean != null && bean.getUid() != info.getUid().intValue())) {
                 httpGetUserInfo();
