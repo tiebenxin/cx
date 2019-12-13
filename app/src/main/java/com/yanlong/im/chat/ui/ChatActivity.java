@@ -2814,15 +2814,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 }
                                 boolean isNormalStyle = style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE;
                                 if (isInvalid || (msgbean.isMe() && isNormalStyle)) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
-                                    if (!isInvalid && isGroup()) {
-                                        if (!TextUtils.isEmpty(rb.getAccessToken())) {
-                                            showEnvelopeDialog(rb.getAccessToken(), 1, msgbean, reType);
-                                        } else {
-                                            grabRedEnvelope(msgbean, tradeId, reType);
-                                        }
-                                    } else {
-                                        getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType, isNormalStyle);
-                                    }
+//                                    if (!isInvalid && isGroup()) {
+//                                        if (!TextUtils.isEmpty(rb.getAccessToken())) {
+//                                            showEnvelopeDialog(rb.getAccessToken(), 1, msgbean, reType);
+//                                        } else {
+//                                            grabRedEnvelope(msgbean, tradeId, reType);
+//                                        }
+//                                    } else {
+//                                        getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+//                                    }
+                                    getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+
                                 } else {
                                     if (!TextUtils.isEmpty(rb.getAccessToken())) {
                                         showEnvelopeDialog(rb.getAccessToken(), 1, msgbean, reType);
