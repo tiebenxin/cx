@@ -7,7 +7,7 @@ package com.hm.cxpay.net;
  */
 public class Route {
     //查看支持银行url
-    public static final String SUPPORT_BANK_URL = "http://baidu.com";
+    public static final String SUPPORT_BANK_URL = "https://changxin.zhixun6.com/bank.html";
 
     //零钱的用户协议
     public static final String USER_AGREEMENT_OF_PAY = "http://baidu.com";

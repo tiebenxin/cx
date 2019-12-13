@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.hm.cxpay.R;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.net.Route;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankInfo;
@@ -19,6 +20,7 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+import net.cb.cb.library.view.WebPageActivity;
 
 /**
  * @类名：忘记密码->第二步->填写银行卡信息
@@ -84,7 +86,9 @@ public class ForgetPswStepTwoActivity extends AppActivity {
         tvViewSupport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ToastUtil.show(activity,"查看支持银行");
+                Intent intent = new Intent(activity, WebPageActivity.class);
+                intent.putExtra(WebPageActivity.AGM_URL, Route.SUPPORT_BANK_URL);
+                startActivity(intent);
             }
         });
 

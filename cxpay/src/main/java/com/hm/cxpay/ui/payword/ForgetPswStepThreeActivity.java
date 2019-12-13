@@ -13,6 +13,7 @@ import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.net.Route;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 
@@ -20,6 +21,7 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+import net.cb.cb.library.view.WebPageActivity;
 
 /**
  * @类名：忘记密码->第三步->银行卡绑定手机号
@@ -35,6 +37,7 @@ public class ForgetPswStepThreeActivity extends AppActivity {
     private EditText etPhone;
     private TextView tvSubmit;
     private ImageView ivCheck;
+    private TextView tvViewSupport;
 
     private Activity activity;
     private String token;//得到认证需要的token
@@ -59,6 +62,7 @@ public class ForgetPswStepThreeActivity extends AppActivity {
         etPhone = findViewById(R.id.et_phone);
         tvSubmit = findViewById(R.id.tv_submit);
         ivCheck = findViewById(R.id.iv_check);
+        tvViewSupport = findViewById(R.id.tv_view_support);
     }
 
     private void initData() {
@@ -100,6 +104,14 @@ public class ForgetPswStepThreeActivity extends AppActivity {
                 }else {
                     ToastUtil.show(activity,"手机号不能为空");
                 }
+            }
+        });
+        tvViewSupport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(activity, WebPageActivity.class);
+                intent.putExtra(WebPageActivity.AGM_URL, Route.SUPPORT_BANK_URL);
+                startActivity(intent);
             }
         });
     }
