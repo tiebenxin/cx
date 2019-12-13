@@ -70,25 +70,23 @@ public class DateUtils {
     }
 
     //获取红包抢完时间
-    public static String getGrabFinishedTime(long start, long end) {
+    public static String getGrabFinishedTime(long finishTime) {
         String result = "0秒";
-        if (end > start) {
-            long diff = end - start;
-            if (diff <= MILLISECOND) {
-                result = "1秒";
-            } else if (diff > MILLISECOND && diff < MINUTE) {
-                int sec = (int) (diff / MILLISECOND);
-                result = sec + "秒";
-            } else if (diff > MINUTE && diff < HOUR) {
-                int min = (int) (diff / MINUTE);
-                result = min + "分钟";
-            } else if (diff > HOUR && diff < DAY) {
-                int hour = (int) (diff / HOUR);
-                result = hour + "小时";
-            } else if (diff > DAY) {
-                int day = (int) (diff / DAY);
-                result = day + "天";
-            }
+        long diff = finishTime;
+        if (diff <= MILLISECOND) {
+            result = "1秒";
+        } else if (diff > MILLISECOND && diff < MINUTE) {
+            int sec = (int) (diff / MILLISECOND);
+            result = sec + "秒";
+        } else if (diff > MINUTE && diff < HOUR) {
+            int min = (int) (diff / MINUTE);
+            result = min + "分钟";
+        } else if (diff > HOUR && diff < DAY) {
+            int hour = (int) (diff / HOUR);
+            result = hour + "小时";
+        } else if (diff > DAY) {
+            int day = (int) (diff / DAY);
+            result = day + "天";
         }
         return result;
     }

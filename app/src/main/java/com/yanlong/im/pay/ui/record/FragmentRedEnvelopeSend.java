@@ -111,5 +111,9 @@ public class FragmentRedEnvelopeSend extends Fragment {
                 });
     }
 
+    public void updateDetails(){
+        getRedEnvelopeDetails();
+    }
+
 
 }

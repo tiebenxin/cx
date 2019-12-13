@@ -90,5 +90,9 @@ public class FragmentRedEnvelopeReceived extends Fragment {
                 });
     }
 
+    public void updateDetails(){
+        getRedEnvelopeDetails();
+    }
+
 
 }

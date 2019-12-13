@@ -148,9 +148,11 @@ public class RedEnvelopeRecordActivity extends AppActivity {
             public void onTimeSelect(Date date, View v) {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(date);
+                currentCalendar = calendar;
                 year = calendar.get(Calendar.YEAR);
                 month = calendar.get(Calendar.MONTH) + 1;
                 ui.tvTime.setText(year + "年" + month + "月");
+                notifyTimeUpdate();
             }
         })
                 .setType(new boolean[]{true, true, false, false, false, false})
@@ -163,6 +165,21 @@ public class RedEnvelopeRecordActivity extends AppActivity {
                 .build();
 
         pvTime.show();
+    }
+
+    private void notifyTimeUpdate() {
+        if (fragments != null && fragments.size() > 0) {
+            for (int i = 0; i < fragments.size(); i++) {
+                Fragment fragment = fragments.get(i);
+                if (fragment instanceof FragmentRedEnvelopeReceived) {
+                    FragmentRedEnvelopeReceived received = (FragmentRedEnvelopeReceived) fragment;
+                    received.updateDetails();
+                } else if (fragment instanceof FragmentRedEnvelopeSend) {
+                    FragmentRedEnvelopeSend send = (FragmentRedEnvelopeSend) fragment;
+                    send.updateDetails();
+                }
+            }
+        }
     }
 
     public long getCurrentCalendar() {

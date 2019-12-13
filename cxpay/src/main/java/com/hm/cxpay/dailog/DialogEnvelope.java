@@ -46,6 +46,7 @@ public class DialogEnvelope extends BaseDialog {
     private int status;
     private String note;
     private IEnvelopeListener listener;
+    private int style;
 
     public DialogEnvelope(Context context, int theme) {
         super(context, theme);
@@ -76,7 +77,7 @@ public class DialogEnvelope extends BaseDialog {
             openRedEnvelope(tradeId, token);
         } else if (id == tvMore.getId()) {
             if (listener != null) {
-                listener.viewRecord(tradeId, token);
+                listener.viewRecord(tradeId, token,style);
             }
         }
     }
@@ -85,13 +86,14 @@ public class DialogEnvelope extends BaseDialog {
      * token , 红包准入token
      * status, 红包状态，1，正常可以抢
      * */
-    public void setInfo(String token, int status, String avatar, String nick, long tradeId, String note) {
+    public void setInfo(String token, int status, String avatar, String nick, long tradeId, String note,int style) {
         this.token = token;
         this.status = status;
         this.avatar = avatar;
         this.nick = nick;
         this.tradeId = tradeId;
         this.note = note;
+        this.style = style;
         updateUI(status);
     }
 
@@ -194,7 +196,7 @@ public class DialogEnvelope extends BaseDialog {
     public interface IEnvelopeListener {
         void onOpen(long rid, int envelopeStatus);
 
-        void viewRecord(long rid, String token);
+        void viewRecord(long rid, String token,int style);
     }
 
 

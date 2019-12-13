@@ -6,7 +6,7 @@ import io.realm.annotations.PrimaryKey;
 public class RedEnvelopeMessage extends RealmObject implements IMsgContent {
     @PrimaryKey
     private String msgid;
-    private String id;
+    private String id;//红包id,MF
     private Integer re_type;    // MFPAY = 0; SYSTEM =1
     private String comment;
 
