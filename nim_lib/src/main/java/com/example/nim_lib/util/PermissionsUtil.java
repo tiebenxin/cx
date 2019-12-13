@@ -168,10 +168,12 @@ public class PermissionsUtil {
                 }
             });
         }
-        if (mAlertYesNo.isShowing()) {
-            mAlertYesNo.dismiss();
+        if(activity!=null && !activity.isFinishing()){
+            if (mAlertYesNo.isShowing()) {
+                mAlertYesNo.dismiss();
+            }
+            mAlertYesNo.show();
         }
-        mAlertYesNo.show();
     }
 
 }
