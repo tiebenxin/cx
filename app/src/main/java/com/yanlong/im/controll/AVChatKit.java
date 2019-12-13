@@ -6,15 +6,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.SparseArray;
+import android.view.View;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
+import com.netease.nimlib.sdk.StatusCode;
+import com.netease.nimlib.sdk.auth.AuthServiceObserver;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
 import com.netease.nimlib.sdk.avchat.model.AVChatData;
+import com.yanlong.im.MainActivity;
+import com.yanlong.im.R;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 
@@ -105,6 +111,7 @@ public class AVChatKit {
      */
     private void registerAVChatIncomingCallObserver(boolean register) {
         AVChatManager.getInstance().observeIncomingCall(inComingCallObserver, register);
+        NIMClient.getService(AuthServiceObserver.class).observeOnlineStatus(userStatusObserver, register);
     }
 
     /**
@@ -138,6 +145,17 @@ public class AVChatKit {
             if (data != null) {
                 getUserInfo(data);
             }
+        }
+    };
+
+    /**
+     * 用户状态变化
+     */
+    Observer<StatusCode> userStatusObserver = new Observer<StatusCode>() {
+
+        @Override
+        public void onEvent(StatusCode code) {
+//            LogUtil.getLog().i(TAG,"网易云用户状态变化返回状态："+code);
         }
     };
 

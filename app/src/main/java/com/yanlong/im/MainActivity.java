@@ -1,5 +1,8 @@
 package com.yanlong.im;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
@@ -24,6 +27,7 @@ import com.example.nim_lib.ui.VideoActivity;
 import com.example.nim_lib.util.PermissionsUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.StatusCode;
+import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
@@ -140,23 +144,6 @@ public class MainActivity extends AppActivity {
         boolean isFist = spUtil.getSPValue(Preferences.IS_FIRST_DIALOG, false);
         if (!isFist) {
             permissionCheck();
-        }
-        checkNeteaseLogin();
-    }
-
-    /**
-     * 检查网易云是否登录，没登录重新登录
-     */
-    private void checkNeteaseLogin(){
-        if(NIMClient.getStatus()!= StatusCode.LOGINED){
-            LogUtil.getLog().i(MainActivity.class.getName(),"网易云登录失败，重新登录了:"+NIMClient.getStatus());
-            UserAction userAction=new UserAction();
-            SpUtil spUtil = SpUtil.getSpUtil();
-            String account = spUtil.getSPValue("account", "");
-            String token = spUtil.getSPValue("token", "");
-            userAction.doNeteaseLogin(account,token);
-        }else{
-            LogUtil.getLog().i(MainActivity.class.getName(),"网易云登录成功");
         }
     }
 
@@ -562,6 +549,7 @@ public class MainActivity extends AppActivity {
             Intent intent = new Intent(this, SplashActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
+
             android.os.Process.killProcess(android.os.Process.myPid());
         }
     }

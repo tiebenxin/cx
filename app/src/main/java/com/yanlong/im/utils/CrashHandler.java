@@ -1,14 +1,24 @@
 package com.yanlong.im.utils;
 
+import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
 
 import com.yanlong.im.MainActivity;
+import com.yanlong.im.MyAppLication;
+import com.yanlong.im.user.ui.SplashActivity;
+import com.zhaoss.weixinrecorded.util.RxJavaUtil;
 
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.IntentUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -45,7 +55,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     private Map<String, String> infos = new HashMap<String, String>();
 
     //用于格式化日期,作为日志文件名的一部分
-    private DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+    private DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
      * 保证只有一个CrashHandler实例
@@ -78,13 +88,18 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
      */
     @Override
     public void uncaughtException(Thread thread, Throwable ex) {
-        if (!handleException(ex) && mDefaultHandler != null) {
-            //如果用户没有处理则让系统默认的异常处理器来处理
-            mDefaultHandler.uncaughtException(thread, ex);
-        } else {
-            // 跳转到主页
-            IntentUtil.gotoActivity(mContext, MainActivity.class);
-        }
+//        if (!handleException(ex) && mDefaultHandler != null) {
+//            //如果用户没有处理则让系统默认的异常处理器来处理
+//            mDefaultHandler.uncaughtException(thread, ex);
+//        } else {
+//            // 处理APP在后台，关闭某个权限后需要重启APP
+////            Intent intent = new Intent(MyAppLication.getInstance(), SplashActivity.class);
+////            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+////            MyAppLication.getInstance().startActivity(intent);
+//
+//            //杀死该应用进程
+////            android.os.Process.killProcess(android.os.Process.myPid());
+//        }
     }
 
     /**
@@ -97,10 +112,29 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         if (ex == null) {
             return false;
         }
-        //收集设备参数信息
-        collectDeviceInfo(mContext);
-        //保存日志文件
-        saveCrashInfo2File(ex);
+        RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<Object>() {
+
+            @Override
+            public Object doInBackground() throws Throwable {
+                //收集设备参数信息
+                collectDeviceInfo(mContext);
+                //保存日志文件
+                saveCrashInfo2File(ex);
+
+                return null;
+            }
+
+            @Override
+            public void onFinish(Object result) {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+        });
+
         return true;
     }
 
@@ -138,7 +172,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
      * @param ex
      * @return 返回文件名称, 便于将文件传送到服务器
      */
-    private String saveCrashInfo2File(Throwable ex) {
+    private void saveCrashInfo2File(Throwable ex) {
 
         StringBuffer sb = new StringBuffer();
         for (Map.Entry<String, String> entry : infos.entrySet()) {
@@ -160,31 +194,20 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         sb.append(result);
         FileOutputStream fos = null;
         try {
-            long timestamp = System.currentTimeMillis();
             String time = formatter.format(new Date());
-            String fileName = time + "-" + timestamp + ".log";
+            String fileName = time+".log";
             if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
                 String path = "/sdcard/yanlong/Log/";
                 File dir = new File(path);
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }
-                fos = new FileOutputStream(path + fileName);
+                fos = new FileOutputStream(path + fileName,true);
                 fos.write(sb.toString().getBytes());
                 fos.close();
             }
-            return fileName;
         } catch (Exception e) {
 
-        } finally {
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e) {
-
-                }
-            }
         }
-        return null;
     }
 }
