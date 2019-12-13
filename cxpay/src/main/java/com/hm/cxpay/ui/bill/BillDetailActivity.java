@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.alibaba.android.arouter.launcher.ARouter;
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.utils.UIUtils;
@@ -168,7 +169,7 @@ public class BillDetailActivity extends AppActivity {
         layoutQuestion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ToastUtil.show(activity, "常见问题");
+                ARouter.getInstance().build("/app/HelpActivity").navigation();
             }
         });
         //类型：1转账给 2发红包给 3充值 4提现 5红包退款 6消费(忽略) 7红包收款 8转账收款 9转账退款

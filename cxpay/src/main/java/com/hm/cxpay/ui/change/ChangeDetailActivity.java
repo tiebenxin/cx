@@ -7,12 +7,12 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.alibaba.android.arouter.launcher.ARouter;
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.utils.UIUtils;
 import com.luck.picture.lib.tools.DateUtils;
 
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
@@ -84,7 +84,7 @@ public class ChangeDetailActivity extends AppActivity {
         layoutQuestion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ToastUtil.show(activity, "常见问题");
+                ARouter.getInstance().build("/app/HelpActivity").navigation();
             }
         });
         //收支类型

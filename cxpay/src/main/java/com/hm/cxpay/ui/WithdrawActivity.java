@@ -20,6 +20,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alibaba.android.arouter.launcher.ARouter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
@@ -179,7 +180,7 @@ public class WithdrawActivity extends AppActivity {
         tvQuestion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                ARouter.getInstance().build("/app/HelpActivity").navigation();
             }
         });
         etWithdraw.addTextChangedListener(new TextWatcher() {
