@@ -1,6 +1,6 @@
 package com.hm.cxpay.ui;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -49,7 +49,7 @@ public class LooseChangeActivity extends BasePayActivity {
     private LinearLayout layoutRecharge;//充值
     private LinearLayout layoutWithdrawDeposit;//提现
 
-    private Context activity;
+    private Activity activity;
 
     public static int REFRESH_BALANCE = 98;//获取最新余额展示
     public static int REFRESH_BANKCARD_NUM = 97;//刷新银行卡数
@@ -86,7 +86,7 @@ public class LooseChangeActivity extends BasePayActivity {
 
             @Override
             public void onRight() {
-                startActivity(new Intent(context, BillDetailListActivity.class));
+                startActivity(new Intent(activity, BillDetailListActivity.class));
             }
         });
         //显示余额
@@ -97,11 +97,11 @@ public class LooseChangeActivity extends BasePayActivity {
             public void onClick(View view) {
                 // 1 已设置支付密码 -> 允许跳转
                 if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
-                    startActivityForResult(new Intent(LooseChangeActivity.this, RechargeActivity.class), REFRESH_BALANCE);
+                    startActivityForResult(new Intent(activity, RechargeActivity.class), REFRESH_BALANCE);
                 } else {
                     //2 未设置支付密码 -> 需要先设置
                     ToastUtil.show(context, "检测到您还未设置支付密码，请先设置");
-                    startActivity(new Intent(context, SetPaywordActivity.class));
+                    startActivity(new Intent(activity, SetPaywordActivity.class));
                 }
             }
         });
@@ -111,11 +111,11 @@ public class LooseChangeActivity extends BasePayActivity {
             public void onClick(View view) {
                 // 1 已设置支付密码 -> 允许跳转
                 if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
-                    startActivityForResult(new Intent(LooseChangeActivity.this, WithdrawActivity.class), REFRESH_BALANCE);
+                    startActivityForResult(new Intent(activity, WithdrawActivity.class), REFRESH_BALANCE);
                 } else {
                     //2 未设置支付密码 -> 需要先设置
                     ToastUtil.show(context, "检测到您还未设置支付密码，请先设置");
-                    startActivity(new Intent(context, SetPaywordActivity.class));
+                    startActivity(new Intent(activity, SetPaywordActivity.class));
                 }
             }
         });
@@ -125,7 +125,7 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutChangeDetails.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
-                startActivity(new Intent(context, ChangeDetailListActivity.class));
+                startActivity(new Intent(activity, ChangeDetailListActivity.class));
             }
         });
         //红包明细
@@ -144,7 +144,7 @@ public class LooseChangeActivity extends BasePayActivity {
         viewAccountInfo.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
-                IntentUtil.gotoActivity(LooseChangeActivity.this, IdentificationInfoActivity.class);
+                IntentUtil.gotoActivity(activity, IdentificationInfoActivity.class);
             }
         });
         //实名认证
@@ -157,10 +157,10 @@ public class LooseChangeActivity extends BasePayActivity {
                 if(PayEnvironment.getInstance().getUser().getPhoneBindStat()==1){
                     //TODO 还有一个认证信息展示界面未出
                     ToastUtil.show(activity,"您已绑定手机号(暂时允许进入)");
-                    IntentUtil.gotoActivity(LooseChangeActivity.this, BindPhoneNumActivity.class);
+                    IntentUtil.gotoActivity(activity, BindPhoneNumActivity.class);
                 }else {
                     //2 没有绑定手机
-                    IntentUtil.gotoActivity(LooseChangeActivity.this, BindPhoneNumActivity.class);
+                    IntentUtil.gotoActivity(activity, BindPhoneNumActivity.class);
                 }
             }
         });
@@ -171,7 +171,7 @@ public class LooseChangeActivity extends BasePayActivity {
         viewMyCard.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
-                startActivityForResult(new Intent(LooseChangeActivity.this, BankSettingActivity.class), REFRESH_BANKCARD_NUM);
+                startActivityForResult(new Intent(activity, BankSettingActivity.class), REFRESH_BANKCARD_NUM);
             }
         });
         //支付密码管理
@@ -182,11 +182,11 @@ public class LooseChangeActivity extends BasePayActivity {
             public void onClick() {
                 // 1 已设置支付密码 -> 允许跳转
                 if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
-                    IntentUtil.gotoActivity(LooseChangeActivity.this, ManagePaywordActivity.class);
+                    IntentUtil.gotoActivity(activity, ManagePaywordActivity.class);
                 } else {
                     //2 未设置支付密码 -> 需要先设置
                     ToastUtil.show(context, "检测到您还未设置支付密码，请先设置");
-                    startActivity(new Intent(context, SetPaywordActivity.class));
+                    startActivity(new Intent(activity, SetPaywordActivity.class));
                 }
             }
         });

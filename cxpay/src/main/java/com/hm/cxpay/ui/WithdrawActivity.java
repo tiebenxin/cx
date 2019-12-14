@@ -321,7 +321,7 @@ public class WithdrawActivity extends AppActivity {
                         rateBean = null;
                         if (baseResponse.getData() != null) {
                             rateBean = baseResponse.getData();
-                            minMoney = Double.valueOf(rateBean.getMinAmt());
+                            minMoney = Double.valueOf(rateBean.getMinAmt()/100);
                             etWithdraw.setHint("最小提现金额不低于"+minMoney+"元");
                             if(!TextUtils.isEmpty(rateBean.getRate())){
                                 rate = Double.valueOf(rateBean.getRate());
