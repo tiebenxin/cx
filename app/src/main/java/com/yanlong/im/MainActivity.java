@@ -878,6 +878,11 @@ public class MainActivity extends AppActivity {
                 }
             } else {
 
+
+            }
+        }
+    }
+
     /**
      * 获取 绑定的银行卡列表
      * <p>
@@ -931,10 +936,7 @@ public class MainActivity extends AppActivity {
                         super.onHandleError(baseResponse);
                     }
                 });
-    }
 
 
-            }
-        }
     }
 }
