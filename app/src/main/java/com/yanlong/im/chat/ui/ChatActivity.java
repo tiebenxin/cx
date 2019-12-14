@@ -2846,6 +2846,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     RedEnvelopeMessage rb = msgbean.getRed_envelope();
                     Boolean isInvalid = rb.getIsInvalid() == 0 ? false : true;
                     String info = isInvalid ? "已领取" : "领取红包";
+                    if (rb.getEnvelopStatus() == PayEnum.EEnvelopeStatus.PAST) {
+                        isInvalid = true;
+                        info = "红包已过期";
+                    }
                     String title = msgbean.getRed_envelope().getComment();
                     final String rid = rb.getId();
                     final Long touid = msgbean.getFrom_uid();
@@ -4871,7 +4875,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void getEnvelopeDetail(long rid, String token) {
-        PayHttpUtils.getInstance().getEnvelopeDetail(rid, token)
+        PayHttpUtils.getInstance().getEnvelopeDetail(rid, token,0)
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<EnvelopeDetailBean>>() {
@@ -4880,7 +4884,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         if (baseResponse.isSuccess()) {
                             EnvelopeDetailBean bean = baseResponse.getData();
                             if (bean != null) {
-                                bean.setChatType(isGroup()?1:0);
+                                bean.setChatType(isGroup() ? 1 : 0);
                                 Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, bean);
                                 startActivity(intent);
                             }

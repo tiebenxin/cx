@@ -20,13 +20,19 @@ import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.databinding.ActivityRedPacketDetailsBinding;
 import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
+import com.hm.cxpay.net.FGObserver;
+import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.redenvelope.EnvelopeDetailBean;
 import com.hm.cxpay.ui.redenvelope.EnvelopeReceiverBean;
 import com.hm.cxpay.ui.redenvelope.FromUserBean;
 import com.hm.cxpay.utils.DateUtils;
 import com.hm.cxpay.utils.UIUtils;
 import com.hm.cxpay.widget.CircleImageView;
+import com.yanlong.im.chat.ui.ChatActivity;
 
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.PopupSelectView;
 
@@ -54,6 +60,12 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
         return intent;
     }
 
+    public static Intent newIntent(Context context, long rid) {
+        Intent intent = new Intent(context, SingleRedPacketDetailsActivity.class);
+        intent.putExtra("rid", rid);
+        return intent;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,7 +74,14 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
         ui.headView.getAppBarLayout().setBackgroundResource(com.hm.cxpay.R.color.c_c85749);
         envelopeDetailBean = getIntent().getParcelableExtra("data");
         initView();
+        initData();
         initEvent();
+        if (envelopeDetailBean == null) {
+            long rid = getIntent().getLongExtra("rid", 0);
+            if (rid > 0) {
+                getEnvelopeDetail(rid);
+            }
+        }
     }
 
     private void initView() {
@@ -70,7 +89,6 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
         ui.headView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
         ui.mtListView.init(new RedPacketAdapter());
         ui.mtListView.getLoadView().setStateNormal();
-        initData();
     }
 
 
@@ -233,6 +251,35 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                 tvLuck.setVisibility(bean.getBestLuck() == 1 ? View.VISIBLE : View.GONE);
             }
         }
+    }
+
+    private void getEnvelopeDetail(long rid) {
+        PayHttpUtils.getInstance().getEnvelopeDetail(rid, "", 1)
+                .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<EnvelopeDetailBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<EnvelopeDetailBean> baseResponse) {
+                        if (baseResponse.isSuccess()) {
+                            EnvelopeDetailBean bean = baseResponse.getData();
+                            if (bean != null) {
+                                envelopeDetailBean = bean;
+                                initData();
+                            }
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        super.onHandleError(baseResponse);
+                        if (baseResponse.getCode() == -21000) {
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
+                    }
+                });
     }
 
 

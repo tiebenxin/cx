@@ -3,6 +3,8 @@ package com.hm.cxpay.ui.redenvelope;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 /**
@@ -21,6 +23,7 @@ public class EnvelopeDetailBean implements Parcelable {
     long time;//红包发送时间
     int type;//红包类型：0 普通红包，1拼手气红包
     List<EnvelopeReceiverBean> recvList;//领取记录
+    @SerializedName("tmpToGroup")
     int chatType;//单聊=0，还是群聊=1
 
 

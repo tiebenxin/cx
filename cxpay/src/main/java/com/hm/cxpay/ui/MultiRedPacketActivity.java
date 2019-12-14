@@ -162,16 +162,16 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                 String string = s.toString().trim();
                 long money = UIUtils.getFen(string);
                 int count = UIUtils.getRedEnvelopeCount(ui.edRedPacketNum.getText().toString().trim());
-//                if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {
-//                    money = money * count;
-//                }
+                if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {
+                    money = money * count;
+                }
                 if (money > 0 && money <= MAX_AMOUNT && count > 0) {
                     ui.btnCommit.setEnabled(true);
-                    ui.tvMoney.setText(string);
+                    ui.tvMoney.setText(UIUtils.getYuan(money));
                     ui.tvNotice.setVisibility(View.GONE);
                 } else if (money > MAX_AMOUNT) {
                     ui.btnCommit.setEnabled(false);
-                    ui.tvMoney.setText(string);
+                    ui.tvMoney.setText(UIUtils.getYuan(money));
                     ui.tvNotice.setVisibility(View.VISIBLE);
                 } else {
                     ui.btnCommit.setEnabled(false);
@@ -213,6 +213,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
         int id = v.getId();
         if (id == ui.tvRedPacketType.getId()) {
             resetRedEnvelope(redPacketType);
+            resetMoney();
         } else if (id == ui.btnCommit.getId()) {
             money = ui.edMoney.getText().toString();
             int count = UIUtils.getRedEnvelopeCount(ui.edRedPacketNum.getText().toString().trim());
@@ -247,6 +248,21 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
         } else {
             redPacketType = PayEnum.ERedEnvelopeType.LUCK;
             intRedPacketType(redPacketType);
+        }
+    }
+
+    private void resetMoney() {
+        long money = UIUtils.getFen(ui.edMoney.getText().toString().trim());
+        int count = UIUtils.getRedEnvelopeCount(ui.edRedPacketNum.getText().toString().trim());
+        if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {
+            money = money * count;
+        }
+        if (money > 0 && money <= MAX_AMOUNT && count > 0) {
+            ui.tvMoney.setText(UIUtils.getYuan(money));
+        } else if (money > MAX_AMOUNT) {
+            ui.tvMoney.setText(UIUtils.getYuan(money));
+        } else {
+            ui.tvMoney.setText("0.00");
         }
     }
 

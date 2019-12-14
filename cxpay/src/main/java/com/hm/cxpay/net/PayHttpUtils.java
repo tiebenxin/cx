@@ -115,12 +115,12 @@ public class PayHttpUtils {
     }
 
     //修改支付密码
-    public Observable<BaseResponse> modifyPayword(String oldPayword, String newPayword,String token) {
+    public Observable<BaseResponse> modifyPayword(String oldPayword, String newPayword, String token) {
         Map<String, String> map = new HashMap<>();
-        if(!TextUtils.isEmpty(oldPayword)){
+        if (!TextUtils.isEmpty(oldPayword)) {
             map.put("currentPwd", MD5.md5(oldPayword));
         }
-        if(!TextUtils.isEmpty(token)){
+        if (!TextUtils.isEmpty(token)) {
             map.put("token", token);
         }
         map.put("newPwd", MD5.md5(newPayword));
@@ -181,7 +181,7 @@ public class PayHttpUtils {
     //绑定手机号
     public Observable<BaseResponse> bindPhoneNum(String phone, String verificationCode) {
         Map<String, String> map = new HashMap<>();
-        if(!TextUtils.isEmpty(phone)){
+        if (!TextUtils.isEmpty(phone)) {
             map.put("phone", phone);
         }
         map.put("verificationCode", verificationCode);
@@ -191,19 +191,19 @@ public class PayHttpUtils {
     //获取账单明细
     public Observable<BaseResponse<BillBean>> getBillDetailsList(int pageNum, long startTime, int type) {
         Map<String, String> map = new HashMap<>();
-        map.put("pageNum", pageNum+"");
-        map.put("pageSize", 20+"");
-        map.put("startTime", startTime+"");
-        map.put("type", type+"");
+        map.put("pageNum", pageNum + "");
+        map.put("pageSize", 20 + "");
+        map.put("startTime", startTime + "");
+        map.put("type", type + "");
         return HttpChannel.getInstance().getPayService().getBillDetailsList(getRequestBody(map));
     }
 
     //获取零钱明细
     public Observable<BaseResponse<BillBean>> getChangeDetailsList(int pageNum, long startTime) {
         Map<String, String> map = new HashMap<>();
-        map.put("pageNum", pageNum+"");
-        map.put("pageSize", 20+"");
-        map.put("startTime", startTime+"");
+        map.put("pageNum", pageNum + "");
+        map.put("pageSize", 20 + "");
+        map.put("startTime", startTime + "");
         return HttpChannel.getInstance().getPayService().getChangeDetailsList(getRequestBody(map));
     }
 
@@ -217,7 +217,7 @@ public class PayHttpUtils {
     }
 
     //绑定银行卡-忘记密码辅助验证第三步
-    public Observable<BaseResponse<CommonBean>> bindBankCard(String bankCardNo, String bankName,String phone,String token) {
+    public Observable<BaseResponse<CommonBean>> bindBankCard(String bankCardNo, String bankName, String phone, String token) {
         Map<String, String> map = new HashMap<>();
         map.put("bankCardNo", bankCardNo);
         map.put("bankName", bankName);
@@ -227,7 +227,7 @@ public class PayHttpUtils {
     }
 
     //验证短信验证码-忘记密码辅助验证第四步
-    public Observable<BaseResponse<CommonBean>> checkCode(String token,String verificationCode) {
+    public Observable<BaseResponse<CommonBean>> checkCode(String token, String verificationCode) {
         Map<String, String> map = new HashMap<>();
         map.put("token", token);
         map.put("verificationCode", verificationCode);
@@ -312,13 +312,17 @@ public class PayHttpUtils {
     /**
      * 查看红包记录
      *
-     * @param rid 红包id 及 tradeId
+     * @param rid      红包id 及 tradeId
+     * @param fromType 1表示来源于零钱助手，0 则表示从红包
      */
-    public Observable<BaseResponse<EnvelopeDetailBean>> getEnvelopeDetail(long rid, String token) {
+    public Observable<BaseResponse<EnvelopeDetailBean>> getEnvelopeDetail(long rid, String token, int fromType) {
         Map<String, String> map = new HashMap<>();
         map.put("rid", rid + "");
         if (!TextUtils.isEmpty(token)) {
             map.put("accessToken", token);
+        }
+        if (fromType == 1) {
+            map.put("src", 1 + "");
         }
         return HttpChannel.getInstance().getPayService().getEnvelopeDetail(getRequestBody(map));
     }
