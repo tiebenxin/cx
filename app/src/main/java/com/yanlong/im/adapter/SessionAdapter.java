@@ -137,7 +137,7 @@ public class SessionAdapter extends AbstractRecyclerAdapter<Session> {
 //                    title = ginfo.getName();
                     title = msgDao.getGroupName(bean.getGid());
                     if (msginfo != null) {
-                        if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
+                        if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {//通知不要加谁发的消息
                             info = msginfo.getMsg_typeStr();
                         } else {
                             String name = "";

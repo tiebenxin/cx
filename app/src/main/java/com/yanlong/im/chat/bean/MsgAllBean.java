@@ -145,11 +145,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
     private P2PAuVideoDialMessage p2PAuVideoDialMessage;
 
-    //private RequestFriendMessage request_friend;
-
-    // private AcceptBeFriendsMessage accept_be_friends;
-
-    //private AckMessage ack;
+    private BalanceAssistantMessage balanceAssistantMessage;
+    private LocationMessage locationMessage;
 
     public P2PAuVideoMessage getP2PAuVideoMessage() {
         return p2PAuVideoMessage;
@@ -165,6 +162,22 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
     public void setP2PAuVideoDialMessage(P2PAuVideoDialMessage p2PAuVideoDialMessage) {
         this.p2PAuVideoDialMessage = p2PAuVideoDialMessage;
+    }
+
+    public BalanceAssistantMessage getBalanceAssistantMessage() {
+        return balanceAssistantMessage;
+    }
+
+    public void setBalanceAssistantMessage(BalanceAssistantMessage balanceAssistantMessage) {
+        this.balanceAssistantMessage = balanceAssistantMessage;
+    }
+
+    public LocationMessage getLocationMessage() {
+        return locationMessage;
+    }
+
+    public void setLocationMessage(LocationMessage locationMessage) {
+        this.locationMessage = locationMessage;
     }
 
     public boolean isRead() {
@@ -314,17 +327,17 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             str = getAtMessage().getMsg();
         } else if (msg_type == ChatEnum.EMessageType.ASSISTANT) {
             str = "[常信通知]";
-        } else if (msg_type == ChatEnum.EMessageType.MSG_CENCAL) {//撤回消息
+        } else if (msg_type == ChatEnum.EMessageType.MSG_CANCEL) {//撤回消息
             str = "" + StringUtil.delHTMLTag(getMsgCancel().getNote());
-        }else if (msg_type == ChatEnum.EMessageType.MSG_VIDEO) {//撤回消息
+        } else if (msg_type == ChatEnum.EMessageType.MSG_VIDEO) {//撤回消息
             str = "[视频]";
-        }else if(msg_type == ChatEnum.EMessageType.MSG_VOICE_VIDEO){// 音视频消息
-            if(getP2PAuVideoMessage().getAv_type()== MsgBean.AuVideoType.Vedio.getNumber()){
+        } else if (msg_type == ChatEnum.EMessageType.MSG_VOICE_VIDEO) {// 音视频消息
+            if (getP2PAuVideoMessage().getAv_type() == MsgBean.AuVideoType.Vedio.getNumber()) {
                 str = "[视频通话]";
-            }else{
+            } else {
                 str = "[语音通话]";
             }
-        } else if(msg_type == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME){//阅后即焚
+        } else if (msg_type == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME) {//阅后即焚
             str = getMsgCancel().getNote();
         }
 
@@ -506,7 +519,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         ChatEnum.EChatCellLayout layout = null;
         switch (msgType) {
             case ChatEnum.EMessageType.NOTICE://通知
-            case ChatEnum.EMessageType.MSG_CENCAL://撤回
+            case ChatEnum.EMessageType.MSG_CANCEL://撤回
                 layout = ChatEnum.EChatCellLayout.NOTICE;
                 break;
             case ChatEnum.EMessageType.TEXT://文本

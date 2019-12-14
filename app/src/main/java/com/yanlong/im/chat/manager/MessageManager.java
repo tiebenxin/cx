@@ -634,7 +634,7 @@ public class MessageManager {
                 DaoUtil.update(msgAllBean);
             }
             String cancelId = null;
-            boolean isCancel = msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL;
+            boolean isCancel = msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL;
             if (isCancel && msgAllBean.getMsgCancel() != null) {
 //                LogUtil.getLog().e("==isRead===getMsg_id="+msgAllBean.getMsg_id()+"==getMsgidCancel="+msgAllBean.getMsgCancel().getMsgidCancel());
                 cancelId = msgAllBean.getMsgCancel().getMsgidCancel();

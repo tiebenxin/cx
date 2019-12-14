@@ -1121,7 +1121,7 @@ public class SocketData {
 
                 needSave = false;
                 break;
-            case ChatEnum.EMessageType.MSG_CENCAL://
+            case ChatEnum.EMessageType.MSG_CANCEL://
 
                 break;
         }
@@ -1345,7 +1345,7 @@ public class SocketData {
                     return null;
                 }
                 break;
-            case ChatEnum.EMessageType.MSG_CENCAL:
+            case ChatEnum.EMessageType.MSG_CANCEL:
                 if (obj instanceof MsgCancel) {
                     msg.setMsgCancel((MsgCancel) obj);
                 } else {
@@ -1476,7 +1476,7 @@ public class SocketData {
                     return null;
                 }
                 break;
-            case ChatEnum.EMessageType.MSG_CENCAL:
+            case ChatEnum.EMessageType.MSG_CANCEL:
                 if (obj instanceof MsgCancel) {
                     msg.setMsgCancel((MsgCancel) obj);
                 } else {

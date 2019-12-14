@@ -57,7 +57,7 @@ public class TaskSession extends AsyncTask<Void, Integer, Boolean> {
             MsgAllBean msg = msgDao.msgGetLast4Gid(session.getGid());
             if (msg != null) {
                 session.setMessage(msg);
-                if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
+                if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {//通知不要加谁发的消息
                     session.setSenderName("");
                 } else {
                     if (msg.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称

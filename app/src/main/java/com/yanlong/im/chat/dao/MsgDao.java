@@ -35,7 +35,6 @@ import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventRefreshChat;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -706,7 +705,7 @@ public class MsgDao {
                 cancel.setFrom_uid(bean.getTo_uid());
                 cancel.setTo_uid(UserAction.getMyId());
                 cancel.setGid(bean.getGid());
-                cancel.setMsg_type(ChatEnum.EMessageType.MSG_CENCAL);
+                cancel.setMsg_type(ChatEnum.EMessageType.MSG_CANCEL);
 
                 int survivaltime = new UserDao().getReadDestroy(bean.getTo_uid(), bean.getGid());
                 MsgCancel msgCel = new MsgCancel();
