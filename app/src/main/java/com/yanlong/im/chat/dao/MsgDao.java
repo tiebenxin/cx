@@ -2,6 +2,7 @@ package com.yanlong.im.chat.dao;
 
 import android.text.TextUtils;
 
+import com.hm.cxpay.global.PayEnum;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.AssistantMessage;
@@ -1042,10 +1043,10 @@ public class MsgDao {
                     if (session.getIsMute() == 1) {//免打扰
                         session.setUnread_count(0);
                     } else {
-                        if(StringUtil.isNotNull(cancelId)){
-                            session.setUnread_count( 0 );
-                        }else {
-                            session.setUnread_count( 1);
+                        if (StringUtil.isNotNull(cancelId)) {
+                            session.setUnread_count(0);
+                        } else {
+                            session.setUnread_count(1);
                         }
                     }
                 }
@@ -1053,16 +1054,16 @@ public class MsgDao {
                 if (canChangeUnread) {
                     if (session.getIsMute() != 1) {//非免打扰
                         int num = 0;
-                        if(StringUtil.isNotNull(cancelId)){
+                        if (StringUtil.isNotNull(cancelId)) {
                             MsgAllBean cancel = getMsgById(cancelId);
 //                            LogUtil.getLog().e("群==isRead===="+cancel.isRead()+"==getRead="+cancel.getRead());
-                            if(cancel!=null&&!cancel.isRead()){//撤回的是未读消息 红点-1
-                                num = session.getUnread_count() - 1 ;
-                            }else {
-                                num =  session.getUnread_count();
+                            if (cancel != null && !cancel.isRead()) {//撤回的是未读消息 红点-1
+                                num = session.getUnread_count() - 1;
+                            } else {
+                                num = session.getUnread_count();
                             }
-                        }else {
-                            num =  session.getUnread_count() + 1;
+                        } else {
+                            num = session.getUnread_count() + 1;
                         }
                         num = num < 0 ? 0 : num;
                         session.setUnread_count(num);
@@ -1089,10 +1090,10 @@ public class MsgDao {
                     if (session.getIsMute() == 1) {//免打扰
                         session.setUnread_count(0);
                     } else {
-                        if(StringUtil.isNotNull(cancelId)){
-                            session.setUnread_count( 0 );
-                        }else {
-                            session.setUnread_count( 1);
+                        if (StringUtil.isNotNull(cancelId)) {
+                            session.setUnread_count(0);
+                        } else {
+                            session.setUnread_count(1);
                         }
                     }
                 }
@@ -1101,16 +1102,16 @@ public class MsgDao {
                     if (session.getIsMute() != 1) {//非免打扰
                         //没有撤回消息的id，要判断撤回的消息是已读还是未读
                         int num = 0;
-                        if(StringUtil.isNotNull(cancelId)){
+                        if (StringUtil.isNotNull(cancelId)) {
                             MsgAllBean cancel = getMsgById(cancelId);
 //                            LogUtil.getLog().e("==isRead===="+cancel.isRead()+"==getRead="+cancel.getRead());
-                            if(cancel!=null&&!cancel.isRead()){//撤回的是未读消息 红点-1
-                                num = session.getUnread_count() - 1 ;
-                            }else {
-                                num =  session.getUnread_count();
+                            if (cancel != null && !cancel.isRead()) {//撤回的是未读消息 红点-1
+                                num = session.getUnread_count() - 1;
+                            } else {
+                                num = session.getUnread_count();
                             }
-                        }else {
-                            num =  session.getUnread_count() + 1;
+                        } else {
+                            num = session.getUnread_count() + 1;
                         }
                         num = num < 0 ? 0 : num;
                         session.setUnread_count(num);
@@ -2052,7 +2053,7 @@ public class MsgDao {
      * @param rid
      * @param isOpen
      */
-    public void redEnvelopeOpen(String rid, boolean isOpen, int reType, String token) {
+    public void redEnvelopeOpen(String rid, int envelopeStatus, int reType, String token) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -2062,13 +2063,16 @@ public class MsgDao {
             } else if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {
                 long traceId = Long.parseLong(rid);
                 envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("traceId", traceId).findFirst();
-                if (envelopeMessage != null && !TextUtils.isEmpty(token)) {
-                    envelopeMessage.setAccessToken(token);
+                if (envelopeMessage != null) {
+                    if (!TextUtils.isEmpty(token)) {
+                        envelopeMessage.setAccessToken(token);
+                    }
+                    envelopeMessage.setEnvelopStatus(envelopeStatus);
                 }
             }
             if (envelopeMessage != null) {
                 if (envelopeMessage.getIsInvalid() == 0) {//没拆才更新，已经拆过了不更新
-                    envelopeMessage.setIsInvalid(isOpen ? 1 : 0);
+                    envelopeMessage.setIsInvalid(envelopeStatus != PayEnum.EEnvelopeStatus.NORMAL ? 1 : 0);
                 }
                 realm.insertOrUpdate(envelopeMessage);
             }

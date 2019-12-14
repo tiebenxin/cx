@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.hm.cxpay.global.PayEnum;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.AssistantMessage;
 import com.yanlong.im.chat.bean.AtMessage;
@@ -949,7 +950,7 @@ public class SocketData {
      * @return
      */
     public static MsgAllBean send4RbRev(Long toId, String toGid, String rid, int reType) {
-        msgDao.redEnvelopeOpen(rid, true, reType, "");
+        msgDao.redEnvelopeOpen(rid, PayEnum.EEnvelopeStatus.RECEIVED, reType, "");
         MsgBean.ReceiveRedEnvelopeMessage msg = MsgBean.ReceiveRedEnvelopeMessage.newBuilder()
                 .setId(rid)
                 .build();

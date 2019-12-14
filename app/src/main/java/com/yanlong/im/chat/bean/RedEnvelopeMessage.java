@@ -18,7 +18,7 @@ public class RedEnvelopeMessage extends RealmObject implements IMsgContent {
     private long traceId;//交易订单号
     private String actionId;
     private String accessToken;//查看系统红包token
-    private int envelopStatus;// 红包状态：0 正常， 1 已领取  2 已领完  3 已过期
+    private int envelopStatus;// 红包状态：0-正常， 1-已领取  2-已过期
 
     public int getStyle() {
         return style;

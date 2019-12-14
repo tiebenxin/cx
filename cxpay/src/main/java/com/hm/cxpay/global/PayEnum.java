@@ -46,7 +46,7 @@ public class PayEnum {
         int REFUND = 2;//成功后退款了
     }
 
-    //支付结果
+    //抢红包结果
     @IntDef({EPayResult.SUCCESS, EPayResult.FAIL, EPayResult.REFUND})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EEnvelopeOpenResult {
@@ -55,5 +55,13 @@ public class PayEnum {
         int REFUND = 2;//成功后退款了
     }
 
+    //红包状态
+    @IntDef({EEnvelopeStatus.NORMAL, EEnvelopeStatus.RECEIVED, EEnvelopeStatus.PAST})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EEnvelopeStatus {
+        int NORMAL = 0;//正常
+        int RECEIVED = 1;//已经领取
+        int PAST = 2;//过期
+    }
 
 }

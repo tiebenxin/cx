@@ -162,6 +162,9 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                 String string = s.toString().trim();
                 long money = UIUtils.getFen(string);
                 int count = UIUtils.getRedEnvelopeCount(ui.edRedPacketNum.getText().toString().trim());
+//                if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {
+//                    money = money * count;
+//                }
                 if (money > 0 && money <= MAX_AMOUNT && count > 0) {
                     ui.btnCommit.setEnabled(true);
                     ui.tvMoney.setText(string);

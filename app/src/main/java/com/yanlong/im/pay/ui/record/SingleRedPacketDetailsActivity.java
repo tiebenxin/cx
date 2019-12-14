@@ -79,6 +79,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
             return;
         }
         FromUserBean userBean = envelopeDetailBean.getImUserInfo();
+        UserBean user = PayEnvironment.getInstance().getUser();
         if (userBean != null) {
             UIUtils.loadAvatar(userBean.getAvatar(), ui.ivAvatar);
             ui.tvName.setText(userBean.getNickname() + "的红包");
@@ -86,15 +87,38 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
 
         ui.tvContent.setText(TextUtils.isEmpty(envelopeDetailBean.getNote()) ? "恭喜发财，大吉大利" : envelopeDetailBean.getNote());
         ui.tvMoney.setText(UIUtils.getYuan(envelopeDetailBean.getAmt()));
-        if (envelopeDetailBean.getType() == PayEnum.ERedEnvelopeType.NORMAL && envelopeDetailBean.getCnt() == 1) {
-            ui.llRecord.setVisibility(View.GONE);
-            ui.tvNote.setVisibility(View.GONE);
+        if (envelopeDetailBean.getType() == PayEnum.ERedEnvelopeType.NORMAL) {
+            if (user != null && userBean.getUid() == user.getUid()) {//是自己发的
+                if (envelopeDetailBean.getChatType() == 1) {//群聊
+                    ui.llSend.setVisibility(View.GONE);
+                    ui.llRecord.setVisibility(View.VISIBLE);
+                    ui.tvNote.setVisibility(View.GONE);
+                } else {//单聊
+                    if (envelopeDetailBean.getRemainCnt() == 1) {//未抢
+                        ui.llSend.setVisibility(View.VISIBLE);
+                        ui.llRecord.setVisibility(View.GONE);
+                        ui.tvNote.setVisibility(View.GONE);
+                    } else {
+                        ui.llSend.setVisibility(View.GONE);
+                        ui.llRecord.setVisibility(View.VISIBLE);
+                        ui.tvNote.setVisibility(View.GONE);
+                    }
+                }
+            } else {
+                ui.llSend.setVisibility(View.GONE);
+                ui.llRecord.setVisibility(View.GONE);
+                ui.tvNote.setVisibility(View.VISIBLE);
+                ui.tvNote.setText("已存入零钱");
+            }
         } else {
+            ui.llSend.setVisibility(View.GONE);
             ui.llRecord.setVisibility(View.VISIBLE);
             ui.tvNote.setVisibility(View.VISIBLE);
+        }
+        //初始化领取记录
+        if (ui.llRecord.getVisibility() == View.VISIBLE) {
             list = envelopeDetailBean.getRecvList();
             ui.mtListView.getListView().getAdapter().notifyDataSetChanged();
-            UserBean user = PayEnvironment.getInstance().getUser();
             int remainCount = envelopeDetailBean.getRemainCnt();
             int totalCount = envelopeDetailBean.getCnt();
             String receivedMoney = UIUtils.getYuan(envelopeDetailBean.getAmt() - envelopeDetailBean.getRemainAmt());//已经抢了的钱

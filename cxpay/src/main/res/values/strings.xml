@@ -10,7 +10,7 @@
     <string name="common_net_error_default">遇到错误了，请稍后再试</string>
     <string name="max_amount_notice">单个红包金额不能超过200元</string>
     <string name="auto_back_notice">未领取的红包将于24小时后自动退回</string>
-    <string name="arrive_to_account_notice">你发出的零钱红包账户，最晚48消息到账</string>
+    <string name="arrive_to_account_notice">你发出的零钱红包账户</string>
     <string name="range_of_receive">对方可领的金额为0.01~200元</string>
     <string name="send_fail_note">发送红包失败。如已扣款，将会在24小时内自动退回您的零钱账户</string>
 </resources>

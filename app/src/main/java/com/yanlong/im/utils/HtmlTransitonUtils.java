@@ -38,7 +38,6 @@ public class HtmlTransitonUtils {
 
     public SpannableStringBuilder getSpannableString(Context context, String html, int type) {
         SpannableStringBuilder style = new SpannableStringBuilder();
-        LogUtil.getLog().e(TAG, "html---------------->" + html);
         if (!TextUtils.isEmpty(html)) {
             HtmlBean bean = htmlTransition(html);
             switch (type) {
