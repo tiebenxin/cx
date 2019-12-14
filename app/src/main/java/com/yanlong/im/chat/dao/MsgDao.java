@@ -706,7 +706,7 @@ public class MsgDao {
                 cancel.setFrom_uid(bean.getTo_uid());
                 cancel.setTo_uid(UserAction.getMyId());
                 cancel.setGid(bean.getGid());
-                cancel.setMsg_type(ChatEnum.EMessageType.MSG_CENCAL);
+                cancel.setMsg_type(ChatEnum.EMessageType.MSG_CANCEL);
 
                 int survivaltime = new UserDao().getReadDestroy(bean.getTo_uid(), bean.getGid());
                 MsgCancel msgCel = new MsgCancel();
@@ -1023,7 +1023,8 @@ public class MsgDao {
      * 更新或者创建session
      *
      * */
-    public void sessionReadUpdate(String gid, Long from_uid, boolean isCancel, boolean canChangeUnread) {
+    public void sessionReadUpdate(String gid, Long from_uid, String cancelId, boolean canChangeUnread) {
+        //isCancel 是否是撤回消息  ，  canChangeUnread 不在聊天页面 注意true表示不在聊天页面
         Session session;
         if (StringUtil.isNotNull(gid)) {//群消息
             session = DaoUtil.findOne(Session.class, "gid", gid);
@@ -1041,13 +1042,28 @@ public class MsgDao {
                     if (session.getIsMute() == 1) {//免打扰
                         session.setUnread_count(0);
                     } else {
-                        session.setUnread_count(isCancel ? 0 : 1);
+                        if(StringUtil.isNotNull(cancelId)){
+                            session.setUnread_count( 0 );
+                        }else {
+                            session.setUnread_count( 1);
+                        }
                     }
                 }
             } else {
                 if (canChangeUnread) {
                     if (session.getIsMute() != 1) {//非免打扰
-                        int num = isCancel ? session.getUnread_count() - 1 : session.getUnread_count() + 1;
+                        int num = 0;
+                        if(StringUtil.isNotNull(cancelId)){
+                            MsgAllBean cancel = getMsgById(cancelId);
+//                            LogUtil.getLog().e("群==isRead===="+cancel.isRead()+"==getRead="+cancel.getRead());
+                            if(cancel!=null&&!cancel.isRead()){//撤回的是未读消息 红点-1
+                                num = session.getUnread_count() - 1 ;
+                            }else {
+                                num =  session.getUnread_count();
+                            }
+                        }else {
+                            num =  session.getUnread_count() + 1;
+                        }
                         num = num < 0 ? 0 : num;
                         session.setUnread_count(num);
                     } else {
@@ -1073,14 +1089,29 @@ public class MsgDao {
                     if (session.getIsMute() == 1) {//免打扰
                         session.setUnread_count(0);
                     } else {
-                        session.setUnread_count(isCancel ? 0 : 1);
+                        if(StringUtil.isNotNull(cancelId)){
+                            session.setUnread_count( 0 );
+                        }else {
+                            session.setUnread_count( 1);
+                        }
                     }
                 }
             } else {
                 if (canChangeUnread) {
                     if (session.getIsMute() != 1) {//非免打扰
                         //没有撤回消息的id，要判断撤回的消息是已读还是未读
-                        int num = isCancel ? session.getUnread_count() - 1 : session.getUnread_count() + 1;
+                        int num = 0;
+                        if(StringUtil.isNotNull(cancelId)){
+                            MsgAllBean cancel = getMsgById(cancelId);
+//                            LogUtil.getLog().e("==isRead===="+cancel.isRead()+"==getRead="+cancel.getRead());
+                            if(cancel!=null&&!cancel.isRead()){//撤回的是未读消息 红点-1
+                                num = session.getUnread_count() - 1 ;
+                            }else {
+                                num =  session.getUnread_count();
+                            }
+                        }else {
+                            num =  session.getUnread_count() + 1;
+                        }
                         num = num < 0 ? 0 : num;
                         session.setUnread_count(num);
                     } else {
@@ -1090,7 +1121,7 @@ public class MsgDao {
             }
             session.setUp_time(System.currentTimeMillis());
         }
-        if (isCancel) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
+        if (StringUtil.isNotNull(cancelId)) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
             session.setMessageType(1000);
         }
 
@@ -2793,9 +2824,9 @@ public class MsgDao {
                     hasChange = true;
                     for (int i = 0; i < len; i++) {
                         MsgAllBean bean = list.get(i);
-                        if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE) {//  || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
-                            continue;
-                        }
+//                        if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE) {//  || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
+//                            continue;
+//                        }
                         bean.setRead(isRead);
                         realm.insertOrUpdate(bean);
                     }

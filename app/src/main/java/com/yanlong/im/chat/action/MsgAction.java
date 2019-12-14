@@ -215,6 +215,7 @@ public class MsgAction {
                 @Override
                 public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                     if (response.body() == null) {
+                        callback.onFailure(call, new Throwable());
                         LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败 response=null--gid=" + gid);
                         return;
                     }

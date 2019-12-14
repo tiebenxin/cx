@@ -2,8 +2,12 @@ package com.yanlong.im.chat.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +22,7 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.EventFindHistory;
@@ -126,20 +131,17 @@ public class SearchMsgActivity extends AppActivity {
                 name = u.getName4Show();
             }
             msg = msgbean.getChat().getMsg();
-            int index = msg.indexOf(key) - 1;
+            int index = msg.indexOf(key);
 
-            if (index >= 0) {
-                msg = msg.substring(index);
-
-            }
-            msg = msg.replace(key, "<font color=\"#32b053\">" + key + "</font>");
-
+            SpannableString style = new SpannableString(msg);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.green_500));
+            style.setSpan(protocolColorSpan, index, index + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             holder.txtName.setText(name);
 
             holder.txtTimer.setText(TimeToString.YYYY_MM_DD_HH_MM_SS(msgbean.getTimestamp()));
 
-            holder.txtContext.setText(Html.fromHtml(msg));
+            showMessage(holder.txtContext, msg, style);
 
             Glide.with(context).load(url)
                     .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
@@ -186,6 +188,20 @@ public class SearchMsgActivity extends AppActivity {
                 txtContext = convertView.findViewById(R.id.txt_context);
             }
 
+        }
+
+        /**
+         * 显示草稿内容
+         *
+         * @param message
+         */
+        protected void showMessage(TextView txtInfo, String message, SpannableString spannableString) {
+            if (spannableString == null) {
+                spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, message);
+            } else {
+                spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, spannableString);
+            }
+            txtInfo.setText(spannableString, TextView.BufferType.SPANNABLE);
         }
     }
 

@@ -96,11 +96,6 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
                 Group ginfo = msgDao.getGroup4Id(bean.getGid());
                 if (ginfo != null) {
                     icon = ginfo.getAvatar();
-                    if (!StringUtil.isNotNull(icon)){
-                        MsgDao msgDao=new MsgDao();
-                        String url= msgDao.groupHeadImgGet(ginfo.getGid());
-                        icon=url;
-                    }
                     //获取最后一条群消息
 //                    title = ginfo.getName();
                     title = msgDao.getGroupName(ginfo.getGid());
@@ -108,9 +103,6 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
 
                 }
             }
-            //imgHead.setImageURI(Uri.parse(icon));
-//            Glide.with(context).load(icon)
-//                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
 
             if (StringUtil.isNotNull(icon)) {
                 headList.add(icon);

@@ -406,7 +406,7 @@ public class ChatItemView extends LinearLayout {
         viewMeGameShare.setVisibility(GONE);
         viewOtGameShare.setVisibility(GONE);
         switch (type) {
-            case ChatEnum.EMessageType.MSG_CENCAL://撤回的消息
+            case ChatEnum.EMessageType.MSG_CANCEL://撤回的消息
             case 0://公告
                 viewBroadcast.setVisibility(VISIBLE);
                 viewMe.setVisibility(GONE);

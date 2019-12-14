@@ -37,11 +37,15 @@ public class MediaBackUtil {
 //        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 //        Ringtone r = RingtoneManager.getRingtone(context, notification);
 //        r.play();
-        // 播放自定义铃声
-        PlayerManager.getManager().init(context, PlayerManager.MESSAGE_TYPE);
-        // 铃声为静音或振動时不播放
-        if (PlayerManager.getManager().getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
-            PlayerManager.getManager().play(PlayerManager.MODE_SPEAKER);
+        try {
+            // 播放自定义铃声
+            PlayerManager.getManager().init(context, PlayerManager.MESSAGE_TYPE);
+            // 铃声为静音或振動时不播放
+            if (PlayerManager.getManager().getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
+                PlayerManager.getManager().play(PlayerManager.MODE_SPEAKER);
+            }
+        }catch (RuntimeException e){
+
         }
     }
 }

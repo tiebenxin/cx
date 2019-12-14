@@ -31,7 +31,7 @@ public class ChatCellLock extends ChatCellBase {
         super.showMessage(message);
         if (messageType == ChatEnum.EMessageType.NOTICE) {
             tv_content.setText(Html.fromHtml(message.getMsgNotice().getNote()));
-        } else if (messageType == ChatEnum.EMessageType.MSG_CENCAL) {
+        } else if (messageType == ChatEnum.EMessageType.MSG_CANCEL) {
             tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
 
         }

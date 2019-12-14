@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -161,6 +162,8 @@ public class PictureImageActivity extends PictureBaseActivity implements View.On
             final PhotoView imageView = (PhotoView) contentView.findViewById(R.id.preview_image);
             // 长图控件
             final SubsamplingScaleImageView longImg = (SubsamplingScaleImageView) contentView.findViewById(R.id.longImg);
+            // 常规图控件
+            final ImageView iv_download = (ImageView) contentView.findViewById(R.id.iv_download);
 
             LocalMedia media = images.get(position);
             if (media != null) {
@@ -251,6 +254,40 @@ public class PictureImageActivity extends PictureBaseActivity implements View.On
                         overridePendingTransition(0, R.anim.a3);
                     }
                 });
+
+                iv_download.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (rxPermissions == null) {
+                            rxPermissions = new RxPermissions(PictureImageActivity.this);
+                        }
+                        rxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                .subscribe(new Observer<Boolean>() {
+                                    @Override
+                                    public void onSubscribe(Disposable d) {
+                                    }
+
+                                    @Override
+                                    public void onNext(Boolean aBoolean) {
+                                        if (aBoolean) {
+                                            showDownLoadDialog(path);
+                                        } else {
+                                            ToastManage.s(mContext, getString(R.string.picture_jurisdiction));
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+                                    }
+                                });
+                    }
+                });
+
+
                 imageView.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {

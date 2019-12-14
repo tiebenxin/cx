@@ -8,6 +8,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -34,8 +35,10 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
+import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.wight.avatar.MultiImageView;
 
 import net.cb.cb.library.utils.InputUtil;
@@ -48,6 +51,8 @@ import net.cb.cb.library.view.StrikeButton;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @类名：消息搜索界面
@@ -67,6 +72,7 @@ public class MsgSearchActivity extends AppActivity {
     private MsgDao msgDao;
     private UserDao userDao;
     private boolean onlineState = true;//判断网络状态 true在线 false离线
+    private final String TYPE_FACE = "[动画表情]";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,18 +197,24 @@ public class MsgSearchActivity extends AppActivity {
             }
             if (bean.getType() == 0) {//单人
                 if (StringUtil.isNotNull(bean.getDraft())) {
-                    //                    info = "草稿:" + bean.getDraft();
-                    SpannableStringBuilder style = new SpannableStringBuilder();
-                    style.append("[草稿]" + bean.getDraft());
+                    SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                     style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    holder.txtInfo.setText(style);
+                    showMessage(holder.txtInfo, bean.getDraft(), style);
                 } else {
-                    holder.txtInfo.setText(info);
+                    // 判断是否是动画表情
+                    if (info.length() == PatternUtil.FACE_CUSTOMER_LENGTH) {
+                        Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
+                        Matcher matcher = patten.matcher(info);
+                        if (matcher.matches()) {
+                            holder.txtInfo.setText(TYPE_FACE);
+                        } else {
+                            showMessage(holder.txtInfo, info, null);
+                        }
+                    } else {
+                        showMessage(holder.txtInfo, info, null);
+                    }
                 }
-
-//                Glide.with(getContext()).load(icon)
-//                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
                 headList.add(icon);
                 holder.imgHead.setList(headList);
 
@@ -224,17 +236,15 @@ public class MsgSearchActivity extends AppActivity {
                     case 0:
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
                             if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
-                                SpannableStringBuilder style = new SpannableStringBuilder();
-                                style.append("[有人@我]" + info);
+                                SpannableString style = new SpannableString("[有人@我]" + info);
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                holder.txtInfo.setText(style);
+                                showMessage(holder.txtInfo, info, style);
                             } else {
-                                SpannableStringBuilder style = new SpannableStringBuilder();
-                                style.append("[有人@我]" + info);
+                                SpannableString style = new SpannableString("[有人@我]" + info);
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                holder.txtInfo.setText(style);
+                                showMessage(holder.txtInfo, info, style);
                             }
                         }
                         break;
@@ -244,64 +254,53 @@ public class MsgSearchActivity extends AppActivity {
                                 return;
                             }
                             if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
-                                SpannableStringBuilder style = new SpannableStringBuilder();
-                                style.append("[@所有人]" + info);
+                                SpannableString style = new SpannableString("[@所有人]" + info);
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                holder.txtInfo.setText(style);
+                                showMessage(holder.txtInfo, info, style);
                             } else {
-                                SpannableStringBuilder style = new SpannableStringBuilder();
-                                style.append("[@所有人]" + info);
+                                SpannableString style = new SpannableString("[@所有人]" + info);
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                holder.txtInfo.setText(style);
+                                showMessage(holder.txtInfo, info, style);
                             }
                         }
                         break;
                     case 2:
                         if (StringUtil.isNotNull(bean.getDraft())) {
-//                            info = "草稿:" + bean.getDraft();
-                            SpannableStringBuilder style = new SpannableStringBuilder();
-                            style.append("[草稿]" + bean.getDraft());
+                            SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
                             ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                             style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            holder.txtInfo.setText(style);
+                            showMessage(holder.txtInfo, bean.getDraft(), style);
                         } else {
-                            holder.txtInfo.setText(info);
+                            // 判断是否是动画表情
+                            Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
+                            Matcher matcher = patten.matcher(info);
+                            if (matcher.find()) {
+                                info = info.substring(0, info.indexOf("["));
+                                holder.txtInfo.setText(info + " " + TYPE_FACE);
+                            } else {
+                                showMessage(holder.txtInfo, info, null);
+                            }
                         }
                         break;
                     default:
-                        holder.txtInfo.setText(info);
+                        // 判断是否是动画表情
+                        Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
+                        Matcher matcher = patten.matcher(info);
+                        if (matcher.find()) {
+                            info = info.substring(0, info.indexOf("["));
+                            holder.txtInfo.setText(info + " " + TYPE_FACE);
+                        } else {
+                            showMessage(holder.txtInfo, info, null);
+                        }
                         break;
                 }
 
                 if (StringUtil.isNotNull(icon)) {
-//                    Glide.with(getContext()).load(icon)
-//                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
                     headList.add(icon);
                     holder.imgHead.setList(headList);
                 } else {
-//                    if (bean.getType() == 1) {
-//                        String imgUrl = "";
-//                        try {
-//                            imgUrl = ((GroupImageHead) DaoUtil.findOne(GroupImageHead.class, "gid", bean.getGid())).getImgHeadUrl();
-//                        } catch (Exception e) {
-//                            creatAndSaveImg(bean, holder.imgHead);
-//                        }
-//
-////                        LogUtil.getLog().e("TAG", "----------" + imgUrl.toString());
-//                        if (StringUtil.isNotNull(imgUrl)) {
-//                            Glide.with(getContext()).load(imgUrl)
-//                                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-//                        } else {
-//
-//                            creatAndSaveImg(bean, holder.imgHead);
-//
-//                        }
-//                    } else {
-//                        Glide.with(getContext()).load(icon)
-//                                .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-//                    }
                     loadGroupHeads(bean, holder.imgHead);
                 }
             }
@@ -322,10 +321,6 @@ public class MsgSearchActivity extends AppActivity {
                             .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
                             .putExtra(ChatActivity.ONLINE_STATE, onlineState)
                     );
-//                    if (bean.getUnread_count() > 0) {
-//                        MessageManager.getInstance().setMessageChange(true);
-//                    }
-
                 }
             });
 //            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#f1f1f1"));
@@ -333,26 +328,6 @@ public class MsgSearchActivity extends AppActivity {
             holder.iv_disturb.setVisibility(bean.getIsMute() == 0 ? View.GONE : View.VISIBLE);
 
         }
-
-//        private void creatAndSaveImg(Session bean, MultiImageView imgHead) {
-//            Group gginfo = msgDao.getGroup4Id(bean.getGid());
-//            if (gginfo != null) {
-//                int i = gginfo.getUsers().size();
-//                i = i > 9 ? 9 : i;
-//                //头像地址
-//                String url[] = new String[i];
-//                for (int j = 0; j < i; j++) {
-//                    MemberUser userInfo = gginfo.getUsers().get(j);
-//                    url[j] = userInfo.getHead();
-//                }
-//                File file = GroupHeadImageUtil.synthesis(getContext(), url);
-//                Glide.with(getContext()).load(file)
-//                        .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
-//
-//                MsgDao msgDao = new MsgDao();
-//                msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
-//            }
-//        }
 
         //加载群头像
         public synchronized void loadGroupHeads(Session bean, MultiImageView imgHead) {
@@ -407,6 +382,20 @@ public class MsgSearchActivity extends AppActivity {
                 iv_disturb_unread = convertView.findViewById(R.id.iv_disturb_unread);
             }
 
+        }
+
+        /**
+         * 显示草稿内容
+         *
+         * @param message
+         */
+        protected void showMessage(TextView txtInfo, String message, SpannableString spannableString) {
+            if (spannableString == null) {
+                spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, message);
+            } else {
+                spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, spannableString);
+            }
+            txtInfo.setText(spannableString, TextView.BufferType.SPANNABLE);
         }
 
     }

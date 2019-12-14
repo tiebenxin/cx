@@ -279,7 +279,6 @@ public class AVChatController {
         });
     }
 
-
     /**
      * 点对点语音挂断(已完成)
      *
@@ -300,6 +299,7 @@ public class AVChatController {
                     @Override
                     public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                         super.onResponse(call, response);
+                        LogUtil.getLog().i(TAG,"点对点语音挂断(已完成)");
                     }
 
                     @Override

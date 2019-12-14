@@ -90,11 +90,15 @@ public class PySortView extends LinearLayout {
     /**
      * 滑动到指定位置
      */
-    private void smoothMoveToPosition(RecyclerView mRecyclerView, final int position) {
+    private void smoothMoveToPosition(RecyclerView mRecyclerView, int position) {
         // 第一个可见位置
         int firstItem = mRecyclerView.getChildLayoutPosition(mRecyclerView.getChildAt(0));
         // 最后一个可见位置
         int lastItem = mRecyclerView.getChildLayoutPosition(mRecyclerView.getChildAt(mRecyclerView.getChildCount() - 1));
+        // TODO 当position大于lastItem 会出现死循环
+        if (position > lastItem) {
+            position = lastItem;
+        }
         if (position < firstItem) {
             // 第一种可能:跳转位置在第一个可见位置之前，使用smoothScrollToPosition
             mRecyclerView.smoothScrollToPosition(position);
