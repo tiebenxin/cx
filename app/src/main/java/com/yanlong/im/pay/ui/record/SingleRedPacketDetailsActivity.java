@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
@@ -226,6 +227,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
             private TextView tvTime;
             private TextView tvMoney;
             private TextView tvLuck;
+            private final ImageView ivLuck;
 
 
             public RbViewHolder(@NonNull View itemView) {
@@ -235,6 +237,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                 tvTime = itemView.findViewById(R.id.tv_date);
                 tvMoney = itemView.findViewById(R.id.tv_money);
                 tvLuck = itemView.findViewById(R.id.tv_luck);
+                ivLuck = itemView.findViewById(R.id.iv_luck);
             }
 
             public void bindData(EnvelopeReceiverBean bean) {
@@ -247,7 +250,9 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                     tvName.setText(userBean.getNickname());
                 }
                 tvTime.setText(DateUtils.getGrabTime(bean.getTime()));
-                tvMoney.setText(UIUtils.getYuan(bean.getAmt()));
+                tvMoney.setText(UIUtils.getYuan(bean.getAmt()) + "元");
+                //手气最佳
+                ivLuck.setVisibility(bean.getBestLuck() == 1 ? View.VISIBLE : View.GONE);
                 tvLuck.setVisibility(bean.getBestLuck() == 1 ? View.VISIBLE : View.GONE);
             }
         }

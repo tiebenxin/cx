@@ -61,12 +61,20 @@
                     android:layout_weight="1"
                     android:text="00:00" />
 
+                <ImageView
+                    android:id="@+id/iv_luck"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:src="@mipmap/ic_luck"/>
+
                 <TextView
                     android:id="@+id/tv_luck"
                     style="@style/app_txt_content_1"
+                    android:layout_marginLeft="3dp"
                     android:text="手气最佳"
-                    android:textColor="@color/black"
-                    android:textSize="14sp" />
+                    android:textColor="#ffb347"
+                    android:textSize="11sp" />
 
             </LinearLayout>
 
