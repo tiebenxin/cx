@@ -118,6 +118,7 @@ public class GroupCreateActivity extends AppActivity {
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLoadView().setStateNormal();
         //联动
+        viewType.setLinearLayoutManager(mtListView.getLayoutManager());
         viewType.setListView(mtListView.getListView());
 
         //顶部处理
@@ -336,9 +337,10 @@ public class GroupCreateActivity extends AppActivity {
         for (int i = listData.size() - 1; i >= 0; i--) {
             if (UserUtil.isSystemUser(listData.get(i).getUid())) {
                 listData.remove(i);
-            } else {
-                viewType.putTag(listData.get(i).getTag(), i);
             }
+        }
+        for (int i = 0; i < listData.size(); i++) {
+            viewType.putTag(listData.get(i).getTag(), i);
         }
         // 添加存在用户的首字母列表
         viewType.addItemView(UserUtil.userParseString(listData));

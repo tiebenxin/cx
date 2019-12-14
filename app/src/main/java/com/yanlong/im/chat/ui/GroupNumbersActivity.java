@@ -109,6 +109,7 @@ public class GroupNumbersActivity extends AppActivity {
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLoadView().setStateNormal();
         //联动
+        viewType.setLinearLayoutManager(mtListView.getLayoutManager());
         viewType.setListView(mtListView.getListView());
         //顶部处理
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);

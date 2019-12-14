@@ -104,6 +104,7 @@ public class GroupSelectUserActivity extends AppActivity {
         mtListView.init(adapter);
         mtListView.getLoadView().setStateNormal();
         //联动
+        viewType.setLinearLayoutManager(mtListView.getLayoutManager());
         viewType.setListView(mtListView.getListView());
         edtSearch.addTextChangedListener(new TextWatcher() {
             @Override
