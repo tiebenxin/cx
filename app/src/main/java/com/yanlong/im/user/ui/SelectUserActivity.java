@@ -77,6 +77,7 @@ public class SelectUserActivity extends AppActivity {
 
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLoadView().setStateNormal();
+        viewType.setLinearLayoutManager(mtListView.getLayoutManager());
         //联动
         viewType.setListView(mtListView.getListView());
     }
