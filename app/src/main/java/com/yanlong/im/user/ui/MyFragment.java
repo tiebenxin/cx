@@ -162,7 +162,11 @@ public class MyFragment extends Fragment {
         viewMoney.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if(PayEnvironment.getInstance().getUser()!=null){
+                    checkUserStatus(PayEnvironment.getInstance().getUser());
+                }else {
+                    httpGetUserInfo();
+                }
             }
         });
         mViewScanQrcode.setOnClickListener(new View.OnClickListener() {
@@ -184,14 +188,11 @@ public class MyFragment extends Fragment {
                 startActivity(new Intent(getActivity(), HelpActivity.class));
             }
         });
+        //云红包
         viewWallet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(PayEnvironment.getInstance().getUser()!=null){
-                    checkUserStatus(PayEnvironment.getInstance().getUser());
-                }else {
-                    httpGetUserInfo();
-                }
+                taskWallet();
             }
         });
 

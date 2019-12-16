@@ -1,10 +1,13 @@
 package com.hm.cxpay.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextUtils;
@@ -61,6 +64,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     private DialogErrorPassword dialogErrorPassword;
     private CxEnvelopeBean envelopeBean;
 
+
     /**
      * @param gid         群id
      * @param memberCount 群成员数
@@ -105,6 +109,12 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventPayResult(PayResultEvent event) {
         dismissWaitDialog();
+        if (isSending()) {
+            setSending(false);
+            if (handler != null && runnable != null) {
+                handler.removeCallbacks(runnable);
+            }
+        }
         if (envelopeBean != null && event.getTradeId() == envelopeBean.getTradeId()) {
             if (event.getResult() == PayEnum.EPayResult.SUCCESS) {
                 setResultOk();
@@ -307,21 +317,19 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                                 if (sendBean.getCode() == 1) {//code  1表示成功，2失败，99处理中
                                     setResultOk();
                                 } else if (sendBean.getCode() == 99) {
+                                    setSending(true);
+                                    handler.postDelayed(runnable, WAIT_TIME);
                                     showWaitDialog();
-//                                    Intent intent = new Intent();
-//                                    Bundle bundle = new Bundle();
-//                                    bundle.putParcelable("envelope", sendBean);
-//                                    intent.putExtras(bundle);
-//                                    setResult(RESULT_OK, intent);
                                 } else if (sendBean.getCode() == -21000) {//密码错误
                                     showPswErrorDialog();
                                 } else {
                                     ToastUtil.show(getContext(), sendBean.getErrMsg());
-                                    Intent intent = new Intent();
-                                    Bundle bundle = new Bundle();
-                                    bundle.putParcelable("envelope", sendBean);
-                                    intent.putExtras(bundle);
-                                    setResult(RESULT_OK, intent);
+//                                    Intent intent = new Intent();
+//                                    Bundle bundle = new Bundle();
+//                                    bundle.putParcelable("envelope", sendBean);
+//                                    intent.putExtras(bundle);
+                                    setResult(RESULT_CANCELED);
+                                    finish();
                                 }
                             }
                         } else {
