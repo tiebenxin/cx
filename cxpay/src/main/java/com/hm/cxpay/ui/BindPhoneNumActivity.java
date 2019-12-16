@@ -16,6 +16,7 @@ import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 
 import net.cb.cb.library.utils.CheckUtil;
+import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.CountDownUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -77,7 +78,7 @@ public class BindPhoneNumActivity extends AppActivity {
             }
         });
         //下一步
-        tvSubmit.setOnClickListener(new View.OnClickListener() {
+        ClickFilter.onClick(tvSubmit, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //是否有手机号

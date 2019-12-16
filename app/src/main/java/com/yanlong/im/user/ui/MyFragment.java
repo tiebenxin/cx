@@ -50,6 +50,7 @@ import com.yanlong.im.utils.update.UpdateManage;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
@@ -159,7 +160,8 @@ public class MyFragment extends Fragment {
                 startActivity(arCodeIntent);
             }
         });
-        viewMoney.setOnClickListener(new View.OnClickListener() {
+        //涉及网络请求均加入防重复点击
+        ClickFilter.onClick(viewMoney, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(PayEnvironment.getInstance().getUser()!=null){
