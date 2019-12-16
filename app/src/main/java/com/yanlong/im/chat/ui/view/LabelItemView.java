@@ -69,11 +69,13 @@ public class LabelItemView extends LinearLayout {
         if (message.getDetailType() == MsgBean.BalanceAssistantMessage.DetailType.RED_ENVELOPE_VALUE) {//红包详情
             llDetail.setVisibility(VISIBLE);
             viewLine.setVisibility(VISIBLE);
-            tvDetail.setText("红包详情");
+//            tvDetail.setText("红包详情");
+            tvDetail.setText("查看详情");
         } else if (message.getDetailType() == MsgBean.BalanceAssistantMessage.DetailType.TRANS_VALUE) {//交易详情
             llDetail.setVisibility(VISIBLE);
             viewLine.setVisibility(VISIBLE);
-            tvDetail.setText("交易详情");
+//            tvDetail.setText("交易详情");
+            tvDetail.setText("查看详情");
         } else {
             llDetail.setVisibility(GONE);
             viewLine.setVisibility(GONE);

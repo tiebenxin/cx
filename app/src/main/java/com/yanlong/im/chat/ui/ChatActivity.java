@@ -1391,7 +1391,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private boolean filterMessage(IMsgContent message) {
         boolean isSend = true;
-        if (Constants.CX_HELPER_UID.equals(toUId)) {//常信小助手不需要发送到后台
+        if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_BALANCE_UID.equals(toUId)) {//常信小助手不需要发送到后台
             isSend = false;
         } /*else if (message instanceof RedEnvelopeMessage) {
             RedEnvelopeMessage bean = (RedEnvelopeMessage) message;
@@ -3091,10 +3091,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     holder.viewChatItem.setBalanceMsg(msgbean.getBalanceAssistantMessage(), new ChatItemView.EventBalance() {
                         @Override
                         public void onClick(long tradeId, int detailType) {
-                            if (detailType == MsgBean.BalanceAssistantMessage.DetailType.RED_ENVELOPE_VALUE){//红包详情
-                                Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this,tradeId);
+                            if (detailType == MsgBean.BalanceAssistantMessage.DetailType.RED_ENVELOPE_VALUE) {//红包详情
+                                Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, tradeId, 1);
                                 startActivity(intent);
-                            }else if (detailType == MsgBean.BalanceAssistantMessage.DetailType.TRANS_VALUE){//订单详情
+                            } else if (detailType == MsgBean.BalanceAssistantMessage.DetailType.TRANS_VALUE) {//订单详情
 
                             }
                         }

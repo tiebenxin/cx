@@ -31,7 +31,6 @@ import com.hm.cxpay.ui.redenvelope.FromUserBean;
 import com.hm.cxpay.utils.DateUtils;
 import com.hm.cxpay.utils.UIUtils;
 import com.hm.cxpay.widget.CircleImageView;
-import com.yanlong.im.chat.ui.ChatActivity;
 
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -61,9 +60,10 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
         return intent;
     }
 
-    public static Intent newIntent(Context context, long rid) {
+    public static Intent newIntent(Context context, long rid,int fromType) {
         Intent intent = new Intent(context, SingleRedPacketDetailsActivity.class);
         intent.putExtra("rid", rid);
+        intent.putExtra("fromType", fromType);
         return intent;
     }
 
@@ -79,8 +79,9 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
         initEvent();
         if (envelopeDetailBean == null) {
             long rid = getIntent().getLongExtra("rid", 0);
+            int fromType = getIntent().getIntExtra("fromType", 0);
             if (rid > 0) {
-                getEnvelopeDetail(rid);
+                getEnvelopeDetail(rid, fromType);
             }
         }
     }
@@ -268,8 +269,8 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
         }
     }
 
-    private void getEnvelopeDetail(long rid) {
-        PayHttpUtils.getInstance().getEnvelopeDetail(rid, "", 1)
+    private void getEnvelopeDetail(long rid,int fromType) {
+        PayHttpUtils.getInstance().getEnvelopeDetail(rid, "", fromType)
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<EnvelopeDetailBean>>() {
