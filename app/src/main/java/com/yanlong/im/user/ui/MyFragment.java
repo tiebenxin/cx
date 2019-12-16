@@ -187,7 +187,11 @@ public class MyFragment extends Fragment {
         viewWallet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                httpGetUserInfo();
+                if(PayEnvironment.getInstance().getUser()!=null){
+                    checkUserStatus(PayEnvironment.getInstance().getUser());
+                }else {
+                    httpGetUserInfo();
+                }
             }
         });
 

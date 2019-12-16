@@ -384,14 +384,14 @@ public class RechargeActivity extends AppActivity {
                     public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
                             if(baseResponse.getData()!=null){
                                 if(baseResponse.getData().getCode()==1){
-                                    ToastUtil.show(context, "充值成功!");
+                                    ToastUtil.showLong(context, "充值成功!");
                                     setResult(RESULT_OK);
                                 }else if(baseResponse.getData().getCode()==2){
-                                    ToastUtil.show(context, "充值失败!如有疑问，请联系客服");
+                                    ToastUtil.showLong(context, "充值失败!如有疑问，请联系客服");
                                 }else if(baseResponse.getData().getCode()==99){
-                                    ToastUtil.show(context, "交易处理中，请耐心等待，稍后会有系统通知...");
+                                    ToastUtil.showLong(context, "交易处理中，请耐心等待，稍后会有系统通知...");
                                 }else {
-                                    ToastUtil.show(context, baseResponse.getMessage());
+                                    ToastUtil.showLong(context, baseResponse.getMessage());
                                 }
                             }
                         finish();
@@ -400,7 +400,7 @@ public class RechargeActivity extends AppActivity {
                     @Override
                     public void onHandleError(BaseResponse<CommonBean> baseResponse) {
                         super.onHandleError(baseResponse);
-                        ToastUtil.show(context, baseResponse.getMessage());
+                        ToastUtil.showLong(context, baseResponse.getMessage());
                     }
                 });
 

@@ -92,7 +92,7 @@ public class CheckPaywordActivity extends AppActivity {
                         Intent intent = new Intent();
                         intent.putExtra("payword", payword);
                         setResult(RESULT_OK, intent);
-                        ToastUtil.show(context, "支付密码校验成功！");
+//                        ToastUtil.show(context, "支付密码校验成功！");
                         finish();
                     }
 

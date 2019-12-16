@@ -313,13 +313,13 @@ public class BillDetailActivity extends AppActivity {
             tvContent.setText("¥"+UIUtils.getYuan(data.getAmt())+"元");
             tvWithdrawStatusOne.setText("发起提现\n"+DateUtils.timeStamp2Date(data.getCreateTime(), ""));
             if (data.getStat() == 1) {
-                tvWithdrawStatusTwo.setText("银行处理中");
+                tvWithdrawStatusTwo.setText("提现成功");
                 ivWithdrawStatusTwo.setVisibility(View.VISIBLE);
                 tvWithdrawStatusThree.setText("到账\n"+DateUtils.timeStamp2Date(data.getStatConfirmTime(), ""));
                 tvWithdrawStatusThree.setVisibility(View.VISIBLE);
                 ivWithdrawFinished.setVisibility(View.VISIBLE);
             } else {
-                tvWithdrawStatusTwo.setText("提现失败，请联系平台客服");
+                tvWithdrawStatusTwo.setText("银行处理中");
             }
             tvWithdrawMoney.setText("¥"+UIUtils.getYuan(data.getAmt())+"元");
             tvWithdrawCreateTime.setText(DateUtils.timeStamp2Date(data.getCreateTime(), ""));
