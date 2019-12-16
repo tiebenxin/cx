@@ -1879,8 +1879,13 @@ public class MsgDao {
     //根据aid查询申请人
     public ApplyBean getApplyBean(String aid) {
         Realm realm = DaoUtil.open();
+        ApplyBean bean = new ApplyBean();
         ApplyBean applyBean = realm.where(ApplyBean.class).equalTo("aid", aid).findFirst();
-        return applyBean;
+        if (applyBean != null) {
+            bean = realm.copyFromRealm(applyBean);
+        }
+        realm.close();
+        return bean;
     }
 
     // 移除这条群申请

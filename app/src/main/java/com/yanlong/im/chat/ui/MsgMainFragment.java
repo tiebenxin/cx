@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,11 +17,16 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.ImageSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -60,6 +67,7 @@ import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.EllipsizedTextView;
 import net.cb.cb.library.view.PopView;
 import net.cb.cb.library.view.StrikeButton;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
@@ -653,10 +661,10 @@ public class MsgMainFragment extends Fragment {
                             info = name + info;
 
                         }
-                    } else if(msginfo!=null&&(ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME+"").equals(msginfo.getMsg_type()+"")){
-                    //阅后即焚不通知 不显示谁发的 肯定是群主修改的
-                    // info=info;
-                    }else if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {//草稿除外
+                    } else if (msginfo != null && (ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME + "").equals(msginfo.getMsg_type() + "")) {
+                        //阅后即焚不通知 不显示谁发的 肯定是群主修改的
+                        // info=info;
+                    } else if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {//草稿除外
                         info = name + info;
                     }
                     switch (type) {
@@ -855,7 +863,7 @@ public class MsgMainFragment extends Fragment {
             private Button btnDel;
             private SwipeMenuLayout swipeLayout;
             private TextView txtName;
-            private TextView txtInfo;
+            private EllipsizedTextView txtInfo;
             private TextView txtTime;
             private final ImageView iv_disturb, iv_disturb_unread;
             //            private final TextView tv_num;

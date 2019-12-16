@@ -37,6 +37,7 @@ import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventSwitchDisturb;
 import net.cb.cb.library.bean.EventUserOnlineChange;
+import net.cb.cb.library.bean.RefreshApplyEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
@@ -214,11 +215,18 @@ public class MessageManager {
                 }
                 break;
             case ACCEPT_BE_FRIENDS://接受成为好友,需要产生消息后面在处理
-                checkDoubleMessage(wrapMessage);//检测双黄蛋消息
+                checkDoubleMessage(wrapMessage);//检测双重消息
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }
                 notifyRefreshFriend(false, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS);
+                // TODO 双方互添加好友的情况
+                EventBus.getDefault().post(new RefreshApplyEvent(wrapMessage.getFromUid(), CoreEnum.EChatType.PRIVATE, 1));
+                ApplyBean applyBean1 = msgDao.getApplyBean(wrapMessage.getFromUid() + "");
+                if (applyBean1 != null) {
+                    applyBean1.setStat(2);
+                    msgDao.applyFriend(applyBean1);
+                }
                 break;
             case REQUEST_FRIEND://请求添加为好友
 //                if (!TextUtils.isEmpty(wrapMessage.getRequestFriend().getContactName())) {

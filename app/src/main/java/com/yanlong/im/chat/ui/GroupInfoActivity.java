@@ -577,6 +577,7 @@ public class GroupInfoActivity extends AppActivity {
 //                    updateAndGetGroup();
                     setGroupNote(ginfo.getAnnouncement());
                     createAndSaveMsg();
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, null, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                     isBackValue = true;
                     break;
                 case GROUP_MANAGER:
