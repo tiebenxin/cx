@@ -63,6 +63,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="15dp"
                     android:layout_weight="1"
+                    android:inputType="number"
                     android:background="@null"
                     android:hint="请输入银行卡号"
                     android:textColorHint="@color/gray_300"

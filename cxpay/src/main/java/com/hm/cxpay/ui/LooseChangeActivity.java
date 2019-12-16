@@ -13,6 +13,8 @@ import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.controller.ControllerPaySetting;
+import com.hm.cxpay.eventbus.IdentifyUserEvent;
+import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
@@ -30,6 +32,10 @@ import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.HeadView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
@@ -59,10 +65,23 @@ public class LooseChangeActivity extends BasePayActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loose_change);
+        EventBus.getDefault().register(this);
         activity = this;
         initView();
         initEvent();
         getBankList();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventPayResult(IdentifyUserEvent event) {
+        httpGetUserInfo();
     }
 
     private void initView() {
@@ -154,11 +173,13 @@ public class LooseChangeActivity extends BasePayActivity {
             @Override
             public void onClick() {
                 //1 已经绑定手机
-                if(PayEnvironment.getInstance().getUser().getPhoneBindStat()==1){
+                if (PayEnvironment.getInstance().getUser().getPhoneBindStat() == 1) {
                     //TODO 还有一个认证信息展示界面未出
-                    ToastUtil.show(activity,"您已绑定手机号(暂时允许进入)");
-                    IntentUtil.gotoActivity(activity, BindPhoneNumActivity.class);
-                }else {
+//                    ToastUtil.show(activity,"您已绑定手机号(暂时允许进入)");
+//                    IntentUtil.gotoActivity(activity, BindPhoneNumActivity.class);
+                    IntentUtil.gotoActivity(activity, IdentificationInfoActivity.class);
+
+                } else {
                     //2 没有绑定手机
                     IntentUtil.gotoActivity(activity, BindPhoneNumActivity.class);
                 }
@@ -224,6 +245,7 @@ public class LooseChangeActivity extends BasePayActivity {
                             } else {
                                 userBean = new UserBean();
                             }
+                            PayEnvironment.getInstance().setUser(userBean);
                             //刷新最新余额
                             PayEnvironment.getInstance().getUser().setBalance(userBean.getBalance());
                             tvBalance.setText("¥ " + UIUtils.getYuan(Long.valueOf(userBean.getBalance())));
