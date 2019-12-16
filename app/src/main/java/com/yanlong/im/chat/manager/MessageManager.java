@@ -194,6 +194,7 @@ public class MessageManager {
             case RED_ENVELOPER://红包
             case RECEIVE_RED_ENVELOPER://领取红包
             case ASSISTANT://小助手消息
+            case BALANCE_ASSISTANT://零钱助手消息
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }
@@ -347,7 +348,6 @@ public class MessageManager {
                 }
                 break;
             case DESTROY_GROUP://销毁群
-
                 String groupName = wrapMessage.getDestroyGroup().getName();
                 String icon = wrapMessage.getDestroyGroup().getAvatar();
                 msgDao.groupExit(wrapMessage.getGid(), groupName, icon, 1);
@@ -1272,8 +1272,8 @@ public class MessageManager {
      * 发出通知声音或者震动
      * */
     private void doNotify(MsgBean.UniversalMessage.WrapMessage msg) {
-    //        LogUtil.getLog().e("===msg.getMsgType()=="+msg.getMsgType()+"======SESSION_TYPE=="+SESSION_TYPE
-    //                +"======SESSION_FUID=="+SESSION_FUID+"======SESSION_GID=="+SESSION_GID);
+        //        LogUtil.getLog().e("===msg.getMsgType()=="+msg.getMsgType()+"======SESSION_TYPE=="+SESSION_TYPE
+        //                +"======SESSION_FUID=="+SESSION_FUID+"======SESSION_GID=="+SESSION_GID);
         boolean isGroup = StringUtil.isNotNull(msg.getGid());
         //会话已经静音
         Session session = isGroup ? DaoUtil.findOne(Session.class, "gid", msg.getGid()) : DaoUtil.findOne(Session.class, "from_uid", msg.getFromUid());

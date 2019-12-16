@@ -12,6 +12,7 @@ import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
+import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
@@ -472,6 +473,20 @@ public class MsgConversionBean {
                 p2PAuVideoDialMessage.setAv_type(bean.getP2PAuVideoDial().getAvTypeValue());
                 msgAllBean.setP2PAuVideoDialMessage(p2PAuVideoDialMessage);
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_VOICE_VIDEO_NOTICE);
+                break;
+            case BALANCE_ASSISTANT://零钱助手消息
+                BalanceAssistantMessage balanceMessage = new BalanceAssistantMessage();
+                balanceMessage.setMsgId(bean.getMsgId());
+                balanceMessage.setTradeId(bean.getBalanceAssistant().getTradeId());
+                balanceMessage.setAmount(bean.getBalanceAssistant().getAmt());
+                balanceMessage.setDetailType(bean.getBalanceAssistant().getDetailTypeValue());
+                balanceMessage.setTitle(bean.getBalanceAssistant().getTitle());
+                balanceMessage.setTime(bean.getBalanceAssistant().getTime());
+                balanceMessage.setAmountTitle(bean.getBalanceAssistant().getAmtLabel());
+                String items = GsonUtils.optObject(bean.getBalanceAssistant().getItemList());
+                if (!TextUtils.isEmpty(items)) {
+                    balanceMessage.setItems(items);
+                }
                 break;
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;
