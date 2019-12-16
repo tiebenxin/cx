@@ -344,6 +344,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             }
         } else if (msg_type == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME) {//阅后即焚
             str = getMsgCancel().getNote();
+        } else if (msg_type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {//阅后即焚
+            str = "[零钱小助手消息]";
         }
 
         return str;

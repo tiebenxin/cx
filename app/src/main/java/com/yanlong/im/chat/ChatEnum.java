@@ -216,7 +216,7 @@ public class ChatEnum {
         int SELF = 1; //自己
         int FRIEND = 2;//通讯录好友
         int BLACK = 3;//黑名单
-        int ASSISTANT = 4;//小助手
+        int ASSISTANT = 4;//系统小助手
     }
 
     /*

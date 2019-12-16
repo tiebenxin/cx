@@ -3087,6 +3087,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     if (msgbean.getMsgCancel() != null) {
                         holder.viewChatItem.setReadDestroy(msgbean.getMsgCancel().getNote());
                     }
+                case ChatEnum.EMessageType.BALANCE_ASSISTANT:
+                    holder.viewChatItem.setBalanceMsg(msgbean.getBalanceAssistantMessage(), new ChatItemView.EventBalance() {
+                        @Override
+                        public void onClick(long tradeId, int detailType) {
+                            if (detailType == MsgBean.BalanceAssistantMessage.DetailType.RED_ENVELOPE_VALUE){//红包详情
+                                Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this,tradeId);
+                                startActivity(intent);
+                            }else if (detailType == MsgBean.BalanceAssistantMessage.DetailType.TRANS_VALUE){//订单详情
+
+                            }
+                        }
+                    });
                     break;
             }
 
@@ -4439,10 +4451,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         replaceListDataAndNotify(msgAllBean);
     }
 
-    //更新红包token
+    //抢红包后，更新红包token
     private void updateEnvelopeToken(MsgAllBean msgAllBean, final String rid, int reType, String token, int envelopeStatus) {
         if (!TextUtils.isEmpty(token)) {
             msgAllBean.getRed_envelope().setAccessToken(token);
+            msgAllBean.getRed_envelope().setEnvelopStatus(envelopeStatus);
         }
         replaceListDataAndNotify(msgAllBean);
         msgDao.redEnvelopeOpen(rid, envelopeStatus, reType, token);
@@ -4806,10 +4819,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         int status = PayEnum.EEnvelopeStatus.NORMAL;
         if (stat == 1) {//1 未领取
             status = PayEnum.EEnvelopeStatus.NORMAL;
-        } else if (stat == 2 || stat == 4) {
-            status = PayEnum.EEnvelopeStatus.RECEIVED;
-        } else if (stat == 3) {
+        } else if (stat == 2) {//已领完
+            status = PayEnum.EEnvelopeStatus.RECEIVED_FINISHED;
+        } else if (stat == 3) {//已过期
             status = PayEnum.EEnvelopeStatus.PAST;
+        } else if (stat == 4) {//领到
+            status = PayEnum.EEnvelopeStatus.RECEIVED;
         }
         return status;
     }
@@ -4853,7 +4868,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                     if (isNormalStyle) {//普通玩法红包需要保存
                                         taskPayRbCheck(msgBean, rid + "", reType, bean.getAccessToken(), PayEnum.EEnvelopeStatus.NORMAL);
                                     }
-                                    getEnvelopeDetail(rid, token);
+                                    getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus());
                                 }
                             } else {
                                 ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -4870,12 +4885,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                     });
         } else {
-            getEnvelopeDetail(rid, token);
+            getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus());
         }
     }
 
-    private void getEnvelopeDetail(long rid, String token) {
-        PayHttpUtils.getInstance().getEnvelopeDetail(rid, token,0)
+    private void getEnvelopeDetail(long rid, String token, int envelopeStatus) {
+        PayHttpUtils.getInstance().getEnvelopeDetail(rid, token, 0)
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<EnvelopeDetailBean>>() {
@@ -4885,6 +4900,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             EnvelopeDetailBean bean = baseResponse.getData();
                             if (bean != null) {
                                 bean.setChatType(isGroup() ? 1 : 0);
+                                bean.setEnvelopeStatus(envelopeStatus);
                                 Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, bean);
                                 startActivity(intent);
                             }

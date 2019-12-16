@@ -752,20 +752,6 @@ public class UserAction {
         return dao.findUserInfo(uid);
     }
 
-    public UserInfo createAssitantUser() {
-        UserInfo info = new UserInfo();
-        info.setUid(1L);
-        info.setName("常信小助手");
-        info.setMkName("常信小助手");
-        info.setuType(ChatEnum.EUserType.ASSISTANT);
-        info.setFriendvalid(CoreEnum.ESureType.NO);
-        info.setAuthStat(ChatEnum.EAuthStatus.AUTH_SECOND);
-        info.setActiveType(CoreEnum.ESureType.YES);
-        info.setDisturb(CoreEnum.ESureType.NO);
-        info.setLastonline(System.currentTimeMillis());
-        return info;
-    }
-
 
     /**
      * 初始化用户密码

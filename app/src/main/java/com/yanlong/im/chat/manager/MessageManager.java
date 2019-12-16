@@ -632,8 +632,10 @@ public class MessageManager {
      * */
     private boolean saveMessageNew(MsgAllBean msgAllBean, boolean isList) {
         boolean result = false;
-        boolean isFromSelf = msgAllBean.getFrom_uid() == UserAction.getMyId().intValue();
-
+        boolean isFromSelf = false;
+        if (UserAction.getMyId() != null) {
+            isFromSelf = msgAllBean.getFrom_uid() == UserAction.getMyId().intValue();
+        }
         try {
             msgAllBean.setTo_uid(msgAllBean.getTo_uid());
             //收到直接存表
