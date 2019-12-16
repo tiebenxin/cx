@@ -75,7 +75,9 @@ public class VideoPreviewActivity extends BaseActivity implements SurfaceHolder.
             mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
-                    mMediaPlayer.start();
+                    if (mp != null) {
+                        mp.start();
+                    }
                 }
             });
             mMediaPlayer.prepareAsync();
@@ -87,7 +89,9 @@ public class VideoPreviewActivity extends BaseActivity implements SurfaceHolder.
         mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                mMediaPlayer.pause();
+                if (mp != null) {
+                    mp.pause();
+                }
             }
         });
     }
