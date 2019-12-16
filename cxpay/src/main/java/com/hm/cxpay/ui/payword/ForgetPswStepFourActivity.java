@@ -15,6 +15,7 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 
+import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.CountDownUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -79,7 +80,7 @@ public class ForgetPswStepFourActivity extends AppActivity {
                 initCountDownUtil();
             }
         });
-        tvSubmit.setOnClickListener(new View.OnClickListener() {
+        ClickFilter.onClick(tvSubmit, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //1 验证码不为空

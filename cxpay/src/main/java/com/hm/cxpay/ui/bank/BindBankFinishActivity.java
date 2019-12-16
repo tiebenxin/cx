@@ -15,6 +15,7 @@ import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 
 import net.cb.cb.library.utils.CheckUtil;
+import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.CountDownUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -46,14 +47,12 @@ public class BindBankFinishActivity extends BasePayActivity {
                 initCountDownUtil();
             }
         });
-
-        ui.tvNext.setOnClickListener(new View.OnClickListener() {
+        ClickFilter.onClick(ui.tvNext, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 bindBank();
             }
         });
-
         ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {

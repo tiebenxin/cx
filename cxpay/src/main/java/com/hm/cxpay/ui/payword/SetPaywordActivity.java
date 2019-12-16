@@ -20,6 +20,7 @@ import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.LooseChangeActivity;
 
+import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -79,9 +80,9 @@ public class SetPaywordActivity extends AppActivity {
             }
         });
         //确认提交
-        tvSubmit.setOnClickListener(new View.OnClickListener() {
+        ClickFilter.onClick(tvSubmit, new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 //1. 必填不为空
                 if (!TextUtils.isEmpty(etPassword.getText().toString()) && !TextUtils.isEmpty(etConfirmPassword.getText().toString())) {
                     //2. 密码必须为6位数字

@@ -140,7 +140,7 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         if(bean.getToGroup()==1){
                             holder.tvStatus.setVisibility(View.VISIBLE);
                             if(bean.getStat()==1){
-                                holder.tvStatus.setText("成功");
+                                holder.tvStatus.setText("发送成功");
                             }else if(bean.getStat()==2){
                                 holder.tvStatus.setText("已部分退款");
                             }else if(bean.getStat()==99){
@@ -201,7 +201,7 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         }
                         holder.tvStatus.setVisibility(View.VISIBLE);
                         if(bean.getStat()==1){
-                            holder.tvStatus.setText("成功");
+                            holder.tvStatus.setText("领取成功");
                         }else if(bean.getStat()==2){
                             holder.tvStatus.setText("已部分退款");
                         }else if(bean.getStat()==99){

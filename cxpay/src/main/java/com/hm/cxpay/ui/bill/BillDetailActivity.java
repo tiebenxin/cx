@@ -313,13 +313,26 @@ public class BillDetailActivity extends AppActivity {
             tvContent.setText("¥"+UIUtils.getYuan(data.getAmt())+"元");
             tvWithdrawStatusOne.setText("发起提现\n"+DateUtils.timeStamp2Date(data.getCreateTime(), ""));
             if (data.getStat() == 1) {
-                tvWithdrawStatusTwo.setText("银行处理中");
+                tvWithdrawStatusTwo.setText("提现成功");
                 ivWithdrawStatusTwo.setVisibility(View.VISIBLE);
                 tvWithdrawStatusThree.setText("到账\n"+DateUtils.timeStamp2Date(data.getStatConfirmTime(), ""));
                 tvWithdrawStatusThree.setVisibility(View.VISIBLE);
                 ivWithdrawFinished.setVisibility(View.VISIBLE);
-            } else {
-                tvWithdrawStatusTwo.setText("提现失败，请联系平台客服");
+            }else if(data.getStat()==2){
+                tvWithdrawStatusTwo.setText("已部分退款");
+                ivWithdrawStatusTwo.setVisibility(View.VISIBLE);
+                tvWithdrawStatusThree.setVisibility(View.GONE);
+                ivWithdrawFinished.setVisibility(View.GONE);
+            }else if(data.getStat()==99){
+                tvWithdrawStatusTwo.setText("处理中");
+                ivWithdrawStatusTwo.setVisibility(View.VISIBLE);
+                tvWithdrawStatusThree.setVisibility(View.GONE);
+                ivWithdrawFinished.setVisibility(View.GONE);
+            }else if(data.getStat()==200){
+                tvWithdrawStatusTwo.setText("已全额退款");
+                ivWithdrawStatusTwo.setVisibility(View.VISIBLE);
+                tvWithdrawStatusThree.setVisibility(View.GONE);
+                ivWithdrawFinished.setVisibility(View.GONE);
             }
             tvWithdrawMoney.setText("¥"+UIUtils.getYuan(data.getAmt())+"元");
             tvWithdrawCreateTime.setText(DateUtils.timeStamp2Date(data.getCreateTime(), ""));

@@ -40,7 +40,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="title"
+                android:text=""
                 android:textColor="@color/c_0f0f0f"
                 android:textSize="15sp" />
 

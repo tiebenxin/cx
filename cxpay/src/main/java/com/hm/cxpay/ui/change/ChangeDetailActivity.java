@@ -115,7 +115,7 @@ public class ChangeDetailActivity extends AppActivity {
         }
         tvTime.setText(DateUtils.timeStamp2Date(data.getCreateTime(), ""));
         tvOrderId.setText(data.getTradeId() + "");
-        tvBalance.setText("¥"+data.getBalance());
+        tvBalance.setText("¥"+UIUtils.getYuan(data.getBalance()));
         if(!TextUtils.isEmpty(data.getNote())){
             tvRemark.setText(data.getNote());
         }

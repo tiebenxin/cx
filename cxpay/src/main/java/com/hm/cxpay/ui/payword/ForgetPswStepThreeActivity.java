@@ -17,6 +17,7 @@ import com.hm.cxpay.net.Route;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 
+import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -85,7 +86,7 @@ public class ForgetPswStepThreeActivity extends AppActivity {
                 ivCheck.setSelected(ivCheck.isSelected() ? false : true);
             }
         });
-        tvSubmit.setOnClickListener(new View.OnClickListener() {
+        ClickFilter.onClick(tvSubmit, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //1 手机号不为空
