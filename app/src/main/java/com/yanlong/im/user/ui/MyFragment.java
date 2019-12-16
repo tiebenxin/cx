@@ -159,10 +159,11 @@ public class MyFragment extends Fragment {
                 startActivity(arCodeIntent);
             }
         });
+        //零钱红包
         viewMoney.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                httpGetUserInfo();
             }
         });
         mViewScanQrcode.setOnClickListener(new View.OnClickListener() {
@@ -184,10 +185,11 @@ public class MyFragment extends Fragment {
                 startActivity(new Intent(getActivity(), HelpActivity.class));
             }
         });
+        //云红包
         viewWallet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                httpGetUserInfo();
+                taskWallet();
             }
         });
 

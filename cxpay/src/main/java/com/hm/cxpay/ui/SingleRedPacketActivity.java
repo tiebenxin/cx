@@ -98,6 +98,12 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventPayResult(PayResultEvent event) {
         dismissWaitDialog();
+        if (isSending()) {
+            setSending(false);
+            if (handler != null && runnable != null) {
+                handler.removeCallbacks(runnable);
+            }
+        }
         if (envelopeBean != null && event.getTradeId() == envelopeBean.getTradeId()) {
             if (event.getResult() == PayEnum.EPayResult.SUCCESS) {
                 setResultOk();

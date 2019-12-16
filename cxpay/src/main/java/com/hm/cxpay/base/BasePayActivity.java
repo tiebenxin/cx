@@ -3,16 +3,8 @@ package com.hm.cxpay.base;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 
-import com.hm.cxpay.R;
-import com.hm.cxpay.eventbus.PayResultEvent;
-
-import net.cb.cb.library.utils.StatusBarUtils;
 import net.cb.cb.library.view.AlertWait;
 import net.cb.cb.library.view.AppActivity;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * @author Liszt

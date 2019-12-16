@@ -1,6 +1,8 @@
 package com.hm.cxpay.ui.redenvelope;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
@@ -24,7 +26,18 @@ import org.greenrobot.eventbus.EventBus;
  * Description
  */
 public class BaseSendRedEnvelopeActivity extends BasePayActivity {
+    public final int WAIT_TIME = 30 * 1000;
     boolean isSending;
+    @SuppressLint("HandlerLeak")
+    public final Handler handler = new Handler();
+    public final Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            dismissWaitDialog();
+            setResult(RESULT_CANCELED);
+            finish();
+        }
+    };
 
 
     @Override
@@ -115,5 +128,9 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
     //是否正在发送红包
     public boolean isSending() {
         return isSending;
+    }
+
+    public void setSending(boolean b) {
+        isSending = b;
     }
 }
