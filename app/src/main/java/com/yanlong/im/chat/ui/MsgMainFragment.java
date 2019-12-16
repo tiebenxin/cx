@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,11 +17,16 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.ImageSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -60,6 +67,7 @@ import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.EllipsizedTextView;
 import net.cb.cb.library.view.PopView;
 import net.cb.cb.library.view.StrikeButton;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
@@ -653,21 +661,22 @@ public class MsgMainFragment extends Fragment {
                             info = name + info;
 
                         }
-                    } else {//草稿除外
-                        if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {
-                            info = name + info;
-                        }
+                    } else if (msginfo != null && (ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME + "").equals(msginfo.getMsg_type() + "")) {
+                        //阅后即焚不通知 不显示谁发的 肯定是群主修改的
+                        // info=info;
+                    } else if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {//草稿除外
+                        info = name + info;
                     }
                     switch (type) {
                         case 0:
                             if (StringUtil.isNotNull(bean.getAtMessage())) {
                                 if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
-                                    SpannableString style = new SpannableString("[有人@你]" + info);
+                                    SpannableString style = new SpannableString("[有人@我]" + info);
                                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                     style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                     showMessage(holder.txtInfo, info, style);
                                 } else {
-                                    SpannableString style = new SpannableString("[有人@你]" + info);
+                                    SpannableString style = new SpannableString("[有人@我]" + info);
                                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                     style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                     showMessage(holder.txtInfo, info, style);
@@ -854,7 +863,7 @@ public class MsgMainFragment extends Fragment {
             private Button btnDel;
             private SwipeMenuLayout swipeLayout;
             private TextView txtName;
-            private TextView txtInfo;
+            private EllipsizedTextView txtInfo;
             private TextView txtTime;
             private final ImageView iv_disturb, iv_disturb_unread;
             //            private final TextView tv_num;
@@ -1003,7 +1012,7 @@ public class MsgMainFragment extends Fragment {
             }
             if (msg != null) {
                 session.setMessage(msg);
-                if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
+                if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {//通知不要加谁发的消息
                     session.setSenderName("");
                 } else {
                     if (msg.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称

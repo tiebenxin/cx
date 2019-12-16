@@ -9,7 +9,6 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.View;
 
 import com.yanlong.im.R;
@@ -20,6 +19,7 @@ import com.yanlong.im.dialog.LockDialog;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.utils.LogUtil;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -370,7 +370,7 @@ public class HtmlTransitonUtils {
 //                    intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
 //                    context.startActivity(intent);
 
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+//                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
                 }
 
                 @Override
@@ -380,8 +380,8 @@ public class HtmlTransitonUtils {
 
             };
             builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
-            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+//            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         builder.append("撤回了一条消息");
     }

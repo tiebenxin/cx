@@ -80,6 +80,7 @@ public class FriendMainFragment extends Fragment {
         mtListView.init(new RecyclerViewAdapter());
 
         //联动
+        viewType.setLinearLayoutManager(mtListView.getLayoutManager());
         viewType.setListView(mtListView.getListView());
 
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
@@ -234,7 +235,7 @@ public class FriendMainFragment extends Fragment {
                         .apply(GlideOptionsUtil.headImageOptions()).into(hd.imgHead);
 
                 hd.txtName.setText(bean.getName4Show());
-
+                hd.viewLine.setVisibility(View.VISIBLE);
                 if (bean.isSystemUser()) {
                     hd.txtName.setTextColor(getResources().getColor(R.color.blue_title));
                     hd.txtTime.setVisibility(View.GONE);
@@ -258,6 +259,14 @@ public class FriendMainFragment extends Fragment {
                     hd.viewType.setVisibility(View.GONE);
                 } else {
                     hd.viewType.setVisibility(View.VISIBLE);
+                }
+                if (position == getItemCount() - 1) {
+                    hd.viewLine.setVisibility(View.GONE);
+                } else {
+                    UserInfo lastbean = listData.get(position + 1);
+                    if (!lastbean.getTag().equals(bean.getTag())) {
+                        hd.viewLine.setVisibility(View.GONE);
+                    }
                 }
                 hd.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -311,6 +320,7 @@ public class FriendMainFragment extends Fragment {
             private TextView txtTime;
             private View viewType;
             private TextView usertype_tv;
+            private View viewLine;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
@@ -321,6 +331,7 @@ public class FriendMainFragment extends Fragment {
                 txtTime = convertView.findViewById(R.id.txt_time);
                 viewType = convertView.findViewById(R.id.view_type);
                 usertype_tv = convertView.findViewById(R.id.usertype_tv);
+                viewLine = convertView.findViewById(R.id.view_line);
             }
 
         }
@@ -379,6 +390,7 @@ public class FriendMainFragment extends Fragment {
                             UserInfo topBean = new UserInfo();
                             topBean.setTag("↑");
                             listData.add(0, topBean);
+                            viewType.clearAllTag();
                             for (int i = 1; i < listData.size(); i++) {
                                 viewType.putTag(listData.get(i).getTag(), i);
                             }

@@ -31,31 +31,22 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.nim_lib.R;
 import com.example.nim_lib.action.VideoAction;
-import com.example.nim_lib.bean.ReturnBean;
 import com.example.nim_lib.bean.TokenBean;
 import com.example.nim_lib.config.AVChatConfigs;
-import com.example.nim_lib.config.AppConfig;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.constant.AVChatExitCode;
-import com.example.nim_lib.constant.CoreEnum;
 import com.example.nim_lib.controll.AVChatController;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.controll.AVChatSoundPlayer;
 import com.example.nim_lib.controll.PlayerManager;
-import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.module.AVSwitchListener;
 import com.example.nim_lib.module.SimpleAVChatStateObserver;
-import com.example.nim_lib.net.CallBack;
-import com.example.nim_lib.net.RunUtils;
 import com.example.nim_lib.permission.BaseMPermission;
 import com.example.nim_lib.receiver.PhoneCallStateObserver;
-import com.example.nim_lib.util.AlertYesNo;
 import com.example.nim_lib.util.GlideUtil;
-import com.example.nim_lib.util.LogUtil;
 import com.example.nim_lib.util.PermissionsUtil;
 import com.example.nim_lib.util.ScreenUtil;
 import com.example.nim_lib.util.SharedPreferencesUtil;
-import com.example.nim_lib.util.ToastUtil;
 import com.example.nim_lib.util.ViewUtils;
 import com.example.nim_lib.util.flyn.Eyes;
 import com.example.nim_lib.widgets.ToggleListener;
@@ -77,6 +68,17 @@ import com.netease.nimlib.sdk.avchat.model.AVChatNetworkStats;
 import com.netease.nimlib.sdk.avchat.model.AVChatVideoFrame;
 import com.netease.nimlib.sdk.avchat.video.AVChatSurfaceViewRenderer;
 import com.netease.nrtc.video.render.IVideoRender;
+
+import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.event.EventFactory;
+import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.RunUtils;
+import net.cb.cb.library.utils.SpUtil;
+import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.view.AlertYesNo;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -375,6 +377,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
             mRoomId = bundle.getString(Preferences.ROOM_ID);
             mFriend = bundle.getLong(Preferences.FRIEND);
+            LogUtil.getLog().i(TAG, "mFriend=====================================:" + mFriend);
+            LogUtil.getLog().i(TAG, "toUId=====================================:" + toUId);
             if (avChatData != null) {
                 mIsInComingCall = true;
                 account = avChatData.getAccount();
@@ -1140,11 +1144,11 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
      * @param exitCode
      */
     private void hangUpByOther(int exitCode) {
-        if (exitCode == AVChatExitCode.PEER_BUSY) {
-            if (avChatData != null) {
+        if (avChatData != null) {
+            if (exitCode == AVChatExitCode.PEER_BUSY) {
                 showQuitToast(AVChatExitCode.PEER_BUSY);
-                mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
             }
+            mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
         } else {
             if (mAVChatType == AVChatType.VIDEO.getValue()) {
                 releaseVideo();
@@ -1839,7 +1843,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         if (Build.VERSION.SDK_INT >= 23) {
             if (!Settings.canDrawOverlays(this)) {
                 showPermissionDialog();
-                return;
             } else {
                 showMinimizeButton();
             }
@@ -1869,7 +1872,10 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
      */
     public void showPermissionDialog() {
         final String title = "权限申请";
-        final String content = "在设置-应用-常信-权限中开启悬浮窗权限，以保证功能的正常使用";
+        final String content = "在设置-应用-常信-权限中开启悬浮窗权限，以保证音视频功能的正常使用，取消可能会接收不到音视频通话";
+        SpUtil spUtil = SpUtil.getSpUtil();
+        spUtil.putSPValue(Preferences.IS_FIRST_DIALOG, true);
+
         if (mAlertYesNo == null) {
             mAlertYesNo = new AlertYesNo();
             mAlertYesNo.init(this, title, content, "去设置", null, new AlertYesNo.Event() {

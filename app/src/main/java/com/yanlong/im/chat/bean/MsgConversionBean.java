@@ -17,8 +17,6 @@ import net.cb.cb.library.utils.StringUtil;
 
 import io.realm.RealmList;
 
-import static com.yanlong.im.utils.socket.MsgBean.MessageType.RED_ENVELOPER;
-
 /***
  * 消息转换类
  */
@@ -75,7 +73,7 @@ public class MsgConversionBean {
                 if (!TextUtils.isEmpty(MessageManager.SESSION_GID) && MessageManager.SESSION_GID.equals(bean.getGid())) {
                     msgAllBean.setRead(true);
                 } else {
-                    if (bean.getMsgTypeValue() == ChatEnum.EMessageType.MSG_CENCAL) {
+                    if (bean.getMsgTypeValue() == ChatEnum.EMessageType.MSG_CANCEL) {
                         msgAllBean.setRead(true);
                     } else {
                         msgAllBean.setRead(false);
@@ -85,7 +83,7 @@ public class MsgConversionBean {
                 if (MessageManager.SESSION_FUID != null && MessageManager.SESSION_FUID.equals(bean.getFromUid())) {
                     msgAllBean.setRead(true);
                 } else {
-                    if (bean.getMsgTypeValue() == ChatEnum.EMessageType.MSG_CENCAL) {
+                    if (bean.getMsgTypeValue() == ChatEnum.EMessageType.MSG_CANCEL) {
                         msgAllBean.setRead(true);
                     } else {
                         msgAllBean.setRead(false);
@@ -400,7 +398,7 @@ public class MsgConversionBean {
                     msgCel.setMsgType(9);
                     rname = "\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + msgDao.getUsername4Show(bean.getGid(), bean.getFromUid()) + "</font>\"" + "<div id='" + bean.getGid() + "'></div>";
                 }
-                msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_CENCAL);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_CANCEL);
                 msgCel.setMsgid(msgAllBean.getMsg_id());
                 msgCel.setNote(rname + "撤回了一条消息");
                 msgCel.setMsgidCancel(bean.getCancel().getMsgId());

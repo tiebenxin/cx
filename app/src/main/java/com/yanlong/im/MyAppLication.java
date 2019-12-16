@@ -7,11 +7,11 @@ import android.text.TextUtils;
 
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.controll.AVChatSoundPlayer;
-import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.jrmf360.tools.JrmfClient;
 import com.lansosdk.box.LSLog;
 import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.util.NIMUtil;
 import com.tencent.bugly.crashreport.CrashReport;
@@ -28,6 +28,7 @@ import com.yanlong.im.view.face.FaceView;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.MainApplication;
 import net.cb.cb.library.bean.EventRunState;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.AppFrontBackHelper;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SpUtil;
@@ -135,7 +136,11 @@ public class MyAppLication extends MainApplication {
      */
     private void initNim() {
         // SDK初始化（启动后台服务，若已经存在用户登录信息， SDK 将完成自动登录） 必须放到主Application中
-        NIMClient.init(this, getLoginInfo(), null);
+        SDKOptions options = new SDKOptions();
+        // TODO 初始化SDK时配置SDKOptions - disableAwake为true来禁止后台进程唤醒UI进程, 设置了以后，程序最小化后通知栏将不会显示语音的通知
+        // 避免Fatal Exception: android.app.RemoteServiceException: Context.startForegroundService() did not then call Service.startForeground()
+        options.disableAwake= true;
+        NIMClient.init(this, getLoginInfo(), options);
         LogUtil.getLog().d(TAG, "NIMClient.init()");
         // 以下逻辑只在主进程初始化时执行
         if (NIMUtil.isMainProcess(this)) {

@@ -1,8 +1,5 @@
 package com.example.nim_lib.bean;
 
-
-import com.example.nim_lib.util.SharedPreferencesUtil;
-
 public class TokenBean {
     private Long uid;
     private String accessToken;

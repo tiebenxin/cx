@@ -64,6 +64,15 @@ public class DaoMigration implements RealmMigration {
                 updateV12(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 12) {
+                updateV13(schema);
+                oldVersion++;
+            }
+
+            if (newVersion > oldVersion && oldVersion == 13) {
+                updateV14(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -230,6 +239,47 @@ public class DaoMigration implements RealmMigration {
         schema.get("RedEnvelopeMessage")
                 .addField("traceId", long.class)
                 .addField("actionId", String.class);
+    }
+
+    //更新红包消息token
+    private void updateV13(RealmSchema schema) {
+        schema.get("RedEnvelopeMessage")
+                .addField("accessToken", String.class);
+
+    }
+
+    //更新零钱助手及位置消息
+    private void updateV14(RealmSchema schema) {
+        schema.get("RedEnvelopeMessage")
+                .addField("envelopStatus", int.class);
+
+//        schema.create("LabelItem")
+//                .addField("tradeId", long.class, FieldAttribute.PRIMARY_KEY)
+//                .addField("label", String.class)
+//                .addField("value", String.class);
+
+        schema.create("BalanceAssistantMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("tradeId", long.class)
+                .addField("detailType", int.class)
+                .addField("time", long.class)
+                .addField("title", String.class)
+                .addField("amountTitle", String.class)
+                .addField("amount", long.class)
+                .addField("items", String.class);
+
+        schema.create("LocationMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("latitude", int.class)
+                .addField("longitude", int.class)
+                .addField("address", String.class)
+                .addField("addressDescribe", String.class)
+                .addField("img", String.class);
+
+        schema.get("MsgAllBean")
+                .addRealmObjectField("balanceAssistantMessage", schema.get("BalanceAssistantMessage"))
+                .addRealmObjectField("locationMessage", schema.get("LocationMessage"));
+
 
     }
 

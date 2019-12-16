@@ -129,14 +129,15 @@
                         </LinearLayout>
 
 
-                        <TextView
+                        <net.cb.cb.library.view.EllipsizedTextView
                             android:id="@+id/txt_info"
                             style="@style/app_txt_content_1"
                             android:layout_height="0dp"
                             android:layout_gravity="center_vertical"
                             android:layout_weight="1"
                             android:fontFamily="normal"
-                            android:text="xxxx" />
+                            android:layout_width="match_parent"
+                            android:text="xxx" />
 
                     </LinearLayout>
 

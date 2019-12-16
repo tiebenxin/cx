@@ -28,6 +28,7 @@ import android.text.TextWatcher;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -47,7 +48,6 @@ import androidx.annotation.RequiresApi;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
-import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
@@ -143,6 +143,7 @@ import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.inter.ICustomerItemClick;
 import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
@@ -150,6 +151,7 @@ import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.DownloadUtil;
+import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.IntentUtil;
@@ -270,6 +272,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private TextView tv_ban;
     private String draft;
     private int isFirst;
+    private UserInfo mFinfo;// 聊天用户信息，刷新时更新
 
     // 气泡视图
     private PopupWindow mPopupWindow;// 长按消息弹出气泡PopupWindow
@@ -301,7 +304,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         //标题栏
@@ -537,7 +539,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     if (msgAllBean == null) {
                         return;
                     }
-                    if (msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.MSG_CENCAL
+                    if (msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.MSG_CANCEL
                             || msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.READ) {//取消的指令 已读指令不保存到数据库
                         return;
                     }
@@ -628,7 +630,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     //发送并滑动到列表底部
     private void showSendObj(MsgAllBean msgAllbean) {
-        if (msgAllbean.getMsg_type() != ChatEnum.EMessageType.MSG_CENCAL) {
+        if (msgAllbean.getMsg_type() != ChatEnum.EMessageType.MSG_CANCEL) {
             int size = msgListData.size();
             msgListData.add(msgAllbean);
             mtListView.getListView().getAdapter().notifyItemRangeInserted(size, 1);
@@ -762,11 +764,27 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     editChat.getText().clear();
                     return;
                 }
-                if (text.startsWith("@000")) {
-                    int count = Integer.parseInt(text.split("_")[1]);
-                    taskTestSend(count);
-                    return;
-                }
+//                if (text.startsWith("@000")) {
+//                    int count = Integer.parseInt(text.split("_")[1]);
+//                    taskTestSend(count);
+//                    return;
+//                }
+
+//                try {
+//                    if (text.startsWith("@000_")) { //文字测试
+//                        int count = Integer.parseInt(text.split("_")[1]);
+//                        taskTestSend(count);
+//                        return;
+//                    }
+//                    if (text.startsWith("@111_")) {//图片测试
+//                        int count = Integer.parseInt(text.split("_")[1]);
+//                        taskTestImage(count);
+//                        return;
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+
 
                 int totalSize = text.length();
                 if (isGroup() && editChat.getUserIdList() != null && editChat.getUserIdList().size() > 0) {
@@ -1467,6 +1485,54 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }).run();
     }
 
+    //图片测试逻辑
+    private void taskTestImage(int count) {
+        ToastUtil.show(getContext(), "内部指令，请重新输入");
+        editChat.setText("");
+        return;
+
+//        String file = "/storage/emulated/0/changXin/zgd123.jpg";
+//        File f = new File(file);
+//        if (!f.exists()) {
+//            ToastUtil.show(getContext(), "图片不存在，请在changXin文件夹下构建 zgd123.jpg 图片");
+//            return;
+//        }
+//        ToastUtil.show(getContext(), "连续发送" + count + "图片测试开始");
+//        try {
+//            for (int i = 1; i <= count; i++) {
+//                MsgAllBean imgMsgBean = null;
+//                if (StringUtil.isNotNull(file)) {
+//                    final boolean isArtworkMaster = false;
+//                    final String imgMsgId = SocketData.getUUID();
+//                    // 记录本次上传图片的ID跟本地路径
+//                    //:使用file:
+//                    // 路径会使得检测本地路径不存在
+//                    ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" +*/ file, isArtworkMaster);
+//                    imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
+//                    msgListData.add(imgMsgBean);
+//                    // 不等于常信小助手
+//                    if (!Constants.CX_HELPER_UID.equals(toUId)) {
+//                        UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
+//                        startService(new Intent(getContext(), UpLoadService.class));
+//                    }
+//                }
+//
+//                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, imgMsgBean);
+//                notifyData2Bottom(true);
+//
+//                if (i % 10 == 0) {
+//                    Thread.sleep(2 * 1000);
+////                    SocketData.send4Chat(toUId, toGid, "连续测试发送" + i + "-------");
+////                    SocketData.send4Chat(toUId, toGid, "-------");
+//                }
+//
+//            }
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+    }
+
     private void saveScrollPosition() {
         if (lastPosition > 0) {
             SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
@@ -1931,6 +1997,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     // 图片选择结果回调
                     List<LocalMedia> obt = PictureSelector.obtainMultipleResult(data);
+                    if (obt != null && obt.size() > 0) {
+                        LogUtil.getLog().e("=图片选择结果回调===" + GsonUtils.optObject(obt.get(0)));
+                    }
                     MsgAllBean imgMsgBean = null;
                     for (LocalMedia localMedia : obt) {
                         String file = localMedia.getCompressPath();
@@ -1960,11 +2029,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 long length = ImgSizeUtil.getVideoSize(videofile);
                                 long duration = Long.parseLong(getVideoAtt(videofile));
                                 // 大于50M、5分钟不发送
-                                if (ImgSizeUtil.formetFileSize(length) > 50 ) {
+                                if (ImgSizeUtil.formetFileSize(length) > 50) {
                                     ToastUtil.show(this, "不能选择超过50M的视频");
                                     continue;
                                 }
-                                if (duration > 5*60000) {
+                                if (duration > 5 * 60000) {
                                     ToastUtil.show(this, "不能选择超过5分钟的视频");
                                     continue;
                                 }
@@ -2221,13 +2290,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     private void showBigPic(String msgid, String uri) {
         List<LocalMedia> selectList = new ArrayList<>();
+        List<LocalMedia> temp = new ArrayList<>();
         int pos = 0;
-
         List<MsgAllBean> listdata = msgAction.getMsg4UserImg(toGid, toUId);
-        for (MsgAllBean msgl : listdata) {
-
+        for (int i = 0; i < listdata.size(); i++) {
+            MsgAllBean msgl = listdata.get(i);
             if (msgid.equals(msgl.getMsg_id())) {
-                pos = selectList.size();
+                pos = i;
             }
 
             LocalMedia lc = new LocalMedia();
@@ -2238,11 +2307,30 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             lc.setSize(msgl.getImage().getSize());
             lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
             lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
-            lc.setMsg_id(msgid);
-            selectList.add(lc);
-
+            lc.setMsg_id(msgl.getMsg_id());
+            temp.add(lc);
+        }
+        int size = temp.size();
+        //取中间100张
+        if (size <= 100) {
+            selectList.addAll(temp);
+        } else {
+            if (pos - 50 <= 0) {//取前面
+                selectList.addAll(temp.subList(0, 100));
+            } else if (pos + 50 >= size) {//取后面
+                selectList.addAll(temp.subList(size - 100, size));
+            } else {//取中间
+                selectList.addAll(temp.subList(pos - 50, pos + 50));
+            }
         }
 
+        pos = 0;
+        for (int i = 0; i < selectList.size(); i++) {
+            if (msgid.equals(selectList.get(i).getMsg_id())) {
+                pos = i;
+                break;
+            }
+        }
         PictureSelector.create(ChatActivity.this)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
@@ -2557,10 +2645,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public boolean onLongClick(View v) {
                         //TODO:优先显示群备注
-                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid());
-                        if (TextUtils.isEmpty(name)) {
-                            name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
-                        }
+                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid(), null, null);
+//                        if (TextUtils.isEmpty(name)) {
+//                            name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
+//                        }
                         String txt = editChat.getText().toString().trim();
                         if (!txt.contains("@" + name)) {
                             if (!TextUtils.isEmpty(name)) {
@@ -2591,14 +2679,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             return;
                         }
                         //TODO:优先显示群备注、查询最新的在本群的昵称
-                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid());
-                        if (TextUtils.isEmpty(name)) {
-                            name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
+                        String name = "";
+                        if (isGroup()) {
+                            name = msgDao.getGroupMemberName2(toGid, msgbean.getFrom_uid());
+                        } else if (mFinfo != null) {
+                            name = mFinfo.getName4Show();
                         }
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, msgbean.getFrom_uid())
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
                                 .putExtra(UserInfoActivity.GID, toGid)
+                                .putExtra(UserInfoActivity.IS_GROUP, isGroup())
                                 .putExtra(UserInfoActivity.MUC_NICK, name));
                     }
                 });
@@ -2651,7 +2742,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     }
                     break;
-                case ChatEnum.EMessageType.MSG_CENCAL:// 撤回消息
+                case ChatEnum.EMessageType.MSG_CANCEL:// 撤回消息
                     if (msgbean.getMsgCancel() != null) {
                         // 发送消息小于5分钟显示 重新编辑
                         Long mss = System.currentTimeMillis() - msgbean.getTimestamp();
@@ -3355,14 +3446,26 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         popupWindowDismiss(listener);
         // 当View Y轴的位置小于ListView Y轴的位置时 气泡向下弹出来，否则向上弹出
-        if (locationView[1] < location[1]) {
+        if (v.getMeasuredHeight() >= mtListView.getMeasuredHeight() && locationView[1] < location[1]) {
+            // 内容展示完，向上弹出
+            if (locationView[1] < 0 && (v.getMeasuredHeight() - Math.abs(locationView[1]) < mtListView.getMeasuredHeight())) {
+                mImgTriangleUp.setVisibility(VISIBLE);
+                mImgTriangleDown.setVisibility(GONE);
+                mPopupWindow.showAsDropDown(v);
+            } else {
+                // 中间弹出
+                mImgTriangleUp.setVisibility(GONE);
+                mImgTriangleDown.setVisibility(VISIBLE);
+                showPopupWindowUp(v, 1);
+            }
+        } else if (locationView[1] < location[1]) {
             mImgTriangleUp.setVisibility(VISIBLE);
             mImgTriangleDown.setVisibility(GONE);
             mPopupWindow.showAsDropDown(v);
         } else {
             mImgTriangleUp.setVisibility(GONE);
             mImgTriangleDown.setVisibility(VISIBLE);
-            showPopupWindowUp(v);
+            showPopupWindowUp(v, 2);
         }
     }
 
@@ -3591,12 +3694,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      *
      * @param v
      */
-    public void showPopupWindowUp(View v) {
+    public void showPopupWindowUp(View v, int gravity) {
         //获取需要在其上方显示的控件的位置信息
         int[] location = new int[2];
         v.getLocationOnScreen(location);
-        //在控件上方显示
-        mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, (location[0] + v.getWidth() / 2) - popupWidth / 2, location[1] - popupHeight);
+        if (gravity == 1) {
+            DisplayMetrics dm = getResources().getDisplayMetrics();
+            mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, (location[0] + v.getWidth() / 2) - popupWidth / 2, dm.heightPixels / 2);
+        } else {
+            //在控件上方显示
+            mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, (location[0] + v.getWidth() / 2) - popupWidth / 2, location[1] - popupHeight);
+        }
     }
 
     /**
@@ -3670,20 +3778,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             taskGroupConf();
 
         } else {
-            UserInfo finfo = userDao.findUserInfo(toUId);
-            if (finfo == null && toUId == 100121L) {
-                finfo = new UserInfo();
-                finfo.setUid(100121L);
-                finfo.setName("常信客服");
+            mFinfo = userDao.findUserInfo(toUId);
+            if (mFinfo == null && toUId == 100121L) {
+                mFinfo = new UserInfo();
+                mFinfo.setUid(100121L);
+                mFinfo.setName("常信客服");
             }
-            if (finfo != null) {
-                title = finfo.getName4Show();
-                if (finfo.getLastonline() > 0) {
+            if (mFinfo != null) {
+                title = mFinfo.getName4Show();
+                if (mFinfo.getLastonline() > 0) {
                     // 客服不显示时间状态
                     if (onlineState && !UserUtil.isSystemUser(toUId)) {
-                        actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), true);
+                        actionbar.setTitleMore(TimeToString.getTimeOnline(mFinfo.getLastonline(), mFinfo.getActiveType(), true), true);
                     } else {
-                        actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), false);
+                        actionbar.setTitleMore(TimeToString.getTimeOnline(mFinfo.getLastonline(), mFinfo.getActiveType(), true), false);
                     }
                 }
             }
@@ -3890,7 +3998,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void taskMkName(List<MsgAllBean> msgListData) {
         mks.clear();
         for (MsgAllBean msg : msgListData) {
-            if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL || msg.getMsg_type() == ChatEnum.EMessageType.LOCK) {  //通知类型的不处理
+            if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL || msg.getMsg_type() == ChatEnum.EMessageType.LOCK) {  //通知类型的不处理
                 continue;
             }
             String k = msg.getFrom_uid() + "";

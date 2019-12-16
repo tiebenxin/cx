@@ -56,6 +56,9 @@ public class SocketUtil {
                     if (msg != null) {
                         DaoUtil.update(msg);
                     }
+                } else if (bean.getRejectType() == MsgBean.RejectType.RATE_LIMIT) {//服务端有限流，测试代码自动发送消息时会引起此问题
+                    LogUtil.getLog().d(TAG, "消息发送失败--服务端限流--requestId=" + bean.getRequestId());
+//                    System.out.println("Socket--消息发送失败--服务端限流---requestId=" + bean.getRequestId());
                 }
             }
 
@@ -70,16 +73,16 @@ public class SocketUtil {
         @Override
         public void onMsg(MsgBean.UniversalMessage bean) {
             //保存消息和处理回执
-            LogUtil.getLog().d(TAG, ">>>>>保存[收到]的消息到数据库 " + bean.getToUid());
-            //在线离线消息不需要发送回执
-            if (bean.getWrapMsg(0).getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
-                LogUtil.getLog().d(TAG, ">>>>>发送回执: " + bean.getRequestId());
-                SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null), null);
-            } /*else {
-                LogUtil.getLog().d(TAG, ">>>>>在线离线消息不需要发送回执: " + bean.getRequestId());
-            }*/
-//            SocketData.magSaveAndACK(bean);
-//            LogUtil.getLog().d(TAG, "MessageManager--接收消息size=" + bean.getWrapMsgList().size() + "-当前时间-0-" + System.currentTimeMillis());
+//            LogUtil.getLog().d(TAG, ">>>>>保存[收到]的消息到数据库 " + bean.getToUid());
+            //在线离线消息不需要发送回执, 索引越界？？？？？
+            int count = bean.getWrapMsgCount();
+            if (count > 0 && bean.getWrapMsg(0).getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
+//                LogUtil.getLog().d(TAG, ">>>>>发送回执: " + bean.getRequestId());
+                if (count == 1) {//单条消息直接回执，多条消息待消息存成功后再回执
+                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null), null);
+                    System.out.println(TAG + "--发送回执--requestId=" + bean.getRequestId());
+                }
+            }
             MessageManager.getInstance().onReceive(bean);
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {
@@ -599,9 +602,9 @@ public class SocketUtil {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    LogUtil.getLog().e(TAG, "==getClass=="+e.getClass()+"===>>>接收异常run:===" + e.getMessage()+"===getLocalizedMessage="+e.getLocalizedMessage());
+                    LogUtil.getLog().e(TAG, "==getClass==" + e.getClass() + "===>>>接收异常run:===" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
                     //java.io.EOFException: Read error
-                    if(e!=null&&e.getMessage()!=null&&e.getMessage().contains("EOFException")){
+                    if (e != null && e.getMessage() != null && e.getMessage().contains("EOFException")) {
                         EventLoginOut4Conflict eventLoginOut4Conflict = new EventLoginOut4Conflict();
                         // 登录冲突
                         String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
@@ -650,7 +653,7 @@ public class SocketUtil {
             switch (type) {
                 case PROTOBUF_MSG:
                     final MsgBean.UniversalMessage pmsg = SocketData.msgConversion(indexData);
-                    if (pmsg == null){
+                    if (pmsg == null) {
                         return null;
                     }
                     LogUtil.getLog().i(TAG, ">>>-----<处理消息 长度:" + indexData.length + " rid:" + pmsg.getRequestId());

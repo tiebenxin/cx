@@ -11,7 +11,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.nim_lib.controll.AVChatProfile;
-import com.example.nim_lib.event.EventFactory;
 import com.lansosdk.videoeditor.LanSongFileUtil;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.netease.nimlib.sdk.NIMClient;
@@ -28,6 +27,7 @@ import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.ActionbarView;

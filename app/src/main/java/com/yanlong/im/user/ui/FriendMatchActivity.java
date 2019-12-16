@@ -93,6 +93,7 @@ public class FriendMatchActivity extends AppActivity {
             }
         });
         //联动
+        viewType.setLinearLayoutManager(mtListView.getLayoutManager());
         viewType.setListView(mtListView.getListView());
         adapter = new RecyclerViewAdapter();
         mtListView.init(adapter);

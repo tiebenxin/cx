@@ -1,11 +1,16 @@
 package com.yanlong.im;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -16,9 +21,13 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
-import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
+import com.example.nim_lib.util.PermissionsUtil;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.StatusCode;
+import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
@@ -55,6 +64,7 @@ import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
@@ -64,6 +74,7 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.NotificationsUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.VersionUtil;
@@ -118,7 +129,6 @@ public class MainActivity extends AppActivity {
     private boolean testMe = true;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,6 +140,11 @@ public class MainActivity extends AppActivity {
         getSurvivalTimeData();
         checkRosters();
         doRegisterNetReceiver();
+        SpUtil spUtil = SpUtil.getSpUtil();
+        boolean isFist = spUtil.getSPValue(Preferences.IS_FIRST_DIALOG, false);
+        if (!isFist) {
+            permissionCheck();
+        }
     }
 
     @Override
@@ -145,7 +160,6 @@ public class MainActivity extends AppActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
-
 
 
     //自动寻找控件
@@ -469,7 +483,7 @@ public class MainActivity extends AppActivity {
         if (event.getRosterAction() == CoreEnum.ERosterAction.LOAD_ALL_SUCCESS) {
             taskLoadSavedGroups();
         } else if (event.getRosterAction() == CoreEnum.ERosterAction.REQUEST_FRIEND
-                ||event.getRosterAction() == CoreEnum.ERosterAction.DEFAULT) {//请求添加为好友 申请进群
+                || event.getRosterAction() == CoreEnum.ERosterAction.DEFAULT) {//请求添加为好友 申请进群
             taskGetFriendNum();
         }
     }
@@ -535,6 +549,7 @@ public class MainActivity extends AppActivity {
             Intent intent = new Intent(this, SplashActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
+
             android.os.Process.killProcess(android.os.Process.myPid());
         }
     }
@@ -704,14 +719,19 @@ public class MainActivity extends AppActivity {
 //            builder.setMessage("由于目前未开通系统通知服务，为不影响使用，将在3秒后前往设置");
 //            notifyDialog = builder.create();
 //            notifyDialog.show();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    notifyDialog.dismiss();
-                    NotificationsUtils.toNotificationSetting(MainActivity.this);
-                    saveNotifyConfig();
-                }
-            }, 3000);
+            // TODO 解决IllegalArgumentException异常
+            if (!isFinishing()) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!isFinishing()) {
+                            notifyDialog.dismiss();
+                        }
+                        NotificationsUtils.toNotificationSetting(MainActivity.this);
+                        saveNotifyConfig();
+                    }
+                }, 3000);
+            }
         } else {
             LogUtil.getLog().i(MainActivity.class.getSimpleName(), "有推送权限" + canRemindToSetting());
         }
@@ -795,5 +815,29 @@ public class MainActivity extends AppActivity {
         }
     }
 
+    /**
+     * 检查是否开启悬浮窗权限
+     * OPPO 手机必须开启程序自动启动或开启悬浮窗权限，程序退到后台才能弹出音视频界面
+     */
+    private void permissionCheck() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (!Settings.canDrawOverlays(this)) {
+                PermissionsUtil.showPermissionDialog(this);
+            }
+        } else {
+            String brand = android.os.Build.BRAND;
+            brand = brand.toUpperCase();
+            if (brand.equals("HUAWEI")) {
+                if (!PermissionsUtil.checkHuaWeiFloatWindowPermission(this)) {
+                    PermissionsUtil.showPermissionDialog(this);
+                }
+            } else if (brand.equals("MEIZU")) {
+                if (!PermissionsUtil.checkMeiZuFloatWindowPermission(this)) {
+                    PermissionsUtil.showPermissionDialog(this);
+                }
+            } else {
 
+            }
+        }
+    }
 }

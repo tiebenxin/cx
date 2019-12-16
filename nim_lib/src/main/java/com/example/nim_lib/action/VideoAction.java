@@ -1,11 +1,12 @@
 package com.example.nim_lib.action;
 
-import com.example.nim_lib.bean.ReturnBean;
-import com.example.nim_lib.net.CallBack;
-import com.example.nim_lib.net.NetIntrtceptor;
-import com.example.nim_lib.net.NetUtil;
+
 import com.example.nim_lib.server.VideoServer;
-import com.example.nim_lib.util.LogUtil;
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetIntrtceptor;
+import net.cb.cb.library.utils.NetUtil;
 
 import okhttp3.Headers;
 import retrofit2.Call;

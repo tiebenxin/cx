@@ -1,6 +1,7 @@
 package net.cb.cb.library.view;
 
 import android.content.Context;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 
 import net.cb.cb.library.R;
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 
@@ -39,6 +41,7 @@ public class PySortView extends LinearLayout {
     private float spHeight = 0;
     private int height = 0;
     private int maxheight = 0;
+    private LinearLayoutManager mManager;
 
     private Event mEvent = new Event() {
         @Override
@@ -51,8 +54,12 @@ public class PySortView extends LinearLayout {
             if (tagIndex.containsKey(type)) {
                 int i = tagIndex.get(type);
 
-                //listview.smoothScrollToPosition(i);
-                smoothMoveToPosition(listview, i);
+                if (mManager != null) {
+                    moveToPosition(mManager, i);
+                }
+//                else {
+//                    smoothMoveToPosition(listview, i);
+//                }
             }
 
         }
@@ -68,6 +75,12 @@ public class PySortView extends LinearLayout {
             tagIndex.put(tag, i);
     }
 
+    public void clearAllTag() {
+        if (tagIndex != null) {
+            tagIndex.clear();
+        }
+    }
+
     public HashMap<String, Integer> getTagIndex() {
         return tagIndex;
     }
@@ -80,17 +93,39 @@ public class PySortView extends LinearLayout {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (mShouldScroll && RecyclerView.SCROLL_STATE_IDLE == newState) {
                     mShouldScroll = false;
-                    smoothMoveToPosition(listview, mToPosition);
+//                    smoothMoveToPosition(listview, mToPosition);
+                    if (mManager != null) {
+                        moveToPosition(mManager, mToPosition);
+                    }
                 }
             }
         });
 
     }
 
+    public void setLinearLayoutManager(LinearLayoutManager linearLayoutmanager) {
+        mManager = linearLayoutmanager;
+    }
+
     /**
-     * 滑动到指定位置
+     * RecyclerView 移动到当前位置，不需要滚动效果
+     *
+     * @param manager 设置RecyclerView对应的manager
+     * @param n       要跳转的位置
      */
-    private void smoothMoveToPosition(RecyclerView mRecyclerView, final int position) {
+    public static void moveToPosition(LinearLayoutManager manager, int n) {
+        try {
+            Log.i("1212", "postion:" + n);
+            manager.scrollToPositionWithOffset(n, 0);
+            manager.setStackFromEnd(true);
+        } catch (Exception e) {
+        }
+    }
+
+    /**
+     * 滑动到指定位置 TODO 用户量多的时候滑动起来体验不好
+     */
+    private void smoothMoveToPosition(RecyclerView mRecyclerView, int position) {
         // 第一个可见位置
         int firstItem = mRecyclerView.getChildLayoutPosition(mRecyclerView.getChildAt(0));
         // 最后一个可见位置

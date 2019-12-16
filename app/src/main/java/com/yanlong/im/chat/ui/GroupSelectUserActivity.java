@@ -28,7 +28,6 @@ import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
@@ -105,6 +104,7 @@ public class GroupSelectUserActivity extends AppActivity {
         mtListView.init(adapter);
         mtListView.getLoadView().setStateNormal();
         //联动
+        viewType.setLinearLayoutManager(mtListView.getLayoutManager());
         viewType.setListView(mtListView.getListView());
         edtSearch.addTextChangedListener(new TextWatcher() {
             @Override
@@ -114,7 +114,6 @@ public class GroupSelectUserActivity extends AppActivity {
 
             @Override
             public void onTextChanged(CharSequence sequence, int i, int i1, int i2) {
-                ToastUtil.show(GroupSelectUserActivity.this, sequence.toString() + "");
                 adapter.getFilter().filter(sequence.toString());
             }
 
@@ -313,10 +312,19 @@ public class GroupSelectUserActivity extends AppActivity {
                 hd.txtName.setText(bean.getName4Show());
             }
             hd.viewType.setVisibility(View.VISIBLE);
+            hd.viewLine.setVisibility(View.VISIBLE);
             if (position > 0) {
                 UserInfo lastbean = mFilterList.get(position - 1);
                 if (lastbean.getTag().equals(bean.getTag())) {
                     hd.viewType.setVisibility(View.GONE);
+                }
+            }
+            if (position == getItemCount() - 1) {
+                hd.viewLine.setVisibility(View.GONE);
+            } else {
+                UserInfo lastbean = mFilterList.get(position + 1);
+                if (!lastbean.getTag().equals(bean.getTag())) {
+                    hd.viewLine.setVisibility(View.GONE);
                 }
             }
             if (bean.isChecked()) {
@@ -341,7 +349,7 @@ public class GroupSelectUserActivity extends AppActivity {
             });
         }
 
-        private void onItemClick(UserInfo bean){
+        private void onItemClick(UserInfo bean) {
             for (UserInfo info : mFilterList) {
                 if (info.getUid().equals(bean.getUid())) {
                     info.setChecked(!bean.isChecked());
@@ -414,6 +422,7 @@ public class GroupSelectUserActivity extends AppActivity {
             private TextView txtName;
             private CheckBox ckSelect;
             private View layoutRoot;
+            private View viewLine;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
@@ -424,9 +433,9 @@ public class GroupSelectUserActivity extends AppActivity {
                 txtName = convertView.findViewById(R.id.txt_name);
                 ckSelect = convertView.findViewById(R.id.ck_select);
                 layoutRoot = convertView.findViewById(R.id.layout_root);
+                viewLine = convertView.findViewById(R.id.view_line);
             }
         }
     }
-
 
 }

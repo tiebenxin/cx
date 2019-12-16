@@ -457,14 +457,14 @@ public class AudioPlayManager implements SensorEventListener {
         if (this._mediaPlayer != null) {
             try {
                 this._mediaPlayer.stop();
-                this._mediaPlayer.reset();
+                // TODO 处理Bugly上指针 #25602
+//                this._mediaPlayer.reset();
                 this._mediaPlayer.release();
                 this._mediaPlayer = null;
-            } catch (IllegalStateException var2) {
-                var2.printStackTrace();
+            } catch (Exception e) {
+
             }
         }
-
     }
 
 

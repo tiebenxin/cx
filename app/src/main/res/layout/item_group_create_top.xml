@@ -9,6 +9,6 @@
     <ImageView
         android:id="@+id/img_head"
         style="@style/app_img_head"
-        android:layout_marginRight="@dimen/app_margin_item" />
+        android:layout_marginRight="8dp" />
 
 </LinearLayout>

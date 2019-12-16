@@ -28,6 +28,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.socket.SocketData;
+import com.yanlong.im.wight.avatar.MultiImageView;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
@@ -35,6 +36,7 @@ import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
@@ -155,7 +157,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
             return;
         AlertForward alertForward = new AlertForward();
         if (msgAllBean.getChat() != null) {//转换文字
-            alertForward.init(GroupSelectActivity.this, avatar, nick, msgAllBean.getChat().getMsg(), null, "发送", new AlertForward.Event() {
+            alertForward.init(GroupSelectActivity.this, avatar, nick, msgAllBean.getChat().getMsg(), null, "发送", gid, new AlertForward.Event() {
                 @Override
                 public void onON() {
 
@@ -169,7 +171,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
             });
         } else if (msgAllBean.getImage() != null) {
 
-            alertForward.init(GroupSelectActivity.this, avatar, nick, null, msgAllBean.getImage().getThumbnail(), "发送", new AlertForward.Event() {
+            alertForward.init(GroupSelectActivity.this, avatar, nick, null, msgAllBean.getImage().getThumbnail(), "发送", gid, new AlertForward.Event() {
                 @Override
                 public void onON() {
 
@@ -199,7 +201,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 
         } else if (msgAllBean.getAtMessage() != null) {
 
-            alertForward.init(GroupSelectActivity.this, avatar, nick, msgAllBean.getAtMessage().getMsg(), null, "发送", new AlertForward.Event() {
+            alertForward.init(GroupSelectActivity.this, avatar, nick, msgAllBean.getAtMessage().getMsg(), null, "发送", gid, new AlertForward.Event() {
                 @Override
                 public void onON() {
 
@@ -211,7 +213,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                 }
             });
         } else if (msgAllBean.getVideoMessage() != null) {
-            alertForward.init(GroupSelectActivity.this, avatar, nick, null, msgAllBean.getVideoMessage().getBg_url(), "发送", new AlertForward.Event() {
+            alertForward.init(GroupSelectActivity.this, avatar, nick, null, msgAllBean.getVideoMessage().getBg_url(), "发送", gid, new AlertForward.Event() {
                 @Override
                 public void onON() {
 
@@ -288,17 +290,15 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
             final Group groupInfoBean = groupInfoBeans.get(position);
+            // 头像集合
+            List<String> headList = new ArrayList<>();
 
             String imageHead = groupInfoBean.getAvatar();
             if (imageHead != null && !imageHead.isEmpty() && StringUtil.isNotNull(imageHead)) {
-                Glide.with(context).load(imageHead).apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                headList.add(imageHead);
+                holder.imgHead.setList(headList);
             } else {
-                String url = msgDao.groupHeadImgGet(groupInfoBean.getGid());
-                if (StringUtil.isNotNull(url)) {
-                    Glide.with(context).load(url).apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-                } else {
-                    creatAndSaveImg(groupInfoBean, holder.imgHead);
-                }
+                loadGroupHeads(groupInfoBean.getGid(), holder.imgHead);
             }
 
             // holder.txtName.setText(groupInfoBean.getName());
@@ -310,27 +310,28 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 //                    Intent intent = new Intent();
 //                    intent.putExtra(GROUP_JSON, GsonUtils.optObject(groupInfoBean));
 //                    setResult(RESULT_OK, intent);
+                    if(ViewUtils.isFastDoubleClick()){
+                        return;
+                    }
 
-
-
-                    if(MsgForwardActivity.isSingleSelected){
+                    if (MsgForwardActivity.isSingleSelected) {
                         onForward(-1L, groupInfoBean.getGid(), groupInfoBean.getAvatar(), /*groupInfoBean.getName()*/msgDao.getGroupName(groupInfoBean.getGid()));
-                    }else {
-                        if(groupInfoBean.isSelect()){
+                    } else {
+                        if (groupInfoBean.isSelect()) {
                             groupInfoBeans.get(position).setSelect(false);
                             holder.ivSelect.setSelected(false);
 
-                            MsgForwardActivity.addOrDelectMoreSessionBeanList(false,-1L, groupInfoBean.getGid(), groupInfoBean.getAvatar(), msgDao.getGroupName(groupInfoBean.getGid()));
-                        }else {
+                            MsgForwardActivity.addOrDelectMoreSessionBeanList(false, -1L, groupInfoBean.getGid(), groupInfoBean.getAvatar(), msgDao.getGroupName(groupInfoBean.getGid()));
+                        } else {
 
-                            if(MsgForwardActivity.moreSessionBeanList.size()>=MsgForwardActivity.maxNumb){
-                                ToastUtil.show(context, "最多选择"+MsgForwardActivity.maxNumb+"个");
+                            if (MsgForwardActivity.moreSessionBeanList.size() >= MsgForwardActivity.maxNumb) {
+                                ToastUtil.show(context, "最多选择" + MsgForwardActivity.maxNumb + "个");
                                 return;
                             }
 
                             groupInfoBeans.get(position).setSelect(true);
                             holder.ivSelect.setSelected(true);
-                            MsgForwardActivity.addOrDelectMoreSessionBeanList(true,-1L, groupInfoBean.getGid(), groupInfoBean.getAvatar(), msgDao.getGroupName(groupInfoBean.getGid()));
+                            MsgForwardActivity.addOrDelectMoreSessionBeanList(true, -1L, groupInfoBean.getGid(), groupInfoBean.getAvatar(), msgDao.getGroupName(groupInfoBean.getGid()));
                         }
 
 //                        LogUtil.getLog().e(getAdapterPosition()+"=信息==="+(finalIsGroup? -1L : bean.getFrom_uid())+"==0=="+ bean.getGid()+ "==0="+finalIcon+"=0===="+ finalTitle);
@@ -347,23 +348,43 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
             }
 
 
-            if(MsgForwardActivity.isSingleSelected){
+            if (MsgForwardActivity.isSingleSelected) {
                 holder.ivSelect.setVisibility(View.GONE);
-            }else {
+            } else {
                 holder.ivSelect.setVisibility(View.VISIBLE);
 
-                boolean hasSelect=MsgForwardActivity.findMoreSessionBeanList(-1L, groupInfoBean.getGid());
+                boolean hasSelect = MsgForwardActivity.findMoreSessionBeanList(-1L, groupInfoBean.getGid());
 //                LogUtil.getLog().e(getAdapterPosition()+"======hasSelect=="+hasSelect);
-                if(hasSelect){
+                if (hasSelect) {
                     groupInfoBeans.get(position).setSelect(true);
                     holder.ivSelect.setSelected(true);
-                }else {
+                } else {
                     groupInfoBeans.get(position).setSelect(false);
                     holder.ivSelect.setSelected(false);
                 }
             }
         }
 
+        /**
+         * 加载群头像
+         *
+         * @param gid
+         * @param imgHead
+         */
+        public synchronized void loadGroupHeads(String gid, MultiImageView imgHead) {
+            Group gginfo = msgDao.getGroup4Id(gid);
+            if (gginfo != null) {
+                int i = gginfo.getUsers().size();
+                i = i > 9 ? 9 : i;
+                //头像地址
+                List<String> headList = new ArrayList<>();
+                for (int j = 0; j < i; j++) {
+                    MemberUser userInfo = gginfo.getUsers().get(j);
+                    headList.add(userInfo.getHead());
+                }
+                imgHead.setList(headList);
+            }
+        }
 
         //自动寻找ViewHold
         @Override
@@ -375,7 +396,8 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
-            private ImageView imgHead,ivSelect;
+            private ImageView ivSelect;
+            private MultiImageView imgHead;
             private TextView txtName;
             private TextView txtNum;
 

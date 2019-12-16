@@ -17,7 +17,10 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.MediaBackUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
+import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.view.AppActivity;
+
+import org.greenrobot.eventbus.EventBus;
 
 /**
  *
@@ -69,6 +72,7 @@ public class ChatActionActivity extends AppActivity {
         viewYes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                EventBus.getDefault().post(new EventExitChat());
 
                 startActivity(new Intent(getContext(), ChatActivity.class)
                         .putExtra(ChatActivity.AGM_TOUID, msgAllbean.getFrom_uid()));

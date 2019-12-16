@@ -70,7 +70,7 @@
     </style>
 
     <style name="app_txt_title_2" parent="app_txt_base">
-        <item name="android:textSize">15sp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/black</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
@@ -88,7 +88,7 @@
     </style>
 
     <style name="app_txt_title_4" parent="app_txt_base">
-        <item name="android:textSize">15sp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/gray_300</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
@@ -428,7 +428,7 @@
     <style name="app_layout_list2_item">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">48dp</item>
-        <item name="android:background">@color/white</item>
+        <item name="android:background">@drawable/item_default_trans</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:paddingLeft">@dimen/app_margin_main</item>

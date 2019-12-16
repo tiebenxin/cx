@@ -121,6 +121,14 @@ public final class MsgBean {
     SHORT_VIDEO(11),
     /**
      * <pre>
+     * 地图位置
+     * </pre>
+     *
+     * <code>SNAPSHOT_LOCATION = 12;</code>
+     */
+    SNAPSHOT_LOCATION(12),
+    /**
+     * <pre>
      * 请求加好友消息
      * </pre>
      *
@@ -279,9 +287,17 @@ public final class MsgBean {
      * 支付结果通知
      * </pre>
      *
-     * <code>PAY_RESULT = 208;</code>
+     * <code>PAY_RESULT = 308;</code>
      */
-    PAY_RESULT(208),
+    PAY_RESULT(308),
+    /**
+     * <pre>
+     * 零钱小助手消息
+     * </pre>
+     *
+     * <code>BALANCE_ASSISTANT = 309;</code>
+     */
+    BALANCE_ASSISTANT(309),
     UNRECOGNIZED(-1),
     ;
 
@@ -381,6 +397,14 @@ public final class MsgBean {
      * <code>SHORT_VIDEO = 11;</code>
      */
     public static final int SHORT_VIDEO_VALUE = 11;
+    /**
+     * <pre>
+     * 地图位置
+     * </pre>
+     *
+     * <code>SNAPSHOT_LOCATION = 12;</code>
+     */
+    public static final int SNAPSHOT_LOCATION_VALUE = 12;
     /**
      * <pre>
      * 请求加好友消息
@@ -541,9 +565,17 @@ public final class MsgBean {
      * 支付结果通知
      * </pre>
      *
-     * <code>PAY_RESULT = 208;</code>
+     * <code>PAY_RESULT = 308;</code>
      */
-    public static final int PAY_RESULT_VALUE = 208;
+    public static final int PAY_RESULT_VALUE = 308;
+    /**
+     * <pre>
+     * 零钱小助手消息
+     * </pre>
+     *
+     * <code>BALANCE_ASSISTANT = 309;</code>
+     */
+    public static final int BALANCE_ASSISTANT_VALUE = 309;
 
 
     public final int getNumber() {
@@ -576,6 +608,7 @@ public final class MsgBean {
         case 9: return ASSISTANT;
         case 10: return CANCEL;
         case 11: return SHORT_VIDEO;
+        case 12: return SNAPSHOT_LOCATION;
         case 100: return REQUEST_FRIEND;
         case 101: return ACCEPT_BE_FRIENDS;
         case 102: return REMOVE_FRIEND;
@@ -595,7 +628,8 @@ public final class MsgBean {
         case 201: return ACTIVE_STAT_CHANGE;
         case 202: return RESOURCE_LOCK;
         case 203: return SWITCH_CHANGE;
-        case 208: return PAY_RESULT;
+        case 308: return PAY_RESULT;
+        case 309: return BALANCE_ASSISTANT;
         default: return null;
       }
     }
@@ -801,6 +835,14 @@ public final class MsgBean {
     IN_BLACKLIST(2),
     /**
      * <pre>
+     * 禁言
+     * </pre>
+     *
+     * <code>WORDS_NOT_ALLOWED = 3;</code>
+     */
+    WORDS_NOT_ALLOWED(3),
+    /**
+     * <pre>
      * 服务端限流
      * </pre>
      *
@@ -844,6 +886,14 @@ public final class MsgBean {
     public static final int IN_BLACKLIST_VALUE = 2;
     /**
      * <pre>
+     * 禁言
+     * </pre>
+     *
+     * <code>WORDS_NOT_ALLOWED = 3;</code>
+     */
+    public static final int WORDS_NOT_ALLOWED_VALUE = 3;
+    /**
+     * <pre>
      * 服务端限流
      * </pre>
      *
@@ -881,6 +931,7 @@ public final class MsgBean {
         case 0: return ACCEPTED;
         case 1: return NOT_FRIENDS_OR_GROUP_MEMBER;
         case 2: return IN_BLACKLIST;
+        case 3: return WORDS_NOT_ALLOWED;
         case 99: return RATE_LIMIT;
         case 100: return SERVICE_UNAVAILABLE;
         default: return null;
@@ -11199,6 +11250,1087 @@ public final class MsgBean {
     }
 
     public com.yanlong.im.utils.socket.MsgBean.ShortVideoMessage getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface SnapshotLocationMessageOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:SnapshotLocationMessage)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * 纬度
+     * </pre>
+     *
+     * <code>uint32 lat = 1;</code>
+     */
+    int getLat();
+
+    /**
+     * <pre>
+     * 经度
+     * </pre>
+     *
+     * <code>uint32 lon = 2;</code>
+     */
+    int getLon();
+
+    /**
+     * <pre>
+     * 地址
+     * </pre>
+     *
+     * <code>string addr = 3;</code>
+     */
+    java.lang.String getAddr();
+    /**
+     * <pre>
+     * 地址
+     * </pre>
+     *
+     * <code>string addr = 3;</code>
+     */
+    com.google.protobuf.ByteString
+        getAddrBytes();
+
+    /**
+     * <pre>
+     * 地址描述
+     * </pre>
+     *
+     * <code>string desc = 4;</code>
+     */
+    java.lang.String getDesc();
+    /**
+     * <pre>
+     * 地址描述
+     * </pre>
+     *
+     * <code>string desc = 4;</code>
+     */
+    com.google.protobuf.ByteString
+        getDescBytes();
+
+    /**
+     * <pre>
+     * 截图图片地址
+     * </pre>
+     *
+     * <code>string img = 5;</code>
+     */
+    java.lang.String getImg();
+    /**
+     * <pre>
+     * 截图图片地址
+     * </pre>
+     *
+     * <code>string img = 5;</code>
+     */
+    com.google.protobuf.ByteString
+        getImgBytes();
+  }
+  /**
+   * <pre>
+   * 地图位置消息
+   * </pre>
+   *
+   * Protobuf type {@code SnapshotLocationMessage}
+   */
+  public  static final class SnapshotLocationMessage extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:SnapshotLocationMessage)
+      SnapshotLocationMessageOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use SnapshotLocationMessage.newBuilder() to construct.
+    private SnapshotLocationMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private SnapshotLocationMessage() {
+      lat_ = 0;
+      lon_ = 0;
+      addr_ = "";
+      desc_ = "";
+      img_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private SnapshotLocationMessage(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownFieldProto3(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+
+              lat_ = input.readUInt32();
+              break;
+            }
+            case 16: {
+
+              lon_ = input.readUInt32();
+              break;
+            }
+            case 26: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              addr_ = s;
+              break;
+            }
+            case 34: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              desc_ = s;
+              break;
+            }
+            case 42: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              img_ = s;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.yanlong.im.utils.socket.MsgBean.internal_static_SnapshotLocationMessage_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.yanlong.im.utils.socket.MsgBean.internal_static_SnapshotLocationMessage_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.class, com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.Builder.class);
+    }
+
+    public static final int LAT_FIELD_NUMBER = 1;
+    private int lat_;
+    /**
+     * <pre>
+     * 纬度
+     * </pre>
+     *
+     * <code>uint32 lat = 1;</code>
+     */
+    public int getLat() {
+      return lat_;
+    }
+
+    public static final int LON_FIELD_NUMBER = 2;
+    private int lon_;
+    /**
+     * <pre>
+     * 经度
+     * </pre>
+     *
+     * <code>uint32 lon = 2;</code>
+     */
+    public int getLon() {
+      return lon_;
+    }
+
+    public static final int ADDR_FIELD_NUMBER = 3;
+    private volatile java.lang.Object addr_;
+    /**
+     * <pre>
+     * 地址
+     * </pre>
+     *
+     * <code>string addr = 3;</code>
+     */
+    public java.lang.String getAddr() {
+      java.lang.Object ref = addr_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        addr_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * 地址
+     * </pre>
+     *
+     * <code>string addr = 3;</code>
+     */
+    public com.google.protobuf.ByteString
+        getAddrBytes() {
+      java.lang.Object ref = addr_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        addr_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int DESC_FIELD_NUMBER = 4;
+    private volatile java.lang.Object desc_;
+    /**
+     * <pre>
+     * 地址描述
+     * </pre>
+     *
+     * <code>string desc = 4;</code>
+     */
+    public java.lang.String getDesc() {
+      java.lang.Object ref = desc_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        desc_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * 地址描述
+     * </pre>
+     *
+     * <code>string desc = 4;</code>
+     */
+    public com.google.protobuf.ByteString
+        getDescBytes() {
+      java.lang.Object ref = desc_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        desc_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int IMG_FIELD_NUMBER = 5;
+    private volatile java.lang.Object img_;
+    /**
+     * <pre>
+     * 截图图片地址
+     * </pre>
+     *
+     * <code>string img = 5;</code>
+     */
+    public java.lang.String getImg() {
+      java.lang.Object ref = img_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        img_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * 截图图片地址
+     * </pre>
+     *
+     * <code>string img = 5;</code>
+     */
+    public com.google.protobuf.ByteString
+        getImgBytes() {
+      java.lang.Object ref = img_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        img_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (lat_ != 0) {
+        output.writeUInt32(1, lat_);
+      }
+      if (lon_ != 0) {
+        output.writeUInt32(2, lon_);
+      }
+      if (!getAddrBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, addr_);
+      }
+      if (!getDescBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, desc_);
+      }
+      if (!getImgBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 5, img_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (lat_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(1, lat_);
+      }
+      if (lon_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(2, lon_);
+      }
+      if (!getAddrBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, addr_);
+      }
+      if (!getDescBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, desc_);
+      }
+      if (!getImgBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, img_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage)) {
+        return super.equals(obj);
+      }
+      com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage other = (com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage) obj;
+
+      boolean result = true;
+      result = result && (getLat()
+          == other.getLat());
+      result = result && (getLon()
+          == other.getLon());
+      result = result && getAddr()
+          .equals(other.getAddr());
+      result = result && getDesc()
+          .equals(other.getDesc());
+      result = result && getImg()
+          .equals(other.getImg());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + LAT_FIELD_NUMBER;
+      hash = (53 * hash) + getLat();
+      hash = (37 * hash) + LON_FIELD_NUMBER;
+      hash = (53 * hash) + getLon();
+      hash = (37 * hash) + ADDR_FIELD_NUMBER;
+      hash = (53 * hash) + getAddr().hashCode();
+      hash = (37 * hash) + DESC_FIELD_NUMBER;
+      hash = (53 * hash) + getDesc().hashCode();
+      hash = (37 * hash) + IMG_FIELD_NUMBER;
+      hash = (53 * hash) + getImg().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * 地图位置消息
+     * </pre>
+     *
+     * Protobuf type {@code SnapshotLocationMessage}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:SnapshotLocationMessage)
+        com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessageOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_SnapshotLocationMessage_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_SnapshotLocationMessage_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.class, com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.Builder.class);
+      }
+
+      // Construct using com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        lat_ = 0;
+
+        lon_ = 0;
+
+        addr_ = "";
+
+        desc_ = "";
+
+        img_ = "";
+
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_SnapshotLocationMessage_descriptor;
+      }
+
+      public com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage getDefaultInstanceForType() {
+        return com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.getDefaultInstance();
+      }
+
+      public com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage build() {
+        com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage buildPartial() {
+        com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage result = new com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage(this);
+        result.lat_ = lat_;
+        result.lon_ = lon_;
+        result.addr_ = addr_;
+        result.desc_ = desc_;
+        result.img_ = img_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage) {
+          return mergeFrom((com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage other) {
+        if (other == com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.getDefaultInstance()) return this;
+        if (other.getLat() != 0) {
+          setLat(other.getLat());
+        }
+        if (other.getLon() != 0) {
+          setLon(other.getLon());
+        }
+        if (!other.getAddr().isEmpty()) {
+          addr_ = other.addr_;
+          onChanged();
+        }
+        if (!other.getDesc().isEmpty()) {
+          desc_ = other.desc_;
+          onChanged();
+        }
+        if (!other.getImg().isEmpty()) {
+          img_ = other.img_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private int lat_ ;
+      /**
+       * <pre>
+       * 纬度
+       * </pre>
+       *
+       * <code>uint32 lat = 1;</code>
+       */
+      public int getLat() {
+        return lat_;
+      }
+      /**
+       * <pre>
+       * 纬度
+       * </pre>
+       *
+       * <code>uint32 lat = 1;</code>
+       */
+      public Builder setLat(int value) {
+        
+        lat_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 纬度
+       * </pre>
+       *
+       * <code>uint32 lat = 1;</code>
+       */
+      public Builder clearLat() {
+        
+        lat_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int lon_ ;
+      /**
+       * <pre>
+       * 经度
+       * </pre>
+       *
+       * <code>uint32 lon = 2;</code>
+       */
+      public int getLon() {
+        return lon_;
+      }
+      /**
+       * <pre>
+       * 经度
+       * </pre>
+       *
+       * <code>uint32 lon = 2;</code>
+       */
+      public Builder setLon(int value) {
+        
+        lon_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 经度
+       * </pre>
+       *
+       * <code>uint32 lon = 2;</code>
+       */
+      public Builder clearLon() {
+        
+        lon_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object addr_ = "";
+      /**
+       * <pre>
+       * 地址
+       * </pre>
+       *
+       * <code>string addr = 3;</code>
+       */
+      public java.lang.String getAddr() {
+        java.lang.Object ref = addr_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          addr_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 地址
+       * </pre>
+       *
+       * <code>string addr = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getAddrBytes() {
+        java.lang.Object ref = addr_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          addr_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 地址
+       * </pre>
+       *
+       * <code>string addr = 3;</code>
+       */
+      public Builder setAddr(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        addr_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 地址
+       * </pre>
+       *
+       * <code>string addr = 3;</code>
+       */
+      public Builder clearAddr() {
+        
+        addr_ = getDefaultInstance().getAddr();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 地址
+       * </pre>
+       *
+       * <code>string addr = 3;</code>
+       */
+      public Builder setAddrBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        addr_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object desc_ = "";
+      /**
+       * <pre>
+       * 地址描述
+       * </pre>
+       *
+       * <code>string desc = 4;</code>
+       */
+      public java.lang.String getDesc() {
+        java.lang.Object ref = desc_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          desc_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 地址描述
+       * </pre>
+       *
+       * <code>string desc = 4;</code>
+       */
+      public com.google.protobuf.ByteString
+          getDescBytes() {
+        java.lang.Object ref = desc_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          desc_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 地址描述
+       * </pre>
+       *
+       * <code>string desc = 4;</code>
+       */
+      public Builder setDesc(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        desc_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 地址描述
+       * </pre>
+       *
+       * <code>string desc = 4;</code>
+       */
+      public Builder clearDesc() {
+        
+        desc_ = getDefaultInstance().getDesc();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 地址描述
+       * </pre>
+       *
+       * <code>string desc = 4;</code>
+       */
+      public Builder setDescBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        desc_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object img_ = "";
+      /**
+       * <pre>
+       * 截图图片地址
+       * </pre>
+       *
+       * <code>string img = 5;</code>
+       */
+      public java.lang.String getImg() {
+        java.lang.Object ref = img_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          img_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 截图图片地址
+       * </pre>
+       *
+       * <code>string img = 5;</code>
+       */
+      public com.google.protobuf.ByteString
+          getImgBytes() {
+        java.lang.Object ref = img_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          img_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 截图图片地址
+       * </pre>
+       *
+       * <code>string img = 5;</code>
+       */
+      public Builder setImg(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        img_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 截图图片地址
+       * </pre>
+       *
+       * <code>string img = 5;</code>
+       */
+      public Builder clearImg() {
+        
+        img_ = getDefaultInstance().getImg();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 截图图片地址
+       * </pre>
+       *
+       * <code>string img = 5;</code>
+       */
+      public Builder setImgBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        img_ = value;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFieldsProto3(unknownFields);
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:SnapshotLocationMessage)
+    }
+
+    // @@protoc_insertion_point(class_scope:SnapshotLocationMessage)
+    private static final com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage();
+    }
+
+    public static com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<SnapshotLocationMessage>
+        PARSER = new com.google.protobuf.AbstractParser<SnapshotLocationMessage>() {
+      public SnapshotLocationMessage parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new SnapshotLocationMessage(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<SnapshotLocationMessage> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<SnapshotLocationMessage> getParserForType() {
+      return PARSER;
+    }
+
+    public com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -26131,6 +27263,3406 @@ public final class MsgBean {
 
   }
 
+  public interface PayResultMessageOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:PayResultMessage)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>.PayResultMessage.PayResult result = 1;</code>
+     */
+    int getResultValue();
+    /**
+     * <code>.PayResultMessage.PayResult result = 1;</code>
+     */
+    com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult getResult();
+
+    /**
+     * <code>uint64 trade_id = 2;</code>
+     */
+    long getTradeId();
+
+    /**
+     * <code>string action_id = 3;</code>
+     */
+    java.lang.String getActionId();
+    /**
+     * <code>string action_id = 3;</code>
+     */
+    com.google.protobuf.ByteString
+        getActionIdBytes();
+
+    /**
+     * <pre>
+     * 错误消息,状态为失败才有值
+     * </pre>
+     *
+     * <code>string error_msg = 4;</code>
+     */
+    java.lang.String getErrorMsg();
+    /**
+     * <pre>
+     * 错误消息,状态为失败才有值
+     * </pre>
+     *
+     * <code>string error_msg = 4;</code>
+     */
+    com.google.protobuf.ByteString
+        getErrorMsgBytes();
+  }
+  /**
+   * <pre>
+   * 支付结果通知
+   * </pre>
+   *
+   * Protobuf type {@code PayResultMessage}
+   */
+  public  static final class PayResultMessage extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:PayResultMessage)
+      PayResultMessageOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use PayResultMessage.newBuilder() to construct.
+    private PayResultMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private PayResultMessage() {
+      result_ = 0;
+      tradeId_ = 0L;
+      actionId_ = "";
+      errorMsg_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private PayResultMessage(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownFieldProto3(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+              int rawValue = input.readEnum();
+
+              result_ = rawValue;
+              break;
+            }
+            case 16: {
+
+              tradeId_ = input.readUInt64();
+              break;
+            }
+            case 26: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              actionId_ = s;
+              break;
+            }
+            case 34: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              errorMsg_ = s;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.yanlong.im.utils.socket.MsgBean.internal_static_PayResultMessage_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.yanlong.im.utils.socket.MsgBean.internal_static_PayResultMessage_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.yanlong.im.utils.socket.MsgBean.PayResultMessage.class, com.yanlong.im.utils.socket.MsgBean.PayResultMessage.Builder.class);
+    }
+
+    /**
+     * Protobuf enum {@code PayResultMessage.PayResult}
+     */
+    public enum PayResult
+        implements com.google.protobuf.ProtocolMessageEnum {
+      /**
+       * <pre>
+       * 成功
+       * </pre>
+       *
+       * <code>SUCCESS = 0;</code>
+       */
+      SUCCESS(0),
+      /**
+       * <pre>
+       * 失败
+       * </pre>
+       *
+       * <code>FAIL = 1;</code>
+       */
+      FAIL(1),
+      /**
+       * <pre>
+       * 成功后退款了
+       * </pre>
+       *
+       * <code>REFUND = 2;</code>
+       */
+      REFUND(2),
+      UNRECOGNIZED(-1),
+      ;
+
+      /**
+       * <pre>
+       * 成功
+       * </pre>
+       *
+       * <code>SUCCESS = 0;</code>
+       */
+      public static final int SUCCESS_VALUE = 0;
+      /**
+       * <pre>
+       * 失败
+       * </pre>
+       *
+       * <code>FAIL = 1;</code>
+       */
+      public static final int FAIL_VALUE = 1;
+      /**
+       * <pre>
+       * 成功后退款了
+       * </pre>
+       *
+       * <code>REFUND = 2;</code>
+       */
+      public static final int REFUND_VALUE = 2;
+
+
+      public final int getNumber() {
+        if (this == UNRECOGNIZED) {
+          throw new java.lang.IllegalArgumentException(
+              "Can't get the number of an unknown enum value.");
+        }
+        return value;
+      }
+
+      /**
+       * @deprecated Use {@link #forNumber(int)} instead.
+       */
+      @java.lang.Deprecated
+      public static PayResult valueOf(int value) {
+        return forNumber(value);
+      }
+
+      public static PayResult forNumber(int value) {
+        switch (value) {
+          case 0: return SUCCESS;
+          case 1: return FAIL;
+          case 2: return REFUND;
+          default: return null;
+        }
+      }
+
+      public static com.google.protobuf.Internal.EnumLiteMap<PayResult>
+          internalGetValueMap() {
+        return internalValueMap;
+      }
+      private static final com.google.protobuf.Internal.EnumLiteMap<
+          PayResult> internalValueMap =
+            new com.google.protobuf.Internal.EnumLiteMap<PayResult>() {
+              public PayResult findValueByNumber(int number) {
+                return PayResult.forNumber(number);
+              }
+            };
+
+      public final com.google.protobuf.Descriptors.EnumValueDescriptor
+          getValueDescriptor() {
+        return getDescriptor().getValues().get(ordinal());
+      }
+      public final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptorForType() {
+        return getDescriptor();
+      }
+      public static final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptor() {
+        return com.yanlong.im.utils.socket.MsgBean.PayResultMessage.getDescriptor().getEnumTypes().get(0);
+      }
+
+      private static final PayResult[] VALUES = values();
+
+      public static PayResult valueOf(
+          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+        if (desc.getType() != getDescriptor()) {
+          throw new java.lang.IllegalArgumentException(
+            "EnumValueDescriptor is not for this type.");
+        }
+        if (desc.getIndex() == -1) {
+          return UNRECOGNIZED;
+        }
+        return VALUES[desc.getIndex()];
+      }
+
+      private final int value;
+
+      private PayResult(int value) {
+        this.value = value;
+      }
+
+      // @@protoc_insertion_point(enum_scope:PayResultMessage.PayResult)
+    }
+
+    public static final int RESULT_FIELD_NUMBER = 1;
+    private int result_;
+    /**
+     * <code>.PayResultMessage.PayResult result = 1;</code>
+     */
+    public int getResultValue() {
+      return result_;
+    }
+    /**
+     * <code>.PayResultMessage.PayResult result = 1;</code>
+     */
+    public com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult getResult() {
+      com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult result = com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult.valueOf(result_);
+      return result == null ? com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult.UNRECOGNIZED : result;
+    }
+
+    public static final int TRADE_ID_FIELD_NUMBER = 2;
+    private long tradeId_;
+    /**
+     * <code>uint64 trade_id = 2;</code>
+     */
+    public long getTradeId() {
+      return tradeId_;
+    }
+
+    public static final int ACTION_ID_FIELD_NUMBER = 3;
+    private volatile java.lang.Object actionId_;
+    /**
+     * <code>string action_id = 3;</code>
+     */
+    public java.lang.String getActionId() {
+      java.lang.Object ref = actionId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        actionId_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string action_id = 3;</code>
+     */
+    public com.google.protobuf.ByteString
+        getActionIdBytes() {
+      java.lang.Object ref = actionId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        actionId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int ERROR_MSG_FIELD_NUMBER = 4;
+    private volatile java.lang.Object errorMsg_;
+    /**
+     * <pre>
+     * 错误消息,状态为失败才有值
+     * </pre>
+     *
+     * <code>string error_msg = 4;</code>
+     */
+    public java.lang.String getErrorMsg() {
+      java.lang.Object ref = errorMsg_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        errorMsg_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * 错误消息,状态为失败才有值
+     * </pre>
+     *
+     * <code>string error_msg = 4;</code>
+     */
+    public com.google.protobuf.ByteString
+        getErrorMsgBytes() {
+      java.lang.Object ref = errorMsg_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        errorMsg_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (result_ != com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult.SUCCESS.getNumber()) {
+        output.writeEnum(1, result_);
+      }
+      if (tradeId_ != 0L) {
+        output.writeUInt64(2, tradeId_);
+      }
+      if (!getActionIdBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, actionId_);
+      }
+      if (!getErrorMsgBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, errorMsg_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (result_ != com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult.SUCCESS.getNumber()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(1, result_);
+      }
+      if (tradeId_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt64Size(2, tradeId_);
+      }
+      if (!getActionIdBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, actionId_);
+      }
+      if (!getErrorMsgBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, errorMsg_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.yanlong.im.utils.socket.MsgBean.PayResultMessage)) {
+        return super.equals(obj);
+      }
+      com.yanlong.im.utils.socket.MsgBean.PayResultMessage other = (com.yanlong.im.utils.socket.MsgBean.PayResultMessage) obj;
+
+      boolean result = true;
+      result = result && result_ == other.result_;
+      result = result && (getTradeId()
+          == other.getTradeId());
+      result = result && getActionId()
+          .equals(other.getActionId());
+      result = result && getErrorMsg()
+          .equals(other.getErrorMsg());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + RESULT_FIELD_NUMBER;
+      hash = (53 * hash) + result_;
+      hash = (37 * hash) + TRADE_ID_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getTradeId());
+      hash = (37 * hash) + ACTION_ID_FIELD_NUMBER;
+      hash = (53 * hash) + getActionId().hashCode();
+      hash = (37 * hash) + ERROR_MSG_FIELD_NUMBER;
+      hash = (53 * hash) + getErrorMsg().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.yanlong.im.utils.socket.MsgBean.PayResultMessage prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * 支付结果通知
+     * </pre>
+     *
+     * Protobuf type {@code PayResultMessage}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:PayResultMessage)
+        com.yanlong.im.utils.socket.MsgBean.PayResultMessageOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_PayResultMessage_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_PayResultMessage_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.yanlong.im.utils.socket.MsgBean.PayResultMessage.class, com.yanlong.im.utils.socket.MsgBean.PayResultMessage.Builder.class);
+      }
+
+      // Construct using com.yanlong.im.utils.socket.MsgBean.PayResultMessage.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        result_ = 0;
+
+        tradeId_ = 0L;
+
+        actionId_ = "";
+
+        errorMsg_ = "";
+
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_PayResultMessage_descriptor;
+      }
+
+      public com.yanlong.im.utils.socket.MsgBean.PayResultMessage getDefaultInstanceForType() {
+        return com.yanlong.im.utils.socket.MsgBean.PayResultMessage.getDefaultInstance();
+      }
+
+      public com.yanlong.im.utils.socket.MsgBean.PayResultMessage build() {
+        com.yanlong.im.utils.socket.MsgBean.PayResultMessage result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.yanlong.im.utils.socket.MsgBean.PayResultMessage buildPartial() {
+        com.yanlong.im.utils.socket.MsgBean.PayResultMessage result = new com.yanlong.im.utils.socket.MsgBean.PayResultMessage(this);
+        result.result_ = result_;
+        result.tradeId_ = tradeId_;
+        result.actionId_ = actionId_;
+        result.errorMsg_ = errorMsg_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.yanlong.im.utils.socket.MsgBean.PayResultMessage) {
+          return mergeFrom((com.yanlong.im.utils.socket.MsgBean.PayResultMessage)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.yanlong.im.utils.socket.MsgBean.PayResultMessage other) {
+        if (other == com.yanlong.im.utils.socket.MsgBean.PayResultMessage.getDefaultInstance()) return this;
+        if (other.result_ != 0) {
+          setResultValue(other.getResultValue());
+        }
+        if (other.getTradeId() != 0L) {
+          setTradeId(other.getTradeId());
+        }
+        if (!other.getActionId().isEmpty()) {
+          actionId_ = other.actionId_;
+          onChanged();
+        }
+        if (!other.getErrorMsg().isEmpty()) {
+          errorMsg_ = other.errorMsg_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.yanlong.im.utils.socket.MsgBean.PayResultMessage parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.yanlong.im.utils.socket.MsgBean.PayResultMessage) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private int result_ = 0;
+      /**
+       * <code>.PayResultMessage.PayResult result = 1;</code>
+       */
+      public int getResultValue() {
+        return result_;
+      }
+      /**
+       * <code>.PayResultMessage.PayResult result = 1;</code>
+       */
+      public Builder setResultValue(int value) {
+        result_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>.PayResultMessage.PayResult result = 1;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult getResult() {
+        com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult result = com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult.valueOf(result_);
+        return result == null ? com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult.UNRECOGNIZED : result;
+      }
+      /**
+       * <code>.PayResultMessage.PayResult result = 1;</code>
+       */
+      public Builder setResult(com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        
+        result_ = value.getNumber();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>.PayResultMessage.PayResult result = 1;</code>
+       */
+      public Builder clearResult() {
+        
+        result_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private long tradeId_ ;
+      /**
+       * <code>uint64 trade_id = 2;</code>
+       */
+      public long getTradeId() {
+        return tradeId_;
+      }
+      /**
+       * <code>uint64 trade_id = 2;</code>
+       */
+      public Builder setTradeId(long value) {
+        
+        tradeId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>uint64 trade_id = 2;</code>
+       */
+      public Builder clearTradeId() {
+        
+        tradeId_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object actionId_ = "";
+      /**
+       * <code>string action_id = 3;</code>
+       */
+      public java.lang.String getActionId() {
+        java.lang.Object ref = actionId_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          actionId_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string action_id = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getActionIdBytes() {
+        java.lang.Object ref = actionId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          actionId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string action_id = 3;</code>
+       */
+      public Builder setActionId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        actionId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string action_id = 3;</code>
+       */
+      public Builder clearActionId() {
+        
+        actionId_ = getDefaultInstance().getActionId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string action_id = 3;</code>
+       */
+      public Builder setActionIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        actionId_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object errorMsg_ = "";
+      /**
+       * <pre>
+       * 错误消息,状态为失败才有值
+       * </pre>
+       *
+       * <code>string error_msg = 4;</code>
+       */
+      public java.lang.String getErrorMsg() {
+        java.lang.Object ref = errorMsg_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          errorMsg_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 错误消息,状态为失败才有值
+       * </pre>
+       *
+       * <code>string error_msg = 4;</code>
+       */
+      public com.google.protobuf.ByteString
+          getErrorMsgBytes() {
+        java.lang.Object ref = errorMsg_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          errorMsg_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 错误消息,状态为失败才有值
+       * </pre>
+       *
+       * <code>string error_msg = 4;</code>
+       */
+      public Builder setErrorMsg(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        errorMsg_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 错误消息,状态为失败才有值
+       * </pre>
+       *
+       * <code>string error_msg = 4;</code>
+       */
+      public Builder clearErrorMsg() {
+        
+        errorMsg_ = getDefaultInstance().getErrorMsg();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 错误消息,状态为失败才有值
+       * </pre>
+       *
+       * <code>string error_msg = 4;</code>
+       */
+      public Builder setErrorMsgBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        errorMsg_ = value;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFieldsProto3(unknownFields);
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:PayResultMessage)
+    }
+
+    // @@protoc_insertion_point(class_scope:PayResultMessage)
+    private static final com.yanlong.im.utils.socket.MsgBean.PayResultMessage DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.yanlong.im.utils.socket.MsgBean.PayResultMessage();
+    }
+
+    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<PayResultMessage>
+        PARSER = new com.google.protobuf.AbstractParser<PayResultMessage>() {
+      public PayResultMessage parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new PayResultMessage(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<PayResultMessage> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<PayResultMessage> getParserForType() {
+      return PARSER;
+    }
+
+    public com.yanlong.im.utils.socket.MsgBean.PayResultMessage getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface LabelValueItemOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:LabelValueItem)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>string label = 1;</code>
+     */
+    java.lang.String getLabel();
+    /**
+     * <code>string label = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getLabelBytes();
+
+    /**
+     * <code>string value = 2;</code>
+     */
+    java.lang.String getValue();
+    /**
+     * <code>string value = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getValueBytes();
+  }
+  /**
+   * <pre>
+   * LABEL VALUE 键值对
+   * </pre>
+   *
+   * Protobuf type {@code LabelValueItem}
+   */
+  public  static final class LabelValueItem extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:LabelValueItem)
+      LabelValueItemOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use LabelValueItem.newBuilder() to construct.
+    private LabelValueItem(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private LabelValueItem() {
+      label_ = "";
+      value_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private LabelValueItem(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownFieldProto3(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              label_ = s;
+              break;
+            }
+            case 18: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              value_ = s;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.yanlong.im.utils.socket.MsgBean.internal_static_LabelValueItem_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.yanlong.im.utils.socket.MsgBean.internal_static_LabelValueItem_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.yanlong.im.utils.socket.MsgBean.LabelValueItem.class, com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder.class);
+    }
+
+    public static final int LABEL_FIELD_NUMBER = 1;
+    private volatile java.lang.Object label_;
+    /**
+     * <code>string label = 1;</code>
+     */
+    public java.lang.String getLabel() {
+      java.lang.Object ref = label_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        label_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string label = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getLabelBytes() {
+      java.lang.Object ref = label_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        label_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int VALUE_FIELD_NUMBER = 2;
+    private volatile java.lang.Object value_;
+    /**
+     * <code>string value = 2;</code>
+     */
+    public java.lang.String getValue() {
+      java.lang.Object ref = value_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        value_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string value = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getValueBytes() {
+      java.lang.Object ref = value_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        value_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!getLabelBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, label_);
+      }
+      if (!getValueBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, value_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!getLabelBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, label_);
+      }
+      if (!getValueBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, value_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.yanlong.im.utils.socket.MsgBean.LabelValueItem)) {
+        return super.equals(obj);
+      }
+      com.yanlong.im.utils.socket.MsgBean.LabelValueItem other = (com.yanlong.im.utils.socket.MsgBean.LabelValueItem) obj;
+
+      boolean result = true;
+      result = result && getLabel()
+          .equals(other.getLabel());
+      result = result && getValue()
+          .equals(other.getValue());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + LABEL_FIELD_NUMBER;
+      hash = (53 * hash) + getLabel().hashCode();
+      hash = (37 * hash) + VALUE_FIELD_NUMBER;
+      hash = (53 * hash) + getValue().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.yanlong.im.utils.socket.MsgBean.LabelValueItem parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.LabelValueItem parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.LabelValueItem parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.LabelValueItem parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.LabelValueItem parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.LabelValueItem parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.LabelValueItem parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.LabelValueItem parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.LabelValueItem parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.LabelValueItem parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.LabelValueItem parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.LabelValueItem parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.yanlong.im.utils.socket.MsgBean.LabelValueItem prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * LABEL VALUE 键值对
+     * </pre>
+     *
+     * Protobuf type {@code LabelValueItem}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:LabelValueItem)
+        com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_LabelValueItem_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_LabelValueItem_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.yanlong.im.utils.socket.MsgBean.LabelValueItem.class, com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder.class);
+      }
+
+      // Construct using com.yanlong.im.utils.socket.MsgBean.LabelValueItem.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        label_ = "";
+
+        value_ = "";
+
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_LabelValueItem_descriptor;
+      }
+
+      public com.yanlong.im.utils.socket.MsgBean.LabelValueItem getDefaultInstanceForType() {
+        return com.yanlong.im.utils.socket.MsgBean.LabelValueItem.getDefaultInstance();
+      }
+
+      public com.yanlong.im.utils.socket.MsgBean.LabelValueItem build() {
+        com.yanlong.im.utils.socket.MsgBean.LabelValueItem result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.yanlong.im.utils.socket.MsgBean.LabelValueItem buildPartial() {
+        com.yanlong.im.utils.socket.MsgBean.LabelValueItem result = new com.yanlong.im.utils.socket.MsgBean.LabelValueItem(this);
+        result.label_ = label_;
+        result.value_ = value_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.yanlong.im.utils.socket.MsgBean.LabelValueItem) {
+          return mergeFrom((com.yanlong.im.utils.socket.MsgBean.LabelValueItem)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.yanlong.im.utils.socket.MsgBean.LabelValueItem other) {
+        if (other == com.yanlong.im.utils.socket.MsgBean.LabelValueItem.getDefaultInstance()) return this;
+        if (!other.getLabel().isEmpty()) {
+          label_ = other.label_;
+          onChanged();
+        }
+        if (!other.getValue().isEmpty()) {
+          value_ = other.value_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.yanlong.im.utils.socket.MsgBean.LabelValueItem parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.yanlong.im.utils.socket.MsgBean.LabelValueItem) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private java.lang.Object label_ = "";
+      /**
+       * <code>string label = 1;</code>
+       */
+      public java.lang.String getLabel() {
+        java.lang.Object ref = label_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          label_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string label = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getLabelBytes() {
+        java.lang.Object ref = label_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          label_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string label = 1;</code>
+       */
+      public Builder setLabel(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        label_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string label = 1;</code>
+       */
+      public Builder clearLabel() {
+        
+        label_ = getDefaultInstance().getLabel();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string label = 1;</code>
+       */
+      public Builder setLabelBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        label_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object value_ = "";
+      /**
+       * <code>string value = 2;</code>
+       */
+      public java.lang.String getValue() {
+        java.lang.Object ref = value_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          value_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string value = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getValueBytes() {
+        java.lang.Object ref = value_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          value_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string value = 2;</code>
+       */
+      public Builder setValue(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        value_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string value = 2;</code>
+       */
+      public Builder clearValue() {
+        
+        value_ = getDefaultInstance().getValue();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string value = 2;</code>
+       */
+      public Builder setValueBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        value_ = value;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFieldsProto3(unknownFields);
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:LabelValueItem)
+    }
+
+    // @@protoc_insertion_point(class_scope:LabelValueItem)
+    private static final com.yanlong.im.utils.socket.MsgBean.LabelValueItem DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.yanlong.im.utils.socket.MsgBean.LabelValueItem();
+    }
+
+    public static com.yanlong.im.utils.socket.MsgBean.LabelValueItem getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<LabelValueItem>
+        PARSER = new com.google.protobuf.AbstractParser<LabelValueItem>() {
+      public LabelValueItem parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new LabelValueItem(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<LabelValueItem> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<LabelValueItem> getParserForType() {
+      return PARSER;
+    }
+
+    public com.yanlong.im.utils.socket.MsgBean.LabelValueItem getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface BalanceAssistantMessageOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:BalanceAssistantMessage)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * 数据ID, 用于加载详情
+     * </pre>
+     *
+     * <code>uint64 trade_id = 1;</code>
+     */
+    long getTradeId();
+
+    /**
+     * <pre>
+     * 数据详情类型，用于判断跳转哪一种详情页 无详情、红包详情、交易详情
+     * </pre>
+     *
+     * <code>.BalanceAssistantMessage.DetailType detail_type = 2;</code>
+     */
+    int getDetailTypeValue();
+    /**
+     * <pre>
+     * 数据详情类型，用于判断跳转哪一种详情页 无详情、红包详情、交易详情
+     * </pre>
+     *
+     * <code>.BalanceAssistantMessage.DetailType detail_type = 2;</code>
+     */
+    com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.DetailType getDetailType();
+
+    /**
+     * <pre>
+     * 时间 - 如:充值时间&#92;到账时间
+     * </pre>
+     *
+     * <code>uint64 time = 3;</code>
+     */
+    long getTime();
+
+    /**
+     * <pre>
+     * 标题
+     * </pre>
+     *
+     * <code>string title = 4;</code>
+     */
+    java.lang.String getTitle();
+    /**
+     * <pre>
+     * 标题
+     * </pre>
+     *
+     * <code>string title = 4;</code>
+     */
+    com.google.protobuf.ByteString
+        getTitleBytes();
+
+    /**
+     * <pre>
+     * 金额标题, 如:退款金额 充值金额
+     * </pre>
+     *
+     * <code>string amt_label = 5;</code>
+     */
+    java.lang.String getAmtLabel();
+    /**
+     * <pre>
+     * 金额标题, 如:退款金额 充值金额
+     * </pre>
+     *
+     * <code>string amt_label = 5;</code>
+     */
+    com.google.protobuf.ByteString
+        getAmtLabelBytes();
+
+    /**
+     * <pre>
+     * 金额
+     * </pre>
+     *
+     * <code>uint64 amt = 6;</code>
+     */
+    long getAmt();
+
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 7;</code>
+     */
+    java.util.List<com.yanlong.im.utils.socket.MsgBean.LabelValueItem> 
+        getItemList();
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 7;</code>
+     */
+    com.yanlong.im.utils.socket.MsgBean.LabelValueItem getItem(int index);
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 7;</code>
+     */
+    int getItemCount();
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 7;</code>
+     */
+    java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder> 
+        getItemOrBuilderList();
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 7;</code>
+     */
+    com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder getItemOrBuilder(
+        int index);
+  }
+  /**
+   * <pre>
+   * 零钱小助手消息
+   * </pre>
+   *
+   * Protobuf type {@code BalanceAssistantMessage}
+   */
+  public  static final class BalanceAssistantMessage extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:BalanceAssistantMessage)
+      BalanceAssistantMessageOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use BalanceAssistantMessage.newBuilder() to construct.
+    private BalanceAssistantMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private BalanceAssistantMessage() {
+      tradeId_ = 0L;
+      detailType_ = 0;
+      time_ = 0L;
+      title_ = "";
+      amtLabel_ = "";
+      amt_ = 0L;
+      item_ = java.util.Collections.emptyList();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private BalanceAssistantMessage(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownFieldProto3(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+
+              tradeId_ = input.readUInt64();
+              break;
+            }
+            case 16: {
+              int rawValue = input.readEnum();
+
+              detailType_ = rawValue;
+              break;
+            }
+            case 24: {
+
+              time_ = input.readUInt64();
+              break;
+            }
+            case 34: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              title_ = s;
+              break;
+            }
+            case 42: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              amtLabel_ = s;
+              break;
+            }
+            case 48: {
+
+              amt_ = input.readUInt64();
+              break;
+            }
+            case 58: {
+              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+                item_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.LabelValueItem>();
+                mutable_bitField0_ |= 0x00000040;
+              }
+              item_.add(
+                  input.readMessage(com.yanlong.im.utils.socket.MsgBean.LabelValueItem.parser(), extensionRegistry));
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+          item_ = java.util.Collections.unmodifiableList(item_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.yanlong.im.utils.socket.MsgBean.internal_static_BalanceAssistantMessage_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.yanlong.im.utils.socket.MsgBean.internal_static_BalanceAssistantMessage_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.class, com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.Builder.class);
+    }
+
+    /**
+     * Protobuf enum {@code BalanceAssistantMessage.DetailType}
+     */
+    public enum DetailType
+        implements com.google.protobuf.ProtocolMessageEnum {
+      /**
+       * <pre>
+       * 无详情
+       * </pre>
+       *
+       * <code>NONE = 0;</code>
+       */
+      NONE(0),
+      /**
+       * <pre>
+       * 红包详情
+       * </pre>
+       *
+       * <code>RED_ENVELOPE = 1;</code>
+       */
+      RED_ENVELOPE(1),
+      /**
+       * <pre>
+       * 交易详情
+       * </pre>
+       *
+       * <code>TRANS = 2;</code>
+       */
+      TRANS(2),
+      UNRECOGNIZED(-1),
+      ;
+
+      /**
+       * <pre>
+       * 无详情
+       * </pre>
+       *
+       * <code>NONE = 0;</code>
+       */
+      public static final int NONE_VALUE = 0;
+      /**
+       * <pre>
+       * 红包详情
+       * </pre>
+       *
+       * <code>RED_ENVELOPE = 1;</code>
+       */
+      public static final int RED_ENVELOPE_VALUE = 1;
+      /**
+       * <pre>
+       * 交易详情
+       * </pre>
+       *
+       * <code>TRANS = 2;</code>
+       */
+      public static final int TRANS_VALUE = 2;
+
+
+      public final int getNumber() {
+        if (this == UNRECOGNIZED) {
+          throw new java.lang.IllegalArgumentException(
+              "Can't get the number of an unknown enum value.");
+        }
+        return value;
+      }
+
+      /**
+       * @deprecated Use {@link #forNumber(int)} instead.
+       */
+      @java.lang.Deprecated
+      public static DetailType valueOf(int value) {
+        return forNumber(value);
+      }
+
+      public static DetailType forNumber(int value) {
+        switch (value) {
+          case 0: return NONE;
+          case 1: return RED_ENVELOPE;
+          case 2: return TRANS;
+          default: return null;
+        }
+      }
+
+      public static com.google.protobuf.Internal.EnumLiteMap<DetailType>
+          internalGetValueMap() {
+        return internalValueMap;
+      }
+      private static final com.google.protobuf.Internal.EnumLiteMap<
+          DetailType> internalValueMap =
+            new com.google.protobuf.Internal.EnumLiteMap<DetailType>() {
+              public DetailType findValueByNumber(int number) {
+                return DetailType.forNumber(number);
+              }
+            };
+
+      public final com.google.protobuf.Descriptors.EnumValueDescriptor
+          getValueDescriptor() {
+        return getDescriptor().getValues().get(ordinal());
+      }
+      public final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptorForType() {
+        return getDescriptor();
+      }
+      public static final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptor() {
+        return com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.getDescriptor().getEnumTypes().get(0);
+      }
+
+      private static final DetailType[] VALUES = values();
+
+      public static DetailType valueOf(
+          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+        if (desc.getType() != getDescriptor()) {
+          throw new java.lang.IllegalArgumentException(
+            "EnumValueDescriptor is not for this type.");
+        }
+        if (desc.getIndex() == -1) {
+          return UNRECOGNIZED;
+        }
+        return VALUES[desc.getIndex()];
+      }
+
+      private final int value;
+
+      private DetailType(int value) {
+        this.value = value;
+      }
+
+      // @@protoc_insertion_point(enum_scope:BalanceAssistantMessage.DetailType)
+    }
+
+    private int bitField0_;
+    public static final int TRADE_ID_FIELD_NUMBER = 1;
+    private long tradeId_;
+    /**
+     * <pre>
+     * 数据ID, 用于加载详情
+     * </pre>
+     *
+     * <code>uint64 trade_id = 1;</code>
+     */
+    public long getTradeId() {
+      return tradeId_;
+    }
+
+    public static final int DETAIL_TYPE_FIELD_NUMBER = 2;
+    private int detailType_;
+    /**
+     * <pre>
+     * 数据详情类型，用于判断跳转哪一种详情页 无详情、红包详情、交易详情
+     * </pre>
+     *
+     * <code>.BalanceAssistantMessage.DetailType detail_type = 2;</code>
+     */
+    public int getDetailTypeValue() {
+      return detailType_;
+    }
+    /**
+     * <pre>
+     * 数据详情类型，用于判断跳转哪一种详情页 无详情、红包详情、交易详情
+     * </pre>
+     *
+     * <code>.BalanceAssistantMessage.DetailType detail_type = 2;</code>
+     */
+    public com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.DetailType getDetailType() {
+      com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.DetailType result = com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.DetailType.valueOf(detailType_);
+      return result == null ? com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.DetailType.UNRECOGNIZED : result;
+    }
+
+    public static final int TIME_FIELD_NUMBER = 3;
+    private long time_;
+    /**
+     * <pre>
+     * 时间 - 如:充值时间&#92;到账时间
+     * </pre>
+     *
+     * <code>uint64 time = 3;</code>
+     */
+    public long getTime() {
+      return time_;
+    }
+
+    public static final int TITLE_FIELD_NUMBER = 4;
+    private volatile java.lang.Object title_;
+    /**
+     * <pre>
+     * 标题
+     * </pre>
+     *
+     * <code>string title = 4;</code>
+     */
+    public java.lang.String getTitle() {
+      java.lang.Object ref = title_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        title_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * 标题
+     * </pre>
+     *
+     * <code>string title = 4;</code>
+     */
+    public com.google.protobuf.ByteString
+        getTitleBytes() {
+      java.lang.Object ref = title_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        title_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int AMT_LABEL_FIELD_NUMBER = 5;
+    private volatile java.lang.Object amtLabel_;
+    /**
+     * <pre>
+     * 金额标题, 如:退款金额 充值金额
+     * </pre>
+     *
+     * <code>string amt_label = 5;</code>
+     */
+    public java.lang.String getAmtLabel() {
+      java.lang.Object ref = amtLabel_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        amtLabel_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * 金额标题, 如:退款金额 充值金额
+     * </pre>
+     *
+     * <code>string amt_label = 5;</code>
+     */
+    public com.google.protobuf.ByteString
+        getAmtLabelBytes() {
+      java.lang.Object ref = amtLabel_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        amtLabel_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int AMT_FIELD_NUMBER = 6;
+    private long amt_;
+    /**
+     * <pre>
+     * 金额
+     * </pre>
+     *
+     * <code>uint64 amt = 6;</code>
+     */
+    public long getAmt() {
+      return amt_;
+    }
+
+    public static final int ITEM_FIELD_NUMBER = 7;
+    private java.util.List<com.yanlong.im.utils.socket.MsgBean.LabelValueItem> item_;
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 7;</code>
+     */
+    public java.util.List<com.yanlong.im.utils.socket.MsgBean.LabelValueItem> getItemList() {
+      return item_;
+    }
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 7;</code>
+     */
+    public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder> 
+        getItemOrBuilderList() {
+      return item_;
+    }
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 7;</code>
+     */
+    public int getItemCount() {
+      return item_.size();
+    }
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 7;</code>
+     */
+    public com.yanlong.im.utils.socket.MsgBean.LabelValueItem getItem(int index) {
+      return item_.get(index);
+    }
+    /**
+     * <pre>
+     * 子项列表
+     * </pre>
+     *
+     * <code>repeated .LabelValueItem item = 7;</code>
+     */
+    public com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder getItemOrBuilder(
+        int index) {
+      return item_.get(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (tradeId_ != 0L) {
+        output.writeUInt64(1, tradeId_);
+      }
+      if (detailType_ != com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.DetailType.NONE.getNumber()) {
+        output.writeEnum(2, detailType_);
+      }
+      if (time_ != 0L) {
+        output.writeUInt64(3, time_);
+      }
+      if (!getTitleBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, title_);
+      }
+      if (!getAmtLabelBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 5, amtLabel_);
+      }
+      if (amt_ != 0L) {
+        output.writeUInt64(6, amt_);
+      }
+      for (int i = 0; i < item_.size(); i++) {
+        output.writeMessage(7, item_.get(i));
+      }
+      unknownFields.writeTo(output);
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (tradeId_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt64Size(1, tradeId_);
+      }
+      if (detailType_ != com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.DetailType.NONE.getNumber()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(2, detailType_);
+      }
+      if (time_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt64Size(3, time_);
+      }
+      if (!getTitleBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, title_);
+      }
+      if (!getAmtLabelBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, amtLabel_);
+      }
+      if (amt_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt64Size(6, amt_);
+      }
+      for (int i = 0; i < item_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(7, item_.get(i));
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage)) {
+        return super.equals(obj);
+      }
+      com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage other = (com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage) obj;
+
+      boolean result = true;
+      result = result && (getTradeId()
+          == other.getTradeId());
+      result = result && detailType_ == other.detailType_;
+      result = result && (getTime()
+          == other.getTime());
+      result = result && getTitle()
+          .equals(other.getTitle());
+      result = result && getAmtLabel()
+          .equals(other.getAmtLabel());
+      result = result && (getAmt()
+          == other.getAmt());
+      result = result && getItemList()
+          .equals(other.getItemList());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + TRADE_ID_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getTradeId());
+      hash = (37 * hash) + DETAIL_TYPE_FIELD_NUMBER;
+      hash = (53 * hash) + detailType_;
+      hash = (37 * hash) + TIME_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getTime());
+      hash = (37 * hash) + TITLE_FIELD_NUMBER;
+      hash = (53 * hash) + getTitle().hashCode();
+      hash = (37 * hash) + AMT_LABEL_FIELD_NUMBER;
+      hash = (53 * hash) + getAmtLabel().hashCode();
+      hash = (37 * hash) + AMT_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getAmt());
+      if (getItemCount() > 0) {
+        hash = (37 * hash) + ITEM_FIELD_NUMBER;
+        hash = (53 * hash) + getItemList().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * 零钱小助手消息
+     * </pre>
+     *
+     * Protobuf type {@code BalanceAssistantMessage}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:BalanceAssistantMessage)
+        com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessageOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_BalanceAssistantMessage_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_BalanceAssistantMessage_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.class, com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.Builder.class);
+      }
+
+      // Construct using com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+          getItemFieldBuilder();
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        tradeId_ = 0L;
+
+        detailType_ = 0;
+
+        time_ = 0L;
+
+        title_ = "";
+
+        amtLabel_ = "";
+
+        amt_ = 0L;
+
+        if (itemBuilder_ == null) {
+          item_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000040);
+        } else {
+          itemBuilder_.clear();
+        }
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_BalanceAssistantMessage_descriptor;
+      }
+
+      public com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage getDefaultInstanceForType() {
+        return com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.getDefaultInstance();
+      }
+
+      public com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage build() {
+        com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage buildPartial() {
+        com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage result = new com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        result.tradeId_ = tradeId_;
+        result.detailType_ = detailType_;
+        result.time_ = time_;
+        result.title_ = title_;
+        result.amtLabel_ = amtLabel_;
+        result.amt_ = amt_;
+        if (itemBuilder_ == null) {
+          if (((bitField0_ & 0x00000040) == 0x00000040)) {
+            item_ = java.util.Collections.unmodifiableList(item_);
+            bitField0_ = (bitField0_ & ~0x00000040);
+          }
+          result.item_ = item_;
+        } else {
+          result.item_ = itemBuilder_.build();
+        }
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage) {
+          return mergeFrom((com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage other) {
+        if (other == com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.getDefaultInstance()) return this;
+        if (other.getTradeId() != 0L) {
+          setTradeId(other.getTradeId());
+        }
+        if (other.detailType_ != 0) {
+          setDetailTypeValue(other.getDetailTypeValue());
+        }
+        if (other.getTime() != 0L) {
+          setTime(other.getTime());
+        }
+        if (!other.getTitle().isEmpty()) {
+          title_ = other.title_;
+          onChanged();
+        }
+        if (!other.getAmtLabel().isEmpty()) {
+          amtLabel_ = other.amtLabel_;
+          onChanged();
+        }
+        if (other.getAmt() != 0L) {
+          setAmt(other.getAmt());
+        }
+        if (itemBuilder_ == null) {
+          if (!other.item_.isEmpty()) {
+            if (item_.isEmpty()) {
+              item_ = other.item_;
+              bitField0_ = (bitField0_ & ~0x00000040);
+            } else {
+              ensureItemIsMutable();
+              item_.addAll(other.item_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.item_.isEmpty()) {
+            if (itemBuilder_.isEmpty()) {
+              itemBuilder_.dispose();
+              itemBuilder_ = null;
+              item_ = other.item_;
+              bitField0_ = (bitField0_ & ~0x00000040);
+              itemBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getItemFieldBuilder() : null;
+            } else {
+              itemBuilder_.addAllMessages(other.item_);
+            }
+          }
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private long tradeId_ ;
+      /**
+       * <pre>
+       * 数据ID, 用于加载详情
+       * </pre>
+       *
+       * <code>uint64 trade_id = 1;</code>
+       */
+      public long getTradeId() {
+        return tradeId_;
+      }
+      /**
+       * <pre>
+       * 数据ID, 用于加载详情
+       * </pre>
+       *
+       * <code>uint64 trade_id = 1;</code>
+       */
+      public Builder setTradeId(long value) {
+        
+        tradeId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 数据ID, 用于加载详情
+       * </pre>
+       *
+       * <code>uint64 trade_id = 1;</code>
+       */
+      public Builder clearTradeId() {
+        
+        tradeId_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private int detailType_ = 0;
+      /**
+       * <pre>
+       * 数据详情类型，用于判断跳转哪一种详情页 无详情、红包详情、交易详情
+       * </pre>
+       *
+       * <code>.BalanceAssistantMessage.DetailType detail_type = 2;</code>
+       */
+      public int getDetailTypeValue() {
+        return detailType_;
+      }
+      /**
+       * <pre>
+       * 数据详情类型，用于判断跳转哪一种详情页 无详情、红包详情、交易详情
+       * </pre>
+       *
+       * <code>.BalanceAssistantMessage.DetailType detail_type = 2;</code>
+       */
+      public Builder setDetailTypeValue(int value) {
+        detailType_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 数据详情类型，用于判断跳转哪一种详情页 无详情、红包详情、交易详情
+       * </pre>
+       *
+       * <code>.BalanceAssistantMessage.DetailType detail_type = 2;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.DetailType getDetailType() {
+        com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.DetailType result = com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.DetailType.valueOf(detailType_);
+        return result == null ? com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.DetailType.UNRECOGNIZED : result;
+      }
+      /**
+       * <pre>
+       * 数据详情类型，用于判断跳转哪一种详情页 无详情、红包详情、交易详情
+       * </pre>
+       *
+       * <code>.BalanceAssistantMessage.DetailType detail_type = 2;</code>
+       */
+      public Builder setDetailType(com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.DetailType value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        
+        detailType_ = value.getNumber();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 数据详情类型，用于判断跳转哪一种详情页 无详情、红包详情、交易详情
+       * </pre>
+       *
+       * <code>.BalanceAssistantMessage.DetailType detail_type = 2;</code>
+       */
+      public Builder clearDetailType() {
+        
+        detailType_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private long time_ ;
+      /**
+       * <pre>
+       * 时间 - 如:充值时间&#92;到账时间
+       * </pre>
+       *
+       * <code>uint64 time = 3;</code>
+       */
+      public long getTime() {
+        return time_;
+      }
+      /**
+       * <pre>
+       * 时间 - 如:充值时间&#92;到账时间
+       * </pre>
+       *
+       * <code>uint64 time = 3;</code>
+       */
+      public Builder setTime(long value) {
+        
+        time_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 时间 - 如:充值时间&#92;到账时间
+       * </pre>
+       *
+       * <code>uint64 time = 3;</code>
+       */
+      public Builder clearTime() {
+        
+        time_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object title_ = "";
+      /**
+       * <pre>
+       * 标题
+       * </pre>
+       *
+       * <code>string title = 4;</code>
+       */
+      public java.lang.String getTitle() {
+        java.lang.Object ref = title_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          title_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 标题
+       * </pre>
+       *
+       * <code>string title = 4;</code>
+       */
+      public com.google.protobuf.ByteString
+          getTitleBytes() {
+        java.lang.Object ref = title_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          title_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 标题
+       * </pre>
+       *
+       * <code>string title = 4;</code>
+       */
+      public Builder setTitle(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        title_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 标题
+       * </pre>
+       *
+       * <code>string title = 4;</code>
+       */
+      public Builder clearTitle() {
+        
+        title_ = getDefaultInstance().getTitle();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 标题
+       * </pre>
+       *
+       * <code>string title = 4;</code>
+       */
+      public Builder setTitleBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        title_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object amtLabel_ = "";
+      /**
+       * <pre>
+       * 金额标题, 如:退款金额 充值金额
+       * </pre>
+       *
+       * <code>string amt_label = 5;</code>
+       */
+      public java.lang.String getAmtLabel() {
+        java.lang.Object ref = amtLabel_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          amtLabel_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 金额标题, 如:退款金额 充值金额
+       * </pre>
+       *
+       * <code>string amt_label = 5;</code>
+       */
+      public com.google.protobuf.ByteString
+          getAmtLabelBytes() {
+        java.lang.Object ref = amtLabel_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          amtLabel_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 金额标题, 如:退款金额 充值金额
+       * </pre>
+       *
+       * <code>string amt_label = 5;</code>
+       */
+      public Builder setAmtLabel(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        amtLabel_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 金额标题, 如:退款金额 充值金额
+       * </pre>
+       *
+       * <code>string amt_label = 5;</code>
+       */
+      public Builder clearAmtLabel() {
+        
+        amtLabel_ = getDefaultInstance().getAmtLabel();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 金额标题, 如:退款金额 充值金额
+       * </pre>
+       *
+       * <code>string amt_label = 5;</code>
+       */
+      public Builder setAmtLabelBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        amtLabel_ = value;
+        onChanged();
+        return this;
+      }
+
+      private long amt_ ;
+      /**
+       * <pre>
+       * 金额
+       * </pre>
+       *
+       * <code>uint64 amt = 6;</code>
+       */
+      public long getAmt() {
+        return amt_;
+      }
+      /**
+       * <pre>
+       * 金额
+       * </pre>
+       *
+       * <code>uint64 amt = 6;</code>
+       */
+      public Builder setAmt(long value) {
+        
+        amt_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 金额
+       * </pre>
+       *
+       * <code>uint64 amt = 6;</code>
+       */
+      public Builder clearAmt() {
+        
+        amt_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<com.yanlong.im.utils.socket.MsgBean.LabelValueItem> item_ =
+        java.util.Collections.emptyList();
+      private void ensureItemIsMutable() {
+        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
+          item_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.LabelValueItem>(item_);
+          bitField0_ |= 0x00000040;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          com.yanlong.im.utils.socket.MsgBean.LabelValueItem, com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder, com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder> itemBuilder_;
+
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public java.util.List<com.yanlong.im.utils.socket.MsgBean.LabelValueItem> getItemList() {
+        if (itemBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(item_);
+        } else {
+          return itemBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public int getItemCount() {
+        if (itemBuilder_ == null) {
+          return item_.size();
+        } else {
+          return itemBuilder_.getCount();
+        }
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.LabelValueItem getItem(int index) {
+        if (itemBuilder_ == null) {
+          return item_.get(index);
+        } else {
+          return itemBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public Builder setItem(
+          int index, com.yanlong.im.utils.socket.MsgBean.LabelValueItem value) {
+        if (itemBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureItemIsMutable();
+          item_.set(index, value);
+          onChanged();
+        } else {
+          itemBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public Builder setItem(
+          int index, com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder builderForValue) {
+        if (itemBuilder_ == null) {
+          ensureItemIsMutable();
+          item_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          itemBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public Builder addItem(com.yanlong.im.utils.socket.MsgBean.LabelValueItem value) {
+        if (itemBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureItemIsMutable();
+          item_.add(value);
+          onChanged();
+        } else {
+          itemBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public Builder addItem(
+          int index, com.yanlong.im.utils.socket.MsgBean.LabelValueItem value) {
+        if (itemBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureItemIsMutable();
+          item_.add(index, value);
+          onChanged();
+        } else {
+          itemBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public Builder addItem(
+          com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder builderForValue) {
+        if (itemBuilder_ == null) {
+          ensureItemIsMutable();
+          item_.add(builderForValue.build());
+          onChanged();
+        } else {
+          itemBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public Builder addItem(
+          int index, com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder builderForValue) {
+        if (itemBuilder_ == null) {
+          ensureItemIsMutable();
+          item_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          itemBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public Builder addAllItem(
+          java.lang.Iterable<? extends com.yanlong.im.utils.socket.MsgBean.LabelValueItem> values) {
+        if (itemBuilder_ == null) {
+          ensureItemIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, item_);
+          onChanged();
+        } else {
+          itemBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public Builder clearItem() {
+        if (itemBuilder_ == null) {
+          item_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000040);
+          onChanged();
+        } else {
+          itemBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public Builder removeItem(int index) {
+        if (itemBuilder_ == null) {
+          ensureItemIsMutable();
+          item_.remove(index);
+          onChanged();
+        } else {
+          itemBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder getItemBuilder(
+          int index) {
+        return getItemFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder getItemOrBuilder(
+          int index) {
+        if (itemBuilder_ == null) {
+          return item_.get(index);  } else {
+          return itemBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder> 
+           getItemOrBuilderList() {
+        if (itemBuilder_ != null) {
+          return itemBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(item_);
+        }
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder addItemBuilder() {
+        return getItemFieldBuilder().addBuilder(
+            com.yanlong.im.utils.socket.MsgBean.LabelValueItem.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder addItemBuilder(
+          int index) {
+        return getItemFieldBuilder().addBuilder(
+            index, com.yanlong.im.utils.socket.MsgBean.LabelValueItem.getDefaultInstance());
+      }
+      /**
+       * <pre>
+       * 子项列表
+       * </pre>
+       *
+       * <code>repeated .LabelValueItem item = 7;</code>
+       */
+      public java.util.List<com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder> 
+           getItemBuilderList() {
+        return getItemFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          com.yanlong.im.utils.socket.MsgBean.LabelValueItem, com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder, com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder> 
+          getItemFieldBuilder() {
+        if (itemBuilder_ == null) {
+          itemBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              com.yanlong.im.utils.socket.MsgBean.LabelValueItem, com.yanlong.im.utils.socket.MsgBean.LabelValueItem.Builder, com.yanlong.im.utils.socket.MsgBean.LabelValueItemOrBuilder>(
+                  item_,
+                  ((bitField0_ & 0x00000040) == 0x00000040),
+                  getParentForChildren(),
+                  isClean());
+          item_ = null;
+        }
+        return itemBuilder_;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFieldsProto3(unknownFields);
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:BalanceAssistantMessage)
+    }
+
+    // @@protoc_insertion_point(class_scope:BalanceAssistantMessage)
+    private static final com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage();
+    }
+
+    public static com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<BalanceAssistantMessage>
+        PARSER = new com.google.protobuf.AbstractParser<BalanceAssistantMessage>() {
+      public BalanceAssistantMessage parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new BalanceAssistantMessage(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<BalanceAssistantMessage> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<BalanceAssistantMessage> getParserForType() {
+      return PARSER;
+    }
+
+    public com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface AckMessageOrBuilder extends
       // @@protoc_insertion_point(interface_extends:AckMessage)
       com.google.protobuf.MessageOrBuilder {
@@ -28270,999 +32802,6 @@ public final class MsgBean {
 
   }
 
-  public interface PayResultMessageOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:PayResultMessage)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <code>.PayResultMessage.PayResult result = 1;</code>
-     */
-    int getResultValue();
-    /**
-     * <code>.PayResultMessage.PayResult result = 1;</code>
-     */
-    com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult getResult();
-
-    /**
-     * <code>uint64 trade_id = 2;</code>
-     */
-    long getTradeId();
-
-    /**
-     * <code>string action_id = 3;</code>
-     */
-    java.lang.String getActionId();
-    /**
-     * <code>string action_id = 3;</code>
-     */
-    com.google.protobuf.ByteString
-        getActionIdBytes();
-
-    /**
-     * <pre>
-     * 错误消息,状态为失败才有值
-     * </pre>
-     *
-     * <code>string error_msg = 4;</code>
-     */
-    java.lang.String getErrorMsg();
-    /**
-     * <pre>
-     * 错误消息,状态为失败才有值
-     * </pre>
-     *
-     * <code>string error_msg = 4;</code>
-     */
-    com.google.protobuf.ByteString
-        getErrorMsgBytes();
-  }
-  /**
-   * <pre>
-   * 支付结果通知
-   * </pre>
-   *
-   * Protobuf type {@code PayResultMessage}
-   */
-  public  static final class PayResultMessage extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:PayResultMessage)
-      PayResultMessageOrBuilder {
-  private static final long serialVersionUID = 0L;
-    // Use PayResultMessage.newBuilder() to construct.
-    private PayResultMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-      super(builder);
-    }
-    private PayResultMessage() {
-      result_ = 0;
-      tradeId_ = 0L;
-      actionId_ = "";
-      errorMsg_ = "";
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return this.unknownFields;
-    }
-    private PayResultMessage(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
-      }
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!parseUnknownFieldProto3(
-                  input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-            case 8: {
-              int rawValue = input.readEnum();
-
-              result_ = rawValue;
-              break;
-            }
-            case 16: {
-
-              tradeId_ = input.readUInt64();
-              break;
-            }
-            case 26: {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              actionId_ = s;
-              break;
-            }
-            case 34: {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              errorMsg_ = s;
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return com.yanlong.im.utils.socket.MsgBean.internal_static_PayResultMessage_descriptor;
-    }
-
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return com.yanlong.im.utils.socket.MsgBean.internal_static_PayResultMessage_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              com.yanlong.im.utils.socket.MsgBean.PayResultMessage.class, com.yanlong.im.utils.socket.MsgBean.PayResultMessage.Builder.class);
-    }
-
-    /**
-     * Protobuf enum {@code PayResultMessage.PayResult}
-     */
-    public enum PayResult
-        implements com.google.protobuf.ProtocolMessageEnum {
-      /**
-       * <pre>
-       * 成功
-       * </pre>
-       *
-       * <code>SUCCESS = 0;</code>
-       */
-      SUCCESS(0),
-      /**
-       * <pre>
-       * 失败
-       * </pre>
-       *
-       * <code>FAIL = 1;</code>
-       */
-      FAIL(1),
-      /**
-       * <pre>
-       * 成功后退款了
-       * </pre>
-       *
-       * <code>REFUND = 2;</code>
-       */
-      REFUND(2),
-      UNRECOGNIZED(-1),
-      ;
-
-      /**
-       * <pre>
-       * 成功
-       * </pre>
-       *
-       * <code>SUCCESS = 0;</code>
-       */
-      public static final int SUCCESS_VALUE = 0;
-      /**
-       * <pre>
-       * 失败
-       * </pre>
-       *
-       * <code>FAIL = 1;</code>
-       */
-      public static final int FAIL_VALUE = 1;
-      /**
-       * <pre>
-       * 成功后退款了
-       * </pre>
-       *
-       * <code>REFUND = 2;</code>
-       */
-      public static final int REFUND_VALUE = 2;
-
-
-      public final int getNumber() {
-        if (this == UNRECOGNIZED) {
-          throw new java.lang.IllegalArgumentException(
-              "Can't get the number of an unknown enum value.");
-        }
-        return value;
-      }
-
-      /**
-       * @deprecated Use {@link #forNumber(int)} instead.
-       */
-      @java.lang.Deprecated
-      public static PayResult valueOf(int value) {
-        return forNumber(value);
-      }
-
-      public static PayResult forNumber(int value) {
-        switch (value) {
-          case 0: return SUCCESS;
-          case 1: return FAIL;
-          case 2: return REFUND;
-          default: return null;
-        }
-      }
-
-      public static com.google.protobuf.Internal.EnumLiteMap<PayResult>
-          internalGetValueMap() {
-        return internalValueMap;
-      }
-      private static final com.google.protobuf.Internal.EnumLiteMap<
-          PayResult> internalValueMap =
-            new com.google.protobuf.Internal.EnumLiteMap<PayResult>() {
-              public PayResult findValueByNumber(int number) {
-                return PayResult.forNumber(number);
-              }
-            };
-
-      public final com.google.protobuf.Descriptors.EnumValueDescriptor
-          getValueDescriptor() {
-        return getDescriptor().getValues().get(ordinal());
-      }
-      public final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptorForType() {
-        return getDescriptor();
-      }
-      public static final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptor() {
-        return com.yanlong.im.utils.socket.MsgBean.PayResultMessage.getDescriptor().getEnumTypes().get(0);
-      }
-
-      private static final PayResult[] VALUES = values();
-
-      public static PayResult valueOf(
-          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
-        if (desc.getType() != getDescriptor()) {
-          throw new java.lang.IllegalArgumentException(
-            "EnumValueDescriptor is not for this type.");
-        }
-        if (desc.getIndex() == -1) {
-          return UNRECOGNIZED;
-        }
-        return VALUES[desc.getIndex()];
-      }
-
-      private final int value;
-
-      private PayResult(int value) {
-        this.value = value;
-      }
-
-      // @@protoc_insertion_point(enum_scope:PayResultMessage.PayResult)
-    }
-
-    public static final int RESULT_FIELD_NUMBER = 1;
-    private int result_;
-    /**
-     * <code>.PayResultMessage.PayResult result = 1;</code>
-     */
-    public int getResultValue() {
-      return result_;
-    }
-    /**
-     * <code>.PayResultMessage.PayResult result = 1;</code>
-     */
-    public com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult getResult() {
-      com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult result = com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult.valueOf(result_);
-      return result == null ? com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult.UNRECOGNIZED : result;
-    }
-
-    public static final int TRADE_ID_FIELD_NUMBER = 2;
-    private long tradeId_;
-    /**
-     * <code>uint64 trade_id = 2;</code>
-     */
-    public long getTradeId() {
-      return tradeId_;
-    }
-
-    public static final int ACTION_ID_FIELD_NUMBER = 3;
-    private volatile java.lang.Object actionId_;
-    /**
-     * <code>string action_id = 3;</code>
-     */
-    public java.lang.String getActionId() {
-      java.lang.Object ref = actionId_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        actionId_ = s;
-        return s;
-      }
-    }
-    /**
-     * <code>string action_id = 3;</code>
-     */
-    public com.google.protobuf.ByteString
-        getActionIdBytes() {
-      java.lang.Object ref = actionId_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        actionId_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int ERROR_MSG_FIELD_NUMBER = 4;
-    private volatile java.lang.Object errorMsg_;
-    /**
-     * <pre>
-     * 错误消息,状态为失败才有值
-     * </pre>
-     *
-     * <code>string error_msg = 4;</code>
-     */
-    public java.lang.String getErrorMsg() {
-      java.lang.Object ref = errorMsg_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        errorMsg_ = s;
-        return s;
-      }
-    }
-    /**
-     * <pre>
-     * 错误消息,状态为失败才有值
-     * </pre>
-     *
-     * <code>string error_msg = 4;</code>
-     */
-    public com.google.protobuf.ByteString
-        getErrorMsgBytes() {
-      java.lang.Object ref = errorMsg_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        errorMsg_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      if (result_ != com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult.SUCCESS.getNumber()) {
-        output.writeEnum(1, result_);
-      }
-      if (tradeId_ != 0L) {
-        output.writeUInt64(2, tradeId_);
-      }
-      if (!getActionIdBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, actionId_);
-      }
-      if (!getErrorMsgBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, errorMsg_);
-      }
-      unknownFields.writeTo(output);
-    }
-
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (result_ != com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult.SUCCESS.getNumber()) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(1, result_);
-      }
-      if (tradeId_ != 0L) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(2, tradeId_);
-      }
-      if (!getActionIdBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, actionId_);
-      }
-      if (!getErrorMsgBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, errorMsg_);
-      }
-      size += unknownFields.getSerializedSize();
-      memoizedSize = size;
-      return size;
-    }
-
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof com.yanlong.im.utils.socket.MsgBean.PayResultMessage)) {
-        return super.equals(obj);
-      }
-      com.yanlong.im.utils.socket.MsgBean.PayResultMessage other = (com.yanlong.im.utils.socket.MsgBean.PayResultMessage) obj;
-
-      boolean result = true;
-      result = result && result_ == other.result_;
-      result = result && (getTradeId()
-          == other.getTradeId());
-      result = result && getActionId()
-          .equals(other.getActionId());
-      result = result && getErrorMsg()
-          .equals(other.getErrorMsg());
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + RESULT_FIELD_NUMBER;
-      hash = (53 * hash) + result_;
-      hash = (37 * hash) + TRADE_ID_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-          getTradeId());
-      hash = (37 * hash) + ACTION_ID_FIELD_NUMBER;
-      hash = (53 * hash) + getActionId().hashCode();
-      hash = (37 * hash) + ERROR_MSG_FIELD_NUMBER;
-      hash = (53 * hash) + getErrorMsg().hashCode();
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(com.yanlong.im.utils.socket.MsgBean.PayResultMessage prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * <pre>
-     * 支付结果通知
-     * </pre>
-     *
-     * Protobuf type {@code PayResultMessage}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:PayResultMessage)
-        com.yanlong.im.utils.socket.MsgBean.PayResultMessageOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return com.yanlong.im.utils.socket.MsgBean.internal_static_PayResultMessage_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return com.yanlong.im.utils.socket.MsgBean.internal_static_PayResultMessage_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                com.yanlong.im.utils.socket.MsgBean.PayResultMessage.class, com.yanlong.im.utils.socket.MsgBean.PayResultMessage.Builder.class);
-      }
-
-      // Construct using com.yanlong.im.utils.socket.MsgBean.PayResultMessage.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
-        }
-      }
-      public Builder clear() {
-        super.clear();
-        result_ = 0;
-
-        tradeId_ = 0L;
-
-        actionId_ = "";
-
-        errorMsg_ = "";
-
-        return this;
-      }
-
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return com.yanlong.im.utils.socket.MsgBean.internal_static_PayResultMessage_descriptor;
-      }
-
-      public com.yanlong.im.utils.socket.MsgBean.PayResultMessage getDefaultInstanceForType() {
-        return com.yanlong.im.utils.socket.MsgBean.PayResultMessage.getDefaultInstance();
-      }
-
-      public com.yanlong.im.utils.socket.MsgBean.PayResultMessage build() {
-        com.yanlong.im.utils.socket.MsgBean.PayResultMessage result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      public com.yanlong.im.utils.socket.MsgBean.PayResultMessage buildPartial() {
-        com.yanlong.im.utils.socket.MsgBean.PayResultMessage result = new com.yanlong.im.utils.socket.MsgBean.PayResultMessage(this);
-        result.result_ = result_;
-        result.tradeId_ = tradeId_;
-        result.actionId_ = actionId_;
-        result.errorMsg_ = errorMsg_;
-        onBuilt();
-        return result;
-      }
-
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, java.lang.Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.yanlong.im.utils.socket.MsgBean.PayResultMessage) {
-          return mergeFrom((com.yanlong.im.utils.socket.MsgBean.PayResultMessage)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(com.yanlong.im.utils.socket.MsgBean.PayResultMessage other) {
-        if (other == com.yanlong.im.utils.socket.MsgBean.PayResultMessage.getDefaultInstance()) return this;
-        if (other.result_ != 0) {
-          setResultValue(other.getResultValue());
-        }
-        if (other.getTradeId() != 0L) {
-          setTradeId(other.getTradeId());
-        }
-        if (!other.getActionId().isEmpty()) {
-          actionId_ = other.actionId_;
-          onChanged();
-        }
-        if (!other.getErrorMsg().isEmpty()) {
-          errorMsg_ = other.errorMsg_;
-          onChanged();
-        }
-        this.mergeUnknownFields(other.unknownFields);
-        onChanged();
-        return this;
-      }
-
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        com.yanlong.im.utils.socket.MsgBean.PayResultMessage parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (com.yanlong.im.utils.socket.MsgBean.PayResultMessage) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-
-      private int result_ = 0;
-      /**
-       * <code>.PayResultMessage.PayResult result = 1;</code>
-       */
-      public int getResultValue() {
-        return result_;
-      }
-      /**
-       * <code>.PayResultMessage.PayResult result = 1;</code>
-       */
-      public Builder setResultValue(int value) {
-        result_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>.PayResultMessage.PayResult result = 1;</code>
-       */
-      public com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult getResult() {
-        com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult result = com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult.valueOf(result_);
-        return result == null ? com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult.UNRECOGNIZED : result;
-      }
-      /**
-       * <code>.PayResultMessage.PayResult result = 1;</code>
-       */
-      public Builder setResult(com.yanlong.im.utils.socket.MsgBean.PayResultMessage.PayResult value) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        
-        result_ = value.getNumber();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>.PayResultMessage.PayResult result = 1;</code>
-       */
-      public Builder clearResult() {
-        
-        result_ = 0;
-        onChanged();
-        return this;
-      }
-
-      private long tradeId_ ;
-      /**
-       * <code>uint64 trade_id = 2;</code>
-       */
-      public long getTradeId() {
-        return tradeId_;
-      }
-      /**
-       * <code>uint64 trade_id = 2;</code>
-       */
-      public Builder setTradeId(long value) {
-        
-        tradeId_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>uint64 trade_id = 2;</code>
-       */
-      public Builder clearTradeId() {
-        
-        tradeId_ = 0L;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object actionId_ = "";
-      /**
-       * <code>string action_id = 3;</code>
-       */
-      public java.lang.String getActionId() {
-        java.lang.Object ref = actionId_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          actionId_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>string action_id = 3;</code>
-       */
-      public com.google.protobuf.ByteString
-          getActionIdBytes() {
-        java.lang.Object ref = actionId_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          actionId_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>string action_id = 3;</code>
-       */
-      public Builder setActionId(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  
-        actionId_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string action_id = 3;</code>
-       */
-      public Builder clearActionId() {
-        
-        actionId_ = getDefaultInstance().getActionId();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string action_id = 3;</code>
-       */
-      public Builder setActionIdBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-        
-        actionId_ = value;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object errorMsg_ = "";
-      /**
-       * <pre>
-       * 错误消息,状态为失败才有值
-       * </pre>
-       *
-       * <code>string error_msg = 4;</code>
-       */
-      public java.lang.String getErrorMsg() {
-        java.lang.Object ref = errorMsg_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          errorMsg_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <pre>
-       * 错误消息,状态为失败才有值
-       * </pre>
-       *
-       * <code>string error_msg = 4;</code>
-       */
-      public com.google.protobuf.ByteString
-          getErrorMsgBytes() {
-        java.lang.Object ref = errorMsg_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          errorMsg_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <pre>
-       * 错误消息,状态为失败才有值
-       * </pre>
-       *
-       * <code>string error_msg = 4;</code>
-       */
-      public Builder setErrorMsg(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  
-        errorMsg_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       * 错误消息,状态为失败才有值
-       * </pre>
-       *
-       * <code>string error_msg = 4;</code>
-       */
-      public Builder clearErrorMsg() {
-        
-        errorMsg_ = getDefaultInstance().getErrorMsg();
-        onChanged();
-        return this;
-      }
-      /**
-       * <pre>
-       * 错误消息,状态为失败才有值
-       * </pre>
-       *
-       * <code>string error_msg = 4;</code>
-       */
-      public Builder setErrorMsgBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-        
-        errorMsg_ = value;
-        onChanged();
-        return this;
-      }
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFieldsProto3(unknownFields);
-      }
-
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.mergeUnknownFields(unknownFields);
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:PayResultMessage)
-    }
-
-    // @@protoc_insertion_point(class_scope:PayResultMessage)
-    private static final com.yanlong.im.utils.socket.MsgBean.PayResultMessage DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new com.yanlong.im.utils.socket.MsgBean.PayResultMessage();
-    }
-
-    public static com.yanlong.im.utils.socket.MsgBean.PayResultMessage getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static final com.google.protobuf.Parser<PayResultMessage>
-        PARSER = new com.google.protobuf.AbstractParser<PayResultMessage>() {
-      public PayResultMessage parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new PayResultMessage(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<PayResultMessage> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<PayResultMessage> getParserForType() {
-      return PARSER;
-    }
-
-    public com.yanlong.im.utils.socket.MsgBean.PayResultMessage getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
   public interface UniversalMessageOrBuilder extends
       // @@protoc_insertion_point(interface_extends:UniversalMessage)
       com.google.protobuf.MessageOrBuilder {
@@ -29719,6 +33258,19 @@ public final class MsgBean {
       com.yanlong.im.utils.socket.MsgBean.ShortVideoMessageOrBuilder getShortVideoOrBuilder();
 
       /**
+       * <code>.SnapshotLocationMessage snapshot_location = 10012;</code>
+       */
+      boolean hasSnapshotLocation();
+      /**
+       * <code>.SnapshotLocationMessage snapshot_location = 10012;</code>
+       */
+      com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage getSnapshotLocation();
+      /**
+       * <code>.SnapshotLocationMessage snapshot_location = 10012;</code>
+       */
+      com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessageOrBuilder getSnapshotLocationOrBuilder();
+
+      /**
        * <code>.RequestFriendMessage request_friend = 10100;</code>
        */
       boolean hasRequestFriend();
@@ -29998,6 +33550,19 @@ public final class MsgBean {
        * <code>.PayResultMessage pay_result = 10801;</code>
        */
       com.yanlong.im.utils.socket.MsgBean.PayResultMessageOrBuilder getPayResultOrBuilder();
+
+      /**
+       * <code>.BalanceAssistantMessage balance_assistant = 10802;</code>
+       */
+      boolean hasBalanceAssistant();
+      /**
+       * <code>.BalanceAssistantMessage balance_assistant = 10802;</code>
+       */
+      com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage getBalanceAssistant();
+      /**
+       * <code>.BalanceAssistantMessage balance_assistant = 10802;</code>
+       */
+      com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessageOrBuilder getBalanceAssistantOrBuilder();
 
       public com.yanlong.im.utils.socket.MsgBean.UniversalMessage.WrapMessage.RealMsgCase getRealMsgCase();
     }
@@ -30288,6 +33853,20 @@ public final class MsgBean {
                 realMsgCase_ = 10011;
                 break;
               }
+              case 80098: {
+                com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.Builder subBuilder = null;
+                if (realMsgCase_ == 10012) {
+                  subBuilder = ((com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage) realMsg_).toBuilder();
+                }
+                realMsg_ =
+                    input.readMessage(com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.parser(), extensionRegistry);
+                if (subBuilder != null) {
+                  subBuilder.mergeFrom((com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage) realMsg_);
+                  realMsg_ = subBuilder.buildPartial();
+                }
+                realMsgCase_ = 10012;
+                break;
+              }
               case 80802: {
                 com.yanlong.im.utils.socket.MsgBean.RequestFriendMessage.Builder subBuilder = null;
                 if (realMsgCase_ == 10100) {
@@ -30568,6 +34147,20 @@ public final class MsgBean {
                 realMsgCase_ = 10801;
                 break;
               }
+              case 86418: {
+                com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.Builder subBuilder = null;
+                if (realMsgCase_ == 10802) {
+                  subBuilder = ((com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage) realMsg_).toBuilder();
+                }
+                realMsg_ =
+                    input.readMessage(com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.parser(), extensionRegistry);
+                if (subBuilder != null) {
+                  subBuilder.mergeFrom((com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage) realMsg_);
+                  realMsg_ = subBuilder.buildPartial();
+                }
+                realMsgCase_ = 10802;
+                break;
+              }
             }
           }
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -30608,6 +34201,7 @@ public final class MsgBean {
         ASSISTANT(10009),
         CANCEL(10010),
         SHORT_VIDEO(10011),
+        SNAPSHOT_LOCATION(10012),
         REQUEST_FRIEND(10100),
         ACCEPT_BE_FRIENDS(10101),
         REMOVE_FRIEND(10102),
@@ -30628,6 +34222,7 @@ public final class MsgBean {
         RESOURCE_LOCK(10302),
         SWITCH_CHANGE(10303),
         PAY_RESULT(10801),
+        BALANCE_ASSISTANT(10802),
         REALMSG_NOT_SET(0);
         private final int value;
         private RealMsgCase(int value) {
@@ -30655,6 +34250,7 @@ public final class MsgBean {
             case 10009: return ASSISTANT;
             case 10010: return CANCEL;
             case 10011: return SHORT_VIDEO;
+            case 10012: return SNAPSHOT_LOCATION;
             case 10100: return REQUEST_FRIEND;
             case 10101: return ACCEPT_BE_FRIENDS;
             case 10102: return REMOVE_FRIEND;
@@ -30675,6 +34271,7 @@ public final class MsgBean {
             case 10302: return RESOURCE_LOCK;
             case 10303: return SWITCH_CHANGE;
             case 10801: return PAY_RESULT;
+            case 10802: return BALANCE_ASSISTANT;
             case 0: return REALMSG_NOT_SET;
             default: return null;
           }
@@ -31293,6 +34890,32 @@ public final class MsgBean {
         return com.yanlong.im.utils.socket.MsgBean.ShortVideoMessage.getDefaultInstance();
       }
 
+      public static final int SNAPSHOT_LOCATION_FIELD_NUMBER = 10012;
+      /**
+       * <code>.SnapshotLocationMessage snapshot_location = 10012;</code>
+       */
+      public boolean hasSnapshotLocation() {
+        return realMsgCase_ == 10012;
+      }
+      /**
+       * <code>.SnapshotLocationMessage snapshot_location = 10012;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage getSnapshotLocation() {
+        if (realMsgCase_ == 10012) {
+           return (com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage) realMsg_;
+        }
+        return com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.getDefaultInstance();
+      }
+      /**
+       * <code>.SnapshotLocationMessage snapshot_location = 10012;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessageOrBuilder getSnapshotLocationOrBuilder() {
+        if (realMsgCase_ == 10012) {
+           return (com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage) realMsg_;
+        }
+        return com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.getDefaultInstance();
+      }
+
       public static final int REQUEST_FRIEND_FIELD_NUMBER = 10100;
       /**
        * <code>.RequestFriendMessage request_friend = 10100;</code>
@@ -31834,6 +35457,32 @@ public final class MsgBean {
         return com.yanlong.im.utils.socket.MsgBean.PayResultMessage.getDefaultInstance();
       }
 
+      public static final int BALANCE_ASSISTANT_FIELD_NUMBER = 10802;
+      /**
+       * <code>.BalanceAssistantMessage balance_assistant = 10802;</code>
+       */
+      public boolean hasBalanceAssistant() {
+        return realMsgCase_ == 10802;
+      }
+      /**
+       * <code>.BalanceAssistantMessage balance_assistant = 10802;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage getBalanceAssistant() {
+        if (realMsgCase_ == 10802) {
+           return (com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage) realMsg_;
+        }
+        return com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.getDefaultInstance();
+      }
+      /**
+       * <code>.BalanceAssistantMessage balance_assistant = 10802;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessageOrBuilder getBalanceAssistantOrBuilder() {
+        if (realMsgCase_ == 10802) {
+           return (com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage) realMsg_;
+        }
+        return com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.getDefaultInstance();
+      }
+
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
@@ -31915,6 +35564,9 @@ public final class MsgBean {
         if (realMsgCase_ == 10011) {
           output.writeMessage(10011, (com.yanlong.im.utils.socket.MsgBean.ShortVideoMessage) realMsg_);
         }
+        if (realMsgCase_ == 10012) {
+          output.writeMessage(10012, (com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage) realMsg_);
+        }
         if (realMsgCase_ == 10100) {
           output.writeMessage(10100, (com.yanlong.im.utils.socket.MsgBean.RequestFriendMessage) realMsg_);
         }
@@ -31974,6 +35626,9 @@ public final class MsgBean {
         }
         if (realMsgCase_ == 10801) {
           output.writeMessage(10801, (com.yanlong.im.utils.socket.MsgBean.PayResultMessage) realMsg_);
+        }
+        if (realMsgCase_ == 10802) {
+          output.writeMessage(10802, (com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage) realMsg_);
         }
         unknownFields.writeTo(output);
       }
@@ -32070,6 +35725,10 @@ public final class MsgBean {
           size += com.google.protobuf.CodedOutputStream
             .computeMessageSize(10011, (com.yanlong.im.utils.socket.MsgBean.ShortVideoMessage) realMsg_);
         }
+        if (realMsgCase_ == 10012) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(10012, (com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage) realMsg_);
+        }
         if (realMsgCase_ == 10100) {
           size += com.google.protobuf.CodedOutputStream
             .computeMessageSize(10100, (com.yanlong.im.utils.socket.MsgBean.RequestFriendMessage) realMsg_);
@@ -32149,6 +35808,10 @@ public final class MsgBean {
         if (realMsgCase_ == 10801) {
           size += com.google.protobuf.CodedOutputStream
             .computeMessageSize(10801, (com.yanlong.im.utils.socket.MsgBean.PayResultMessage) realMsg_);
+        }
+        if (realMsgCase_ == 10802) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(10802, (com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage) realMsg_);
         }
         size += unknownFields.getSerializedSize();
         memoizedSize = size;
@@ -32239,6 +35902,10 @@ public final class MsgBean {
             result = result && getShortVideo()
                 .equals(other.getShortVideo());
             break;
+          case 10012:
+            result = result && getSnapshotLocation()
+                .equals(other.getSnapshotLocation());
+            break;
           case 10100:
             result = result && getRequestFriend()
                 .equals(other.getRequestFriend());
@@ -32318,6 +35985,10 @@ public final class MsgBean {
           case 10801:
             result = result && getPayResult()
                 .equals(other.getPayResult());
+            break;
+          case 10802:
+            result = result && getBalanceAssistant()
+                .equals(other.getBalanceAssistant());
             break;
           case 0:
           default:
@@ -32407,6 +36078,10 @@ public final class MsgBean {
             hash = (37 * hash) + SHORT_VIDEO_FIELD_NUMBER;
             hash = (53 * hash) + getShortVideo().hashCode();
             break;
+          case 10012:
+            hash = (37 * hash) + SNAPSHOT_LOCATION_FIELD_NUMBER;
+            hash = (53 * hash) + getSnapshotLocation().hashCode();
+            break;
           case 10100:
             hash = (37 * hash) + REQUEST_FRIEND_FIELD_NUMBER;
             hash = (53 * hash) + getRequestFriend().hashCode();
@@ -32486,6 +36161,10 @@ public final class MsgBean {
           case 10801:
             hash = (37 * hash) + PAY_RESULT_FIELD_NUMBER;
             hash = (53 * hash) + getPayResult().hashCode();
+            break;
+          case 10802:
+            hash = (37 * hash) + BALANCE_ASSISTANT_FIELD_NUMBER;
+            hash = (53 * hash) + getBalanceAssistant().hashCode();
             break;
           case 0:
           default:
@@ -32760,6 +36439,13 @@ public final class MsgBean {
               result.realMsg_ = shortVideoBuilder_.build();
             }
           }
+          if (realMsgCase_ == 10012) {
+            if (snapshotLocationBuilder_ == null) {
+              result.realMsg_ = realMsg_;
+            } else {
+              result.realMsg_ = snapshotLocationBuilder_.build();
+            }
+          }
           if (realMsgCase_ == 10100) {
             if (requestFriendBuilder_ == null) {
               result.realMsg_ = realMsg_;
@@ -32900,6 +36586,13 @@ public final class MsgBean {
               result.realMsg_ = payResultBuilder_.build();
             }
           }
+          if (realMsgCase_ == 10802) {
+            if (balanceAssistantBuilder_ == null) {
+              result.realMsg_ = realMsg_;
+            } else {
+              result.realMsg_ = balanceAssistantBuilder_.build();
+            }
+          }
           result.realMsgCase_ = realMsgCase_;
           onBuilt();
           return result;
@@ -33029,6 +36722,10 @@ public final class MsgBean {
               mergeShortVideo(other.getShortVideo());
               break;
             }
+            case SNAPSHOT_LOCATION: {
+              mergeSnapshotLocation(other.getSnapshotLocation());
+              break;
+            }
             case REQUEST_FRIEND: {
               mergeRequestFriend(other.getRequestFriend());
               break;
@@ -33107,6 +36804,10 @@ public final class MsgBean {
             }
             case PAY_RESULT: {
               mergePayResult(other.getPayResult());
+              break;
+            }
+            case BALANCE_ASSISTANT: {
+              mergeBalanceAssistant(other.getBalanceAssistant());
               break;
             }
             case REALMSG_NOT_SET: {
@@ -35464,6 +39165,142 @@ public final class MsgBean {
           realMsgCase_ = 10011;
           onChanged();;
           return shortVideoBuilder_;
+        }
+
+        private com.google.protobuf.SingleFieldBuilderV3<
+            com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage, com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.Builder, com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessageOrBuilder> snapshotLocationBuilder_;
+        /**
+         * <code>.SnapshotLocationMessage snapshot_location = 10012;</code>
+         */
+        public boolean hasSnapshotLocation() {
+          return realMsgCase_ == 10012;
+        }
+        /**
+         * <code>.SnapshotLocationMessage snapshot_location = 10012;</code>
+         */
+        public com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage getSnapshotLocation() {
+          if (snapshotLocationBuilder_ == null) {
+            if (realMsgCase_ == 10012) {
+              return (com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage) realMsg_;
+            }
+            return com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.getDefaultInstance();
+          } else {
+            if (realMsgCase_ == 10012) {
+              return snapshotLocationBuilder_.getMessage();
+            }
+            return com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.getDefaultInstance();
+          }
+        }
+        /**
+         * <code>.SnapshotLocationMessage snapshot_location = 10012;</code>
+         */
+        public Builder setSnapshotLocation(com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage value) {
+          if (snapshotLocationBuilder_ == null) {
+            if (value == null) {
+              throw new NullPointerException();
+            }
+            realMsg_ = value;
+            onChanged();
+          } else {
+            snapshotLocationBuilder_.setMessage(value);
+          }
+          realMsgCase_ = 10012;
+          return this;
+        }
+        /**
+         * <code>.SnapshotLocationMessage snapshot_location = 10012;</code>
+         */
+        public Builder setSnapshotLocation(
+            com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.Builder builderForValue) {
+          if (snapshotLocationBuilder_ == null) {
+            realMsg_ = builderForValue.build();
+            onChanged();
+          } else {
+            snapshotLocationBuilder_.setMessage(builderForValue.build());
+          }
+          realMsgCase_ = 10012;
+          return this;
+        }
+        /**
+         * <code>.SnapshotLocationMessage snapshot_location = 10012;</code>
+         */
+        public Builder mergeSnapshotLocation(com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage value) {
+          if (snapshotLocationBuilder_ == null) {
+            if (realMsgCase_ == 10012 &&
+                realMsg_ != com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.getDefaultInstance()) {
+              realMsg_ = com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.newBuilder((com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage) realMsg_)
+                  .mergeFrom(value).buildPartial();
+            } else {
+              realMsg_ = value;
+            }
+            onChanged();
+          } else {
+            if (realMsgCase_ == 10012) {
+              snapshotLocationBuilder_.mergeFrom(value);
+            }
+            snapshotLocationBuilder_.setMessage(value);
+          }
+          realMsgCase_ = 10012;
+          return this;
+        }
+        /**
+         * <code>.SnapshotLocationMessage snapshot_location = 10012;</code>
+         */
+        public Builder clearSnapshotLocation() {
+          if (snapshotLocationBuilder_ == null) {
+            if (realMsgCase_ == 10012) {
+              realMsgCase_ = 0;
+              realMsg_ = null;
+              onChanged();
+            }
+          } else {
+            if (realMsgCase_ == 10012) {
+              realMsgCase_ = 0;
+              realMsg_ = null;
+            }
+            snapshotLocationBuilder_.clear();
+          }
+          return this;
+        }
+        /**
+         * <code>.SnapshotLocationMessage snapshot_location = 10012;</code>
+         */
+        public com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.Builder getSnapshotLocationBuilder() {
+          return getSnapshotLocationFieldBuilder().getBuilder();
+        }
+        /**
+         * <code>.SnapshotLocationMessage snapshot_location = 10012;</code>
+         */
+        public com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessageOrBuilder getSnapshotLocationOrBuilder() {
+          if ((realMsgCase_ == 10012) && (snapshotLocationBuilder_ != null)) {
+            return snapshotLocationBuilder_.getMessageOrBuilder();
+          } else {
+            if (realMsgCase_ == 10012) {
+              return (com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage) realMsg_;
+            }
+            return com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.getDefaultInstance();
+          }
+        }
+        /**
+         * <code>.SnapshotLocationMessage snapshot_location = 10012;</code>
+         */
+        private com.google.protobuf.SingleFieldBuilderV3<
+            com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage, com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.Builder, com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessageOrBuilder> 
+            getSnapshotLocationFieldBuilder() {
+          if (snapshotLocationBuilder_ == null) {
+            if (!(realMsgCase_ == 10012)) {
+              realMsg_ = com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.getDefaultInstance();
+            }
+            snapshotLocationBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+                com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage, com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage.Builder, com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessageOrBuilder>(
+                    (com.yanlong.im.utils.socket.MsgBean.SnapshotLocationMessage) realMsg_,
+                    getParentForChildren(),
+                    isClean());
+            realMsg_ = null;
+          }
+          realMsgCase_ = 10012;
+          onChanged();;
+          return snapshotLocationBuilder_;
         }
 
         private com.google.protobuf.SingleFieldBuilderV3<
@@ -38248,6 +42085,142 @@ public final class MsgBean {
           onChanged();;
           return payResultBuilder_;
         }
+
+        private com.google.protobuf.SingleFieldBuilderV3<
+            com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage, com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.Builder, com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessageOrBuilder> balanceAssistantBuilder_;
+        /**
+         * <code>.BalanceAssistantMessage balance_assistant = 10802;</code>
+         */
+        public boolean hasBalanceAssistant() {
+          return realMsgCase_ == 10802;
+        }
+        /**
+         * <code>.BalanceAssistantMessage balance_assistant = 10802;</code>
+         */
+        public com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage getBalanceAssistant() {
+          if (balanceAssistantBuilder_ == null) {
+            if (realMsgCase_ == 10802) {
+              return (com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage) realMsg_;
+            }
+            return com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.getDefaultInstance();
+          } else {
+            if (realMsgCase_ == 10802) {
+              return balanceAssistantBuilder_.getMessage();
+            }
+            return com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.getDefaultInstance();
+          }
+        }
+        /**
+         * <code>.BalanceAssistantMessage balance_assistant = 10802;</code>
+         */
+        public Builder setBalanceAssistant(com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage value) {
+          if (balanceAssistantBuilder_ == null) {
+            if (value == null) {
+              throw new NullPointerException();
+            }
+            realMsg_ = value;
+            onChanged();
+          } else {
+            balanceAssistantBuilder_.setMessage(value);
+          }
+          realMsgCase_ = 10802;
+          return this;
+        }
+        /**
+         * <code>.BalanceAssistantMessage balance_assistant = 10802;</code>
+         */
+        public Builder setBalanceAssistant(
+            com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.Builder builderForValue) {
+          if (balanceAssistantBuilder_ == null) {
+            realMsg_ = builderForValue.build();
+            onChanged();
+          } else {
+            balanceAssistantBuilder_.setMessage(builderForValue.build());
+          }
+          realMsgCase_ = 10802;
+          return this;
+        }
+        /**
+         * <code>.BalanceAssistantMessage balance_assistant = 10802;</code>
+         */
+        public Builder mergeBalanceAssistant(com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage value) {
+          if (balanceAssistantBuilder_ == null) {
+            if (realMsgCase_ == 10802 &&
+                realMsg_ != com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.getDefaultInstance()) {
+              realMsg_ = com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.newBuilder((com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage) realMsg_)
+                  .mergeFrom(value).buildPartial();
+            } else {
+              realMsg_ = value;
+            }
+            onChanged();
+          } else {
+            if (realMsgCase_ == 10802) {
+              balanceAssistantBuilder_.mergeFrom(value);
+            }
+            balanceAssistantBuilder_.setMessage(value);
+          }
+          realMsgCase_ = 10802;
+          return this;
+        }
+        /**
+         * <code>.BalanceAssistantMessage balance_assistant = 10802;</code>
+         */
+        public Builder clearBalanceAssistant() {
+          if (balanceAssistantBuilder_ == null) {
+            if (realMsgCase_ == 10802) {
+              realMsgCase_ = 0;
+              realMsg_ = null;
+              onChanged();
+            }
+          } else {
+            if (realMsgCase_ == 10802) {
+              realMsgCase_ = 0;
+              realMsg_ = null;
+            }
+            balanceAssistantBuilder_.clear();
+          }
+          return this;
+        }
+        /**
+         * <code>.BalanceAssistantMessage balance_assistant = 10802;</code>
+         */
+        public com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.Builder getBalanceAssistantBuilder() {
+          return getBalanceAssistantFieldBuilder().getBuilder();
+        }
+        /**
+         * <code>.BalanceAssistantMessage balance_assistant = 10802;</code>
+         */
+        public com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessageOrBuilder getBalanceAssistantOrBuilder() {
+          if ((realMsgCase_ == 10802) && (balanceAssistantBuilder_ != null)) {
+            return balanceAssistantBuilder_.getMessageOrBuilder();
+          } else {
+            if (realMsgCase_ == 10802) {
+              return (com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage) realMsg_;
+            }
+            return com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.getDefaultInstance();
+          }
+        }
+        /**
+         * <code>.BalanceAssistantMessage balance_assistant = 10802;</code>
+         */
+        private com.google.protobuf.SingleFieldBuilderV3<
+            com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage, com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.Builder, com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessageOrBuilder> 
+            getBalanceAssistantFieldBuilder() {
+          if (balanceAssistantBuilder_ == null) {
+            if (!(realMsgCase_ == 10802)) {
+              realMsg_ = com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.getDefaultInstance();
+            }
+            balanceAssistantBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+                com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage, com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage.Builder, com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessageOrBuilder>(
+                    (com.yanlong.im.utils.socket.MsgBean.BalanceAssistantMessage) realMsg_,
+                    getParentForChildren(),
+                    isClean());
+            realMsg_ = null;
+          }
+          realMsgCase_ = 10802;
+          onChanged();;
+          return balanceAssistantBuilder_;
+        }
         public final Builder setUnknownFields(
             final com.google.protobuf.UnknownFieldSet unknownFields) {
           return super.setUnknownFieldsProto3(unknownFields);
@@ -39212,6 +43185,11 @@ public final class MsgBean {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_ShortVideoMessage_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_SnapshotLocationMessage_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_SnapshotLocationMessage_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_RequestFriendMessage_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -39317,6 +43295,21 @@ public final class MsgBean {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_SwitchChangeMessage_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_PayResultMessage_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_PayResultMessage_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_LabelValueItem_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_LabelValueItem_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_BalanceAssistantMessage_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_BalanceAssistantMessage_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_AckMessage_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -39331,11 +43324,6 @@ public final class MsgBean {
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_AuthResponseMessage_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_PayResultMessage_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_PayResultMessage_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_UniversalMessage_descriptor;
   private static final 
@@ -39380,126 +43368,140 @@ public final class MsgBean {
       "\"\037\n\rCancelMessage\022\016\n\006msg_id\030\001 \001(\t\"a\n\021Sho" +
       "rtVideoMessage\022\020\n\010duration\030\001 \001(\r\022\016\n\006bg_u" +
       "rl\030\002 \001(\t\022\r\n\005width\030\003 \001(\r\022\016\n\006height\030\004 \001(\r\022" +
-      "\013\n\003url\030\005 \001(\t\"<\n\024RequestFriendMessage\022\016\n\006" +
-      "say_hi\030\001 \001(\t\022\024\n\014contact_name\030\002 \001(\t\"(\n\026Ac" +
-      "ceptBeFriendsMessage\022\016\n\006say_hi\030\001 \001(\t\"\025\n\023" +
-      "RemoveFriendMessage\"C\n\022GroupNoticeMessag" +
-      "e\022\013\n\003uid\030\001 \001(\004\022\016\n\006avatar\030\002 \001(\t\022\020\n\010nickna" +
-      "me\030\003 \001(\t\"E\n\026InviteJoinGroupMessage\022+\n\016no" +
-      "tice_message\030\001 \001(\0132\023.GroupNoticeMessage\"" +
-      "\214\001\n\023RequestGroupMessage\022+\n\016notice_messag" +
-      "e\030\001 \003(\0132\023.GroupNoticeMessage\022\017\n\007inviter\030" +
-      "\002 \001(\004\022!\n\tjoin_type\030\003 \001(\0162\016.JoinGroupType" +
-      "\022\024\n\014inviter_name\030\004 \001(\t\"\215\001\n\024AcceptBeGroup" +
-      "Message\022+\n\016notice_message\030\001 \003(\0132\023.GroupN" +
-      "oticeMessage\022\017\n\007inviter\030\002 \001(\004\022!\n\tjoin_ty" +
-      "pe\030\003 \001(\0162\016.JoinGroupType\022\024\n\014inviter_name" +
-      "\030\004 \001(\t\"E\n\030RemoveGroupMemberMessage\022\013\n\003gi" +
-      "d\030\001 \001(\t\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"(\n" +
-      "\031RemoveGroupMember2Message\022\013\n\003uid\030\001 \003(\004\"" +
-      ";\n\030ChangeGroupMasterMessage\022\013\n\003uid\030\001 \001(\004" +
-      "\022\022\n\nmembername\030\002 \001(\t\"`\n\026ChangeGroupMetaM" +
-      "essage\022\016\n\004name\030\001 \001(\tH\000\022\030\n\016protect_member" +
-      "\030\002 \001(\010H\000\022\020\n\006avatar\030\003 \001(\tH\000B\n\n\010real_msg\"@" +
-      "\n\023DestroyGroupMessage\022\013\n\003uid\030\001 \003(\004\022\016\n\006av" +
-      "atar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"2\n\031ChangeSurviv" +
-      "alTimeMessage\022\025\n\rsurvival_time\030\001 \001(\021\"S\n\021" +
-      "P2PAuVideoMessage\022\035\n\007av_type\030\001 \001(\0162\014.AuV" +
-      "ideoType\022\021\n\toperation\030\002 \001(\t\022\014\n\004desc\030\003 \001(" +
-      "\t\"6\n\025P2PAuVideoDialMessage\022\035\n\007av_type\030\001 " +
-      "\001(\0162\014.AuVideoType\"H\n\023ForceOfflineMessage" +
-      "\0221\n\024force_offline_reason\030\001 \001(\0162\023.ForceOf" +
-      "flineReason\"\036\n\017OutGroupMessage\022\013\n\003gid\030\001 " +
-      "\001(\t\"\215\001\n\027ActiveStatChangeMessage\0228\n\013activ" +
-      "e_type\030\001 \001(\0162#.ActiveStatChangeMessage.A" +
-      "ctiveType\022\021\n\ttimestamp\030\002 \001(\004\"%\n\nActiveTy" +
-      "pe\022\013\n\007OFFLINE\020\000\022\n\n\006ONLINE\020\001\"\220\001\n\023Resource" +
-      "LockMessage\022A\n\022resource_lock_type\030\001 \001(\0162" +
-      "%.ResourceLockMessage.ResourceLockType\022\014" +
-      "\n\004lock\030\002 \001(\r\"(\n\020ResourceLockType\022\024\n\020CLOU" +
-      "DREDENVELOPE\020\000\" \n\013ReadMessage\022\021\n\ttimesta" +
-      "mp\030\001 \001(\004\"\223\001\n\023SwitchChangeMessage\0224\n\013swit" +
-      "ch_type\030\001 \001(\0162\037.SwitchChangeMessage.Swit" +
-      "chType\022\024\n\014switch_value\030\002 \001(\r\"0\n\nSwitchTy" +
-      "pe\022\010\n\004READ\020\000\022\007\n\003VIP\020\001\022\017\n\013MASTER_READ\020\002\"e" +
-      "\n\nAckMessage\022 \n\013reject_type\030\001 \001(\0162\013.Reje" +
-      "ctType\022\022\n\nrequest_id\030\002 \001(\t\022\016\n\006msg_id\030\003 \003" +
-      "(\t\022\021\n\ttimestamp\030\004 \001(\004\"*\n\022AuthRequestMess" +
-      "age\022\024\n\014access_token\030\001 \001(\t\":\n\023AuthRespons" +
-      "eMessage\022\020\n\010accepted\030\001 \001(\021\022\021\n\ttimestamp\030" +
-      "\002 \001(\004\"\247\001\n\020PayResultMessage\022+\n\006result\030\001 \001" +
-      "(\0162\033.PayResultMessage.PayResult\022\020\n\010trade" +
-      "_id\030\002 \001(\004\022\021\n\taction_id\030\003 \001(\t\022\021\n\terror_ms" +
-      "g\030\004 \001(\t\".\n\tPayResult\022\013\n\007SUCCESS\020\000\022\010\n\004FAI" +
-      "L\020\001\022\n\n\006REFUND\020\002\"\236\016\n\020UniversalMessage\022\022\n\n" +
-      "request_id\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004\022/\n\007wrap" +
-      "Msg\030\221N \003(\0132\035.UniversalMessage.WrapMessag" +
-      "e\032\264\r\n\013WrapMessage\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010" +
-      "msg_type\030\002 \001(\0162\014.MessageType\022\016\n\006msg_id\030\003" +
-      " \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010n" +
-      "ickname\030\006 \001(\t\022\016\n\006avatar\030\007 \001(\t\022\022\n\nmembern" +
-      "ame\030\010 \001(\t\022\025\n\rsurvival_time\030\t \001(\021\022\023\n\013devi" +
-      "ce_type\030\n \001(\r\022\016\n\006to_uid\030\013 \001(\004\022\035\n\004chat\030\220N" +
-      " \001(\0132\014.ChatMessageH\000\022\037\n\005image\030\221N \001(\0132\r.I" +
-      "mageMessageH\000\022,\n\014red_envelope\030\222N \001(\0132\023.R" +
-      "edEnvelopeMessageH\000\022;\n\024receive_red_envel" +
-      "ope\030\223N \001(\0132\032.ReceiveRedEnvelopeMessageH\000" +
-      "\022%\n\010transfer\030\224N \001(\0132\020.TransferMessageH\000\022" +
-      "\037\n\005stamp\030\225N \001(\0132\r.StampMessageH\000\022.\n\rbusi" +
-      "ness_card\030\226N \001(\0132\024.BusinessCardMessageH\000" +
-      "\022\037\n\005voice\030\227N \001(\0132\r.VoiceMessageH\000\022\031\n\002at\030" +
-      "\230N \001(\0132\n.AtMessageH\000\022\'\n\tassistant\030\231N \001(\013" +
-      "2\021.AssistantMessageH\000\022!\n\006cancel\030\232N \001(\0132\016" +
-      ".CancelMessageH\000\022*\n\013short_video\030\233N \001(\0132\022" +
-      ".ShortVideoMessageH\000\0220\n\016request_friend\030\364" +
-      "N \001(\0132\025.RequestFriendMessageH\000\0225\n\021accept" +
-      "_be_friends\030\365N \001(\0132\027.AcceptBeFriendsMess" +
-      "ageH\000\022.\n\rremove_friend\030\366N \001(\0132\024.RemoveFr" +
-      "iendMessageH\000\022.\n\rrequest_group\030\330O \001(\0132\024." +
-      "RequestGroupMessageH\000\0221\n\017accept_be_group" +
-      "\030\331O \001(\0132\025.AcceptBeGroupMessageH\000\0229\n\023remo" +
-      "ve_group_member\030\332O \001(\0132\031.RemoveGroupMemb" +
-      "erMessageH\000\0229\n\023change_group_master\030\333O \001(" +
-      "\0132\031.ChangeGroupMasterMessageH\000\022.\n\rdestro" +
-      "y_group\030\336O \001(\0132\024.DestroyGroupMessageH\000\022;" +
-      "\n\024remove_group_member2\030\337O \001(\0132\032.RemoveGr" +
-      "oupMember2MessageH\000\022&\n\tout_group\030\342O \001(\0132" +
-      "\020.OutGroupMessageH\000\0225\n\021change_group_meta" +
-      "\030\344O \001(\0132\027.ChangeGroupMetaMessageH\000\022;\n\024ch" +
-      "ange_survival_time\030\345O \001(\0132\032.ChangeSurviv" +
-      "alTimeMessageH\000\022+\n\014p2p_au_video\030\352O \001(\0132\022" +
-      ".P2PAuVideoMessageH\000\0224\n\021p2p_au_video_dia" +
-      "l\030\353O \001(\0132\026.P2PAuVideoDialMessageH\000\022\035\n\004re" +
-      "ad\030\354O \001(\0132\014.ReadMessageH\000\022.\n\rforce_offli" +
-      "ne\030\274P \001(\0132\024.ForceOfflineMessageH\000\0227\n\022act" +
-      "ive_stat_change\030\275P \001(\0132\030.ActiveStatChang" +
-      "eMessageH\000\022.\n\rresource_lock\030\276P \001(\0132\024.Res" +
-      "ourceLockMessageH\000\022.\n\rswitch_change\030\277P \001" +
-      "(\0132\024.SwitchChangeMessageH\000\022(\n\npay_result" +
-      "\030\261T \001(\0132\021.PayResultMessageH\000B\n\n\010real_msg" +
-      "*\331\004\n\013MessageType\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021\n" +
-      "\rRED_ENVELOPER\020\002\022\031\n\025RECEIVE_RED_ENVELOPE" +
-      "R\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSINESS" +
-      "_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n\002AT\020\010\022\r\n\tASSISTANT\020" +
-      "\t\022\n\n\006CANCEL\020\n\022\017\n\013SHORT_VIDEO\020\013\022\022\n\016REQUES" +
-      "T_FRIEND\020d\022\025\n\021ACCEPT_BE_FRIENDS\020e\022\021\n\rREM" +
-      "OVE_FRIEND\020f\022\021\n\rREQUEST_GROUP\020g\022\023\n\017ACCEP" +
-      "T_BE_GROUP\020h\022\027\n\023REMOVE_GROUP_MEMBER\020i\022\027\n" +
-      "\023CHANGE_GROUP_MASTER\020j\022\030\n\024REMOVE_GROUP_M" +
-      "EMBER2\020k\022\021\n\rDESTROY_GROUP\020m\022\r\n\tOUT_GROUP" +
-      "\020n\022\025\n\021CHANGE_GROUP_META\020p\022\030\n\024CHANGE_SURV" +
-      "IVAL_TIME\020q\022\020\n\014P2P_AU_VIDEO\020v\022\025\n\021P2P_AU_" +
-      "VIDEO_DIAL\020w\022\010\n\004READ\020x\022\022\n\rFORCE_OFFLINE\020" +
-      "\310\001\022\027\n\022ACTIVE_STAT_CHANGE\020\311\001\022\022\n\rRESOURCE_" +
-      "LOCK\020\312\001\022\022\n\rSWITCH_CHANGE\020\313\001\022\017\n\nPAY_RESUL" +
-      "T\020\320\001*.\n\022ForceOfflineReason\022\014\n\010CONFLICT\020\000" +
-      "\022\n\n\006LOCKED\020\001*v\n\nRejectType\022\014\n\010ACCEPTED\020\000" +
-      "\022\037\n\033NOT_FRIENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_" +
-      "BLACKLIST\020\002\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_U" +
-      "NAVAILABLE\020d*(\n\rJoinGroupType\022\n\n\006QRCODE\020" +
-      "\000\022\013\n\007PASSIVE\020\001*#\n\013AuVideoType\022\t\n\005Audio\020\000" +
-      "\022\t\n\005Vedio\020\001B&\n\033com.yanlong.im.utils.sock" +
-      "etB\007MsgBeanb\006proto3"
+      "\013\n\003url\030\005 \001(\t\"\\\n\027SnapshotLocationMessage\022" +
+      "\013\n\003lat\030\001 \001(\r\022\013\n\003lon\030\002 \001(\r\022\014\n\004addr\030\003 \001(\t\022" +
+      "\014\n\004desc\030\004 \001(\t\022\013\n\003img\030\005 \001(\t\"<\n\024RequestFri" +
+      "endMessage\022\016\n\006say_hi\030\001 \001(\t\022\024\n\014contact_na" +
+      "me\030\002 \001(\t\"(\n\026AcceptBeFriendsMessage\022\016\n\006sa" +
+      "y_hi\030\001 \001(\t\"\025\n\023RemoveFriendMessage\"C\n\022Gro" +
+      "upNoticeMessage\022\013\n\003uid\030\001 \001(\004\022\016\n\006avatar\030\002" +
+      " \001(\t\022\020\n\010nickname\030\003 \001(\t\"E\n\026InviteJoinGrou" +
+      "pMessage\022+\n\016notice_message\030\001 \001(\0132\023.Group" +
+      "NoticeMessage\"\214\001\n\023RequestGroupMessage\022+\n" +
+      "\016notice_message\030\001 \003(\0132\023.GroupNoticeMessa" +
+      "ge\022\017\n\007inviter\030\002 \001(\004\022!\n\tjoin_type\030\003 \001(\0162\016" +
+      ".JoinGroupType\022\024\n\014inviter_name\030\004 \001(\t\"\215\001\n" +
+      "\024AcceptBeGroupMessage\022+\n\016notice_message\030" +
+      "\001 \003(\0132\023.GroupNoticeMessage\022\017\n\007inviter\030\002 " +
+      "\001(\004\022!\n\tjoin_type\030\003 \001(\0162\016.JoinGroupType\022\024" +
+      "\n\014inviter_name\030\004 \001(\t\"E\n\030RemoveGroupMembe" +
+      "rMessage\022\013\n\003gid\030\001 \001(\t\022\016\n\006avatar\030\002 \001(\t\022\014\n" +
+      "\004name\030\003 \001(\t\"(\n\031RemoveGroupMember2Message" +
+      "\022\013\n\003uid\030\001 \003(\004\";\n\030ChangeGroupMasterMessag" +
+      "e\022\013\n\003uid\030\001 \001(\004\022\022\n\nmembername\030\002 \001(\t\"`\n\026Ch" +
+      "angeGroupMetaMessage\022\016\n\004name\030\001 \001(\tH\000\022\030\n\016" +
+      "protect_member\030\002 \001(\010H\000\022\020\n\006avatar\030\003 \001(\tH\000" +
+      "B\n\n\010real_msg\"@\n\023DestroyGroupMessage\022\013\n\003u" +
+      "id\030\001 \003(\004\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"2" +
+      "\n\031ChangeSurvivalTimeMessage\022\025\n\rsurvival_" +
+      "time\030\001 \001(\021\"S\n\021P2PAuVideoMessage\022\035\n\007av_ty" +
+      "pe\030\001 \001(\0162\014.AuVideoType\022\021\n\toperation\030\002 \001(" +
+      "\t\022\014\n\004desc\030\003 \001(\t\"6\n\025P2PAuVideoDialMessage" +
+      "\022\035\n\007av_type\030\001 \001(\0162\014.AuVideoType\"H\n\023Force" +
+      "OfflineMessage\0221\n\024force_offline_reason\030\001" +
+      " \001(\0162\023.ForceOfflineReason\"\036\n\017OutGroupMes" +
+      "sage\022\013\n\003gid\030\001 \001(\t\"\215\001\n\027ActiveStatChangeMe" +
+      "ssage\0228\n\013active_type\030\001 \001(\0162#.ActiveStatC" +
+      "hangeMessage.ActiveType\022\021\n\ttimestamp\030\002 \001" +
+      "(\004\"%\n\nActiveType\022\013\n\007OFFLINE\020\000\022\n\n\006ONLINE\020" +
+      "\001\"\220\001\n\023ResourceLockMessage\022A\n\022resource_lo" +
+      "ck_type\030\001 \001(\0162%.ResourceLockMessage.Reso" +
+      "urceLockType\022\014\n\004lock\030\002 \001(\r\"(\n\020ResourceLo" +
+      "ckType\022\024\n\020CLOUDREDENVELOPE\020\000\" \n\013ReadMess" +
+      "age\022\021\n\ttimestamp\030\001 \001(\004\"\223\001\n\023SwitchChangeM" +
+      "essage\0224\n\013switch_type\030\001 \001(\0162\037.SwitchChan" +
+      "geMessage.SwitchType\022\024\n\014switch_value\030\002 \001" +
+      "(\r\"0\n\nSwitchType\022\010\n\004READ\020\000\022\007\n\003VIP\020\001\022\017\n\013M" +
+      "ASTER_READ\020\002\"\247\001\n\020PayResultMessage\022+\n\006res" +
+      "ult\030\001 \001(\0162\033.PayResultMessage.PayResult\022\020" +
+      "\n\010trade_id\030\002 \001(\004\022\021\n\taction_id\030\003 \001(\t\022\021\n\te" +
+      "rror_msg\030\004 \001(\t\".\n\tPayResult\022\013\n\007SUCCESS\020\000" +
+      "\022\010\n\004FAIL\020\001\022\n\n\006REFUND\020\002\".\n\016LabelValueItem" +
+      "\022\r\n\005label\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\"\366\001\n\027Balan" +
+      "ceAssistantMessage\022\020\n\010trade_id\030\001 \001(\004\0228\n\013" +
+      "detail_type\030\002 \001(\0162#.BalanceAssistantMess" +
+      "age.DetailType\022\014\n\004time\030\003 \001(\004\022\r\n\005title\030\004 " +
+      "\001(\t\022\021\n\tamt_label\030\005 \001(\t\022\013\n\003amt\030\006 \001(\004\022\035\n\004i" +
+      "tem\030\007 \003(\0132\017.LabelValueItem\"3\n\nDetailType" +
+      "\022\010\n\004NONE\020\000\022\020\n\014RED_ENVELOPE\020\001\022\t\n\005TRANS\020\002\"" +
+      "e\n\nAckMessage\022 \n\013reject_type\030\001 \001(\0162\013.Rej" +
+      "ectType\022\022\n\nrequest_id\030\002 \001(\t\022\016\n\006msg_id\030\003 " +
+      "\003(\t\022\021\n\ttimestamp\030\004 \001(\004\"*\n\022AuthRequestMes" +
+      "sage\022\024\n\014access_token\030\001 \001(\t\":\n\023AuthRespon" +
+      "seMessage\022\020\n\010accepted\030\001 \001(\021\022\021\n\ttimestamp" +
+      "\030\002 \001(\004\"\216\017\n\020UniversalMessage\022\022\n\nrequest_i" +
+      "d\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004\022/\n\007wrapMsg\030\221N \003(" +
+      "\0132\035.UniversalMessage.WrapMessage\032\244\016\n\013Wra" +
+      "pMessage\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg_type\030" +
+      "\002 \001(\0162\014.MessageType\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010f" +
+      "rom_uid\030\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010nickname\030\006" +
+      " \001(\t\022\016\n\006avatar\030\007 \001(\t\022\022\n\nmembername\030\010 \001(\t" +
+      "\022\025\n\rsurvival_time\030\t \001(\021\022\023\n\013device_type\030\n" +
+      " \001(\r\022\016\n\006to_uid\030\013 \001(\004\022\035\n\004chat\030\220N \001(\0132\014.Ch" +
+      "atMessageH\000\022\037\n\005image\030\221N \001(\0132\r.ImageMessa" +
+      "geH\000\022,\n\014red_envelope\030\222N \001(\0132\023.RedEnvelop" +
+      "eMessageH\000\022;\n\024receive_red_envelope\030\223N \001(" +
+      "\0132\032.ReceiveRedEnvelopeMessageH\000\022%\n\010trans" +
+      "fer\030\224N \001(\0132\020.TransferMessageH\000\022\037\n\005stamp\030" +
+      "\225N \001(\0132\r.StampMessageH\000\022.\n\rbusiness_card" +
+      "\030\226N \001(\0132\024.BusinessCardMessageH\000\022\037\n\005voice" +
+      "\030\227N \001(\0132\r.VoiceMessageH\000\022\031\n\002at\030\230N \001(\0132\n." +
+      "AtMessageH\000\022\'\n\tassistant\030\231N \001(\0132\021.Assist" +
+      "antMessageH\000\022!\n\006cancel\030\232N \001(\0132\016.CancelMe" +
+      "ssageH\000\022*\n\013short_video\030\233N \001(\0132\022.ShortVid" +
+      "eoMessageH\000\0226\n\021snapshot_location\030\234N \001(\0132" +
+      "\030.SnapshotLocationMessageH\000\0220\n\016request_f" +
+      "riend\030\364N \001(\0132\025.RequestFriendMessageH\000\0225\n" +
+      "\021accept_be_friends\030\365N \001(\0132\027.AcceptBeFrie" +
+      "ndsMessageH\000\022.\n\rremove_friend\030\366N \001(\0132\024.R" +
+      "emoveFriendMessageH\000\022.\n\rrequest_group\030\330O" +
+      " \001(\0132\024.RequestGroupMessageH\000\0221\n\017accept_b" +
+      "e_group\030\331O \001(\0132\025.AcceptBeGroupMessageH\000\022" +
+      "9\n\023remove_group_member\030\332O \001(\0132\031.RemoveGr" +
+      "oupMemberMessageH\000\0229\n\023change_group_maste" +
+      "r\030\333O \001(\0132\031.ChangeGroupMasterMessageH\000\022.\n" +
+      "\rdestroy_group\030\336O \001(\0132\024.DestroyGroupMess" +
+      "ageH\000\022;\n\024remove_group_member2\030\337O \001(\0132\032.R" +
+      "emoveGroupMember2MessageH\000\022&\n\tout_group\030" +
+      "\342O \001(\0132\020.OutGroupMessageH\000\0225\n\021change_gro" +
+      "up_meta\030\344O \001(\0132\027.ChangeGroupMetaMessageH" +
+      "\000\022;\n\024change_survival_time\030\345O \001(\0132\032.Chang" +
+      "eSurvivalTimeMessageH\000\022+\n\014p2p_au_video\030\352" +
+      "O \001(\0132\022.P2PAuVideoMessageH\000\0224\n\021p2p_au_vi" +
+      "deo_dial\030\353O \001(\0132\026.P2PAuVideoDialMessageH" +
+      "\000\022\035\n\004read\030\354O \001(\0132\014.ReadMessageH\000\022.\n\rforc" +
+      "e_offline\030\274P \001(\0132\024.ForceOfflineMessageH\000" +
+      "\0227\n\022active_stat_change\030\275P \001(\0132\030.ActiveSt" +
+      "atChangeMessageH\000\022.\n\rresource_lock\030\276P \001(" +
+      "\0132\024.ResourceLockMessageH\000\022.\n\rswitch_chan" +
+      "ge\030\277P \001(\0132\024.SwitchChangeMessageH\000\022(\n\npay" +
+      "_result\030\261T \001(\0132\021.PayResultMessageH\000\0226\n\021b" +
+      "alance_assistant\030\262T \001(\0132\030.BalanceAssista" +
+      "ntMessageH\000B\n\n\010real_msg*\210\005\n\013MessageType\022" +
+      "\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_ENVELOPER\020\002\022" +
+      "\031\n\025RECEIVE_RED_ENVELOPER\020\003\022\014\n\010TRANSFER\020\004" +
+      "\022\t\n\005STAMP\020\005\022\021\n\rBUSINESS_CARD\020\006\022\t\n\005VOICE\020" +
+      "\007\022\006\n\002AT\020\010\022\r\n\tASSISTANT\020\t\022\n\n\006CANCEL\020\n\022\017\n\013" +
+      "SHORT_VIDEO\020\013\022\025\n\021SNAPSHOT_LOCATION\020\014\022\022\n\016" +
+      "REQUEST_FRIEND\020d\022\025\n\021ACCEPT_BE_FRIENDS\020e\022" +
+      "\021\n\rREMOVE_FRIEND\020f\022\021\n\rREQUEST_GROUP\020g\022\023\n" +
+      "\017ACCEPT_BE_GROUP\020h\022\027\n\023REMOVE_GROUP_MEMBE" +
+      "R\020i\022\027\n\023CHANGE_GROUP_MASTER\020j\022\030\n\024REMOVE_G" +
+      "ROUP_MEMBER2\020k\022\021\n\rDESTROY_GROUP\020m\022\r\n\tOUT" +
+      "_GROUP\020n\022\025\n\021CHANGE_GROUP_META\020p\022\030\n\024CHANG" +
+      "E_SURVIVAL_TIME\020q\022\020\n\014P2P_AU_VIDEO\020v\022\025\n\021P" +
+      "2P_AU_VIDEO_DIAL\020w\022\010\n\004READ\020x\022\022\n\rFORCE_OF" +
+      "FLINE\020\310\001\022\027\n\022ACTIVE_STAT_CHANGE\020\311\001\022\022\n\rRES" +
+      "OURCE_LOCK\020\312\001\022\022\n\rSWITCH_CHANGE\020\313\001\022\017\n\nPAY" +
+      "_RESULT\020\264\002\022\026\n\021BALANCE_ASSISTANT\020\265\002*.\n\022Fo" +
+      "rceOfflineReason\022\014\n\010CONFLICT\020\000\022\n\n\006LOCKED" +
+      "\020\001*\215\001\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT_F" +
+      "RIENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_BLACKLIST" +
+      "\020\002\022\025\n\021WORDS_NOT_ALLOWED\020\003\022\016\n\nRATE_LIMIT\020" +
+      "c\022\027\n\023SERVICE_UNAVAILABLE\020d*(\n\rJoinGroupT" +
+      "ype\022\n\n\006QRCODE\020\000\022\013\n\007PASSIVE\020\001*#\n\013AuVideoT" +
+      "ype\022\t\n\005Audio\020\000\022\t\n\005Vedio\020\001B&\n\033com.yanlong" +
+      ".im.utils.socketB\007MsgBeanb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -39585,158 +43587,176 @@ public final class MsgBean {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ShortVideoMessage_descriptor,
         new java.lang.String[] { "Duration", "BgUrl", "Width", "Height", "Url", });
-    internal_static_RequestFriendMessage_descriptor =
+    internal_static_SnapshotLocationMessage_descriptor =
       getDescriptor().getMessageTypes().get(12);
+    internal_static_SnapshotLocationMessage_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_SnapshotLocationMessage_descriptor,
+        new java.lang.String[] { "Lat", "Lon", "Addr", "Desc", "Img", });
+    internal_static_RequestFriendMessage_descriptor =
+      getDescriptor().getMessageTypes().get(13);
     internal_static_RequestFriendMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RequestFriendMessage_descriptor,
         new java.lang.String[] { "SayHi", "ContactName", });
     internal_static_AcceptBeFriendsMessage_descriptor =
-      getDescriptor().getMessageTypes().get(13);
+      getDescriptor().getMessageTypes().get(14);
     internal_static_AcceptBeFriendsMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AcceptBeFriendsMessage_descriptor,
         new java.lang.String[] { "SayHi", });
     internal_static_RemoveFriendMessage_descriptor =
-      getDescriptor().getMessageTypes().get(14);
+      getDescriptor().getMessageTypes().get(15);
     internal_static_RemoveFriendMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RemoveFriendMessage_descriptor,
         new java.lang.String[] { });
     internal_static_GroupNoticeMessage_descriptor =
-      getDescriptor().getMessageTypes().get(15);
+      getDescriptor().getMessageTypes().get(16);
     internal_static_GroupNoticeMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_GroupNoticeMessage_descriptor,
         new java.lang.String[] { "Uid", "Avatar", "Nickname", });
     internal_static_InviteJoinGroupMessage_descriptor =
-      getDescriptor().getMessageTypes().get(16);
+      getDescriptor().getMessageTypes().get(17);
     internal_static_InviteJoinGroupMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_InviteJoinGroupMessage_descriptor,
         new java.lang.String[] { "NoticeMessage", });
     internal_static_RequestGroupMessage_descriptor =
-      getDescriptor().getMessageTypes().get(17);
+      getDescriptor().getMessageTypes().get(18);
     internal_static_RequestGroupMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RequestGroupMessage_descriptor,
         new java.lang.String[] { "NoticeMessage", "Inviter", "JoinType", "InviterName", });
     internal_static_AcceptBeGroupMessage_descriptor =
-      getDescriptor().getMessageTypes().get(18);
+      getDescriptor().getMessageTypes().get(19);
     internal_static_AcceptBeGroupMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AcceptBeGroupMessage_descriptor,
         new java.lang.String[] { "NoticeMessage", "Inviter", "JoinType", "InviterName", });
     internal_static_RemoveGroupMemberMessage_descriptor =
-      getDescriptor().getMessageTypes().get(19);
+      getDescriptor().getMessageTypes().get(20);
     internal_static_RemoveGroupMemberMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RemoveGroupMemberMessage_descriptor,
         new java.lang.String[] { "Gid", "Avatar", "Name", });
     internal_static_RemoveGroupMember2Message_descriptor =
-      getDescriptor().getMessageTypes().get(20);
+      getDescriptor().getMessageTypes().get(21);
     internal_static_RemoveGroupMember2Message_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RemoveGroupMember2Message_descriptor,
         new java.lang.String[] { "Uid", });
     internal_static_ChangeGroupMasterMessage_descriptor =
-      getDescriptor().getMessageTypes().get(21);
+      getDescriptor().getMessageTypes().get(22);
     internal_static_ChangeGroupMasterMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ChangeGroupMasterMessage_descriptor,
         new java.lang.String[] { "Uid", "Membername", });
     internal_static_ChangeGroupMetaMessage_descriptor =
-      getDescriptor().getMessageTypes().get(22);
+      getDescriptor().getMessageTypes().get(23);
     internal_static_ChangeGroupMetaMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ChangeGroupMetaMessage_descriptor,
         new java.lang.String[] { "Name", "ProtectMember", "Avatar", "RealMsg", });
     internal_static_DestroyGroupMessage_descriptor =
-      getDescriptor().getMessageTypes().get(23);
+      getDescriptor().getMessageTypes().get(24);
     internal_static_DestroyGroupMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_DestroyGroupMessage_descriptor,
         new java.lang.String[] { "Uid", "Avatar", "Name", });
     internal_static_ChangeSurvivalTimeMessage_descriptor =
-      getDescriptor().getMessageTypes().get(24);
+      getDescriptor().getMessageTypes().get(25);
     internal_static_ChangeSurvivalTimeMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ChangeSurvivalTimeMessage_descriptor,
         new java.lang.String[] { "SurvivalTime", });
     internal_static_P2PAuVideoMessage_descriptor =
-      getDescriptor().getMessageTypes().get(25);
+      getDescriptor().getMessageTypes().get(26);
     internal_static_P2PAuVideoMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_P2PAuVideoMessage_descriptor,
         new java.lang.String[] { "AvType", "Operation", "Desc", });
     internal_static_P2PAuVideoDialMessage_descriptor =
-      getDescriptor().getMessageTypes().get(26);
+      getDescriptor().getMessageTypes().get(27);
     internal_static_P2PAuVideoDialMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_P2PAuVideoDialMessage_descriptor,
         new java.lang.String[] { "AvType", });
     internal_static_ForceOfflineMessage_descriptor =
-      getDescriptor().getMessageTypes().get(27);
+      getDescriptor().getMessageTypes().get(28);
     internal_static_ForceOfflineMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ForceOfflineMessage_descriptor,
         new java.lang.String[] { "ForceOfflineReason", });
     internal_static_OutGroupMessage_descriptor =
-      getDescriptor().getMessageTypes().get(28);
+      getDescriptor().getMessageTypes().get(29);
     internal_static_OutGroupMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_OutGroupMessage_descriptor,
         new java.lang.String[] { "Gid", });
     internal_static_ActiveStatChangeMessage_descriptor =
-      getDescriptor().getMessageTypes().get(29);
+      getDescriptor().getMessageTypes().get(30);
     internal_static_ActiveStatChangeMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ActiveStatChangeMessage_descriptor,
         new java.lang.String[] { "ActiveType", "Timestamp", });
     internal_static_ResourceLockMessage_descriptor =
-      getDescriptor().getMessageTypes().get(30);
+      getDescriptor().getMessageTypes().get(31);
     internal_static_ResourceLockMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ResourceLockMessage_descriptor,
         new java.lang.String[] { "ResourceLockType", "Lock", });
     internal_static_ReadMessage_descriptor =
-      getDescriptor().getMessageTypes().get(31);
+      getDescriptor().getMessageTypes().get(32);
     internal_static_ReadMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ReadMessage_descriptor,
         new java.lang.String[] { "Timestamp", });
     internal_static_SwitchChangeMessage_descriptor =
-      getDescriptor().getMessageTypes().get(32);
+      getDescriptor().getMessageTypes().get(33);
     internal_static_SwitchChangeMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_SwitchChangeMessage_descriptor,
         new java.lang.String[] { "SwitchType", "SwitchValue", });
+    internal_static_PayResultMessage_descriptor =
+      getDescriptor().getMessageTypes().get(34);
+    internal_static_PayResultMessage_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_PayResultMessage_descriptor,
+        new java.lang.String[] { "Result", "TradeId", "ActionId", "ErrorMsg", });
+    internal_static_LabelValueItem_descriptor =
+      getDescriptor().getMessageTypes().get(35);
+    internal_static_LabelValueItem_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_LabelValueItem_descriptor,
+        new java.lang.String[] { "Label", "Value", });
+    internal_static_BalanceAssistantMessage_descriptor =
+      getDescriptor().getMessageTypes().get(36);
+    internal_static_BalanceAssistantMessage_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_BalanceAssistantMessage_descriptor,
+        new java.lang.String[] { "TradeId", "DetailType", "Time", "Title", "AmtLabel", "Amt", "Item", });
     internal_static_AckMessage_descriptor =
-      getDescriptor().getMessageTypes().get(33);
+      getDescriptor().getMessageTypes().get(37);
     internal_static_AckMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AckMessage_descriptor,
         new java.lang.String[] { "RejectType", "RequestId", "MsgId", "Timestamp", });
     internal_static_AuthRequestMessage_descriptor =
-      getDescriptor().getMessageTypes().get(34);
+      getDescriptor().getMessageTypes().get(38);
     internal_static_AuthRequestMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AuthRequestMessage_descriptor,
         new java.lang.String[] { "AccessToken", });
     internal_static_AuthResponseMessage_descriptor =
-      getDescriptor().getMessageTypes().get(35);
+      getDescriptor().getMessageTypes().get(39);
     internal_static_AuthResponseMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AuthResponseMessage_descriptor,
         new java.lang.String[] { "Accepted", "Timestamp", });
-    internal_static_PayResultMessage_descriptor =
-      getDescriptor().getMessageTypes().get(36);
-    internal_static_PayResultMessage_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_PayResultMessage_descriptor,
-        new java.lang.String[] { "Result", "TradeId", "ActionId", "ErrorMsg", });
     internal_static_UniversalMessage_descriptor =
-      getDescriptor().getMessageTypes().get(37);
+      getDescriptor().getMessageTypes().get(40);
     internal_static_UniversalMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_UniversalMessage_descriptor,
@@ -39746,7 +43766,7 @@ public final class MsgBean {
     internal_static_UniversalMessage_WrapMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_UniversalMessage_WrapMessage_descriptor,
-        new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Membername", "SurvivalTime", "DeviceType", "ToUid", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "Voice", "At", "Assistant", "Cancel", "ShortVideo", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "DestroyGroup", "RemoveGroupMember2", "OutGroup", "ChangeGroupMeta", "ChangeSurvivalTime", "P2PAuVideo", "P2PAuVideoDial", "Read", "ForceOffline", "ActiveStatChange", "ResourceLock", "SwitchChange", "PayResult", "RealMsg", });
+        new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Membername", "SurvivalTime", "DeviceType", "ToUid", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "Voice", "At", "Assistant", "Cancel", "ShortVideo", "SnapshotLocation", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "DestroyGroup", "RemoveGroupMember2", "OutGroup", "ChangeGroupMeta", "ChangeSurvivalTime", "P2PAuVideo", "P2PAuVideoDial", "Read", "ForceOffline", "ActiveStatChange", "ResourceLock", "SwitchChange", "PayResult", "BalanceAssistant", "RealMsg", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.TransAccountBean;
@@ -243,7 +242,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
             return;
         }
         MsgAllBean msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean, true);
-        if (msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.MSG_CENCAL) {//取消的指令不保存到数据库
+        if (msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.MSG_CANCEL) {//取消的指令不保存到数据库
             return;
         }
         msgAllBean.setSend_state(ChatEnum.ESendStatus.ERROR);

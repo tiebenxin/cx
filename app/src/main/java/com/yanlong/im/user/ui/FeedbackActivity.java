@@ -1,6 +1,7 @@
 package com.yanlong.im.user.ui;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -318,6 +320,7 @@ public class FeedbackActivity extends AppActivity {
                 viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        showInput(false);
                         initPopup();
                     }
                 });
@@ -360,5 +363,24 @@ public class FeedbackActivity extends AppActivity {
         }
     }
 
+    /**
+     * 是否关闭键盘
+     *
+     * @param show
+     */
+    public void showInput(boolean show) {
+        try {
+            if (show) {
+                InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInputFromInputMethod(this.getCurrentFocus().getApplicationWindowToken(), 0);
+            } else {
+                InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(this.getCurrentFocus().getApplicationWindowToken(), 0);
+            }
+        } catch (NullPointerException e1) {
+
+        } catch (Exception e) {
+        }
+    }
 
 }

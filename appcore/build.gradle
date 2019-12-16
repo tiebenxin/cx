@@ -142,4 +142,5 @@ dependencies {
     // oppo
     api 'cn.jiguang.sdk.plugin:vivo:3.3.8'
     //vivo
+    implementation files('libs/pinyin4j-2.5.0.jar')
 }

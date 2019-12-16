@@ -1,8 +1,10 @@
 package com.yanlong.im.utils;
 
 import com.tencent.bugly.crashreport.CrashReport;
+import com.yanlong.im.user.action.UserAction;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +29,7 @@ public class DaoUtil {
         // 1.dbVer的版本号+1
         // 2.DaoMigration类中migrate()处理升级之后的字段
         //-------------------------------------------
-        long dbVer = 12;
+        long dbVer = 14;
         if (AppConfig.DEBUG) {//debug版本就直接清理数据
 //            config = new RealmConfiguration.Builder()
 //                    .name(dbName + ".realm")//指定数据库的名称。如不指定默认名为default。
@@ -67,11 +69,11 @@ public class DaoUtil {
      * @return
      */
     public static Realm open() {
-//        if (config == null) {
-//            if (UserAction.getMyId() != null) {
-//                initConfig(UserAction.getMyId() + "");
-//            }
-//        }
+        // TODO  处理异常config为空时情况，重新初始化
+        if (config == null) {
+            Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
+            initConfig(uid + "");
+        }
         return Realm.getInstance(config);
     }
 

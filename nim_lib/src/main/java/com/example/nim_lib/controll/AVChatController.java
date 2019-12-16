@@ -6,14 +6,9 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.nim_lib.action.VideoAction;
-import com.example.nim_lib.bean.ReturnBean;
 import com.example.nim_lib.config.AVChatConfigs;
 import com.example.nim_lib.constant.AVChatExitCode;
 import com.example.nim_lib.module.AVSwitchListener;
-import com.example.nim_lib.net.CallBack;
-import com.example.nim_lib.net.RunUtils;
-import com.example.nim_lib.util.LogUtil;
-import com.example.nim_lib.util.ToastUtil;
 import com.google.gson.Gson;
 import com.netease.nimlib.sdk.avchat.AVChatCallback;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
@@ -25,6 +20,12 @@ import com.netease.nimlib.sdk.avchat.model.AVChatNotifyOption;
 import com.netease.nimlib.sdk.avchat.video.AVChatCameraCapturer;
 import com.netease.nimlib.sdk.avchat.video.AVChatSurfaceViewRenderer;
 import com.netease.nimlib.sdk.avchat.video.AVChatVideoCapturerFactory;
+
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.RunUtils;
+import net.cb.cb.library.utils.ToastUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -278,7 +279,6 @@ public class AVChatController {
         });
     }
 
-
     /**
      * 点对点语音挂断(已完成)
      *
@@ -299,6 +299,7 @@ public class AVChatController {
                     @Override
                     public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                         super.onResponse(call, response);
+                        LogUtil.getLog().i(TAG,"点对点语音挂断(已完成)");
                     }
 
                     @Override

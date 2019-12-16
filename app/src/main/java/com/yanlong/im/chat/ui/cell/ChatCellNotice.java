@@ -3,7 +3,6 @@ package com.yanlong.im.chat.ui.cell;
 import android.content.Context;
 import android.text.Html;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -11,7 +10,6 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgNotice;
-import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.utils.HtmlTransitonUtils;
 
 /*
@@ -49,7 +47,7 @@ public class ChatCellNotice extends ChatCellBase {
             } else {
                 iv_icon.setVisibility(View.GONE);
             }
-        } else if (messageType == ChatEnum.EMessageType.MSG_CENCAL) {
+        } else if (messageType == ChatEnum.EMessageType.MSG_CANCEL) {
             tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
             if (message.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
                 tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
