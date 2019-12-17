@@ -1,13 +1,10 @@
-package com.hm.cxpay.ui;
+package com.hm.cxpay.ui.redenvelope;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextUtils;
@@ -23,7 +20,7 @@ import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.dailog.DialogErrorPassword;
 import com.hm.cxpay.dailog.DialogInputPayPassword;
 import com.hm.cxpay.dailog.DialogSelectPayStyle;
-import com.hm.cxpay.databinding.ActivityMultiRedPacketBinding;
+import com.hm.cxpay.databinding.ActivitySingleRedPacketBinding;
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
@@ -33,9 +30,6 @@ import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BindBankActivity;
-import com.hm.cxpay.ui.redenvelope.AdapterSelectPayStyle;
-import com.hm.cxpay.ui.redenvelope.BaseSendRedEnvelopeActivity;
-import com.hm.cxpay.ui.redenvelope.SendResultBean;
 import com.hm.cxpay.utils.BankUtils;
 import com.hm.cxpay.utils.UIUtils;
 
@@ -49,42 +43,33 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import static com.hm.cxpay.global.PayConstants.MAX_AMOUNT;
 
-//发送群红包界面
-public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implements View.OnClickListener {
+//发送单个红包界面
+public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
+
     private String[] strings = {"红包记录", "取消"};
     private PopupSelectView popupSelectView;
-    @PayEnum.ERedEnvelopeType
-    private int redPacketType = PayEnum.ERedEnvelopeType.LUCK;
-    private ActivityMultiRedPacketBinding ui;
-    private DialogInputPayPassword dialogPayPassword;
-    private String gid;
-    private int memberCount;
-    private DialogSelectPayStyle dialogSelectPayStyle;
+    private ActivitySingleRedPacketBinding ui;
+    private long uid;
+    private DialogInputPayPassword dialogPayPassword;//支付密码弹窗
     private String money;
+    private DialogSelectPayStyle dialogSelectPayStyle;//选择支付方式弹窗
     private DialogErrorPassword dialogErrorPassword;
     private CxEnvelopeBean envelopeBean;
 
 
-    /**
-     * @param gid         群id
-     * @param memberCount 群成员数
-     */
-    public static Intent newIntent(Context context, String gid, int memberCount) {
-        Intent intent = new Intent(context, MultiRedPacketActivity.class);
-        intent.putExtra("gid", gid);
-        intent.putExtra("count", memberCount);
+    public static Intent newIntent(Context context, long uid) {
+        Intent intent = new Intent(context, SingleRedPacketActivity.class);
+        intent.putExtra("uid", uid);
         return intent;
     }
-
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ui = DataBindingUtil.setContentView(this, R.layout.activity_multi_red_packet);
+        ui = DataBindingUtil.setContentView(this, R.layout.activity_single_red_packet);
         Intent intent = getIntent();
-        gid = intent.getStringExtra("gid");
-        memberCount = intent.getIntExtra("count", 0);
+        uid = intent.getLongExtra("uid", -1);
         initView();
         initEvent();
     }
@@ -106,6 +91,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
         super.onDestroy();
     }
 
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventPayResult(PayResultEvent event) {
         dismissWaitDialog();
@@ -126,24 +112,19 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void initView() {
+        ui.headView.setTitle("发送零钱红包");
         ui.headView.getActionbar().setChangeStyleBg();
         ui.headView.getAppBarLayout().setBackgroundResource(R.color.c_c85749);
-        ui.btnCommit.setEnabled(false);
         ui.headView.getActionbar().setTxtLeft("取消");
+        ui.btnCommit.setEnabled(false);//默认不能点击
         ui.headView.getActionbar().getBtnLeft().setVisibility(View.GONE);
         ui.headView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_more);
         ui.headView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
-        ui.edMoney.setFilters(new InputFilter[]{new NumRangeInputFilter(this)});
-        ui.edRedPacketNum.setFilters(new InputFilter[]{new NumRangeInputFilter(this, Integer.MAX_VALUE)});
-        ui.tvPeopleNumber.setText("本群共" + memberCount + "人");
-        intRedPacketType(redPacketType);
+        ui.edMoney.setFilters(new InputFilter[]{new NumRangeInputFilter(this, Integer.MAX_VALUE)});
         ui.tvNotice.setVisibility(View.GONE);
-
     }
 
     private void initEvent() {
-        ui.btnCommit.setOnClickListener(this);
-        ui.tvRedPacketType.setOnClickListener(this);
         ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -171,111 +152,34 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             public void afterTextChanged(Editable s) {
                 String string = s.toString().trim();
                 long money = UIUtils.getFen(string);
-                int count = UIUtils.getRedEnvelopeCount(ui.edRedPacketNum.getText().toString().trim());
-                if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {
-                    money = money * count;
-                }
-                if (money > 0 && money <= MAX_AMOUNT && count > 0) {
+                if (money > 0 && money <= MAX_AMOUNT) {
                     ui.btnCommit.setEnabled(true);
-                    ui.tvMoney.setText(UIUtils.getYuan(money));
+                    ui.tvMoney.setText(string);
                     ui.tvNotice.setVisibility(View.GONE);
                 } else if (money > MAX_AMOUNT) {
                     ui.btnCommit.setEnabled(false);
-                    ui.tvMoney.setText(UIUtils.getYuan(money));
+                    ui.tvMoney.setText(string);
                     ui.tvNotice.setVisibility(View.VISIBLE);
                 } else {
                     ui.btnCommit.setEnabled(false);
                     ui.tvMoney.setText("0.00");
                     ui.tvNotice.setVisibility(View.GONE);
                 }
+
             }
         });
 
-        ui.edRedPacketNum.addTextChangedListener(new TextWatcher() {
+        ui.btnCommit.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String string = ui.edMoney.getText().toString().trim();
-                int count = UIUtils.getRedEnvelopeCount(s.toString().trim());
-                if (!TextUtils.isEmpty(string) && count > 0) {
-                    ui.btnCommit.setEnabled(true);
-                    ui.tvMoney.setText(string);
-                } else {
-                    ui.btnCommit.setEnabled(false);
-                    ui.tvMoney.setText("0.00");
+            public void onClick(View v) {
+                money = ui.edMoney.getText().toString();
+                if (!TextUtils.isEmpty(money)) {
+                    showInputPasswordDialog(UIUtils.getFen(money));
                 }
-
             }
         });
-    }
 
-    @Override
-    public void onClick(View v) {
-        int id = v.getId();
-        if (id == ui.tvRedPacketType.getId()) {
-            resetRedEnvelope(redPacketType);
-            resetMoney();
-        } else if (id == ui.btnCommit.getId()) {
-            money = ui.edMoney.getText().toString();
-            int count = UIUtils.getRedEnvelopeCount(ui.edRedPacketNum.getText().toString().trim());
-            long totalMoney = 0;
-            if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {
-                totalMoney = UIUtils.getFen(money) * count;
-            } else {
-                totalMoney = UIUtils.getFen(money);
-            }
-            if (totalMoney > 0) {
-                showInputPasswordDialog(totalMoney);
-            }
-        }
     }
-
-    private void intRedPacketType(int type) {
-        if (type == PayEnum.ERedEnvelopeType.LUCK) {
-            ui.tvRedPacketTypeTitle.setText("当前为拼手气红包，改为");
-            ui.tvRedPacketType.setText("普通红包");
-            ui.tvMoneyTitle.setText("总金额");
-        } else {
-            ui.tvRedPacketTypeTitle.setText("当前为普通红包，改为");
-            ui.tvRedPacketType.setText("拼手气红包");
-            ui.tvMoneyTitle.setText("单个金额");
-        }
-    }
-
-    private void resetRedEnvelope(int type) {
-        if (type == PayEnum.ERedEnvelopeType.LUCK) {
-            redPacketType = PayEnum.ERedEnvelopeType.NORMAL;
-            intRedPacketType(redPacketType);
-        } else {
-            redPacketType = PayEnum.ERedEnvelopeType.LUCK;
-            intRedPacketType(redPacketType);
-        }
-    }
-
-    private void resetMoney() {
-        long money = UIUtils.getFen(ui.edMoney.getText().toString().trim());
-        int count = UIUtils.getRedEnvelopeCount(ui.edRedPacketNum.getText().toString().trim());
-        if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {
-            money = money * count;
-        }
-        if (money > 0 && money <= MAX_AMOUNT && count > 0) {
-            ui.tvMoney.setText(UIUtils.getYuan(money));
-        } else if (money > MAX_AMOUNT) {
-            ui.tvMoney.setText(UIUtils.getYuan(money));
-        } else {
-            ui.tvMoney.setText("0.00");
-        }
-    }
-
 
     private void initPopup() {
         hideKeyboard();
@@ -287,7 +191,8 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                 switch (postsion) {
                     case 0:
                         ARouter.getInstance().build("/app/redEnvelopeDetailsActivity").navigation();
-//                        Intent intent = new Intent(MultiRedPacketActivity.this, RedPacketDetailsActivity.class);
+//
+//                        Intent intent = new Intent(SingleRedPacketActivity.this, RedPacketDetailsActivity.class);
 //                        startActivity(intent);
                         break;
                 }
@@ -296,15 +201,14 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
         });
     }
 
-
     /**
-     * 发送群红包
+     * 发送单个红包
      */
-    private void sendRedEnvelope(String actionId, long money, final int count, String psw, int type, final String note, long bankCardId) {
-        if (TextUtils.isEmpty(gid)) {
+    private void sendRedEnvelope(String actionId, long money, String psw, final String note, long bankCardId) {
+        if (uid <= 0) {
             return;
         }
-        PayHttpUtils.getInstance().sendRedEnvelopeToGroup(actionId, money, count, psw, type, bankCardId, note, gid)
+        PayHttpUtils.getInstance().sendRedEnvelopeToUser(actionId, money, 1, psw, 0, bankCardId, note, uid)
                 .compose(RxSchedulers.<BaseResponse<SendResultBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<SendResultBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<SendResultBean>>() {
@@ -313,23 +217,27 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                         if (baseResponse.isSuccess()) {
                             SendResultBean sendBean = baseResponse.getData();
                             if (sendBean != null) {
-                                envelopeBean = convertToEnvelopeBean(sendBean, redPacketType, note, count);
-                                if (sendBean.getCode() == 1) {//code  1表示成功，2失败，99处理中
+                                envelopeBean = convertToEnvelopeBean(sendBean, PayEnum.ERedEnvelopeType.NORMAL, note, 1);
+                                if (sendBean.getCode() == 1) {//成功
                                     setResultOk();
-                                } else if (sendBean.getCode() == 99) {
-                                    setSending(true);
-                                    handler.postDelayed(runnable, WAIT_TIME);
-                                    showWaitDialog();
-                                } else if (sendBean.getCode() == -21000) {//密码错误
-                                    showPswErrorDialog();
-                                } else {
+                                } else if (sendBean.getCode() == 2) {//失败
                                     ToastUtil.show(getContext(), sendBean.getErrMsg());
 //                                    Intent intent = new Intent();
 //                                    Bundle bundle = new Bundle();
 //                                    bundle.putParcelable("envelope", sendBean);
 //                                    intent.putExtras(bundle);
-                                    setResult(RESULT_CANCELED);
-                                    finish();
+//                                    setResult(RESULT_OK, intent);
+                                } else if (sendBean.getCode() == 99) {//待处理
+                                    showWaitDialog();
+//                                    Intent intent = new Intent();
+//                                    Bundle bundle = new Bundle();
+//                                    bundle.putParcelable("envelope", sendBean);
+//                                    intent.putExtras(bundle);
+//                                    setResult(RESULT_OK, intent);
+                                } else if (sendBean.getCode() == -21000) {//密码错误
+                                    showPswErrorDialog();
+                                } else {
+                                    ToastUtil.show(getContext(), baseResponse.getMessage());
                                 }
                             }
                         } else {
@@ -341,11 +249,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
                         super.onHandleError(baseResponse);
-                        if (baseResponse.getCode() == -21000) {
-                            showPswErrorDialog();
-                        } else {
-                            ToastUtil.show(getContext(), baseResponse.getMessage());
-                        }
+                        ToastUtil.show(getContext(), baseResponse.getMessage());
                     }
                 });
     }
@@ -378,9 +282,8 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             @Override
             public void onCompleted(String psw, long bankCardId) {
                 String note = UIUtils.getRedEnvelopeContent(ui.edContent);
-                int count = UIUtils.getRedEnvelopeCount(ui.edRedPacketNum.getText().toString().trim());
                 String actionId = UIUtils.getUUID();
-                sendRedEnvelope(actionId, money, count, psw, redPacketType, note, bankCardId);
+                sendRedEnvelope(actionId, money, psw, note, bankCardId);
             }
 
             @Override
@@ -412,7 +315,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             @Override
             public void onAddBank() {
                 dialogSelectPayStyle.dismiss();
-                Intent intent = new Intent(MultiRedPacketActivity.this, BindBankActivity.class);
+                Intent intent = new Intent(SingleRedPacketActivity.this, BindBankActivity.class);
                 startActivity(intent);
             }
 
@@ -425,12 +328,12 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
 
     }
 
-    //显示密码错误弹窗
     private void showPswErrorDialog() {
         dialogErrorPassword = new DialogErrorPassword(this, R.style.MyDialogTheme);
         dialogErrorPassword.setListener(new DialogErrorPassword.IErrorPasswordListener() {
             @Override
             public void onForget() {
+
             }
 
             @Override

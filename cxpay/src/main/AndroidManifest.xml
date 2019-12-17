@@ -80,13 +80,13 @@
 
         <!-- 发送单个红包-->
         <activity
-            android:name=".ui.SingleRedPacketActivity"
+            android:name=".ui.redenvelope.SingleRedPacketActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!-- 发送群红包-->
         <activity
-            android:name=".ui.MultiRedPacketActivity"
+            android:name=".ui.redenvelope.MultiRedPacketActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 

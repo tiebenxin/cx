@@ -71,15 +71,6 @@ public class FragmentRedEnvelopeSend extends Fragment {
         getRedEnvelopeDetails();
     }
 
-    private void initData() {
-        for (int i = 0; i < 15; i++) {
-            list.add("1111");
-        }
-        adapter.notifyDataSetChanged();
-
-    }
-
-
     /**
      * 获取收到红包记录
      */
