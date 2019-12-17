@@ -222,7 +222,7 @@
         </LinearLayout>
 
 
-
+        <!-- 隐藏位置功能 -->
         <LinearLayout
             android:id="@+id/view_location_ll"
             android:layout_rowWeight="1"
