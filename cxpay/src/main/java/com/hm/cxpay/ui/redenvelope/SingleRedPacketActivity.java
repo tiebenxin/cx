@@ -94,18 +94,22 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventPayResult(PayResultEvent event) {
-        dismissWaitDialog();
-        if (isSending()) {
-            setSending(false);
-            if (handler != null && runnable != null) {
-                handler.removeCallbacks(runnable);
-            }
-        }
+        payFailed();
         if (envelopeBean != null && event.getTradeId() == envelopeBean.getTradeId()) {
             if (event.getResult() == PayEnum.EPayResult.SUCCESS) {
                 setResultOk();
             } else {
                 ToastUtil.show(this, R.string.send_fail_note);
+            }
+        }
+    }
+
+    private void payFailed() {
+        dismissWaitDialog();
+        if (isSending()) {
+            setSending(false);
+            if (handler != null && runnable != null) {
+                handler.removeCallbacks(runnable);
             }
         }
     }
@@ -208,12 +212,15 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
         if (uid <= 0) {
             return;
         }
+        setSending(true);
+        handler.postDelayed(runnable, WAIT_TIME);
         PayHttpUtils.getInstance().sendRedEnvelopeToUser(actionId, money, 1, psw, 0, bankCardId, note, uid)
                 .compose(RxSchedulers.<BaseResponse<SendResultBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<SendResultBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<SendResultBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<SendResultBean> baseResponse) {
+                        payFailed();
                         if (baseResponse.isSuccess()) {
                             SendResultBean sendBean = baseResponse.getData();
                             if (sendBean != null) {
@@ -222,18 +229,8 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                                     setResultOk();
                                 } else if (sendBean.getCode() == 2) {//失败
                                     ToastUtil.show(getContext(), sendBean.getErrMsg());
-//                                    Intent intent = new Intent();
-//                                    Bundle bundle = new Bundle();
-//                                    bundle.putParcelable("envelope", sendBean);
-//                                    intent.putExtras(bundle);
-//                                    setResult(RESULT_OK, intent);
                                 } else if (sendBean.getCode() == 99) {//待处理
                                     showWaitDialog();
-//                                    Intent intent = new Intent();
-//                                    Bundle bundle = new Bundle();
-//                                    bundle.putParcelable("envelope", sendBean);
-//                                    intent.putExtras(bundle);
-//                                    setResult(RESULT_OK, intent);
                                 } else if (sendBean.getCode() == -21000) {//密码错误
                                     showPswErrorDialog();
                                 } else {
@@ -249,7 +246,12 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
                         super.onHandleError(baseResponse);
-                        ToastUtil.show(getContext(), baseResponse.getMessage());
+                        payFailed();
+                        if (baseResponse.getCode() == -21000) {//密码错误
+                            showPswErrorDialog();
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
                     }
                 });
     }
@@ -281,6 +283,7 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
         dialogPayPassword.setPswListener(new DialogInputPayPassword.IPswListener() {
             @Override
             public void onCompleted(String psw, long bankCardId) {
+//                dialogPayPassword.dismiss();
                 String note = UIUtils.getRedEnvelopeContent(ui.edContent);
                 String actionId = UIUtils.getUUID();
                 sendRedEnvelope(actionId, money, psw, note, bankCardId);

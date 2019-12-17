@@ -102,18 +102,22 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventPayResult(PayResultEvent event) {
-        dismissWaitDialog();
-        if (isSending()) {
-            setSending(false);
-            if (handler != null && runnable != null) {
-                handler.removeCallbacks(runnable);
-            }
-        }
+        payFailed();
         if (envelopeBean != null && event.getTradeId() == envelopeBean.getTradeId()) {
             if (event.getResult() == PayEnum.EPayResult.SUCCESS) {
                 setResultOk();
             } else {
                 ToastUtil.show(this, R.string.send_fail_note);
+            }
+        }
+    }
+
+    private void payFailed() {
+        dismissWaitDialog();
+        if (isSending()) {
+            setSending(false);
+            if (handler != null && runnable != null) {
+                handler.removeCallbacks(runnable);
             }
         }
     }
@@ -299,21 +303,22 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
         if (TextUtils.isEmpty(gid)) {
             return;
         }
+        setSending(true);
+        handler.postDelayed(runnable, WAIT_TIME);
         PayHttpUtils.getInstance().sendRedEnvelopeToGroup(actionId, money, count, psw, type, bankCardId, note, gid)
                 .compose(RxSchedulers.<BaseResponse<SendResultBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<SendResultBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<SendResultBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<SendResultBean> baseResponse) {
+                        payFailed();
                         if (baseResponse.isSuccess()) {
                             SendResultBean sendBean = baseResponse.getData();
                             if (sendBean != null) {
                                 envelopeBean = convertToEnvelopeBean(sendBean, redPacketType, note, count);
                                 if (sendBean.getCode() == 1) {//code  1表示成功，2失败，99处理中
-                                    setResultOk();
+//                                    setResultOk();
                                 } else if (sendBean.getCode() == 99) {
-                                    setSending(true);
-                                    handler.postDelayed(runnable, WAIT_TIME);
                                     showWaitDialog();
                                 } else if (sendBean.getCode() == -21000) {//密码错误
                                     showPswErrorDialog();
@@ -336,6 +341,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
                         super.onHandleError(baseResponse);
+                        payFailed();
                         if (baseResponse.getCode() == -21000) {
                             showPswErrorDialog();
                         } else {
@@ -372,6 +378,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
         dialogPayPassword.setPswListener(new DialogInputPayPassword.IPswListener() {
             @Override
             public void onCompleted(String psw, long bankCardId) {
+//                dialogPayPassword.dismiss();
                 String note = UIUtils.getRedEnvelopeContent(ui.edContent);
                 int count = UIUtils.getRedEnvelopeCount(ui.edRedPacketNum.getText().toString().trim());
                 String actionId = UIUtils.getUUID();
