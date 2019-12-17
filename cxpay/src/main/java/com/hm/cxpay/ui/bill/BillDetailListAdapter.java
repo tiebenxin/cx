@@ -116,7 +116,7 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     }else {
                         holder.tvCost.setText("-"+UIUtils.getYuan(bean.getAmt()));
                     }
-                    //图标：1转账给 2发红包给 3充值 4提现 5红包退款 6消费(忽略) 7红包收款 8转账收款 9转账退款
+                    //图标：1转账给别人 2发红包给别人 3充值 4提现 5红包退款 7红包收款 8转账收款 9转账退款
                     //TODO 新增三种 10提现退款 11充值退款 12消费退款(忽略)
                     //TODO 注：账单明细显示图标/不显示余额，零钱明细不显示图标/显示余额
                     if(type==1){
@@ -128,31 +128,31 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         holder.tvBalance.setVisibility(View.VISIBLE);
                         holder.tvBalance.setText("余额: "+UIUtils.getYuan(bean.getBalance()));
                     }
+                    //默认不显示状态
                     holder.tvStatus.setVisibility(View.GONE);
-                    //显示内容
+                    //1 转账给别人 (不显示状态 不显示余额)
                     if(bean.getTradeType()==1){
                         if(bean.getOtherUser()!=null && bean.getOtherUser().getNickname()!=null){
                             holder.tvContent.setText("转账-转给"+bean.getOtherUser().getNickname());
                         }else {
                             holder.tvContent.setText("转账-转给");
                         }
+                        //2 发红包给别人 (显示状态 不显示余额)
                     }else if(bean.getTradeType()==2){
                         //如果是群红包
                         if(bean.getToGroup()==1){
-                            holder.tvStatus.setVisibility(View.VISIBLE);
-                            if(bean.getStat()==1){
-                                holder.tvStatus.setText("发送成功");
-                            }else if(bean.getStat()==2){
-                                holder.tvStatus.setText("已部分退款");
-                            }else if(bean.getStat()==99){
-                                holder.tvStatus.setText("处理中");
-                            }else if(bean.getStat()==200){
-                                holder.tvStatus.setText("发送失败，已全额退款");
-                            }
                             holder.tvContent.setText("零钱红包-发群红包");
                         }else {
                             //如果是普通红包
                             holder.tvContent.setText("零钱红包-我发出的");
+                        }
+                        holder.tvStatus.setVisibility(View.VISIBLE);
+                        if(bean.getStat()==1){
+                            holder.tvStatus.setText("发送成功");
+                        }else if(bean.getStat()==2){
+                            holder.tvStatus.setText("发送失败");
+                        }else if(bean.getStat()==99){
+                            holder.tvStatus.setText("处理中");
                         }
                     }else if(bean.getTradeType()==3){
                         holder.tvStatus.setVisibility(View.VISIBLE);
@@ -349,8 +349,10 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             case 7:
                 return R.mipmap.ic_redpackage;
             case 3:
+            case 11:
                 return R.mipmap.ic_recharge_trade;
             case 4:
+            case 10:
                 return R.mipmap.ic_withdraw_trade;
 
             default:

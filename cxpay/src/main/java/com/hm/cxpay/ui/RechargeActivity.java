@@ -7,7 +7,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -205,6 +207,40 @@ public class RechargeActivity extends AppActivity {
                 clearSelectedStatus();
                 tvSelectSix.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
                 tvSelectSix.setTextColor(getResources().getColor(R.color.white));
+            }
+        });
+        etRecharge.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                //1 为空不参与计算
+                if(!TextUtils.isEmpty(etRecharge.getText().toString())){
+                    //2 自动过滤用户金额前乱输入0
+                    String total = etRecharge.getText().toString();
+                    if (total.startsWith("0")) {
+                        if (total.length() >= 2) {
+                            if (!".".equals(String.valueOf(total.charAt(1)))) {
+                                total = total.substring(1, total.length());
+                                etRecharge.setText(total);
+                                etRecharge.setSelection(total.length());
+                            }
+                        }
+                    }
+                    //3 金额最高限制
+                    if(Double.valueOf(total) > 500){
+                        ToastUtil.show(activity,"单笔充值最高不能超过500元");
+                        etRecharge.setText("");
+                    }
+                }
             }
         });
 
