@@ -13,49 +13,80 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <TextView
+                style="@style/app_txt_content_1"
+                android:layout_marginLeft="@dimen/app_margin_main"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:text="已认证信息"
+                android:textSize="12sp" />
+
             <LinearLayout style="@style/app_layout_list2_item">
 
                 <TextView
-                    android:layout_width="80dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
+                    android:text="姓名"
+                    android:layout_weight="1"
                     android:textColor="@color/c_0f0f0f"
-                    android:text="姓名" />
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/tv_name"
-                    android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
+                    android:layout_weight="3"
+                    android:text=""
                     android:textColor="@color/c_868686"
-                    android:text="" />
+                    android:textSize="16sp" />
 
             </LinearLayout>
 
             <View style="@style/money_change_line" />
+
+            <LinearLayout style="@style/app_layout_list2_item">
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="证件类型" />
+
+                <TextView
+                    android:id="@+id/tv_id_type"
+                    style="@style/app_txt_title_2"
+                    android:layout_width="0dp"
+                    android:layout_weight="3"
+                    android:text="身份证" />
+
+            </LinearLayout>
+
+            <View style="@style/money_change_line" />
+
 
             <LinearLayout
                 android:id="@+id/ll_identity_card"
                 style="@style/app_layout_list2_item">
 
                 <TextView
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
+                    android:text="身份证号"
+                    android:layout_weight="1"
                     android:textColor="@color/c_0f0f0f"
-                    android:layout_width="80dp"
-                    android:text="身份证号" />
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/tv_id"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
+                    android:layout_weight="3"
                     android:textColor="@color/c_868686"
-                    android:layout_weight="1" />
+                    android:textSize="16sp" />
 
 
             </LinearLayout>
+
             <View style="@style/money_change_line" />
         </LinearLayout>
 

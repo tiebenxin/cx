@@ -85,6 +85,7 @@ public class LooseChangeActivity extends BasePayActivity {
     }
 
 
+
     private void initView() {
         mHeadView = findViewById(R.id.headView);
         tvBalance = findViewById(R.id.tv_money);

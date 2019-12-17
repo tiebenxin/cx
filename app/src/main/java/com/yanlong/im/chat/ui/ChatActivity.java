@@ -58,6 +58,7 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.MultiRedPacketActivity;
+import com.hm.cxpay.ui.bill.BillDetailActivity;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.hm.cxpay.ui.SingleRedPacketActivity;
 import com.hm.cxpay.ui.redenvelope.EnvelopeDetailBean;
@@ -3095,7 +3096,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, tradeId, 1);
                                 startActivity(intent);
                             } else if (detailType == MsgBean.BalanceAssistantMessage.DetailType.TRANS_VALUE) {//订单详情
-
+                                BillDetailActivity.jumpToBillDetail(ChatActivity.this, tradeId + "");
                             }
                         }
                     });
