@@ -37,13 +37,13 @@ import com.hm.cxpay.ui.bank.SelectBankCardActivity;
 import com.hm.cxpay.ui.payword.CheckPaywordActivity;
 import com.hm.cxpay.utils.UIUtils;
 
+import net.cb.cb.library.utils.BigDecimalUtils;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -214,17 +214,18 @@ public class WithdrawActivity extends AppActivity {
                         //3-2 金额最高限制10000
                         if(Double.valueOf(etWithdraw.getText().toString()) <= 10000){
                             withDrawMoney = Double.valueOf(etWithdraw.getText().toString());
-                            //小于10元，一律收取最低手续费0.1元
-                            if(Double.valueOf(etWithdraw.getText().toString()) < 10){
-                                serviceMoney = 0.1;
+                            if(Double.valueOf(etWithdraw.getText().toString()) >= minMoney){
+                                serviceMoney = Double.valueOf(BigDecimalUtils.mul(withDrawMoney+"",rate+"",2));
+                                realMoney = Double.valueOf(BigDecimalUtils.sub(withDrawMoney+"",serviceMoney+"",2));
+                                doubleRate = rate*100;
+                                //实际值以分为单位，显示转为元
+                                tvRateNotice.setText("服务费 "+serviceMoney+"元 (服务费=提现金额 X "+doubleRate+"%)");
+                                tvSubmit.setText("提现 (实际到账金额 "+realMoney+")");
                             }else {
-                                serviceMoney = computeRateMoney(withDrawMoney,rate);
+                                ToastUtil.show(activity,"最小提现金额不低于"+minMoney+"元");
+                                tvRateNotice.setText("服务费 0.0元 (服务费=提现金额 X "+rate*100+"%)");
+                                tvSubmit.setText("提现 (实际到账金额 0.0)");
                             }
-                            realMoney = subtractDoubleMoney(withDrawMoney,serviceMoney);
-                            doubleRate = rate*100;
-                            //实际值以分为单位，显示转为元
-                            tvRateNotice.setText("服务费 "+serviceMoney+"元 (服务费=提现金额 X "+doubleRate+"%)");
-                            tvSubmit.setText("提现 (实际到账金额 "+realMoney+")");
                         }else {
                             ToastUtil.show(activity,"单笔最高不能超过10000元");
                             etWithdraw.setText("");
@@ -405,33 +406,6 @@ public class WithdrawActivity extends AppActivity {
                 break;
         }
     }
-
-    /**
-     * Double类型相乘(单位分) -> 计算服务费
-     * @param money 提现金额
-     * @param rate 费率
-     * @return
-     */
-    private double computeRateMoney(Double money,Double rate){
-        BigDecimal a1 = new BigDecimal(Double.toString(money));
-        BigDecimal aa = new BigDecimal(Double.toString(rate));
-        Double dd = a1.multiply(aa).doubleValue();
-        return dd;
-    }
-
-    /**
-     * Double类型相减(单位分)
-     * @param moneyA 提现金额
-     * @param moneyB 费率
-     * @return
-     */
-    private double subtractDoubleMoney(Double moneyA,Double moneyB){
-        BigDecimal a1 = new BigDecimal(Double.toString(moneyA));
-        BigDecimal aa = new BigDecimal(Double.toString(moneyB));
-        Double dd = a1.subtract(aa).doubleValue();
-        return dd;
-    }
-
 
     /**
      * 获取费率失败弹框
