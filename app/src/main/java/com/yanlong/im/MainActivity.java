@@ -666,7 +666,7 @@ public class MainActivity extends AppActivity {
     }
 
     private void taskNewVersion() {
-        userAction.getNewVersion(new CallBack<ReturnBean<NewVersionBean>>() {
+        userAction.getNewVersion(StringUtil.getChannelName(context),new CallBack<ReturnBean<NewVersionBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<NewVersionBean>> call, Response<ReturnBean<NewVersionBean>> response) {
                 if (response.body() == null || response.body().getData() == null) {

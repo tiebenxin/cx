@@ -1041,10 +1041,10 @@ public class MsgDao {
                     if (session.getIsMute() == 1) {//免打扰
                         session.setUnread_count(0);
                     } else {
-                        if(StringUtil.isNotNull(cancelId)){
-                            session.setUnread_count( 0 );
-                        }else {
-                            session.setUnread_count( 1);
+                        if (StringUtil.isNotNull(cancelId)) {
+                            session.setUnread_count(0);
+                        } else {
+                            session.setUnread_count(1);
                         }
                     }
                 }
@@ -1052,16 +1052,16 @@ public class MsgDao {
                 if (canChangeUnread) {
                     if (session.getIsMute() != 1) {//非免打扰
                         int num = 0;
-                        if(StringUtil.isNotNull(cancelId)){
+                        if (StringUtil.isNotNull(cancelId)) {
                             MsgAllBean cancel = getMsgById(cancelId);
 //                            LogUtil.getLog().e("群==isRead===="+cancel.isRead()+"==getRead="+cancel.getRead());
-                            if(cancel!=null&&!cancel.isRead()){//撤回的是未读消息 红点-1
-                                num = session.getUnread_count() - 1 ;
-                            }else {
-                                num =  session.getUnread_count();
+                            if (cancel != null && !cancel.isRead()) {//撤回的是未读消息 红点-1
+                                num = session.getUnread_count() - 1;
+                            } else {
+                                num = session.getUnread_count();
                             }
-                        }else {
-                            num =  session.getUnread_count() + 1;
+                        } else {
+                            num = session.getUnread_count() + 1;
                         }
                         num = num < 0 ? 0 : num;
                         session.setUnread_count(num);
@@ -1088,10 +1088,10 @@ public class MsgDao {
                     if (session.getIsMute() == 1) {//免打扰
                         session.setUnread_count(0);
                     } else {
-                        if(StringUtil.isNotNull(cancelId)){
-                            session.setUnread_count( 0 );
-                        }else {
-                            session.setUnread_count( 1);
+                        if (StringUtil.isNotNull(cancelId)) {
+                            session.setUnread_count(0);
+                        } else {
+                            session.setUnread_count(1);
                         }
                     }
                 }
@@ -1100,16 +1100,16 @@ public class MsgDao {
                     if (session.getIsMute() != 1) {//非免打扰
                         //没有撤回消息的id，要判断撤回的消息是已读还是未读
                         int num = 0;
-                        if(StringUtil.isNotNull(cancelId)){
+                        if (StringUtil.isNotNull(cancelId)) {
                             MsgAllBean cancel = getMsgById(cancelId);
 //                            LogUtil.getLog().e("==isRead===="+cancel.isRead()+"==getRead="+cancel.getRead());
-                            if(cancel!=null&&!cancel.isRead()){//撤回的是未读消息 红点-1
-                                num = session.getUnread_count() - 1 ;
-                            }else {
-                                num =  session.getUnread_count();
+                            if (cancel != null && !cancel.isRead()) {//撤回的是未读消息 红点-1
+                                num = session.getUnread_count() - 1;
+                            } else {
+                                num = session.getUnread_count();
                             }
-                        }else {
-                            num =  session.getUnread_count() + 1;
+                        } else {
+                            num = session.getUnread_count() + 1;
                         }
                         num = num < 0 ? 0 : num;
                         session.setUnread_count(num);
@@ -1877,8 +1877,13 @@ public class MsgDao {
     //根据aid查询申请人
     public ApplyBean getApplyBean(String aid) {
         Realm realm = DaoUtil.open();
+        ApplyBean bean = new ApplyBean();
         ApplyBean applyBean = realm.where(ApplyBean.class).equalTo("aid", aid).findFirst();
-        return applyBean;
+        if (applyBean != null) {
+            bean = realm.copyFromRealm(applyBean);
+        }
+        realm.close();
+        return bean;
     }
 
     // 移除这条群申请
@@ -3071,7 +3076,7 @@ public class MsgDao {
                 }
             }
             // TODO　被移出群时要先清除草稿
-            Session session = realm.where(Session.class).equalTo("gid", gid).findFirst() ;
+            Session session = realm.where(Session.class).equalTo("gid", gid).findFirst();
             if (session != null) {
                 session.setDraft("");
                 session.setMessageType(2);
@@ -3157,7 +3162,7 @@ public class MsgDao {
      * @param groupName
      * @return
      */
-    public String getGroupMemberName(String gid, long uid,String uname, String groupName) {
+    public String getGroupMemberName(String gid, long uid, String uname, String groupName) {
         Realm realm = DaoUtil.open();
         String name = "";
         try {
@@ -3174,7 +3179,7 @@ public class MsgDao {
                 }
             }
 
-            if(TextUtils.isEmpty(name)){
+            if (TextUtils.isEmpty(name)) {
                 UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
                 if (userInfo != null) {
                     //1.获取本地用户昵称

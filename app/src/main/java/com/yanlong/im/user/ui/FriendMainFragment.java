@@ -80,6 +80,7 @@ public class FriendMainFragment extends Fragment {
         mtListView.init(new RecyclerViewAdapter());
 
         //联动
+        viewType.setLinearLayoutManager(mtListView.getLayoutManager());
         viewType.setListView(mtListView.getListView());
 
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
@@ -389,6 +390,7 @@ public class FriendMainFragment extends Fragment {
                             UserInfo topBean = new UserInfo();
                             topBean.setTag("↑");
                             listData.add(0, topBean);
+                            viewType.clearAllTag();
                             for (int i = 1; i < listData.size(); i++) {
                                 viewType.putTag(listData.get(i).getTag(), i);
                             }

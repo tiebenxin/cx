@@ -36,6 +36,7 @@ import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventSwitchDisturb;
 import net.cb.cb.library.bean.EventUserOnlineChange;
+import net.cb.cb.library.bean.RefreshApplyEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
@@ -167,7 +168,10 @@ public class MessageManager {
         boolean result = true;
         boolean hasNotified = false;//已经通知刷新了
         boolean isCancelValid = false;//是否是有效撤销信息
-        boolean isFromSelf = wrapMessage.getFromUid() == UserAction.getMyId().intValue();
+        boolean isFromSelf = false;
+        if (UserAction.getMyId() != null) {
+            isFromSelf = wrapMessage.getFromUid() == UserAction.getMyId().intValue();
+        }
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
             if (oldMsgId.contains(wrapMessage.getMsgId())) {
                 LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
@@ -216,11 +220,18 @@ public class MessageManager {
                 }
                 break;
             case ACCEPT_BE_FRIENDS://接受成为好友,需要产生消息后面在处理
-                checkDoubleMessage(wrapMessage);//检测双黄蛋消息
+                checkDoubleMessage(wrapMessage);//检测双重消息
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }
                 notifyRefreshFriend(false, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS);
+                // TODO 双方互添加好友的情况
+                EventBus.getDefault().post(new RefreshApplyEvent(wrapMessage.getFromUid(), CoreEnum.EChatType.PRIVATE, 1));
+                ApplyBean applyBean1 = msgDao.getApplyBean(wrapMessage.getFromUid() + "");
+                if (applyBean1 != null) {
+                    applyBean1.setStat(2);
+                    msgDao.applyFriend(applyBean1);
+                }
                 break;
             case REQUEST_FRIEND://请求添加为好友
 //                if (!TextUtils.isEmpty(wrapMessage.getRequestFriend().getContactName())) {
@@ -1271,8 +1282,8 @@ public class MessageManager {
      * 发出通知声音或者震动
      * */
     private void doNotify(MsgBean.UniversalMessage.WrapMessage msg) {
-    //        LogUtil.getLog().e("===msg.getMsgType()=="+msg.getMsgType()+"======SESSION_TYPE=="+SESSION_TYPE
-    //                +"======SESSION_FUID=="+SESSION_FUID+"======SESSION_GID=="+SESSION_GID);
+        //        LogUtil.getLog().e("===msg.getMsgType()=="+msg.getMsgType()+"======SESSION_TYPE=="+SESSION_TYPE
+        //                +"======SESSION_FUID=="+SESSION_FUID+"======SESSION_GID=="+SESSION_GID);
         boolean isGroup = StringUtil.isNotNull(msg.getGid());
         //会话已经静音
         Session session = isGroup ? DaoUtil.findOne(Session.class, "gid", msg.getGid()) : DaoUtil.findOne(Session.class, "from_uid", msg.getFromUid());
