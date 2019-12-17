@@ -222,7 +222,7 @@ public class WithdrawActivity extends AppActivity {
                                 tvRateNotice.setText("服务费 "+serviceMoney+"元 (服务费=提现金额 X "+doubleRate+"%)");
                                 tvSubmit.setText("提现 (实际到账金额 "+realMoney+")");
                             }else {
-                                ToastUtil.show(activity,"最小提现金额不低于"+minMoney+"元");
+//                                ToastUtil.show(activity,"最小提现金额不低于"+minMoney+"元");
                                 tvRateNotice.setText("服务费 0.0元 (服务费=提现金额 X "+rate*100+"%)");
                                 tvSubmit.setText("提现 (实际到账金额 0.0)");
                             }
