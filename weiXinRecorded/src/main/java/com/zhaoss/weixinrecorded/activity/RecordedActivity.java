@@ -72,7 +72,7 @@ public class RecordedActivity extends BaseActivity {
     private ImageView iv_next;
     private RelativeLayout layout_change_camera, layout_flash_video;
     private LineProgressView lineProgressView;
-    private ImageView  iv_delete_back;
+    private ImageView iv_delete_back;
     private TextView iv_recorded_edit;
     private TextView editorTextView;
     private TextView tv_hint;
@@ -282,9 +282,7 @@ public class RecordedActivity extends BaseActivity {
             @Override
             public void onUp() {
                 if (android.os.Build.BRAND.toUpperCase().equals("MEIZU")) {
-                    Log.i(TAG,"MEIZU 进来了");
                     if ((System.currentTimeMillis() - mLastClickTime) < MIN_VIDEO_TIME_MEIZU) {
-                        Log.i(TAG,"MEIZU 1111");
                         isShotPhoto.set(true);
                     }
                 } else {
@@ -321,7 +319,7 @@ public class RecordedActivity extends BaseActivity {
                 if (ViewUtils.isFastDoubleClick2()) {
                     return;
                 }
-                if(!isFinishing()){
+                if (!isFinishing()) {
                     editorTextView = showProgressDialog();
                     mExecuteCount = mSegmentList.size() + 4;
                     finishVideo(TYPE_PREVIEW);
@@ -355,16 +353,20 @@ public class RecordedActivity extends BaseActivity {
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-                if(mRecordUtil!=null){
+                if (mCameraHelp != null) {
                     if (mCameraHelp.getCameraId() == Camera.CameraInfo.CAMERA_FACING_BACK) {
                         mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_FRONT, mSurfaceHolder);
-                        mRecordUtil.setRotation(270);
                     } else {
                         mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_BACK, mSurfaceHolder);
-                        mRecordUtil.setRotation(90);
                     }
                 }
-//                layout_flash_video.setImageResource(R.mipmap.video_flash_close);
+                if (mRecordUtil != null) {
+                    if (mCameraHelp.getCameraId() == Camera.CameraInfo.CAMERA_FACING_BACK) {
+                        mRecordUtil.setRotation(90);
+                    } else {
+                        mRecordUtil.setRotation(270);
+                    }
+                }
             }
         });
     }
