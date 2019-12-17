@@ -149,11 +149,11 @@
                 android:id="@+id/txt_ot_name"
                 style="@style/app_txt_content_1"
                 android:layout_width="match_parent"
-                android:singleLine="false"
                 android:layout_marginBottom="2dp"
                 android:gravity="left"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
+                android:singleLine="false"
                 tool:text="name" />
 
 
@@ -175,7 +175,7 @@
                         android:layout_height="wrap_content"
                         android:background="@drawable/selector_chat_other_touch"
                         android:gravity="left|center_vertical"
-                        android:visibility="gone">
+                        android:visibility="visible">
 
                         <android.support.v7.widget.AppCompatTextView
                             android:id="@+id/txt_ot_1"
@@ -191,6 +191,7 @@
 
 
                     </LinearLayout>
+
                     <!-- 戳一下消息-->
                     <LinearLayout
                         android:id="@+id/view_ot_2"
@@ -211,14 +212,15 @@
                             android:id="@+id/txt_ot_2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:maxWidth="170dp"
                             android:layout_gravity="center_vertical"
                             android:fontFamily="normal"
+                            android:maxWidth="170dp"
                             android:text="我已经添加你为好友啦"
                             android:textColor="@color/black"
                             android:textSize="15sp" />
 
                     </LinearLayout>
+
                     <!-- 红包消息-->
                     <LinearLayout
                         android:id="@+id/view_ot_3"
@@ -551,102 +553,148 @@
                         android:id="@+id/view_ot_customer_face"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
                         android:gravity="left|center_vertical"
+                        android:orientation="horizontal"
                         android:visibility="gone">
+
                         <ImageView
                             android:id="@+id/img_ot_customer_face"
                             android:layout_width="80dp"
                             android:layout_height="80dp"
                             android:layout_centerInParent="true" />
 
-                    <!-- 游戏分享消息-->
-                    <LinearLayout
-                        android:id="@+id/view_ot_game_share"
-                        android:layout_width="226dp"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/selector_card_other_touch"
-                        android:orientation="vertical"
-                        android:visibility="visible">
-
+                        <!-- 游戏分享消息-->
                         <LinearLayout
-                            android:layout_width="match_parent"
+                            android:id="@+id/view_ot_game_share"
+                            android:layout_width="226dp"
                             android:layout_height="wrap_content"
-                            android:gravity="center"
+                            android:background="@drawable/selector_card_other_touch"
                             android:orientation="vertical"
-                            android:paddingLeft="10dp"
-                            android:paddingRight="10dp">
-
-                            <TextView
-                                android:id="@+id/tv_ot_game_title"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:maxLines="2"
-                                android:paddingTop="3dp"
-                                android:textColor="#353535"
-                                android:textSize="16sp"
-                                tool:text="标题" />
-
+                            android:visibility="visible">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:orientation="horizontal">
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:paddingLeft="10dp"
+                                android:paddingRight="10dp">
 
                                 <TextView
-                                    android:id="@+id/tv_ot_game_info"
-                                    style="@style/app_txt_content_1"
+                                    android:id="@+id/tv_ot_game_title"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="5dp"
-                                    android:layout_weight="1"
                                     android:maxLines="2"
-                                    android:visibility="visible"
+                                    android:paddingTop="3dp"
+                                    android:textColor="#353535"
+                                    android:textSize="16sp"
                                     tool:text="标题" />
 
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:id="@+id/tv_ot_game_info"
+                                        style="@style/app_txt_content_1"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="5dp"
+                                        android:layout_weight="1"
+                                        android:maxLines="2"
+                                        android:visibility="visible"
+                                        tool:text="标题" />
+
+                                    <ImageView
+                                        android:id="@+id/iv_ot_game_icon"
+                                        style="@style/app_img_head"
+                                        android:layout_width="41dp"
+                                        android:layout_height="41dp" />
+                                </LinearLayout>
+
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1px"
+                                android:background="#e9ebea" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:paddingLeft="10dp"
+                                android:paddingTop="3dp"
+                                android:paddingRight="10dp">
+
                                 <ImageView
-                                    android:id="@+id/iv_ot_game_icon"
+                                    android:id="@+id/iv_ot_app_icon"
                                     style="@style/app_img_head"
-                                    android:layout_width="41dp"
-                                    android:layout_height="41dp" />
+                                    android:layout_width="13dp"
+                                    android:layout_height="13dp" />
+
+                                <TextView
+                                    android:id="@+id/tv_ot_game_name"
+                                    style="@style/app_txt_content_1"
+                                    android:layout_width="wrap_content"
+                                    android:layout_marginLeft="3dp"
+                                    android:layout_weight="1"
+                                    tool:text="游戏名字" />
+
                             </LinearLayout>
 
                         </LinearLayout>
 
-                        <View
+                    </LinearLayout>
+
+
+                    <!-- 位置消息 -->
+                    <RelativeLayout
+                        android:id="@+id/location_you_ll"
+                        android:layout_width="210dp"
+                        android:layout_height="140dp"
+                        android:background="@color/white"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:id="@+id/location_image_you_iv"
+                            android:scaleType="fitXY"
                             android:layout_width="match_parent"
-                            android:layout_height="1px"
-                            android:background="#e9ebea" />
+                            android:layout_height="match_parent" />
 
                         <LinearLayout
+                            android:background="@drawable/shape_transparent_botton5"
+                            android:layout_alignParentBottom="true"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingLeft="10dp"
-                            android:paddingTop="3dp"
-                            android:paddingRight="10dp">
-
-                            <ImageView
-                                android:id="@+id/iv_ot_app_icon"
-                                style="@style/app_img_head"
-                                android:layout_width="13dp"
-                                android:layout_height="13dp" />
+                            android:padding="5dp"
+                            android:orientation="vertical">
 
                             <TextView
-                                android:id="@+id/tv_ot_game_name"
+                                android:id="@+id/location_name_you_tv"
+                                style="@style/app_txt_title_2"
+                                android:textColor="@color/white"
+                                android:text="湘江时代(长沙市岳麓区)" />
+
+                            <TextView
+                                android:id="@+id/location_desc_you_tv"
                                 style="@style/app_txt_content_1"
-                                android:layout_width="wrap_content"
-                                android:layout_marginLeft="3dp"
-                                android:layout_weight="1"
-                                tool:text="游戏名字" />
+                                android:textColor="@color/white"
+                                android:text="长沙市岳麓区先导路" />
 
                         </LinearLayout>
 
-                    </LinearLayout>
+                        <ImageView
+                            android:layout_centerInParent="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@mipmap/location_four"/>
+                    </RelativeLayout>
 
 
-                    </LinearLayout>
                 </LinearLayout>
 
                 <com.yanlong.im.view.CountDownView
@@ -781,9 +829,9 @@
                                 android:id="@+id/txt_me_2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:maxWidth="170dp"
                                 android:layout_gravity="center_vertical"
                                 android:fontFamily="normal"
+                                android:maxWidth="170dp"
                                 android:text="添加你为好友啦"
                                 android:textColor="@color/black"
                                 android:textSize="15sp" />
@@ -1208,16 +1256,61 @@
                             android:id="@+id/view_me_customer_face"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
                             android:gravity="right|center_vertical"
+                            android:orientation="horizontal"
                             android:visibility="gone">
+
                             <ImageView
                                 android:id="@+id/img_me_customer_face"
                                 android:layout_width="80dp"
                                 android:layout_height="80dp"
-                                android:layout_centerInParent="true"/>
+                                android:layout_centerInParent="true" />
 
                         </LinearLayout>
+
+                        <!-- 位置消息 -->
+                        <RelativeLayout
+                            android:id="@+id/location_me_ll"
+                            android:layout_width="210dp"
+                            android:layout_height="140dp"
+                            android:background="@color/white"
+                            android:visibility="gone">
+
+                            <ImageView
+                                android:id="@+id/location_image_me_iv"
+                                android:scaleType="fitXY"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent" />
+
+                            <LinearLayout
+                                android:background="@drawable/shape_transparent_botton5"
+                                android:layout_alignParentBottom="true"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:padding="5dp"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/location_name_me_tv"
+                                    style="@style/app_txt_title_2"
+                                    android:textColor="@color/white"
+                                    android:text="湘江时代(长沙市岳麓区)" />
+
+                                <TextView
+                                    android:id="@+id/location_desc_me_tv"
+                                    style="@style/app_txt_content_1"
+                                    android:textColor="@color/white"
+                                    android:text="长沙市岳麓区先导路" />
+
+                            </LinearLayout>
+
+                            <ImageView
+                                android:layout_centerInParent="true"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:src="@mipmap/location_four"/>
+
+                        </RelativeLayout>
 
                     </LinearLayout>
 

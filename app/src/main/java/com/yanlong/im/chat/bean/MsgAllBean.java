@@ -339,6 +339,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             }
         } else if (msg_type == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME) {//阅后即焚
             str = getMsgCancel().getNote();
+        }else if (msg_type == ChatEnum.EMessageType.LOCATION) {//位置
+            str = "[位置]";
         }
 
         return str;

@@ -2,14 +2,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.yanlong.im">
 
-<!--    <uses-permission android:name="android.permission.VIBRATE" />-->
-<!--    <uses-feature android:name="android.hardware.camera" />-->
+    <!--    <uses-permission android:name="android.permission.VIBRATE" />-->
+    <!--    <uses-feature android:name="android.hardware.camera" />-->
     <application
         android:name=".MyAppLication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:largeHeap="true"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
         android:theme="@style/MainAppThrme"
@@ -82,22 +82,24 @@
             </intent-filter>
         </receiver>
 
-        <!--        <activity-alias-->
-        <!--            android:name="main"-->
-        <!--            android:label="@string/app_name"-->
-        <!--            android:targetActivity=".user.ui.SplashActivity">-->
-        <!--            <intent-filter>-->
-        <!--                <action android:name="android.intent.action.MAIN" />-->
 
-        <!--                <category android:name="android.intent.category.LAUNCHER" />-->
-        <!--            </intent-filter>-->
-        <!--        </activity-alias>-->
+        <!--         百度地图配置-->
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="L7VrjgIV1dMONUenMO8XmIwOPKGLSDE5" />
+        <!--         百度地图配置-->
+        <service
+            android:name="com.baidu.location.f"
+            android:enabled="true"
+            android:process=":remote" />
 
+
+        <!-- 启动页-->
         <activity
             android:name=".user.ui.SplashActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:theme="@style/LauncherAppThemeNoTranslucent"
-            android:launchMode="singleTask">
+            android:theme="@style/LauncherAppThemeNoTranslucent">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -105,12 +107,13 @@
 
             <intent-filter>
                 <data
-                    android:scheme="changxin"
                     android:host="changxin.zhixun6.com"
-                    android:path="/cx" />
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+                    android:path="/cx"
+                    android:scheme="changxin" />
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
         <activity
@@ -126,7 +129,8 @@
 
         </activity>
         <!--聊天服务-->
-        <service android:name=".chat.server.UpLoadService"></service>
+        <service android:name=".chat.server.UpLoadService" />
+
         <service android:name=".chat.server.ChatServer">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
@@ -139,7 +143,7 @@
         <activity
             android:name=".user.ui.FriendApplyAcitvity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <!-- 匹配朋友-->
         <activity
             android:name=".user.ui.FriendMatchActivity"
@@ -283,9 +287,11 @@
         <!--修改密码-->
         <activity
             android:name=".user.ui.ChangePasswordActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".user.ui.SetingPasswordActitity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--安全隐私-->
@@ -297,6 +303,7 @@
         <!--个人信息-->
         <activity
             android:name=".user.ui.MyselfInfoActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--通用设置-->
@@ -356,6 +363,7 @@
         <!--个人头像-->
         <activity
             android:name=".user.ui.ImageHeadActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <!--用户资料-->
         <activity
@@ -485,6 +493,7 @@
         <!--意见反馈-->
         <activity
             android:name=".user.ui.FeedbackActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--云红包 服务协议-->
@@ -501,31 +510,36 @@
 
         <activity
             android:name=".user.ui.FeedbackShowImageActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
+
         <activity
             android:name=".user.ui.GroupAddActivity"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".chat.ui.GroupNoteDetailEditActivity"
-            android:screenOrientation="portrait"
-            />
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
 
-<!--        <receiver-->
-<!--            android:name=".notify.MyReceiver"-->
-<!--            android:enabled="true"-->
-<!--            android:exported="false">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="cn.jpush.android.intent.REGISTRATION" />-->
-<!--                <action android:name="cn.jpush.android.intent.MESSAGE_RECEIVED" />-->
-<!--                <action android:name="cn.jpush.android.intent.NOTIFICATION_RECEIVED" />-->
-<!--                <action android:name="cn.jpush.android.intent.NOTIFICATION_OPENED" />-->
-<!--                <action android:name="cn.jpush.android.intent.NOTIFICATION_CLICK_ACTION" />-->
-<!--                <action android:name="cn.jpush.android.intent.CONNECTION" />-->
-<!--                <category android:name="com.yanlong.im" />-->
-<!--            </intent-filter>-->
-<!--        </receiver>-->
+        <activity
+            android:name=".chat.ui.GroupNoteDetailEditActivity"
+            android:screenOrientation="portrait" />
+
+        <!--        <receiver-->
+        <!--            android:name=".notify.MyReceiver"-->
+        <!--            android:enabled="true"-->
+        <!--            android:exported="false">-->
+        <!--            <intent-filter>-->
+        <!--                <action android:name="cn.jpush.android.intent.REGISTRATION" />-->
+        <!--                <action android:name="cn.jpush.android.intent.MESSAGE_RECEIVED" />-->
+        <!--                <action android:name="cn.jpush.android.intent.NOTIFICATION_RECEIVED" />-->
+        <!--                <action android:name="cn.jpush.android.intent.NOTIFICATION_OPENED" />-->
+        <!--                <action android:name="cn.jpush.android.intent.NOTIFICATION_CLICK_ACTION" />-->
+        <!--                <action android:name="cn.jpush.android.intent.CONNECTION" />-->
+        <!--                <category android:name="com.yanlong.im" />-->
+        <!--            </intent-filter>-->
+        <!--        </receiver>-->
 
         <activity
             android:name=".chat.ui.NoticeActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <receiver android:name=".utils.audio.AudioPlayManager$HeadsetReceiver">
@@ -550,10 +564,16 @@
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
-        <activity android:name=".chat.ui.forward.GroupSelectActivity"
-                  android:screenOrientation="portrait"/>
-        <activity android:name=".chat.ui.GroupNoteDetailActivity"
-                  android:screenOrientation="portrait"/>
+        <activity
+            android:name=".chat.ui.forward.GroupSelectActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".chat.ui.GroupNoteDetailActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
         <activity android:name=".test.TestRecyclerActivity">
             <intent-filter android:priority="1">
                 <data
@@ -565,12 +585,22 @@
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
-        <activity android:name=".user.ui.FriendVerifyActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".chat.ui.VideoPlayActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait"/>
 
+        <activity
+            android:name=".user.ui.FriendVerifyActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".chat.ui.VideoPlayActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <!--位置-->
+        <activity
+            android:name=".location.LocationActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
 
     </application>
 

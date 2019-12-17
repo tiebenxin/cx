@@ -75,6 +75,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.IMsgContent;
 import com.yanlong.im.chat.bean.ImageMessage;
+import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
@@ -98,6 +99,8 @@ import com.yanlong.im.chat.ui.cell.ICellEventListener;
 import com.yanlong.im.chat.ui.cell.MessageAdapter;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.chat.ui.view.ChatItemView;
+import com.yanlong.im.location.LocationActivity;
+import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.action.UserAction;
@@ -224,6 +227,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private LinearLayout viewTransfer;
     private LinearLayout viewCard;
     private LinearLayout viewChatRobot, ll_part_chat_video;
+    private LinearLayout view_location_ll;
     private LinearLayout llChatVideoCall;
     private View viewChatBottom;
     private View viewChatBottomc;
@@ -427,6 +431,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         txtVoice = findViewById(R.id.txt_voice);
         tv_ban = findViewById(R.id.tv_ban);
         viewFaceView = findViewById(R.id.chat_view_faceview);
+        view_location_ll = findViewById(R.id.view_location_ll);
         setChatImageBackground();
     }
 
@@ -1189,6 +1194,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 });
             }
         });
+
+
+        view_location_ll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LocationActivity.openActivity(ChatActivity.this);
+            }
+        });
+
 
         if (!isNewAdapter) {
             mtListView.init(new RecyclerViewAdapter());
@@ -2182,6 +2196,23 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void locationSendEvent(LocationSendEvent event) {
+        LocationMessage message = SocketData.createLocationMessage(SocketData.getUUID(), event.message.getLatitude(),
+                event.message.getLongitude(),event.message.getAddress(),event.message.getAddressDescribe());
+
+//        LogUtil.getLog().e("====location=message=="+GsonUtils.optObject(message));
+        sendMessage(message, ChatEnum.EMessageType.LOCATION);
+    }
+
+
+
+
+
+
+
+
+
     private void setChatImageBackground() {
         UserSeting seting = new MsgDao().userSetingGet();
         if (seting == null) {
@@ -2511,6 +2542,27 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
 
+        //自动寻找ViewHold
+        @Override
+        public RCViewHolder onCreateViewHolder(ViewGroup view, int i) {
+            RCViewHolder holder = new RCViewHolder(inflater.inflate(R.layout.item_chat_com, view, false));
+            if (font_size != null)
+                holder.viewChatItem.setFont(font_size);
+            return holder;
+        }
+
+
+        //自动生成ViewHold
+        public class RCViewHolder extends RecyclerView.ViewHolder {
+            private com.yanlong.im.chat.ui.view.ChatItemView viewChatItem;
+
+            //自动寻找ViewHold
+            public RCViewHolder(View convertView) {
+                super(convertView);
+                viewChatItem = (com.yanlong.im.chat.ui.view.ChatItemView) convertView.findViewById(R.id.view_chat_item);
+            }
+        }
+
         @Override
         public int getItemCount() {
             return msgListData == null ? 0 : msgListData.size();
@@ -2615,6 +2667,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         public void onBindViewHolder(RCViewHolder holder, final int position) {
             viewMap.put(position, holder.itemView);
             final MsgAllBean msgbean = msgListData.get(position);
+//            LogUtil.getLog().e(position+"====msgbean="+GsonUtils.optObject(msgbean));
 
             if (!isGroup()) {
                 if (msgbean.isMe()) {
@@ -2996,6 +3049,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         holder.viewChatItem.setReadDestroy(msgbean.getMsgCancel().getNote());
                     }
                     break;
+                case ChatEnum.EMessageType.LOCATION:
+//                    menus.add(new OptionMenu("转发"));
+                    menus.add(new OptionMenu("删除"));
+                    holder.viewChatItem.setDataLocation(msgbean.getLocationMessage());
+                    break;
             }
 
             holder.viewChatItem.setOnErr(new View.OnClickListener() {
@@ -3113,28 +3171,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     return true;
                 }
             });
-        }
-
-
-        //自动寻找ViewHold
-        @Override
-        public RCViewHolder onCreateViewHolder(ViewGroup view, int i) {
-            RCViewHolder holder = new RCViewHolder(inflater.inflate(R.layout.item_chat_com, view, false));
-            if (font_size != null)
-                holder.viewChatItem.setFont(font_size);
-            return holder;
-        }
-
-
-        //自动生成ViewHold
-        public class RCViewHolder extends RecyclerView.ViewHolder {
-            private com.yanlong.im.chat.ui.view.ChatItemView viewChatItem;
-
-            //自动寻找ViewHold
-            public RCViewHolder(View convertView) {
-                super(convertView);
-                viewChatItem = (com.yanlong.im.chat.ui.view.ChatItemView) convertView.findViewById(R.id.view_chat_item);
-            }
         }
 
     }

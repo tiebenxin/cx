@@ -49,4 +49,9 @@
         <!--        <item name="windowActionBar">false</item>-->
     </style>
 
+    <!-- 最大高度 -->
+    <declare-styleable name="MaxHeightRecyclerView">
+        <attr name="maxHeight" format="dimension" />
+    </declare-styleable>
+
 </resources>

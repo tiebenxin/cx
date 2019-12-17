@@ -2,9 +2,11 @@ package com.yanlong.im;
 
 
 import android.app.ActivityManager;
+
 import android.content.Context;
 import android.text.TextUtils;
-
+import com.baidu.mapapi.CoordType;
+import com.baidu.mapapi.SDKInitializer;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.controll.AVChatSoundPlayer;
 import com.example.nim_lib.ui.VideoActivity;
@@ -18,12 +20,12 @@ import com.umeng.commonsdk.UMConfigure;
 import com.umeng.socialize.PlatformConfig;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yanlong.im.controll.AVChatKit;
+import com.yanlong.im.location.LocationService;
 import com.yanlong.im.utils.LogcatHelper;
 import com.yanlong.im.utils.MyDiskCacheController;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.MyException;
 import com.yanlong.im.view.face.FaceView;
-
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.MainApplication;
 import net.cb.cb.library.bean.EventRunState;
@@ -34,21 +36,19 @@ import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.UpLoadUtils;
 import net.cb.cb.library.utils.VersionUtil;
-
 import org.greenrobot.eventbus.EventBus;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-
 import cn.jpush.android.api.JPushInterface;
 import io.realm.Realm;
-
 public class MyAppLication extends MainApplication {
 
     private static final String TAG = "MyAppLication";
-
     private final String U_APP_KEY = "5d53659c570df3d281000225";
+    public LocationService locationService;
+//    public Vibrator mVibrator;
+
 
     @Override
     public void onCreate() {
@@ -128,6 +128,9 @@ public class MyAppLication extends MainApplication {
         initCache();
         // 初始化表情
         FaceView.initFaceMap();
+        initLocation();//初始化定位
+
+
     }
 
     /**
@@ -307,6 +310,14 @@ public class MyAppLication extends MainApplication {
                 }
             }
         });
+    }
+
+    //初始化定位sdk，建议在Application中创建
+    private void initLocation(){
+        SDKInitializer.initialize(getApplicationContext());
+        SDKInitializer.setCoordType(CoordType.BD09LL);
+        locationService = new LocationService(getApplicationContext());
+//        mVibrator =(Vibrator)getApplicationContext().getSystemService(Service.VIBRATOR_SERVICE);
     }
 
 }

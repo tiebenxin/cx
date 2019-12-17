@@ -39,6 +39,7 @@ import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -156,8 +157,10 @@ public class MessageManager {
      * @return 返回结果，不需要处理逻辑的消息，默认处理成功
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify, String requestId) {
-//        LogUtil.getLog().d("a=", TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
-        System.out.println("a=" + TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType() + "--requestId=" + requestId);
+        if(wrapMessage!=null&&wrapMessage.getMsgType()!=null&&wrapMessage.getMsgType()!=MsgBean.MessageType.ACTIVE_STAT_CHANGE){
+            LogUtil.getLog().e("===收到=msg=" + GsonUtils.optObject(wrapMessage));
+        }
+
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
             return true;
         }
@@ -192,6 +195,7 @@ public class MessageManager {
             case BUSINESS_CARD://名片
             case RED_ENVELOPER://红包
             case RECEIVE_RED_ENVELOPER://领取红包
+            case SNAPSHOT_LOCATION://位置
             case ASSISTANT://小助手消息
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
@@ -492,6 +496,7 @@ public class MessageManager {
                 notifyRefreshMsg(isGroup ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, chatterId, bean.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, bean);
             }
         }
+
         //记录批量信息来源
         TaskDealWithMsgList taskMsgList = null;
         if (bean != null) {

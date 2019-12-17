@@ -4,6 +4,12 @@
     <color name="black">#000000</color>
     <color name="black_a_20">#40000000</color>
     <color name="transparent">#00000000</color>
+
+    <!-- 透明度 -->
+    <color name="transparent_33">#33000000</color>
+    <color name="transparent_80">#80000000</color>
+    <color name="transparent_cc">#cc000000</color>
+    <color name="transparent_ff">#ff000000</color>
     <!-- gray -->
     <!--用于大背景-->
     <color name="gray_100">#f1f1f1</color>

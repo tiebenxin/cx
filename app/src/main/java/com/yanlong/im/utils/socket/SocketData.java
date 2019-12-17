@@ -12,6 +12,7 @@ import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.IMsgContent;
 import com.yanlong.im.chat.bean.ImageMessage;
+import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
@@ -30,6 +31,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 
+import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -467,8 +469,12 @@ public class SocketData {
             case READ:
                 wmsg.setRead((MsgBean.ReadMessage) value);
                 break;
+            case SNAPSHOT_LOCATION://位置
+                wmsg.setSnapshotLocation((MsgBean.SnapshotLocationMessage) value);
+                break;
             case UNRECOGNIZED:
                 break;
+
         }
         MsgBean.UniversalMessage.WrapMessage wm = wmsg.build();
         msg.setWrapMsg(0, wm);
@@ -1124,6 +1130,16 @@ public class SocketData {
             case ChatEnum.EMessageType.MSG_CANCEL://
 
                 break;
+            case ChatEnum.EMessageType.LOCATION://位置
+                LocationMessage locationMessage = bean.getLocationMessage();
+                MsgBean.SnapshotLocationMessage.Builder locationBuilder = MsgBean.SnapshotLocationMessage.newBuilder();
+                locationBuilder.setLat(locationMessage.getLatitude());
+                locationBuilder.setLon(locationMessage.getLongitude());
+                locationBuilder.setAddr(locationMessage.getAddress());
+                locationBuilder.setDesc(locationMessage.getAddressDescribe());
+                value = locationBuilder.build();
+                type = MsgBean.MessageType.SNAPSHOT_LOCATION;
+                break;
         }
         if (needSave) {
             saveMessage(bean);
@@ -1131,6 +1147,7 @@ public class SocketData {
         if (type != null && value != null && isSend) {
             MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
             //立即发送
+            LogUtil.getLog().e("===发送=msg==="+GsonUtils.optObject(msg));
             SocketUtil.getSocketUtil().sendData4Msg(msg);
         }
     }
@@ -1358,6 +1375,14 @@ public class SocketData {
                 } else {
                     return null;
                 }
+                break;
+            case ChatEnum.EMessageType.LOCATION:
+                if (obj instanceof LocationMessage) {
+                    msg.setLocationMessage((LocationMessage) obj);
+                } else {
+                    return null;
+                }
+//                LogUtil.getLog().e("===location==LocationMessage="+ GsonUtils.optObject(msg));
                 break;
 
         }
@@ -1601,5 +1626,17 @@ public class SocketData {
         return message;
     }
 
+
+    //位置消息
+    public static LocationMessage createLocationMessage(String msgId , int latitude , int longitude , String address , String addressDescribe) {
+        LocationMessage message = new LocationMessage();
+        message.setMsgId(msgId);
+        message.setLatitude(latitude);
+        message.setLongitude(longitude);
+        message.setAddress(address);
+        message.setAddressDescribe(addressDescribe);
+        //message.setImg("http://e7-test.oss-cn-beijing.aliyuncs.com/Android/20190730/2dfe5997-68a5-4545-8099-712982b765c9.jpg");
+        return message;
+    }
 
 }

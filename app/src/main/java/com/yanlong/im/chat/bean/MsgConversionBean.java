@@ -12,6 +12,7 @@ import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
+import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
@@ -463,6 +464,20 @@ public class MsgConversionBean {
                 p2PAuVideoDialMessage.setAv_type(bean.getP2PAuVideoDial().getAvTypeValue());
                 msgAllBean.setP2PAuVideoDialMessage(p2PAuVideoDialMessage);
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_VOICE_VIDEO_NOTICE);
+                break;
+            case SNAPSHOT_LOCATION:
+                LocationMessage locationMessage = new LocationMessage();
+                locationMessage.setMsgId(msgAllBean.getMsg_id());
+                locationMessage.setLatitude(bean.getSnapshotLocation().getLat());
+                locationMessage.setLongitude(bean.getSnapshotLocation().getLon());
+                locationMessage.setAddress(bean.getSnapshotLocation().getAddr());
+                locationMessage.setAddressDescribe(bean.getSnapshotLocation().getDesc());
+
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.LOCATION);
+                msgAllBean.setLocationMessage(locationMessage);
+
+//                LogUtil.getLog().e("====location==bean==="+ GsonUtils.optObject(bean));
+//                LogUtil.getLog().e("====location==msgAllBean==="+ GsonUtils.optObject(msgAllBean));
                 break;
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;
