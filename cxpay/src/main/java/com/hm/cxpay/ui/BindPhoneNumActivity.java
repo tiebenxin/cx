@@ -132,7 +132,7 @@ public class BindPhoneNumActivity extends AppActivity {
             @Override
             public void task() {
                 if(hadPhoneNum){
-                    httpGetCode(tvPhoneNum.getText().toString());
+                    httpGetCode("");
                 }else {
                     httpGetCode(etPhoneNum.getText().toString());
                 }

@@ -33,7 +33,7 @@
                 android:background="@null"
                 android:ellipsize="end"
                 android:gravity="right|center_vertical"
-                android:hint="最低充值金额1元"
+                android:hint="单机最低充值1元，最高500元"
                 android:maxLines="1"
                 android:paddingRight="18dp"
                 android:inputType="number"

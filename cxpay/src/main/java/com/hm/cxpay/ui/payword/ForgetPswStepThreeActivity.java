@@ -141,6 +141,7 @@ public class ForgetPswStepThreeActivity extends AppActivity {
                                 Intent intent = new Intent(activity,ForgetPswStepFourActivity.class);
                                 intent.putExtras(bundle);
                                 startActivity(intent);
+                                ToastUtil.show(context,"验证码已发送，请注意查收!");
                             }
                         }
                     }

@@ -169,7 +169,9 @@ public class PayHttpUtils {
     //绑定手机-获取验证码
     public Observable<BaseResponse> getCode(String phoneNum) {
         Map<String, String> map = new HashMap<>();
-        map.put("phone", phoneNum);
+        if(!TextUtils.isEmpty(phoneNum)){
+            map.put("phone", phoneNum);
+        }
         return HttpChannel.getInstance().getPayService().getCode(getRequestBody(map));
     }
 
