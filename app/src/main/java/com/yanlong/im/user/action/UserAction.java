@@ -738,8 +738,8 @@ public class UserAction {
     /**
      * 版本更新
      */
-    public void getNewVersion(CallBack<ReturnBean<NewVersionBean>> callback) {
-        NetUtil.getNet().exec(server.getNewVersion("android"), callback);
+    public void getNewVersion(String channelName,CallBack<ReturnBean<NewVersionBean>> callback) {
+        NetUtil.getNet().exec(server.getNewVersion("android",channelName), callback);
     }
 
     /*

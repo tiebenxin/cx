@@ -166,7 +166,10 @@ public class MessageManager {
         boolean result = true;
         boolean hasNotified = false;//已经通知刷新了
         boolean isCancelValid = false;//是否是有效撤销信息
-        boolean isFromSelf = wrapMessage.getFromUid() == UserAction.getMyId().intValue();
+        boolean isFromSelf = false;
+        if (UserAction.getMyId() != null) {
+            isFromSelf = wrapMessage.getFromUid() == UserAction.getMyId().intValue();
+        }
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
             if (oldMsgId.contains(wrapMessage.getMsgId())) {
                 LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());

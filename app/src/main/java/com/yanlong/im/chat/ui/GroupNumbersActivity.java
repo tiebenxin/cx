@@ -86,7 +86,12 @@ public class GroupNumbersActivity extends AppActivity {
     private void initEvent() {
         listData = gson.fromJson(getIntent().getStringExtra(AGM_NUMBERS_JSON), new TypeToken<List<UserInfo>>() {
         }.getType());
-        Collections.sort(listData);
+        // 处理NullPointerException
+        if (listData == null) {
+            listData = new ArrayList<>();
+        } else {
+            Collections.sort(listData);
+        }
         type = getIntent().getIntExtra(AGM_TYPE, TYPE_ADD);
         gid = getIntent().getStringExtra(AGM_GID);
 

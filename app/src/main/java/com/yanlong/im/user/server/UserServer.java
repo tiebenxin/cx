@@ -168,7 +168,7 @@ public interface UserServer {
 
     @POST("/pub/get-new-version")
     @FormUrlEncoded
-    Call<ReturnBean<NewVersionBean>> getNewVersion(@Field("platform") String platform);
+    Call<ReturnBean<NewVersionBean>> getNewVersion(@Field("platform") String platform, @Field("channel") String channelName);
 
     @POST("friends/del-request-friend")
     @FormUrlEncoded

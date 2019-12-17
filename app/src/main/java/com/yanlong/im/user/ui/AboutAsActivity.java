@@ -16,6 +16,7 @@ import com.yanlong.im.utils.update.UpdateManage;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -93,7 +94,7 @@ public class AboutAsActivity extends AppActivity {
 
 
     private void taskNewVersion() {
-        new UserAction().getNewVersion(new CallBack<ReturnBean<NewVersionBean>>() {
+        new UserAction().getNewVersion(StringUtil.getChannelName(context),new CallBack<ReturnBean<NewVersionBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<NewVersionBean>> call, Response<ReturnBean<NewVersionBean>> response) {
                 if (response.body() == null || response.body().getData() == null) {
