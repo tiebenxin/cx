@@ -42,6 +42,7 @@ public class InputPhoneActivity extends BasePayActivity {
     protected void onResume() {
         super.onResume();
         ui.tvNext.setEnabled(true);
+        ui.ivCheck.setEnabled(true);
     }
 
     private void initView() {
