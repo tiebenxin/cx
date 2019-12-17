@@ -60,7 +60,7 @@ public class LooseChangeActivity extends BasePayActivity {
     public static int REFRESH_BALANCE = 98;//获取最新余额展示
     public static int REFRESH_BANKCARD_NUM = 97;//刷新银行卡数
     private int myCardListSize = 0;//我的银行卡个数
-    private ControllerPaySetting viewAccountInfo;
+//    private ControllerPaySetting viewAccountInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +80,18 @@ public class LooseChangeActivity extends BasePayActivity {
         }
     }
 
+//    private void showAuthView(UserBean user) {
+//        if (user == null) {
+//            return;
+//        }
+//        if (user.getIsVerify() == 1) {//已经认证，隐藏
+//            viewAccountInfo.setVisible(false);
+//        } else {
+//            viewAccountInfo.setVisible(true);
+//        }
+//    }
+
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -92,7 +104,7 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutChangeDetails.setEnabled(true);
         layoutAuthRealName.setEnabled(true);
         viewMyRedEnvelope.setEnabled(true);
-        viewAccountInfo.setEnabled(true);
+//        viewAccountInfo.setEnabled(true);
         viewMyCard.setEnabled(true);
         viewSettingOfPsw.setEnabled(true);
 
@@ -182,15 +194,15 @@ public class LooseChangeActivity extends BasePayActivity {
             }
         });
         //账户信息
-        viewAccountInfo = new ControllerPaySetting(findViewById(R.id.viewAccountInfo));
-        viewAccountInfo.init(R.mipmap.ic_account_info, R.string.account_info, "");
-        viewAccountInfo.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
-            @Override
-            public void onClick() {
-                viewAccountInfo.setEnabled(false);
-                IntentUtil.gotoActivity(activity, IdentificationInfoActivity.class);
-            }
-        });
+//        viewAccountInfo = new ControllerPaySetting(findViewById(R.id.viewAccountInfo));
+//        viewAccountInfo.init(R.mipmap.ic_account_info, R.string.account_info, "");
+//        viewAccountInfo.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
+//            @Override
+//            public void onClick() {
+//                viewAccountInfo.setEnabled(false);
+//                IntentUtil.gotoActivity(activity, IdentificationInfoActivity.class);
+//            }
+//        });
         //实名认证
         layoutAuthRealName = new ControllerPaySetting(findViewById(R.id.layout_auth_realname));
         layoutAuthRealName.init(R.mipmap.ic_auth_realname, R.string.auth_realname, "");

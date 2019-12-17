@@ -65,4 +65,8 @@ public class ControllerPaySetting {
     public void setEnabled(boolean enabled) {
         rootView.setEnabled(enabled);
     }
+
+    public void setVisible(boolean isVisible) {
+        rootView.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+    }
 }

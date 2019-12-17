@@ -110,12 +110,13 @@
                 layout="@layout/layout_pay_main_item" />
 
 
-            <View style="@style/app_line" />
+<!--            <View style="@style/app_line" />-->
 
             <!--账户信息-->
-            <include
-                android:id="@+id/viewAccountInfo"
-                layout="@layout/layout_pay_main_item" />
+<!--            <include-->
+<!--                android:id="@+id/viewAccountInfo"-->
+<!--                layout="@layout/layout_pay_main_item"-->
+<!--                android:visibility="gone"/>-->
 
             <View style="@style/app_line" />
 
