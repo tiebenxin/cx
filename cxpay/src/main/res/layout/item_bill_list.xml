@@ -34,7 +34,7 @@
         android:textColor="@color/c_121516"
         android:textSize="14sp"
         android:layout_marginLeft="14dp"
-        android:text="转账给"/>
+        android:text=""/>
 
     <TextView
         android:id="@+id/tv_cost"

@@ -1,16 +1,24 @@
 package com.hm.cxpay.ui.bill;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.hm.cxpay.R;
+import com.hm.cxpay.bean.BillBean;
 import com.hm.cxpay.bean.CommonBean;
+import com.hm.cxpay.net.FGObserver;
+import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.utils.UIUtils;
 import com.luck.picture.lib.tools.DateUtils;
 
@@ -86,8 +94,12 @@ public class BillDetailActivity extends AppActivity {
     private TextView tvWithdrawBank;//提现-提现银行
     private TextView tvWithdrawOrderId;//提现-交易单号
 
+    private LinearLayout noDataLayout;
+    private ScrollView svDetail;
 
     private CommonBean data;
+    private boolean isFromPush = false;//是否从推送跳转过来
+    private String pushId;//推送过来的详情id
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,15 +158,28 @@ public class BillDetailActivity extends AppActivity {
         titleTvRedPacketGetMoneyTime= findViewById(R.id.title_tv_red_packet_get_money_time);
         titleTvRedPacketPayTime= findViewById(R.id.title_tv_red_packet_pay_time);
         titleTvRedPacketPayStyle= findViewById(R.id.title_tv_red_packet_pay_style);
+        noDataLayout = findViewById(R.id.no_data_layout);
+        svDetail = findViewById(R.id.sv_detail);
         actionbar = headView.getActionbar();
     }
 
     private void initData() {
-        if (getIntent().getParcelableExtra("item_data") != null) {
-            data = getIntent().getParcelableExtra("item_data");
-        } else {
-            data = new CommonBean();
-        }
+        getExtra();
+        httpSearchBillDetail();
+        //从推送跳转过来则需要重新发请求
+//        if(isFromPush){
+//            httpSearchBillDetail();
+//        }else {
+//            if (getIntent().getParcelableExtra("item_data") != null) {
+//                data = getIntent().getParcelableExtra("item_data");
+//                showNoData(false);
+//                showUI(data.getTradeType());
+//            } else {
+//                data = new CommonBean();
+//                showNoData(true);
+//            }
+//        }
+
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -172,8 +197,10 @@ public class BillDetailActivity extends AppActivity {
                 ARouter.getInstance().build("/app/HelpActivity").navigation();
             }
         });
-        //类型：1转账给 2发红包给 3充值 4提现 5红包退款 6消费(忽略) 7红包收款 8转账收款 9转账退款
-        int type = data.getTradeType();
+    }
+
+    //类型：1转账给 2发红包给 3充值 4提现 5红包退款 6消费(忽略) 7红包收款 8转账收款 9转账退款
+    private void showUI(int type) {
         if(type == 2 || type == 5 || type == 7){
             ivRedpacketImage.setVisibility(View.VISIBLE);
             ivTitleImage.setVisibility(View.GONE);
@@ -378,8 +405,41 @@ public class BillDetailActivity extends AppActivity {
             tvTransferGetTime.setText(DateUtils.timeStamp2Date(data.getStatConfirmTime(), ""));
             tvTransferGetOrderId.setText(data.getTradeId() + "");
         }
+    }
+
+    /**
+     * 获取账单详情
+     */
+    private void httpSearchBillDetail(){
+        PayHttpUtils.getInstance().getBillDetailsList(1, 0,1,"521526945268240493")
+                .compose(RxSchedulers.<BaseResponse<BillBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<BillBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<BillBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<BillBean> baseResponse) {
+                        if (baseResponse.getData() != null) {
+                            //如果当前页有数据
+                            if(baseResponse.getData().getItems()!=null && baseResponse.getData().getItems().size()>0){
+                                data = baseResponse.getData().getItems().get(0);
+                                showNoData(false);
+                                showUI(data.getTradeType());
+                            }else {
+                                //如果当前页没数据
+                                data = new CommonBean();
+                                showNoData(true);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse<BillBean> baseResponse) {
+                        super.onHandleError(baseResponse);
+                        ToastUtil.show(context, baseResponse.getMessage());
+                    }
+                });
 
     }
+
 
 
     /**
@@ -401,5 +461,45 @@ public class BillDetailActivity extends AppActivity {
                 return R.mipmap.ic_transfer;
         }
     }
+
+
+    /**
+     * 推送跳转到账单详情
+     * @param activity
+     * @param jumpId
+     */
+    public static void jumpToBillDetail(Activity activity , String jumpId){
+        Intent intent = new Intent(activity,BillDetailActivity.class);
+        intent.putExtra("id",jumpId);
+        intent.putExtra("from_push",true);
+        activity.startActivity(intent);
+    }
+
+    /**
+     * 获取传递到本界面的值
+     */
+    private void getExtra() {
+        if(getIntent()!=null){
+            if(!TextUtils.isEmpty(getIntent().getStringExtra("id"))){
+                pushId = getIntent().getStringExtra("id");
+            }
+            isFromPush = getIntent().getBooleanExtra("from_push",false);
+        }
+    }
+
+    /**
+     * 是否显示无数据默认图
+     * @param ifShow
+     */
+    private void showNoData(boolean ifShow){
+        if(ifShow){
+            noDataLayout.setVisibility(View.VISIBLE);
+            svDetail.setVisibility(View.GONE);
+        }else {
+            noDataLayout.setVisibility(View.GONE);
+            svDetail.setVisibility(View.VISIBLE);
+        }
+    }
+
 
 }

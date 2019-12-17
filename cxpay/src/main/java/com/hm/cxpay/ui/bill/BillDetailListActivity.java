@@ -152,7 +152,7 @@ public class BillDetailListActivity extends AppActivity {
      * 请求->获取账单明细
      */
     private void getBillDetailsList(){
-        PayHttpUtils.getInstance().getBillDetailsList(page, selectTimeDataValue,selectType)
+        PayHttpUtils.getInstance().getBillDetailsList(page, selectTimeDataValue,selectType,"")
                 .compose(RxSchedulers.<BaseResponse<BillBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<BillBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<BillBean>>() {

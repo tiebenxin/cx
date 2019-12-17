@@ -117,6 +117,7 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         holder.tvCost.setText("-"+UIUtils.getYuan(bean.getAmt()));
                     }
                     //图标：1转账给 2发红包给 3充值 4提现 5红包退款 6消费(忽略) 7红包收款 8转账收款 9转账退款
+                    //TODO 新增三种 10提现退款 11充值退款 12消费退款(忽略)
                     //TODO 注：账单明细显示图标/不显示余额，零钱明细不显示图标/显示余额
                     if(type==1){
                         holder.ivImage.setVisibility(View.VISIBLE);

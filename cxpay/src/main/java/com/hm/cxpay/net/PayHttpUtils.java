@@ -189,12 +189,15 @@ public class PayHttpUtils {
     }
 
     //获取账单明细
-    public Observable<BaseResponse<BillBean>> getBillDetailsList(int pageNum, long startTime, int type) {
+    public Observable<BaseResponse<BillBean>> getBillDetailsList(int pageNum, long startTime, int type, String id) {
         Map<String, String> map = new HashMap<>();
         map.put("pageNum", pageNum + "");
         map.put("pageSize", 20 + "");
         map.put("startTime", startTime + "");
         map.put("type", type + "");
+        if(!TextUtils.isEmpty(id)){
+            map.put("id", id);
+        }
         return HttpChannel.getInstance().getPayService().getBillDetailsList(getRequestBody(map));
     }
 
