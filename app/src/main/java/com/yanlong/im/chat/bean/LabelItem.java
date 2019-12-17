@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.bean;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * @author Liszt
  * @date 2019/12/14
@@ -8,7 +10,9 @@ package com.yanlong.im.chat.bean;
 public class LabelItem  {
 //    @PrimaryKey
 //    long tradeId;//订单id
+    @SerializedName("label_")
     String label = "";
+    @SerializedName("value_")
     String value = "";
 //
 //    public long getTradeId() {

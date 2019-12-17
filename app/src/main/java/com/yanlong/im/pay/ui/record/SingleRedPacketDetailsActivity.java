@@ -31,7 +31,6 @@ import com.hm.cxpay.ui.redenvelope.FromUserBean;
 import com.hm.cxpay.utils.DateUtils;
 import com.hm.cxpay.utils.UIUtils;
 import com.hm.cxpay.widget.CircleImageView;
-import com.yanlong.im.chat.ui.ChatActivity;
 
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -61,9 +60,10 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
         return intent;
     }
 
-    public static Intent newIntent(Context context, long rid) {
+    public static Intent newIntent(Context context, long rid,int fromType) {
         Intent intent = new Intent(context, SingleRedPacketDetailsActivity.class);
         intent.putExtra("rid", rid);
+        intent.putExtra("fromType", fromType);
         return intent;
     }
 
@@ -79,8 +79,9 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
         initEvent();
         if (envelopeDetailBean == null) {
             long rid = getIntent().getLongExtra("rid", 0);
+            int fromType = getIntent().getIntExtra("fromType", 0);
             if (rid > 0) {
-                getEnvelopeDetail(rid);
+                getEnvelopeDetail(rid, fromType);
             }
         }
     }
@@ -105,6 +106,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
         }
 
         ui.tvContent.setText(TextUtils.isEmpty(envelopeDetailBean.getNote()) ? "恭喜发财，大吉大利" : envelopeDetailBean.getNote());
+        ui.tvMoney.setVisibility(View.VISIBLE);
         ui.tvMoney.setText(UIUtils.getYuan(envelopeDetailBean.getAmt()));
         if (envelopeDetailBean.getType() == PayEnum.ERedEnvelopeType.NORMAL) {
             if (user != null && userBean.getUid() == user.getUid()) {//是自己发的
@@ -124,15 +126,24 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                     }
                 }
             } else {
-                ui.llSend.setVisibility(View.GONE);
-                ui.llRecord.setVisibility(View.GONE);
-                ui.tvNote.setVisibility(View.VISIBLE);
-                ui.tvNote.setText("已存入零钱");
+                if (envelopeDetailBean.getEnvelopeStatus() == PayEnum.EEnvelopeStatus.RECEIVED_FINISHED) {//红包已经被抢完，未领到
+                    ui.llSend.setVisibility(View.GONE);
+                    ui.llRecord.setVisibility(View.GONE);
+                    ui.tvNote.setVisibility(View.VISIBLE);
+                    ui.tvNote.setText("红包已经被领完");
+                    ui.tvMoney.setVisibility(View.GONE);
+                } else {
+                    ui.llSend.setVisibility(View.GONE);
+                    ui.llRecord.setVisibility(View.GONE);
+                    ui.tvNote.setVisibility(View.VISIBLE);
+                    ui.tvNote.setText("已存入零钱");
+                }
             }
         } else {
             ui.llSend.setVisibility(View.GONE);
             ui.llRecord.setVisibility(View.VISIBLE);
             ui.tvNote.setVisibility(View.VISIBLE);
+            ui.tvNote.setText("已存入零钱");
         }
         //初始化领取记录
         if (ui.llRecord.getVisibility() == View.VISIBLE) {
@@ -258,8 +269,8 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
         }
     }
 
-    private void getEnvelopeDetail(long rid) {
-        PayHttpUtils.getInstance().getEnvelopeDetail(rid, "", 1)
+    private void getEnvelopeDetail(long rid,int fromType) {
+        PayHttpUtils.getInstance().getEnvelopeDetail(rid, "", fromType)
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<EnvelopeDetailBean>>() {

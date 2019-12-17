@@ -738,8 +738,8 @@ public class UserAction {
     /**
      * 版本更新
      */
-    public void getNewVersion(CallBack<ReturnBean<NewVersionBean>> callback) {
-        NetUtil.getNet().exec(server.getNewVersion("android"), callback);
+    public void getNewVersion(String channelName,CallBack<ReturnBean<NewVersionBean>> callback) {
+        NetUtil.getNet().exec(server.getNewVersion("android",channelName), callback);
     }
 
     /*
@@ -750,20 +750,6 @@ public class UserAction {
             return null;
         }
         return dao.findUserInfo(uid);
-    }
-
-    public UserInfo createAssitantUser() {
-        UserInfo info = new UserInfo();
-        info.setUid(1L);
-        info.setName("常信小助手");
-        info.setMkName("常信小助手");
-        info.setuType(ChatEnum.EUserType.ASSISTANT);
-        info.setFriendvalid(CoreEnum.ESureType.NO);
-        info.setAuthStat(ChatEnum.EAuthStatus.AUTH_SECOND);
-        info.setActiveType(CoreEnum.ESureType.YES);
-        info.setDisturb(CoreEnum.ESureType.NO);
-        info.setLastonline(System.currentTimeMillis());
-        return info;
     }
 
 

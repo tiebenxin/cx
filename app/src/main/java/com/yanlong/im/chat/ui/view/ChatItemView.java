@@ -47,6 +47,7 @@ import com.bumptech.glide.request.target.Target;
 import com.luck.picture.lib.tools.StringUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.BalanceAssistantMessage;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
@@ -62,6 +63,7 @@ import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.ScreenUtils;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.WebPageActivity;
@@ -191,6 +193,7 @@ public class ChatItemView extends LinearLayout {
     private TextView tvMeGameInfo;
     private ImageView ivMeGameIcon;
     private ImageView ivMeAppIcon;
+    private LabelItemView viewOtBalance;
 
 
     public ChatItemView(Context context, AttributeSet attrs) {
@@ -327,6 +330,10 @@ public class ChatItemView extends LinearLayout {
         ivMeGameIcon = rootView.findViewById(R.id.iv_me_game_icon);
         ivMeAppIcon = rootView.findViewById(R.id.iv_me_app_icon);
 
+        //零钱助手消息，只有接收消息
+//        viewMeBalance = rootView.findViewById(R.id.view_me_balance);
+        viewOtBalance = rootView.findViewById(R.id.view_ot_balance);
+
     }
 
     public void setOnLongClickListener(OnLongClickListener onLongClick) {
@@ -372,6 +379,7 @@ public class ChatItemView extends LinearLayout {
             viewMe.setVisibility(GONE);
             viewOt.setVisibility(VISIBLE);
         }
+        imgOtHead.setVisibility(VISIBLE);
         viewBroadcast.setVisibility(GONE);
         //  imgMeErr.setVisibility(GONE);
         viewMe1.setVisibility(GONE);
@@ -405,6 +413,7 @@ public class ChatItemView extends LinearLayout {
         viewOtCustomerFace.setVisibility(GONE);
         viewMeGameShare.setVisibility(GONE);
         viewOtGameShare.setVisibility(GONE);
+        viewOtBalance.setVisibility(GONE);
         switch (type) {
             case ChatEnum.EMessageType.MSG_CANCEL://撤回的消息
             case 0://公告
@@ -470,6 +479,10 @@ public class ChatItemView extends LinearLayout {
                 viewMeVoiceVideo.setVisibility(VISIBLE);
                 viewOtVoiceVideo.setVisibility(VISIBLE);
                 break;
+            case ChatEnum.EMessageType.BALANCE_ASSISTANT:
+                setNoAvatarUI(isMe);
+                viewOtBalance.setVisibility(VISIBLE);
+                break;
         }
 
         if (headUrl != null) {
@@ -500,6 +513,17 @@ public class ChatItemView extends LinearLayout {
         viewOtTouch.setOnClickListener(null);
         viewMeTouch.setOnLongClickListener(null);
         viewOtTouch.setOnLongClickListener(null);
+    }
+
+    //设置无头像UI
+    private void setNoAvatarUI(boolean isMe) {
+        if (isMe) {
+            viewMe.setPadding(10, 0, 10, 0);
+            imgMeHead.setVisibility(GONE);//不显示头像
+        } else {
+            viewOt.setPadding(10, 0, 10, 0);
+            imgOtHead.setVisibility(GONE);//不显示头像
+        }
     }
 
     //公告
@@ -671,7 +695,7 @@ public class ChatItemView extends LinearLayout {
     }
 
     //红包消息
-    public void setData3(final boolean isInvalid, String title, String info, String typeName, int typeIconRes, int reType,final EventRP eventRP) {
+    public void setData3(final boolean isInvalid, String title, String info, String typeName, int typeIconRes, int reType, final EventRP eventRP) {
         if (isInvalid) {//失效
             imgMeRbState.setImageResource(R.mipmap.ic_rb_zfb_n);
             imgOtRbState.setImageResource(R.mipmap.ic_rb_zfb_n);
@@ -693,7 +717,7 @@ public class ChatItemView extends LinearLayout {
             viewMeTouch.setOnClickListener(onk = new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    eventRP.onClick(isInvalid,reType);
+                    eventRP.onClick(isInvalid, reType);
                 }
             });
             viewOtTouch.setOnClickListener(onk);
@@ -721,7 +745,7 @@ public class ChatItemView extends LinearLayout {
 
 
     //转账消息
-    public void setData6(final boolean isInvalid, String title, String info, String typeName, int typeIconRes, int reType,final EventRP eventRP) {
+    public void setData6(final boolean isInvalid, String title, String info, String typeName, int typeIconRes, int reType, final EventRP eventRP) {
         if (isInvalid) {//失效
             imgMeTsState.setImageResource(R.mipmap.ic_rb_zfb_n);
             imgOtTsState.setImageResource(R.mipmap.ic_rb_zfb_n);
@@ -739,7 +763,7 @@ public class ChatItemView extends LinearLayout {
             viewMeTouch.setOnClickListener(onk = new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    eventRP.onClick(isInvalid,reType);
+                    eventRP.onClick(isInvalid, reType);
                 }
             });
             viewOtTouch.setOnClickListener(onk);
@@ -854,6 +878,21 @@ public class ChatItemView extends LinearLayout {
         tvLock.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
+    //零钱助手消息
+    public void setBalanceMsg(BalanceAssistantMessage message, EventBalance eventBalance) {
+        if (viewOtBalance != null && message != null) {
+            viewOtBalance.bindData(message);
+            viewOtBalance.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (eventBalance != null) {
+                        eventBalance.onClick(message.getTradeId(), message.getDetailType());
+                    }
+                }
+            });
+        }
+    }
+
 
     public void setFont(Integer size) {
         txtMe1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
@@ -865,7 +904,7 @@ public class ChatItemView extends LinearLayout {
 
 
     public interface EventRP {
-        void onClick(boolean isInvalid,int reType);
+        void onClick(boolean isInvalid, int reType);
     }
 
     //视频消息
@@ -1163,8 +1202,6 @@ public class ChatItemView extends LinearLayout {
     }
 
 
-
-
     private int netState;
 
     public void setErr(int state, boolean isShowLoad) {
@@ -1247,6 +1284,10 @@ public class ChatItemView extends LinearLayout {
         viewOt8.setSelected(flag);
         viewMe8.setSelected(flag);
 
+    }
+
+    public interface EventBalance {
+        void onClick(long tradeId, int detailType);
     }
 
 

@@ -487,6 +487,8 @@ public class MsgConversionBean {
                 if (!TextUtils.isEmpty(items)) {
                     balanceMessage.setItems(items);
                 }
+                msgAllBean.setBalanceAssistantMessage(balanceMessage);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.BALANCE_ASSISTANT);
                 break;
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;

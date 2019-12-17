@@ -149,11 +149,11 @@
                 android:id="@+id/txt_ot_name"
                 style="@style/app_txt_content_1"
                 android:layout_width="match_parent"
-                android:singleLine="false"
                 android:layout_marginBottom="2dp"
                 android:gravity="left"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
+                android:singleLine="false"
                 tool:text="name" />
 
 
@@ -211,9 +211,9 @@
                             android:id="@+id/txt_ot_2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:maxWidth="170dp"
                             android:layout_gravity="center_vertical"
                             android:fontFamily="normal"
+                            android:maxWidth="170dp"
                             android:text="我已经添加你为好友啦"
                             android:textColor="@color/black"
                             android:textSize="15sp" />
@@ -336,24 +336,6 @@
                         </RelativeLayout>
 
                     </LinearLayout>
-
-                    <!--                <RelativeLayout-->
-                    <!--                    android:layout_width="wrap_content"-->
-                    <!--                    android:gravity="left"-->
-                    <!--                    android:layout_height="wrap_content">-->
-
-                    <!--                    <ImageView-->
-                    <!--                        android:layout_width="wrap_content"-->
-                    <!--                        android:layout_height="wrap_content"></ImageView>-->
-                    <!--                    <TextView-->
-                    <!--                        android:layout_width="wrap_content"-->
-                    <!--                        android:layout_height="wrap_content"-->
-                    <!--                        android:text="123"-->
-                    <!--                        android:textColor="#fff"-->
-                    <!--                        android:layout_alignParentRight="true"-->
-                    <!--                        android:layout_alignParentBottom="true"-->
-                    <!--                        ></TextView>-->
-                    <!--                </RelativeLayout>-->
 
 
                     <!-- 名片消息-->
@@ -551,14 +533,17 @@
                         android:id="@+id/view_ot_customer_face"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
                         android:gravity="left|center_vertical"
+                        android:orientation="horizontal"
                         android:visibility="gone">
+
                         <ImageView
                             android:id="@+id/img_ot_customer_face"
                             android:layout_width="80dp"
                             android:layout_height="80dp"
                             android:layout_centerInParent="true" />
+                    </LinearLayout>
+
 
                     <!-- 游戏分享消息-->
                     <LinearLayout
@@ -645,8 +630,13 @@
 
                     </LinearLayout>
 
+                    <!--零钱助手消息-->
+                    <com.yanlong.im.chat.ui.view.LabelItemView
+                        android:id="@+id/view_ot_balance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
 
-                    </LinearLayout>
+
                 </LinearLayout>
 
                 <com.yanlong.im.view.CountDownView
@@ -781,9 +771,9 @@
                                 android:id="@+id/txt_me_2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:maxWidth="170dp"
                                 android:layout_gravity="center_vertical"
                                 android:fontFamily="normal"
+                                android:maxWidth="170dp"
                                 android:text="添加你为好友啦"
                                 android:textColor="@color/black"
                                 android:textSize="15sp" />
@@ -1208,16 +1198,23 @@
                             android:id="@+id/view_me_customer_face"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
                             android:gravity="right|center_vertical"
+                            android:orientation="horizontal"
                             android:visibility="gone">
+
                             <ImageView
                                 android:id="@+id/img_me_customer_face"
                                 android:layout_width="80dp"
                                 android:layout_height="80dp"
-                                android:layout_centerInParent="true"/>
+                                android:layout_centerInParent="true" />
 
                         </LinearLayout>
+
+                        <!--零钱助手消息-->
+<!--                        <com.yanlong.im.chat.ui.view.LabelItemView-->
+<!--                            android:id="@+id/view_me_balance"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content" />-->
 
                     </LinearLayout>
 

@@ -25,6 +25,7 @@ import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.hm.cxpay.bean.UserBean;
+import com.hm.cxpay.eventbus.IdentifyUserEvent;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
@@ -484,6 +485,11 @@ public class MainActivity extends AppActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventIdentifyUser(IdentifyUserEvent event) {
+        httpGetUserInfo();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventLoginOutconflict(EventLoginOut4Conflict event) {
         loginoutComment();
         startActivity(new Intent(getContext(), MainActivity.class)
@@ -707,7 +713,7 @@ public class MainActivity extends AppActivity {
     }
 
     private void taskNewVersion() {
-        userAction.getNewVersion(new CallBack<ReturnBean<NewVersionBean>>() {
+        userAction.getNewVersion(StringUtil.getChannelName(context),new CallBack<ReturnBean<NewVersionBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<NewVersionBean>> call, Response<ReturnBean<NewVersionBean>> response) {
                 if (response.body() == null || response.body().getData() == null) {

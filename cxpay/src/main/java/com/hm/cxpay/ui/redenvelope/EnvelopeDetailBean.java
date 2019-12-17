@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
+import com.hm.cxpay.global.PayEnum;
 
 import java.util.List;
 
@@ -25,6 +26,8 @@ public class EnvelopeDetailBean implements Parcelable {
     List<EnvelopeReceiverBean> recvList;//领取记录
     @SerializedName("tmpToGroup")
     int chatType;//单聊=0，还是群聊=1
+    @PayEnum.EEnvelopeStatus
+    int envelopeStatus;//红包状态
 
 
     protected EnvelopeDetailBean(Parcel in) {
@@ -39,6 +42,7 @@ public class EnvelopeDetailBean implements Parcelable {
         type = in.readInt();
         recvList = in.createTypedArrayList(EnvelopeReceiverBean.CREATOR);
         chatType = in.readInt();
+        envelopeStatus = in.readInt();
 
     }
 
@@ -142,6 +146,14 @@ public class EnvelopeDetailBean implements Parcelable {
         this.chatType = chatType;
     }
 
+    public int getEnvelopeStatus() {
+        return envelopeStatus;
+    }
+
+    public void setEnvelopeStatus(int envelopeStatus) {
+        this.envelopeStatus = envelopeStatus;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -160,5 +172,6 @@ public class EnvelopeDetailBean implements Parcelable {
         dest.writeInt(type);
         dest.writeTypedList(recvList);
         dest.writeInt(chatType);
+        dest.writeInt(envelopeStatus);
     }
 }

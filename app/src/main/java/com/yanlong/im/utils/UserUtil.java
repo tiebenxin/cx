@@ -21,18 +21,19 @@ public class UserUtil {
 
     /**
      * 获取用户的首字母列表
+     *
      * @param userList 用户列表
      * @return
      */
     public static List<String> userParseString(List<UserInfo> userList) {
         List<String> list = new ArrayList<>();
-        try{
+        try {
             if (userList != null) {
                 for (int i = 0; i < userList.size(); i++) {
                     list.add(userList.get(i).getTag());
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
         return list;
@@ -41,29 +42,32 @@ public class UserUtil {
 
     /**
      * 获取用户的首字母列表
+     *
      * @param friendList 用户列表
      * @return
      */
     public static List<String> friendParseString(List<FriendInfoBean> friendList) {
         List<String> list = new ArrayList<>();
-        try{
+        try {
             if (friendList != null) {
                 for (int i = 0; i < friendList.size(); i++) {
                     list.add(friendList.get(i).getTag());
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
         return list;
 
     }
+
     /**
      * 是否是常信客服、常信小助手
+     *
      * @return
      */
     public static boolean isSystemUser(Long toUId) {
-        if (toUId != null && (toUId.intValue() == Constants.CX_HELPER_UID || toUId.intValue() == Constants.CX888_UID || toUId.intValue() == Constants.CX999_UID)) {
+        if (toUId != null && (toUId.intValue() == Constants.CX_HELPER_UID || toUId.intValue() == Constants.CX888_UID || toUId.intValue() == Constants.CX999_UID) || toUId.intValue() == Constants.CX_BALANCE_UID) {
             return true;
         }
         return false;
