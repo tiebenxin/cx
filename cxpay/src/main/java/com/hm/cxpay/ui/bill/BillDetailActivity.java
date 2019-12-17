@@ -165,20 +165,19 @@ public class BillDetailActivity extends AppActivity {
 
     private void initData() {
         getExtra();
-        httpSearchBillDetail();
         //从推送跳转过来则需要重新发请求
-//        if(isFromPush){
-//            httpSearchBillDetail();
-//        }else {
-//            if (getIntent().getParcelableExtra("item_data") != null) {
-//                data = getIntent().getParcelableExtra("item_data");
-//                showNoData(false);
-//                showUI(data.getTradeType());
-//            } else {
-//                data = new CommonBean();
-//                showNoData(true);
-//            }
-//        }
+        if(isFromPush){
+            httpSearchBillDetail();
+        }else {
+            if (getIntent().getParcelableExtra("item_data") != null) {
+                data = getIntent().getParcelableExtra("item_data");
+                showNoData(false);
+                showUI(data.getTradeType());
+            } else {
+                data = new CommonBean();
+                showNoData(true);
+            }
+        }
 
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -411,7 +410,7 @@ public class BillDetailActivity extends AppActivity {
      * 获取账单详情
      */
     private void httpSearchBillDetail(){
-        PayHttpUtils.getInstance().getBillDetailsList(1, 0,1,"521526945268240493")
+        PayHttpUtils.getInstance().getBillDetailsList(1, 0,1,pushId)
                 .compose(RxSchedulers.<BaseResponse<BillBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<BillBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<BillBean>>() {
