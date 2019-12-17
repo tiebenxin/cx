@@ -58,7 +58,11 @@ public class ControllerPaySetting {
     }
 
     //获取右侧文字内容
-    public TextView getRightTitle(){
+    public TextView getRightTitle() {
         return tvRight;
+    }
+
+    public void setEnabled(boolean enabled) {
+        rootView.setEnabled(enabled);
     }
 }

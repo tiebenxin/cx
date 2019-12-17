@@ -60,6 +60,7 @@ public class LooseChangeActivity extends BasePayActivity {
     public static int REFRESH_BALANCE = 98;//获取最新余额展示
     public static int REFRESH_BANKCARD_NUM = 97;//刷新银行卡数
     private int myCardListSize = 0;//我的银行卡个数
+    private ControllerPaySetting viewAccountInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +84,6 @@ public class LooseChangeActivity extends BasePayActivity {
     protected void onDestroy() {
         super.onDestroy();
     }
-
 
 
     private void initView() {
@@ -116,6 +116,7 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutRecharge.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                layoutRecharge.setEnabled(false);
                 // 1 已设置支付密码 -> 允许跳转
                 if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
                     startActivityForResult(new Intent(activity, RechargeActivity.class), REFRESH_BALANCE);
@@ -130,6 +131,7 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutWithdrawDeposit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                layoutWithdrawDeposit.setEnabled(false);
                 // 1 已设置支付密码 -> 允许跳转
                 if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
                     startActivityForResult(new Intent(activity, WithdrawActivity.class), REFRESH_BALANCE);
@@ -146,6 +148,7 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutChangeDetails.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
+                layoutChangeDetails.setEnabled(false);
                 startActivity(new Intent(activity, ChangeDetailListActivity.class));
             }
         });
@@ -155,16 +158,18 @@ public class LooseChangeActivity extends BasePayActivity {
         viewMyRedEnvelope.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
+                viewMyRedEnvelope.setEnabled(false);
                 ARouter.getInstance().build("/app/redEnvelopeDetailsActivity").navigation();
 //                ARouter.getInstance().build("/app/redpacketRecordActivity").navigation();
             }
         });
         //账户信息
-        ControllerPaySetting viewAccountInfo = new ControllerPaySetting(findViewById(R.id.viewAccountInfo));
+        viewAccountInfo = new ControllerPaySetting(findViewById(R.id.viewAccountInfo));
         viewAccountInfo.init(R.mipmap.ic_account_info, R.string.account_info, "");
         viewAccountInfo.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
+                viewAccountInfo.setEnabled(false);
                 IntentUtil.gotoActivity(activity, IdentificationInfoActivity.class);
             }
         });
@@ -174,6 +179,7 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutAuthRealName.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
+                layoutAuthRealName.setEnabled(false);
                 //1 已经绑定手机
                 if (PayEnvironment.getInstance().getUser().getPhoneBindStat() == 1) {
                     //TODO 还有一个认证信息展示界面未出
@@ -194,6 +200,7 @@ public class LooseChangeActivity extends BasePayActivity {
         viewMyCard.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
+                viewMyCard.setEnabled(false);
                 startActivityForResult(new Intent(activity, BankSettingActivity.class), REFRESH_BANKCARD_NUM);
             }
         });
@@ -204,6 +211,7 @@ public class LooseChangeActivity extends BasePayActivity {
             @Override
             public void onClick() {
                 // 1 已设置支付密码 -> 允许跳转
+                viewSettingOfPsw.setEnabled(false);
                 if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
                     IntentUtil.gotoActivity(activity, ManagePaywordActivity.class);
                 } else {
