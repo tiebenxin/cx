@@ -77,6 +77,12 @@ public class BindBankFinishActivity extends BasePayActivity {
         });
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        ui.tvNext.setEnabled(true);
+    }
+
     private void initCountDownUtil(final boolean isNeedApply) {
         final String phone = bankInfo.getPhone();
         if (TextUtils.isEmpty(phone)) {

@@ -81,6 +81,24 @@ public class LooseChangeActivity extends BasePayActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        resumeEnabled();
+    }
+
+    private void resumeEnabled() {
+        layoutRecharge.setEnabled(true);
+        layoutWithdrawDeposit.setEnabled(true);
+        layoutChangeDetails.setEnabled(true);
+        layoutAuthRealName.setEnabled(true);
+        viewMyRedEnvelope.setEnabled(true);
+        viewAccountInfo.setEnabled(true);
+        viewMyCard.setEnabled(true);
+        viewSettingOfPsw.setEnabled(true);
+
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
     }

@@ -31,6 +31,9 @@ public class UIUtils {
     public static String getYuan(long amt) {
         if (amt == 0) {
             return "0.00";
+        } else if (amt > 0 && amt < 100) {
+            double money = (amt * 1.00) / 100;
+            return money + "";
         } else {
             double money = (amt * 1.00) / 100;
             DecimalFormat df = new DecimalFormat("#.00");
