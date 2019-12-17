@@ -11,11 +11,11 @@ def releaseTime() {
 android {
     compileSdkVersion 28
 
-//    sourceSets {
-//        main() {
-//            jniLibs.srcDirs = ['libs']
-//        }
-//    }
+    sourceSets {
+        main() {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
     defaultConfig {
         applicationId "com.yanlong.im"
         minSdkVersion 22
