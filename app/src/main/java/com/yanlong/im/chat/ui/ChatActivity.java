@@ -4839,7 +4839,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 if (!msgBean.isMe()) {
                     SocketData.sendReceivedEnvelopeMsg(msgBean.getFrom_uid(), toGid, rid + "");//发送抢红包消息
                 }
-                taskPayRbCheck(msgBean, rid + "", reType, token, envelopeStatus);
+                taskPayRbCheck(msgBean, rid + "", reType, token, getGrabEnvelopeStatus(envelopeStatus));
                 MsgNotice message = SocketData.createMsgNoticeOfRb(SocketData.getUUID(), msgBean.getFrom_uid(), toGid);
                 sendMessage(message, ChatEnum.EMessageType.NOTICE, false);
             }
