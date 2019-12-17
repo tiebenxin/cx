@@ -36,15 +36,20 @@ public class BindBankFinishActivity extends BasePayActivity {
         super.onCreate(savedInstanceState);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_finish_bind);
         bankInfo = getIntent().getParcelableExtra("bank");
+        bindInfo = getIntent().getParcelableExtra("bindInfo");
 
         if (bankInfo != null) {
             ui.tvPhone.setText("接收验证码手机号:" + bankInfo.getPhone());
         }
 
+        if (bindInfo != null) {
+            initCountDownUtil(false);
+        }
+
         ui.tvGetVerificationCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                initCountDownUtil();
+                initCountDownUtil(true);
             }
         });
         ClickFilter.onClick(ui.tvNext, new View.OnClickListener() {
@@ -72,7 +77,7 @@ public class BindBankFinishActivity extends BasePayActivity {
         });
     }
 
-    private void initCountDownUtil() {
+    private void initCountDownUtil(final boolean isNeedApply) {
         final String phone = bankInfo.getPhone();
         if (TextUtils.isEmpty(phone)) {
             ToastUtil.show(BindBankFinishActivity.this, "请填写手机号码");
@@ -86,7 +91,9 @@ public class BindBankFinishActivity extends BasePayActivity {
         CountDownUtil.getTimer(60, ui.tvGetVerificationCode, "发送验证码", this, new CountDownUtil.CallTask() {
             @Override
             public void task() {
-                applyBindBank(bankInfo.getBankNumber(), bankInfo.getPhone());
+                if (isNeedApply) {
+                    applyBindBank(bankInfo.getBankNumber(), bankInfo.getPhone());
+                }
 
             }
         });

@@ -10,7 +10,11 @@ import android.view.View;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.databinding.ActivityInputPhoneBinding;
+import com.hm.cxpay.net.FGObserver;
+import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.net.Route;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
 
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -51,6 +55,7 @@ public class InputPhoneActivity extends BasePayActivity {
         ui.tvNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ui.tvNext.setEnabled(false);
                 String phone = ui.etPhoneNum.getText().toString().trim();
                 if (TextUtils.isEmpty(phone)) {
                     ToastUtil.show(InputPhoneActivity.this, "手机号不能为空");
@@ -61,11 +66,7 @@ public class InputPhoneActivity extends BasePayActivity {
                     return;
                 }
                 bankInfo.setPhone(phone);
-                Intent intent = new Intent(InputPhoneActivity.this, BindBankFinishActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("bank", bankInfo);
-                intent.putExtras(bundle);
-                startActivityForResult(intent, BankSettingActivity.REQUEST_BIND);
+                applyBindBank(bankInfo.getBankNumber(), bankInfo.getPhone());
 
             }
         });
@@ -143,6 +144,41 @@ public class InputPhoneActivity extends BasePayActivity {
             }
         }
     }
+
+
+    //获取绑定银行卡签名及验证码
+    public void applyBindBank(String bankCardNo, String phone) {
+        PayHttpUtils.getInstance().applyBindBank(bankCardNo, phone)
+                .compose(RxSchedulers.<BaseResponse<BindBankInfo>>compose())
+                .compose(RxSchedulers.<BaseResponse<BindBankInfo>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<BindBankInfo>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<BindBankInfo> baseResponse) {
+                        if (baseResponse.isSuccess()) {
+                            BindBankInfo bindInfo = baseResponse.getData();
+                            if (bindInfo != null) {
+                                Intent intent = new Intent(InputPhoneActivity.this, BindBankFinishActivity.class);
+                                Bundle bundle = new Bundle();
+                                bundle.putParcelable("bank", bankInfo);
+                                bundle.putParcelable("bindInfo", bindInfo);
+                                intent.putExtras(bundle);
+                                startActivityForResult(intent, BankSettingActivity.REQUEST_BIND);
+                            }
+                        } else {
+                            ui.tvNext.setEnabled(true);
+                            ToastUtil.show(InputPhoneActivity.this, baseResponse.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        super.onHandleError(baseResponse);
+                        ui.tvNext.setEnabled(true);
+                        ToastUtil.show(InputPhoneActivity.this, baseResponse.getMessage());
+                    }
+                });
+    }
+
 }
 
 
