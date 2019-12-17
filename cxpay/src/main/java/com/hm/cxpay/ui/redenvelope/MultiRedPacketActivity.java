@@ -286,8 +286,6 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                 switch (postsion) {
                     case 0:
                         ARouter.getInstance().build("/app/redEnvelopeDetailsActivity").navigation();
-//                        Intent intent = new Intent(MultiRedPacketActivity.this, RedPacketDetailsActivity.class);
-//                        startActivity(intent);
                         break;
                 }
                 popupSelectView.dismiss();
@@ -317,17 +315,13 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                             if (sendBean != null) {
                                 envelopeBean = convertToEnvelopeBean(sendBean, redPacketType, note, count);
                                 if (sendBean.getCode() == 1) {//code  1表示成功，2失败，99处理中
-//                                    setResultOk();
+                                    setResultOk();
                                 } else if (sendBean.getCode() == 99) {
                                     showWaitDialog();
                                 } else if (sendBean.getCode() == -21000) {//密码错误
                                     showPswErrorDialog();
                                 } else {
                                     ToastUtil.show(getContext(), sendBean.getErrMsg());
-//                                    Intent intent = new Intent();
-//                                    Bundle bundle = new Bundle();
-//                                    bundle.putParcelable("envelope", sendBean);
-//                                    intent.putExtras(bundle);
                                     setResult(RESULT_CANCELED);
                                     finish();
                                 }
