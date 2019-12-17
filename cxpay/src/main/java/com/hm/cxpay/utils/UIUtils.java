@@ -13,6 +13,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 
+import java.text.DecimalFormat;
 import java.util.UUID;
 
 /**
@@ -29,7 +30,8 @@ public class UIUtils {
     //分 转为 String（元）
     public static String getYuan(long amt) {
         double money = (amt * 1.00) / 100;
-        return money + "";
+        DecimalFormat df = new DecimalFormat("#.00");
+        return df.format(money);
     }
 
     //String 转为 分
