@@ -25,6 +25,7 @@ import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.hm.cxpay.bean.UserBean;
+import com.hm.cxpay.eventbus.IdentifyUserEvent;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
@@ -481,6 +482,11 @@ public class MainActivity extends AppActivity {
         Intent loginIntent = new Intent(this, LoginActivity.class);
         startActivity(loginIntent);
         finish();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventIdentifyUser(IdentifyUserEvent event) {
+        httpGetUserInfo();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

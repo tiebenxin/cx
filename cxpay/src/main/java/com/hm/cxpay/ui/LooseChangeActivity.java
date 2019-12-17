@@ -65,7 +65,6 @@ public class LooseChangeActivity extends BasePayActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loose_change);
-        EventBus.getDefault().register(this);
         activity = this;
         initView();
         initEvent();
@@ -73,16 +72,18 @@ public class LooseChangeActivity extends BasePayActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (PayEnvironment.getInstance().getUser() == null) {
+            httpGetUserInfo();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventPayResult(IdentifyUserEvent event) {
-        httpGetUserInfo();
-    }
 
     private void initView() {
         mHeadView = findViewById(R.id.headView);

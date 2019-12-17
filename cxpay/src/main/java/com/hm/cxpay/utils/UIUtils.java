@@ -29,9 +29,13 @@ public class UIUtils {
 
     //分 转为 String（元）
     public static String getYuan(long amt) {
-        double money = (amt * 1.00) / 100;
-        DecimalFormat df = new DecimalFormat("#.00");
-        return df.format(money);
+        if (amt == 0) {
+            return "0.00";
+        } else {
+            double money = (amt * 1.00) / 100;
+            DecimalFormat df = new DecimalFormat("#.00");
+            return df.format(money);
+        }
     }
 
     //String 转为 分

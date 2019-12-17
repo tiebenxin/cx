@@ -8,6 +8,7 @@ import android.view.View;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.databinding.ActivityIdentificationCentreBinding;
+import com.hm.cxpay.eventbus.IdentifyUserEvent;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
@@ -16,10 +17,12 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 
+import org.greenrobot.eventbus.EventBus;
+
 
 /**
  * 用户认证界面
- * */
+ */
 public class IdentificationUserActivity extends BasePayActivity {
 
     private ActivityIdentificationCentreBinding ui;
@@ -79,6 +82,7 @@ public class IdentificationUserActivity extends BasePayActivity {
                     @Override
                     public void onHandleSuccess(BaseResponse baseResponse) {
                         if (baseResponse.isSuccess()) {
+                            EventBus.getDefault().post(new IdentifyUserEvent());
                             ToastUtil.show(IdentificationUserActivity.this, "认证成功!");
                             go(BindPhoneNumActivity.class);
                             finish();
