@@ -3,7 +3,7 @@
     android:id="@+id/headView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:headview_title="充值金额">
+    app:headview_title="充值">
 
     <LinearLayout
         android:layout_width="match_parent"
