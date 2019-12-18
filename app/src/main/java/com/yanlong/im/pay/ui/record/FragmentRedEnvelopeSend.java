@@ -2,21 +2,21 @@ package com.yanlong.im.pay.ui.record;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.bean.RedDetailsBean;
+import com.hm.cxpay.bean.RedEnvelopeItemBean;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.bean.RedDetailsBean;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.view.MultiListView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +24,11 @@ import java.util.List;
 //发出的红包
 public class FragmentRedEnvelopeSend extends Fragment {
     private View rootView;
-    private RecyclerView mMtListView;
+    private MultiListView mMtListView;
     int currentPage = 1;
-
-    private List<String> list = new ArrayList<>();
     private AdapterRedEnvelopeSend adapter;
+    private List<RedEnvelopeItemBean> mDataList;
+    private long totalCount;
 
     public FragmentRedEnvelopeSend() {
 
@@ -45,18 +45,16 @@ public class FragmentRedEnvelopeSend extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fgm_red_packet_record, null);
-//        ViewGroup.LayoutParams layparm = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-//        rootView.setLayoutParams(layparm);
         initView();
-//        initData();
+        getRedEnvelopeDetails();
         return rootView;
     }
 
     private void initView() {
         mMtListView = rootView.findViewById(R.id.mtListView);
-        LinearLayoutManager manager = new LinearLayoutManager(getContext());
-        manager.setOrientation(LinearLayoutManager.VERTICAL);
-        mMtListView.setLayoutManager(manager);
+//        LinearLayoutManager manager = new LinearLayoutManager(getContext());
+//        manager.setOrientation(LinearLayoutManager.VERTICAL);
+//        mMtListView.setLayoutManager(manager);
         adapter = new AdapterRedEnvelopeSend(getContext());
         adapter.setItemClickListener(new AbstractRecyclerAdapter.OnItemClickListener() {
             @Override
@@ -64,8 +62,29 @@ public class FragmentRedEnvelopeSend extends Fragment {
 
             }
         });
-        mMtListView.setAdapter(adapter);
-        getRedEnvelopeDetails();
+        mMtListView.init(adapter);
+
+        mMtListView.setEvent(new MultiListView.Event() {
+            @Override
+            public void onRefresh() {
+                currentPage = 1;
+                getRedEnvelopeDetails();
+            }
+
+            @Override
+            public void onLoadMore() {
+                if (totalCount > 0 && currentPage * 20 >= totalCount){
+                    return;
+                }
+                currentPage++;
+                getRedEnvelopeDetails();
+            }
+
+            @Override
+            public void onLoadFail() {
+
+            }
+        });
     }
 
     /**
@@ -81,25 +100,40 @@ public class FragmentRedEnvelopeSend extends Fragment {
                     public void onHandleSuccess(BaseResponse<RedDetailsBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
                             RedDetailsBean details = baseResponse.getData();
-                            if (((RedEnvelopeRecordActivity) getActivity()).getCurrentTab() == 0) {
-                                ((RedEnvelopeRecordActivity) getActivity()).initDetails(details, true);
+                            if (details != null) {
+                                totalCount = details.getTotal();
+                                if (((RedEnvelopeRecordActivity) getActivity()).getCurrentTab() == 0) {
+                                    ((RedEnvelopeRecordActivity) getActivity()).initDetails(details, true);
+                                }
+                                if (details.getItems() != null) {
+                                    if (currentPage == 1) {
+                                        mDataList = details.getItems();
+                                    } else {
+                                        mDataList.addAll(details.getItems());
+                                    }
+                                }
                             }
-                            adapter.bindData(details.getItems());
+                            adapter.bindData(mDataList);
+                            mMtListView.notifyDataSetChange();
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
                         }
-
                     }
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
                         super.onHandleError(baseResponse);
                         ToastUtil.show(getActivity(), baseResponse.getMessage());
+                        if (currentPage > 1) {
+                            currentPage--;
+                        }
                     }
                 });
     }
 
-    public void updateDetails(){
+    //时间更新
+    public void updateDetails() {
+        currentPage = 1;
         getRedEnvelopeDetails();
     }
 
