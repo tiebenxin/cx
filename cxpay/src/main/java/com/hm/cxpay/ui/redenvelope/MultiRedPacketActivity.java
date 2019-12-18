@@ -206,14 +206,23 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             public void afterTextChanged(Editable s) {
                 String string = ui.edMoney.getText().toString().trim();
                 int count = UIUtils.getRedEnvelopeCount(s.toString().trim());
-                if (!TextUtils.isEmpty(string) && count > 0) {
+                long money = UIUtils.getFen(string);
+                if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {
+                    money = money * count;
+                }
+                if (money > 0 && money <= MAX_AMOUNT && count > 0) {
                     ui.btnCommit.setEnabled(true);
-                    ui.tvMoney.setText(string);
+                    ui.tvMoney.setText(UIUtils.getYuan(money));
+                    ui.tvNotice.setVisibility(View.GONE);
+                } else if (money > MAX_AMOUNT) {
+                    ui.btnCommit.setEnabled(false);
+                    ui.tvMoney.setText(UIUtils.getYuan(money));
+                    ui.tvNotice.setVisibility(View.VISIBLE);
                 } else {
                     ui.btnCommit.setEnabled(false);
                     ui.tvMoney.setText("0.00");
+                    ui.tvNotice.setVisibility(View.GONE);
                 }
-
             }
         });
     }
