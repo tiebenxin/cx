@@ -274,20 +274,12 @@ public class BillDetailActivity extends AppActivity {
             } else {
                 tvContent.setText("-" + UIUtils.getYuan(data.getAmt()));
             }
-            //2发红包给别人 5红包退款 7红包收款
             tvRedPacketDetail.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //收款退款传递的id为红包bizid，发红包收红包传tradeId
-                    long id = 0;
-                    if(type ==2){
-                        id = data.getTradeId();
-                    }else {
-                        id = data.getBzId();
-                    }
                     ARouter.getInstance().build("/app/singleRedPacketDetailsActivity")
                             .withInt("fromType", 1) //固定传1代表从账单详情跳转过来
-                            .withLong("rid", id)
+                            .withLong("rid", data.getBzId())
                             .navigation();
                 }
             });
