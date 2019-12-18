@@ -2,9 +2,15 @@ package com.hm.cxpay.ui;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -26,6 +32,7 @@ import com.hm.cxpay.ui.payword.ManagePaywordActivity;
 import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.utils.UIUtils;
 
+import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -146,8 +153,7 @@ public class LooseChangeActivity extends BasePayActivity {
                     startActivityForResult(new Intent(activity, RechargeActivity.class), REFRESH_BALANCE);
                 } else {
                     //2 未设置支付密码 -> 需要先设置
-                    ToastUtil.show(context, "检测到您还未设置支付密码，请先设置");
-                    startActivity(new Intent(activity, SetPaywordActivity.class));
+                    showSetPaywordDialog();
                 }
             }
         });
@@ -161,8 +167,7 @@ public class LooseChangeActivity extends BasePayActivity {
                     startActivityForResult(new Intent(activity, WithdrawActivity.class), REFRESH_BALANCE);
                 } else {
                     //2 未设置支付密码 -> 需要先设置
-                    ToastUtil.show(context, "检测到您还未设置支付密码，请先设置");
-                    startActivity(new Intent(activity, SetPaywordActivity.class));
+                    showSetPaywordDialog();
                 }
             }
         });
@@ -204,16 +209,22 @@ public class LooseChangeActivity extends BasePayActivity {
             @Override
             public void onClick() {
                 layoutAuthRealName.setEnabled(false);
-                //1 已经绑定手机
-                if (PayEnvironment.getInstance().getUser().getPhoneBindStat() == 1) {
-                    //TODO 还有一个认证信息展示界面未出
+                // 1 已设置支付密码 -> 允许跳转
+                if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
+                    //1 已经绑定手机
+                    if (PayEnvironment.getInstance().getUser().getPhoneBindStat() == 1) {
+                        //TODO 还有一个认证信息展示界面未出
 //                    ToastUtil.show(activity,"您已绑定手机号(暂时允许进入)");
 //                    IntentUtil.gotoActivity(activity, BindPhoneNumActivity.class);
-                    IntentUtil.gotoActivity(activity, IdentificationInfoActivity.class);
+                        IntentUtil.gotoActivity(activity, IdentificationInfoActivity.class);
 
+                    } else {
+                        //2 没有绑定手机
+                        showBindPhoneNumDialog();
+                    }
                 } else {
-                    //2 没有绑定手机
-                    IntentUtil.gotoActivity(activity, BindPhoneNumActivity.class);
+                    //2 未设置支付密码 -> 需要先设置
+                    showSetPaywordDialog();
                 }
             }
         });
@@ -240,8 +251,7 @@ public class LooseChangeActivity extends BasePayActivity {
                     IntentUtil.gotoActivity(activity, ManagePaywordActivity.class);
                 } else {
                     //2 未设置支付密码 -> 需要先设置
-                    ToastUtil.show(context, "检测到您还未设置支付密码，请先设置");
-                    startActivity(new Intent(activity, SetPaywordActivity.class));
+                    showSetPaywordDialog();
                 }
             }
         });
@@ -325,5 +335,90 @@ public class LooseChangeActivity extends BasePayActivity {
                     }
                 });
     }
+
+
+    /**
+     * 检测到未设置支付密码弹框
+     */
+    private void showSetPaywordDialog(){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+        dialogBuilder.setCancelable(false);
+        final AlertDialog dialog = dialogBuilder.create();
+        //获取界面
+        View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_set_payword, null);
+        //初始化控件
+        TextView tvSet = dialogView.findViewById(R.id.tv_set);
+        TextView tvExit = dialogView.findViewById(R.id.tv_exit);
+        //去设置
+        tvSet.setOnClickListener(new android.view.View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                startActivity(new Intent(activity, SetPaywordActivity.class));
+
+            }
+        });
+        //取消
+        tvExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        //展示界面
+        dialog.show();
+        //解决圆角shape背景无效问题
+        Window window = dialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        //设置宽高
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.height = DensityUtil.dip2px(activity, 155);
+        lp.width = DensityUtil.dip2px(activity, 277);
+        dialog.getWindow().setAttributes(lp);
+        dialog.setContentView(dialogView);
+    }
+
+    /**
+     * 是否绑定手机号弹框
+     */
+    private void showBindPhoneNumDialog(){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+        dialogBuilder.setCancelable(false);
+        final AlertDialog dialog = dialogBuilder.create();
+        //获取界面
+        View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_bind_phonenum, null);
+        //初始化控件
+        TextView tvBind = dialogView.findViewById(R.id.tv_bind);
+        TextView tvExit = dialogView.findViewById(R.id.tv_exit);
+        //去绑定
+        tvBind.setOnClickListener(new android.view.View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                startActivity(new Intent(activity, BindPhoneNumActivity.class));
+
+            }
+        });
+        //取消
+        tvExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        //展示界面
+        dialog.show();
+        //解决圆角shape背景无效问题
+        Window window = dialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        //设置宽高
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.height = DensityUtil.dip2px(activity, 155);
+        lp.width = DensityUtil.dip2px(activity, 277);
+        dialog.getWindow().setAttributes(lp);
+        dialog.setContentView(dialogView);
+    }
+
+
 
 }

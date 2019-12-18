@@ -30,6 +30,7 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.BindPhoneNumActivity;
 import com.hm.cxpay.ui.LooseChangeActivity;
 import com.jrmf360.walletlib.JrmfWalletClient;
 import com.yanlong.im.R;
@@ -435,12 +436,18 @@ public class MyFragment extends Fragment {
     }
 
     /**
-     * 改为两层判断：是否同意隐私协议->是否实名认证
+     * 改为两层判断：是否同意隐私协议->是否实名认证->是否绑定手机号
      */
     private void checkUserStatus(UserBean userBean){
         //1 已实名认证
         if(userBean.getRealNameStat()==1){
-            startActivity(new Intent(context,LooseChangeActivity.class));
+            //1-1 是否完成绑定手机号流程
+            if(userBean.getPhoneBindStat()==1){
+                startActivity(new Intent(getActivity(),LooseChangeActivity.class));
+            }else {
+                ToastUtil.show(context, "请继续完成绑定手机号的流程");
+                startActivity(new Intent(getActivity(),BindPhoneNumActivity.class));
+            }
         }else {
             //2 未实名认证->分三步走流程(1 同意->2 实名认证->3 绑定手机号)
             showIdentifyDialog();
