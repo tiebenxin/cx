@@ -223,7 +223,9 @@ public class RechargeActivity extends AppActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 //1 为空不参与计算
-                if(!TextUtils.isEmpty(etRecharge.getText().toString())){
+                if (!TextUtils.isEmpty(etRecharge.getText().toString())) {
+                    //选中状态
+                    selectItem(etRecharge.getText().toString());
                     //2 自动过滤用户金额前乱输入0
                     String total = etRecharge.getText().toString();
                     if (total.startsWith("0")) {
@@ -236,10 +238,12 @@ public class RechargeActivity extends AppActivity {
                         }
                     }
                     //3 金额最高限制
-                    if(Double.valueOf(total) > 500){
-                        ToastUtil.show(activity,"单笔充值最高不能超过500元");
+                    if (Double.valueOf(total) > 500) {
+                        ToastUtil.show(activity, "单笔充值最高不能超过500元");
                         etRecharge.setText("");
                     }
+                } else {
+                    clearSelectedStatus();
                 }
             }
         });
@@ -262,6 +266,41 @@ public class RechargeActivity extends AppActivity {
         tvSelectFour.setTextColor(getResources().getColor(R.color.c_517da2));
         tvSelectFive.setTextColor(getResources().getColor(R.color.c_517da2));
         tvSelectSix.setTextColor(getResources().getColor(R.color.c_517da2));
+    }
+
+    /**
+     * 选中某一项
+     */
+    private void selectItem(String value) {
+        clearSelectedStatus();
+        switch (value) {
+            case "10":
+                tvSelectOne.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
+                tvSelectOne.setTextColor(getResources().getColor(R.color.white));
+                break;
+            case "20":
+                tvSelectTwo.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
+                tvSelectTwo.setTextColor(getResources().getColor(R.color.white));
+                break;
+            case "30":
+                tvSelectThree.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
+                tvSelectThree.setTextColor(getResources().getColor(R.color.white));
+                break;
+            case "100":
+                tvSelectFour.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
+                tvSelectFour.setTextColor(getResources().getColor(R.color.white));
+                break;
+            case "200":
+                tvSelectFive.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
+                tvSelectFive.setTextColor(getResources().getColor(R.color.white));
+                break;
+            case "500":
+                tvSelectSix.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
+                tvSelectSix.setTextColor(getResources().getColor(R.color.white));
+                break;
+            default:
+                break;
+        }
     }
 
     /**
@@ -322,19 +361,19 @@ public class RechargeActivity extends AppActivity {
             builder = new StringBuilder();
             //默认取第一张银行卡信息展示: 银行卡名 银行卡id 银行卡图标
             selectBankcard = bankList.get(0);
-            if(!TextUtils.isEmpty(selectBankcard.getBankName())){
+            if (!TextUtils.isEmpty(selectBankcard.getBankName())) {
                 builder.append(selectBankcard.getBankName());
-                if(!TextUtils.isEmpty(selectBankcard.getCardNo())){
+                if (!TextUtils.isEmpty(selectBankcard.getCardNo())) {
                     int length = selectBankcard.getCardNo().length();
                     builder.append("(");
-                    builder.append(selectBankcard.getCardNo().substring(length-4,length));
+                    builder.append(selectBankcard.getCardNo().substring(length - 4, length));
                     builder.append(")");
                 }
                 tvBankNameTwo.setText(builder);//银行卡名称尾号
-                if(!TextUtils.isEmpty(selectBankcard.getLogo())){
+                if (!TextUtils.isEmpty(selectBankcard.getLogo())) {
                     Glide.with(activity).load(selectBankcard.getLogo())
                             .apply(options).into(ivBankIconTwo);
-                }else {
+                } else {
                     ivBankIconTwo.setImageResource(R.mipmap.ic_bank_zs);
                 }
             }
@@ -349,8 +388,8 @@ public class RechargeActivity extends AppActivity {
             pswView.setOnPasswordChangedListener(new PswView.onPasswordChangedListener() {
                 @Override
                 public void setPasswordChanged(String payword) {
-                    httpRecharge(payword,selectBankcard.getId());
-                    if(dialogTwo!=null){
+                    httpRecharge(payword, selectBankcard.getId());
+                    if (dialogTwo != null) {
                         dialogTwo.dismiss();
                     }
                 }
@@ -359,7 +398,7 @@ public class RechargeActivity extends AppActivity {
             layoutChangeBankcard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    startActivityForResult(new Intent(activity,SelectBankCardActivity.class),SELECT_BANKCARD);
+                    startActivityForResult(new Intent(activity, SelectBankCardActivity.class), SELECT_BANKCARD);
 
                 }
             });
@@ -406,30 +445,31 @@ public class RechargeActivity extends AppActivity {
                     }
                 });
     }
+
     /**
      * 发请求->充值接口
      */
-    private void httpRecharge(String payword,long bankId){
+    private void httpRecharge(String payword, long bankId) {
         PayHttpUtils.getInstance().toRecharge(
                 Integer.valueOf(etRecharge.getText().toString())
-                ,bankId,payword)
+                , bankId, payword)
                 .compose(RxSchedulers.<BaseResponse<CommonBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<CommonBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<CommonBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
-                            if(baseResponse.getData()!=null){
-                                if(baseResponse.getData().getCode()==1){
-                                    ToastUtil.showLong(context, "充值成功!");
-                                    setResult(RESULT_OK);
-                                }else if(baseResponse.getData().getCode()==2){
-                                    ToastUtil.showLong(context, "充值失败!如有疑问，请联系客服");
-                                }else if(baseResponse.getData().getCode()==99){
-                                    ToastUtil.showLong(context, "交易处理中，请耐心等待，稍后会有系统通知...");
-                                }else {
-                                    ToastUtil.showLong(context, baseResponse.getMessage());
-                                }
+                        if (baseResponse.getData() != null) {
+                            if (baseResponse.getData().getCode() == 1) {
+                                ToastUtil.showLong(context, "充值成功!");
+                                setResult(RESULT_OK);
+                            } else if (baseResponse.getData().getCode() == 2) {
+                                ToastUtil.showLong(context, "充值失败!如有疑问，请联系客服");
+                            } else if (baseResponse.getData().getCode() == 99) {
+                                ToastUtil.showLong(context, "交易处理中，请耐心等待，稍后会有系统通知...");
+                            } else {
+                                ToastUtil.showLong(context, baseResponse.getMessage());
                             }
+                        }
                         finish();
                     }
 
@@ -446,20 +486,20 @@ public class RechargeActivity extends AppActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == SELECT_BANKCARD){
-            if(resultCode == RESULT_OK){
+        if (requestCode == SELECT_BANKCARD) {
+            if (resultCode == RESULT_OK) {
                 selectBankcard = data.getParcelableExtra("bank_card");
-                if(!TextUtils.isEmpty(selectBankcard.getBankName())){
+                if (!TextUtils.isEmpty(selectBankcard.getBankName())) {
                     builder.setLength(0);
                     builder.append(selectBankcard.getBankName());
-                    if(!TextUtils.isEmpty(selectBankcard.getCardNo())){
+                    if (!TextUtils.isEmpty(selectBankcard.getCardNo())) {
                         int length = selectBankcard.getCardNo().length();
                         builder.append("(");
-                        builder.append(selectBankcard.getCardNo().substring(length-4,length));
+                        builder.append(selectBankcard.getCardNo().substring(length - 4, length));
                         builder.append(")");
                     }
                     tvBankNameTwo.setText(builder);//银行卡名称尾号
-                    if(!TextUtils.isEmpty(selectBankcard.getLogo())){
+                    if (!TextUtils.isEmpty(selectBankcard.getLogo())) {
                         Glide.with(activity).load(selectBankcard.getLogo())
                                 .apply(options).into(ivBankIconTwo);
                     }

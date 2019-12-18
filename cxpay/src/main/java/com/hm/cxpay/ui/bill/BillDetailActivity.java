@@ -383,12 +383,12 @@ public class BillDetailActivity extends AppActivity {
                 }else {
                     tvWithdrawStatusTwo.setText("退款失败");
                 }
-                ivWithdrawStatusTwo.setVisibility(View.VISIBLE);
+                ivWithdrawStatusTwo.setVisibility(View.GONE);
                 tvWithdrawStatusThree.setVisibility(View.GONE);
                 ivWithdrawFinished.setVisibility(View.GONE);
             }else if(data.getStat()==99){
                 tvWithdrawStatusTwo.setText("处理中");
-                ivWithdrawStatusTwo.setVisibility(View.VISIBLE);
+                ivWithdrawStatusTwo.setVisibility(View.GONE);
                 tvWithdrawStatusThree.setVisibility(View.GONE);
                 ivWithdrawFinished.setVisibility(View.GONE);
             }
@@ -499,8 +499,10 @@ public class BillDetailActivity extends AppActivity {
             case 9:
                 return R.mipmap.ic_transfer;
             case 3:
+            case 11:
                 return R.mipmap.ic_recharge_trade;
             case 4:
+            case 10:
                 return R.mipmap.ic_withdraw_trade;
             default:
                 return R.mipmap.ic_transfer;
