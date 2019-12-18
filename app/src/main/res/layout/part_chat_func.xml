@@ -221,5 +221,28 @@
                 android:text="短视频" />
         </LinearLayout>
 
+
+        <!-- 隐藏位置功能 -->
+        <LinearLayout
+            android:id="@+id/view_location_ll"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
+            android:visibility="visible"
+            android:orientation="vertical">
+
+            <ImageView
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/location_six" />
+
+            <TextView
+                style="@style/app_txt_content_1"
+                android:layout_marginTop="2dp"
+                android:text="位置" />
+        </LinearLayout>
+
     </GridLayout>
 </layout>

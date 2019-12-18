@@ -583,6 +583,14 @@ public class MsgMainFragment extends Fragment {
         }
 
         @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup view, int viewType) {
+            if (mHeaderView != null && viewType == TYPE_HEADER)
+                return new HeadViewHolder(mHeaderView);
+            RCViewHolder holder = new RCViewHolder(getLayoutInflater().inflate(R.layout.item_msg_session, view, false));
+            return holder;
+        }
+
+        @Override
         public int getItemViewType(int position) {
             if (mHeaderView == null) return TYPE_NORMAL;
             if (position == 0) return TYPE_HEADER;
@@ -847,13 +855,7 @@ public class MsgMainFragment extends Fragment {
             }
         }
 
-        @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup view, int viewType) {
-            if (mHeaderView != null && viewType == TYPE_HEADER)
-                return new HeadViewHolder(mHeaderView);
-            RCViewHolder holder = new RCViewHolder(getLayoutInflater().inflate(R.layout.item_msg_session, view, false));
-            return holder;
-        }
+
 
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private MultiImageView imgHead;

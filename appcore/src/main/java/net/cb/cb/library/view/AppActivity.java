@@ -4,8 +4,12 @@ package net.cb.cb.library.view;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +19,8 @@ import com.umeng.analytics.MobclickAgent;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.event.EventFactory;
+import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -29,6 +35,8 @@ public class AppActivity extends AppCompatActivity {
     public Context context;
     public LayoutInflater inflater;
     public AlertWait alert;
+
+    public Boolean isFirstRequestPermissionsResult=true;//第一次请求权限返回
 
 
     @Override
@@ -152,6 +160,40 @@ public class AppActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 127: {//申请定位权限返回
+                Boolean hasPermissions = true;
+                for (int i = 0; i < grantResults.length; ++i) {
+                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                        hasPermissions = false;
+                    }
+                }
+//                ToastUtil.show(this,"请打开定位权限");
+                LogUtil.getLog().e("=申请定位权限返回=location=hasPermission=s="+hasPermissions);
 
+                if(!hasPermissions && !isFirstRequestPermissionsResult){
+                    AlertYesNo alertYesNo=new AlertYesNo();
+                    alertYesNo.init(this, "提示",  "您拒绝了定位权限，打开定位权限吗？", "确定", "取消", new AlertYesNo.Event() {
+                        @Override
+                        public void onON() {
+                        }
 
+                        @Override
+                        public void onYes() {
+                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                            Uri uri = Uri.fromParts("package", getApplicationContext().getPackageName(), null);
+                            intent.setData(uri);
+                            startActivity(intent);
+                        }
+                    });
+                    alertYesNo.show();
+                }
+                isFirstRequestPermissionsResult=false;
+                break;
+            }
+        }
+    }
 }

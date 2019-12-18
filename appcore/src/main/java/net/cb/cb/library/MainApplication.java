@@ -5,6 +5,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.multidex.MultiDexApplication;
 
+import net.cb.cb.library.utils.LogUtil;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
@@ -23,6 +25,7 @@ public class MainApplication extends MultiDexApplication {
         AppConfig.APP_CONTEXT = context;
         initOther();
         // initFont();
+//        LogUtil.getLog().e("==sha1="+sHA1(this));
     }
 
     public static MainApplication getInstance() {
@@ -47,6 +50,7 @@ public class MainApplication extends MultiDexApplication {
     }
 
     public static String sHA1(Context context) {
+//      sha1=  62:84:03:64:9A:E7:CD:28:13:24:91:1A:16:60:8F:47:83:8D:98:B3
         try {
             PackageInfo info = context.getPackageManager().getPackageInfo(
                     context.getPackageName(), PackageManager.GET_SIGNATURES);

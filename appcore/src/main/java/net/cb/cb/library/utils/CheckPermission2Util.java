@@ -45,7 +45,9 @@ public class CheckPermission2Util {
      * 2.放在PonRequestermissionsResult下面
      */
     public void onRequestPermissionsResult() {
-
+        if(onEvent==null){
+            return;
+        }
         String[] prming = getNeededPermission(activity, prm);
         if (prming != null && prming.length > 0) {
             onEvent.onFail();
