@@ -363,6 +363,7 @@ public class LooseChangeActivity extends BasePayActivity {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
+                resumeEnabled();
             }
         });
         //展示界面
@@ -404,6 +405,7 @@ public class LooseChangeActivity extends BasePayActivity {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
+                resumeEnabled();
             }
         });
         //展示界面

@@ -35,6 +35,7 @@ public class CommonBean implements Parcelable {
     private int toGroup;
     private long tradeId;
     private int tradeType;
+    private int refundType;
     private String phone;
     //忘记密码验证bean类
     private String token;
@@ -62,6 +63,7 @@ public class CommonBean implements Parcelable {
         toGroup = in.readInt();
         tradeId = in.readLong();
         tradeType = in.readInt();
+        refundType = in.readInt();
     }
 
     public CommonBean(){
@@ -268,6 +270,13 @@ public class CommonBean implements Parcelable {
         this.tradeType = tradeType;
     }
 
+    public int getRefundType() {
+        return refundType;
+    }
+
+    public void setRefundType(int refundType) {
+        this.refundType = refundType;
+    }
 
     @Override
     public int describeContents() {
@@ -297,6 +306,7 @@ public class CommonBean implements Parcelable {
         dest.writeInt(toGroup);
         dest.writeLong(tradeId);
         dest.writeInt(tradeType);
+        dest.writeInt(refundType);
     }
 
 
