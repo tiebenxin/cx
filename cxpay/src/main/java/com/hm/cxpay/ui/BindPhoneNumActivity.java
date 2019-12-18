@@ -1,9 +1,15 @@
 package com.hm.cxpay.ui;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -18,6 +24,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.CountDownUtil;
+import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -227,4 +234,49 @@ public class BindPhoneNumActivity extends AppActivity {
     }
 
 
+    /**
+     * 确认是否退出弹框
+     */
+    private void showExitDialog(){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+        dialogBuilder.setCancelable(false);
+        final AlertDialog dialog = dialogBuilder.create();
+        //获取界面
+        View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_if_exit, null);
+        //初始化控件
+        TextView tvKeepOn = dialogView.findViewById(R.id.tv_keep_on);
+        TextView tvExit = dialogView.findViewById(R.id.tv_exit);
+        //继续认证
+        tvKeepOn.setOnClickListener(new android.view.View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        //退出
+        tvExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                finish();
+            }
+        });
+        //展示界面
+        dialog.show();
+        //解决圆角shape背景无效问题
+        Window window = dialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        //设置宽高
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.height = DensityUtil.dip2px(activity, 155);
+        lp.width = DensityUtil.dip2px(activity, 277);
+        dialog.getWindow().setAttributes(lp);
+        dialog.setContentView(dialogView);
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        showExitDialog();
+    }
 }
