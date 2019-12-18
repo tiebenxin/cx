@@ -199,7 +199,7 @@ public class BillDetailActivity extends AppActivity {
     }
 
     //类型：1转账给别人 2发红包给别人 3充值 4提现 5红包退款 7红包收款 8转账收款 9转账退款 10提现退款 11充值退款 12消费退款(忽略)
-    private void showUI(int type) {
+    private void showUI(final int type) {
         if(type == 2 || type == 5 || type == 7){
             ivRedpacketImage.setVisibility(View.VISIBLE);
             ivRedpacketImage.setImageResource(R.mipmap.ic_redpackage);
@@ -274,10 +274,21 @@ public class BillDetailActivity extends AppActivity {
             } else {
                 tvContent.setText("-" + UIUtils.getYuan(data.getAmt()));
             }
+            //2发红包给别人 5红包退款 7红包收款
             tvRedPacketDetail.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    //收款退款传递的id为红包bizid，发红包收红包传tradeId
+                    long id = 0;
+                    if(type ==2){
+                        id = data.getTradeId();
+                    }else {
+                        id = data.getBzId();
+                    }
+                    ARouter.getInstance().build("/app/singleRedPacketDetailsActivity")
+                            .withInt("fromType", 1) //固定传1代表从账单详情跳转过来
+                            .withLong("rid", id)
+                            .navigation();
                 }
             });
             if (data.getStat() == 1) {
@@ -362,7 +373,7 @@ public class BillDetailActivity extends AppActivity {
                     }else {
                         tvWithdrawStatusTwo.setText("全额退款成功");
                     }
-                    ivWithdrawStatusTwo.setVisibility(View.VISIBLE);
+                    ivWithdrawStatusTwo.setVisibility(View.GONE);
                     tvWithdrawStatusThree.setVisibility(View.GONE);
                     ivWithdrawFinished.setVisibility(View.GONE);
                 }

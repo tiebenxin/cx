@@ -189,9 +189,9 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                             holder.tvStatus.setText("处理中");
                         }
                         if(!TextUtils.isEmpty(bean.getBankCardInfo())){
-                            holder.tvContent.setText("充值-"+bean.getBankCardInfo());
+                            holder.tvContent.setText("提现-"+bean.getBankCardInfo());
                         }else {
-                            holder.tvContent.setText("充值");
+                            holder.tvContent.setText("提现");
                         }
                     }else if(bean.getTradeType()==11){
                         holder.tvStatus.setVisibility(View.VISIBLE);
