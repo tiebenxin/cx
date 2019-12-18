@@ -121,7 +121,7 @@ public class ForgetPswStepTwoActivity extends AppActivity {
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
                         super.onHandleError(baseResponse);
-                        ToastUtil.show(activity, baseResponse.getMessage());
+                        ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });
     }

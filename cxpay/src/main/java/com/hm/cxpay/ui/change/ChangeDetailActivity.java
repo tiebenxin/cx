@@ -109,7 +109,7 @@ public class ChangeDetailActivity extends AppActivity {
         }else if(type == 4){
             tvTitle.setText("提现");
             titleTvTime.setText("提现时间：");
-        }else if(type == 5 || type == 9){
+        }else if(type == 5 || type == 9 || type == 10|| type == 11){
             tvTitle.setText("退款");
             titleTvTime.setText("退款时间：");
         }

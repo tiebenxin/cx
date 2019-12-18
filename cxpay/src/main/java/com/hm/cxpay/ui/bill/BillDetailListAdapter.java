@@ -174,6 +174,44 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         }else {
                             holder.tvContent.setText("充值");
                         }
+                    }else if(bean.getTradeType()==10){
+                        holder.tvStatus.setVisibility(View.VISIBLE);
+                        holder.tvBalance.setVisibility(View.GONE);
+                        if(bean.getStat()==1){
+                            if(bean.getRefundType()==1){
+                                holder.tvStatus.setText("部分退款成功");
+                            }else {
+                                holder.tvStatus.setText("全额退款成功");
+                            }
+                        }else if(bean.getStat()==2){
+                            holder.tvStatus.setText("退款失败");
+                        }else if(bean.getStat()==99){
+                            holder.tvStatus.setText("处理中");
+                        }
+                        if(!TextUtils.isEmpty(bean.getBankCardInfo())){
+                            holder.tvContent.setText("提现-"+bean.getBankCardInfo());
+                        }else {
+                            holder.tvContent.setText("提现");
+                        }
+                    }else if(bean.getTradeType()==11){
+                        holder.tvStatus.setVisibility(View.VISIBLE);
+                        holder.tvBalance.setVisibility(View.GONE);
+                        if(bean.getStat()==1){
+                            if(bean.getRefundType()==1){
+                                holder.tvStatus.setText("部分退款成功");
+                            }else {
+                                holder.tvStatus.setText("全额退款成功");
+                            }
+                        }else if(bean.getStat()==2){
+                            holder.tvStatus.setText("退款失败");
+                        }else if(bean.getStat()==99){
+                            holder.tvStatus.setText("处理中");
+                        }
+                        if(!TextUtils.isEmpty(bean.getBankCardInfo())){
+                            holder.tvContent.setText("充值-"+bean.getBankCardInfo());
+                        }else {
+                            holder.tvContent.setText("充值");
+                        }
                     }else if(bean.getTradeType()==4){
                         holder.tvStatus.setVisibility(View.VISIBLE);
                         holder.tvBalance.setVisibility(View.GONE);
@@ -224,9 +262,9 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                             holder.tvContent.setText("转账-来自");
                         }
                         if(bean.getStat()==1){
-                            holder.tvStatus.setText("转账成功");
+                            holder.tvStatus.setText("收款成功");
                         }else if(bean.getStat()==2){
-                            holder.tvStatus.setText("转账失败");
+                            holder.tvStatus.setText("收款失败");
                         }else if(bean.getStat()==99){
                             holder.tvStatus.setText("处理中");
                         }

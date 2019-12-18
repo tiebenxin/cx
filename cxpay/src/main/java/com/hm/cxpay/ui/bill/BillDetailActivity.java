@@ -198,12 +198,12 @@ public class BillDetailActivity extends AppActivity {
         });
     }
 
-    //类型：1转账给 2发红包给 3充值 4提现 5红包退款 6消费(忽略) 7红包收款 8转账收款 9转账退款
-    private void showUI(int type) {
+    //类型：1转账给别人 2发红包给别人 3充值 4提现 5红包退款 7红包收款 8转账收款 9转账退款 10提现退款 11充值退款 12消费退款(忽略)
+    private void showUI(final int type) {
         if(type == 2 || type == 5 || type == 7){
             ivRedpacketImage.setVisibility(View.VISIBLE);
-            ivTitleImage.setVisibility(View.GONE);
             ivRedpacketImage.setImageResource(R.mipmap.ic_redpackage);
+            ivTitleImage.setVisibility(View.GONE);
         }else {
             ivRedpacketImage.setVisibility(View.GONE);
             ivTitleImage.setVisibility(View.VISIBLE);
@@ -226,11 +226,9 @@ public class BillDetailActivity extends AppActivity {
             if (data.getStat() == 1) {
                 tvTransferSendStatus.setText("朋友已收钱");
             } else if (data.getStat() == 2) {
-                tvTransferSendStatus.setText("已部分退款");
+                tvTransferSendStatus.setText("转账失败");
             } else if (data.getStat() == 99) {
                 tvTransferSendStatus.setText("处理中");
-            } else if (data.getStat() == 200) {
-                tvTransferSendStatus.setText("已全额退款");
             }
             if (!TextUtils.isEmpty(data.getNote())) {
                 tvTransferSendExplain.setText(data.getNote());
@@ -276,27 +274,41 @@ public class BillDetailActivity extends AppActivity {
             } else {
                 tvContent.setText("-" + UIUtils.getYuan(data.getAmt()));
             }
+            //2发红包给别人 5红包退款 7红包收款
             tvRedPacketDetail.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO 红包详情点击
-                    ToastUtil.show(activity, "红包详情点击");
+                    //收款退款传递的id为红包bizid，发红包收红包传tradeId
+                    long id = 0;
+                    if(type ==2){
+                        id = data.getTradeId();
+                    }else {
+                        id = data.getBzId();
+                    }
+                    ARouter.getInstance().build("/app/singleRedPacketDetailsActivity")
+                            .withInt("fromType", 1) //固定传1代表从账单详情跳转过来
+                            .withLong("rid", id)
+                            .navigation();
                 }
             });
             if (data.getStat() == 1) {
                 if (type == 2) {
-                    tvRedPacketStatus.setText("支付成功");
+                    tvRedPacketStatus.setText("发送成功");
                 } else if (type == 7) {
                     tvRedPacketStatus.setText("已存入零钱");
                 } else {
-                    tvRedPacketStatus.setText("成功");
+                    tvRedPacketStatus.setText("退款成功");
                 }
             } else if (data.getStat() == 2) {
-                tvRedPacketStatus.setText("已部分退款");
+                if (type == 2) {
+                    tvRedPacketStatus.setText("发送失败");
+                } else if (type == 7) {
+                    tvRedPacketStatus.setText("领取失败");
+                } else {
+                    tvRedPacketStatus.setText("退款失败");
+                }
             } else if (data.getStat() == 99) {
                 tvRedPacketStatus.setText("处理中");
-            } else if (data.getStat() == 200) {
-                tvRedPacketStatus.setText("已全额退款");
             }
             tvRedPacketPayTime.setText(DateUtils.timeStamp2Date(data.getCreateTime(), ""));
             if (data.getBillType() == 1) {
@@ -305,8 +317,8 @@ public class BillDetailActivity extends AppActivity {
             tvRedPacketGetMoneyTime.setText(DateUtils.timeStamp2Date(data.getStatConfirmTime(), ""));
             tvRedPacketOrderId.setText(data.getTradeId() + "");
 
-            //3 充值
-        } else if (type == 3) {
+            //3 充值 11 充值退款
+        } else if (type == 3 || type == 11) {
             layoutRecharge.setVisibility(View.VISIBLE);
             if(!TextUtils.isEmpty(data.getBankCardInfo())){
                 tvTitle.setText("充值-来自"+data.getBankCardInfo());
@@ -315,20 +327,30 @@ public class BillDetailActivity extends AppActivity {
             }
             tvContent.setText("¥"+UIUtils.getYuan(data.getAmt())+"元");
             if (data.getStat() == 1) {
-                tvRechargeStatus.setText("充值成功");
+                if(type==3){
+                    tvRechargeStatus.setText("充值成功");
+                }else {
+                    if(data.getRefundType()==1){
+                        tvRechargeStatus.setText("部分退款成功");
+                    }else {
+                        tvRechargeStatus.setText("全额退款成功");
+                    }
+                }
             } else if (data.getStat() == 2) {
-                tvRechargeStatus.setText("已部分退款");
+                if(type==3){
+                    tvRechargeStatus.setText("充值失败");
+                }else {
+                    tvRechargeStatus.setText("退款失败");
+                }
             } else if (data.getStat() == 99) {
                 tvRechargeStatus.setText("处理中");
-            } else if (data.getStat() == 200) {
-                tvRechargeStatus.setText("已全额退款");
             }
             tvRechargeTime.setText(DateUtils.timeStamp2Date(data.getCreateTime(), ""));
             tvRechargeBank.setText(data.getBankCardInfo());
             tvRechargeOrderId.setText(data.getTradeId() + "");
 
-            //4 提现
-        } else if (type == 4) {
+            //4 提现 10 提现退款
+        } else if (type == 4 || type == 10) {
             layoutWithdrawOne.setVisibility(View.VISIBLE);
             layoutWithdrawTwo.setVisibility(View.VISIBLE);
             if(!TextUtils.isEmpty(data.getBankCardInfo())){
@@ -339,23 +361,33 @@ public class BillDetailActivity extends AppActivity {
             tvContent.setText("¥"+UIUtils.getYuan(data.getAmt())+"元");
             tvWithdrawStatusOne.setText("发起提现\n"+DateUtils.timeStamp2Date(data.getCreateTime(), ""));
             if (data.getStat() == 1) {
-                tvWithdrawStatusTwo.setText("提现成功");
-                ivWithdrawStatusTwo.setVisibility(View.VISIBLE);
-                tvWithdrawStatusThree.setText("到账\n"+DateUtils.timeStamp2Date(data.getStatConfirmTime(), ""));
-                tvWithdrawStatusThree.setVisibility(View.VISIBLE);
-                ivWithdrawFinished.setVisibility(View.VISIBLE);
+                if(type==4){
+                    tvWithdrawStatusTwo.setText("提现成功");
+                    ivWithdrawStatusTwo.setVisibility(View.VISIBLE);
+                    tvWithdrawStatusThree.setText("到账\n"+DateUtils.timeStamp2Date(data.getStatConfirmTime(), ""));
+                    tvWithdrawStatusThree.setVisibility(View.VISIBLE);
+                    ivWithdrawFinished.setVisibility(View.VISIBLE);
+                }else {
+                    if(data.getRefundType()==1){
+                        tvWithdrawStatusTwo.setText("部分退款成功");
+                    }else {
+                        tvWithdrawStatusTwo.setText("全额退款成功");
+                    }
+                    ivWithdrawStatusTwo.setVisibility(View.GONE);
+                    tvWithdrawStatusThree.setVisibility(View.GONE);
+                    ivWithdrawFinished.setVisibility(View.GONE);
+                }
             }else if(data.getStat()==2){
-                tvWithdrawStatusTwo.setText("已部分退款");
+                if(type==4){
+                    tvWithdrawStatusTwo.setText("提现失败");
+                }else {
+                    tvWithdrawStatusTwo.setText("退款失败");
+                }
                 ivWithdrawStatusTwo.setVisibility(View.VISIBLE);
                 tvWithdrawStatusThree.setVisibility(View.GONE);
                 ivWithdrawFinished.setVisibility(View.GONE);
             }else if(data.getStat()==99){
                 tvWithdrawStatusTwo.setText("处理中");
-                ivWithdrawStatusTwo.setVisibility(View.VISIBLE);
-                tvWithdrawStatusThree.setVisibility(View.GONE);
-                ivWithdrawFinished.setVisibility(View.GONE);
-            }else if(data.getStat()==200){
-                tvWithdrawStatusTwo.setText("已全额退款");
                 ivWithdrawStatusTwo.setVisibility(View.VISIBLE);
                 tvWithdrawStatusThree.setVisibility(View.GONE);
                 ivWithdrawFinished.setVisibility(View.GONE);
@@ -379,9 +411,17 @@ public class BillDetailActivity extends AppActivity {
         } else if (type == 8 || type == 9) {
             layoutTransferGet.setVisibility(View.VISIBLE);
             if (data.getOtherUser() != null && !TextUtils.isEmpty(data.getOtherUser().getNickname())) {
-                tvTitle.setText("转账收款-来自" + data.getOtherUser().getNickname());
+                if(type==8){
+                    tvTitle.setText("转账收款-来自" + data.getOtherUser().getNickname());
+                }else {
+                    tvTitle.setText("转账退款-来自" + data.getOtherUser().getNickname());
+                }
             } else {
-                tvTitle.setText("转账收款-来自");
+                if(type==8){
+                    tvTitle.setText("转账收款-来自");
+                }else {
+                    tvTitle.setText("转账退款-来自");
+                }
             }
             //根据收支类型->显示操作金额
             if (data.getIncome() == 1) { //1 收入 其他支出
@@ -390,13 +430,19 @@ public class BillDetailActivity extends AppActivity {
                 tvContent.setText("-" + UIUtils.getYuan(data.getAmt()));
             }
             if (data.getStat() == 1) {
-                tvTransferGetStatus.setText("已存入零钱");
+                if(type==8){
+                    tvTransferGetStatus.setText("已存入零钱");
+                }else {
+                    tvTransferGetStatus.setText("退款成功");
+                }
             } else if (data.getStat() == 2) {
-                tvTransferGetStatus.setText("已部分退款");
+                if(type==8){
+                    tvTransferGetStatus.setText("收款失败");
+                }else {
+                    tvTransferGetStatus.setText("退款失败");
+                }
             } else if (data.getStat() == 99) {
                 tvTransferGetStatus.setText("处理中");
-            } else if (data.getStat() == 200) {
-                tvTransferGetStatus.setText("已全额退款");
             }
             if (!TextUtils.isEmpty(data.getNote())) {
                 tvTransferGetExplain.setText(data.getNote());
