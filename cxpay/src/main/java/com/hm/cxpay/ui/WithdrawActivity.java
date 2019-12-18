@@ -31,7 +31,7 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.ui.bank.BankBean;
+import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.ui.bank.BindBankActivity;
 import com.hm.cxpay.ui.bank.SelectBankCardActivity;
 import com.hm.cxpay.ui.payword.CheckPaywordActivity;

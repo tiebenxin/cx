@@ -3,24 +3,17 @@ package com.hm.cxpay.dailog;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.animation.Animation;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.hm.cxpay.R;
-import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.ui.bank.BankBean;
-import com.hm.cxpay.ui.redenvelope.GrabEnvelopeBean;
-import com.hm.cxpay.ui.redenvelope.OpenEnvelopeBean;
+import com.hm.cxpay.bean.OpenEnvelopeBean;
 import com.hm.cxpay.utils.UIUtils;
 import com.hm.cxpay.widget.CircleImageView;
-import com.hm.cxpay.widget.PswView;
 import com.hm.cxpay.widget.RedAmina;
 
 import net.cb.cb.library.base.BaseDialog;

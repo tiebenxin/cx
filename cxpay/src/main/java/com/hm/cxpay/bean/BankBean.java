@@ -1,4 +1,4 @@
-package com.hm.cxpay.ui.bank;
+package com.hm.cxpay.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;

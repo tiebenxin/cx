@@ -3,7 +3,7 @@ package com.hm.cxpay.global;
 import android.content.Context;
 
 import com.hm.cxpay.bean.UserBean;
-import com.hm.cxpay.ui.bank.BankBean;
+import com.hm.cxpay.bean.BankBean;
 
 import java.util.List;
 

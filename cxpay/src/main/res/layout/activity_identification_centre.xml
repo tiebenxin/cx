@@ -22,7 +22,7 @@
                 android:layout_marginLeft="@dimen/app_margin_main"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:text="请确定您本人，验证完后不可更改"
+                android:text="请填写您本人信息，实名认证完成后不可修改"
                 android:textSize="12sp" />
 
 

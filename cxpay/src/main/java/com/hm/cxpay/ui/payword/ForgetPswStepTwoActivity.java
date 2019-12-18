@@ -14,7 +14,7 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.net.Route;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.ui.bank.BankInfo;
+import com.hm.cxpay.bean.BankInfo;
 
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.ToastUtil;

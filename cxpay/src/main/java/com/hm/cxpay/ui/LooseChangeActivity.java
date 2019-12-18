@@ -13,14 +13,12 @@ import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.controller.ControllerPaySetting;
-import com.hm.cxpay.eventbus.IdentifyUserEvent;
-import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.ui.bank.BankBean;
+import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.ui.bank.BankSettingActivity;
 import com.hm.cxpay.ui.bill.BillDetailListActivity;
 import com.hm.cxpay.ui.change.ChangeDetailListActivity;
@@ -32,10 +30,6 @@ import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.HeadView;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
