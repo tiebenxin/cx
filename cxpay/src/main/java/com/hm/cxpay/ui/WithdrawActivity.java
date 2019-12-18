@@ -164,7 +164,7 @@ public class WithdrawActivity extends AppActivity {
                             ToastUtil.show(context, "您的可提现余额不足");
                         }
                     } else {
-                        ToastUtil.show(context, "最小提现金额不低于"+minMoney+"元");
+                        ToastUtil.show(context, "最小提现金额不低于" + minMoney + "元");
                     }
                 } else {
                     ToastUtil.show(context, "提现金额不能为空");
@@ -197,45 +197,29 @@ public class WithdrawActivity extends AppActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 //1 金额不为空
-                if(!TextUtils.isEmpty(etWithdraw.getText().toString())){
-                    //2 格式要正确，单独小数点无法参与计算
-                    if(!etWithdraw.getText().toString().equals(".")){
-                        //3-1 自动过滤用户金额前乱输入0
-                        String total = etWithdraw.getText().toString();
-                        if (total.startsWith("0")) {
-                            if (total.length() >= 2) {
-                                if (!".".equals(String.valueOf(total.charAt(1)))) {
-                                    total = total.substring(1, total.length());
-                                    etWithdraw.setText(total);
-                                    etWithdraw.setSelection(total.length());
-                                }
-                            }
-                        }
-                        //3-2 金额最高限制10000
-                        if(Double.valueOf(etWithdraw.getText().toString()) <= 10000){
+                if (!TextUtils.isEmpty(etWithdraw.getText().toString())) {
+                    //2 格式要正确，单独小数点无法参与计算，以0的小数低于默认最低值10的也不参与计算并过滤掉
+                    if (!etWithdraw.getText().toString().equals(".")
+                            && !etWithdraw.getText().toString().startsWith("0")) {
+                        //3 金额最高限制10000 最低取接口值
+                        if (Double.valueOf(etWithdraw.getText().toString()) <= 10000) {
                             withDrawMoney = Double.valueOf(etWithdraw.getText().toString());
-                            if(Double.valueOf(etWithdraw.getText().toString()) >= minMoney){
-                                serviceMoney = Double.valueOf(BigDecimalUtils.mul(withDrawMoney+"",rate+"",2));
-                                realMoney = Double.valueOf(BigDecimalUtils.sub(withDrawMoney+"",serviceMoney+"",2));
-                                doubleRate = rate*100;
-                                //实际值以分为单位，显示转为元
-                                tvRateNotice.setText("服务费 "+serviceMoney+"元 (服务费=提现金额 X "+doubleRate+"%)");
-                                tvSubmit.setText("提现 (实际到账金额 "+realMoney+")");
-                            }else {
-//                                ToastUtil.show(activity,"最小提现金额不低于"+minMoney+"元");
-                                tvRateNotice.setText("服务费 0.0元 (服务费=提现金额 X "+rate*100+"%)");
-                                tvSubmit.setText("提现 (实际到账金额 0.0)");
-                            }
-                        }else {
-                            ToastUtil.show(activity,"单笔最高不能超过10000元");
+                            serviceMoney = Double.valueOf(BigDecimalUtils.mul(withDrawMoney + "", rate + "", 2));
+                            realMoney = Double.valueOf(BigDecimalUtils.sub(withDrawMoney + "", serviceMoney + "", 2));
+                            doubleRate = rate * 100;
+                            //实际值以分为单位，显示转为元
+                            tvRateNotice.setText("服务费 " + serviceMoney + "元 (服务费=提现金额 X " + doubleRate + "%)");
+                            tvSubmit.setText("提现 (实际到账金额 " + realMoney + ")");
+                        } else {
+                            ToastUtil.show(activity, "单笔最高不能超过10000元");
                             etWithdraw.setText("");
                         }
-                    }else {
-                        ToastUtil.show(activity,"请输入正确格式的金额");
+                    } else {
+                        ToastUtil.show(activity, "请输入正确格式的金额");
                         etWithdraw.setText("");
                     }
-                }else {
-                    tvRateNotice.setText("服务费 0.0元 (服务费=提现金额 X "+rate*100+"%)");
+                } else {
+                    tvRateNotice.setText("服务费 0.0元 (服务费=提现金额 X " + rate * 100 + "%)");
                     tvSubmit.setText("提现 (实际到账金额 0.0)");
                 }
             }
@@ -314,7 +298,7 @@ public class WithdrawActivity extends AppActivity {
                                     if (!TextUtils.isEmpty(selectBankcard.getLogo())) {
                                         Glide.with(activity).load(selectBankcard.getLogo())
                                                 .apply(options).into(ivBankIcon);
-                                    }else {
+                                    } else {
                                         ivBankIcon.setImageResource(R.mipmap.ic_bank_zs);
                                     }
                                 }
@@ -345,11 +329,11 @@ public class WithdrawActivity extends AppActivity {
                         rateBean = null;
                         if (baseResponse.getData() != null) {
                             rateBean = baseResponse.getData();
-                            minMoney = Double.valueOf(rateBean.getMinAmt()/100);
-                            etWithdraw.setHint("最小提现金额不低于"+minMoney+"元");
-                            if(!TextUtils.isEmpty(rateBean.getRate())){
+                            minMoney = Double.valueOf(rateBean.getMinAmt() / 100);
+                            etWithdraw.setHint("最小提现金额不低于" + minMoney + "元");
+                            if (!TextUtils.isEmpty(rateBean.getRate())) {
                                 rate = Double.valueOf(rateBean.getRate());
-                                tvRateNotice.setText("服务费 0.0元 (服务费=提现金额 X "+rate*100+"%)");
+                                tvRateNotice.setText("服务费 0.0元 (服务费=提现金额 X " + rate * 100 + "%)");
                             }
                         } else {
                             rateBean = new CommonBean();
@@ -385,7 +369,7 @@ public class WithdrawActivity extends AppActivity {
                         if (!TextUtils.isEmpty(selectBankcard.getLogo())) {
                             Glide.with(activity).load(selectBankcard.getLogo())
                                     .apply(options).into(ivBankIcon);
-                        }else {
+                        } else {
                             ivBankIcon.setImageResource(R.mipmap.ic_bank_zs);
                         }
                     }
@@ -410,7 +394,7 @@ public class WithdrawActivity extends AppActivity {
     /**
      * 获取费率失败弹框
      */
-    private void showFailDialog(){
+    private void showFailDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setCancelable(false);//取消点击外部消失弹窗
         final AlertDialog dialog = dialogBuilder.create();
