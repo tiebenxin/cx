@@ -17,7 +17,7 @@ public class CommonBean implements Parcelable {
     private int minAmt;//最低提现金额
     private int minFee;//TODO 最低费用 后端所加，暂时没用到
     private String rate ="";//费率
-    private int serviceFee;//服务费
+    private long serviceFee;//服务费
     //账单bean类
     private long amt;//金额
     private long balance;
@@ -134,11 +134,11 @@ public class CommonBean implements Parcelable {
         this.rate = rate;
     }
 
-    public int getServiceFee() {
+    public long getServiceFee() {
         return serviceFee;
     }
 
-    public void setServiceFee(int serviceFee) {
+    public void setServiceFee(long serviceFee) {
         this.serviceFee = serviceFee;
     }
 
@@ -289,7 +289,7 @@ public class CommonBean implements Parcelable {
         dest.writeInt(minAmt);
         dest.writeInt(minFee);
         dest.writeString(rate);
-        dest.writeInt(serviceFee);
+        dest.writeLong(serviceFee);
         dest.writeLong(amt);
         dest.writeLong(balance);
         dest.writeString(bankCardInfo);
