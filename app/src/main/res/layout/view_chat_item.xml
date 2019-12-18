@@ -655,7 +655,7 @@
                     <RelativeLayout
                         android:id="@+id/location_you_ll"
                         android:layout_width="210dp"
-                        android:layout_height="140dp"
+                        android:layout_height="120dp"
                         android:background="@color/white"
                         android:visibility="gone">
 
@@ -1272,7 +1272,7 @@
                         <RelativeLayout
                             android:id="@+id/location_me_ll"
                             android:layout_width="210dp"
-                            android:layout_height="140dp"
+                            android:layout_height="120dp"
                             android:background="@color/white"
                             android:visibility="gone">
 

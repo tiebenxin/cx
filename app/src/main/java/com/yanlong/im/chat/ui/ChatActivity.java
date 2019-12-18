@@ -1199,7 +1199,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         view_location_ll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LocationActivity.openActivity(ChatActivity.this);
+                LocationActivity.openActivity(ChatActivity.this,false,28136296,112953042);
             }
         });
 
@@ -3052,7 +3052,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 case ChatEnum.EMessageType.LOCATION:
 //                    menus.add(new OptionMenu("转发"));
                     menus.add(new OptionMenu("删除"));
-                    holder.viewChatItem.setDataLocation(msgbean.getLocationMessage());
+                    holder.viewChatItem.setDataLocation(msgbean.getLocationMessage(), new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            LocationActivity.openActivity(ChatActivity.this,true,
+                                    msgbean.getLocationMessage().getLatitude(),msgbean.getLocationMessage().getLongitude());
+                        }
+                    });
                     break;
             }
 
