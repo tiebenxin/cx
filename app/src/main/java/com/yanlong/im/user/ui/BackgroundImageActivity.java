@@ -162,28 +162,28 @@ public class BackgroundImageActivity extends AppActivity {
 
                             return;
                         case 1:
-                            intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image1);
+                            intent.putExtra(ShowBigImgActivity.AGM_URI,  R.mipmap.bg_image1);
                             break;
                         case 2:
-                            intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image2);
+                            intent.putExtra(ShowBigImgActivity.AGM_URI,  R.mipmap.bg_image2);
                             break;
                         case 3:
-                            intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image3);
+                            intent.putExtra(ShowBigImgActivity.AGM_URI,  R.mipmap.bg_image3);
                             break;
                         case 4:
-                            intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image4);
+                            intent.putExtra(ShowBigImgActivity.AGM_URI,  R.mipmap.bg_image4);
                             break;
                         case 5:
-                            intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image5);
+                            intent.putExtra(ShowBigImgActivity.AGM_URI,  R.mipmap.bg_image5);
                             break;
                         case 6:
-                            intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image6);
+                            intent.putExtra(ShowBigImgActivity.AGM_URI,  R.mipmap.bg_image6);
                             break;
                         case 7:
-                            intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image7);
+                            intent.putExtra(ShowBigImgActivity.AGM_URI,  R.mipmap.bg_image7);
                             break;
                         case 8:
-                            intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image8);
+                            intent.putExtra(ShowBigImgActivity.AGM_URI,  R.mipmap.bg_image8);
                             break;
                     }
                     startActivityForResult(intent, IMAGE_POSTION);
