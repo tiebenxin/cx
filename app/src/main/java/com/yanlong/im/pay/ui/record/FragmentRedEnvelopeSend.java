@@ -1,25 +1,22 @@
 package com.yanlong.im.pay.ui.record;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.hm.cxpay.R;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.ui.redenvelope.RedDetailsBean;
+import com.hm.cxpay.bean.RedDetailsBean;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
 import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.view.MultiListView;
 
 import java.util.ArrayList;
 import java.util.List;

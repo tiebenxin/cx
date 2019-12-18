@@ -1,8 +1,5 @@
 package com.yanlong.im;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
@@ -31,12 +28,8 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.rx.interceptor.CommonInterceptor;
-import com.hm.cxpay.ui.bank.BankBean;
+import com.hm.cxpay.bean.BankBean;
 import com.example.nim_lib.util.PermissionsUtil;
-import com.netease.nimlib.sdk.NIMClient;
-import com.netease.nimlib.sdk.StatusCode;
-import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
@@ -105,7 +98,6 @@ import java.util.Locale;
 
 import cn.jpush.android.api.JPluginPlatformInterface;
 import cn.jpush.android.api.JPushInterface;
-import okhttp3.Headers;
 import retrofit2.Call;
 import retrofit2.Response;
 

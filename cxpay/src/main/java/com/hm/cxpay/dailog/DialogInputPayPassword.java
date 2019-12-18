@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.hm.cxpay.R;
 import com.hm.cxpay.global.PayEnum;
-import com.hm.cxpay.ui.bank.BankBean;
+import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.utils.UIUtils;
 import com.hm.cxpay.widget.PswView;
 

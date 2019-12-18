@@ -34,6 +34,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.BitmapDescriptor;
+import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.MapStatusUpdateFactory;
+import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.MarkerOptions;
+import com.baidu.mapapi.map.OverlayOptions;
+import com.baidu.mapapi.model.LatLng;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.RequestBuilder;
@@ -49,10 +57,12 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.BalanceAssistantMessage;
 import com.yanlong.im.chat.bean.ImageMessage;
+import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.ui.RoundTransform;
+import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PatternUtil;
@@ -195,6 +205,11 @@ public class ChatItemView extends LinearLayout {
     private ImageView ivMeAppIcon;
     private LabelItemView viewOtBalance;
 
+    //位置
+    private RelativeLayout location_you_ll,location_me_ll;
+    private ImageView location_image_you_iv,location_image_me_iv;
+    private TextView location_name_you_tv,location_desc_you_tv,location_name_me_tv,location_desc_me_tv;
+
 
     public ChatItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -334,6 +349,15 @@ public class ChatItemView extends LinearLayout {
 //        viewMeBalance = rootView.findViewById(R.id.view_me_balance);
         viewOtBalance = rootView.findViewById(R.id.view_ot_balance);
 
+        //位置
+        location_you_ll = rootView.findViewById(R.id.location_you_ll);
+        location_me_ll = rootView.findViewById(R.id.location_me_ll);
+        location_image_you_iv = rootView.findViewById(R.id.location_image_you_iv);
+        location_image_me_iv = rootView.findViewById(R.id.location_image_me_iv);
+        location_name_you_tv = rootView.findViewById(R.id.location_name_you_tv);
+        location_desc_you_tv = rootView.findViewById(R.id.location_desc_you_tv);
+        location_name_me_tv = rootView.findViewById(R.id.location_name_me_tv);
+        location_desc_me_tv = rootView.findViewById(R.id.location_desc_me_tv);
     }
 
     public void setOnLongClickListener(OnLongClickListener onLongClick) {
@@ -414,6 +438,12 @@ public class ChatItemView extends LinearLayout {
         viewMeGameShare.setVisibility(GONE);
         viewOtGameShare.setVisibility(GONE);
         viewOtBalance.setVisibility(GONE);
+
+        //位置
+        location_you_ll.setVisibility(GONE);
+        location_me_ll.setVisibility(GONE);
+
+
         switch (type) {
             case ChatEnum.EMessageType.MSG_CANCEL://撤回的消息
             case 0://公告
@@ -478,6 +508,10 @@ public class ChatItemView extends LinearLayout {
             case ChatEnum.EMessageType.MSG_VOICE_VIDEO:
                 viewMeVoiceVideo.setVisibility(VISIBLE);
                 viewOtVoiceVideo.setVisibility(VISIBLE);
+                break;
+            case ChatEnum.EMessageType.LOCATION:
+                location_you_ll.setVisibility(VISIBLE);
+                location_me_ll.setVisibility(VISIBLE);
                 break;
             case ChatEnum.EMessageType.BALANCE_ASSISTANT:
                 setNoAvatarUI(isMe);
@@ -1188,6 +1222,24 @@ public class ChatItemView extends LinearLayout {
         viewOtTouch.setOnClickListener(onk);
     }
 
+
+    //位置消息
+    public void setDataLocation(LocationMessage locationMessage) {
+        if(locationMessage==null){
+            return;
+        }
+        location_name_you_tv.setText(locationMessage.getAddress());
+        location_desc_you_tv.setText(locationMessage.getAddressDescribe());
+
+        location_name_me_tv.setText(locationMessage.getAddress());
+        location_desc_me_tv.setText(locationMessage.getAddressDescribe());
+
+        //百度地图参数
+        String baiduImageUrl= LocationUtils.getLocationUrl(locationMessage.getLatitude(),locationMessage.getLongitude());
+        Glide.with(this).load(baiduImageUrl).apply(GlideOptionsUtil.imageOptions()).into(location_image_you_iv);
+        Glide.with(this).load(baiduImageUrl).apply(GlideOptionsUtil.imageOptions()).into(location_image_me_iv);
+    }
+
     private Context mContext;
 
 
@@ -1231,6 +1283,7 @@ public class ChatItemView extends LinearLayout {
                 }
                 break;
             case -1://图片待发送
+                LogUtil.getLog().e("===state="+state+"===isShowLoad="+isShowLoad);
                 if (isShowLoad) {
                     imgMeErr.setImageResource(R.mipmap.ic_net_load);
                     Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);

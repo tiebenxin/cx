@@ -490,6 +490,20 @@ public class MsgConversionBean {
                 msgAllBean.setBalanceAssistantMessage(balanceMessage);
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.BALANCE_ASSISTANT);
                 break;
+            case SNAPSHOT_LOCATION:
+                LocationMessage locationMessage = new LocationMessage();
+                locationMessage.setMsgId(msgAllBean.getMsg_id());
+                locationMessage.setLatitude(bean.getSnapshotLocation().getLat());
+                locationMessage.setLongitude(bean.getSnapshotLocation().getLon());
+                locationMessage.setAddress(bean.getSnapshotLocation().getAddr());
+                locationMessage.setAddressDescribe(bean.getSnapshotLocation().getDesc());
+
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.LOCATION);
+                msgAllBean.setLocationMessage(locationMessage);
+
+//                LogUtil.getLog().e("====location==bean==="+ GsonUtils.optObject(bean));
+//                LogUtil.getLog().e("====location==msgAllBean==="+ GsonUtils.optObject(msgAllBean));
+                break;
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;
         }

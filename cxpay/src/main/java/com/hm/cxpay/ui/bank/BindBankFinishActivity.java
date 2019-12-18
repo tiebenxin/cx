@@ -8,6 +8,8 @@ import android.view.View;
 
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
+import com.hm.cxpay.bean.BankInfo;
+import com.hm.cxpay.bean.BindBankInfo;
 import com.hm.cxpay.databinding.ActivityFinishBindBinding;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;

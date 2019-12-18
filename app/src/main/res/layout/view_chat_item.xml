@@ -175,7 +175,7 @@
                         android:layout_height="wrap_content"
                         android:background="@drawable/selector_chat_other_touch"
                         android:gravity="left|center_vertical"
-                        android:visibility="gone">
+                        android:visibility="visible">
 
                         <android.support.v7.widget.AppCompatTextView
                             android:id="@+id/txt_ot_1"
@@ -191,6 +191,7 @@
 
 
                     </LinearLayout>
+
                     <!-- 戳一下消息-->
                     <LinearLayout
                         android:id="@+id/view_ot_2"
@@ -219,6 +220,7 @@
                             android:textSize="15sp" />
 
                     </LinearLayout>
+
                     <!-- 红包消息-->
                     <LinearLayout
                         android:id="@+id/view_ot_3"
@@ -630,12 +632,55 @@
 
                     </LinearLayout>
 
+                    <!-- 位置消息 -->
+                    <RelativeLayout
+                        android:id="@+id/location_you_ll"
+                        android:layout_width="210dp"
+                        android:layout_height="140dp"
+                        android:background="@color/white"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:id="@+id/location_image_you_iv"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="fitXY" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentBottom="true"
+                            android:background="@drawable/shape_transparent_botton5"
+                            android:orientation="vertical"
+                            android:padding="5dp">
+
+                            <TextView
+                                android:id="@+id/location_name_you_tv"
+                                style="@style/app_txt_title_2"
+                                android:text="湘江时代(长沙市岳麓区)"
+                                android:textColor="@color/white" />
+
+                            <TextView
+                                android:id="@+id/location_desc_you_tv"
+                                style="@style/app_txt_content_1"
+                                android:text="长沙市岳麓区先导路"
+                                android:textColor="@color/white" />
+
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:src="@mipmap/location_four" />
+                    </RelativeLayout>
+
+
                     <!--零钱助手消息-->
                     <com.yanlong.im.chat.ui.view.LabelItemView
                         android:id="@+id/view_ot_balance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
-
 
                 </LinearLayout>
 
@@ -650,6 +695,8 @@
                     app:layout_constraintRight_toRightOf="@+id/view_ot_touch_child"
                     app:layout_constraintTop_toBottomOf="@+id/view_ot_touch_child" />
             </android.support.constraint.ConstraintLayout>
+
+
         </LinearLayout>
 
     </LinearLayout>
@@ -1211,10 +1258,54 @@
                         </LinearLayout>
 
                         <!--零钱助手消息-->
-<!--                        <com.yanlong.im.chat.ui.view.LabelItemView-->
-<!--                            android:id="@+id/view_me_balance"-->
-<!--                            android:layout_width="match_parent"-->
-<!--                            android:layout_height="wrap_content" />-->
+                        <!--                        <com.yanlong.im.chat.ui.view.LabelItemView-->
+                        <!--                            android:id="@+id/view_me_balance"-->
+                        <!--                            android:layout_width="match_parent"-->
+                        <!--                            android:layout_height="wrap_content" />-->
+
+                        <!-- 位置消息 -->
+                        <RelativeLayout
+                            android:id="@+id/location_me_ll"
+                            android:layout_width="210dp"
+                            android:layout_height="140dp"
+                            android:background="@color/white"
+                            android:visibility="gone">
+
+                            <ImageView
+                                android:id="@+id/location_image_me_iv"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="fitXY" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentBottom="true"
+                                android:background="@drawable/shape_transparent_botton5"
+                                android:orientation="vertical"
+                                android:padding="5dp">
+
+                                <TextView
+                                    android:id="@+id/location_name_me_tv"
+                                    style="@style/app_txt_title_2"
+                                    android:text="湘江时代(长沙市岳麓区)"
+                                    android:textColor="@color/white" />
+
+                                <TextView
+                                    android:id="@+id/location_desc_me_tv"
+                                    style="@style/app_txt_content_1"
+                                    android:text="长沙市岳麓区先导路"
+                                    android:textColor="@color/white" />
+
+                            </LinearLayout>
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:src="@mipmap/location_four" />
+
+                        </RelativeLayout>
 
                     </LinearLayout>
 

@@ -1,4 +1,4 @@
-package com.hm.cxpay.ui.redenvelope;
+package com.hm.cxpay.bean;
 
 /**
  * @author Liszt

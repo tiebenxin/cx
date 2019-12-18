@@ -10,8 +10,8 @@ import io.realm.annotations.PrimaryKey;
 public class LocationMessage extends RealmObject implements IMsgContent {
     @PrimaryKey
     private String msgId;
-    private int latitude;//纬度
-    private int longitude;//经度
+    private int latitude=-1;//纬度
+    private int longitude=-1;//经度
     private String address;//地址
     private String addressDescribe;//地址描述
     private String img;//地图图片路径

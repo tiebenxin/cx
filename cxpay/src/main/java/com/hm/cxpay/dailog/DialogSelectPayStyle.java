@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.hm.cxpay.R;
-import com.hm.cxpay.ui.bank.BankBean;
+import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.ui.redenvelope.AdapterSelectPayStyle;
 
 import net.cb.cb.library.base.BaseDialog;

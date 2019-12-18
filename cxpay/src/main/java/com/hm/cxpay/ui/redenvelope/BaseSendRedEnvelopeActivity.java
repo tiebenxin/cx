@@ -8,6 +8,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.CxEnvelopeBean;
+import com.hm.cxpay.bean.SendResultBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;

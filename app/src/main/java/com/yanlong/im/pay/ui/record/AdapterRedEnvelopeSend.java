@@ -7,13 +7,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.hm.cxpay.ui.redenvelope.RedEnvelopeItemBean;
+import com.hm.cxpay.bean.RedEnvelopeItemBean;
 import com.hm.cxpay.utils.DateUtils;
 import com.hm.cxpay.utils.UIUtils;
 import com.yanlong.im.R;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
-import net.cb.cb.library.utils.TimeToString;
 
 /**
  * @author Liszt

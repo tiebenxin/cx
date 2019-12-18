@@ -14,11 +14,10 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.ui.redenvelope.RedDetailsBean;
+import com.hm.cxpay.bean.RedDetailsBean;
 import com.yanlong.im.R;
 
 import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.view.MultiListView;
 
 /**
  * @author Liszt
