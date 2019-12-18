@@ -5041,6 +5041,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     }
                 });
+        dialogSettingPayPsw.show();
 
     }
 

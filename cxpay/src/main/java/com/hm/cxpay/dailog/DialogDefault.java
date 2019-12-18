@@ -42,7 +42,7 @@ public class DialogDefault extends BaseDialog {
         tvTitle.setVisibility(isHas ? View.VISIBLE : View.GONE);
         isRight = isRightSure;
         tvRight.setTextColor(isRightSure ? colorSure : colorCancel);
-        tvRight.setTextColor(isRightSure ? colorCancel : colorSure);
+        tvLeft.setTextColor(isRightSure ? colorCancel : colorSure);
         return this;
     }
 
