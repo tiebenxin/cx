@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.hm.cxpay.bean.RedEnvelopeItemBean;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
@@ -17,7 +18,11 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.bean.RedDetailsBean;
 import com.yanlong.im.R;
 
+import net.cb.cb.library.base.AbstractRecyclerAdapter;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.view.MultiListView;
+
+import java.util.List;
 
 /**
  * @author Liszt
@@ -27,9 +32,11 @@ import net.cb.cb.library.utils.ToastUtil;
 public class FragmentRedEnvelopeReceived extends Fragment {
 
     private View rootView;
-    private RecyclerView recyclerView;
+    private MultiListView mMtListView;
     int currentPage = 1;
     private AdapterRedEnvelopeReceived adapter;
+    private long totalCount;
+    private List<RedEnvelopeItemBean> mDataList;
 
     public static FragmentRedEnvelopeReceived newInstance() {
         FragmentRedEnvelopeReceived fragment = new FragmentRedEnvelopeReceived();
@@ -42,19 +49,48 @@ public class FragmentRedEnvelopeReceived extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_content, null);
-        recyclerView = rootView.findViewById(R.id.recyclerView);
+        initView();
         return rootView;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        LinearLayoutManager manager = new LinearLayoutManager(getContext());
-        manager.setOrientation(LinearLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(manager);
-        adapter = new AdapterRedEnvelopeReceived(getActivity());
-        recyclerView.setAdapter(adapter);
         getRedEnvelopeDetails();
+    }
+
+    private void initView() {
+        mMtListView = rootView.findViewById(com.hm.cxpay.R.id.mtListView);
+        adapter = new AdapterRedEnvelopeReceived(getActivity());
+        adapter.setItemClickListener(new AbstractRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Object bean) {
+
+            }
+        });
+        mMtListView.init(adapter);
+
+        mMtListView.setEvent(new MultiListView.Event() {
+            @Override
+            public void onRefresh() {
+                currentPage = 1;
+                getRedEnvelopeDetails();
+            }
+
+            @Override
+            public void onLoadMore() {
+                if (totalCount > 0 && currentPage * 20 >= totalCount) {
+                    return;
+                }
+                currentPage++;
+                getRedEnvelopeDetails();
+            }
+
+            @Override
+            public void onLoadFail() {
+
+            }
+        });
     }
 
 
@@ -71,10 +107,21 @@ public class FragmentRedEnvelopeReceived extends Fragment {
                     public void onHandleSuccess(BaseResponse<RedDetailsBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
                             RedDetailsBean details = baseResponse.getData();
-                            if (((RedEnvelopeRecordActivity) getActivity()).getCurrentTab() == 0) {
-                                ((RedEnvelopeRecordActivity) getActivity()).initDetails(details, true);
+                            if (details != null) {
+                                totalCount = details.getTotal();
+                                if (((RedEnvelopeRecordActivity) getActivity()).getCurrentTab() == 0) {
+                                    ((RedEnvelopeRecordActivity) getActivity()).initDetails(details, true);
+                                }
+                                if (details.getItems() != null) {
+                                    if (currentPage == 1) {
+                                        mDataList = details.getItems();
+                                    } else {
+                                        mDataList.addAll(details.getItems());
+                                    }
+                                }
                             }
-                            adapter.bindData(details.getItems());
+                            adapter.bindData(mDataList);
+                            mMtListView.notifyDataSetChange();
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
                         }
@@ -89,7 +136,8 @@ public class FragmentRedEnvelopeReceived extends Fragment {
                 });
     }
 
-    public void updateDetails(){
+    public void updateDetails() {
+        currentPage = 1;
         getRedEnvelopeDetails();
     }
 

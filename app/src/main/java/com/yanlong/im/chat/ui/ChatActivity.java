@@ -1028,7 +1028,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 }
                 UserBean user = PayEnvironment.getInstance().getUser();
                 if (user != null) {
-                    if (user.getIsVerify() != 1) {//未认证
+                    if (user.getRealNameStat() != 0) {//未认证
                         showIdentifyDialog();
                         return;
                     } else if (user.getPayPwdStat() != 1) {//未设置支付密码
@@ -4986,10 +4986,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 实名认证提示弹框
      */
     private void showIdentifyDialog() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setCancelable(false);//取消点击外部消失弹窗
         final AlertDialog dialog = dialogBuilder.create();
-        View dialogView = LayoutInflater.from(context).inflate(com.hm.cxpay.R.layout.dialog_identify, null);
+        View dialogView = LayoutInflater.from(this).inflate(com.hm.cxpay.R.layout.dialog_identify, null);
         TextView tvCancel = dialogView.findViewById(com.hm.cxpay.R.id.tv_cancel);
         TextView tvIdentify = dialogView.findViewById(com.hm.cxpay.R.id.tv_identify);
         //取消
