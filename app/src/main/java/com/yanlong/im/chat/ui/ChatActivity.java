@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -32,6 +34,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,8 +54,10 @@ import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.hm.cxpay.bean.CxEnvelopeBean;
+import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.dailog.DialogEnvelope;
 import com.hm.cxpay.global.PayEnum;
+import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
@@ -120,6 +125,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.SelectUserActivity;
+import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
@@ -1019,6 +1025,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             public void onClick(View v) {
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
+                }
+                UserBean user = PayEnvironment.getInstance().getUser();
+                if (user != null) {
+                    if (user.getIsVerify() != 1) {//未认证
+                        showIdentifyDialog();
+                        return;
+                    } else if (user.getPayPwdStat() != 1) {//未设置支付密码
+                        ToastUtil.show(ChatActivity.this, "未设置支付密码，请进入零钱首页进行设置");
+                        return;
+                    }
                 }
                 if (isGroup()) {
                     Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivity.this, toGid, groupInfo.getUsers().size());
@@ -2261,18 +2277,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void locationSendEvent(LocationSendEvent event) {
         LocationMessage message = SocketData.createLocationMessage(SocketData.getUUID(), event.message.getLatitude(),
-                event.message.getLongitude(),event.message.getAddress(),event.message.getAddressDescribe());
+                event.message.getLongitude(), event.message.getAddress(), event.message.getAddressDescribe());
 
 //        LogUtil.getLog().e("====location=message=="+GsonUtils.optObject(message));
         sendMessage(message, ChatEnum.EMessageType.LOCATION);
     }
-
-
-
-
-
-
-
 
 
     private void setChatImageBackground() {
@@ -4970,6 +4979,45 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         }
         return result;
+    }
+
+
+    /**
+     * 实名认证提示弹框
+     */
+    private void showIdentifyDialog() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        dialogBuilder.setCancelable(false);//取消点击外部消失弹窗
+        final AlertDialog dialog = dialogBuilder.create();
+        View dialogView = LayoutInflater.from(context).inflate(com.hm.cxpay.R.layout.dialog_identify, null);
+        TextView tvCancel = dialogView.findViewById(com.hm.cxpay.R.id.tv_cancel);
+        TextView tvIdentify = dialogView.findViewById(com.hm.cxpay.R.id.tv_identify);
+        //取消
+        tvCancel.setOnClickListener(new android.view.View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        //去认证(需要先同意协议)
+        tvIdentify.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(context, ServiceAgreementActivity.class));
+                dialog.dismiss();
+            }
+        });
+        //展示界面
+        dialog.show();
+        //解决圆角shape背景无效问题
+        Window window = dialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        //设置宽高
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.height = DensityUtil.dip2px(context, 139);
+        lp.width = DensityUtil.dip2px(context, 277);
+        dialog.getWindow().setAttributes(lp);
+        dialog.setContentView(dialogView);
     }
 
 

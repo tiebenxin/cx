@@ -84,4 +84,13 @@ public class PayEnvironment {
     public void setNick(String nick) {
         this.nick = nick;
     }
+
+    //账号退出的时候，需要清除缓存
+    public void clear() {
+        user = null;
+        banks = null;
+        token = null;
+        phone = null;
+        nick = null;
+    }
 }
