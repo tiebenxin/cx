@@ -55,6 +55,7 @@ import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.bean.UserBean;
+import com.hm.cxpay.dailog.DialogDefault;
 import com.hm.cxpay.dailog.DialogEnvelope;
 import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
@@ -62,6 +63,7 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.ui.redenvelope.MultiRedPacketActivity;
 import com.hm.cxpay.ui.bill.BillDetailActivity;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
@@ -1028,11 +1030,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 }
                 UserBean user = PayEnvironment.getInstance().getUser();
                 if (user != null) {
-                    if (user.getRealNameStat() != 0) {//未认证
+                    if (user.getRealNameStat() != 1) {//未认证
                         showIdentifyDialog();
                         return;
                     } else if (user.getPayPwdStat() != 1) {//未设置支付密码
-                        ToastUtil.show(ChatActivity.this, "未设置支付密码，请进入零钱首页进行设置");
+                        showSettingPswDialog();
                         return;
                     }
                 }
@@ -5018,6 +5020,29 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         lp.width = DensityUtil.dip2px(context, 277);
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
+    }
+
+    public void showSettingPswDialog() {
+        DialogDefault dialogSettingPayPsw = new DialogDefault(this, R.style.MyDialogTheme);
+        dialogSettingPayPsw
+                .setTitleAndSure(true, false)
+                .setTitle("温馨提示")
+                .setLeft("设置支付密码")
+                .setRight("取消")
+                .setListener(new DialogDefault.IDialogListener() {
+                    @Override
+                    public void onSure() {
+                        startActivity(new Intent(ChatActivity.this, SetPaywordActivity.class));
+
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+                });
+        dialogSettingPayPsw.show();
+
     }
 
 

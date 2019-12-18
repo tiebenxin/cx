@@ -27,9 +27,8 @@ import okhttp3.Response;
  */
 public class NetIntrtceptor implements Interceptor {
     private static final String TAG = "NetIntrtceptor";
-    private static Gson gson = new Gson();
     private static MediaType mediaType = MediaType.parse("application/json; charset=UTF-8");
-    public static Headers headers=Headers.of();
+    public static Headers headers = Headers.of();
 
 
     @Override
@@ -37,7 +36,7 @@ public class NetIntrtceptor implements Interceptor {
         if (AppConfig.DEBUG)
             LogUtil.getLog().i(TAG, "<<进入拦截器");
         Request request = chain.request().newBuilder()
-                  .headers(headers)
+                .headers(headers)
                 .build();
 
         request = interceptor4Front(chain, request);
@@ -55,45 +54,40 @@ public class NetIntrtceptor implements Interceptor {
         String url = request.url().encodedPath();
 
 
-
         //post自动追加platform 参数
         RequestBody reqbody = request.body();
 
-          if(request.method().equals("POST")){
-              String json="";
-        if (reqbody instanceof FormBody) {
-            Gson gson= new GsonBuilder().create();
-            FormBody gb = (FormBody) reqbody;
+        if (request.method().equals("POST")) {
+            String json = "";
+            if (reqbody instanceof FormBody) {
+                Gson gson = new GsonBuilder().create();
+                FormBody gb = (FormBody) reqbody;
 
-            Map<String, Object> objs = new HashMap<>();
+                Map<String, Object> objs = new HashMap<>();
 
-             for (int i = 0; gb != null && i < gb.size(); i++) {
-                //放在一个map里面,然后转json
+                for (int i = 0; gb != null && i < gb.size(); i++) {
+                    //放在一个map里面,然后转json
 
-                 if(gb.name(i).startsWith("@")){//直接存对象
-                     objs.put(gb.name(i).substring(1), gson.fromJson(gb.value(i),Object.class));
+                    if (gb.name(i).startsWith("@")) {//直接存对象
+                        objs.put(gb.name(i).substring(1), gson.fromJson(gb.value(i), Object.class));
 
-                 }else{
-                     objs.put(gb.name(i), gb.value(i));
-                 }
+                    } else {
+                        objs.put(gb.name(i), gb.value(i));
+                    }
 
 
+                }
+
+                json = gson.toJson(objs);
 
 
             }
-
-             json = gson.toJson(objs);
-
-
-
+            RequestBody nbody = RequestBody.create(mediaType, json);
+            request = request.newBuilder()
+                    .method(request.method(), nbody)
+                    .build();
 
         }
-              RequestBody nbody = RequestBody.create(mediaType, json);
-              request=  request.newBuilder()
-                      .method(request.method(), nbody)
-                      .build();
-
-          }
 
         return request;
 
