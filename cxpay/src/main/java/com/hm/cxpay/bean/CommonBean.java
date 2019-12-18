@@ -46,7 +46,7 @@ public class CommonBean implements Parcelable {
         minAmt = in.readInt();
         minFee = in.readInt();
         rate = in.readString();
-        serviceFee = in.readInt();
+        serviceFee = in.readLong();
         amt = in.readLong();
         balance = in.readLong();
         bankCardInfo = in.readString();
