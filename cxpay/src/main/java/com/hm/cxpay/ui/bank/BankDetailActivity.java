@@ -72,20 +72,6 @@ public class BankDetailActivity extends BasePayActivity {
 
             @Override
             public void onRight() {
-                //
-
-            }
-        });
-
-
-        ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
-            @Override
-            public void onBack() {
-                onBackPressed();
-            }
-
-            @Override
-            public void onRight() {
                 showBottomDialog();
             }
         });
@@ -197,7 +183,7 @@ public class BankDetailActivity extends BasePayActivity {
         pswView.setOnPasswordChangedListener(new PswView.onPasswordChangedListener() {
             @Override
             public void setPasswordChanged(String payword) {
-                httpCheckPayword(payword);
+                httpCheckPayword(payword,pswView);
             }
         });
         //展示界面
@@ -220,7 +206,7 @@ public class BankDetailActivity extends BasePayActivity {
     /**
      * 发请求->检查支付密码（是否正确）
      */
-    private void httpCheckPayword(final String payword) {
+    private void httpCheckPayword(final String payword, final PswView pswView) {
         PayHttpUtils.getInstance().checkPayword(payword)
                 .compose(RxSchedulers.<BaseResponse>compose())
                 .compose(RxSchedulers.<BaseResponse>handleResult())
@@ -239,6 +225,7 @@ public class BankDetailActivity extends BasePayActivity {
                         }else {
                             ToastUtil.show(context, baseResponse.getMessage());
                         }
+                        pswView.clear();
                     }
                 });
     }

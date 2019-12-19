@@ -379,7 +379,7 @@ public class WithdrawActivity extends AppActivity {
                 break;
             case REQUEST_BIND:
                 //没卡的情况下，新绑定一张卡后回到此界面，获取并显示新添加的银行卡数据
-                if (requestCode == RESULT_OK) {
+                if (resultCode == RESULT_OK) {
                     getBankList();
                 }
                 break;
