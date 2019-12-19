@@ -72,7 +72,7 @@
                     android:layout_width="match_parent"
                     android:layout_marginRight="5dp"
                     android:hint="恭喜发财,大吉大利"
-                    android:maxLength="20" />
+                    android:maxLength="12" />
 
             </LinearLayout>
 
