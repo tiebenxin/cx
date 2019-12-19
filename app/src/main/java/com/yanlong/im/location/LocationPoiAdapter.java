@@ -46,11 +46,11 @@ public class LocationPoiAdapter extends BaseQuickAdapter<LocationMessage, BaseVi
             @Override
             public void onClick(View v) {
                 position=helper.getAdapterPosition();
-                notifyDataSetChanged();
 
                 if(listener!=null){
                     listener.onSuccess(item.getLatitude(),item.getLongitude(),item.getAddress(),item.getAddressDescribe());
                 }
+                notifyDataSetChanged();
             }
         });
     }

@@ -20,9 +20,9 @@ android {
         applicationId "com.yanlong.im"
         minSdkVersion 22
         targetSdkVersion 28
-        versionCode 128
+        versionCode 130
         //  versionName "0.9.0_${releaseTime()}"
-        versionName "1.1.18"
+        versionName "1.1.20"
         //---------------------------------------
         //升级的时候,如果数据库有改动,一定要升级数据库,具体在一些类中修改
         //1.DaoUtil.initConfig()中指定当前数据库版本dbVer
@@ -91,6 +91,8 @@ android {
     buildTypes {
 
         debug {
+            //混淆
+            minifyEnabled false
             manifestPlaceholders = [UMENG_PUSH_KEY      : "580021f2"
                                     , UMENG_PUSH_CHANNEL: "phone"
                                     , UMENG_SECERT      : "f2c847847c"
@@ -114,8 +116,15 @@ android {
             signingConfig = signingConfigs.release
         }
         release {
+            // 开启调试
             debuggable true
-            minifyEnabled false
+            //混淆
+            minifyEnabled true
+            //Zipalign优化
+            zipAlignEnabled true
+            // 移除无用的resource文件
+            shrinkResources true
+            // 加载默认混淆配置文件
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             manifestPlaceholders = [UMENG_PUSH_KEY      : "581fc0021f2"
                                     , UMENG_PUSH_CHANNEL: "phone"

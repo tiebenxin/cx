@@ -1,6 +1,8 @@
 package net.cb.cb.library.bean;
 
-public class HuaweiObsConfigBean {
+import net.cb.cb.library.base.BaseBean;
+
+public class HuaweiObsConfigBean extends BaseBean {
     private String bucket;
     private String endpoint;
     private String sk;

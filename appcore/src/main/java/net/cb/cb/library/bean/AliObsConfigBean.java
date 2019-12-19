@@ -1,6 +1,8 @@
 package net.cb.cb.library.bean;
 
-public class AliObsConfigBean {
+import net.cb.cb.library.base.BaseBean;
+
+public class AliObsConfigBean extends BaseBean {
     private String accessKeyId;
     private String securityToken;
     // private Date expiration;

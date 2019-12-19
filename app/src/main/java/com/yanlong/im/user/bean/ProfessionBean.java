@@ -1,6 +1,8 @@
 package com.yanlong.im.user.bean;
 
-public class ProfessionBean {
+import net.cb.cb.library.base.BaseBean;
+
+public class ProfessionBean extends BaseBean {
 
     public String profession;
 

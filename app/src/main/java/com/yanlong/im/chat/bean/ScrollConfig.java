@@ -1,11 +1,13 @@
 package com.yanlong.im.chat.bean;
 
+import net.cb.cb.library.base.BaseBean;
+
 /**
  * @author Liszt
  * @date 2019/8/19
  * Description  滚动位置config
  */
-public class ScrollConfig {
+public class ScrollConfig extends BaseBean {
     long userId;//当前登录用户
     long uid;//当前单聊uid
     String chatId;//当前群聊id

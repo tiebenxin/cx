@@ -2,11 +2,13 @@ package com.yanlong.im.user.bean;
 
 import android.net.Uri;
 
+import net.cb.cb.library.base.BaseBean;
+
 /**
  * @创建人 shenxin
  * @创建时间 2019/8/24 0024 14:58
  */
-public class ImageBean {
+public class ImageBean extends BaseBean {
 
     private String url;
 

@@ -1,9 +1,11 @@
 package net.cb.cb.library.bean;
 
+import net.cb.cb.library.base.BaseBean;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class QRCodeBean {
+public class QRCodeBean extends BaseBean {
     //二维码头部
     private String head;
 

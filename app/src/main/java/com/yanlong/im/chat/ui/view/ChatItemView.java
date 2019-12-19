@@ -1224,7 +1224,7 @@ public class ChatItemView extends LinearLayout {
 
 
     //位置消息
-    public void setDataLocation(LocationMessage locationMessage) {
+    public void setDataLocation(LocationMessage locationMessage,OnClickListener onk) {
         if(locationMessage==null){
             return;
         }
@@ -1238,6 +1238,11 @@ public class ChatItemView extends LinearLayout {
         String baiduImageUrl= LocationUtils.getLocationUrl(locationMessage.getLatitude(),locationMessage.getLongitude());
         Glide.with(this).load(baiduImageUrl).apply(GlideOptionsUtil.imageOptions()).into(location_image_you_iv);
         Glide.with(this).load(baiduImageUrl).apply(GlideOptionsUtil.imageOptions()).into(location_image_me_iv);
+
+//        location_you_ll.setOnClickListener(onk);
+//        location_me_ll.setOnClickListener(onk);
+        viewMeTouch.setOnClickListener(onk);
+        viewOtTouch.setOnClickListener(onk);
     }
 
     private Context mContext;

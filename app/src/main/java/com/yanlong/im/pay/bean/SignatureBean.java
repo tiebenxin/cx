@@ -1,6 +1,8 @@
 package com.yanlong.im.pay.bean;
 
-public class SignatureBean {
+import net.cb.cb.library.base.BaseBean;
+
+public class SignatureBean extends BaseBean {
 
     public String getSign() {
         return sign;

@@ -1,11 +1,13 @@
 package net.cb.cb.library.bean;
 
+import net.cb.cb.library.base.BaseBean;
+
 /**
  * @author Liszt
  * @date 2019/8/21
  * Description
  */
-public class OnlineBean {
+public class OnlineBean extends BaseBean {
     long uid;
     long lastonline;//最后在线时间
     int activeType;//永华活跃状态（0离线|1在线）
