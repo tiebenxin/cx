@@ -233,6 +233,7 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                                 } else if (sendBean.getCode() == 99) {//待处理
                                     showWaitDialog();
                                 } else if (sendBean.getCode() == -21000) {//密码错误
+                                    dialogPayPassword.clearPsw();
                                     showPswErrorDialog();
                                 } else {
                                     ToastUtil.show(getContext(), baseResponse.getMessage());

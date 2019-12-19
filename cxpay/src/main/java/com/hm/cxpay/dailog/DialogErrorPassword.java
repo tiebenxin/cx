@@ -21,6 +21,8 @@ public class DialogErrorPassword extends BaseDialog {
 
     public DialogErrorPassword(Context context, int theme) {
         super(context, theme);
+        setCanceledOnTouchOutside(false);
+
     }
 
     @Override

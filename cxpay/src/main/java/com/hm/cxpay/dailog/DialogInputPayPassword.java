@@ -35,6 +35,7 @@ public class DialogInputPayPassword extends BaseDialog {
 
     public DialogInputPayPassword(Context context, int theme) {
         super(context, theme);
+        setCanceledOnTouchOutside(false);
     }
 
     @Override

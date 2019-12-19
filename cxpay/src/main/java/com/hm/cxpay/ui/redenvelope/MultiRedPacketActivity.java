@@ -172,22 +172,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                 String string = s.toString().trim();
                 long money = UIUtils.getFen(string);
                 int count = UIUtils.getRedEnvelopeCount(ui.edRedPacketNum.getText().toString().trim());
-                if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {
-                    money = money * count;
-                }
-                if (money > 0 && money <= MAX_AMOUNT && count > 0) {
-                    ui.btnCommit.setEnabled(true);
-                    ui.tvMoney.setText(UIUtils.getYuan(money));
-                    ui.tvNotice.setVisibility(View.GONE);
-                } else if (money > MAX_AMOUNT) {
-                    ui.btnCommit.setEnabled(false);
-                    ui.tvMoney.setText(UIUtils.getYuan(money));
-                    ui.tvNotice.setVisibility(View.VISIBLE);
-                } else {
-                    ui.btnCommit.setEnabled(false);
-                    ui.tvMoney.setText("0.00");
-                    ui.tvNotice.setVisibility(View.GONE);
-                }
+                updateCommitUI(money, count);
             }
         });
 
@@ -207,9 +192,23 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                 String string = ui.edMoney.getText().toString().trim();
                 int count = UIUtils.getRedEnvelopeCount(s.toString().trim());
                 long money = UIUtils.getFen(string);
-                if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {
-                    money = money * count;
-                }
+                updateCommitUI(money, count);
+            }
+        });
+    }
+
+    private void updateCommitUI(long money, int count) {
+        if (count <= 0) {
+            return;
+        }
+        if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {
+            money = money * count;
+            if (memberCount > 0 && count > memberCount) {
+                ui.btnCommit.setEnabled(false);
+                ui.tvMoney.setText(UIUtils.getYuan(money));
+                ui.tvNotice.setVisibility(View.VISIBLE);
+                ui.tvNotice.setText(getString(R.string.more_than_member_count));
+            } else {
                 if (money > 0 && money <= MAX_AMOUNT && count > 0) {
                     ui.btnCommit.setEnabled(true);
                     ui.tvMoney.setText(UIUtils.getYuan(money));
@@ -218,13 +217,39 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                     ui.btnCommit.setEnabled(false);
                     ui.tvMoney.setText(UIUtils.getYuan(money));
                     ui.tvNotice.setVisibility(View.VISIBLE);
+                    ui.tvNotice.setText(getString(R.string.max_amount_notice));
                 } else {
                     ui.btnCommit.setEnabled(false);
                     ui.tvMoney.setText("0.00");
                     ui.tvNotice.setVisibility(View.GONE);
                 }
             }
-        });
+        } else {
+            if (memberCount > 0 && count > memberCount) {
+                ui.btnCommit.setEnabled(false);
+                ui.tvMoney.setText(UIUtils.getYuan(money));
+                ui.tvNotice.setVisibility(View.VISIBLE);
+                ui.tvNotice.setText(getString(R.string.more_than_member_count));
+            } else {
+                double singeMoney = money / count;
+                if (singeMoney == 0) {
+                    ui.tvNotice.setVisibility(View.VISIBLE);
+                    ui.tvNotice.setText(getString(R.string.min_amount_notice));
+                    ui.tvMoney.setText("0.00");
+                    ui.btnCommit.setEnabled(false);
+                } else if (singeMoney > MAX_AMOUNT) {
+                    ui.btnCommit.setEnabled(false);
+                    ui.tvMoney.setText(UIUtils.getYuan(money));
+                    ui.tvNotice.setVisibility(View.VISIBLE);
+                    ui.tvNotice.setText(getString(R.string.max_amount_notice));
+                } else {
+                    ui.btnCommit.setEnabled(true);
+                    ui.tvMoney.setText(UIUtils.getYuan(money));
+                    ui.tvNotice.setVisibility(View.GONE);
+                }
+            }
+        }
+
     }
 
     @Override
@@ -329,6 +354,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                                 } else if (sendBean.getCode() == 99) {
                                     showWaitDialog();
                                 } else if (sendBean.getCode() == -21000) {//密码错误
+                                    dialogPayPassword.clearPsw();
                                     showPswErrorDialog();
                                 } else {
                                     ToastUtil.show(getContext(), sendBean.getErrMsg());
@@ -434,6 +460,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     //显示密码错误弹窗
     private void showPswErrorDialog() {
         dialogErrorPassword = new DialogErrorPassword(this, R.style.MyDialogTheme);
+        dialogErrorPassword.setCanceledOnTouchOutside(false);
         dialogErrorPassword.setListener(new DialogErrorPassword.IErrorPasswordListener() {
             @Override
             public void onForget() {
