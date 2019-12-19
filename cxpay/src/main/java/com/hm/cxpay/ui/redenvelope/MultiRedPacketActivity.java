@@ -199,77 +199,51 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     }
 
     private void updateCommitUI(long money, int count) {
+        long totalMoney;
+        double singleMoney;
         if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {
-            if (money * count > TOTAL_MAX_AMOUNT) {
-                ui.btnCommit.setEnabled(false);
-                ui.tvMoney.setText(UIUtils.getYuan(money));
-                ui.tvNotice.setVisibility(View.VISIBLE);
-                ui.tvNotice.setText(getString(R.string.total_max_amount_notice));
-                return;
-            }
+            totalMoney = money * count;
+            singleMoney = money;
         } else {
-            if (money > TOTAL_MAX_AMOUNT) {
-                ui.btnCommit.setEnabled(false);
-                ui.tvMoney.setText(UIUtils.getYuan(money));
-                ui.tvNotice.setVisibility(View.VISIBLE);
-                ui.tvNotice.setText(getString(R.string.total_max_amount_notice));
-                return;
-            }
+            totalMoney = money;
+            singleMoney = money * 1.00 / count;
         }
-        if (count <= 0) {
+
+        if (totalMoney > TOTAL_MAX_AMOUNT) {
             ui.btnCommit.setEnabled(false);
-            ui.tvMoney.setText("0.00");
-            ui.tvNotice.setVisibility(View.GONE);
+            ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
+            ui.tvNotice.setVisibility(View.VISIBLE);
+            ui.tvNotice.setText(getString(R.string.total_max_amount_notice));
         } else {
-            if (redPacketType == PayEnum.ERedEnvelopeType.NORMAL) {
-                if (memberCount > 0 && count > memberCount) {
-                    ui.btnCommit.setEnabled(false);
-                    ui.tvMoney.setText(UIUtils.getYuan(money * count));
-                    ui.tvNotice.setVisibility(View.VISIBLE);
-                    ui.tvNotice.setText(getString(R.string.more_than_member_count));
-                } else {
-                    if (money > 0 && money <= MAX_AMOUNT && count > 0) {
-                        ui.btnCommit.setEnabled(true);
-                        ui.tvMoney.setText(UIUtils.getYuan(money * count));
-                        ui.tvNotice.setVisibility(View.GONE);
-                    } else if (money > MAX_AMOUNT) {
-                        ui.btnCommit.setEnabled(false);
-                        ui.tvMoney.setText(UIUtils.getYuan(money * count));
-                        ui.tvNotice.setVisibility(View.VISIBLE);
-                        ui.tvNotice.setText(getString(R.string.max_amount_notice));
-                    } else {
-                        ui.btnCommit.setEnabled(false);
-                        ui.tvMoney.setText("0.00");
-                        ui.tvNotice.setVisibility(View.GONE);
-                    }
-                }
+            if (count <= 0) {
+                ui.btnCommit.setEnabled(false);
+                ui.tvMoney.setText("0.00");
+                ui.tvNotice.setVisibility(View.GONE);
             } else {
                 if (memberCount > 0 && count > memberCount) {
                     ui.btnCommit.setEnabled(false);
-                    ui.tvMoney.setText(UIUtils.getYuan(money));
+                    ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
                     ui.tvNotice.setVisibility(View.VISIBLE);
                     ui.tvNotice.setText(getString(R.string.more_than_member_count));
                 } else {
-                    double singeMoney = money / count;
-                    if (singeMoney == 0) {
+                    if (singleMoney == 0) {
                         ui.tvNotice.setVisibility(View.VISIBLE);
                         ui.tvNotice.setText(getString(R.string.min_amount_notice));
                         ui.tvMoney.setText("0.00");
                         ui.btnCommit.setEnabled(false);
-                    } else if (singeMoney > MAX_AMOUNT) {
+                    } else if (singleMoney > MAX_AMOUNT) {
                         ui.btnCommit.setEnabled(false);
-                        ui.tvMoney.setText(UIUtils.getYuan(money));
+                        ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
                         ui.tvNotice.setVisibility(View.VISIBLE);
                         ui.tvNotice.setText(getString(R.string.group_max_amount_notice));
                     } else {
                         ui.btnCommit.setEnabled(true);
-                        ui.tvMoney.setText(UIUtils.getYuan(money));
+                        ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
                         ui.tvNotice.setVisibility(View.GONE);
                     }
                 }
             }
         }
-
     }
 
     @Override
