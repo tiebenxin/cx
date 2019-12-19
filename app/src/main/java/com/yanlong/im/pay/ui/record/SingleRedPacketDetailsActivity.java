@@ -60,7 +60,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
         return intent;
     }
 
-    public static Intent newIntent(Context context, long rid,int fromType) {
+    public static Intent newIntent(Context context, long rid, int fromType) {
         Intent intent = new Intent(context, SingleRedPacketDetailsActivity.class);
         intent.putExtra("rid", rid);
         intent.putExtra("fromType", fromType);
@@ -132,6 +132,12 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                     ui.tvNote.setVisibility(View.VISIBLE);
                     ui.tvNote.setText("红包已经被领完");
                     ui.tvMoney.setVisibility(View.GONE);
+                } else if (envelopeDetailBean.getEnvelopeStatus() == PayEnum.EEnvelopeStatus.PAST) {//红包已过期
+                    ui.llSend.setVisibility(View.GONE);
+                    ui.llRecord.setVisibility(View.GONE);
+                    ui.tvNote.setVisibility(View.VISIBLE);
+                    ui.tvNote.setText("该红包已过期");
+                    ui.tvMoney.setVisibility(View.GONE);
                 } else {
                     ui.llSend.setVisibility(View.GONE);
                     ui.llRecord.setVisibility(View.GONE);
@@ -155,19 +161,37 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
             String totalMoney = UIUtils.getYuan(envelopeDetailBean.getAmt());
             int receivedCount = totalCount - remainCount;
             if (user != null) {
-                if (userBean.getUid() == user.getUid()) {//是自己发的
-                    if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
-                        ui.tvHint.setText("已领取" + receivedCount + "/" + totalCount + "个，共" + receivedMoney + "/" + totalMoney + "元");
+                if (envelopeDetailBean.getEnvelopeStatus() == PayEnum.EEnvelopeStatus.PAST) {
+                    if (userBean.getUid() == user.getUid()) {//是自己发的
+                        if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
+                            ui.tvHint.setText("该红包已过期。已领取" + receivedCount + "/" + totalCount + "个，共" + receivedMoney + "/" + totalMoney + "元");
+                        } else {
+                            String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getFinishTime());
+                            ui.tvHint.setText(totalCount + "个红包共" + totalMoney + "元，" + time + "被抢光");
+                        }
                     } else {
-                        String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getFinishTime());
-                        ui.tvHint.setText(totalCount + "个红包共" + totalMoney + "元，" + time + "被抢光");
+                        if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
+                            ui.tvHint.setText("该红包已过期。已领取" + receivedCount + "/" + totalCount + "个");
+                        } else {
+                            String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getFinishTime());
+                            ui.tvHint.setText(totalCount + "个红包，" + time + "被抢光");
+                        }
                     }
                 } else {
-                    if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
-                        ui.tvHint.setText("已领取" + receivedCount + "/" + totalCount + "个");
+                    if (userBean.getUid() == user.getUid()) {//是自己发的
+                        if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
+                            ui.tvHint.setText("已领取" + receivedCount + "/" + totalCount + "个，共" + receivedMoney + "/" + totalMoney + "元");
+                        } else {
+                            String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getFinishTime());
+                            ui.tvHint.setText(totalCount + "个红包共" + totalMoney + "元，" + time + "被抢光");
+                        }
                     } else {
-                        String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getFinishTime());
-                        ui.tvHint.setText(totalCount + "个红包，" + time + "被抢光");
+                        if (envelopeDetailBean.getRemainCnt() != 0) {//未抢完
+                            ui.tvHint.setText("已领取" + receivedCount + "/" + totalCount + "个");
+                        } else {
+                            String time = DateUtils.getGrabFinishedTime(envelopeDetailBean.getFinishTime());
+                            ui.tvHint.setText(totalCount + "个红包，" + time + "被抢光");
+                        }
                     }
                 }
             }
@@ -269,7 +293,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
         }
     }
 
-    private void getEnvelopeDetail(long rid,int fromType) {
+    private void getEnvelopeDetail(long rid, int fromType) {
         PayHttpUtils.getInstance().getEnvelopeDetail(rid, "", fromType)
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>handleResult())
