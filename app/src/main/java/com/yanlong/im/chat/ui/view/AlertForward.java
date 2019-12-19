@@ -16,9 +16,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -26,10 +26,8 @@ import com.yanlong.im.chat.ui.forward.ForwardListAdapter;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.wight.avatar.MultiImageView;
-
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.StringUtil;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +49,7 @@ public class AlertForward {
     private Button btnCl;
     private Button btnOk;
     private RecyclerView recyclerview;
+
     private MsgDao msgDao = new MsgDao();
 
     //自动寻找控件
@@ -85,7 +84,7 @@ public class AlertForward {
 
 
     //自动生成的控件事件
-    private void initEvent(String head, String name, String txt, String imgurl, String y, String gid) {
+    private void initEvent(int msgType,String head, String name, String txt, String imgurl, String btnText, String gid) {
 
         //imgHead.setImageURI(Uri.parse(head));
         if (MsgForwardActivity.isSingleSelected) {
@@ -107,10 +106,6 @@ public class AlertForward {
             txtName.setVisibility(View.GONE);
             recyclerview.setVisibility(View.VISIBLE);
 
-//            List<MoreSessionBean> moreSessionBeanList= new ArrayList<>();
-//            LinearLayoutManager manager = new LinearLayoutManager(context);
-//            manager.setOrientation(LinearLayoutManager.HORIZONTAL);
-//            recyclerview.setLayoutManager(manager);
             GridLayoutManager gridLayoutManager = new GridLayoutManager(context, 5);
             recyclerview.setLayoutManager(gridLayoutManager);
             ForwardListAdapter forwardListAdapter = new ForwardListAdapter(context, MsgForwardActivity.moreSessionBeanList);
@@ -134,7 +129,7 @@ public class AlertForward {
         }
 
 
-        btnOk.setText(y);
+        btnOk.setText(btnText);
         btnCl.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 event.onON();
@@ -157,7 +152,7 @@ public class AlertForward {
         alertDialog.dismiss();
     }
 
-    public void init(Activity activity, String head, String name, String txt, String imgurl, String y, String gid, Event e) {
+    public void init(Activity activity, int msgType,String head, String name, String txt, String imgurl, String btnText, String gid, Event e) {
         event = e;
         this.context = activity;
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -165,7 +160,7 @@ public class AlertForward {
         View rootView = View.inflate(context, R.layout.view_alert_forward, null);
         alertDialog.setView(rootView);
         findViews(rootView);
-        initEvent(head, name, txt, imgurl, y, gid);
+        initEvent(msgType,head, name, txt, imgurl, btnText, gid);
     }
 
 

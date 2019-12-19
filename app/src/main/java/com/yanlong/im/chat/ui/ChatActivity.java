@@ -3050,7 +3050,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     break;
                 case ChatEnum.EMessageType.LOCATION:
-//                    menus.add(new OptionMenu("转发"));
+                    menus.add(new OptionMenu("转发"));
                     menus.add(new OptionMenu("删除"));
                     holder.viewChatItem.setDataLocation(msgbean.getLocationMessage(), new View.OnClickListener() {
                         @Override
