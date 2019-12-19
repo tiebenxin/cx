@@ -43,6 +43,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import static com.hm.cxpay.global.PayConstants.MAX_AMOUNT;
+import static com.hm.cxpay.global.PayConstants.MIN_AMOUNT;
 import static com.hm.cxpay.global.PayConstants.TOTAL_MAX_AMOUNT;
 
 //发送群红包界面
@@ -240,6 +241,11 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                         ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
                         ui.tvNotice.setVisibility(View.VISIBLE);
                         ui.tvNotice.setText(getString(R.string.group_max_amount_notice));
+                    } else if (singleMoney > 0 && singleMoney < MIN_AMOUNT) {
+                        ui.btnCommit.setEnabled(false);
+                        ui.tvMoney.setText(UIUtils.getYuan(totalMoney));
+                        ui.tvNotice.setVisibility(View.VISIBLE);
+                        ui.tvNotice.setText(getString(R.string.min_amount_notice));
                     } else {
                         ui.btnCommit.setEnabled(true);
                         ui.tvMoney.setText(UIUtils.getYuan(totalMoney));

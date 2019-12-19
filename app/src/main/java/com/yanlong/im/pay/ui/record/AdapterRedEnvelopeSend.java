@@ -3,11 +3,14 @@ package com.yanlong.im.pay.ui.record;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.hm.cxpay.bean.RedEnvelopeItemBean;
+import com.hm.cxpay.bean.UserBean;
+import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.utils.DateUtils;
 import com.hm.cxpay.utils.UIUtils;
 import com.yanlong.im.R;
@@ -61,8 +64,13 @@ public class AdapterRedEnvelopeSend extends AbstractRecyclerAdapter<RedEnvelopeI
 
         public void bindData(RedEnvelopeItemBean bean) {
             model = bean;
-            if (bean.getFromUser() != null) {
-                tvName.setText(bean.getFromUser().getNickname());
+            String nick = PayEnvironment.getInstance().getNick();
+            if (!TextUtils.isEmpty(nick)) {
+                tvName.setText(nick);
+            } else {
+                if (bean.getFromUser() != null) {
+                    tvName.setText(bean.getFromUser().getNickname());
+                }
             }
             tvMoney.setText(UIUtils.getYuan(bean.getAmt()) + "元");
             tvTime.setText(DateUtils.getGrabTime(bean.getTime()));

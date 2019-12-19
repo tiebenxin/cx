@@ -1,5 +1,6 @@
 package com.yanlong.im.pay.ui.record;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -52,14 +53,15 @@ public class FragmentRedEnvelopeSend extends Fragment {
 
     private void initView() {
         mMtListView = rootView.findViewById(R.id.mtListView);
-//        LinearLayoutManager manager = new LinearLayoutManager(getContext());
-//        manager.setOrientation(LinearLayoutManager.VERTICAL);
-//        mMtListView.setLayoutManager(manager);
         adapter = new AdapterRedEnvelopeSend(getContext());
         adapter.setItemClickListener(new AbstractRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Object bean) {
-
+                if (bean instanceof RedEnvelopeItemBean) {
+                    RedEnvelopeItemBean b = (RedEnvelopeItemBean) bean;
+                    Intent intent = SingleRedPacketDetailsActivity.newIntent(getActivity(), b.getTradeId(), 1);
+                    startActivity(intent);
+                }
             }
         });
         mMtListView.init(adapter);
@@ -73,7 +75,7 @@ public class FragmentRedEnvelopeSend extends Fragment {
 
             @Override
             public void onLoadMore() {
-                if (totalCount > 0 && currentPage * 20 >= totalCount){
+                if (totalCount > 0 && currentPage * 20 >= totalCount) {
                     return;
                 }
                 currentPage++;
