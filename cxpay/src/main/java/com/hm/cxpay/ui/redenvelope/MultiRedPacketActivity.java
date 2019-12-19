@@ -206,7 +206,11 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             singleMoney = money;
         } else {
             totalMoney = money;
-            singleMoney = money * 1.00 / count;
+            if (count > 0) {
+                singleMoney = money * 1.00 / count;
+            } else {
+                singleMoney = 0;
+            }
         }
 
         if (totalMoney > TOTAL_MAX_AMOUNT) {
