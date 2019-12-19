@@ -62,10 +62,12 @@ public class InputPhoneActivity extends BasePayActivity {
                 String phone = ui.etPhoneNum.getText().toString().trim();
                 if (TextUtils.isEmpty(phone)) {
                     ToastUtil.show(InputPhoneActivity.this, "手机号不能为空");
+                    ui.tvNext.setEnabled(true);
                     return;
                 }
                 if (bankInfo == null || TextUtils.isEmpty(bankInfo.getBankNumber())) {
                     ToastUtil.show(InputPhoneActivity.this, "银行卡号不能为空");
+                    ui.tvNext.setEnabled(true);
                     return;
                 }
                 bankInfo.setPhone(phone);
