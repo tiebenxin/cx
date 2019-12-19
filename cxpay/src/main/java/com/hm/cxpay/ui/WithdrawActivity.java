@@ -198,7 +198,7 @@ public class WithdrawActivity extends AppActivity {
                             realMoney = Double.valueOf(BigDecimalUtils.sub(withDrawMoney + "", serviceMoney + "", 2));
                             doubleRate = rate * 100;
                             //实际值以分为单位，显示转为元
-                            tvRateNotice.setText("服务费 " + serviceMoney + "元 (服务费=提现金额 X " + doubleRate + "%+"+extraMoney+"元/笔)");
+                            tvRateNotice.setText("服务费 " + serviceMoney + "元 (服务费=提现金额x" + doubleRate + "%+"+extraMoney+"元/笔)");
                             tvSubmit.setText("提现 (实际到账金额 " + realMoney + ")");
                         } else {
                             ToastUtil.show(activity, "单笔最高不能超过10000元");
@@ -209,7 +209,7 @@ public class WithdrawActivity extends AppActivity {
                         etWithdraw.setText("");
                     }
                 } else {
-                    tvRateNotice.setText("服务费 0.0元 (服务费=提现金额 X " + rate * 100 + "%+"+extraMoney+"元/笔)");
+                    tvRateNotice.setText("服务费 0.0元 (服务费=提现金额x" + rate * 100 + "%+"+extraMoney+"元/笔)");
                     tvSubmit.setText("提现 (实际到账金额 0.0)");
                 }
             }
@@ -324,7 +324,7 @@ public class WithdrawActivity extends AppActivity {
                             etWithdraw.setHint("最小提现金额不低于" + minMoney + "元");
                             if (!TextUtils.isEmpty(rateBean.getRate())) {
                                 rate = Double.valueOf(rateBean.getRate());
-                                tvRateNotice.setText("服务费 0.0元 (服务费=提现金额 X " + rate * 100 + "%+"+extraMoney+"元/笔)");
+                                tvRateNotice.setText("服务费 0.0元 (服务费=提现金额x" + rate * 100 + "%+"+extraMoney+"元/笔)");
                             }
                         } else {
                             rateBean = new CommonBean();
