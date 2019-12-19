@@ -4877,13 +4877,28 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         return status;
     }
 
+    //获取拆红包后，红包状态
+    private int getOpenEnvelopeStatus(int stat) {
+        int status = PayEnum.EEnvelopeStatus.RECEIVED;
+        if (stat == 1) {//1 领取
+            status = PayEnum.EEnvelopeStatus.RECEIVED;
+        } else if (stat == 2) {//已领完
+            status = PayEnum.EEnvelopeStatus.RECEIVED_FINISHED;
+        } else if (stat == 3) {//已过期
+            status = PayEnum.EEnvelopeStatus.PAST;
+        } else if (stat == 4) {//领到
+            status = PayEnum.EEnvelopeStatus.RECEIVED;
+        }
+        return status;
+    }
+
     private void showEnvelopeDialog(String token, int status, MsgAllBean msgBean, int reType) {
         DialogEnvelope dialogEnvelope = new DialogEnvelope(ChatActivity.this, com.hm.cxpay.R.style.MyDialogTheme);
         dialogEnvelope.setEnvelopeListener(new DialogEnvelope.IEnvelopeListener() {
             @Override
             public void onOpen(long rid, int envelopeStatus) {
                 //TODO: 开红包后，先发送领取红包消息给服务端，然后更新红包状态，最后保存领取红包通知消息到本地
-                taskPayRbCheck(msgBean, rid + "", reType, token, getGrabEnvelopeStatus(envelopeStatus));
+                taskPayRbCheck(msgBean, rid + "", reType, token, getOpenEnvelopeStatus(envelopeStatus));
                 if (envelopeStatus == 1) {//抢到了
                     if (!msgBean.isMe()) {
                         SocketData.sendReceivedEnvelopeMsg(msgBean.getFrom_uid(), toGid, rid + "");//发送抢红包消息
