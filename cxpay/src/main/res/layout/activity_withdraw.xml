@@ -40,7 +40,7 @@
                 android:layout_marginLeft="5dp"
                 android:layout_toLeftOf="@+id/temp_icon_one"
                 android:gravity="center_vertical"
-                android:hint="添加一张银行卡"
+                android:hint=""
                 android:textColor="@color/c_0f0f0f"
                 android:textSize="16sp" />
 

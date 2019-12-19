@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
+import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.controller.ControllerPaySetting;
 import com.hm.cxpay.global.PayEnvironment;
@@ -24,8 +25,8 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.ui.bank.BankSettingActivity;
+import com.hm.cxpay.ui.bank.BindBankActivity;
 import com.hm.cxpay.ui.bill.BillDetailListActivity;
 import com.hm.cxpay.ui.change.ChangeDetailListActivity;
 import com.hm.cxpay.ui.payword.ManagePaywordActivity;
@@ -60,8 +61,9 @@ public class LooseChangeActivity extends BasePayActivity {
 
     public static int REFRESH_BALANCE = 98;//获取最新余额展示
     public static int REFRESH_BANKCARD_NUM = 97;//刷新银行卡数
-    private int myCardListSize = 0;//我的银行卡个数
+    private int myCardListSize = 0;//我的银行卡个数 (判断是否添加过银行卡)
 //    private ControllerPaySetting viewAccountInfo;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,12 +163,16 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutWithdrawDeposit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                layoutWithdrawDeposit.setEnabled(false);
-                // 1 已设置支付密码 -> 允许跳转
+                //1 已设置支付密码 -> 允许跳转
                 if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
-                    startActivityForResult(new Intent(activity, WithdrawActivity.class), REFRESH_BALANCE);
+                    //2 是否添加过银行卡
+                    if(myCardListSize>0){
+                        startActivityForResult(new Intent(activity, WithdrawActivity.class), REFRESH_BALANCE);
+                    }else {
+                        showAddBankCardDialog();
+                    }
                 } else {
-                    //2 未设置支付密码 -> 需要先设置
+                    //未设置支付密码 -> 需要先设置
                     showSetPaywordDialog();
                 }
             }
@@ -420,6 +426,47 @@ public class LooseChangeActivity extends BasePayActivity {
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
     }
+
+    /**
+     * 没有添加过银行卡弹框
+     */
+    private void showAddBankCardDialog(){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+        dialogBuilder.setCancelable(false);
+        final AlertDialog dialog = dialogBuilder.create();
+        //获取界面
+        View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_bind_bankcard, null);
+        //初始化控件
+        TextView tvAdd = dialogView.findViewById(R.id.tv_add);
+        TextView tvExit = dialogView.findViewById(R.id.tv_exit);
+        //去添加银行卡
+        tvAdd.setOnClickListener(new android.view.View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                startActivityForResult(new Intent(activity, BindBankActivity.class), REFRESH_BANKCARD_NUM);
+            }
+        });
+        //取消
+        tvExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        //展示界面
+        dialog.show();
+        //解决圆角shape背景无效问题
+        Window window = dialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        //设置宽高
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.height = DensityUtil.dip2px(activity, 123);
+        lp.width = DensityUtil.dip2px(activity, 277);
+        dialog.getWindow().setAttributes(lp);
+        dialog.setContentView(dialogView);
+    }
+
 
 
 

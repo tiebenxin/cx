@@ -25,14 +25,13 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.hm.cxpay.R;
+import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.bean.BankBean;
-import com.hm.cxpay.ui.bank.BindBankActivity;
 import com.hm.cxpay.ui.bank.SelectBankCardActivity;
 import com.hm.cxpay.ui.payword.CheckPaywordActivity;
 import com.hm.cxpay.utils.UIUtils;
@@ -49,7 +48,6 @@ import java.util.List;
 
 import static com.hm.cxpay.ui.LooseChangeActivity.REFRESH_BANKCARD_NUM;
 import static com.hm.cxpay.ui.RechargeActivity.SELECT_BANKCARD;
-import static com.hm.cxpay.ui.bank.BankSettingActivity.REQUEST_BIND;
 
 /**
  * @类名：零钱->提现
@@ -134,15 +132,11 @@ public class WithdrawActivity extends AppActivity {
         final String value = UIUtils.getYuan(Long.valueOf(PayEnvironment.getInstance().getUser().getBalance()));
         balanceValue = Double.valueOf(value);
         tvBalance.setText("可提现余额  ¥" + value);
-        //新增或切换银行卡
+        //切换银行卡
         layoutChangeBankcard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (ifAddBankcard) {
-                    startActivityForResult(new Intent(activity, SelectBankCardActivity.class), SELECT_BANKCARD);
-                } else {
-                    startActivityForResult(new Intent(activity, BindBankActivity.class), REQUEST_BIND);
-                }
+                startActivityForResult(new Intent(activity, SelectBankCardActivity.class), SELECT_BANKCARD);
             }
         });
         //提现
@@ -155,12 +149,7 @@ public class WithdrawActivity extends AppActivity {
                     if (Double.valueOf(etWithdraw.getText().toString()) >= minMoney) {
                         //3 不能超过余额
                         if (Double.valueOf(etWithdraw.getText().toString()) <= balanceValue) {
-                            //4 有银行卡
-                            if (ifAddBankcard) {
-                                startActivityForResult(new Intent(activity, CheckPaywordActivity.class), WITHDRAW);
-                            } else {
-                                ToastUtil.show(context, "请先添加一张银行卡");
-                            }
+                            startActivityForResult(new Intent(activity, CheckPaywordActivity.class), WITHDRAW);
                         } else {
                             ToastUtil.show(context, "您的可提现余额不足");
                         }
@@ -375,12 +364,6 @@ public class WithdrawActivity extends AppActivity {
                             ivBankIcon.setImageResource(R.mipmap.ic_bank_zs);
                         }
                     }
-                }
-                break;
-            case REQUEST_BIND:
-                //没卡的情况下，新绑定一张卡后回到此界面，获取并显示新添加的银行卡数据
-                if (resultCode == RESULT_OK) {
-                    getBankList();
                 }
                 break;
             case WITHDRAW:

@@ -3,16 +3,25 @@ package com.yanlong.im.utils.update;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.TextView;
 
+import com.yanlong.im.R;
 import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.VersionBean;
 
+import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InstallAppUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -105,72 +114,79 @@ public class UpdateManage {
 
                 @Override
                 public void onUpdate() {
-                    startsPoint = getFileStart() > 0 ? getFileStart()-1 : getFileStart();
-                    download(url, downloadListener, startsPoint, new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            downloadListener.fail(e.getMessage());
-                        }
-
-                        @Override
-                        public void onResponse(Call call, Response response) {
-                            if (response.code() == 404) {
-                                downloadListener.fail("下载失败");
-                                return;
+                    //如果是wifi则直接下载，如果是数据流量则提示是否确认更新
+                    if(NetUtil.getNetworkType(context).equals("WIFI")){
+                        startsPoint = getFileStart() > 0 ? getFileStart()-1 : getFileStart();
+                        download(url, downloadListener, startsPoint, new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                downloadListener.fail(e.getMessage());
                             }
-                            long length = response.body().contentLength();
-                            if (length == 0) {
-                                // 说明文件已经下载完，直接跳转安装就好
-                                downloadListener.complete(String.valueOf(getFile().getAbsoluteFile()));
-                                return;
-                            }
-                            downloadListener.start(length + startsPoint);
-                            // 保存文件到本地
-                            InputStream is = null;
-                            RandomAccessFile randomAccessFile = null;
-                            BufferedInputStream bis = null;
 
-                            byte[] buff = new byte[2048];
-                            int len = 0;
-                            try {
-                                is = response.body().byteStream();
-                                bis = new BufferedInputStream(is);
-
-                                File file = getFile();
-                                // 随机访问文件，可以指定断点续传的起始位置
-                                randomAccessFile = new RandomAccessFile(file, "rwd");
-                                randomAccessFile.seek(startsPoint);
-                                while ((len = bis.read(buff)) != -1) {
-                                    randomAccessFile.write(buff, 0, len);
+                            @Override
+                            public void onResponse(Call call, Response response) {
+                                if (response.code() == 404) {
+                                    downloadListener.fail("下载失败");
+                                    return;
                                 }
-
-                                // 下载完成
-                                downloadListener.complete(String.valueOf(file.getAbsoluteFile()));
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                //监听断网导致的超时
-                                if(e.getMessage().contains("Connection timed out")){
-                                    handler.sendEmptyMessageDelayed(OVERTIME,5000);
-                                }else {
-                                    downloadListener.loadfail(e.getMessage());
+                                long length = response.body().contentLength();
+                                if (length == 0) {
+                                    // 说明文件已经下载完，直接跳转安装就好
+                                    downloadListener.complete(String.valueOf(getFile().getAbsoluteFile()));
+                                    return;
                                 }
-                            } finally {
+                                downloadListener.start(length + startsPoint);
+                                // 保存文件到本地
+                                InputStream is = null;
+                                RandomAccessFile randomAccessFile = null;
+                                BufferedInputStream bis = null;
+
+                                byte[] buff = new byte[2048];
+                                int len = 0;
                                 try {
-                                     if (is != null) {
-                                        is.close();
+                                    is = response.body().byteStream();
+                                    bis = new BufferedInputStream(is);
+
+                                    File file = getFile();
+                                    // 随机访问文件，可以指定断点续传的起始位置
+                                    randomAccessFile = new RandomAccessFile(file, "rwd");
+                                    randomAccessFile.seek(startsPoint);
+                                    while ((len = bis.read(buff)) != -1) {
+                                        randomAccessFile.write(buff, 0, len);
                                     }
-                                    if (bis != null) {
-                                        bis.close();
-                                    }
-                                    if (randomAccessFile != null) {
-                                        randomAccessFile.close();
-                                    }
+
+                                    // 下载完成
+                                    downloadListener.complete(String.valueOf(file.getAbsoluteFile()));
                                 } catch (Exception e) {
                                     e.printStackTrace();
+                                    //监听断网导致的超时
+                                    if(e.getMessage().contains("Connection timed out")){
+                                        handler.sendEmptyMessageDelayed(OVERTIME,5000);
+                                    }else {
+                                        downloadListener.loadfail(e.getMessage());
+                                    }
+                                } finally {
+                                    try {
+                                        if (is != null) {
+                                            is.close();
+                                        }
+                                        if (bis != null) {
+                                            bis.close();
+                                        }
+                                        if (randomAccessFile != null) {
+                                            randomAccessFile.close();
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
-                        }
-                    });
+                        });
+                    }else {
+                        show4gNoticeDialog(url);
+                    }
+
+
                 }
 
                 @Override
@@ -435,6 +451,109 @@ public class UpdateManage {
             }
         }
     };
+
+    /**
+     * 4G数据流量情况下是否确认更新
+     */
+    private void show4gNoticeDialog(String url){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        dialogBuilder.setCancelable(false);//取消点击外部消失弹窗
+        final AlertDialog dialog = dialogBuilder.create();
+        View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_4g_update_notice, null);
+        TextView tvCancel = dialogView.findViewById(com.hm.cxpay.R.id.tv_cancel);
+        TextView tvSure = dialogView.findViewById(com.hm.cxpay.R.id.tv_sure);
+        tvCancel.setOnClickListener(new android.view.View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        //确认更新
+        tvSure.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                startsPoint = getFileStart() > 0 ? getFileStart()-1 : getFileStart();
+                download(url, downloadListener, startsPoint, new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        downloadListener.fail(e.getMessage());
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) {
+                        if (response.code() == 404) {
+                            downloadListener.fail("下载失败");
+                            return;
+                        }
+                        long length = response.body().contentLength();
+                        if (length == 0) {
+                            // 说明文件已经下载完，直接跳转安装就好
+                            downloadListener.complete(String.valueOf(getFile().getAbsoluteFile()));
+                            return;
+                        }
+                        downloadListener.start(length + startsPoint);
+                        // 保存文件到本地
+                        InputStream is = null;
+                        RandomAccessFile randomAccessFile = null;
+                        BufferedInputStream bis = null;
+
+                        byte[] buff = new byte[2048];
+                        int len = 0;
+                        try {
+                            is = response.body().byteStream();
+                            bis = new BufferedInputStream(is);
+
+                            File file = getFile();
+                            // 随机访问文件，可以指定断点续传的起始位置
+                            randomAccessFile = new RandomAccessFile(file, "rwd");
+                            randomAccessFile.seek(startsPoint);
+                            while ((len = bis.read(buff)) != -1) {
+                                randomAccessFile.write(buff, 0, len);
+                            }
+
+                            // 下载完成
+                            downloadListener.complete(String.valueOf(file.getAbsoluteFile()));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            //监听断网导致的超时
+                            if(e.getMessage().contains("Connection timed out")){
+                                handler.sendEmptyMessageDelayed(OVERTIME,5000);
+                            }else {
+                                downloadListener.loadfail(e.getMessage());
+                            }
+                        } finally {
+                            try {
+                                if (is != null) {
+                                    is.close();
+                                }
+                                if (bis != null) {
+                                    bis.close();
+                                }
+                                if (randomAccessFile != null) {
+                                    randomAccessFile.close();
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+            }
+        });
+        //展示界面
+        dialog.show();
+        //解决圆角shape背景无效问题
+        Window window = dialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        //设置宽高
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.height = DensityUtil.dip2px(context, 139);
+        lp.width = DensityUtil.dip2px(context, 277);
+        dialog.getWindow().setAttributes(lp);
+        dialog.setContentView(dialogView);
+    }
+
 
 
 }
