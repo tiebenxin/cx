@@ -18,12 +18,12 @@
             style="@style/app_txt_title_2"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:text="某某某某某" />
+            android:text="" />
 
         <TextView
             android:id="@+id/tv_money"
             style="@style/app_txt_title_2"
-            android:text="0.01元" />
+            android:text="" />
 
     </LinearLayout>
 
@@ -32,7 +32,7 @@
         style="@style/app_txt_content_1"
         android:layout_marginLeft="@dimen/app_margin_main"
         android:layout_marginTop="12dp"
-        android:text="2019-01-01 16:11" />
+        android:text="" />
 
 
     <View
