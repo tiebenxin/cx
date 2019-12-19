@@ -168,7 +168,8 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                 } else {
                     ui.btnCommit.setEnabled(false);
                     ui.tvMoney.setText("0.00");
-                    ui.tvNotice.setVisibility(View.GONE);
+                    ui.tvNotice.setVisibility(View.VISIBLE);
+                    ui.tvNotice.setText(getString(R.string.min_amount_notice));
                 }
 
             }
