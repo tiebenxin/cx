@@ -45,6 +45,7 @@ public class AdapterRedEnvelopeSend extends AbstractRecyclerAdapter<RedEnvelopeI
         private TextView tvName;
         private TextView tvMoney;
         private TextView tvTime;
+        private TextView tvCount;
         private RedEnvelopeItemBean model;
 
         public ReceivedViewHolder(@NonNull View itemView) {
@@ -52,6 +53,7 @@ public class AdapterRedEnvelopeSend extends AbstractRecyclerAdapter<RedEnvelopeI
             tvName = itemView.findViewById(com.hm.cxpay.R.id.tv_user_name);
             tvMoney = itemView.findViewById(com.hm.cxpay.R.id.tv_money);
             tvTime = itemView.findViewById(com.hm.cxpay.R.id.tv_date);
+            tvCount = itemView.findViewById(com.hm.cxpay.R.id.tv_count);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -64,13 +66,10 @@ public class AdapterRedEnvelopeSend extends AbstractRecyclerAdapter<RedEnvelopeI
 
         public void bindData(RedEnvelopeItemBean bean) {
             model = bean;
-            String nick = PayEnvironment.getInstance().getNick();
-            if (!TextUtils.isEmpty(nick)) {
-                tvName.setText(nick);
+            if (bean.getType() == 1) {
+                tvName.setText("拼手气红包");
             } else {
-                if (bean.getFromUser() != null) {
-                    tvName.setText(bean.getFromUser().getNickname());
-                }
+                tvName.setText("普通红包");
             }
             tvMoney.setText(UIUtils.getYuan(bean.getAmt()) + "元");
             tvTime.setText(DateUtils.getGrabTime(bean.getTime()));

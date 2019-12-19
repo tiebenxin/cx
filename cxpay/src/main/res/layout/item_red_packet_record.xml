@@ -27,12 +27,27 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tv_date"
-        style="@style/app_txt_content_1"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/app_margin_main"
-        android:layout_marginTop="12dp"
-        android:text="" />
+        android:layout_marginTop="6dp"
+        android:layout_marginRight="@dimen/app_margin_main"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_date"
+            style="@style/app_txt_content_1"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="" />
+
+        <TextView
+            android:id="@+id/tv_count"
+            style="@style/app_txt_title_2"
+            android:text="" />
+
+    </LinearLayout>
 
 
     <View
