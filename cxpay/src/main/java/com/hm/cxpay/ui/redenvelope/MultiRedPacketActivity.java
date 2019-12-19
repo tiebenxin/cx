@@ -116,7 +116,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     }
 
     private void payFailed() {
-        dismissWaitDialog();
+        dismissLoadingDialog();
         if (isSending()) {
             setSending(false);
             if (handler != null && runnable != null) {
@@ -347,7 +347,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                                 if (sendBean.getCode() == 1) {//code  1表示成功，2失败，99处理中
                                     setResultOk();
                                 } else if (sendBean.getCode() == 99) {
-                                    showWaitDialog();
+                                    showLoadingDialog();
                                 } else if (sendBean.getCode() == -21000) {//密码错误
                                     dialogPayPassword.clearPsw();
                                     showPswErrorDialog();

@@ -408,14 +408,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (UserUtil.isSystemUser(toUId)) {
             viewRbZfb.setVisibility(View.INVISIBLE);
             viewAction.setVisibility(View.INVISIBLE);
-//            viewFunc.removeView(viewRbZfb);
-//            viewFunc.removeView(viewAction);
+            viewFunc.removeView(viewRb);
             viewFunc.removeView(viewCard);
+            viewFunc.removeView(view_location_ll);
         }
 
         if (isGroup()) {//去除群的控件
             viewFunc.removeView(viewAction);
-            //viewFunc.removeView(viewTransfer);
+            viewFunc.removeView(viewTransfer);
             viewChatRobot.setVisibility(View.INVISIBLE);
             viewFunc.removeView(llChatVideoCall);
         } else {
@@ -423,8 +423,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         viewFunc.removeView(ll_part_chat_video);
 //        viewFunc.removeView(viewRb);
-        //test 6.26
-        viewFunc.removeView(viewTransfer);
+//        viewFunc.removeView(viewTransfer);
     }
 
     //自动寻找控件

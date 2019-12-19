@@ -89,6 +89,7 @@
             android:name=".ui.redenvelope.MultiRedPacketActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
+        <activity android:name=".ui.transfer.ReceiveTransferActivity" />
 
     </application>
 </manifest>

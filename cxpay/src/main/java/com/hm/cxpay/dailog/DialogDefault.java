@@ -23,6 +23,10 @@ public class DialogDefault extends BaseDialog {
     private int colorSure = Color.parseColor("#32b053");
     private int colorCancel = Color.parseColor("#828282");
 
+    public DialogDefault(Context context) {
+        this(context, R.style.MyDialogTheme);
+    }
+
     public DialogDefault(Context context, int theme) {
         super(context, theme);
     }
@@ -38,6 +42,10 @@ public class DialogDefault extends BaseDialog {
         tvRight.setOnClickListener(this);
     }
 
+    /**
+     * @param isHas       是否有title
+     * @param isRightSure 是否右边按钮是确定键
+     */
     public DialogDefault setTitleAndSure(boolean isHas, boolean isRightSure) {
         tvTitle.setVisibility(isHas ? View.VISIBLE : View.GONE);
         isRight = isRightSure;
@@ -57,13 +65,11 @@ public class DialogDefault extends BaseDialog {
 
     public DialogDefault setLeft(String txt) {
         tvLeft.setText(txt);
-//        tvLeft.setTextColor(color);
         return this;
     }
 
     public DialogDefault setRight(String txt) {
         tvRight.setText(txt);
-//        tvRight.setTextColor(color);
         return this;
     }
 
@@ -92,8 +98,9 @@ public class DialogDefault extends BaseDialog {
         }
     }
 
-    public void setListener(IDialogListener l) {
+    public DialogDefault setListener(IDialogListener l) {
         listener = l;
+        return this;
     }
 
     public interface IDialogListener {

@@ -106,7 +106,7 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
     }
 
     private void payFailed() {
-        dismissWaitDialog();
+        dismissLoadingDialog();
         if (isSending()) {
             setSending(false);
             if (handler != null && runnable != null) {
@@ -232,7 +232,7 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                                 } else if (sendBean.getCode() == 2) {//失败
                                     ToastUtil.show(getContext(), sendBean.getErrMsg());
                                 } else if (sendBean.getCode() == 99) {//待处理
-                                    showWaitDialog();
+                                    showLoadingDialog();
                                 } else if (sendBean.getCode() == -21000) {//密码错误
                                     dialogPayPassword.clearPsw();
                                     showPswErrorDialog();

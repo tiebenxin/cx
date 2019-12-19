@@ -19,34 +19,17 @@ public class BasePayActivity extends AppActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        payWaitDialog = new DialogLoadingProgress(this);
-
-//        StatusBarUtils.with(this)
-//                .setIsActionBar(false)
-//                .clearActionBarShadow()
-//                .setDrawable(getResources().getDrawable(R.drawable.bg_action))
-//                .init();
     }
 
-    /*
-     * 初始化toolbar
-     * @param isHasBack 是否有返回键
-     * */
-    public void initToolBar(Toolbar bar, boolean isHasBack) {
-        if (getSupportActionBar() == null) {
-            setSupportActionBar(bar);
-        }
-        getSupportActionBar().setDisplayHomeAsUpEnabled(isHasBack);
-    }
 
-    public void showWaitDialog() {
+    public void showLoadingDialog() {
         if (payWaitDialog == null) {
             payWaitDialog = new DialogLoadingProgress(this);
         }
         payWaitDialog.show();
     }
 
-    public void dismissWaitDialog() {
+    public void dismissLoadingDialog() {
         if (payWaitDialog != null) {
             payWaitDialog.dismiss();
         }

@@ -9,8 +9,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.hm.cxpay.R;
+import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.bean.BankBean;
+import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.utils.UIUtils;
 import com.hm.cxpay.widget.PswView;
 
@@ -84,7 +86,12 @@ public class DialogInputPayPassword extends BaseDialog {
         bankBean = info;
         tvMoney.setText("￥" + UIUtils.getYuan(money));
         if (payStyle == PayEnum.EPayStyle.LOOSE) {
-            tvPayer.setText("零钱");
+            String payer = "零钱";
+//            UserBean userBean = PayEnvironment.getInstance().getUser();
+//            if (userBean != null && userBean.getBalance() > 0) {
+//                payer += "(余额￥" + UIUtils.getYuan(userBean.getBalance()) + ")";
+//            }
+            tvPayer.setText(payer);
             ivIcon.setImageDrawable(UIUtils.getDrawable(getContext(), R.mipmap.ic_loose));
         } else {
             if (info != null) {
