@@ -2,10 +2,11 @@ package com.yanlong.im.user.bean;
 
 import android.text.TextUtils;
 
+import net.cb.cb.library.base.BaseBean;
 import net.cb.cb.library.utils.PinyinUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
 
-public class FriendInfoBean implements Comparable<FriendInfoBean> {
+public class FriendInfoBean extends BaseBean implements Comparable<FriendInfoBean> {
     private String nickname;
     private Long uid;
     private String avatar;

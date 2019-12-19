@@ -2,11 +2,13 @@ package net.cb.cb.library.bean;
 
 import com.google.gson.annotations.SerializedName;
 
+import net.cb.cb.library.base.BaseBean;
+
 /***
  * @author jyj
  * @date 2016/12/20
  */
-public class ReturnBean<T> {
+public class ReturnBean<T> extends BaseBean {
     @SerializedName("errCode")
     Long code;
     @SerializedName("errMsg")

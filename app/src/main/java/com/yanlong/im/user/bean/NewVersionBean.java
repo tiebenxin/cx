@@ -1,6 +1,8 @@
 package com.yanlong.im.user.bean;
 
-public class NewVersionBean {
+import net.cb.cb.library.base.BaseBean;
+
+public class NewVersionBean extends BaseBean {
 
 
     private int id;

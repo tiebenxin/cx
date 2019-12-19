@@ -1,7 +1,9 @@
 package com.yanlong.im.user.bean;
 
 
-public class TokenBean {
+import net.cb.cb.library.base.BaseBean;
+
+public class TokenBean extends BaseBean {
     private Long uid;
     private String accessToken;
     private String neteaseAccid;// 网易id

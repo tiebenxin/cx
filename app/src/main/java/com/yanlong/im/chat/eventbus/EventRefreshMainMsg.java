@@ -4,11 +4,12 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.event.BaseEvent;
 
 /***
  * 刷新首页的消息
  */
-public class EventRefreshMainMsg {
+public class EventRefreshMainMsg extends BaseEvent {
     private int type;//聊天类型，单聊还是群聊
     private Long uid;//刷新用户session
     private String gid;//刷新群聊session

@@ -2,7 +2,9 @@ package com.yanlong.im.chat.bean;
 
 import com.google.gson.annotations.SerializedName;
 
-public class RobotInfoBean {
+import net.cb.cb.library.base.BaseBean;
+
+public class RobotInfoBean extends BaseBean {
     @SerializedName("update_time")
     private Long updateTime;
     @SerializedName("robot_id")

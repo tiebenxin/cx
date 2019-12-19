@@ -1,6 +1,8 @@
 package com.yanlong.im.chat.bean;
 
-public class GroupUserInfo {
+import net.cb.cb.library.base.BaseBean;
+
+public class GroupUserInfo extends BaseBean {
 
     private String uid;
 

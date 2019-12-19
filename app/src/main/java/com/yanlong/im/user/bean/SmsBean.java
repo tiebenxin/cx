@@ -1,6 +1,8 @@
 package com.yanlong.im.user.bean;
 
-public class SmsBean {
+import net.cb.cb.library.base.BaseBean;
+
+public class SmsBean extends BaseBean {
 
     private String captcha;
 

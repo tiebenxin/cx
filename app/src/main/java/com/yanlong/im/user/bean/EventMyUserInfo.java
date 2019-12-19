@@ -1,6 +1,8 @@
 package com.yanlong.im.user.bean;
 
-public class EventMyUserInfo {
+import net.cb.cb.library.event.BaseEvent;
+
+public class EventMyUserInfo extends BaseEvent {
     public static final int ALTER_HEAD = 1;
     public static final int ALTER_IMID = 2;
     public static final int ALTER_NAME = 3;

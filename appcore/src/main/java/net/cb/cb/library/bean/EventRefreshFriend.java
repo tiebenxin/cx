@@ -1,11 +1,12 @@
 package net.cb.cb.library.bean;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.event.BaseEvent;
 
 /***
  * 刷新好友
  */
-public class EventRefreshFriend {
+public class EventRefreshFriend extends BaseEvent {
     private boolean isLocal = false;//冲本地刷新好友列表
 
     @CoreEnum.ERosterAction

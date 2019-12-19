@@ -1,6 +1,8 @@
 package com.yanlong.im.chat.bean;
 
-public class MsgBean {
+import net.cb.cb.library.base.BaseBean;
+
+public class MsgBean extends BaseBean {
 
     private int type;
     private boolean isMe;

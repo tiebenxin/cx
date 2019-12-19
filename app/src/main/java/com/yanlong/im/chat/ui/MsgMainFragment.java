@@ -675,6 +675,8 @@ public class MsgMainFragment extends Fragment {
                     } else if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {//草稿除外
                         info = name + info;
                     }
+                    // TODO　处理公告...问题
+                    info = info.replace("\r\n","  ");
                     switch (type) {
                         case 0:
                             if (StringUtil.isNotNull(bean.getAtMessage())) {
@@ -697,7 +699,7 @@ public class MsgMainFragment extends Fragment {
                                     return;
                                 }
                                 if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
-                                    SpannableString style = new SpannableString("[@所有人]" + info);
+                                    SpannableString style = new SpannableString("[有人@我]" + info);
                                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                     style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                     showMessage(holder.txtInfo, info, style);
@@ -821,7 +823,7 @@ public class MsgMainFragment extends Fragment {
         }
 
         /**
-         * 显示草稿内容
+         * 显示最后一條内容
          *
          * @param message
          */

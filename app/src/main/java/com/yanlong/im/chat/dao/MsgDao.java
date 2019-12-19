@@ -1862,14 +1862,14 @@ public class MsgDao {
     //查询申请列表
     public List<ApplyBean> getApplyBeanList() {
         Realm realm = DaoUtil.open();
-        realm.beginTransaction();
+//        realm.beginTransaction();
         List<ApplyBean> beans = new ArrayList<>();
 //        RealmResults<ApplyBean> res = realm.where(ApplyBean.class).notEqualTo("stat", 3).sort("time", Sort.DESCENDING).findAll();
         RealmResults<ApplyBean> res = realm.where(ApplyBean.class).sort("stat", Sort.ASCENDING, "time", Sort.DESCENDING).findAll();
         if (res != null) {
             beans = realm.copyFromRealm(res);
         }
-        realm.commitTransaction();
+//        realm.commitTransaction();
         realm.close();
         return beans;
     }
@@ -2858,6 +2858,27 @@ public class MsgDao {
         Group g = realm.where(Group.class).equalTo("gid", gid).findFirst();
         if (g != null) {//已经存在
             g.setName(name);
+            realm.insertOrUpdate(g);
+        } else {//不存在
+            return false;
+        }
+        realm.commitTransaction();
+        realm.close();
+        return true;
+    }
+
+    /***
+     * 修改群头像
+     * @param gid 群id
+     * @param head 群名
+     */
+    public boolean updateGroupHead(String gid, String head) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Group g = realm.where(Group.class).equalTo("gid", gid).findFirst();
+        if (g != null) {//已经存在
+            g.setAvatar(head);
             realm.insertOrUpdate(g);
         } else {//不存在
             return false;

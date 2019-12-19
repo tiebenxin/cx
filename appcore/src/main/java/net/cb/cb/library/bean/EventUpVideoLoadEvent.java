@@ -1,9 +1,11 @@
 package net.cb.cb.library.bean;
 
+import net.cb.cb.library.event.BaseEvent;
+
 /***
  * 视频上传事件
  */
-public class EventUpVideoLoadEvent {
+public class EventUpVideoLoadEvent extends BaseEvent {
     private String msgid;
     private String url;
     private String bgUrl;

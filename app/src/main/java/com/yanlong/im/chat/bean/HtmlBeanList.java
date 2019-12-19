@@ -1,10 +1,12 @@
 package com.yanlong.im.chat.bean;
 
+import net.cb.cb.library.base.BaseBean;
+
 /**
  * @创建人 shenxin
  * @创建时间 2019/8/16 0016 14:53
  */
-public class HtmlBeanList {
+public class HtmlBeanList extends BaseBean {
 
     private String id;
 
