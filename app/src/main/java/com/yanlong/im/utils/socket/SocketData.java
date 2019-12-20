@@ -924,7 +924,7 @@ public class SocketData {
         MsgBean.RedEnvelopeMessage msg = MsgBean.RedEnvelopeMessage.newBuilder()
                 .setId(rid)
                 .setComment(info)
-                .setReType(MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY)
+                .setReType(MsgBean.RedEnvelopeType.MFPAY)
                 .setStyle(style)
                 .build();
         return send4Base(toId, toGid, MsgBean.MessageType.RED_ENVELOPER, msg);
@@ -1118,7 +1118,7 @@ public class SocketData {
                 MsgBean.RedEnvelopeMessage.Builder redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
                         .setId(red.getId())
                         .setComment(red.getComment())
-                        .setReType(MsgBean.RedEnvelopeMessage.RedEnvelopeType.forNumber(red.getRe_type()))
+                        .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
                         .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
                 value = redBuild.build();
                 type = MsgBean.MessageType.RED_ENVELOPER;

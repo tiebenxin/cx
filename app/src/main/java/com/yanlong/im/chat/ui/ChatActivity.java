@@ -2092,7 +2092,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
                         }
 
-                        RedEnvelopeMessage message = SocketData.createRbMessage(SocketData.getUUID(), envelopeInfo.getEnvelopesID(), envelopeInfo.getEnvelopeMessage(), MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY.getNumber(), style.getNumber());
+                        RedEnvelopeMessage message = SocketData.createRbMessage(SocketData.getUUID(), envelopeInfo.getEnvelopesID(), envelopeInfo.getEnvelopeMessage(), MsgBean.RedEnvelopeType.MFPAY.getNumber(), style.getNumber());
                         sendMessage(message, ChatEnum.EMessageType.RED_ENVELOPE);
 
 //                        MsgAllBean msgAllbean = SocketData.send4Rb(toUId, toGid, rid, info, style);
@@ -2843,7 +2843,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     final Long touid = msgbean.getFrom_uid();
                     final int style = msgbean.getRed_envelope().getStyle();
                     String type = null;
-                    if (rb.getRe_type().intValue() == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
+                    if (rb.getRe_type().intValue() == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
                         type = "云红包";
                     }
 
