@@ -1,10 +1,12 @@
 package com.yanlong.im.user.bean;
 
+import net.cb.cb.library.base.BaseBean;
+
 /**
  * @创建人 shenxin
  * @创建时间 2019/7/26 0026 15:16
  */
-public class BackgroundImageBean {
+public class BackgroundImageBean extends BaseBean {
 
     private int image;
 

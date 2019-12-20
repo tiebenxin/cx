@@ -1,6 +1,8 @@
 package net.cb.cb.library.bean;
 
-public class EventVoicePlay<T> {
+import net.cb.cb.library.event.BaseEvent;
+
+public class EventVoicePlay<T> extends BaseEvent {
     int position;
     T t;
 

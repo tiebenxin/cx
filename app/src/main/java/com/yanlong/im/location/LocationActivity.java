@@ -9,6 +9,7 @@ import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
@@ -37,6 +38,7 @@ import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.listener.BaseListener;
 import com.yanlong.im.view.MaxHeightRecyclerView;
 import net.cb.cb.library.utils.GsonUtils;
+import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -59,16 +61,22 @@ public class LocationActivity extends AppActivity {
     private MapView mapview;
     private ClearEditText edtSearch;
     private MaxHeightRecyclerView recyclerview;
+    private RelativeLayout search_ll;
 
     private BaiduMap mBaiduMap;
     private LocationService locService;
     private BDAbstractLocationListener listener;
     private List<LocationMessage> locationList;
     private LocationPoiAdapter locationPoiAdapter;
-    private String city="长沙市";
+
+    private Boolean isLook=true;
+    private String city="长沙市";//默认城市
+    private int latitude=28136296;//默认定位
+    private int longitude=112953042;//默认定位
 
 
-    public static void openActivity(Activity activity) {
+
+    public static void openActivity(Activity activity,Boolean isLook ,int latitude,int longitude) {
         if (!LocationPersimmions.checkPermissions(activity)) {
             return;
         }
@@ -76,7 +84,11 @@ public class LocationActivity extends AppActivity {
             ToastUtil.show(activity,"请打开定位服务");
             return;
         }
-        activity.startActivity(new Intent(activity, LocationActivity.class));
+        Intent intent=new Intent(activity, LocationActivity.class);
+        intent.putExtra("isLook",isLook);
+        intent.putExtra("latitude",latitude);
+        intent.putExtra("longitude",longitude);
+        activity.startActivity(intent);
     }
 
     @Override
@@ -119,6 +131,7 @@ public class LocationActivity extends AppActivity {
         actionbar = headView.getActionbar();
         mapview = findViewById(R.id.mapview);
         edtSearch = findViewById(R.id.edt_search);
+        search_ll = findViewById(R.id.search_ll);
 
         recyclerview = findViewById(R.id.recyclerview);
         recyclerview.setVisibility(View.GONE);
@@ -144,8 +157,9 @@ public class LocationActivity extends AppActivity {
     private void initEvent() {
         actionbar.getBtnLeft().setVisibility(View.GONE);
         actionbar.setTxtLeft("取消");
-        actionbar.setTxtRight("发送");
-
+        isLook=getIntent().getBooleanExtra("isLook",true);
+        latitude=getIntent().getIntExtra("latitude",28136296);
+        longitude=getIntent().getIntExtra("longitude",112953042);
 
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -184,7 +198,7 @@ public class LocationActivity extends AppActivity {
         mOption.setCoorType("bd09ll");
         locService.setLocationOption(mOption);
 
-        setLocationBitmap(28.136296, 112.953042);//设置默认定位
+        setLocationBitmap(latitude/LocationUtils.beishu, longitude/LocationUtils.beishu);//设置默认定位
 
         listener = new BDAbstractLocationListener() {
             @Override
@@ -221,10 +235,13 @@ public class LocationActivity extends AppActivity {
             }
         };
         locService.registerListener(listener);
-        locService.start();
 
-
-
+        if(isLook){
+            search_ll.setVisibility(View.GONE);
+        }else {
+            actionbar.setTxtRight("发送");
+            locService.start();
+        }
 
 
         edtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -282,8 +299,11 @@ public class LocationActivity extends AppActivity {
             return;
         }
 
+        InputUtil.hideKeyboard(edtSearch);
+
         locationList.clear();
         locationPoiAdapter.position=0;
+        recyclerview.getAdapter().notifyDataSetChanged();
 
         //建议搜索
         SuggestionSearch mSuggestionSearch = SuggestionSearch.newInstance();

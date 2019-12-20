@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -20,6 +21,8 @@ import net.cb.cb.library.R;
 public class ShowBigImgActivity extends AppActivity {
     private ImageView imgBig;
     private Button btnCommit;
+    private FrameLayout frameLayout;
+    private net.cb.cb.library.view.HeadView headView;
     public final static String AGM_URI = "uri_pic";
     public final static String POSTION = "postion";
     private int postion = 100;
@@ -28,6 +31,8 @@ public class ShowBigImgActivity extends AppActivity {
     private void findViews() {
         imgBig = findViewById(R.id.img_big);
         btnCommit = findViewById(R.id.btn_commit);
+        headView = findViewById(R.id.headView);
+        frameLayout = findViewById(R.id.frame_layout);
     }
 
 
@@ -39,17 +44,28 @@ public class ShowBigImgActivity extends AppActivity {
                 finish();
             }
         });
-        String uri = getIntent().getStringExtra(AGM_URI);
+        int img_id = getIntent().getIntExtra(AGM_URI, 0);
         postion = getIntent().getIntExtra(POSTION, 0);
-        uri = uri == null ? "" : uri;
-      //  imgBig.setImageURI(Uri.parse(uri));
-
-        Glide.with(this).load(uri)
-                .into(imgBig);
+        if (img_id != 0) {
+            frameLayout.setBackgroundResource(img_id);
+        }
 
         btnCommit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setResult(RESULT_OK, new Intent().putExtra(POSTION, postion));
+                finish();
+            }
+        });
+        headView.getActionbar().setTxtRight("设置");
+        headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+            @Override
+            public void onBack() {
+                onBackPressed();
+            }
+
+            @Override
+            public void onRight() {
                 setResult(RESULT_OK, new Intent().putExtra(POSTION, postion));
                 finish();
             }
@@ -59,11 +75,6 @@ public class ShowBigImgActivity extends AppActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // 隐藏标题栏
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        // 隐藏状态栏
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_show_big_pic);
         findViews();
         initEvent();

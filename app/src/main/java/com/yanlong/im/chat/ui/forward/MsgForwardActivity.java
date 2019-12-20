@@ -17,12 +17,14 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.ImageMessage;
+import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityMsgForwardBinding;
+import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.socket.SocketData;
 
@@ -254,184 +256,187 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         }
 
         AlertForward alertForward = new AlertForward();
+        String txt="";
+        String imageUrl="";
         if (msgAllBean.getChat() != null) {//转换文字
-            alertForward.init(MsgForwardActivity.this, mIcon, mName, msgAllBean.getChat().getMsg(), null, btm, toGid, new AlertForward.Event() {
-
-
-                @Override
-                public void onON() {
-
-                }
-
-                @Override
-                public void onYes(String content) {
-                    if (isSingleSelected) {
-                        ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getChat().getMsg());
-                        MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
-                        if (allBean != null) {
-                            SocketData.sendAndSaveMessage(allBean);
-                            sendMesage = allBean;
-                        }
-
-//                    sendMesage = SocketData.send4Chat(toUid, toGid, msgAllBean.getChat().getMsg());
-                        sendLeaveMessage(content, toUid, toGid);
-                        notifyRefreshMsg(toGid, toUid);
-                    } else {
-                        for (int i = 0; i < moreSessionBeanList.size(); i++) {
-                            MoreSessionBean bean = moreSessionBeanList.get(i);
-
-                            ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getChat().getMsg());
-                            MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
-                            if (allBean != null) {
-                                SocketData.sendAndSaveMessage(allBean);
-                                sendMesage = allBean;
-                            }
-                            sendLeaveMessage(content, bean.getUid(), bean.getGid());
-                            notifyRefreshMsg(bean.getGid(), bean.getUid());
-                        }
-                        isSingleSelected = true;
-                    }
-
-                    doSendSuccess();
-                }
-            });
-        } else if (msgAllBean.getImage() != null) {
-
-            alertForward.init(MsgForwardActivity.this, mIcon, mName, null, msgAllBean.getImage().getThumbnail(), btm, toGid, new AlertForward.Event() {
-                @Override
-                public void onON() {
-
-                }
-
-                @Override
-                public void onYes(String content) {
-                    if (isSingleSelected) {
-                        ImageMessage imagesrc = msgAllBean.getImage();
-                        if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
-                            imagesrc.setReadOrigin(true);
-                        }
-                        ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), imagesrc.getWidth(), imagesrc.getHeight(), !TextUtils.isEmpty(imagesrc.getOrigin()), imagesrc.isReadOrigin(), imagesrc.getSize());
-                        MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), imageMessage);
-                        if (allBean != null) {
-                            SocketData.sendAndSaveMessage(allBean);
-                            sendMesage = allBean;
-                        }
-
-//                    sendMesage = SocketData.send4Image(toUid, toGid, imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), new Long(imagesrc.getWidth()).intValue(), new Long(imagesrc.getHeight()).intValue(), new Long(imagesrc.getSize()).intValue());
-//                    msgDao.ImgReadStatSet(imagesrc.getOrigin(), imagesrc.isReadOrigin());
-                        sendLeaveMessage(content, toUid, toGid);
-                        notifyRefreshMsg(toGid, toUid);
-                    } else {
-                        for (int i = 0; i < moreSessionBeanList.size(); i++) {
-                            MoreSessionBean bean = moreSessionBeanList.get(i);
-
-                            ImageMessage imagesrc = msgAllBean.getImage();
-                            if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
-                                imagesrc.setReadOrigin(true);
-                            }
-                            ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), imagesrc.getWidth(), imagesrc.getHeight(), !TextUtils.isEmpty(imagesrc.getOrigin()), imagesrc.isReadOrigin(), imagesrc.getSize());
-                            MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), imageMessage);
-                            if (allBean != null) {
-                                SocketData.sendAndSaveMessage(allBean);
-                                sendMesage = allBean;
-                            }
-                            sendLeaveMessage(content, bean.getUid(), bean.getGid());
-                            notifyRefreshMsg(bean.getGid(), bean.getUid());
-                        }
-                        isSingleSelected = true;
-                    }
-
-                    doSendSuccess();
-                }
-            });
-
-        } else if (msgAllBean.getAtMessage() != null) {
-            alertForward.init(MsgForwardActivity.this, mIcon, mName, msgAllBean.getAtMessage().getMsg(), null, btm, toGid, new AlertForward.Event() {
-                @Override
-                public void onON() {
-
-                }
-
-                @Override
-                public void onYes(String content) {
-//                    sendMesage = SocketData.send4Chat(toUid, toGid, msgAllBean.getAtMessage().getMsg());
-//                    if (StringUtil.isNotNull(content)) {
-//                        sendMesage = SocketData.send4Chat(toUid, toGid, content);
-//                    }
-
-                    if (isSingleSelected) {
-                        ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getAtMessage().getMsg());
-                        MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
-                        if (allBean != null) {
-                            SocketData.sendAndSaveMessage(allBean);
-                            sendMesage = allBean;
-                        }
-                        sendLeaveMessage(content, toUid, toGid);
-                        notifyRefreshMsg(toGid, toUid);
-                    } else {
-                        for (int i = 0; i < moreSessionBeanList.size(); i++) {
-                            MoreSessionBean bean = moreSessionBeanList.get(i);
-
-                            ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getAtMessage().getMsg());
-                            MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
-                            if (allBean != null) {
-                                SocketData.sendAndSaveMessage(allBean);
-                                sendMesage = allBean;
-                            }
-                            sendLeaveMessage(content, bean.getUid(), bean.getGid());
-                            notifyRefreshMsg(bean.getGid(), bean.getUid());
-                        }
-                        isSingleSelected = true;
-                    }
-
-                    doSendSuccess();
-                }
-            });
-        } else if (msgAllBean.getVideoMessage() != null) {
-            alertForward.init(MsgForwardActivity.this, mIcon, mName, null, msgAllBean.getVideoMessage().getBg_url(), btm, toGid, new AlertForward.Event() {
-                @Override
-                public void onON() {
-
-                }
-
-                @Override
-                public void onYes(String content) {
-//                    sendMesage = SocketData.转发送视频整体信息(toUid, toGid, msgAllBean.getVideoMessage());
-
-                    if (isSingleSelected) {
-                        VideoMessage video = msgAllBean.getVideoMessage();
-                        VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), video.getBg_url(), video.getUrl(), video.getDuration(), video.getWidth(), video.getHeight(), video.isReadOrigin());
-                        MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), videoMessage);
-                        if (allBean != null) {
-                            SocketData.sendAndSaveMessage(allBean);
-                            sendMesage = allBean;
-                        }
-                        sendLeaveMessage(content, toUid, toGid);
-                        notifyRefreshMsg(toGid, toUid);
-                    } else {
-                        for (int i = 0; i < moreSessionBeanList.size(); i++) {
-                            MoreSessionBean bean = moreSessionBeanList.get(i);
-
-                            VideoMessage video = msgAllBean.getVideoMessage();
-                            VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), video.getBg_url(), video.getUrl(), video.getDuration(), video.getWidth(), video.getHeight(), video.isReadOrigin());
-                            MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), videoMessage);
-                            if (allBean != null) {
-                                SocketData.sendAndSaveMessage(allBean);
-                                sendMesage = allBean;
-                            }
-                            sendLeaveMessage(content, bean.getUid(), bean.getGid());
-                            notifyRefreshMsg(bean.getGid(), bean.getUid());
-                        }
-                        isSingleSelected = true;
-                    }
-
-                    doSendSuccess();
-                }
-            });
+            txt=msgAllBean.getChat().getMsg();
+        }else if (msgAllBean.getImage() != null) {
+            imageUrl=msgAllBean.getImage().getThumbnail();
+        }else if (msgAllBean.getAtMessage() != null) {
+            txt=msgAllBean.getAtMessage().getMsg();
+        }else if (msgAllBean.getVideoMessage() != null) {
+            imageUrl=msgAllBean.getVideoMessage().getBg_url();
+        }else if (msgAllBean.getLocationMessage() != null) {
+            imageUrl= LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(),msgAllBean.getLocationMessage().getLongitude());
         }
+
+        alertForward.init(MsgForwardActivity.this,msgAllBean.getMsg_type(), mIcon, mName, txt, imageUrl, btm, toGid, new AlertForward.Event() {
+            @Override
+            public void onON() {
+
+            }
+
+            @Override
+            public void onYes(String content) {
+                send(content,toUid,toGid);
+                doSendSuccess();
+            }
+        });
+
         alertForward.show();
 
     }
+
+    //处理逻辑
+    private void send(String content,long toUid, String toGid){
+        if (msgAllBean.getChat() != null) {//转换文字
+            if (isSingleSelected) {
+                ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getChat().getMsg());
+                MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
+                if (allBean != null) {
+                    SocketData.sendAndSaveMessage(allBean);
+                    sendMesage = allBean;
+                }
+
+//                    sendMesage = SocketData.send4Chat(toUid, toGid, msgAllBean.getChat().getMsg());
+                sendLeaveMessage(content, toUid, toGid);
+                notifyRefreshMsg(toGid, toUid);
+            } else {
+                for (int i = 0; i < moreSessionBeanList.size(); i++) {
+                    MoreSessionBean bean = moreSessionBeanList.get(i);
+
+                    ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getChat().getMsg());
+                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
+                    if (allBean != null) {
+                        SocketData.sendAndSaveMessage(allBean);
+                        sendMesage = allBean;
+                    }
+                    sendLeaveMessage(content, bean.getUid(), bean.getGid());
+                    notifyRefreshMsg(bean.getGid(), bean.getUid());
+                }
+                isSingleSelected = true;
+            }
+        }else if (msgAllBean.getImage() != null) {
+            if (isSingleSelected) {
+                ImageMessage imagesrc = msgAllBean.getImage();
+                if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
+                    imagesrc.setReadOrigin(true);
+                }
+                ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), imagesrc.getWidth(), imagesrc.getHeight(), !TextUtils.isEmpty(imagesrc.getOrigin()), imagesrc.isReadOrigin(), imagesrc.getSize());
+                MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), imageMessage);
+                if (allBean != null) {
+                    SocketData.sendAndSaveMessage(allBean);
+                    sendMesage = allBean;
+                }
+
+//                    sendMesage = SocketData.send4Image(toUid, toGid, imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), new Long(imagesrc.getWidth()).intValue(), new Long(imagesrc.getHeight()).intValue(), new Long(imagesrc.getSize()).intValue());
+//                    msgDao.ImgReadStatSet(imagesrc.getOrigin(), imagesrc.isReadOrigin());
+                sendLeaveMessage(content, toUid, toGid);
+                notifyRefreshMsg(toGid, toUid);
+            } else {
+                for (int i = 0; i < moreSessionBeanList.size(); i++) {
+                    MoreSessionBean bean = moreSessionBeanList.get(i);
+
+                    ImageMessage imagesrc = msgAllBean.getImage();
+                    if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
+                        imagesrc.setReadOrigin(true);
+                    }
+                    ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), imagesrc.getWidth(), imagesrc.getHeight(), !TextUtils.isEmpty(imagesrc.getOrigin()), imagesrc.isReadOrigin(), imagesrc.getSize());
+                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), imageMessage);
+                    if (allBean != null) {
+                        SocketData.sendAndSaveMessage(allBean);
+                        sendMesage = allBean;
+                    }
+                    sendLeaveMessage(content, bean.getUid(), bean.getGid());
+                    notifyRefreshMsg(bean.getGid(), bean.getUid());
+                }
+                isSingleSelected = true;
+            }
+        }else if (msgAllBean.getAtMessage() != null) {
+            if (isSingleSelected) {
+                ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getAtMessage().getMsg());
+                MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
+                if (allBean != null) {
+                    SocketData.sendAndSaveMessage(allBean);
+                    sendMesage = allBean;
+                }
+                sendLeaveMessage(content, toUid, toGid);
+                notifyRefreshMsg(toGid, toUid);
+            } else {
+                for (int i = 0; i < moreSessionBeanList.size(); i++) {
+                    MoreSessionBean bean = moreSessionBeanList.get(i);
+
+                    ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getAtMessage().getMsg());
+                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
+                    if (allBean != null) {
+                        SocketData.sendAndSaveMessage(allBean);
+                        sendMesage = allBean;
+                    }
+                    sendLeaveMessage(content, bean.getUid(), bean.getGid());
+                    notifyRefreshMsg(bean.getGid(), bean.getUid());
+                }
+                isSingleSelected = true;
+            }
+        }else if (msgAllBean.getVideoMessage() != null) {
+            if (isSingleSelected) {
+                VideoMessage video = msgAllBean.getVideoMessage();
+                VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), video.getBg_url(), video.getUrl(), video.getDuration(), video.getWidth(), video.getHeight(), video.isReadOrigin());
+                MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), videoMessage);
+                if (allBean != null) {
+                    SocketData.sendAndSaveMessage(allBean);
+                    sendMesage = allBean;
+                }
+                sendLeaveMessage(content, toUid, toGid);
+                notifyRefreshMsg(toGid, toUid);
+            } else {
+                for (int i = 0; i < moreSessionBeanList.size(); i++) {
+                    MoreSessionBean bean = moreSessionBeanList.get(i);
+
+                    VideoMessage video = msgAllBean.getVideoMessage();
+                    VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), video.getBg_url(), video.getUrl(), video.getDuration(), video.getWidth(), video.getHeight(), video.isReadOrigin());
+                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), videoMessage);
+                    if (allBean != null) {
+                        SocketData.sendAndSaveMessage(allBean);
+                        sendMesage = allBean;
+                    }
+                    sendLeaveMessage(content, bean.getUid(), bean.getGid());
+                    notifyRefreshMsg(bean.getGid(), bean.getUid());
+                }
+                isSingleSelected = true;
+            }
+        }else if (msgAllBean.getLocationMessage() != null) {
+
+            if (isSingleSelected) {
+                LocationMessage location = msgAllBean.getLocationMessage();
+                LocationMessage locationMessage = SocketData.createLocationMessage(SocketData.getUUID(), location.getLatitude(), location.getLongitude(), location.getAddress(), location.getAddressDescribe());
+                MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), locationMessage);
+                if (allBean != null) {
+                    SocketData.sendAndSaveMessage(allBean);
+                    sendMesage = allBean;
+                }
+                sendLeaveMessage(content, toUid, toGid);
+                notifyRefreshMsg(toGid, toUid);
+            } else {
+                for (int i = 0; i < moreSessionBeanList.size(); i++) {
+                    MoreSessionBean bean = moreSessionBeanList.get(i);
+
+                    LocationMessage location = msgAllBean.getLocationMessage();
+                    LocationMessage locationMessage = SocketData.createLocationMessage(SocketData.getUUID(), location.getLatitude(), location.getLongitude(), location.getAddress(), location.getAddressDescribe());
+                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), locationMessage);
+                    if (allBean != null) {
+                        SocketData.sendAndSaveMessage(allBean);
+                        sendMesage = allBean;
+                    }
+                    sendLeaveMessage(content, bean.getUid(), bean.getGid());
+                    notifyRefreshMsg(bean.getGid(), bean.getUid());
+                }
+                isSingleSelected = true;
+            }
+
+        }
+    }
+
+
 
     /*
      * 发送留言消息

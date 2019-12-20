@@ -298,7 +298,10 @@ public class ImageHeadActivity extends AppActivity {
                     return;
                 }
                 if (response.body().isOk()) {
-                    MessageManager.getInstance().updateCacheGroupAvatar(gid, url);
+//                    MessageManager.getInstance().updateCacheGroupAvatar(gid, url);
+
+                    new MsgDao().updateGroupHead(gid, url);
+
                     MessageManager.getInstance().setMessageChange(true);
                     MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                 }

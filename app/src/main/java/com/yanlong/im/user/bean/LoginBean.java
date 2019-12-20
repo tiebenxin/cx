@@ -1,6 +1,8 @@
 package com.yanlong.im.user.bean;
 
-public class LoginBean {
+import net.cb.cb.library.base.BaseBean;
+
+public class LoginBean extends BaseBean {
     private String password;
     private Long phone;
     public void setPassword(String password) {

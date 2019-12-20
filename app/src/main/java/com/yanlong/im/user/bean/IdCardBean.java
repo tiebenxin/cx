@@ -1,6 +1,8 @@
 package com.yanlong.im.user.bean;
 
-public class IdCardBean {
+import net.cb.cb.library.base.BaseBean;
+
+public class IdCardBean extends BaseBean {
 
     private String uid;
     private String name;

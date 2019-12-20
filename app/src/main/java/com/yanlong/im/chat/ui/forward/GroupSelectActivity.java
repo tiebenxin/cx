@@ -17,6 +17,7 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.ImageMessage;
+import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
@@ -24,6 +25,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityGroupSaveBinding;
+import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
@@ -156,99 +158,84 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
         if (msgAllBean == null)
             return;
         AlertForward alertForward = new AlertForward();
+        String txt="";
+        String imageUrl="";
         if (msgAllBean.getChat() != null) {//转换文字
-            alertForward.init(GroupSelectActivity.this, avatar, nick, msgAllBean.getChat().getMsg(), null, "发送", gid, new AlertForward.Event() {
-                @Override
-                public void onON() {
-
-                }
-
-                @Override
-                public void onYes(String content) {
-                    sendMessage(uid, gid, msgAllBean.getChat().getMsg(), content);
-
-                }
-            });
-        } else if (msgAllBean.getImage() != null) {
-
-            alertForward.init(GroupSelectActivity.this, avatar, nick, null, msgAllBean.getImage().getThumbnail(), "发送", gid, new AlertForward.Event() {
-                @Override
-                public void onON() {
-
-                }
-
-                @Override
-                public void onYes(String content) {
-                    ImageMessage imagesrc = msgAllBean.getImage();
-                    if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
-                        imagesrc.setReadOrigin(true);
-                    }
-                    ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), imagesrc.getWidth(), imagesrc.getHeight(), !TextUtils.isEmpty(imagesrc.getOrigin()), imagesrc.isReadOrigin(), imagesrc.getSize());
-                    MsgAllBean allBean = SocketData.createMessageBean(uid, gid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), imageMessage);
-                    if (allBean != null) {
-                        SocketData.sendAndSaveMessage(allBean);
-                        sendMesage = allBean;
-                    }
-//                    sendMesage = SocketData.send4Image(toUid, toGid, imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), new Long(imagesrc.getWidth()).intValue(), new Long(imagesrc.getHeight()).intValue(), new Long(imagesrc.getSize()).intValue());
-//                    msgDao.ImgReadStatSet(imagesrc.getOrigin(), imagesrc.isReadOrigin());
-                    sendLeaveMessage(content, uid, gid);
-                    ToastUtil.show(GroupSelectActivity.this, "转发成功");
-                    setResult(RESULT_OK);
-                    finish();
-                    notifyRefreshMsg(gid, uid);
-                }
-            });
-
-        } else if (msgAllBean.getAtMessage() != null) {
-
-            alertForward.init(GroupSelectActivity.this, avatar, nick, msgAllBean.getAtMessage().getMsg(), null, "发送", gid, new AlertForward.Event() {
-                @Override
-                public void onON() {
-
-                }
-
-                @Override
-                public void onYes(String content) {
-                    sendMessage(uid, gid, msgAllBean.getAtMessage().getMsg(), content);
-                }
-            });
-        } else if (msgAllBean.getVideoMessage() != null) {
-            alertForward.init(GroupSelectActivity.this, avatar, nick, null, msgAllBean.getVideoMessage().getBg_url(), "发送", gid, new AlertForward.Event() {
-                @Override
-                public void onON() {
-
-                }
-
-                @Override
-                public void onYes(String content) {
-//                    MsgAllBean sendMesage = SocketData.转发送视频整体信息(uid, gid, msgAllBean.getVideoMessage());
-//
-//                    if (StringUtil.isNotNull(content)) {
-//                        sendMesage = SocketData.send4Chat(uid, gid, content);
-//                    }
-                    VideoMessage video = msgAllBean.getVideoMessage();
-                    VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), video.getBg_url(), video.getUrl(), video.getDuration(), video.getWidth(), video.getHeight(), video.isReadOrigin());
-                    MsgAllBean allBean = SocketData.createMessageBean(uid, gid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), videoMessage);
-                    if (allBean != null) {
-                        SocketData.sendAndSaveMessage(allBean);
-                        sendMesage = allBean;
-                    }
-                    sendLeaveMessage(content, uid, gid);
-                    ToastUtil.show(GroupSelectActivity.this, "转发成功");
-                    setResult(RESULT_OK);
-                    finish();
-                    notifyRefreshMsg(gid, uid);
-//                    ToastUtil.show(GroupSelectActivity.this,"转发成功");
-//                    setResult(RESULT_OK);
-////                    doSendSuccess();
-//                    notifyRefreshMsg( gid,uid,content);
-//                    finish();
-                }
-            });
-
+            txt=msgAllBean.getChat().getMsg();
+        }else if (msgAllBean.getImage() != null) {
+            imageUrl=msgAllBean.getImage().getThumbnail();
+        }else if (msgAllBean.getAtMessage() != null) {
+            txt=msgAllBean.getAtMessage().getMsg();
+        }else if (msgAllBean.getVideoMessage() != null) {
+            imageUrl=msgAllBean.getVideoMessage().getBg_url();
+        }else if (msgAllBean.getLocationMessage() != null) {
+            imageUrl= LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(),msgAllBean.getLocationMessage().getLongitude());
         }
+
+        alertForward.init(GroupSelectActivity.this,msgAllBean.getMsg_type(), avatar, nick, txt, imageUrl, "发送", gid, new AlertForward.Event() {
+            @Override
+            public void onON() {
+
+            }
+
+            @Override
+            public void onYes(String content) {
+                send(content,uid,gid);
+
+                ToastUtil.show(GroupSelectActivity.this, "转发成功");
+                finish();
+            }
+        });
         alertForward.show();
 
+    }
+
+    //处理逻辑
+    private void send(String content,long uid, String gid){
+        if (msgAllBean.getChat() != null) {//转换文字
+            sendMessage(uid, gid, msgAllBean.getChat().getMsg(), content);
+        }else if (msgAllBean.getImage() != null) {
+            ImageMessage imagesrc = msgAllBean.getImage();
+            if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
+                imagesrc.setReadOrigin(true);
+            }
+            ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), imagesrc.getWidth(), imagesrc.getHeight(), !TextUtils.isEmpty(imagesrc.getOrigin()), imagesrc.isReadOrigin(), imagesrc.getSize());
+            MsgAllBean allBean = SocketData.createMessageBean(uid, gid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), imageMessage);
+            if (allBean != null) {
+                SocketData.sendAndSaveMessage(allBean);
+                sendMesage = allBean;
+            }
+//                    sendMesage = SocketData.send4Image(toUid, toGid, imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), new Long(imagesrc.getWidth()).intValue(), new Long(imagesrc.getHeight()).intValue(), new Long(imagesrc.getSize()).intValue());
+//                    msgDao.ImgReadStatSet(imagesrc.getOrigin(), imagesrc.isReadOrigin());
+            sendLeaveMessage(content, uid, gid);
+            ToastUtil.show(GroupSelectActivity.this, "转发成功");
+            setResult(RESULT_OK);
+            notifyRefreshMsg(gid, uid);
+        }else if (msgAllBean.getAtMessage() != null) {
+            sendMessage(uid, gid, msgAllBean.getAtMessage().getMsg(), content);
+        }else if (msgAllBean.getVideoMessage() != null) {
+            VideoMessage video = msgAllBean.getVideoMessage();
+            VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), video.getBg_url(), video.getUrl(), video.getDuration(), video.getWidth(), video.getHeight(), video.isReadOrigin());
+            MsgAllBean allBean = SocketData.createMessageBean(uid, gid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), videoMessage);
+            if (allBean != null) {
+                SocketData.sendAndSaveMessage(allBean);
+                sendMesage = allBean;
+            }
+            sendLeaveMessage(content, uid, gid);
+            ToastUtil.show(GroupSelectActivity.this, "转发成功");
+            setResult(RESULT_OK);
+            notifyRefreshMsg(gid, uid);
+        }else if (msgAllBean.getLocationMessage() != null) {
+            LocationMessage location = msgAllBean.getLocationMessage();
+            LocationMessage locationMessage = SocketData.createLocationMessage(SocketData.getUUID(), location.getLatitude(), location.getLongitude(), location.getAddress(), location.getAddressDescribe());
+            MsgAllBean allBean = SocketData.createMessageBean(uid, gid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), locationMessage);
+            if (allBean != null) {
+                SocketData.sendAndSaveMessage(allBean);
+                sendMesage = allBean;
+            }
+            sendLeaveMessage(content, uid, gid);
+            notifyRefreshMsg(gid, uid);
+        }
     }
 
     /*
@@ -257,10 +244,6 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
      * */
     private void sendMessage(long msgUid, String msgGid, String msgMsg, String comments) {
 
-//        SocketData.send4Chat(msgUid, msgGid, msgMsg);
-//        if (StringUtil.isNotNull(comments)) {
-//            SocketData.send4Chat(msgUid, msgGid, comments);
-//        }
         ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgMsg);
         MsgAllBean allBean = SocketData.createMessageBean(msgUid, msgGid, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
         if (allBean != null) {
@@ -269,7 +252,6 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
         }
         sendLeaveMessage(comments, msgUid, msgGid);
         setResult(RESULT_OK);
-        finish();
         notifyRefreshMsg(msgGid, msgUid);
     }
 
@@ -421,11 +403,6 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
         String url[] = new String[i];
         for (int j = 0; j < i; j++) {
             MemberUser userInfo = gginfo.getUsers().get(j);
-//            if (j == i - 1) {
-//                name += userInfo.getName();
-//            } else {
-//                name += userInfo.getName() + "、";
-//            }
             url[j] = userInfo.getHead();
         }
         File file = GroupHeadImageUtil.synthesis(getContext(), url);
