@@ -116,8 +116,9 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     }else {
                         holder.tvCost.setText("-"+UIUtils.getYuan(bean.getAmt()));
                     }
-                    //图标：1转账给别人 2发红包给别人 3充值 4提现 5红包退款 7红包收款 8转账收款 9转账退款 10提现退款 11充值退款 12消费退款(忽略)
+                    //1转账给别人 2发红包给别人 3充值 4提现 5红包退款 7红包收款 8转账收款 9转账退款 10提现退款 11充值退款 12消费退款(忽略)
                     //TODO 注：type=1 账单明细显示图标+状态/不显示余额，type=2 零钱明细不显示图标+状态/显示余额
+                    //     账单规则：充值提现显示状态，其他只在失败/退款时显示状态
                     if(type==1){
                         holder.ivImage.setVisibility(View.VISIBLE);
                         holder.ivImage.setImageResource(selectImg(bean.getTradeType()));
@@ -129,45 +130,56 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         holder.tvBalance.setText("余额: "+UIUtils.getYuan(bean.getBalance()));
                         holder.tvStatus.setVisibility(View.GONE);
                     }
-                    //1 转账给别人 (不显示状态 不显示余额)
                     if(bean.getTradeType()==1){
                         if(bean.getOtherUser()!=null && bean.getOtherUser().getNickname()!=null){
                             holder.tvContent.setText("转账-转给"+bean.getOtherUser().getNickname());
                         }else {
-                            holder.tvContent.setText("转账-转给");
+                            holder.tvContent.setText("转账");
                         }
                         if(bean.getStat()==1){
-                            holder.tvStatus.setText("转账成功");
+//                            holder.tvStatus.setText("转账成功");
+                            holder.tvStatus.setVisibility(View.GONE);
                         }else if(bean.getStat()==2){
                             holder.tvStatus.setText("转账失败");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(0)));
                         }else if(bean.getStat()==99){
                             holder.tvStatus.setText("处理中");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(1)));
                         }
-                        //2 发红包给别人 (显示状态 不显示余额)
                     }else if(bean.getTradeType()==2){
                         //如果是群红包
                         if(bean.getToGroup()==1){
                             holder.tvContent.setText("零钱红包-发群红包");
                         }else {
                             //如果是普通红包
-                            holder.tvContent.setText("零钱红包-我发出的");
+                            if(bean.getOtherUser()!=null && bean.getOtherUser().getNickname()!=null){
+                                holder.tvContent.setText("零钱红包-发给"+bean.getOtherUser().getNickname());
+                            }else {
+                                holder.tvContent.setText("零钱红包");
+                            }
                         }
                         if(bean.getStat()==1){
-                            holder.tvStatus.setText("发送成功");
+//                            holder.tvStatus.setText("发送成功");
+                            holder.tvStatus.setVisibility(View.GONE);
                         }else if(bean.getStat()==2){
                             holder.tvStatus.setText("发送失败");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(0)));
                         }else if(bean.getStat()==99){
                             holder.tvStatus.setText("处理中");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(1)));
                         }
                     }else if(bean.getTradeType()==3){
-                        holder.tvStatus.setVisibility(View.VISIBLE);
                         holder.tvBalance.setVisibility(View.GONE);
+                        holder.tvStatus.setVisibility(View.VISIBLE);
                         if(bean.getStat()==1){
                             holder.tvStatus.setText("充值成功");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(1)));
                         }else if(bean.getStat()==2){
                             holder.tvStatus.setText("充值失败");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(0)));
                         }else if(bean.getStat()==99){
                             holder.tvStatus.setText("处理中");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(1)));
                         }
                         if(!TextUtils.isEmpty(bean.getBankCardInfo())){
                             holder.tvContent.setText("充值-"+bean.getBankCardInfo());
@@ -175,18 +187,21 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                             holder.tvContent.setText("充值");
                         }
                     }else if(bean.getTradeType()==10){
-                        holder.tvStatus.setVisibility(View.VISIBLE);
                         holder.tvBalance.setVisibility(View.GONE);
+                        holder.tvStatus.setVisibility(View.VISIBLE);
                         if(bean.getStat()==1){
                             if(bean.getRefundType()==1){
-                                holder.tvStatus.setText("部分退款成功");
+                                holder.tvStatus.setText("已部分退款");
                             }else {
-                                holder.tvStatus.setText("全额退款成功");
+                                holder.tvStatus.setText("已全额退款");
                             }
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(0)));
                         }else if(bean.getStat()==2){
                             holder.tvStatus.setText("退款失败");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(0)));
                         }else if(bean.getStat()==99){
                             holder.tvStatus.setText("处理中");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(1)));
                         }
                         if(!TextUtils.isEmpty(bean.getBankCardInfo())){
                             holder.tvContent.setText("提现-"+bean.getBankCardInfo());
@@ -194,18 +209,21 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                             holder.tvContent.setText("提现");
                         }
                     }else if(bean.getTradeType()==11){
-                        holder.tvStatus.setVisibility(View.VISIBLE);
                         holder.tvBalance.setVisibility(View.GONE);
+                        holder.tvStatus.setVisibility(View.VISIBLE);
                         if(bean.getStat()==1){
                             if(bean.getRefundType()==1){
-                                holder.tvStatus.setText("部分退款成功");
+                                holder.tvStatus.setText("已部分退款");
                             }else {
-                                holder.tvStatus.setText("全额退款成功");
+                                holder.tvStatus.setText("已全额退款");
                             }
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(0)));
                         }else if(bean.getStat()==2){
                             holder.tvStatus.setText("退款失败");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(0)));
                         }else if(bean.getStat()==99){
                             holder.tvStatus.setText("处理中");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(1)));
                         }
                         if(!TextUtils.isEmpty(bean.getBankCardInfo())){
                             holder.tvContent.setText("充值-"+bean.getBankCardInfo());
@@ -213,14 +231,17 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                             holder.tvContent.setText("充值");
                         }
                     }else if(bean.getTradeType()==4){
-                        holder.tvStatus.setVisibility(View.VISIBLE);
                         holder.tvBalance.setVisibility(View.GONE);
+                        holder.tvStatus.setVisibility(View.VISIBLE);
                         if(bean.getStat()==1){
                             holder.tvStatus.setText("提现成功");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(1)));
                         }else if(bean.getStat()==2){
                             holder.tvStatus.setText("提现失败");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(0)));
                         }else if(bean.getStat()==99){
                             holder.tvStatus.setText("处理中");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(1)));
                         }
                         if(!TextUtils.isEmpty(bean.getBankCardInfo())){
                             holder.tvContent.setText("提现-"+bean.getBankCardInfo());
@@ -228,13 +249,20 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                             holder.tvContent.setText("提现");
                         }
                     }else if(bean.getTradeType()==5){
-                        holder.tvContent.setText("零钱红包-过期退款");
+                        holder.tvContent.setText("零钱红包-退款");
                         if(bean.getStat()==1){
-                            holder.tvStatus.setText("退款成功");
+                            if(bean.getRefundType()==1){
+                                holder.tvStatus.setText("已部分退款");
+                            }else {
+                                holder.tvStatus.setText("已全额退款");
+                            }
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(0)));
                         }else if(bean.getStat()==2){
                             holder.tvStatus.setText("退款失败");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(0)));
                         }else if(bean.getStat()==99){
                             holder.tvStatus.setText("处理中");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(1)));
                         }
                     }else if(bean.getTradeType()==7){
                         //如果是群红包
@@ -245,37 +273,50 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                             if(bean.getOtherUser()!=null && bean.getOtherUser().getNickname()!=null){
                                 holder.tvContent.setText("零钱红包-来自"+bean.getOtherUser().getNickname());
                             }else {
-                                holder.tvContent.setText("零钱红包-来自");
+                                holder.tvContent.setText("零钱红包");
                             }
                         }
                         if(bean.getStat()==1){
-                            holder.tvStatus.setText("领取成功");
+//                            holder.tvStatus.setText("领取成功");
+                            holder.tvStatus.setVisibility(View.GONE);
                         }else if(bean.getStat()==2){
                             holder.tvStatus.setText("领取失败");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(0)));
                         }else if(bean.getStat()==99){
                             holder.tvStatus.setText("处理中");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(1)));
                         }
                     }else if(bean.getTradeType()==8){
                         if(bean.getOtherUser()!=null && bean.getOtherUser().getNickname()!=null){
                             holder.tvContent.setText("转账-来自"+bean.getOtherUser().getNickname());
                         }else {
-                            holder.tvContent.setText("转账-来自");
+                            holder.tvContent.setText("转账");
                         }
                         if(bean.getStat()==1){
-                            holder.tvStatus.setText("收款成功");
+//                            holder.tvStatus.setText("收款成功");
+                            holder.tvStatus.setVisibility(View.GONE);
                         }else if(bean.getStat()==2){
                             holder.tvStatus.setText("收款失败");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(0)));
                         }else if(bean.getStat()==99){
                             holder.tvStatus.setText("处理中");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(1)));
                         }
                     }else if(bean.getTradeType()==9){
                         holder.tvContent.setText("转账退款");
                         if(bean.getStat()==1){
-                            holder.tvStatus.setText("退款成功");
+                            if(bean.getRefundType()==1){
+                                holder.tvStatus.setText("已部分退款");
+                            }else {
+                                holder.tvStatus.setText("已全额退款");
+                            }
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(0)));
                         }else if(bean.getStat()==2){
                             holder.tvStatus.setText("退款失败");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(0)));
                         }else if(bean.getStat()==99){
                             holder.tvStatus.setText("处理中");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(1)));
                         }
                     }
                     //点击跳转账单详情
@@ -410,15 +451,16 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     /**
-     * 充值提现不显示余额与其他布局有所区别
+     * 成功/失败颜色改变
+     *
+     * 0 红色
+     * 1 绿色
      */
-    private void checkStatus(int type,ContentHolder holder) {
-        if(type==3 || type==4){
-            holder.tvBalance.setVisibility(View.GONE);
-            holder.tvStatus.setVisibility(View.VISIBLE);
+    private int changeGreenOrRed(int type) {
+        if(type==0){
+            return net.cb.cb.library.R.color.c_e95f52;
         }else {
-            holder.tvBalance.setVisibility(View.VISIBLE);
-            holder.tvStatus.setVisibility(View.GONE);
+            return net.cb.cb.library.R.color.c_32b053;
         }
     }
 }
