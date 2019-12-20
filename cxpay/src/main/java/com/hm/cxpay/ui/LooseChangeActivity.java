@@ -78,9 +78,7 @@ public class LooseChangeActivity extends BasePayActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (PayEnvironment.getInstance().getUser() == null) {
-            httpGetUserInfo();
-        }
+        httpGetUserInfo();
     }
 
 //    private void showAuthView(UserBean user) {
@@ -297,7 +295,7 @@ public class LooseChangeActivity extends BasePayActivity {
                             }
                             PayEnvironment.getInstance().setUser(userBean);
                             //刷新最新余额
-                            PayEnvironment.getInstance().getUser().setBalance(userBean.getBalance());
+//                            PayEnvironment.getInstance().getUser().setBalance(userBean.getBalance());
                             tvBalance.setText("¥ " + UIUtils.getYuan(Long.valueOf(userBean.getBalance())));
                         } else {
                             ToastUtil.show(context, baseResponse.getMessage());
