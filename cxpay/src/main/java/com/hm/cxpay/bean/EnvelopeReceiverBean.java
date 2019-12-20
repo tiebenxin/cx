@@ -3,12 +3,14 @@ package com.hm.cxpay.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import net.cb.cb.library.base.BaseBean;
+
 /**
  * @author Liszt
  * @date 2019/12/10
  * Description 红包领取记录
  */
-public class EnvelopeReceiverBean implements Parcelable {
+public class EnvelopeReceiverBean extends BaseBean implements Parcelable {
     long amt;//领取金额
     int bestLuck;//是否手气最佳：1是0否
     FromUserBean imUserInfo;//领取用户信息

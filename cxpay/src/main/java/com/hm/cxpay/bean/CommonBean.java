@@ -3,13 +3,15 @@ package com.hm.cxpay.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import net.cb.cb.library.base.BaseBean;
+
 /**
  * @类名：通用实体类
  * @Date：2019/12/3
  * @by zjy
  * @备注：数据解析复用
  */
-public class CommonBean implements Parcelable {
+public class CommonBean extends BaseBean implements Parcelable {
 
     //充值bean类
     private int code;//状态码(1:成功 2:失败 99:处理中)

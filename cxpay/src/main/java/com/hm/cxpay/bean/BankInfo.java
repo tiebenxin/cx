@@ -3,12 +3,14 @@ package com.hm.cxpay.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import net.cb.cb.library.base.BaseBean;
+
 /**
  * @author Liszt
  * @date 2019/11/29
  * Description  银行卡信息
  */
-public class BankInfo implements Parcelable {
+public class BankInfo extends BaseBean implements Parcelable {
     String bankCode;//银行编码
     String bankName;//银行名称
     int cardType;//银行卡类别，目前只支持储蓄卡，不支持信用卡

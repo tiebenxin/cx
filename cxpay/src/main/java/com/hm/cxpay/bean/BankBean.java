@@ -5,12 +5,14 @@ import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 
+import net.cb.cb.library.base.BaseBean;
+
 /**
  * @author Liszt
  * @date 2019/11/30
  * Description  绑定银行卡基本数据
  */
-public class BankBean implements Parcelable {
+public class BankBean extends BaseBean implements Parcelable {
     String bankName;//银行名
     String cardNo;//银行卡号
     long id;//id,传到后台需要此字段

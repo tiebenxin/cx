@@ -3,17 +3,20 @@ package com.hm.cxpay.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import net.cb.cb.library.base.BaseBean;
+
 /**
  * @author Liszt
  * @date 2019/12/3
  * Description 发送红包结果bean
  */
-public class SendResultBean implements Parcelable {
+public class SendResultBean extends BaseBean implements Parcelable {
     String actionId;
     int code;//1:成功 2:失败 99:处理中 客户端暂不考虑[1010:需要下一步验证
     long createTime;
     String errMsg;
     long tradeId;
+    String sign;
 
     protected SendResultBean(Parcel in) {
         actionId = in.readString();
@@ -21,6 +24,8 @@ public class SendResultBean implements Parcelable {
         createTime = in.readLong();
         errMsg = in.readString();
         tradeId = in.readLong();
+        sign = in.readString();
+
     }
 
     public static final Creator<SendResultBean> CREATOR = new Creator<SendResultBean>() {
@@ -75,6 +80,15 @@ public class SendResultBean implements Parcelable {
         this.tradeId = tradeId;
     }
 
+    public String getSign() {
+        return sign;
+    }
+
+
+    public void setSign(String sign) {
+        this.sign = sign;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -87,5 +101,6 @@ public class SendResultBean implements Parcelable {
         dest.writeLong(createTime);
         dest.writeString(errMsg);
         dest.writeLong(tradeId);
+        dest.writeString(sign);
     }
 }

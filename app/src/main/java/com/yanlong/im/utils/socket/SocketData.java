@@ -1231,7 +1231,7 @@ public class SocketData {
         note.setMsgid(msgId);
         if (uid != null && uid.longValue() == UserAction.getMyId().longValue()) {
             note.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF);
-            note.setNote("你领取了自己的<font color='#cc5944'>云红包</font>");
+            note.setNote("你领取了自己的<font color='#cc5944'>零钱红包</font>");
         } else {
             note.setMsgType(ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE);
             String name = msgDao.getUsername4Show(gid, uid);

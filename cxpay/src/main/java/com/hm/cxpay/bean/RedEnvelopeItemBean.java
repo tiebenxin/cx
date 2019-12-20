@@ -3,12 +3,14 @@ package com.hm.cxpay.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import net.cb.cb.library.base.BaseBean;
+
 /**
  * @author Liszt
  * @date 2019/12/2
  * Description 红包明细item bean
  */
-public class RedEnvelopeItemBean implements Parcelable {
+public class RedEnvelopeItemBean extends BaseBean implements Parcelable {
     long amt;//交易金额，单位：分
     FromUserBean fromUser;
     long time;

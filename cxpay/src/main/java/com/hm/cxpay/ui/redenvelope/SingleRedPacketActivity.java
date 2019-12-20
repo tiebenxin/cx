@@ -229,10 +229,12 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                                 envelopeBean = convertToEnvelopeBean(sendBean, PayEnum.ERedEnvelopeType.NORMAL, note, 1);
                                 if (sendBean.getCode() == 1) {//成功
                                     setResultOk();
+                                    PayEnvironment.getInstance().notifyRefreshBalance();
                                 } else if (sendBean.getCode() == 2) {//失败
                                     ToastUtil.show(getContext(), sendBean.getErrMsg());
                                 } else if (sendBean.getCode() == 99) {//待处理
                                     showLoadingDialog();
+                                    PayEnvironment.getInstance().notifyRefreshBalance();
                                 } else if (sendBean.getCode() == -21000) {//密码错误
                                     dialogPayPassword.clearPsw();
                                     showPswErrorDialog();

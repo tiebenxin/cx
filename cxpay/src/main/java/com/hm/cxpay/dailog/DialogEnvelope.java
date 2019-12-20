@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
@@ -174,6 +175,7 @@ public class DialogEnvelope extends BaseDialog {
         int result = bean.getStat();
         if (result == 1) {//抢到
             tvInfo.setText("已领取" + UIUtils.getYuan(bean.getAmt()) + "元");
+            PayEnvironment.getInstance().notifyRefreshBalance();
         } else if (result == 2) {//已领完
             if (style == 0) {
                 tvMore.setText("普通红包只有领取到的人才能看到");

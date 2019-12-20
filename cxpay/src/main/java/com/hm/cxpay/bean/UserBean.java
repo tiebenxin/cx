@@ -3,7 +3,9 @@ package com.hm.cxpay.bean;
 
 import com.google.gson.annotations.SerializedName;
 
-public class UserBean {
+import net.cb.cb.library.base.BaseBean;
+
+public class UserBean extends BaseBean {
     @SerializedName("id")
     private long uid;
     private String realName = "";//真实姓名
