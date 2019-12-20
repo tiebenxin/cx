@@ -69,6 +69,7 @@ public class WithdrawActivity extends AppActivity {
     private ImageView ivBankIcon;//银行卡图标
     private BankBean selectBankcard;//选中的银行卡
     private TextView tvRateNotice;//服务费提示
+    private TextView tvWithdrawAll;//全部提现
     private Activity activity;
 
     private boolean ifAddBankcard = false;//判断是否添加过银行卡
@@ -110,6 +111,7 @@ public class WithdrawActivity extends AppActivity {
         tvBankName = findViewById(R.id.tv_bank_name);
         ivBankIcon = findViewById(R.id.iv_bank_icon);
         tvRateNotice = findViewById(R.id.tv_rate_notice);
+        tvWithdrawAll = findViewById(R.id.tv_withdraw_all);
         actionbar = headView.getActionbar();
 
     }
@@ -211,6 +213,17 @@ public class WithdrawActivity extends AppActivity {
                 } else {
                     tvRateNotice.setText("服务费 0.0元 (服务费=提现金额x" + rate * 100 + "%+"+extraMoney+"元/笔)");
                     tvSubmit.setText("提现 (实际到账金额 0.0)");
+                }
+            }
+        });
+        tvWithdrawAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(balanceValue>0){
+                    etWithdraw.setText(balanceValue+"");
+                    etWithdraw.setSelection(etWithdraw.getText().length());
+                }else {
+                    ToastUtil.show(context, "您的可提现余额不足");
                 }
             }
         });
