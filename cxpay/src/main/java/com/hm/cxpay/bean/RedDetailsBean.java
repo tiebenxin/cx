@@ -3,6 +3,8 @@ package com.hm.cxpay.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import net.cb.cb.library.base.BaseBean;
+
 import java.util.List;
 
 /**
@@ -10,7 +12,7 @@ import java.util.List;
  * @date 2019/12/2
  * Description 红包明细详情
  */
-public class RedDetailsBean implements Parcelable {
+public class RedDetailsBean extends BaseBean implements Parcelable {
 
     List<RedEnvelopeItemBean> items;
     long sumAmt;

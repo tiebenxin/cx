@@ -23,6 +23,7 @@ import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.eventbus.IdentifyUserEvent;
+import com.hm.cxpay.eventbus.RefreshBalanceEvent;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
@@ -466,6 +467,11 @@ public class MainActivity extends AppActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshBalance(RefreshBalanceEvent event) {
+        httpGetUserInfo();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventLoginOut(EventLoginOut event) {
         if (event.loginType != 1) {
             ToastUtil.show(context, "因长期未登录已过有效期,请重新登录");
@@ -705,7 +711,7 @@ public class MainActivity extends AppActivity {
     }
 
     private void taskNewVersion() {
-        userAction.getNewVersion(StringUtil.getChannelName(context),new CallBack<ReturnBean<NewVersionBean>>() {
+        userAction.getNewVersion(StringUtil.getChannelName(context), new CallBack<ReturnBean<NewVersionBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<NewVersionBean>> call, Response<ReturnBean<NewVersionBean>> response) {
                 if (response.body() == null || response.body().getData() == null) {
@@ -907,7 +913,7 @@ public class MainActivity extends AppActivity {
     }
 
     /**
-     * 请求零钱红包用户信息
+     * 请求零钱红包用户信息,刷新用户余额
      */
     private void httpGetUserInfo() {
         PayHttpUtils.getInstance().getUserInfo()
@@ -917,16 +923,11 @@ public class MainActivity extends AppActivity {
                     @Override
                     public void onHandleSuccess(BaseResponse<UserBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
-                            UserBean userBean = null;
                             if (baseResponse.getData() != null) {
-                                userBean = baseResponse.getData();
-                            } else {
-                                userBean = new UserBean();
+                                UserBean userBean = baseResponse.getData();
+                                PayEnvironment.getInstance().setUser(userBean);
                             }
-                            //刷新最新余额
-                            PayEnvironment.getInstance().setUser(userBean);
                         }
-
                     }
 
                     @Override
@@ -934,7 +935,5 @@ public class MainActivity extends AppActivity {
                         super.onHandleError(baseResponse);
                     }
                 });
-
-
     }
 }

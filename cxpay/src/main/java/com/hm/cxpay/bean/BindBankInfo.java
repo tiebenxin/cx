@@ -3,12 +3,14 @@ package com.hm.cxpay.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import net.cb.cb.library.base.BaseBean;
+
 /**
  * @author Liszt
  * @date 2019/11/30
  * Description 申请绑定银行卡返回信息
  */
-public class BindBankInfo implements Parcelable {
+public class BindBankInfo extends BaseBean implements Parcelable {
     String sign;//签名
     String tranceNum;//流水单号
     String transDate;//流水时间

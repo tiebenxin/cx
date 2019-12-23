@@ -132,5 +132,9 @@ public interface PayService {
     @POST(Route.GET_RED_ENVELOPE_DETAIL)
     Observable<BaseResponse<EnvelopeDetailBean>> getEnvelopeDetail(@Body RequestBody body);
 
+    //发送转账
+    @POST(Route.SEND_TRANSFER)
+    Observable<BaseResponse<SendResultBean>> sendTransfer(@Body RequestBody body);
+
 
 }

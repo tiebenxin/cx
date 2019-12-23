@@ -3,12 +3,14 @@ package com.hm.cxpay.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import net.cb.cb.library.base.BaseBean;
+
 /**
  * @author Liszt
  * @date 2019/12/2
  * Description 红包 from User
  */
-public class FromUserBean implements Parcelable {
+public class FromUserBean extends BaseBean implements Parcelable {
     String avatar="";
     String nickname="";
     long uid;

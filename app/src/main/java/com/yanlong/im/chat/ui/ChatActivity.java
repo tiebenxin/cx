@@ -66,6 +66,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.ui.redenvelope.MultiRedPacketActivity;
 import com.hm.cxpay.ui.bill.BillDetailActivity;
+import com.hm.cxpay.ui.transfer.TransferActivity;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
 import com.hm.cxpay.bean.EnvelopeDetailBean;
@@ -280,8 +281,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     //红包和转账
     public static final int REQ_RP = 9653;
     public static final int VIDEO_RP = 9419;
-    public static final int REQ_TRANS = 9653;
     public static final int REQUEST_RED_ENVELOPE = 1 << 2;
+    public static final int REQUEST_TRANSFER = 1 << 3;
 
     private MessageAdapter messageAdapter;
     private int lastOffset = -1;
@@ -1059,7 +1060,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewTransfer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                taskTrans();
+//                taskTrans();
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                if (mFinfo == null) {
+                    mFinfo = userDao.findUserInfo(toUId);
+                }
+                String name = "";
+                if (mFinfo != null) {
+                    name = mFinfo.getName();
+                }
+                Intent intent = TransferActivity.newIntent(ChatActivity.this, toUId, name);
+                startActivityForResult(intent, REQUEST_TRANSFER);
+
             }
         });
 
@@ -1247,7 +1261,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         view_location_ll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LocationActivity.openActivity(ChatActivity.this,false,28136296,112953042);
+                LocationActivity.openActivity(ChatActivity.this, false, 28136296, 112953042);
             }
         });
 
@@ -2186,6 +2200,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         editChat.addAtSpan(null, name, Long.valueOf(uid));
                     }
                     break;
+                case REQUEST_TRANSFER:
+                    //TODO:发送转账消息
+
+                    break;
 
             }
         } else if (resultCode == SelectUserActivity.RET_CODE_SELECTUSR) {//选择通讯录中的某个人
@@ -2857,8 +2875,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 || msgbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR) {
                             holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
                         } else {
-                            holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
-                                    msgbean.getMsgNotice().getNote(), msgbean.getMsgNotice().getMsgType()));
+                            if (msgbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE || msgbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED){
+                                holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
+                                        msgbean.getMsgNotice().getNote(), msgbean.getMsgNotice().getMsgType()));
+                            }else {
+                                holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
+                                        msgbean.getMsgNotice().getNote(), msgbean.getMsgNotice().getMsgType()));
+                            }
                         }
                         //8.22 如果是红包消息类型则显示红包图
                         if (msgbean.getMsgNotice().getMsgType() != null && (msgbean.getMsgNotice().getMsgType() == 7 || msgbean.getMsgNotice().getMsgType() == 8 || msgbean.getMsgNotice().getMsgType() == 17)) {
@@ -3170,8 +3193,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     holder.viewChatItem.setDataLocation(msgbean.getLocationMessage(), new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            LocationActivity.openActivity(ChatActivity.this,true,
-                                    msgbean.getLocationMessage().getLatitude(),msgbean.getLocationMessage().getLongitude());
+                            LocationActivity.openActivity(ChatActivity.this, true,
+                                    msgbean.getLocationMessage().getLatitude(), msgbean.getLocationMessage().getLongitude());
                         }
                     });
                     break;

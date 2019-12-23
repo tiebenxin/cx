@@ -4,6 +4,9 @@ import android.content.Context;
 
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.bean.BankBean;
+import com.hm.cxpay.eventbus.RefreshBalanceEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -92,5 +95,10 @@ public class PayEnvironment {
         token = null;
         phone = null;
         nick = null;
+    }
+
+    //通知刷新余额，发出红包，拆红包成功，转账成功，都需要及时刷新
+    public void notifyRefreshBalance() {
+        EventBus.getDefault().post(new RefreshBalanceEvent());
     }
 }

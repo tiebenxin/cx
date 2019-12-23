@@ -346,8 +346,10 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                                 envelopeBean = convertToEnvelopeBean(sendBean, redPacketType, note, count);
                                 if (sendBean.getCode() == 1) {//code  1表示成功，2失败，99处理中
                                     setResultOk();
+                                    PayEnvironment.getInstance().notifyRefreshBalance();
                                 } else if (sendBean.getCode() == 99) {
                                     showLoadingDialog();
+                                    PayEnvironment.getInstance().notifyRefreshBalance();
                                 } else if (sendBean.getCode() == -21000) {//密码错误
                                     dialogPayPassword.clearPsw();
                                     showPswErrorDialog();

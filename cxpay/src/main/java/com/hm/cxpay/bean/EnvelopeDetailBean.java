@@ -6,6 +6,8 @@ import android.os.Parcelable;
 import com.google.gson.annotations.SerializedName;
 import com.hm.cxpay.global.PayEnum;
 
+import net.cb.cb.library.base.BaseBean;
+
 import java.util.List;
 
 /**
@@ -13,7 +15,7 @@ import java.util.List;
  * @date 2019/12/10
  * Description 查看红包详情
  */
-public class EnvelopeDetailBean implements Parcelable {
+public class EnvelopeDetailBean extends BaseBean implements Parcelable {
     long amt;//红包总金额
     int cnt; //红包个数
     long finishTime;//红包全部领完时间

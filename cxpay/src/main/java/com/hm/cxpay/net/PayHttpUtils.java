@@ -1,6 +1,7 @@
 package com.hm.cxpay.net;
 
 import android.text.TextUtils;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -169,7 +170,7 @@ public class PayHttpUtils {
     //绑定手机-获取验证码
     public Observable<BaseResponse> getCode(String phoneNum) {
         Map<String, String> map = new HashMap<>();
-        if(!TextUtils.isEmpty(phoneNum)){
+        if (!TextUtils.isEmpty(phoneNum)) {
             map.put("phone", phoneNum);
         }
         return HttpChannel.getInstance().getPayService().getCode(getRequestBody(map));
@@ -197,7 +198,7 @@ public class PayHttpUtils {
         map.put("pageSize", 20 + "");
         map.put("startTime", startTime + "");
         map.put("type", type + "");
-        if(!TextUtils.isEmpty(id)){
+        if (!TextUtils.isEmpty(id)) {
             map.put("id", id);
         }
         return HttpChannel.getInstance().getPayService().getBillDetailsList(getRequestBody(map));
@@ -330,6 +331,27 @@ public class PayHttpUtils {
             map.put("src", 1 + "");
         }
         return HttpChannel.getInstance().getPayService().getEnvelopeDetail(getRequestBody(map));
+    }
+
+
+    /**
+     * 发送转账
+     *
+     * @param toUid 转账接受者id
+     */
+    public Observable<BaseResponse<SendResultBean>> sendTransfer(String actionId, long money, String psw, long toUid, String note, long bankCardId) {
+        Map<String, String> map = new HashMap<>();
+        map.put("actionId", actionId);
+        map.put("amt", money + "");
+        map.put("payPwd", MD5.md5(psw));
+        map.put("toUid", toUid + "");
+        if (!TextUtils.isEmpty(note)) {
+            map.put("note", note);
+        }
+        if (bankCardId > 0) {
+            map.put("bankCardId", bankCardId + "");
+        }
+        return HttpChannel.getInstance().getPayService().sendTransfer(getRequestBody(map));
     }
 
 

@@ -1,5 +1,7 @@
 package com.hm.cxpay.bean;
 
+import net.cb.cb.library.base.BaseBean;
+
 import java.util.List;
 
 /**
@@ -8,7 +10,7 @@ import java.util.List;
  * @by zjy
  * @备注：
  */
-public class BillBean {
+public class BillBean extends BaseBean {
     private long total;
     private List<CommonBean> items;
 

@@ -89,4 +89,7 @@ public class Route {
 
     //拆红包
     public static final String OPEN_RED_ENVELOPE = "/order/open_red_envelope";
+
+    //发送转账
+    public static final String SEND_TRANSFER = "/order/transfer";
 }

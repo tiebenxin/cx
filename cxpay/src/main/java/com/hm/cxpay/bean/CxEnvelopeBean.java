@@ -5,12 +5,14 @@ import android.os.Parcelable;
 
 import com.hm.cxpay.global.PayEnum;
 
+import net.cb.cb.library.base.BaseBean;
+
 /**
  * @author Liszt
  * @date 2019/12/9
  * Description 常信红包封装类
  */
-public class CxEnvelopeBean implements Parcelable {
+public class CxEnvelopeBean extends BaseBean implements Parcelable {
     private String actionId = "";//actionId == rid
     //    @PayEnum.ESendResult
 //    int resultType; //红包支付结果
@@ -20,8 +22,9 @@ public class CxEnvelopeBean implements Parcelable {
     private int envelopeType; // 红包类型,0-普通红包；1-拼手气红包
     String message = "";//默认恭喜发财，大吉大利
     private int envelopeAmount = 0;//红包个数
+    private String sign = "";//签名
 
-    public CxEnvelopeBean(){
+    public CxEnvelopeBean() {
 
     }
 
@@ -32,6 +35,8 @@ public class CxEnvelopeBean implements Parcelable {
         envelopeType = in.readInt();
         message = in.readString();
         envelopeAmount = in.readInt();
+        sign = in.readString();
+
     }
 
     public static final Creator<CxEnvelopeBean> CREATOR = new Creator<CxEnvelopeBean>() {
@@ -102,6 +107,14 @@ public class CxEnvelopeBean implements Parcelable {
         this.envelopeAmount = envelopeAmount;
     }
 
+    public String getSign() {
+        return sign;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -115,5 +128,7 @@ public class CxEnvelopeBean implements Parcelable {
         dest.writeInt(envelopeType);
         dest.writeString(message);
         dest.writeInt(envelopeAmount);
+        dest.writeString(sign);
+
     }
 }
