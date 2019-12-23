@@ -42,7 +42,7 @@
         android:layout_marginTop="12dp"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/temp_text_two"
-        android:text="￥0.00"/>
+        android:text="¥0.00"/>
 
     <View style="@style/money_change_line"
         android:id="@+id/line_one"

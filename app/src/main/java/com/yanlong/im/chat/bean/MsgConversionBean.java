@@ -207,9 +207,9 @@ public class MsgConversionBean {
                 RedEnvelopeMessage envelopeMessage = new RedEnvelopeMessage();
                 envelopeMessage.setMsgid(msgAllBean.getMsg_id());
                 envelopeMessage.setComment(bean.getRedEnvelope().getComment());
-                if (bean.getRedEnvelope().getReTypeValue() == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
+                if (bean.getRedEnvelope().getReTypeValue() == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
                     envelopeMessage.setId(bean.getRedEnvelope().getId());
-                } else if (bean.getRedEnvelope().getReTypeValue() == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {
+                } else if (bean.getRedEnvelope().getReTypeValue() == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
                     try {
                         long tradeId = Long.parseLong(bean.getRedEnvelope().getId());
                         envelopeMessage.setTraceId(tradeId);

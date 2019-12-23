@@ -103,10 +103,10 @@ public class DialogEnvelope extends BaseDialog {
             } else {
                 tvInfo.setText("恭喜发财，大吉大利");
             }
+            tvMore.setVisibility(View.GONE);
         } else if (envelopeStatus == 2) {//已经领完
             ivOpen.setVisibility(View.GONE);
             tvInfo.setText("手慢了，红包已经派完");
-
         } else if (envelopeStatus == 3) {//已经过期
             ivOpen.setVisibility(View.GONE);
             tvInfo.setText("红包已过期");

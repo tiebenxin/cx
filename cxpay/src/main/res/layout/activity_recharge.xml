@@ -58,7 +58,7 @@
             android:layout_marginLeft="18dp"
             android:layout_marginTop="7dp"
             android:layout_marginBottom="4dp"
-            android:text="当前零钱余额  ￥0.00"
+            android:text="当前零钱余额  ¥0.00"
             android:textColor="@color/c_868686"
             android:textSize="12sp" />
 

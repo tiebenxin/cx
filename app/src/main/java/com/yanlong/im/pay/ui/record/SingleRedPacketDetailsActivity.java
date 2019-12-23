@@ -106,8 +106,8 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
         }
 
         ui.tvContent.setText(TextUtils.isEmpty(envelopeDetailBean.getNote()) ? "恭喜发财，大吉大利" : envelopeDetailBean.getNote());
-        ui.tvMoney.setVisibility(View.VISIBLE);
-        ui.tvMoney.setText(UIUtils.getYuan(envelopeDetailBean.getAmt()));
+//            ui.tvMoney.setVisibility(View.VISIBLE);
+//        ui.tvMoney.setText(UIUtils.getYuan(envelopeDetailBean.getAmt()));
         if (envelopeDetailBean.getType() == PayEnum.ERedEnvelopeType.NORMAL) {
             if (user != null && userBean.getUid() == user.getUid()) {//是自己发的
                 if (envelopeDetailBean.getChatType() == 1) {//群聊
@@ -132,12 +132,14 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                     ui.tvNote.setVisibility(View.VISIBLE);
                     ui.tvNote.setText("红包已经被领完");
                     ui.tvMoney.setVisibility(View.GONE);
+                    ui.tvUnit.setVisibility(View.GONE);
                 } else if (envelopeDetailBean.getEnvelopeStatus() == PayEnum.EEnvelopeStatus.PAST) {//红包已过期
                     ui.llSend.setVisibility(View.GONE);
                     ui.llRecord.setVisibility(View.GONE);
                     ui.tvNote.setVisibility(View.VISIBLE);
                     ui.tvNote.setText("该红包已过期");
                     ui.tvMoney.setVisibility(View.GONE);
+                    ui.tvUnit.setVisibility(View.GONE);
                 } else {
                     ui.llSend.setVisibility(View.GONE);
                     ui.llRecord.setVisibility(View.GONE);
@@ -196,7 +198,36 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                 }
             }
         }
+        findSelf();
 
+    }
+
+    //找到自己抢红包记录
+    private void findSelf() {
+        if (list != null && list.size() > 0) {
+            UserBean userBean = PayEnvironment.getInstance().getUser();
+            EnvelopeReceiverBean selfReceiver = null;
+            int len = list.size();
+            for (int i = 0; i < len; i++) {
+                EnvelopeReceiverBean bean = list.get(i);
+                if (bean.getImUserInfo() != null && userBean != null) {
+                    if (bean.getImUserInfo().getUid() == userBean.getUid()) {
+                        selfReceiver = bean;
+                    }
+                }
+            }
+
+            if (selfReceiver != null) {
+                ui.tvMoney.setVisibility(View.VISIBLE);
+                ui.tvUnit.setVisibility(View.VISIBLE);
+                ui.tvMoney.setText(UIUtils.getYuan(selfReceiver.getAmt()));
+                ui.tvNote.setVisibility(View.VISIBLE);
+            } else {
+                ui.tvMoney.setVisibility(View.GONE);
+                ui.tvUnit.setVisibility(View.GONE);
+                ui.tvNote.setVisibility(View.GONE);
+            }
+        }
     }
 
 

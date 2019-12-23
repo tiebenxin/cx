@@ -116,7 +116,7 @@ public class AdapterSelectPayStyle extends AbstractRecyclerAdapter<BankBean> {
 
         public void bindUserBean(UserBean bean, int position) {
             ivIcon.setImageResource(R.mipmap.ic_loose);
-            tvContent.setText("零钱(剩余￥" + UIUtils.getYuan(bean.getBalance()) + ")");
+            tvContent.setText("零钱(剩余¥" + UIUtils.getYuan(bean.getBalance()) + ")");
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

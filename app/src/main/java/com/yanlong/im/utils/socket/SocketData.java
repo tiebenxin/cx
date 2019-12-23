@@ -942,7 +942,7 @@ public class SocketData {
         MsgBean.RedEnvelopeMessage msg = MsgBean.RedEnvelopeMessage.newBuilder()
                 .setId(rid)
                 .setComment(info)
-                .setReType(MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY)
+                .setReType(MsgBean.RedEnvelopeType.MFPAY)
                 .setStyle(style)
                 .build();
         return send4Base(toId, toGid, MsgBean.MessageType.RED_ENVELOPER, msg);
@@ -1138,17 +1138,17 @@ public class SocketData {
                 RedEnvelopeMessage red = bean.getRed_envelope();
                 int reType = red.getRe_type().intValue();
                 MsgBean.RedEnvelopeMessage.Builder redBuild = null;
-                if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
+                if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
                     redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
                             .setId(red.getId())
                             .setComment(red.getComment())
-                            .setReType(MsgBean.RedEnvelopeMessage.RedEnvelopeType.forNumber(red.getRe_type()))
+                            .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
                             .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
-                } else if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {
+                } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
                     redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
                             .setId(red.getTraceId() + "")
                             .setComment(red.getComment())
-                            .setReType(MsgBean.RedEnvelopeMessage.RedEnvelopeType.forNumber(red.getRe_type()))
+                            .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
                             .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
                 }
                 if (redBuild != null) {
@@ -1182,7 +1182,7 @@ public class SocketData {
             SendList.addMsgToSendSequence(bean.getRequest_id(), bean);//添加到发送队列
             MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getRequest_id(), bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
             //立即发送
-            LogUtil.getLog().e("===发送=msg==="+GsonUtils.optObject(msg));
+            LogUtil.getLog().e("===发送=msg===" + GsonUtils.optObject(msg));
             SocketUtil.getSocketUtil().sendData4Msg(msg);
         }
     }
@@ -1676,7 +1676,7 @@ public class SocketData {
     }
 
     //创建系统红包消息
-    public static RedEnvelopeMessage createSystemRbMessage(String msgId, long traceId, String actionId, String info, int reType, int style) {
+    public static RedEnvelopeMessage createSystemRbMessage(String msgId, long traceId, String actionId, String info, int reType, int style, String sign) {
         RedEnvelopeMessage message = new RedEnvelopeMessage();
         message.setMsgid(msgId);
         message.setTraceId(traceId);
@@ -1684,6 +1684,7 @@ public class SocketData {
         message.setComment(info);
         message.setRe_type(reType);
         message.setStyle(style);
+        message.setSign(sign);
         return message;
     }
 
@@ -1724,7 +1725,7 @@ public class SocketData {
     }
 
     //位置消息
-    public static LocationMessage createLocationMessage(String msgId , int latitude , int longitude , String address , String addressDescribe) {
+    public static LocationMessage createLocationMessage(String msgId, int latitude, int longitude, String address, String addressDescribe) {
         LocationMessage message = new LocationMessage();
         message.setMsgId(msgId);
         message.setLatitude(latitude);
@@ -1734,5 +1735,16 @@ public class SocketData {
         //message.setImg("http://e7-test.oss-cn-beijing.aliyuncs.com/Android/20190730/2dfe5997-68a5-4545-8099-712982b765c9.jpg");
         return message;
     }
+
+    //创建转账消息
+    public static TransferMessage createTansferMessage(String msgId, long traceId, String actionId, String info, int reType, int style, String sign) {
+        TransferMessage message = new TransferMessage();
+        message.setMsgid(msgId);
+        message.setId(traceId + "");
+        message.setComment(info);
+        message.setSign(sign);
+        return message;
+    }
+
 
 }

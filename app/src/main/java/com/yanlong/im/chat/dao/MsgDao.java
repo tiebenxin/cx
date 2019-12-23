@@ -2063,9 +2063,9 @@ public class MsgDao {
         try {
             realm.beginTransaction();
             RedEnvelopeMessage envelopeMessage = null;
-            if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
+            if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
                 envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("id", rid).findFirst();
-            } else if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {
+            } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
                 long traceId = Long.parseLong(rid);
                 envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("traceId", traceId).findFirst();
                 if (envelopeMessage != null) {

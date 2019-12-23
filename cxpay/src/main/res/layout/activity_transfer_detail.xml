@@ -43,7 +43,7 @@
                     android:id="@+id/tv_money"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="￥88.88"
+                    android:text="¥88.88"
                     android:textColor="@color/black"
                     android:textSize="30sp" />
 

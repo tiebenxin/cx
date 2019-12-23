@@ -54,7 +54,7 @@ public class ChatCellRedEnvelope extends ChatCellBase {
             } else {
                 info = "领取红包";
             }
-            if (redEnvelopeMessage.getRe_type().intValue() == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
+            if (redEnvelopeMessage.getRe_type().intValue() == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
                 typeName = "云红包";
             } else {
                 typeName = "支付宝";

@@ -89,12 +89,12 @@ public class DialogInputTransferPassword extends BaseDialog {
     public void init(long money, @PayEnum.EPayStyle int payStyle, BankBean info) {
         this.payStyle = payStyle;
         bankBean = info;
-        tvMoney.setText("￥" + UIUtils.getYuan(money));
+        tvMoney.setText("¥" + UIUtils.getYuan(money));
         if (payStyle == PayEnum.EPayStyle.LOOSE) {
             String payer = "零钱";
             UserBean userBean = PayEnvironment.getInstance().getUser();
             if (userBean != null && userBean.getBalance() > 0) {
-                payer += "(余额￥" + UIUtils.getYuan(userBean.getBalance()) + ")";
+                payer += "(余额¥" + UIUtils.getYuan(userBean.getBalance()) + ")";
             }
             tvPayer.setText(payer);
             ivIcon.setImageDrawable(UIUtils.getDrawable(getContext(), R.mipmap.ic_loose));

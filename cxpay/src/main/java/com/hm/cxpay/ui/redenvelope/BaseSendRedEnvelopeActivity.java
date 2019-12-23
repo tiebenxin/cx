@@ -124,6 +124,7 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
         envelopeBean.setMessage(info);
         envelopeBean.setEnvelopeType(redType);
         envelopeBean.setEnvelopeAmount(count);
+        envelopeBean.setSign(bean.getSign());
         return envelopeBean;
     }
 
