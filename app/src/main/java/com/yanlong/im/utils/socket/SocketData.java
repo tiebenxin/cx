@@ -1142,13 +1142,13 @@ public class SocketData {
                     redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
                             .setId(red.getId())
                             .setComment(red.getComment())
-                            .setReType(MsgBean.RedEnvelopeMessage.RedEnvelopeType.forNumber(red.getRe_type()))
+                            .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
                             .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
                 } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
                     redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
                             .setId(red.getTraceId() + "")
                             .setComment(red.getComment())
-                            .setReType(MsgBean.RedEnvelopeMessage.RedEnvelopeType.forNumber(red.getRe_type()))
+                            .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
                             .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
                 }
                 if (redBuild != null) {
