@@ -203,11 +203,11 @@ public class RedEnvelopeRecordActivity extends AppActivity {
             }
             if (isReceive && currentTab == 0) {//收到红包
                 ui.tvName.setText(name + "共收到红包");
-                ui.tvMoney.setText("￥" + UIUtils.getYuan(bean.getSumAmt()) + "元");
+                ui.tvMoney.setText("¥" + UIUtils.getYuan(bean.getSumAmt()) + "元");
                 ui.tvTotal.setText("共收到红包" + bean.getTotal() + "个");
             } else if (!isReceive && currentTab == 1) {//发出红包
                 ui.tvName.setText(name + "共发出红包");
-                ui.tvMoney.setText("￥" + UIUtils.getYuan(bean.getSumAmt()) + "元");
+                ui.tvMoney.setText("¥" + UIUtils.getYuan(bean.getSumAmt()) + "元");
                 ui.tvTotal.setText("共发出红包" + bean.getTotal() + "个");
             }
         }

@@ -65,7 +65,7 @@ public class LabelItemView extends LinearLayout {
         tvTitle.setText(message.getTitle());
         tvTime.setText(TimeToString.YYYY_MM_DD_HH_MM_SS(message.getTime()));
         tvMoneyTitle.setText(message.getAmountTitle());
-        tvMoney.setText("￥ " + UIUtils.getYuan(message.getAmount()));
+        tvMoney.setText("¥ " + UIUtils.getYuan(message.getAmount()));
         if (message.getDetailType() == MsgBean.BalanceAssistantMessage.DetailType.RED_ENVELOPE_VALUE) {//红包详情
             llDetail.setVisibility(VISIBLE);
             viewLine.setVisibility(VISIBLE);

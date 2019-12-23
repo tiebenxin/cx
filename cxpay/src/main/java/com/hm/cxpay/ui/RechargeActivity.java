@@ -320,7 +320,7 @@ public class RechargeActivity extends AppActivity {
             TextView tvRechargeValue = dialogView.findViewById(R.id.tv_recharge_value);
             LinearLayout layoutAddBankcard = dialogView.findViewById(R.id.layout_add_bankcard);
             //显示和点击事件
-            tvRechargeValue.setText("￥" + etRecharge.getText().toString());
+            tvRechargeValue.setText("¥" + etRecharge.getText().toString());
             ivClose.setOnClickListener(new android.view.View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

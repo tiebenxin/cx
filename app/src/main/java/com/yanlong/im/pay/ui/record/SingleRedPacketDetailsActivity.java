@@ -132,12 +132,14 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                     ui.tvNote.setVisibility(View.VISIBLE);
                     ui.tvNote.setText("红包已经被领完");
                     ui.tvMoney.setVisibility(View.GONE);
+                    ui.tvUnit.setVisibility(View.GONE);
                 } else if (envelopeDetailBean.getEnvelopeStatus() == PayEnum.EEnvelopeStatus.PAST) {//红包已过期
                     ui.llSend.setVisibility(View.GONE);
                     ui.llRecord.setVisibility(View.GONE);
                     ui.tvNote.setVisibility(View.VISIBLE);
                     ui.tvNote.setText("该红包已过期");
                     ui.tvMoney.setVisibility(View.GONE);
+                    ui.tvUnit.setVisibility(View.GONE);
                 } else {
                     ui.llSend.setVisibility(View.GONE);
                     ui.llRecord.setVisibility(View.GONE);

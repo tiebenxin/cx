@@ -1182,7 +1182,7 @@ public class SocketData {
             SendList.addMsgToSendSequence(bean.getRequest_id(), bean);//添加到发送队列
             MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getRequest_id(), bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
             //立即发送
-            LogUtil.getLog().e("===发送=msg==="+GsonUtils.optObject(msg));
+            LogUtil.getLog().e("===发送=msg===" + GsonUtils.optObject(msg));
             SocketUtil.getSocketUtil().sendData4Msg(msg);
         }
     }
@@ -1676,7 +1676,7 @@ public class SocketData {
     }
 
     //创建系统红包消息
-    public static RedEnvelopeMessage createSystemRbMessage(String msgId, long traceId, String actionId, String info, int reType, int style) {
+    public static RedEnvelopeMessage createSystemRbMessage(String msgId, long traceId, String actionId, String info, int reType, int style, String sign) {
         RedEnvelopeMessage message = new RedEnvelopeMessage();
         message.setMsgid(msgId);
         message.setTraceId(traceId);
@@ -1684,6 +1684,7 @@ public class SocketData {
         message.setComment(info);
         message.setRe_type(reType);
         message.setStyle(style);
+        message.setSign(sign);
         return message;
     }
 
@@ -1724,7 +1725,7 @@ public class SocketData {
     }
 
     //位置消息
-    public static LocationMessage createLocationMessage(String msgId , int latitude , int longitude , String address , String addressDescribe) {
+    public static LocationMessage createLocationMessage(String msgId, int latitude, int longitude, String address, String addressDescribe) {
         LocationMessage message = new LocationMessage();
         message.setMsgId(msgId);
         message.setLatitude(latitude);
@@ -1734,5 +1735,16 @@ public class SocketData {
         //message.setImg("http://e7-test.oss-cn-beijing.aliyuncs.com/Android/20190730/2dfe5997-68a5-4545-8099-712982b765c9.jpg");
         return message;
     }
+
+    //创建转账消息
+    public static TransferMessage createTansferMessage(String msgId, long traceId, String actionId, String info, int reType, int style, String sign) {
+        TransferMessage message = new TransferMessage();
+        message.setMsgid(msgId);
+        message.setId(traceId + "");
+        message.setComment(info);
+        message.setSign(sign);
+        return message;
+    }
+
 
 }
