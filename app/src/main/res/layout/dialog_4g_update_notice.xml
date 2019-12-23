@@ -15,7 +15,7 @@
         android:layout_marginBottom="30dp"
         android:layout_centerHorizontal="true"
         android:gravity="center"
-        android:text="您当前的网络环境是“移动数据”\n是否确定更新?"/>
+        android:text="您当前的网络环境是“移动数据”\n是否允许使用流量更新?"/>
 
     <View style="@style/payword_line"
         android:id="@+id/line_one"
@@ -29,7 +29,7 @@
         android:textSize="16sp"
         android:gravity="center"
         android:textColor="@color/c_828282"
-        android:text="取消"/>
+        android:text="取消更新 "/>
     <View
         android:id="@+id/line_two"
         android:layout_width="1dp"
@@ -46,7 +46,7 @@
         android:textSize="16sp"
         android:gravity="center"
         android:textColor="@color/c_32b053"
-        android:text="确定更新"/>
+        android:text="允许"/>
 
 
 
