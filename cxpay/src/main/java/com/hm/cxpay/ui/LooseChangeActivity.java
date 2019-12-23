@@ -164,9 +164,9 @@ public class LooseChangeActivity extends BasePayActivity {
                 //1 已设置支付密码 -> 允许跳转
                 if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
                     //2 是否添加过银行卡
-                    if(myCardListSize>0){
+                    if (myCardListSize > 0) {
                         startActivityForResult(new Intent(activity, WithdrawActivity.class), REFRESH_BALANCE);
-                    }else {
+                    } else {
                         showAddBankCardDialog();
                     }
                 } else {
@@ -213,22 +213,16 @@ public class LooseChangeActivity extends BasePayActivity {
             @Override
             public void onClick() {
                 layoutAuthRealName.setEnabled(false);
-                // 1 已设置支付密码 -> 允许跳转
-                if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
-                    //1 已经绑定手机
-                    if (PayEnvironment.getInstance().getUser().getPhoneBindStat() == 1) {
-                        //TODO 还有一个认证信息展示界面未出
+                //1 已经绑定手机
+                if (PayEnvironment.getInstance().getUser().getPhoneBindStat() == 1) {
+                    //TODO 还有一个认证信息展示界面未出
 //                    ToastUtil.show(activity,"您已绑定手机号(暂时允许进入)");
 //                    IntentUtil.gotoActivity(activity, BindPhoneNumActivity.class);
-                        IntentUtil.gotoActivity(activity, IdentificationInfoActivity.class);
+                    IntentUtil.gotoActivity(activity, IdentificationInfoActivity.class);
 
-                    } else {
-                        //2 没有绑定手机
-                        showBindPhoneNumDialog();
-                    }
                 } else {
-                    //2 未设置支付密码 -> 需要先设置
-                    showSetPaywordDialog();
+                    //2 没有绑定手机
+                    showBindPhoneNumDialog();
                 }
             }
         });
@@ -240,7 +234,13 @@ public class LooseChangeActivity extends BasePayActivity {
             @Override
             public void onClick() {
                 viewMyCard.setEnabled(false);
-                startActivityForResult(new Intent(activity, BankSettingActivity.class), REFRESH_BANKCARD_NUM);
+                //已设置支付密码 -> 允许跳转
+                if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
+                    startActivityForResult(new Intent(activity, BankSettingActivity.class), REFRESH_BANKCARD_NUM);
+                } else {
+                    //未设置支付密码 -> 需要先设置
+                    showSetPaywordDialog();
+                }
             }
         });
         //支付密码管理
@@ -344,7 +344,7 @@ public class LooseChangeActivity extends BasePayActivity {
     /**
      * 检测到未设置支付密码弹框
      */
-    private void showSetPaywordDialog(){
+    private void showSetPaywordDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setCancelable(false);
         final AlertDialog dialog = dialogBuilder.create();
@@ -386,7 +386,7 @@ public class LooseChangeActivity extends BasePayActivity {
     /**
      * 是否绑定手机号弹框
      */
-    private void showBindPhoneNumDialog(){
+    private void showBindPhoneNumDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setCancelable(false);
         final AlertDialog dialog = dialogBuilder.create();
@@ -428,7 +428,7 @@ public class LooseChangeActivity extends BasePayActivity {
     /**
      * 没有添加过银行卡弹框
      */
-    private void showAddBankCardDialog(){
+    private void showAddBankCardDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setCancelable(false);
         final AlertDialog dialog = dialogBuilder.create();
@@ -464,8 +464,6 @@ public class LooseChangeActivity extends BasePayActivity {
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
     }
-
-
 
 
 }
