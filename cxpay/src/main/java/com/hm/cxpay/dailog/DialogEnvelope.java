@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
@@ -96,7 +97,7 @@ public class DialogEnvelope extends BaseDialog {
         UIUtils.loadAvatar(avatar, ivAvatar);
 
         tvName.setText(nick);
-        if (envelopeStatus == 1) {//正常，可以抢
+        if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL) {//正常，可以抢
             ivOpen.setVisibility(View.VISIBLE);
             if (!TextUtils.isEmpty(note)) {
                 tvInfo.setText(note);
@@ -104,19 +105,40 @@ public class DialogEnvelope extends BaseDialog {
                 tvInfo.setText("恭喜发财，大吉大利");
             }
             tvMore.setVisibility(View.GONE);
-        } else if (envelopeStatus == 2) {//已经领完
+        } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_FINISHED) {//已经领完
             ivOpen.setVisibility(View.GONE);
             tvInfo.setText("手慢了，红包已经派完");
-        } else if (envelopeStatus == 3) {//已经过期
+            if (style == 1) {//拼手气
+                tvMore.setEnabled(true);
+                tvMore.setText("查看红包详情");
+                tvMore.setVisibility(View.VISIBLE);
+            } else {
+                tvMore.setVisibility(View.VISIBLE);
+                tvMore.setText("普通红包只有领取到的人才能看到");
+                tvMore.setEnabled(false);
+            }
+        } else if (envelopeStatus == PayEnum.EEnvelopeStatus.PAST) {//已经过期
             ivOpen.setVisibility(View.GONE);
             tvInfo.setText("红包已过期");
-        } else if (envelopeStatus == 4) {//已经抢过了
+            if (style == 1) {//拼手气
+                tvMore.setEnabled(true);
+                tvMore.setText("查看红包详情");
+                tvMore.setVisibility(View.VISIBLE);
+            } else {
+                tvMore.setVisibility(View.VISIBLE);
+                tvMore.setText("普通红包只有领取到的人才能看到");
+                tvMore.setEnabled(false);
+            }
+        } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED) {//已经抢过了
             ivOpen.setVisibility(View.GONE);
             if (!TextUtils.isEmpty(note)) {
                 tvInfo.setText(note);
             } else {
                 tvInfo.setText("恭喜发财，大吉大利");
             }
+            tvMore.setEnabled(true);
+            tvMore.setText("查看红包详情");
+            tvMore.setVisibility(View.VISIBLE);
         }
     }
 

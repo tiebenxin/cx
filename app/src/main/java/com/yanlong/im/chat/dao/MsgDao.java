@@ -2068,7 +2068,8 @@ public class MsgDao {
             } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
                 long traceId = Long.parseLong(rid);
                 envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("traceId", traceId).findFirst();
-                if (envelopeMessage != null) {
+                if (envelopeMessage
+                        != null) {
                     if (!TextUtils.isEmpty(token)) {
                         envelopeMessage.setAccessToken(token);
                     }

@@ -2934,10 +2934,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     menus.add(new OptionMenu("删除"));
                     RedEnvelopeMessage rb = msgbean.getRed_envelope();
                     Boolean isInvalid = rb.getIsInvalid() == 0 ? false : true;
-                    String info = isInvalid ? "已领取" : "领取红包";
+                    String info = getEnvelopeInfo(rb.getEnvelopStatus());
                     if (rb.getEnvelopStatus() == PayEnum.EEnvelopeStatus.PAST) {
                         isInvalid = true;
-                        info = "红包已过期";
                     }
                     String title = msgbean.getRed_envelope().getComment();
                     final String rid = rb.getId();
@@ -2974,26 +2973,38 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                     ToastUtil.show(ChatActivity.this, "无红包id");
                                     return;
                                 }
+                                int envelopeStatus = rb.getEnvelopStatus();
                                 boolean isNormalStyle = style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE;
-                                if (isInvalid || (msgbean.isMe() && isNormalStyle)) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
-//                                    if (!isInvalid && isGroup()) {
-//                                        if (!TextUtils.isEmpty(rb.getAccessToken())) {
-//                                            showEnvelopeDialog(rb.getAccessToken(), 1, msgbean, reType);
-//                                        } else {
-//                                            grabRedEnvelope(msgbean, tradeId, reType);
-//                                        }
-//                                    } else {
-//                                        getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType, isNormalStyle);
-//                                    }
-                                    getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType, isNormalStyle);
-
-                                } else {
+                                if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL) {
                                     if (!TextUtils.isEmpty(rb.getAccessToken())) {
-                                        showEnvelopeDialog(rb.getAccessToken(), 1, msgbean, reType);
+                                        showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msgbean, reType);
                                     } else {
                                         grabRedEnvelope(msgbean, tradeId, reType);
                                     }
+                                } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED) {
+                                    getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                                } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_FINISHED) {
+                                    if (msgbean.isMe()) {
+                                        getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                                    } else {
+                                        showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msgbean, reType);
+                                    }
+                                } else if (envelopeStatus == PayEnum.EEnvelopeStatus.PAST) {
+                                    if (msgbean.isMe()) {
+                                        getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                                    } else {
+                                        showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msgbean, reType);
+                                    }
                                 }
+//                                if (isInvalid || (msgbean.isMe() && isNormalStyle)) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
+//                                    getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+//                                } else {
+//                                    if (!TextUtils.isEmpty(rb.getAccessToken())) {
+//                                        showEnvelopeDialog(rb.getAccessToken(), 1, msgbean, reType);
+//                                    } else {
+//                                        grabRedEnvelope(msgbean, tradeId, reType);
+//                                    }
+//                                }
                             }
                         }
                     });
@@ -3319,6 +3330,25 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             });
         }
 
+    }
+
+    private String getEnvelopeInfo(@PayEnum.EEnvelopeStatus int envelopStatus) {
+        String info = "";
+        switch (envelopStatus) {
+            case PayEnum.EEnvelopeStatus.NORMAL:
+                info = "领取红包";
+                break;
+            case PayEnum.EEnvelopeStatus.RECEIVED:
+                info = "已领取";
+                break;
+            case PayEnum.EEnvelopeStatus.RECEIVED_FINISHED:
+                info = "已被领完";
+                break;
+            case PayEnum.EEnvelopeStatus.PAST:
+                info = "已过期";
+                break;
+        }
+        return info;
     }
 
     private Handler handler = new Handler() {
@@ -4874,11 +4904,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             if (bean != null) {
                                 int status = getGrabEnvelopeStatus(bean.getStat());
                                 updateEnvelopeToken(msgBean, rid + "", reType, bean.getAccessToken(), status);
-                                if (bean.getStat() == 1) {//1 未领取
-                                    showEnvelopeDialog(bean.getAccessToken(), bean.getStat(), msgBean, reType);
-                                } else {
-
-                                }
+                                showEnvelopeDialog(bean.getAccessToken(), status, msgBean, reType);
+//                                if (bean.getStat() == 1) {//1 未领取
+//                                    showEnvelopeDialog(bean.getAccessToken(), bean.getStat(), msgBean, reType);
+//                                } else {
+//
+//                                }
                             }
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());

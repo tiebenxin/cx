@@ -104,10 +104,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
             UIUtils.loadAvatar(userBean.getAvatar(), ui.ivAvatar);
             ui.tvName.setText(userBean.getNickname() + "的红包");
         }
-
         ui.tvContent.setText(TextUtils.isEmpty(envelopeDetailBean.getNote()) ? "恭喜发财，大吉大利" : envelopeDetailBean.getNote());
-//            ui.tvMoney.setVisibility(View.VISIBLE);
-//        ui.tvMoney.setText(UIUtils.getYuan(envelopeDetailBean.getAmt()));
         if (envelopeDetailBean.getType() == PayEnum.ERedEnvelopeType.NORMAL) {
             if (user != null && userBean.getUid() == user.getUid()) {//是自己发的
                 if (envelopeDetailBean.getChatType() == 1) {//群聊
@@ -154,8 +151,8 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
             ui.tvNote.setText("已存入零钱");
         }
         //初始化领取记录
+        list = envelopeDetailBean.getRecvList();
         if (ui.llRecord.getVisibility() == View.VISIBLE) {
-            list = envelopeDetailBean.getRecvList();
             ui.mtListView.getListView().getAdapter().notifyDataSetChanged();
             int remainCount = envelopeDetailBean.getRemainCnt();
             int totalCount = envelopeDetailBean.getCnt();
