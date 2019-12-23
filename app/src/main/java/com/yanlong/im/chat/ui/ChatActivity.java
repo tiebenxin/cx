@@ -2178,7 +2178,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
                         }
 
-                        RedEnvelopeMessage message = SocketData.createRbMessage(SocketData.getUUID(), envelopeInfo.getEnvelopesID(), envelopeInfo.getEnvelopeMessage(), MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY.getNumber(), style.getNumber());
+                        RedEnvelopeMessage message = SocketData.createRbMessage(SocketData.getUUID(), envelopeInfo.getEnvelopesID(), envelopeInfo.getEnvelopeMessage(), MsgBean.RedEnvelopeType.MFPAY.getNumber(), style.getNumber());
                         sendMessage(message, ChatEnum.EMessageType.RED_ENVELOPE);
 
 //                        MsgAllBean msgAllbean = SocketData.send4Rb(toUId, toGid, rid, info, style);
@@ -2943,24 +2943,25 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     final Long touid = msgbean.getFrom_uid();
                     final int style = msgbean.getRed_envelope().getStyle();
                     String type = null;
+                    if (rb.getRe_type().intValue() == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
                     int reType = rb.getRe_type().intValue();//红包类型
-                    if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
+                    if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
                         type = "云红包";
-                    } else if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {
+                    } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
                         type = "零钱红包";
                     }
 
                     holder.viewChatItem.setData3(isInvalid, title, info, type, R.color.transparent, reType, new ChatItemView.EventRP() {
                         @Override
                         public void onClick(boolean isInvalid, int reType) {
-                            if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {//魔方红包
+                            if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {//魔方红包
                                 if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
                                     //ToastUtil.show(getContext(), "红包详情");
                                     taskPayRbDetail(msgbean, rid);
                                 } else {
                                     taskPayRbGet(msgbean, touid, rid);
                                 }
-                            } else if (reType == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
+                            } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
                                 long tradeId = rb.getTraceId();
                                 if (tradeId == 0 && !TextUtils.isEmpty(rid)) {
                                     try {
