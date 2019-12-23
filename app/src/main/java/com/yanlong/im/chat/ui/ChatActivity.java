@@ -2190,7 +2190,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 case REQUEST_RED_ENVELOPE:
                     CxEnvelopeBean envelopeBean = data.getParcelableExtra("envelope");
                     if (envelopeBean != null) {
-                        RedEnvelopeMessage message = SocketData.createSystemRbMessage(SocketData.getUUID(), envelopeBean.getTradeId(), envelopeBean.getActionId(), envelopeBean.getMessage(), MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM.getNumber(), envelopeBean.getEnvelopeType());
+                        RedEnvelopeMessage message = SocketData.createSystemRbMessage(SocketData.getUUID(), envelopeBean.getTradeId(), envelopeBean.getActionId(), envelopeBean.getMessage(), MsgBean.RedEnvelopeType.SYSTEM.getNumber(), envelopeBean.getEnvelopeType());
                         sendMessage(message, ChatEnum.EMessageType.RED_ENVELOPE);
                     }
                     break;
@@ -2943,7 +2943,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     final Long touid = msgbean.getFrom_uid();
                     final int style = msgbean.getRed_envelope().getStyle();
                     String type = null;
-                    if (rb.getRe_type().intValue() == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
                     int reType = rb.getRe_type().intValue();//红包类型
                     if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
                         type = "云红包";
@@ -4420,13 +4419,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             //0 正常状态未领取，1 红包已经被领取，2 红包失效不能领取，3 红包未失效但已经被领完，4 普通红包并且用户点击自己红包
                             int envelopeStatus = grabRpBean.getEnvelopeStatus();
                             if (envelopeStatus == 0 && grabRpBean.isHadGrabRp()) {
-                                MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid, MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE);
+                                MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE);
                                 showSendObj(msgAllbean);
                                 MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
-                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
+                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
                             }
                             if (envelopeStatus == 2 || envelopeStatus == 3) {
-                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
+                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
                             }
                         }
                     };
