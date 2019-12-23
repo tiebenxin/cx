@@ -67,6 +67,7 @@ import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.ui.redenvelope.MultiRedPacketActivity;
 import com.hm.cxpay.ui.bill.BillDetailActivity;
 import com.hm.cxpay.ui.transfer.TransferActivity;
+import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
 import com.hm.cxpay.bean.EnvelopeDetailBean;
@@ -2875,10 +2876,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 || msgbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR) {
                             holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
                         } else {
-                            if (msgbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE || msgbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED){
+                            if (msgbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE || msgbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED) {
                                 holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
                                         msgbean.getMsgNotice().getNote(), msgbean.getMsgNotice().getMsgType()));
-                            }else {
+                            } else {
                                 holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
                                         msgbean.getMsgNotice().getNote(), msgbean.getMsgNotice().getMsgType()));
                             }
@@ -4524,7 +4525,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             msgAllBean.getRed_envelope().setAccessToken(token);
         }
         msgDao.redEnvelopeOpen(rid, envelopeStatus, reType, token);
-        replaceListDataAndNotify(msgAllBean);
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                replaceListDataAndNotify(msgAllBean);
+            }
+        });
     }
 
     //抢红包后，更新红包token
