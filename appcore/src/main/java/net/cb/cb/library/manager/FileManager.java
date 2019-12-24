@@ -10,7 +10,7 @@ import java.io.File;
  * Description  缓存文件管理类，图片，语音，视频，其他
  */
 public class FileManager {
-    public static final String CACHE_ROOT = "/changliaoliao";
+    public static final String CACHE_ROOT = "/changxin";
     public static final String CACHE = "/cache";
     public static final String IMAGE = "/image";
     public static final String VOICE = "/voice";
