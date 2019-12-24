@@ -1230,10 +1230,10 @@ public class SocketData {
         MsgNotice note = new MsgNotice();
         note.setMsgid(msgId);
         if (uid != null && uid.longValue() == UserAction.getMyId().longValue()) {
-            note.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF);
+            note.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
             note.setNote("你领取了自己的<font color='#cc5944'>零钱红包</font>");
         } else {
-            note.setMsgType(ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE);
+            note.setMsgType(ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE);
             String name = msgDao.getUsername4Show(gid, uid);
             String rname = "<font color='#276baa' id='" + uid + "'>" + name + "</font>";
             note.setNote("你领取了\"" + rname + "的零钱红包" + "<div id= '" + gid + "'></div>");
@@ -1711,13 +1711,15 @@ public class SocketData {
      * @param rid
      * @return
      */
-    public static void sendReceivedEnvelopeMsg(Long toId, String toGid, String rid) {
+    public static void sendReceivedEnvelopeMsg(Long toId, String toGid, String rid, int reType) {
         //自己抢自己的红包，不需要发送
         if (toId != null && UserAction.getMyId() != null && toId.longValue() == UserAction.getMyId().longValue()) {
             return;
         }
+        MsgBean.RedEnvelopeType type = MsgBean.RedEnvelopeType.forNumber(reType);
         MsgBean.ReceiveRedEnvelopeMessage contentMsg = MsgBean.ReceiveRedEnvelopeMessage.newBuilder()
                 .setId(rid)
+                .setReType(type)
                 .build();
         MsgBean.UniversalMessage.Builder msg = toMsgBuilder("", SocketData.getUUID(), toId, toGid, SocketData.getFixTime(), MsgBean.MessageType.RECEIVE_RED_ENVELOPER, contentMsg);
         //立即发送

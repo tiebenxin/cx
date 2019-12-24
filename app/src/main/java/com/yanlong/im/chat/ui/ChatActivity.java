@@ -2871,22 +2871,22 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             switch (msgbean.getMsg_type()) {
                 case ChatEnum.EMessageType.NOTICE:
                     if (msgbean.getMsgNotice() != null) {
-//                        holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
-                        if (msgbean.getMsgNotice().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT
-                                || msgbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
-                                || msgbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR) {
-                            holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
+                        MsgNotice notice = msgbean.getMsgNotice();
+                        if (notice.getMsgType() == MsgNotice.MSG_TYPE_DEFAULT
+                                || notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
+                                || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF
+                                || notice.getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR) {
+                            holder.viewChatItem.setData0(notice.getNote());
                         } else {
-                            if (msgbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE || msgbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED) {
-                                holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
-                                        msgbean.getMsgNotice().getNote(), msgbean.getMsgNotice().getMsgType()));
-                            } else {
-                                holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
-                                        msgbean.getMsgNotice().getNote(), msgbean.getMsgNotice().getMsgType()));
-                            }
+                            holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this, notice.getNote(), notice.getMsgType()));
                         }
                         //8.22 如果是红包消息类型则显示红包图
-                        if (msgbean.getMsgNotice().getMsgType() != null && (msgbean.getMsgNotice().getMsgType() == 7 || msgbean.getMsgNotice().getMsgType() == 8 || msgbean.getMsgNotice().getMsgType() == 17)) {
+                        if (notice.getMsgType() != null && (notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED
+                                || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE
+                                || notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
+                                || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED
+                                || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE
+                                || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF)) {
                             holder.viewChatItem.showBroadcastIcon(true, null);
                         }
 
@@ -4967,7 +4967,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 taskPayRbCheck(msgBean, rid + "", reType, token, getOpenEnvelopeStatus(envelopeStatus));
                 if (envelopeStatus == 1) {//抢到了
                     if (!msgBean.isMe()) {
-                        SocketData.sendReceivedEnvelopeMsg(msgBean.getFrom_uid(), toGid, rid + "");//发送抢红包消息
+                        SocketData.sendReceivedEnvelopeMsg(msgBean.getFrom_uid(), toGid, rid + "", reType);//发送抢红包消息
                     }
                     MsgNotice message = SocketData.createMsgNoticeOfRb(SocketData.getUUID(), msgBean.getFrom_uid(), toGid);
                     sendMessage(message, ChatEnum.EMessageType.NOTICE, false);

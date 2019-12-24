@@ -252,7 +252,8 @@ public class ChatEnum {
      *
      * */
     @IntDef({ENoticeType.ENTER_BY_QRCODE, ENoticeType.INVITED, ENoticeType.KICK, ENoticeType.FORTH, ENoticeType.TRANSFER_GROUP_OWNER, ENoticeType.LEAVE, ENoticeType.RED_ENVELOPE_RECEIVED,
-            ENoticeType.RECEIVE_RED_ENVELOPE, ENoticeType.CANCEL, ENoticeType.BLACK_ERROR, ENoticeType.NO_FRI_ERROR, ENoticeType.LOCK, ENoticeType.RED_ENVELOPE_RECEIVED_SELF})
+            ENoticeType.RECEIVE_RED_ENVELOPE, ENoticeType.CANCEL, ENoticeType.BLACK_ERROR, ENoticeType.NO_FRI_ERROR, ENoticeType.LOCK, ENoticeType.RED_ENVELOPE_RECEIVED_SELF,
+            ENoticeType.SYS_ENVELOPE_RECEIVED, ENoticeType.SYS_ENVELOPE_RECEIVED_SELF, ENoticeType.RECEIVE_SYS_ENVELOPE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ENoticeType {
         int ENTER_BY_QRCODE = 1; //扫二维码进群
@@ -261,14 +262,17 @@ public class ChatEnum {
         int FORTH = 4; //
         int TRANSFER_GROUP_OWNER = 5; //群主转让
         int LEAVE = 6;//离开群聊
-        int RED_ENVELOPE_RECEIVED = 7;//xx领取你的红包
+        int RED_ENVELOPE_RECEIVED = 7;//xx领取你的云红包
         int RECEIVE_RED_ENVELOPE = 8;//你领取了xx的红包
         int CANCEL = 9;//撤回
         int BLACK_ERROR = 10;//拉黑，消息被拒错误
         int NO_FRI_ERROR = 11;//被删好友，消息发送错误
         int LOCK = 12;//端对端加密
+        int SYS_ENVELOPE_RECEIVED = 13;//xx领取你的零钱红包
+        int SYS_ENVELOPE_RECEIVED_SELF = 14;//自己领取自己的零钱红包
+        int RECEIVE_SYS_ENVELOPE = 15;//你领取了xx的零钱红包
 
-        int RED_ENVELOPE_RECEIVED_SELF = 17;//自己领取自己的红包
+        int RED_ENVELOPE_RECEIVED_SELF = 17;//自己领取自己的零钱红包
     }
 
 

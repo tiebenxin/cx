@@ -75,31 +75,14 @@ public class HtmlTransitonUtils {
                 case ChatEnum.ENoticeType.LOCK://端到端加密
                     setType12(context, style, bean);
                     break;
-
-            }
-
-        }
-
-        return style;
-    }
-
-    //红包类型
-    public SpannableStringBuilder getSpannableString(Context context, String html, int type, int envelopeType) {
-        SpannableStringBuilder style = new SpannableStringBuilder();
-        if (!TextUtils.isEmpty(html)) {
-            HtmlBean bean = htmlTransition(html);
-            switch (type) {
-                case ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED: // xxx领取了你的云红包
-                    setTypeEnvelopReceived(context, style, bean,envelopeType);
+                case ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED: // xxx领取了你的云红包
+                    setTypeEnvelopSend(context, style, bean,1);
                     break;
-                case ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE: // 你领取的xxx的云红包
-                    setTypeEnvelopeSend(context, style, bean,envelopeType);
+                case ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE: // 你领取的xxx的云红包
+                    setTypeEnvelopeReceived(context, style, bean,1);
                     break;
-
             }
-
         }
-
         return style;
     }
 
@@ -535,8 +518,8 @@ public class HtmlTransitonUtils {
         lockDialog.show();
     }
 
-
-    private void setTypeEnvelopReceived(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean, int envelopeType) {
+    //别人领取你的
+    private void setTypeEnvelopSend(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean, int envelopeType) {
         String envelopeName = envelopeType == 0 ? "云红包" : "零钱红包";
         List<HtmlBeanList> list = htmlBean.getList();
         for (final HtmlBeanList bean : list) {
@@ -567,8 +550,8 @@ public class HtmlTransitonUtils {
         builder.setSpan(protocolColorSpan, builder.toString().length() - 3, builder.toString().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
-
-    private void setTypeEnvelopeSend(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean, int envelopeType) {
+    //你领取
+    private void setTypeEnvelopeReceived(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean, int envelopeType) {
         String envelopeName = envelopeType == 0 ? "云红包" : "零钱红包";
         List<HtmlBeanList> list = htmlBean.getList();
         builder.append("你领取了");

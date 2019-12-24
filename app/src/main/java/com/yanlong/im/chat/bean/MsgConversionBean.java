@@ -227,7 +227,7 @@ public class MsgConversionBean {
                 MsgNotice rbNotice = new MsgNotice();
                 rbNotice.setMsgid(msgAllBean.getMsg_id());
                 //jyj 8.19
-                if (bean.getRedEnvelope().getReType().getNumber() == 0) {
+                if (bean.getReceiveRedEnvelope().getReType().getNumber() == 0) {
                     if (bean.getFromUid() == UserAction.getMyId().longValue()) {
                         rbNotice.setNote("你领取了自己的<font color='#cc5944'>云红包</font>");
                         rbNotice.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF);
@@ -235,12 +235,12 @@ public class MsgConversionBean {
                         rbNotice.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED);
                         rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "\"领取了你的云红包 <div id='" + bean.getGid() + "'></div>");
                     }
-                } else if (bean.getRedEnvelope().getReType().getNumber() == 1) {
+                } else if (bean.getReceiveRedEnvelope().getReType().getNumber() == 1) {
                     if (bean.getFromUid() == UserAction.getMyId().longValue()) {
                         rbNotice.setNote("你领取了自己的<font color='#cc5944'>零钱红包</font>");
-                        rbNotice.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF);
+                        rbNotice.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
                     } else {
-                        rbNotice.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED);
+                        rbNotice.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED);
                         rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "\"领取了你的零钱红包 <div id='" + bean.getGid() + "'></div>");
                     }
                 }
