@@ -133,7 +133,6 @@ import com.yanlong.im.view.face.FaceViewPager;
 import com.yanlong.im.view.face.bean.FaceBean;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
-import com.zhaoss.weixinrecorded.util.ViewUtils;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
@@ -169,6 +168,7 @@ import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
@@ -449,6 +449,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         @Override
         public void onACK(final MsgBean.AckMessage bean) {
+//            LogUtil.getLog().e("===onACK=msg==="+GsonUtils.optObject(bean));
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -487,13 +488,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         @Override
         public void onMsg(final com.yanlong.im.utils.socket.MsgBean.UniversalMessage msgBean) {
-
+//            LogUtil.getLog().e("===msgBean=msg==="+GsonUtils.optObject(msgBean));
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
 
                     needRefresh = false;
 
+//                    if(msgBean!=null&&msgBean.getWrapMsgList()!=null){
+//                        LogUtil.getLog().e("==msg===size="+msgBean.getWrapMsgList().size());
+//                    }
                     for (MsgBean.UniversalMessage.WrapMessage msg : msgBean.getWrapMsgList()) {
                         if (msg.getMsgType() == MsgBean.MessageType.ACTIVE_STAT_CHANGE) {//
                             continue;
@@ -759,6 +763,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if(ViewUtils.isFastDoubleClick()){
+                    return;
+                }
+
                 if (!checkNetConnectStatus()) {
                     return;
                 }
@@ -3472,6 +3481,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         int[] locationView = new int[2];
         v.getLocationOnScreen(locationView);
 
+        //移除父类才能添加
+        if(mRootView!=null){
+            ((ViewGroup)mRootView).removeAllViews();
+        }
+
         mPopupWindow = new PopupWindow(mRootView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         // 设置弹窗外可点击
         mPopupWindow.setTouchable(true);
@@ -3515,7 +3529,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 初始化PopupWindow
      */
     private void initPopupWindow() {
-        mRootView = getLayoutInflater().inflate(R.layout.view_chat_bubble, null);
+        mRootView = getLayoutInflater().inflate(R.layout.view_chat_bubble, null,false);
         //获取自身的长宽高
         mRootView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         popupWidth = mRootView.getMeasuredWidth();
@@ -3893,9 +3907,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (TextUtils.isEmpty(toGid)) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
             if (bean != null) {
-                if ((TextUtils.isEmpty(msgid) || !msgid.equals(bean.getMsg_id())) && bean.getRead() == 0) {
+                LogUtil.getLog().e("===sendRead==msg====="+bean.getMsg_id()+"===msgid="+msgid+"==bean.getRead()="+bean.getRead()+"==bean.getTimestamp()="+bean.getTimestamp());
+                if (bean.getRead() == 0) {
+//                if ((TextUtils.isEmpty(msgid) || !msgid.equals(bean.getMsg_id())) && bean.getRead() == 0) {
                     msgid = bean.getMsg_id();
-                    LogUtil.getLog().d("taskRefreshMessage", bean.getMsg_id());
+//                    LogUtil.getLog().e("=sendRead=2=msg="+ bean.getMsg_id());
                     SocketData.send4Read(toUId, bean.getTimestamp());
                     msgDao.setRead(msgid);
                 }
@@ -3951,7 +3967,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public void accept(List<MsgAllBean> list) throws Exception {
                         msgListData = list;
-                        //单聊发送已读消息
 //                        onBusPicture();
                         int len = list.size();
                         if (len == 0 && lastPosition > len - 1) {//历史数据被清除了
@@ -3961,6 +3976,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                         notifyData2Bottom(isScrollBottom);
 //                        notifyData();
+
+                        //单聊发送已读消息
+                        sendRead();
                     }
                 });
 

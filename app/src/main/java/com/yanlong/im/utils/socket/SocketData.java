@@ -352,7 +352,7 @@ public class SocketData {
      * @time time > 0
      * */
     private static MsgAllBean send4Base(boolean isSave, boolean isSend, String msgId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
-        LogUtil.getLog().i(TAG, ">>>---发送到toid" + toId + "--gid" + toGid);
+        LogUtil.getLog().i(TAG, ">>>-=msg=--发送到toid=" + toId + "--gid" + toGid);
         MsgBean.UniversalMessage.Builder msg = toMsgBuilder(msgId, toId, toGid, time > 0 ? time : getFixTime(), type, value);
 
         if (isSave && msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {

@@ -35,6 +35,8 @@ import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventRefreshChat;
+import net.cb.cb.library.utils.GsonUtils;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -1595,6 +1597,7 @@ public class MsgDao {
             if (bean != null) {
                 ret = realm.copyFromRealm(bean);
             }
+//            LogUtil.getLog().e("==msg=ret=="+ GsonUtils.optObject(ret));
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();

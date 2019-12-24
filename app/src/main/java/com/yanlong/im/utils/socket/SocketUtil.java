@@ -460,6 +460,7 @@ public class SocketUtil {
      * @param msg
      */
     public void sendData4Msg(MsgBean.UniversalMessage.Builder msg) {
+//        LogUtil.getLog().e("=sendData4Msg=msg=="+msg);
         //添加到消息队中监听
         SendList.addSendList(msg.getRequestId(), msg);
         sendData(SocketPact.getPakage(SocketPact.DataType.PROTOBUF_MSG, msg.build().toByteArray()), msg);
