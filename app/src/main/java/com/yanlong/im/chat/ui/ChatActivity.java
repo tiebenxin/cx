@@ -326,6 +326,31 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        //激活当前会话
+        if (isGroup()) {
+            MessageManager.getInstance().setSessionGroup(toGid);
+        } else {
+            MessageManager.getInstance().setSessionSolo(toUId);
+        }
+        //刷新群资料
+        taskSessionInfo();
+        clickAble = true;
+        //更新阅后即焚状态
+        initSurvivaltimeState();
+        sendRead();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //取消激活会话
+        MessageManager.getInstance().setSessionNull();
+
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         AudioPlayManager.getInstance().stopPlay();
@@ -1099,6 +1124,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 btnEmj.setEnabled(false);
                 btnFunc.setEnabled(false);
 
+                MessageManager.setCanStamp(false);
             }
 
             @Override
@@ -1118,6 +1144,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                 //  alert.show();
 
+                MessageManager.setCanStamp(true);
             }
         }));
 
@@ -1828,31 +1855,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private boolean clickAble = false;
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //激活当前会话
-        if (isGroup()) {
-            MessageManager.getInstance().setSessionGroup(toGid);
-        } else {
-            MessageManager.getInstance().setSessionSolo(toUId);
-        }
-        //刷新群资料
-        taskSessionInfo();
-        clickAble = true;
-        //更新阅后即焚状态
-        initSurvivaltimeState();
-        sendRead();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        //取消激活会话
-        MessageManager.getInstance().setSessionNull();
-
-    }
 
     private UpFileAction upFileAction = new UpFileAction();
 
@@ -3481,10 +3483,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         int[] locationView = new int[2];
         v.getLocationOnScreen(locationView);
 
-        //移除父类才能添加
-        if(mRootView!=null){
-            ((ViewGroup)mRootView).removeAllViews();
-        }
+//        //移除父类才能添加
+//        if(mRootView!=null){
+//            ((ViewGroup)mRootView).removeAllViews();
+//        }
 
         mPopupWindow = new PopupWindow(mRootView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         // 设置弹窗外可点击

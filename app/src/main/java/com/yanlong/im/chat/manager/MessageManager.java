@@ -113,6 +113,8 @@ public class MessageManager {
     private long playTimeOld = 0;//当前声音播放时间
     private long playVBTimeOld = 0; //当前震动时间
 
+    private static Boolean CAN_STAMP = true;//true 允许戳一戳弹窗 ,false 不允许
+
 
     public static MessageManager getInstance() {
         if (INSTANCE == null) {
@@ -1222,6 +1224,12 @@ public class MessageManager {
         SESSION_GID = null;
     }
 
+    //允许戳一戳弹窗
+    public static void setCanStamp(Boolean canStamp) {
+        CAN_STAMP = canStamp;
+        LogUtil.getLog().e("==CAN_STAMP=="+CAN_STAMP);
+    }
+
     /***
      * 根据接收到的消息内容，更新用户头像昵称等资料
      * @param msg
@@ -1289,6 +1297,7 @@ public class MessageManager {
         //会话已经静音
         Session session = isGroup ? DaoUtil.findOne(Session.class, "gid", msg.getGid()) : DaoUtil.findOne(Session.class, "from_uid", msg.getFromUid());
         if (session != null && session.getIsMute() == 1) {
+
             return;
         }
         if (isGroup && SESSION_TYPE == 2 && SESSION_GID.equals(msg.getGid())) { //群
@@ -1301,7 +1310,7 @@ public class MessageManager {
             }
         } else if (SESSION_TYPE == 3) {//静音模式
 
-        } else if (msg.getMsgType() == MsgBean.MessageType.STAMP) {//戳一戳
+        } else if (msg.getMsgType() == MsgBean.MessageType.STAMP&&CAN_STAMP) {//戳一戳
             //不在聊天页 或 在聊天页，当前聊天人不是这个人
             AppConfig.getContext().startActivity(new Intent(AppConfig.getContext(), ChatActionActivity.class)
                     .putExtra(ChatActionActivity.AGM_DATA, msg.toByteArray())
