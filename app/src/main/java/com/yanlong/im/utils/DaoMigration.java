@@ -2,6 +2,8 @@ package com.yanlong.im.utils;
 
 import androidx.annotation.Nullable;
 
+import net.cb.cb.library.utils.LogUtil;
+
 import io.realm.DynamicRealm;
 import io.realm.FieldAttribute;
 import io.realm.RealmMigration;
@@ -9,9 +11,11 @@ import io.realm.RealmSchema;
 
 // 1.建bean  继承 RealmObject 2.DaoMigration 写schema 升级updateVxx  3. DaoUtil 升级dbVer
 public class DaoMigration implements RealmMigration {
+
     @Override
     public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
         // DynamicRealm exposes an editable schema
+        LogUtil.getLog().e(DaoMigration.class.getSimpleName(), "升级数据库--oldVer=" + oldVersion + "--newVer=" + newVersion);
         RealmSchema schema = realm.getSchema();
         if (newVersion > oldVersion) {
             if (oldVersion == 0) {//从0升到1
@@ -71,6 +75,11 @@ public class DaoMigration implements RealmMigration {
 
             if (newVersion > oldVersion && oldVersion == 13) {
                 updateV14(schema);
+                oldVersion++;
+            }
+
+            if (newVersion > oldVersion && oldVersion == 14) {
+                updateV15(schema);
                 oldVersion++;
             }
         }
@@ -253,10 +262,6 @@ public class DaoMigration implements RealmMigration {
         schema.get("RedEnvelopeMessage")
                 .addField("envelopStatus", int.class);
 
-//        schema.create("LabelItem")
-//                .addField("tradeId", long.class, FieldAttribute.PRIMARY_KEY)
-//                .addField("label", String.class)
-//                .addField("value", String.class);
 
         schema.create("BalanceAssistantMessage")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
@@ -280,6 +285,17 @@ public class DaoMigration implements RealmMigration {
                 .addRealmObjectField("balanceAssistantMessage", schema.get("BalanceAssistantMessage"))
                 .addRealmObjectField("locationMessage", schema.get("LocationMessage"));
 
+
+    }
+
+    //更新红包消息token
+    private void updateV15(RealmSchema schema) {
+        schema.get("RedEnvelopeMessage")
+                .addField("sign", String.class);
+
+        schema.get("TransferMessage")
+                .addField("sign", String.class)
+                .addField("opType", int.class);
 
     }
 

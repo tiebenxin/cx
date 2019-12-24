@@ -19,6 +19,7 @@ public class RedEnvelopeMessage extends RealmObject implements IMsgContent {
     private String actionId;
     private String accessToken;//查看系统红包token
     private int envelopStatus;// 红包状态：0 正常， 1 已领取  2 已领完  3 已过期
+    String sign;//签名信息
 
     public int getStyle() {
         return style;
@@ -99,5 +100,13 @@ public class RedEnvelopeMessage extends RealmObject implements IMsgContent {
 
     public void setEnvelopStatus(int envelopStatus) {
         this.envelopStatus = envelopStatus;
+    }
+
+    public String getSign() {
+        return sign;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign;
     }
 }

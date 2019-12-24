@@ -158,6 +158,7 @@ public class MessageManager {
      * @return 返回结果，不需要处理逻辑的消息，默认处理成功
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify, String requestId) {
+
         if(wrapMessage!=null&&wrapMessage.getMsgType()!=null&&wrapMessage.getMsgType()!=MsgBean.MessageType.ACTIVE_STAT_CHANGE){
             LogUtil.getLog().e("===收到=msg=" + GsonUtils.optObject(wrapMessage));
         }

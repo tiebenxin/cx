@@ -126,7 +126,7 @@ public class GroupHeadImageUtil {
         String safeKey = safeKeyGenerator.getSafeKey(originalKey);
         try {
             File storageDirectory = Environment.getExternalStorageDirectory();
-            String cachePath = storageDirectory + "/changliaoliao/cache/image/";
+            String cachePath = storageDirectory + "/changxin/cache/image/";
             DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath, DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, DiskCache.Factory.DEFAULT_DISK_CACHE_SIZE);
             DiskLruCache.Value value = diskLruCache.get(safeKey);
             if (value != null) {
@@ -153,7 +153,7 @@ public class GroupHeadImageUtil {
                 if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 //                //SD卡已装入
                     File storageDirectory = Environment.getExternalStorageDirectory();
-                    String cachePath = storageDirectory + "/changliaoliao/cache/image";
+                    String cachePath = storageDirectory + "/changxin/cache/image";
 //                DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
                     DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath), 1, 1, cacheSize);
 
