@@ -65,4 +65,22 @@ public class PayEnum {
         int RECEIVED_FINISHED = 3;//已领完,自己未领导
     }
 
+    //转账操作type
+    @IntDef({ETransferOpType.TRANS_SEND, ETransferOpType.TRANS_RECEIVE, ETransferOpType.TRANS_REJECT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ETransferOpType {
+        int TRANS_SEND = 0;//发起转账
+        int TRANS_RECEIVE = 1;//接收转账
+        int TRANS_REJECT = 2;//退还转账
+    }
+
+    //转账状态
+    @IntDef({ETransferStatus.NORMAL, ETransferStatus.RECEIVED, ETransferStatus.PAST})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ETransferStatus {
+        int NORMAL = 0;//正常
+        int RECEIVED = 1;//已经领取
+        int PAST = 2;//过期
+    }
+
 }

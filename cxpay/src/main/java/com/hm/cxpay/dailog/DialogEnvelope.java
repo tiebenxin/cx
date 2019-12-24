@@ -71,6 +71,7 @@ public class DialogEnvelope extends BaseDialog {
             playAnim();
             openRedEnvelope(tradeId, token);
         } else if (id == tvMore.getId()) {
+            dismiss();
             if (listener != null) {
                 listener.viewRecord(tradeId, token, style);
             }
@@ -198,18 +199,27 @@ public class DialogEnvelope extends BaseDialog {
         if (result == 1) {//抢到
             tvInfo.setText("已领取" + UIUtils.getYuan(bean.getAmt()) + "元");
             PayEnvironment.getInstance().notifyRefreshBalance();
+            tvMore.setEnabled(true);
+            tvMore.setText("查看红包详情");
+            tvMore.setVisibility(View.VISIBLE);
         } else if (result == 2) {//已领完
             if (style == 0) {
                 tvMore.setText("普通红包只有领取到的人才能看到");
                 tvMore.setEnabled(false);
                 tvInfo.setText("该红包已被领完");
             } else {
+                tvMore.setEnabled(true);
+                tvMore.setText("查看红包详情");
+                tvMore.setVisibility(View.VISIBLE);
                 tvInfo.setText("手慢了，红包已经派完");
             }
         } else if (result == 3) {//已过期
             tvInfo.setText("红包已过期");
         } else if (result == 4) {//已领过
             tvInfo.setText("已领取" + UIUtils.getYuan(bean.getAmt()) + "元");
+            tvMore.setEnabled(true);
+            tvMore.setText("查看红包详情");
+            tvMore.setVisibility(View.VISIBLE);
         }
     }
 

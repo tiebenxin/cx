@@ -31,6 +31,10 @@ public class DialogSelectPayStyle extends BaseDialog {
         super(context, theme);
     }
 
+    public DialogSelectPayStyle(Context context) {
+        this(context, R.style.MyDialogTheme);
+    }
+
     public void bindData(List<BankBean> list, BankBean selectBank) {
         if (adapterBankList != null && list != null) {
             if (selectBank != null) {

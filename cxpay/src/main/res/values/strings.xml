@@ -18,4 +18,9 @@
     <string name="group_max_amount_notice">每个红包平均金额不能高于200元</string>
     <string name="total_max_amount_notice">单次红包总金额不能超过5000元</string>
 
+    <string name="total_transfer_max_amount_notice">单次转账金额不能超过1000元</string>
+    <string name="transfer_min_amount_notice">单次转账金额不能低于0.01元</string>
+    <string name="transfer_fail_note">转账失败。如已扣款，将会在24小时内自动退回您的零钱账户</string>
+
+
 </resources>

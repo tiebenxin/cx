@@ -54,9 +54,11 @@ import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.hm.cxpay.bean.CxEnvelopeBean;
+import com.hm.cxpay.bean.CxTransferBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.dailog.DialogDefault;
 import com.hm.cxpay.dailog.DialogEnvelope;
+import com.hm.cxpay.eventbus.TransferSuccessEvent;
 import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
@@ -1069,12 +1071,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     mFinfo = userDao.findUserInfo(toUId);
                 }
                 String name = "";
+                String avatar = "";
                 if (mFinfo != null) {
                     name = mFinfo.getName();
+                    avatar = mFinfo.getHead();
                 }
-                Intent intent = TransferActivity.newIntent(ChatActivity.this, toUId, name);
-                startActivityForResult(intent, REQUEST_TRANSFER);
-
+                Intent intent = TransferActivity.newIntent(ChatActivity.this, toUId, name, avatar);
+                startActivity(intent);
             }
         });
 
@@ -1840,6 +1843,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         checkMoreVoice(event.getPosition(), (MsgAllBean) event.getBean());
     }
 
+    //转账成功。发送IM消息
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventTransferSuccess(TransferSuccessEvent event) {
+        CxTransferBean transferBean = event.getBean();
+        if (transferBean != null) {
+
+        }
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventCheckVoice(ActivityForwordEvent event) {
         PictureSelector.create(ChatActivity.this)
@@ -2202,11 +2214,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         editChat.addAtSpan(null, name, Long.valueOf(uid));
                     }
                     break;
-                case REQUEST_TRANSFER:
-                    //TODO:发送转账消息
-
-                    break;
-
             }
         } else if (resultCode == SelectUserActivity.RET_CODE_SELECTUSR) {//选择通讯录中的某个人
             if (!checkNetConnectStatus()) {
@@ -2976,10 +2983,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 int envelopeStatus = rb.getEnvelopStatus();
                                 boolean isNormalStyle = style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE;
                                 if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL) {
-                                    if (!TextUtils.isEmpty(rb.getAccessToken())) {
-                                        showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msgbean, reType);
+                                    if (msgbean.isMe() && isNormalStyle) {
+                                        getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType, isNormalStyle);
                                     } else {
-                                        grabRedEnvelope(msgbean, tradeId, reType);
+                                        if (!TextUtils.isEmpty(rb.getAccessToken())) {
+                                            showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msgbean, reType);
+                                        } else {
+                                            grabRedEnvelope(msgbean, tradeId, reType);
+                                        }
                                     }
                                 } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED) {
                                     getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType, isNormalStyle);
@@ -3222,6 +3233,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 }
             });
+
             itemLongClick(holder, msgbean, menus);
 
         }

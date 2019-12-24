@@ -149,7 +149,9 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
         ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
-                onBackPressed();
+                if (!isSending) {
+                    onBackPressed();
+                }
             }
 
             @Override
@@ -345,6 +347,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                             if (sendBean != null) {
                                 envelopeBean = convertToEnvelopeBean(sendBean, redPacketType, note, count);
                                 if (sendBean.getCode() == 1) {//code  1表示成功，2失败，99处理中
+                                    setSending(false);
                                     setResultOk();
                                     PayEnvironment.getInstance().notifyRefreshBalance();
                                 } else if (sendBean.getCode() == 99) {
