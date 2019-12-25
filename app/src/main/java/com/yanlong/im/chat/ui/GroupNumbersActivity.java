@@ -71,6 +71,22 @@ public class GroupNumbersActivity extends AppActivity {
     private PySortView viewType;
     private int isClickble = 0;
 
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_group_create);
+        findViews();
+        initEvent();
+        initData();
+    }
+
+    private void initData() {
+        taskListData();
+
+
+    }
+
     //自动寻找控件
     private void findViews() {
         headView = findViewById(R.id.headView);
@@ -124,20 +140,7 @@ public class GroupNumbersActivity extends AppActivity {
 
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group_create);
-        findViews();
-        initEvent();
-        initData();
-    }
 
-    private void initData() {
-        taskListData();
-
-
-    }
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {

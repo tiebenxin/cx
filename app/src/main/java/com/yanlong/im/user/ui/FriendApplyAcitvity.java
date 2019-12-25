@@ -15,7 +15,9 @@ import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ApplyBean;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import net.cb.cb.library.CoreEnum;
@@ -35,7 +37,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 /***
- * 新的朋友
+ * 新的申请
  */
 public class FriendApplyAcitvity extends AppActivity {
     private net.cb.cb.library.view.HeadView headView;
@@ -104,6 +106,12 @@ public class FriendApplyAcitvity extends AppActivity {
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
 
+        //自动寻找ViewHold
+        @Override
+        public RCViewHolder onCreateViewHolder(ViewGroup view, int i) {
+            RCViewHolder holder = new RCViewHolder(inflater.inflate(R.layout.item_friend_apply, view, false));
+            return holder;
+        }
 
         @Override
         public int getItemCount() {
@@ -200,13 +208,6 @@ public class FriendApplyAcitvity extends AppActivity {
         }
 
 
-        //自动寻找ViewHold
-        @Override
-        public RCViewHolder onCreateViewHolder(ViewGroup view, int i) {
-            RCViewHolder holder = new RCViewHolder(inflater.inflate(R.layout.item_friend_apply, view, false));
-            return holder;
-        }
-
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
@@ -269,10 +270,23 @@ public class FriendApplyAcitvity extends AppActivity {
                             bean.setStat(2);
                             msgDao.applyGroup(bean);
                             initData();
+
+                            groupInfo(bean.getGid());
                         }
                         ToastUtil.show(getContext(), response.body().getMsg());
                     }
                 });
+    }
+
+    private void groupInfo(String gid){
+        msgAction.groupInfo(gid, new CallBack<ReturnBean<Group>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                if (response.body().isOk()) {
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+                }
+            }
+        });
     }
 
 
