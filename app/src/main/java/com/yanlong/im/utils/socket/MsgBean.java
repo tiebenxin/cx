@@ -15809,8 +15809,8 @@ public final class MsgBean {
 
   }
 
-  public interface GroupMemberOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:GroupMember)
+  public interface GroupNoticeMessageOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:GroupNoticeMessage)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -15863,18 +15863,18 @@ public final class MsgBean {
    * 群通知消息
    * </pre>
    *
-   * Protobuf type {@code GroupMember}
+   * Protobuf type {@code GroupNoticeMessage}
    */
-  public  static final class GroupMember extends
+  public  static final class GroupNoticeMessage extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:GroupMember)
-      GroupMemberOrBuilder {
+      // @@protoc_insertion_point(message_implements:GroupNoticeMessage)
+      GroupNoticeMessageOrBuilder {
   private static final long serialVersionUID = 0L;
-    // Use GroupMember.newBuilder() to construct.
-    private GroupMember(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+    // Use GroupNoticeMessage.newBuilder() to construct.
+    private GroupNoticeMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
-    private GroupMember() {
+    private GroupNoticeMessage() {
       uid_ = 0L;
       avatar_ = "";
       nickname_ = "";
@@ -15885,7 +15885,7 @@ public final class MsgBean {
     getUnknownFields() {
       return this.unknownFields;
     }
-    private GroupMember(
+    private GroupNoticeMessage(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -15942,14 +15942,14 @@ public final class MsgBean {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.yanlong.im.utils.socket.MsgBean.internal_static_GroupMember_descriptor;
+      return com.yanlong.im.utils.socket.MsgBean.internal_static_GroupNoticeMessage_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.yanlong.im.utils.socket.MsgBean.internal_static_GroupMember_fieldAccessorTable
+      return com.yanlong.im.utils.socket.MsgBean.internal_static_GroupNoticeMessage_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              com.yanlong.im.utils.socket.MsgBean.GroupMember.class, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder.class);
+              com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.class, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder.class);
     }
 
     public static final int UID_FIELD_NUMBER = 1;
@@ -16098,10 +16098,10 @@ public final class MsgBean {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof com.yanlong.im.utils.socket.MsgBean.GroupMember)) {
+      if (!(obj instanceof com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage)) {
         return super.equals(obj);
       }
-      com.yanlong.im.utils.socket.MsgBean.GroupMember other = (com.yanlong.im.utils.socket.MsgBean.GroupMember) obj;
+      com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage other = (com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage) obj;
 
       boolean result = true;
       result = result && (getUid()
@@ -16133,69 +16133,69 @@ public final class MsgBean {
       return hash;
     }
 
-    public static com.yanlong.im.utils.socket.MsgBean.GroupMember parseFrom(
+    public static com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupMember parseFrom(
+    public static com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupMember parseFrom(
+    public static com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupMember parseFrom(
+    public static com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupMember parseFrom(byte[] data)
+    public static com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupMember parseFrom(
+    public static com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupMember parseFrom(java.io.InputStream input)
+    public static com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupMember parseFrom(
+    public static com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupMember parseDelimitedFrom(java.io.InputStream input)
+    public static com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupMember parseDelimitedFrom(
+    public static com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupMember parseFrom(
+    public static com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupMember parseFrom(
+    public static com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -16207,7 +16207,7 @@ public final class MsgBean {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(com.yanlong.im.utils.socket.MsgBean.GroupMember prototype) {
+    public static Builder newBuilder(com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() {
@@ -16226,25 +16226,25 @@ public final class MsgBean {
      * 群通知消息
      * </pre>
      *
-     * Protobuf type {@code GroupMember}
+     * Protobuf type {@code GroupNoticeMessage}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:GroupMember)
-        com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder {
+        // @@protoc_insertion_point(builder_implements:GroupNoticeMessage)
+        com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.yanlong.im.utils.socket.MsgBean.internal_static_GroupMember_descriptor;
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_GroupNoticeMessage_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.yanlong.im.utils.socket.MsgBean.internal_static_GroupMember_fieldAccessorTable
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_GroupNoticeMessage_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                com.yanlong.im.utils.socket.MsgBean.GroupMember.class, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder.class);
+                com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.class, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder.class);
       }
 
-      // Construct using com.yanlong.im.utils.socket.MsgBean.GroupMember.newBuilder()
+      // Construct using com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -16272,23 +16272,23 @@ public final class MsgBean {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.yanlong.im.utils.socket.MsgBean.internal_static_GroupMember_descriptor;
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_GroupNoticeMessage_descriptor;
       }
 
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember getDefaultInstanceForType() {
-        return com.yanlong.im.utils.socket.MsgBean.GroupMember.getDefaultInstance();
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getDefaultInstanceForType() {
+        return com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.getDefaultInstance();
       }
 
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember build() {
-        com.yanlong.im.utils.socket.MsgBean.GroupMember result = buildPartial();
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage build() {
+        com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember buildPartial() {
-        com.yanlong.im.utils.socket.MsgBean.GroupMember result = new com.yanlong.im.utils.socket.MsgBean.GroupMember(this);
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage buildPartial() {
+        com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage result = new com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage(this);
         result.uid_ = uid_;
         result.avatar_ = avatar_;
         result.nickname_ = nickname_;
@@ -16323,16 +16323,16 @@ public final class MsgBean {
         return (Builder) super.addRepeatedField(field, value);
       }
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.yanlong.im.utils.socket.MsgBean.GroupMember) {
-          return mergeFrom((com.yanlong.im.utils.socket.MsgBean.GroupMember)other);
+        if (other instanceof com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage) {
+          return mergeFrom((com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(com.yanlong.im.utils.socket.MsgBean.GroupMember other) {
-        if (other == com.yanlong.im.utils.socket.MsgBean.GroupMember.getDefaultInstance()) return this;
+      public Builder mergeFrom(com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage other) {
+        if (other == com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.getDefaultInstance()) return this;
         if (other.getUid() != 0L) {
           setUid(other.getUid());
         }
@@ -16357,11 +16357,11 @@ public final class MsgBean {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        com.yanlong.im.utils.socket.MsgBean.GroupMember parsedMessage = null;
+        com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (com.yanlong.im.utils.socket.MsgBean.GroupMember) e.getUnfinishedMessage();
+          parsedMessage = (com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -16597,39 +16597,39 @@ public final class MsgBean {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:GroupMember)
+      // @@protoc_insertion_point(builder_scope:GroupNoticeMessage)
     }
 
-    // @@protoc_insertion_point(class_scope:GroupMember)
-    private static final com.yanlong.im.utils.socket.MsgBean.GroupMember DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:GroupNoticeMessage)
+    private static final com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new com.yanlong.im.utils.socket.MsgBean.GroupMember();
+      DEFAULT_INSTANCE = new com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage();
     }
 
-    public static com.yanlong.im.utils.socket.MsgBean.GroupMember getDefaultInstance() {
+    public static com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<GroupMember>
-        PARSER = new com.google.protobuf.AbstractParser<GroupMember>() {
-      public GroupMember parsePartialFrom(
+    private static final com.google.protobuf.Parser<GroupNoticeMessage>
+        PARSER = new com.google.protobuf.AbstractParser<GroupNoticeMessage>() {
+      public GroupNoticeMessage parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-        return new GroupMember(input, extensionRegistry);
+        return new GroupNoticeMessage(input, extensionRegistry);
       }
     };
 
-    public static com.google.protobuf.Parser<GroupMember> parser() {
+    public static com.google.protobuf.Parser<GroupNoticeMessage> parser() {
       return PARSER;
     }
 
     @java.lang.Override
-    public com.google.protobuf.Parser<GroupMember> getParserForType() {
+    public com.google.protobuf.Parser<GroupNoticeMessage> getParserForType() {
       return PARSER;
     }
 
-    public com.yanlong.im.utils.socket.MsgBean.GroupMember getDefaultInstanceForType() {
+    public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -16640,17 +16640,17 @@ public final class MsgBean {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>.GroupMember notice_message = 1;</code>
+     * <code>.GroupNoticeMessage notice_message = 1;</code>
      */
     boolean hasNoticeMessage();
     /**
-     * <code>.GroupMember notice_message = 1;</code>
+     * <code>.GroupNoticeMessage notice_message = 1;</code>
      */
-    com.yanlong.im.utils.socket.MsgBean.GroupMember getNoticeMessage();
+    com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getNoticeMessage();
     /**
-     * <code>.GroupMember notice_message = 1;</code>
+     * <code>.GroupNoticeMessage notice_message = 1;</code>
      */
-    com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder getNoticeMessageOrBuilder();
+    com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getNoticeMessageOrBuilder();
   }
   /**
    * <pre>
@@ -16703,11 +16703,11 @@ public final class MsgBean {
               break;
             }
             case 10: {
-              com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder subBuilder = null;
+              com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder subBuilder = null;
               if (noticeMessage_ != null) {
                 subBuilder = noticeMessage_.toBuilder();
               }
-              noticeMessage_ = input.readMessage(com.yanlong.im.utils.socket.MsgBean.GroupMember.parser(), extensionRegistry);
+              noticeMessage_ = input.readMessage(com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.parser(), extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(noticeMessage_);
                 noticeMessage_ = subBuilder.buildPartial();
@@ -16740,23 +16740,23 @@ public final class MsgBean {
     }
 
     public static final int NOTICE_MESSAGE_FIELD_NUMBER = 1;
-    private com.yanlong.im.utils.socket.MsgBean.GroupMember noticeMessage_;
+    private com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage noticeMessage_;
     /**
-     * <code>.GroupMember notice_message = 1;</code>
+     * <code>.GroupNoticeMessage notice_message = 1;</code>
      */
     public boolean hasNoticeMessage() {
       return noticeMessage_ != null;
     }
     /**
-     * <code>.GroupMember notice_message = 1;</code>
+     * <code>.GroupNoticeMessage notice_message = 1;</code>
      */
-    public com.yanlong.im.utils.socket.MsgBean.GroupMember getNoticeMessage() {
-      return noticeMessage_ == null ? com.yanlong.im.utils.socket.MsgBean.GroupMember.getDefaultInstance() : noticeMessage_;
+    public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getNoticeMessage() {
+      return noticeMessage_ == null ? com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.getDefaultInstance() : noticeMessage_;
     }
     /**
-     * <code>.GroupMember notice_message = 1;</code>
+     * <code>.GroupNoticeMessage notice_message = 1;</code>
      */
-    public com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder getNoticeMessageOrBuilder() {
+    public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getNoticeMessageOrBuilder() {
       return getNoticeMessage();
     }
 
@@ -17060,29 +17060,29 @@ public final class MsgBean {
         return this;
       }
 
-      private com.yanlong.im.utils.socket.MsgBean.GroupMember noticeMessage_ = null;
+      private com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage noticeMessage_ = null;
       private com.google.protobuf.SingleFieldBuilderV3<
-          com.yanlong.im.utils.socket.MsgBean.GroupMember, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder, com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> noticeMessageBuilder_;
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> noticeMessageBuilder_;
       /**
-       * <code>.GroupMember notice_message = 1;</code>
+       * <code>.GroupNoticeMessage notice_message = 1;</code>
        */
       public boolean hasNoticeMessage() {
         return noticeMessageBuilder_ != null || noticeMessage_ != null;
       }
       /**
-       * <code>.GroupMember notice_message = 1;</code>
+       * <code>.GroupNoticeMessage notice_message = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember getNoticeMessage() {
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getNoticeMessage() {
         if (noticeMessageBuilder_ == null) {
-          return noticeMessage_ == null ? com.yanlong.im.utils.socket.MsgBean.GroupMember.getDefaultInstance() : noticeMessage_;
+          return noticeMessage_ == null ? com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.getDefaultInstance() : noticeMessage_;
         } else {
           return noticeMessageBuilder_.getMessage();
         }
       }
       /**
-       * <code>.GroupMember notice_message = 1;</code>
+       * <code>.GroupNoticeMessage notice_message = 1;</code>
        */
-      public Builder setNoticeMessage(com.yanlong.im.utils.socket.MsgBean.GroupMember value) {
+      public Builder setNoticeMessage(com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage value) {
         if (noticeMessageBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -17096,10 +17096,10 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>.GroupMember notice_message = 1;</code>
+       * <code>.GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder setNoticeMessage(
-          com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder builderForValue) {
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder builderForValue) {
         if (noticeMessageBuilder_ == null) {
           noticeMessage_ = builderForValue.build();
           onChanged();
@@ -17110,13 +17110,13 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>.GroupMember notice_message = 1;</code>
+       * <code>.GroupNoticeMessage notice_message = 1;</code>
        */
-      public Builder mergeNoticeMessage(com.yanlong.im.utils.socket.MsgBean.GroupMember value) {
+      public Builder mergeNoticeMessage(com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage value) {
         if (noticeMessageBuilder_ == null) {
           if (noticeMessage_ != null) {
             noticeMessage_ =
-              com.yanlong.im.utils.socket.MsgBean.GroupMember.newBuilder(noticeMessage_).mergeFrom(value).buildPartial();
+              com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.newBuilder(noticeMessage_).mergeFrom(value).buildPartial();
           } else {
             noticeMessage_ = value;
           }
@@ -17128,7 +17128,7 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>.GroupMember notice_message = 1;</code>
+       * <code>.GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder clearNoticeMessage() {
         if (noticeMessageBuilder_ == null) {
@@ -17142,33 +17142,33 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>.GroupMember notice_message = 1;</code>
+       * <code>.GroupNoticeMessage notice_message = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder getNoticeMessageBuilder() {
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder getNoticeMessageBuilder() {
         
         onChanged();
         return getNoticeMessageFieldBuilder().getBuilder();
       }
       /**
-       * <code>.GroupMember notice_message = 1;</code>
+       * <code>.GroupNoticeMessage notice_message = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder getNoticeMessageOrBuilder() {
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getNoticeMessageOrBuilder() {
         if (noticeMessageBuilder_ != null) {
           return noticeMessageBuilder_.getMessageOrBuilder();
         } else {
           return noticeMessage_ == null ?
-              com.yanlong.im.utils.socket.MsgBean.GroupMember.getDefaultInstance() : noticeMessage_;
+              com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.getDefaultInstance() : noticeMessage_;
         }
       }
       /**
-       * <code>.GroupMember notice_message = 1;</code>
+       * <code>.GroupNoticeMessage notice_message = 1;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
-          com.yanlong.im.utils.socket.MsgBean.GroupMember, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder, com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> 
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
           getNoticeMessageFieldBuilder() {
         if (noticeMessageBuilder_ == null) {
           noticeMessageBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-              com.yanlong.im.utils.socket.MsgBean.GroupMember, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder, com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder>(
+              com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder>(
                   getNoticeMessage(),
                   getParentForChildren(),
                   isClean());
@@ -17230,27 +17230,27 @@ public final class MsgBean {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
-    java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> 
+    java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> 
         getNoticeMessageList();
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
-    com.yanlong.im.utils.socket.MsgBean.GroupMember getNoticeMessage(int index);
+    com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getNoticeMessage(int index);
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
     int getNoticeMessageCount();
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
-    java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> 
+    java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
         getNoticeMessageOrBuilderList();
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
-    com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder getNoticeMessageOrBuilder(
+    com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getNoticeMessageOrBuilder(
         int index);
 
     /**
@@ -17333,11 +17333,11 @@ public final class MsgBean {
             }
             case 10: {
               if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                noticeMessage_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupMember>();
+                noticeMessage_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage>();
                 mutable_bitField0_ |= 0x00000001;
               }
               noticeMessage_.add(
-                  input.readMessage(com.yanlong.im.utils.socket.MsgBean.GroupMember.parser(), extensionRegistry));
+                  input.readMessage(com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.parser(), extensionRegistry));
               break;
             }
             case 16: {
@@ -17386,36 +17386,36 @@ public final class MsgBean {
 
     private int bitField0_;
     public static final int NOTICE_MESSAGE_FIELD_NUMBER = 1;
-    private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> noticeMessage_;
+    private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> noticeMessage_;
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
-    public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> getNoticeMessageList() {
+    public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> getNoticeMessageList() {
       return noticeMessage_;
     }
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
-    public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> 
+    public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
         getNoticeMessageOrBuilderList() {
       return noticeMessage_;
     }
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
     public int getNoticeMessageCount() {
       return noticeMessage_.size();
     }
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
-    public com.yanlong.im.utils.socket.MsgBean.GroupMember getNoticeMessage(int index) {
+    public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getNoticeMessage(int index) {
       return noticeMessage_.get(index);
     }
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
-    public com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder getNoticeMessageOrBuilder(
+    public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getNoticeMessageOrBuilder(
         int index) {
       return noticeMessage_.get(index);
     }
@@ -17859,22 +17859,22 @@ public final class MsgBean {
       }
       private int bitField0_;
 
-      private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> noticeMessage_ =
+      private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> noticeMessage_ =
         java.util.Collections.emptyList();
       private void ensureNoticeMessageIsMutable() {
         if (!((bitField0_ & 0x00000001) == 0x00000001)) {
-          noticeMessage_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupMember>(noticeMessage_);
+          noticeMessage_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage>(noticeMessage_);
           bitField0_ |= 0x00000001;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          com.yanlong.im.utils.socket.MsgBean.GroupMember, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder, com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> noticeMessageBuilder_;
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> noticeMessageBuilder_;
 
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> getNoticeMessageList() {
+      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> getNoticeMessageList() {
         if (noticeMessageBuilder_ == null) {
           return java.util.Collections.unmodifiableList(noticeMessage_);
         } else {
@@ -17882,7 +17882,7 @@ public final class MsgBean {
         }
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public int getNoticeMessageCount() {
         if (noticeMessageBuilder_ == null) {
@@ -17892,9 +17892,9 @@ public final class MsgBean {
         }
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember getNoticeMessage(int index) {
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getNoticeMessage(int index) {
         if (noticeMessageBuilder_ == null) {
           return noticeMessage_.get(index);
         } else {
@@ -17902,10 +17902,10 @@ public final class MsgBean {
         }
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder setNoticeMessage(
-          int index, com.yanlong.im.utils.socket.MsgBean.GroupMember value) {
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage value) {
         if (noticeMessageBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -17919,10 +17919,10 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder setNoticeMessage(
-          int index, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder builderForValue) {
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder builderForValue) {
         if (noticeMessageBuilder_ == null) {
           ensureNoticeMessageIsMutable();
           noticeMessage_.set(index, builderForValue.build());
@@ -17933,9 +17933,9 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public Builder addNoticeMessage(com.yanlong.im.utils.socket.MsgBean.GroupMember value) {
+      public Builder addNoticeMessage(com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage value) {
         if (noticeMessageBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -17949,10 +17949,10 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder addNoticeMessage(
-          int index, com.yanlong.im.utils.socket.MsgBean.GroupMember value) {
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage value) {
         if (noticeMessageBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -17966,10 +17966,10 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder addNoticeMessage(
-          com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder builderForValue) {
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder builderForValue) {
         if (noticeMessageBuilder_ == null) {
           ensureNoticeMessageIsMutable();
           noticeMessage_.add(builderForValue.build());
@@ -17980,10 +17980,10 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder addNoticeMessage(
-          int index, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder builderForValue) {
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder builderForValue) {
         if (noticeMessageBuilder_ == null) {
           ensureNoticeMessageIsMutable();
           noticeMessage_.add(index, builderForValue.build());
@@ -17994,10 +17994,10 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder addAllNoticeMessage(
-          java.lang.Iterable<? extends com.yanlong.im.utils.socket.MsgBean.GroupMember> values) {
+          java.lang.Iterable<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> values) {
         if (noticeMessageBuilder_ == null) {
           ensureNoticeMessageIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
@@ -18009,7 +18009,7 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder clearNoticeMessage() {
         if (noticeMessageBuilder_ == null) {
@@ -18022,7 +18022,7 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder removeNoticeMessage(int index) {
         if (noticeMessageBuilder_ == null) {
@@ -18035,16 +18035,16 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder getNoticeMessageBuilder(
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder getNoticeMessageBuilder(
           int index) {
         return getNoticeMessageFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder getNoticeMessageOrBuilder(
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getNoticeMessageOrBuilder(
           int index) {
         if (noticeMessageBuilder_ == null) {
           return noticeMessage_.get(index);  } else {
@@ -18052,9 +18052,9 @@ public final class MsgBean {
         }
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> 
+      public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
            getNoticeMessageOrBuilderList() {
         if (noticeMessageBuilder_ != null) {
           return noticeMessageBuilder_.getMessageOrBuilderList();
@@ -18063,33 +18063,33 @@ public final class MsgBean {
         }
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder addNoticeMessageBuilder() {
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder addNoticeMessageBuilder() {
         return getNoticeMessageFieldBuilder().addBuilder(
-            com.yanlong.im.utils.socket.MsgBean.GroupMember.getDefaultInstance());
+            com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.getDefaultInstance());
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder addNoticeMessageBuilder(
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder addNoticeMessageBuilder(
           int index) {
         return getNoticeMessageFieldBuilder().addBuilder(
-            index, com.yanlong.im.utils.socket.MsgBean.GroupMember.getDefaultInstance());
+            index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.getDefaultInstance());
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder> 
+      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder> 
            getNoticeMessageBuilderList() {
         return getNoticeMessageFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          com.yanlong.im.utils.socket.MsgBean.GroupMember, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder, com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> 
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
           getNoticeMessageFieldBuilder() {
         if (noticeMessageBuilder_ == null) {
           noticeMessageBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
-              com.yanlong.im.utils.socket.MsgBean.GroupMember, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder, com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder>(
+              com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder>(
                   noticeMessage_,
                   ((bitField0_ & 0x00000001) == 0x00000001),
                   getParentForChildren(),
@@ -18291,27 +18291,27 @@ public final class MsgBean {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
-    java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> 
+    java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> 
         getNoticeMessageList();
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
-    com.yanlong.im.utils.socket.MsgBean.GroupMember getNoticeMessage(int index);
+    com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getNoticeMessage(int index);
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
     int getNoticeMessageCount();
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
-    java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> 
+    java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
         getNoticeMessageOrBuilderList();
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
-    com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder getNoticeMessageOrBuilder(
+    com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getNoticeMessageOrBuilder(
         int index);
 
     /**
@@ -18394,11 +18394,11 @@ public final class MsgBean {
             }
             case 10: {
               if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                noticeMessage_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupMember>();
+                noticeMessage_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage>();
                 mutable_bitField0_ |= 0x00000001;
               }
               noticeMessage_.add(
-                  input.readMessage(com.yanlong.im.utils.socket.MsgBean.GroupMember.parser(), extensionRegistry));
+                  input.readMessage(com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.parser(), extensionRegistry));
               break;
             }
             case 16: {
@@ -18447,36 +18447,36 @@ public final class MsgBean {
 
     private int bitField0_;
     public static final int NOTICE_MESSAGE_FIELD_NUMBER = 1;
-    private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> noticeMessage_;
+    private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> noticeMessage_;
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
-    public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> getNoticeMessageList() {
+    public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> getNoticeMessageList() {
       return noticeMessage_;
     }
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
-    public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> 
+    public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
         getNoticeMessageOrBuilderList() {
       return noticeMessage_;
     }
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
     public int getNoticeMessageCount() {
       return noticeMessage_.size();
     }
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
-    public com.yanlong.im.utils.socket.MsgBean.GroupMember getNoticeMessage(int index) {
+    public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getNoticeMessage(int index) {
       return noticeMessage_.get(index);
     }
     /**
-     * <code>repeated .GroupMember notice_message = 1;</code>
+     * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
      */
-    public com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder getNoticeMessageOrBuilder(
+    public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getNoticeMessageOrBuilder(
         int index) {
       return noticeMessage_.get(index);
     }
@@ -18920,22 +18920,22 @@ public final class MsgBean {
       }
       private int bitField0_;
 
-      private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> noticeMessage_ =
+      private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> noticeMessage_ =
         java.util.Collections.emptyList();
       private void ensureNoticeMessageIsMutable() {
         if (!((bitField0_ & 0x00000001) == 0x00000001)) {
-          noticeMessage_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupMember>(noticeMessage_);
+          noticeMessage_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage>(noticeMessage_);
           bitField0_ |= 0x00000001;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          com.yanlong.im.utils.socket.MsgBean.GroupMember, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder, com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> noticeMessageBuilder_;
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> noticeMessageBuilder_;
 
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> getNoticeMessageList() {
+      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> getNoticeMessageList() {
         if (noticeMessageBuilder_ == null) {
           return java.util.Collections.unmodifiableList(noticeMessage_);
         } else {
@@ -18943,7 +18943,7 @@ public final class MsgBean {
         }
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public int getNoticeMessageCount() {
         if (noticeMessageBuilder_ == null) {
@@ -18953,9 +18953,9 @@ public final class MsgBean {
         }
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember getNoticeMessage(int index) {
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getNoticeMessage(int index) {
         if (noticeMessageBuilder_ == null) {
           return noticeMessage_.get(index);
         } else {
@@ -18963,10 +18963,10 @@ public final class MsgBean {
         }
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder setNoticeMessage(
-          int index, com.yanlong.im.utils.socket.MsgBean.GroupMember value) {
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage value) {
         if (noticeMessageBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -18980,10 +18980,10 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder setNoticeMessage(
-          int index, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder builderForValue) {
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder builderForValue) {
         if (noticeMessageBuilder_ == null) {
           ensureNoticeMessageIsMutable();
           noticeMessage_.set(index, builderForValue.build());
@@ -18994,9 +18994,9 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public Builder addNoticeMessage(com.yanlong.im.utils.socket.MsgBean.GroupMember value) {
+      public Builder addNoticeMessage(com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage value) {
         if (noticeMessageBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -19010,10 +19010,10 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder addNoticeMessage(
-          int index, com.yanlong.im.utils.socket.MsgBean.GroupMember value) {
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage value) {
         if (noticeMessageBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -19027,10 +19027,10 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder addNoticeMessage(
-          com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder builderForValue) {
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder builderForValue) {
         if (noticeMessageBuilder_ == null) {
           ensureNoticeMessageIsMutable();
           noticeMessage_.add(builderForValue.build());
@@ -19041,10 +19041,10 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder addNoticeMessage(
-          int index, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder builderForValue) {
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder builderForValue) {
         if (noticeMessageBuilder_ == null) {
           ensureNoticeMessageIsMutable();
           noticeMessage_.add(index, builderForValue.build());
@@ -19055,10 +19055,10 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder addAllNoticeMessage(
-          java.lang.Iterable<? extends com.yanlong.im.utils.socket.MsgBean.GroupMember> values) {
+          java.lang.Iterable<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> values) {
         if (noticeMessageBuilder_ == null) {
           ensureNoticeMessageIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
@@ -19070,7 +19070,7 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder clearNoticeMessage() {
         if (noticeMessageBuilder_ == null) {
@@ -19083,7 +19083,7 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
       public Builder removeNoticeMessage(int index) {
         if (noticeMessageBuilder_ == null) {
@@ -19096,16 +19096,16 @@ public final class MsgBean {
         return this;
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder getNoticeMessageBuilder(
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder getNoticeMessageBuilder(
           int index) {
         return getNoticeMessageFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder getNoticeMessageOrBuilder(
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getNoticeMessageOrBuilder(
           int index) {
         if (noticeMessageBuilder_ == null) {
           return noticeMessage_.get(index);  } else {
@@ -19113,9 +19113,9 @@ public final class MsgBean {
         }
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> 
+      public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
            getNoticeMessageOrBuilderList() {
         if (noticeMessageBuilder_ != null) {
           return noticeMessageBuilder_.getMessageOrBuilderList();
@@ -19124,33 +19124,33 @@ public final class MsgBean {
         }
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder addNoticeMessageBuilder() {
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder addNoticeMessageBuilder() {
         return getNoticeMessageFieldBuilder().addBuilder(
-            com.yanlong.im.utils.socket.MsgBean.GroupMember.getDefaultInstance());
+            com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.getDefaultInstance());
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder addNoticeMessageBuilder(
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder addNoticeMessageBuilder(
           int index) {
         return getNoticeMessageFieldBuilder().addBuilder(
-            index, com.yanlong.im.utils.socket.MsgBean.GroupMember.getDefaultInstance());
+            index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.getDefaultInstance());
       }
       /**
-       * <code>repeated .GroupMember notice_message = 1;</code>
+       * <code>repeated .GroupNoticeMessage notice_message = 1;</code>
        */
-      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder> 
+      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder> 
            getNoticeMessageBuilderList() {
         return getNoticeMessageFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          com.yanlong.im.utils.socket.MsgBean.GroupMember, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder, com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> 
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
           getNoticeMessageFieldBuilder() {
         if (noticeMessageBuilder_ == null) {
           noticeMessageBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
-              com.yanlong.im.utils.socket.MsgBean.GroupMember, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder, com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder>(
+              com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder>(
                   noticeMessage_,
                   ((bitField0_ & 0x00000001) == 0x00000001),
                   getParentForChildren(),
@@ -21546,24 +21546,24 @@ public final class MsgBean {
      * 变更的群成员集合
      * </pre>
      *
-     * <code>repeated .GroupMember members = 1;</code>
+     * <code>repeated .GroupNoticeMessage members = 1;</code>
      */
-    java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> 
+    java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> 
         getMembersList();
     /**
      * <pre>
      * 变更的群成员集合
      * </pre>
      *
-     * <code>repeated .GroupMember members = 1;</code>
+     * <code>repeated .GroupNoticeMessage members = 1;</code>
      */
-    com.yanlong.im.utils.socket.MsgBean.GroupMember getMembers(int index);
+    com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getMembers(int index);
     /**
      * <pre>
      * 变更的群成员集合
      * </pre>
      *
-     * <code>repeated .GroupMember members = 1;</code>
+     * <code>repeated .GroupNoticeMessage members = 1;</code>
      */
     int getMembersCount();
     /**
@@ -21571,18 +21571,18 @@ public final class MsgBean {
      * 变更的群成员集合
      * </pre>
      *
-     * <code>repeated .GroupMember members = 1;</code>
+     * <code>repeated .GroupNoticeMessage members = 1;</code>
      */
-    java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> 
+    java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
         getMembersOrBuilderList();
     /**
      * <pre>
      * 变更的群成员集合
      * </pre>
      *
-     * <code>repeated .GroupMember members = 1;</code>
+     * <code>repeated .GroupNoticeMessage members = 1;</code>
      */
-    com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder getMembersOrBuilder(
+    com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getMembersOrBuilder(
         int index);
 
     /**
@@ -21656,11 +21656,11 @@ public final class MsgBean {
             }
             case 10: {
               if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                members_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupMember>();
+                members_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage>();
                 mutable_bitField0_ |= 0x00000001;
               }
               members_.add(
-                  input.readMessage(com.yanlong.im.utils.socket.MsgBean.GroupMember.parser(), extensionRegistry));
+                  input.readMessage(com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.parser(), extensionRegistry));
               break;
             }
             case 16: {
@@ -21812,15 +21812,15 @@ public final class MsgBean {
 
     private int bitField0_;
     public static final int MEMBERS_FIELD_NUMBER = 1;
-    private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> members_;
+    private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> members_;
     /**
      * <pre>
      * 变更的群成员集合
      * </pre>
      *
-     * <code>repeated .GroupMember members = 1;</code>
+     * <code>repeated .GroupNoticeMessage members = 1;</code>
      */
-    public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> getMembersList() {
+    public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> getMembersList() {
       return members_;
     }
     /**
@@ -21828,9 +21828,9 @@ public final class MsgBean {
      * 变更的群成员集合
      * </pre>
      *
-     * <code>repeated .GroupMember members = 1;</code>
+     * <code>repeated .GroupNoticeMessage members = 1;</code>
      */
-    public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> 
+    public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
         getMembersOrBuilderList() {
       return members_;
     }
@@ -21839,7 +21839,7 @@ public final class MsgBean {
      * 变更的群成员集合
      * </pre>
      *
-     * <code>repeated .GroupMember members = 1;</code>
+     * <code>repeated .GroupNoticeMessage members = 1;</code>
      */
     public int getMembersCount() {
       return members_.size();
@@ -21849,9 +21849,9 @@ public final class MsgBean {
      * 变更的群成员集合
      * </pre>
      *
-     * <code>repeated .GroupMember members = 1;</code>
+     * <code>repeated .GroupNoticeMessage members = 1;</code>
      */
-    public com.yanlong.im.utils.socket.MsgBean.GroupMember getMembers(int index) {
+    public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getMembers(int index) {
       return members_.get(index);
     }
     /**
@@ -21859,9 +21859,9 @@ public final class MsgBean {
      * 变更的群成员集合
      * </pre>
      *
-     * <code>repeated .GroupMember members = 1;</code>
+     * <code>repeated .GroupNoticeMessage members = 1;</code>
      */
-    public com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder getMembersOrBuilder(
+    public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getMembersOrBuilder(
         int index) {
       return members_.get(index);
     }
@@ -22235,26 +22235,26 @@ public final class MsgBean {
       }
       private int bitField0_;
 
-      private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> members_ =
+      private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> members_ =
         java.util.Collections.emptyList();
       private void ensureMembersIsMutable() {
         if (!((bitField0_ & 0x00000001) == 0x00000001)) {
-          members_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupMember>(members_);
+          members_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage>(members_);
           bitField0_ |= 0x00000001;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          com.yanlong.im.utils.socket.MsgBean.GroupMember, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder, com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> membersBuilder_;
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> membersBuilder_;
 
       /**
        * <pre>
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
-      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> getMembersList() {
+      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> getMembersList() {
         if (membersBuilder_ == null) {
           return java.util.Collections.unmodifiableList(members_);
         } else {
@@ -22266,7 +22266,7 @@ public final class MsgBean {
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
       public int getMembersCount() {
         if (membersBuilder_ == null) {
@@ -22280,9 +22280,9 @@ public final class MsgBean {
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember getMembers(int index) {
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getMembers(int index) {
         if (membersBuilder_ == null) {
           return members_.get(index);
         } else {
@@ -22294,10 +22294,10 @@ public final class MsgBean {
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
       public Builder setMembers(
-          int index, com.yanlong.im.utils.socket.MsgBean.GroupMember value) {
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage value) {
         if (membersBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -22315,10 +22315,10 @@ public final class MsgBean {
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
       public Builder setMembers(
-          int index, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder builderForValue) {
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder builderForValue) {
         if (membersBuilder_ == null) {
           ensureMembersIsMutable();
           members_.set(index, builderForValue.build());
@@ -22333,9 +22333,9 @@ public final class MsgBean {
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
-      public Builder addMembers(com.yanlong.im.utils.socket.MsgBean.GroupMember value) {
+      public Builder addMembers(com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage value) {
         if (membersBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -22353,10 +22353,10 @@ public final class MsgBean {
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
       public Builder addMembers(
-          int index, com.yanlong.im.utils.socket.MsgBean.GroupMember value) {
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage value) {
         if (membersBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -22374,10 +22374,10 @@ public final class MsgBean {
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
       public Builder addMembers(
-          com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder builderForValue) {
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder builderForValue) {
         if (membersBuilder_ == null) {
           ensureMembersIsMutable();
           members_.add(builderForValue.build());
@@ -22392,10 +22392,10 @@ public final class MsgBean {
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
       public Builder addMembers(
-          int index, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder builderForValue) {
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder builderForValue) {
         if (membersBuilder_ == null) {
           ensureMembersIsMutable();
           members_.add(index, builderForValue.build());
@@ -22410,10 +22410,10 @@ public final class MsgBean {
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
       public Builder addAllMembers(
-          java.lang.Iterable<? extends com.yanlong.im.utils.socket.MsgBean.GroupMember> values) {
+          java.lang.Iterable<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> values) {
         if (membersBuilder_ == null) {
           ensureMembersIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
@@ -22429,7 +22429,7 @@ public final class MsgBean {
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
       public Builder clearMembers() {
         if (membersBuilder_ == null) {
@@ -22446,7 +22446,7 @@ public final class MsgBean {
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
       public Builder removeMembers(int index) {
         if (membersBuilder_ == null) {
@@ -22463,9 +22463,9 @@ public final class MsgBean {
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder getMembersBuilder(
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder getMembersBuilder(
           int index) {
         return getMembersFieldBuilder().getBuilder(index);
       }
@@ -22474,9 +22474,9 @@ public final class MsgBean {
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder getMembersOrBuilder(
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getMembersOrBuilder(
           int index) {
         if (membersBuilder_ == null) {
           return members_.get(index);  } else {
@@ -22488,9 +22488,9 @@ public final class MsgBean {
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
-      public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> 
+      public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
            getMembersOrBuilderList() {
         if (membersBuilder_ != null) {
           return membersBuilder_.getMessageOrBuilderList();
@@ -22503,41 +22503,41 @@ public final class MsgBean {
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder addMembersBuilder() {
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder addMembersBuilder() {
         return getMembersFieldBuilder().addBuilder(
-            com.yanlong.im.utils.socket.MsgBean.GroupMember.getDefaultInstance());
+            com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.getDefaultInstance());
       }
       /**
        * <pre>
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder addMembersBuilder(
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder addMembersBuilder(
           int index) {
         return getMembersFieldBuilder().addBuilder(
-            index, com.yanlong.im.utils.socket.MsgBean.GroupMember.getDefaultInstance());
+            index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.getDefaultInstance());
       }
       /**
        * <pre>
        * 变更的群成员集合
        * </pre>
        *
-       * <code>repeated .GroupMember members = 1;</code>
+       * <code>repeated .GroupNoticeMessage members = 1;</code>
        */
-      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder> 
+      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder> 
            getMembersBuilderList() {
         return getMembersFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          com.yanlong.im.utils.socket.MsgBean.GroupMember, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder, com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> 
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
           getMembersFieldBuilder() {
         if (membersBuilder_ == null) {
           membersBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
-              com.yanlong.im.utils.socket.MsgBean.GroupMember, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder, com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder>(
+              com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder>(
                   members_,
                   ((bitField0_ & 0x00000001) == 0x00000001),
                   getParentForChildren(),
@@ -29547,24 +29547,24 @@ public final class MsgBean {
      * 被变更成员列表（空列表表示接收者即为被变更者）
      * </pre>
      *
-     * <code>repeated .GroupMember members = 3;</code>
+     * <code>repeated .GroupNoticeMessage members = 3;</code>
      */
-    java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> 
+    java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> 
         getMembersList();
     /**
      * <pre>
      * 被变更成员列表（空列表表示接收者即为被变更者）
      * </pre>
      *
-     * <code>repeated .GroupMember members = 3;</code>
+     * <code>repeated .GroupNoticeMessage members = 3;</code>
      */
-    com.yanlong.im.utils.socket.MsgBean.GroupMember getMembers(int index);
+    com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getMembers(int index);
     /**
      * <pre>
      * 被变更成员列表（空列表表示接收者即为被变更者）
      * </pre>
      *
-     * <code>repeated .GroupMember members = 3;</code>
+     * <code>repeated .GroupNoticeMessage members = 3;</code>
      */
     int getMembersCount();
     /**
@@ -29572,18 +29572,18 @@ public final class MsgBean {
      * 被变更成员列表（空列表表示接收者即为被变更者）
      * </pre>
      *
-     * <code>repeated .GroupMember members = 3;</code>
+     * <code>repeated .GroupNoticeMessage members = 3;</code>
      */
-    java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> 
+    java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
         getMembersOrBuilderList();
     /**
      * <pre>
      * 被变更成员列表（空列表表示接收者即为被变更者）
      * </pre>
      *
-     * <code>repeated .GroupMember members = 3;</code>
+     * <code>repeated .GroupNoticeMessage members = 3;</code>
      */
-    com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder getMembersOrBuilder(
+    com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getMembersOrBuilder(
         int index);
   }
   /**
@@ -29652,11 +29652,11 @@ public final class MsgBean {
             }
             case 26: {
               if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-                members_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupMember>();
+                members_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage>();
                 mutable_bitField0_ |= 0x00000004;
               }
               members_.add(
-                  input.readMessage(com.yanlong.im.utils.socket.MsgBean.GroupMember.parser(), extensionRegistry));
+                  input.readMessage(com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.parser(), extensionRegistry));
               break;
             }
           }
@@ -29890,15 +29890,15 @@ public final class MsgBean {
     }
 
     public static final int MEMBERS_FIELD_NUMBER = 3;
-    private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> members_;
+    private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> members_;
     /**
      * <pre>
      * 被变更成员列表（空列表表示接收者即为被变更者）
      * </pre>
      *
-     * <code>repeated .GroupMember members = 3;</code>
+     * <code>repeated .GroupNoticeMessage members = 3;</code>
      */
-    public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> getMembersList() {
+    public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> getMembersList() {
       return members_;
     }
     /**
@@ -29906,9 +29906,9 @@ public final class MsgBean {
      * 被变更成员列表（空列表表示接收者即为被变更者）
      * </pre>
      *
-     * <code>repeated .GroupMember members = 3;</code>
+     * <code>repeated .GroupNoticeMessage members = 3;</code>
      */
-    public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> 
+    public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
         getMembersOrBuilderList() {
       return members_;
     }
@@ -29917,7 +29917,7 @@ public final class MsgBean {
      * 被变更成员列表（空列表表示接收者即为被变更者）
      * </pre>
      *
-     * <code>repeated .GroupMember members = 3;</code>
+     * <code>repeated .GroupNoticeMessage members = 3;</code>
      */
     public int getMembersCount() {
       return members_.size();
@@ -29927,9 +29927,9 @@ public final class MsgBean {
      * 被变更成员列表（空列表表示接收者即为被变更者）
      * </pre>
      *
-     * <code>repeated .GroupMember members = 3;</code>
+     * <code>repeated .GroupNoticeMessage members = 3;</code>
      */
-    public com.yanlong.im.utils.socket.MsgBean.GroupMember getMembers(int index) {
+    public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getMembers(int index) {
       return members_.get(index);
     }
     /**
@@ -29937,9 +29937,9 @@ public final class MsgBean {
      * 被变更成员列表（空列表表示接收者即为被变更者）
      * </pre>
      *
-     * <code>repeated .GroupMember members = 3;</code>
+     * <code>repeated .GroupNoticeMessage members = 3;</code>
      */
-    public com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder getMembersOrBuilder(
+    public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getMembersOrBuilder(
         int index) {
       return members_.get(index);
     }
@@ -30408,26 +30408,26 @@ public final class MsgBean {
         return this;
       }
 
-      private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> members_ =
+      private java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> members_ =
         java.util.Collections.emptyList();
       private void ensureMembersIsMutable() {
         if (!((bitField0_ & 0x00000004) == 0x00000004)) {
-          members_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupMember>(members_);
+          members_ = new java.util.ArrayList<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage>(members_);
           bitField0_ |= 0x00000004;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          com.yanlong.im.utils.socket.MsgBean.GroupMember, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder, com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> membersBuilder_;
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> membersBuilder_;
 
       /**
        * <pre>
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
-      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember> getMembersList() {
+      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> getMembersList() {
         if (membersBuilder_ == null) {
           return java.util.Collections.unmodifiableList(members_);
         } else {
@@ -30439,7 +30439,7 @@ public final class MsgBean {
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
       public int getMembersCount() {
         if (membersBuilder_ == null) {
@@ -30453,9 +30453,9 @@ public final class MsgBean {
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember getMembers(int index) {
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage getMembers(int index) {
         if (membersBuilder_ == null) {
           return members_.get(index);
         } else {
@@ -30467,10 +30467,10 @@ public final class MsgBean {
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
       public Builder setMembers(
-          int index, com.yanlong.im.utils.socket.MsgBean.GroupMember value) {
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage value) {
         if (membersBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -30488,10 +30488,10 @@ public final class MsgBean {
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
       public Builder setMembers(
-          int index, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder builderForValue) {
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder builderForValue) {
         if (membersBuilder_ == null) {
           ensureMembersIsMutable();
           members_.set(index, builderForValue.build());
@@ -30506,9 +30506,9 @@ public final class MsgBean {
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
-      public Builder addMembers(com.yanlong.im.utils.socket.MsgBean.GroupMember value) {
+      public Builder addMembers(com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage value) {
         if (membersBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -30526,10 +30526,10 @@ public final class MsgBean {
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
       public Builder addMembers(
-          int index, com.yanlong.im.utils.socket.MsgBean.GroupMember value) {
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage value) {
         if (membersBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -30547,10 +30547,10 @@ public final class MsgBean {
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
       public Builder addMembers(
-          com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder builderForValue) {
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder builderForValue) {
         if (membersBuilder_ == null) {
           ensureMembersIsMutable();
           members_.add(builderForValue.build());
@@ -30565,10 +30565,10 @@ public final class MsgBean {
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
       public Builder addMembers(
-          int index, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder builderForValue) {
+          int index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder builderForValue) {
         if (membersBuilder_ == null) {
           ensureMembersIsMutable();
           members_.add(index, builderForValue.build());
@@ -30583,10 +30583,10 @@ public final class MsgBean {
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
       public Builder addAllMembers(
-          java.lang.Iterable<? extends com.yanlong.im.utils.socket.MsgBean.GroupMember> values) {
+          java.lang.Iterable<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage> values) {
         if (membersBuilder_ == null) {
           ensureMembersIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
@@ -30602,7 +30602,7 @@ public final class MsgBean {
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
       public Builder clearMembers() {
         if (membersBuilder_ == null) {
@@ -30619,7 +30619,7 @@ public final class MsgBean {
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
       public Builder removeMembers(int index) {
         if (membersBuilder_ == null) {
@@ -30636,9 +30636,9 @@ public final class MsgBean {
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder getMembersBuilder(
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder getMembersBuilder(
           int index) {
         return getMembersFieldBuilder().getBuilder(index);
       }
@@ -30647,9 +30647,9 @@ public final class MsgBean {
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder getMembersOrBuilder(
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder getMembersOrBuilder(
           int index) {
         if (membersBuilder_ == null) {
           return members_.get(index);  } else {
@@ -30661,9 +30661,9 @@ public final class MsgBean {
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
-      public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> 
+      public java.util.List<? extends com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
            getMembersOrBuilderList() {
         if (membersBuilder_ != null) {
           return membersBuilder_.getMessageOrBuilderList();
@@ -30676,41 +30676,41 @@ public final class MsgBean {
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder addMembersBuilder() {
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder addMembersBuilder() {
         return getMembersFieldBuilder().addBuilder(
-            com.yanlong.im.utils.socket.MsgBean.GroupMember.getDefaultInstance());
+            com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.getDefaultInstance());
       }
       /**
        * <pre>
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
-      public com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder addMembersBuilder(
+      public com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder addMembersBuilder(
           int index) {
         return getMembersFieldBuilder().addBuilder(
-            index, com.yanlong.im.utils.socket.MsgBean.GroupMember.getDefaultInstance());
+            index, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.getDefaultInstance());
       }
       /**
        * <pre>
        * 被变更成员列表（空列表表示接收者即为被变更者）
        * </pre>
        *
-       * <code>repeated .GroupMember members = 3;</code>
+       * <code>repeated .GroupNoticeMessage members = 3;</code>
        */
-      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder> 
+      public java.util.List<com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder> 
            getMembersBuilderList() {
         return getMembersFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          com.yanlong.im.utils.socket.MsgBean.GroupMember, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder, com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder> 
+          com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder> 
           getMembersFieldBuilder() {
         if (membersBuilder_ == null) {
           membersBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
-              com.yanlong.im.utils.socket.MsgBean.GroupMember, com.yanlong.im.utils.socket.MsgBean.GroupMember.Builder, com.yanlong.im.utils.socket.MsgBean.GroupMemberOrBuilder>(
+              com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupNoticeMessageOrBuilder>(
                   members_,
                   ((bitField0_ & 0x00000004) == 0x00000004),
                   getParentForChildren(),
@@ -47342,10 +47342,10 @@ public final class MsgBean {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_RemoveFriendMessage_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_GroupMember_descriptor;
+    internal_static_GroupNoticeMessage_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_GroupMember_fieldAccessorTable;
+      internal_static_GroupNoticeMessage_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_InviteJoinGroupMessage_descriptor;
   private static final 
@@ -47520,144 +47520,145 @@ public final class MsgBean {
       "\001(\t\"<\n\024RequestFriendMessage\022\016\n\006say_hi\030\001 " +
       "\001(\t\022\024\n\014contact_name\030\002 \001(\t\"(\n\026AcceptBeFri" +
       "endsMessage\022\016\n\006say_hi\030\001 \001(\t\"\025\n\023RemoveFri" +
-      "endMessage\"<\n\013GroupMember\022\013\n\003uid\030\001 \001(\004\022\016" +
-      "\n\006avatar\030\002 \001(\t\022\020\n\010nickname\030\003 \001(\t\">\n\026Invi" +
-      "teJoinGroupMessage\022$\n\016notice_message\030\001 \001" +
-      "(\0132\014.GroupMember\"\205\001\n\023RequestGroupMessage" +
-      "\022$\n\016notice_message\030\001 \003(\0132\014.GroupMember\022\017" +
-      "\n\007inviter\030\002 \001(\004\022!\n\tjoin_type\030\003 \001(\0162\016.Joi" +
-      "nGroupType\022\024\n\014inviter_name\030\004 \001(\t\"\206\001\n\024Acc" +
-      "eptBeGroupMessage\022$\n\016notice_message\030\001 \003(" +
-      "\0132\014.GroupMember\022\017\n\007inviter\030\002 \001(\004\022!\n\tjoin" +
-      "_type\030\003 \001(\0162\016.JoinGroupType\022\024\n\014inviter_n" +
-      "ame\030\004 \001(\t\"E\n\030RemoveGroupMemberMessage\022\013\n" +
-      "\003gid\030\001 \001(\t\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t" +
-      "\"(\n\031RemoveGroupMember2Message\022\013\n\003uid\030\001 \003" +
-      "(\004\";\n\030ChangeGroupMasterMessage\022\013\n\003uid\030\001 " +
-      "\001(\004\022\022\n\nmembername\030\002 \001(\t\"\202\001\n\027ChangeViceAd" +
-      "minsMessage\022\035\n\007members\030\001 \003(\0132\014.GroupMemb" +
-      "er\022)\n\003opt\030\002 \001(\0162\034.ChangeViceAdminsMessag" +
-      "e.Opt\"\035\n\003Opt\022\n\n\006REMOVE\020\000\022\n\n\006APPEND\020\001\"s\n\026" +
-      "ChangeGroupMetaMessage\022\016\n\004name\030\001 \001(\tH\000\022\030" +
-      "\n\016protect_member\030\002 \001(\010H\000\022\020\n\006avatar\030\003 \001(\t" +
-      "H\000\022\021\n\007shut_up\030\004 \001(\010H\000B\n\n\010real_msg\"@\n\023Des" +
-      "troyGroupMessage\022\013\n\003uid\030\001 \003(\004\022\016\n\006avatar\030" +
-      "\002 \001(\t\022\014\n\004name\030\003 \001(\t\"2\n\031ChangeSurvivalTim" +
-      "eMessage\022\025\n\rsurvival_time\030\001 \001(\021\"S\n\021P2PAu" +
-      "VideoMessage\022\035\n\007av_type\030\001 \001(\0162\014.AuVideoT" +
-      "ype\022\021\n\toperation\030\002 \001(\t\022\014\n\004desc\030\003 \001(\t\"6\n\025" +
-      "P2PAuVideoDialMessage\022\035\n\007av_type\030\001 \001(\0162\014" +
-      ".AuVideoType\"H\n\023ForceOfflineMessage\0221\n\024f" +
-      "orce_offline_reason\030\001 \001(\0162\023.ForceOffline" +
-      "Reason\"\036\n\017OutGroupMessage\022\013\n\003gid\030\001 \001(\t\"\215" +
-      "\001\n\027ActiveStatChangeMessage\0228\n\013active_typ" +
-      "e\030\001 \001(\0162#.ActiveStatChangeMessage.Active" +
-      "Type\022\021\n\ttimestamp\030\002 \001(\004\"%\n\nActiveType\022\013\n" +
-      "\007OFFLINE\020\000\022\n\n\006ONLINE\020\001\"\220\001\n\023ResourceLockM" +
-      "essage\022A\n\022resource_lock_type\030\001 \001(\0162%.Res" +
-      "ourceLockMessage.ResourceLockType\022\014\n\004loc" +
-      "k\030\002 \001(\r\"(\n\020ResourceLockType\022\024\n\020CLOUDREDE" +
-      "NVELOPE\020\000\" \n\013ReadMessage\022\021\n\ttimestamp\030\001 " +
-      "\001(\004\"\332\001\n\023SwitchChangeMessage\0224\n\013switch_ty" +
-      "pe\030\001 \001(\0162\037.SwitchChangeMessage.SwitchTyp" +
-      "e\022\024\n\014switch_value\030\002 \001(\r\022\035\n\007members\030\003 \003(\013" +
-      "2\014.GroupMember\"X\n\nSwitchType\022\010\n\004READ\020\000\022\007" +
-      "\n\003VIP\020\001\022\017\n\013MASTER_READ\020\002\022\013\n\007SHUT_UP\020\003\022\031\n" +
-      "\025OPEN_UP_RED_ENVELOPER\020\004\"\265\001\n\020PayResultMe" +
-      "ssage\022+\n\006result\030\001 \001(\0162\033.PayResultMessage" +
-      ".PayResult\022\020\n\010trade_id\030\002 \001(\004\022\021\n\taction_i" +
-      "d\030\003 \001(\t\022\021\n\terror_msg\030\004 \001(\t\022\014\n\004sign\030\005 \001(\t" +
-      "\".\n\tPayResult\022\013\n\007SUCCESS\020\000\022\010\n\004FAIL\020\001\022\n\n\006" +
-      "REFUND\020\002\".\n\016LabelValueItem\022\r\n\005label\030\001 \001(" +
-      "\t\022\r\n\005value\030\002 \001(\t\"\366\001\n\027BalanceAssistantMes" +
-      "sage\022\020\n\010trade_id\030\001 \001(\004\0228\n\013detail_type\030\002 " +
-      "\001(\0162#.BalanceAssistantMessage.DetailType" +
-      "\022\014\n\004time\030\003 \001(\004\022\r\n\005title\030\004 \001(\t\022\021\n\tamt_lab" +
-      "el\030\005 \001(\t\022\013\n\003amt\030\006 \001(\004\022\035\n\004item\030\007 \003(\0132\017.La" +
-      "belValueItem\"3\n\nDetailType\022\010\n\004NONE\020\000\022\020\n\014" +
-      "RED_ENVELOPE\020\001\022\t\n\005TRANS\020\002\"e\n\nAckMessage\022" +
-      " \n\013reject_type\030\001 \001(\0162\013.RejectType\022\022\n\nreq" +
-      "uest_id\030\002 \001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimesta" +
-      "mp\030\004 \001(\004\"*\n\022AuthRequestMessage\022\024\n\014access" +
-      "_token\030\001 \001(\t\":\n\023AuthResponseMessage\022\020\n\010a" +
-      "ccepted\030\001 \001(\021\022\021\n\ttimestamp\030\002 \001(\004\"\357\017\n\020Uni" +
-      "versalMessage\022\022\n\nrequest_id\030\001 \001(\t\022\016\n\006to_" +
-      "uid\030\002 \001(\004\022/\n\007wrapMsg\030\221N \003(\0132\035.UniversalM" +
-      "essage.WrapMessage\032\205\017\n\013WrapMessage\022\021\n\tti" +
-      "mestamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014.Messag" +
-      "eType\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022" +
-      "\013\n\003gid\030\005 \001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n\006avatar" +
-      "\030\007 \001(\t\022\022\n\nmembername\030\010 \001(\t\022\025\n\rsurvival_t" +
-      "ime\030\t \001(\021\022\023\n\013device_type\030\n \001(\r\022\016\n\006to_uid" +
-      "\030\013 \001(\004\022\035\n\004chat\030\220N \001(\0132\014.ChatMessageH\000\022\037\n" +
-      "\005image\030\221N \001(\0132\r.ImageMessageH\000\022,\n\014red_en" +
-      "velope\030\222N \001(\0132\023.RedEnvelopeMessageH\000\022;\n\024" +
-      "receive_red_envelope\030\223N \001(\0132\032.ReceiveRed" +
-      "EnvelopeMessageH\000\022%\n\010transfer\030\224N \001(\0132\020.T" +
-      "ransferMessageH\000\022\037\n\005stamp\030\225N \001(\0132\r.Stamp" +
-      "MessageH\000\022.\n\rbusiness_card\030\226N \001(\0132\024.Busi" +
-      "nessCardMessageH\000\022\037\n\005voice\030\227N \001(\0132\r.Voic" +
-      "eMessageH\000\022\031\n\002at\030\230N \001(\0132\n.AtMessageH\000\022\'\n" +
-      "\tassistant\030\231N \001(\0132\021.AssistantMessageH\000\022!" +
-      "\n\006cancel\030\232N \001(\0132\016.CancelMessageH\000\022*\n\013sho" +
-      "rt_video\030\233N \001(\0132\022.ShortVideoMessageH\000\0226\n" +
-      "\021snapshot_location\030\234N \001(\0132\030.SnapshotLoca" +
-      "tionMessageH\000\0220\n\016request_friend\030\364N \001(\0132\025" +
-      ".RequestFriendMessageH\000\0225\n\021accept_be_fri" +
-      "ends\030\365N \001(\0132\027.AcceptBeFriendsMessageH\000\022." +
-      "\n\rremove_friend\030\366N \001(\0132\024.RemoveFriendMes" +
-      "sageH\000\022.\n\rrequest_group\030\330O \001(\0132\024.Request" +
-      "GroupMessageH\000\0221\n\017accept_be_group\030\331O \001(\013" +
-      "2\025.AcceptBeGroupMessageH\000\0229\n\023remove_grou" +
-      "p_member\030\332O \001(\0132\031.RemoveGroupMemberMessa" +
-      "geH\000\0229\n\023change_group_master\030\333O \001(\0132\031.Cha" +
-      "ngeGroupMasterMessageH\000\022.\n\rdestroy_group" +
-      "\030\336O \001(\0132\024.DestroyGroupMessageH\000\022;\n\024remov" +
-      "e_group_member2\030\337O \001(\0132\032.RemoveGroupMemb" +
-      "er2MessageH\000\022&\n\tout_group\030\342O \001(\0132\020.OutGr" +
-      "oupMessageH\000\0225\n\021change_group_meta\030\344O \001(\013" +
-      "2\027.ChangeGroupMetaMessageH\000\022;\n\024change_su" +
-      "rvival_time\030\345O \001(\0132\032.ChangeSurvivalTimeM" +
-      "essageH\000\022+\n\014p2p_au_video\030\352O \001(\0132\022.P2PAuV" +
-      "ideoMessageH\000\0224\n\021p2p_au_video_dial\030\353O \001(" +
-      "\0132\026.P2PAuVideoDialMessageH\000\022\035\n\004read\030\354O \001" +
-      "(\0132\014.ReadMessageH\000\022&\n\tsend_file\030\355O \001(\0132\020" +
-      ".SendFileMessageH\000\0227\n\022change_vice_admins" +
-      "\030\356O \001(\0132\030.ChangeViceAdminsMessageH\000\022.\n\rf" +
-      "orce_offline\030\274P \001(\0132\024.ForceOfflineMessag" +
-      "eH\000\0227\n\022active_stat_change\030\275P \001(\0132\030.Activ" +
-      "eStatChangeMessageH\000\022.\n\rresource_lock\030\276P" +
-      " \001(\0132\024.ResourceLockMessageH\000\022.\n\rswitch_c" +
-      "hange\030\277P \001(\0132\024.SwitchChangeMessageH\000\022(\n\n" +
-      "pay_result\030\261T \001(\0132\021.PayResultMessageH\000\0226" +
-      "\n\021balance_assistant\030\262T \001(\0132\030.BalanceAssi" +
-      "stantMessageH\000B\n\n\010real_msg*\257\005\n\013MessageTy" +
-      "pe\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_ENVELOPER" +
-      "\020\002\022\031\n\025RECEIVE_RED_ENVELOPER\020\003\022\014\n\010TRANSFE" +
-      "R\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSINESS_CARD\020\006\022\t\n\005VOI" +
-      "CE\020\007\022\006\n\002AT\020\010\022\r\n\tASSISTANT\020\t\022\n\n\006CANCEL\020\n\022" +
-      "\017\n\013SHORT_VIDEO\020\013\022\025\n\021SNAPSHOT_LOCATION\020\014\022" +
-      "\022\n\016REQUEST_FRIEND\020d\022\025\n\021ACCEPT_BE_FRIENDS" +
-      "\020e\022\021\n\rREMOVE_FRIEND\020f\022\021\n\rREQUEST_GROUP\020g" +
-      "\022\023\n\017ACCEPT_BE_GROUP\020h\022\027\n\023REMOVE_GROUP_ME" +
-      "MBER\020i\022\027\n\023CHANGE_GROUP_MASTER\020j\022\030\n\024REMOV" +
-      "E_GROUP_MEMBER2\020k\022\021\n\rDESTROY_GROUP\020m\022\r\n\t" +
-      "OUT_GROUP\020n\022\025\n\021CHANGE_GROUP_META\020p\022\030\n\024CH" +
-      "ANGE_SURVIVAL_TIME\020q\022\020\n\014P2P_AU_VIDEO\020v\022\025" +
-      "\n\021P2P_AU_VIDEO_DIAL\020w\022\010\n\004READ\020x\022\r\n\tSEND_" +
-      "FILE\020y\022\026\n\022CHANGE_VICE_ADMINS\020z\022\022\n\rFORCE_" +
-      "OFFLINE\020\310\001\022\027\n\022ACTIVE_STAT_CHANGE\020\311\001\022\022\n\rR" +
-      "ESOURCE_LOCK\020\312\001\022\022\n\rSWITCH_CHANGE\020\313\001\022\017\n\nP" +
-      "AY_RESULT\020\264\002\022\026\n\021BALANCE_ASSISTANT\020\265\002*.\n\022" +
-      "ForceOfflineReason\022\014\n\010CONFLICT\020\000\022\n\n\006LOCK" +
-      "ED\020\001*\215\001\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT" +
-      "_FRIENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_BLACKLI" +
-      "ST\020\002\022\025\n\021WORDS_NOT_ALLOWED\020\003\022\016\n\nRATE_LIMI" +
-      "T\020c\022\027\n\023SERVICE_UNAVAILABLE\020d*(\n\rJoinGrou" +
-      "pType\022\n\n\006QRCODE\020\000\022\013\n\007PASSIVE\020\001*(\n\017RedEnv" +
-      "elopeType\022\t\n\005MFPAY\020\000\022\n\n\006SYSTEM\020\001*#\n\013AuVi" +
-      "deoType\022\t\n\005Audio\020\000\022\t\n\005Vedio\020\001B&\n\033com.yan" +
-      "long.im.utils.socketB\007MsgBeanb\006proto3"
+      "endMessage\"C\n\022GroupNoticeMessage\022\013\n\003uid\030" +
+      "\001 \001(\004\022\016\n\006avatar\030\002 \001(\t\022\020\n\010nickname\030\003 \001(\t\"" +
+      "E\n\026InviteJoinGroupMessage\022+\n\016notice_mess" +
+      "age\030\001 \001(\0132\023.GroupNoticeMessage\"\214\001\n\023Reque" +
+      "stGroupMessage\022+\n\016notice_message\030\001 \003(\0132\023" +
+      ".GroupNoticeMessage\022\017\n\007inviter\030\002 \001(\004\022!\n\t" +
+      "join_type\030\003 \001(\0162\016.JoinGroupType\022\024\n\014invit" +
+      "er_name\030\004 \001(\t\"\215\001\n\024AcceptBeGroupMessage\022+" +
+      "\n\016notice_message\030\001 \003(\0132\023.GroupNoticeMess" +
+      "age\022\017\n\007inviter\030\002 \001(\004\022!\n\tjoin_type\030\003 \001(\0162" +
+      "\016.JoinGroupType\022\024\n\014inviter_name\030\004 \001(\t\"E\n" +
+      "\030RemoveGroupMemberMessage\022\013\n\003gid\030\001 \001(\t\022\016" +
+      "\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"(\n\031RemoveGr" +
+      "oupMember2Message\022\013\n\003uid\030\001 \003(\004\";\n\030Change" +
+      "GroupMasterMessage\022\013\n\003uid\030\001 \001(\004\022\022\n\nmembe" +
+      "rname\030\002 \001(\t\"\211\001\n\027ChangeViceAdminsMessage\022" +
+      "$\n\007members\030\001 \003(\0132\023.GroupNoticeMessage\022)\n" +
+      "\003opt\030\002 \001(\0162\034.ChangeViceAdminsMessage.Opt" +
+      "\"\035\n\003Opt\022\n\n\006REMOVE\020\000\022\n\n\006APPEND\020\001\"s\n\026Chang" +
+      "eGroupMetaMessage\022\016\n\004name\030\001 \001(\tH\000\022\030\n\016pro" +
+      "tect_member\030\002 \001(\010H\000\022\020\n\006avatar\030\003 \001(\tH\000\022\021\n" +
+      "\007shut_up\030\004 \001(\010H\000B\n\n\010real_msg\"@\n\023DestroyG" +
+      "roupMessage\022\013\n\003uid\030\001 \003(\004\022\016\n\006avatar\030\002 \001(\t" +
+      "\022\014\n\004name\030\003 \001(\t\"2\n\031ChangeSurvivalTimeMess" +
+      "age\022\025\n\rsurvival_time\030\001 \001(\021\"S\n\021P2PAuVideo" +
+      "Message\022\035\n\007av_type\030\001 \001(\0162\014.AuVideoType\022\021" +
+      "\n\toperation\030\002 \001(\t\022\014\n\004desc\030\003 \001(\t\"6\n\025P2PAu" +
+      "VideoDialMessage\022\035\n\007av_type\030\001 \001(\0162\014.AuVi" +
+      "deoType\"H\n\023ForceOfflineMessage\0221\n\024force_" +
+      "offline_reason\030\001 \001(\0162\023.ForceOfflineReaso" +
+      "n\"\036\n\017OutGroupMessage\022\013\n\003gid\030\001 \001(\t\"\215\001\n\027Ac" +
+      "tiveStatChangeMessage\0228\n\013active_type\030\001 \001" +
+      "(\0162#.ActiveStatChangeMessage.ActiveType\022" +
+      "\021\n\ttimestamp\030\002 \001(\004\"%\n\nActiveType\022\013\n\007OFFL" +
+      "INE\020\000\022\n\n\006ONLINE\020\001\"\220\001\n\023ResourceLockMessag" +
+      "e\022A\n\022resource_lock_type\030\001 \001(\0162%.Resource" +
+      "LockMessage.ResourceLockType\022\014\n\004lock\030\002 \001" +
+      "(\r\"(\n\020ResourceLockType\022\024\n\020CLOUDREDENVELO" +
+      "PE\020\000\" \n\013ReadMessage\022\021\n\ttimestamp\030\001 \001(\004\"\341" +
+      "\001\n\023SwitchChangeMessage\0224\n\013switch_type\030\001 " +
+      "\001(\0162\037.SwitchChangeMessage.SwitchType\022\024\n\014" +
+      "switch_value\030\002 \001(\r\022$\n\007members\030\003 \003(\0132\023.Gr" +
+      "oupNoticeMessage\"X\n\nSwitchType\022\010\n\004READ\020\000" +
+      "\022\007\n\003VIP\020\001\022\017\n\013MASTER_READ\020\002\022\013\n\007SHUT_UP\020\003\022" +
+      "\031\n\025OPEN_UP_RED_ENVELOPER\020\004\"\265\001\n\020PayResult" +
+      "Message\022+\n\006result\030\001 \001(\0162\033.PayResultMessa" +
+      "ge.PayResult\022\020\n\010trade_id\030\002 \001(\004\022\021\n\taction" +
+      "_id\030\003 \001(\t\022\021\n\terror_msg\030\004 \001(\t\022\014\n\004sign\030\005 \001" +
+      "(\t\".\n\tPayResult\022\013\n\007SUCCESS\020\000\022\010\n\004FAIL\020\001\022\n" +
+      "\n\006REFUND\020\002\".\n\016LabelValueItem\022\r\n\005label\030\001 " +
+      "\001(\t\022\r\n\005value\030\002 \001(\t\"\366\001\n\027BalanceAssistantM" +
+      "essage\022\020\n\010trade_id\030\001 \001(\004\0228\n\013detail_type\030" +
+      "\002 \001(\0162#.BalanceAssistantMessage.DetailTy" +
+      "pe\022\014\n\004time\030\003 \001(\004\022\r\n\005title\030\004 \001(\t\022\021\n\tamt_l" +
+      "abel\030\005 \001(\t\022\013\n\003amt\030\006 \001(\004\022\035\n\004item\030\007 \003(\0132\017." +
+      "LabelValueItem\"3\n\nDetailType\022\010\n\004NONE\020\000\022\020" +
+      "\n\014RED_ENVELOPE\020\001\022\t\n\005TRANS\020\002\"e\n\nAckMessag" +
+      "e\022 \n\013reject_type\030\001 \001(\0162\013.RejectType\022\022\n\nr" +
+      "equest_id\030\002 \001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimes" +
+      "tamp\030\004 \001(\004\"*\n\022AuthRequestMessage\022\024\n\014acce" +
+      "ss_token\030\001 \001(\t\":\n\023AuthResponseMessage\022\020\n" +
+      "\010accepted\030\001 \001(\021\022\021\n\ttimestamp\030\002 \001(\004\"\357\017\n\020U" +
+      "niversalMessage\022\022\n\nrequest_id\030\001 \001(\t\022\016\n\006t" +
+      "o_uid\030\002 \001(\004\022/\n\007wrapMsg\030\221N \003(\0132\035.Universa" +
+      "lMessage.WrapMessage\032\205\017\n\013WrapMessage\022\021\n\t" +
+      "timestamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014.Mess" +
+      "ageType\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(" +
+      "\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n\006avat" +
+      "ar\030\007 \001(\t\022\022\n\nmembername\030\010 \001(\t\022\025\n\rsurvival" +
+      "_time\030\t \001(\021\022\023\n\013device_type\030\n \001(\r\022\016\n\006to_u" +
+      "id\030\013 \001(\004\022\035\n\004chat\030\220N \001(\0132\014.ChatMessageH\000\022" +
+      "\037\n\005image\030\221N \001(\0132\r.ImageMessageH\000\022,\n\014red_" +
+      "envelope\030\222N \001(\0132\023.RedEnvelopeMessageH\000\022;" +
+      "\n\024receive_red_envelope\030\223N \001(\0132\032.ReceiveR" +
+      "edEnvelopeMessageH\000\022%\n\010transfer\030\224N \001(\0132\020" +
+      ".TransferMessageH\000\022\037\n\005stamp\030\225N \001(\0132\r.Sta" +
+      "mpMessageH\000\022.\n\rbusiness_card\030\226N \001(\0132\024.Bu" +
+      "sinessCardMessageH\000\022\037\n\005voice\030\227N \001(\0132\r.Vo" +
+      "iceMessageH\000\022\031\n\002at\030\230N \001(\0132\n.AtMessageH\000\022" +
+      "\'\n\tassistant\030\231N \001(\0132\021.AssistantMessageH\000" +
+      "\022!\n\006cancel\030\232N \001(\0132\016.CancelMessageH\000\022*\n\013s" +
+      "hort_video\030\233N \001(\0132\022.ShortVideoMessageH\000\022" +
+      "6\n\021snapshot_location\030\234N \001(\0132\030.SnapshotLo" +
+      "cationMessageH\000\0220\n\016request_friend\030\364N \001(\013" +
+      "2\025.RequestFriendMessageH\000\0225\n\021accept_be_f" +
+      "riends\030\365N \001(\0132\027.AcceptBeFriendsMessageH\000" +
+      "\022.\n\rremove_friend\030\366N \001(\0132\024.RemoveFriendM" +
+      "essageH\000\022.\n\rrequest_group\030\330O \001(\0132\024.Reque" +
+      "stGroupMessageH\000\0221\n\017accept_be_group\030\331O \001" +
+      "(\0132\025.AcceptBeGroupMessageH\000\0229\n\023remove_gr" +
+      "oup_member\030\332O \001(\0132\031.RemoveGroupMemberMes" +
+      "sageH\000\0229\n\023change_group_master\030\333O \001(\0132\031.C" +
+      "hangeGroupMasterMessageH\000\022.\n\rdestroy_gro" +
+      "up\030\336O \001(\0132\024.DestroyGroupMessageH\000\022;\n\024rem" +
+      "ove_group_member2\030\337O \001(\0132\032.RemoveGroupMe" +
+      "mber2MessageH\000\022&\n\tout_group\030\342O \001(\0132\020.Out" +
+      "GroupMessageH\000\0225\n\021change_group_meta\030\344O \001" +
+      "(\0132\027.ChangeGroupMetaMessageH\000\022;\n\024change_" +
+      "survival_time\030\345O \001(\0132\032.ChangeSurvivalTim" +
+      "eMessageH\000\022+\n\014p2p_au_video\030\352O \001(\0132\022.P2PA" +
+      "uVideoMessageH\000\0224\n\021p2p_au_video_dial\030\353O " +
+      "\001(\0132\026.P2PAuVideoDialMessageH\000\022\035\n\004read\030\354O" +
+      " \001(\0132\014.ReadMessageH\000\022&\n\tsend_file\030\355O \001(\013" +
+      "2\020.SendFileMessageH\000\0227\n\022change_vice_admi" +
+      "ns\030\356O \001(\0132\030.ChangeViceAdminsMessageH\000\022.\n" +
+      "\rforce_offline\030\274P \001(\0132\024.ForceOfflineMess" +
+      "ageH\000\0227\n\022active_stat_change\030\275P \001(\0132\030.Act" +
+      "iveStatChangeMessageH\000\022.\n\rresource_lock\030" +
+      "\276P \001(\0132\024.ResourceLockMessageH\000\022.\n\rswitch" +
+      "_change\030\277P \001(\0132\024.SwitchChangeMessageH\000\022(" +
+      "\n\npay_result\030\261T \001(\0132\021.PayResultMessageH\000" +
+      "\0226\n\021balance_assistant\030\262T \001(\0132\030.BalanceAs" +
+      "sistantMessageH\000B\n\n\010real_msg*\257\005\n\013Message" +
+      "Type\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_ENVELOP" +
+      "ER\020\002\022\031\n\025RECEIVE_RED_ENVELOPER\020\003\022\014\n\010TRANS" +
+      "FER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSINESS_CARD\020\006\022\t\n\005V" +
+      "OICE\020\007\022\006\n\002AT\020\010\022\r\n\tASSISTANT\020\t\022\n\n\006CANCEL\020" +
+      "\n\022\017\n\013SHORT_VIDEO\020\013\022\025\n\021SNAPSHOT_LOCATION\020" +
+      "\014\022\022\n\016REQUEST_FRIEND\020d\022\025\n\021ACCEPT_BE_FRIEN" +
+      "DS\020e\022\021\n\rREMOVE_FRIEND\020f\022\021\n\rREQUEST_GROUP" +
+      "\020g\022\023\n\017ACCEPT_BE_GROUP\020h\022\027\n\023REMOVE_GROUP_" +
+      "MEMBER\020i\022\027\n\023CHANGE_GROUP_MASTER\020j\022\030\n\024REM" +
+      "OVE_GROUP_MEMBER2\020k\022\021\n\rDESTROY_GROUP\020m\022\r" +
+      "\n\tOUT_GROUP\020n\022\025\n\021CHANGE_GROUP_META\020p\022\030\n\024" +
+      "CHANGE_SURVIVAL_TIME\020q\022\020\n\014P2P_AU_VIDEO\020v" +
+      "\022\025\n\021P2P_AU_VIDEO_DIAL\020w\022\010\n\004READ\020x\022\r\n\tSEN" +
+      "D_FILE\020y\022\026\n\022CHANGE_VICE_ADMINS\020z\022\022\n\rFORC" +
+      "E_OFFLINE\020\310\001\022\027\n\022ACTIVE_STAT_CHANGE\020\311\001\022\022\n" +
+      "\rRESOURCE_LOCK\020\312\001\022\022\n\rSWITCH_CHANGE\020\313\001\022\017\n" +
+      "\nPAY_RESULT\020\264\002\022\026\n\021BALANCE_ASSISTANT\020\265\002*." +
+      "\n\022ForceOfflineReason\022\014\n\010CONFLICT\020\000\022\n\n\006LO" +
+      "CKED\020\001*\215\001\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033N" +
+      "OT_FRIENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_BLACK" +
+      "LIST\020\002\022\025\n\021WORDS_NOT_ALLOWED\020\003\022\016\n\nRATE_LI" +
+      "MIT\020c\022\027\n\023SERVICE_UNAVAILABLE\020d*(\n\rJoinGr" +
+      "oupType\022\n\n\006QRCODE\020\000\022\013\n\007PASSIVE\020\001*(\n\017RedE" +
+      "nvelopeType\022\t\n\005MFPAY\020\000\022\n\n\006SYSTEM\020\001*#\n\013Au" +
+      "VideoType\022\t\n\005Audio\020\000\022\t\n\005Vedio\020\001B&\n\033com.y" +
+      "anlong.im.utils.socketB\007MsgBeanb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -47773,11 +47774,11 @@ public final class MsgBean {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RemoveFriendMessage_descriptor,
         new java.lang.String[] { });
-    internal_static_GroupMember_descriptor =
+    internal_static_GroupNoticeMessage_descriptor =
       getDescriptor().getMessageTypes().get(17);
-    internal_static_GroupMember_fieldAccessorTable = new
+    internal_static_GroupNoticeMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_GroupMember_descriptor,
+        internal_static_GroupNoticeMessage_descriptor,
         new java.lang.String[] { "Uid", "Avatar", "Nickname", });
     internal_static_InviteJoinGroupMessage_descriptor =
       getDescriptor().getMessageTypes().get(18);
