@@ -92,4 +92,7 @@ public class Route {
 
     //发送转账
     public static final String SEND_TRANSFER = "/order/transfer";
+
+    //获取转账详情
+    public static final String GET_TRANSFER_DETAIL = "/order/get_trans_detail";
 }

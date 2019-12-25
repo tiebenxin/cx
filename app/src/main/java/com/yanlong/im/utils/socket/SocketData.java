@@ -1049,7 +1049,7 @@ public class SocketData {
     }
 
     /**
-     * 常信小助手发的消息不需要上会服务器
+     * 常信小助手发的消息不需要上会服务器，待完善
      *
      * @param bean
      * @param isSend 是否需要发送服务器
@@ -1128,9 +1128,12 @@ public class SocketData {
             case ChatEnum.EMessageType.TRANSFER://转账
                 TransferMessage transfer = bean.getTransfer();
                 MsgBean.TransferMessage.Builder transferBuild = MsgBean.TransferMessage.newBuilder();
+
                 transferBuild.setTransactionAmount(transfer.getTransaction_amount());
                 transferBuild.setComment(transfer.getComment());
                 transferBuild.setId(transfer.getId());
+                transferBuild.setOpType(MsgBean.TransferMessage.OpType.forNumber(transfer.getOpType()));
+                transferBuild.setSign(transfer.getSign());
                 value = transferBuild.build();
                 type = MsgBean.MessageType.TRANSFER;
                 break;
@@ -1149,7 +1152,8 @@ public class SocketData {
                             .setId(red.getTraceId() + "")
                             .setComment(red.getComment())
                             .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
-                            .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
+                            .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()))
+                            .setSign(red.getSign());
                 }
                 if (redBuild != null) {
                     value = redBuild.build();
@@ -1160,7 +1164,7 @@ public class SocketData {
 
                 needSave = false;
                 break;
-            case ChatEnum.EMessageType.MSG_CANCEL://
+            case ChatEnum.EMessageType.MSG_CANCEL://撤销消息
 
                 break;
             case ChatEnum.EMessageType.LOCATION://位置
@@ -1739,12 +1743,14 @@ public class SocketData {
     }
 
     //创建转账消息
-    public static TransferMessage createTansferMessage(String msgId, long traceId, String actionId, String info, int reType, int style, String sign) {
+    public static TransferMessage createTansferMessage(String msgId, long traceId, long money, String info, String sign, int opType) {
         TransferMessage message = new TransferMessage();
         message.setMsgid(msgId);
         message.setId(traceId + "");
         message.setComment(info);
+        message.setTransaction_amount(money + "");
         message.setSign(sign);
+        message.setOpType(opType);
         return message;
     }
 

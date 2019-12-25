@@ -117,4 +117,8 @@ public class DateUtils {
         SimpleDateFormat format = new SimpleDateFormat(timeFormat);
         return format.format(new Date(time));
     }
+
+    public static String getTransferTime(long time) {
+        return getTime(time, "yyyy-MM-dd  HH:mm:ss");
+    }
 }

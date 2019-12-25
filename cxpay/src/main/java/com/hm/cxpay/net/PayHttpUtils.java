@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hm.cxpay.bean.BillBean;
 import com.hm.cxpay.bean.CommonBean;
+import com.hm.cxpay.bean.TransferDetailBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.bean.BankBean;
@@ -352,6 +353,18 @@ public class PayHttpUtils {
             map.put("bankCardId", bankCardId + "");
         }
         return HttpChannel.getInstance().getPayService().sendTransfer(getRequestBody(map));
+    }
+
+
+    /**
+     * 发送转账
+     *
+     * @param toUid 转账接受者id
+     */
+    public Observable<BaseResponse<TransferDetailBean>> getTransferDetail(String tradeId) {
+        Map<String, String> map = new HashMap<>();
+        map.put("tradeId", tradeId);
+        return HttpChannel.getInstance().getPayService().getTransferDetail(getRequestBody(map));
     }
 
 

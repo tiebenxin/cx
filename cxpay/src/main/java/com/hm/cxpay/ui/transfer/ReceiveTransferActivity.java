@@ -17,6 +17,7 @@ public class ReceiveTransferActivity extends BasePayActivity {
 
     private ActivityReceiveTransferBinding ui;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

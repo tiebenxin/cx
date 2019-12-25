@@ -75,12 +75,13 @@ public class PayEnum {
     }
 
     //转账状态
-    @IntDef({ETransferStatus.NORMAL, ETransferStatus.RECEIVED, ETransferStatus.PAST})
+    @IntDef({ETransferStatus.NORMAL, ETransferStatus.RECEIVED, ETransferStatus.REJECT, ETransferStatus.PAST})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ETransferStatus {
         int NORMAL = 0;//正常
         int RECEIVED = 1;//已经领取
-        int PAST = 2;//过期
+        int REJECT = 3;//拒收
+        int PAST = 4;//过期
     }
 
 }

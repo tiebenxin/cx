@@ -35,6 +35,7 @@ import com.hm.cxpay.utils.BankUtils;
 import com.hm.cxpay.utils.UIUtils;
 
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.view.ActionbarView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -107,6 +108,17 @@ public class TransferActivity extends BasePayActivity {
 
     private void initView() {
         UIUtils.loadAvatar(avatar, ui.ivAvatar);
+
+        ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+            @Override
+            public void onBack() {
+                onBackPressed();
+            }
+
+            @Override
+            public void onRight() {
+            }
+        });
         ui.tvTransfer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -167,7 +179,8 @@ public class TransferActivity extends BasePayActivity {
                             SendResultBean sendBean = baseResponse.getData();
                             if (sendBean != null) {
                                 cxTransferBean = createTransferBean(sendBean, money, PayEnum.ETransferOpType.TRANS_SEND, note);
-                                if (sendBean.getCode() == 1) {//成功
+                                if (sendBean.getCode() == 1) {//成功\
+                                    dismissLoadingDialog();
                                     isSending = false;
                                     eventTransferSuccess();
                                     toTransferResult(money);

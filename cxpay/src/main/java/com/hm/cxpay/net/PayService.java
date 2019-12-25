@@ -2,6 +2,7 @@ package com.hm.cxpay.net;
 
 import com.hm.cxpay.bean.BillBean;
 import com.hm.cxpay.bean.CommonBean;
+import com.hm.cxpay.bean.TransferDetailBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.bean.BankBean;
@@ -135,6 +136,10 @@ public interface PayService {
     //发送转账
     @POST(Route.SEND_TRANSFER)
     Observable<BaseResponse<SendResultBean>> sendTransfer(@Body RequestBody body);
+
+    //获取转账详情
+    @POST(Route.GET_TRANSFER_DETAIL)
+    Observable<BaseResponse<TransferDetailBean>> getTransferDetail(@Body RequestBody body);
 
 
 }

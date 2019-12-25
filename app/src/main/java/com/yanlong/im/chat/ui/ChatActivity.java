@@ -69,6 +69,7 @@ import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.ui.redenvelope.MultiRedPacketActivity;
 import com.hm.cxpay.ui.bill.BillDetailActivity;
 import com.hm.cxpay.ui.transfer.TransferActivity;
+import com.hm.cxpay.ui.transfer.TransferDetailActivity;
 import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
@@ -285,7 +286,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     public static final int REQ_RP = 9653;
     public static final int VIDEO_RP = 9419;
     public static final int REQUEST_RED_ENVELOPE = 1 << 2;
-    public static final int REQUEST_TRANSFER = 1 << 3;
+//    public static final int REQUEST_TRANSFER = 1 << 3;
 
     private MessageAdapter messageAdapter;
     private int lastOffset = -1;
@@ -1848,7 +1849,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     public void eventTransferSuccess(TransferSuccessEvent event) {
         CxTransferBean transferBean = event.getBean();
         if (transferBean != null) {
-
+            TransferMessage message = SocketData.createTansferMessage(SocketData.getUUID(), transferBean.getTradeId(), transferBean.getAmount(), transferBean.getInfo(), transferBean.getSign(), PayEnum.ETransferOpType.TRANS_SEND);
+            sendMessage(message, ChatEnum.EMessageType.TRANSFER);
         }
     }
 
@@ -3134,7 +3136,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     holder.viewChatItem.setData6(isInvalidTs, titleTs, infoTs, typeTs, R.color.transparent, tranType, new ChatItemView.EventRP() {
                         @Override
                         public void onClick(boolean isInvalid, int tranType) {
-                            tsakTransGet(tsId);
+                            Intent intent = TransferDetailActivity.newIntent(ChatActivity.this, ts.getId(), msgbean.isMe());
+                            startActivity(intent);
                         }
                     });
 
@@ -4369,40 +4372,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewChatBottomc.setVisibility(isExited ? GONE : VISIBLE);
     }
 
-    /***
-     * 转账
-     */
-    private void taskTrans() {
-        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-                if (response.body() == null)
-                    return;
-                if (response.body().isOk()) {
-                    SignatureBean sign = response.body().getData();
-                    String token = sign.getSign();
-                    UserInfo finfo = userDao.findUserInfo(toUId);
-                    UserInfo minfo = UserAction.getMyInfo();
-
-                    JrmfRpClient.transAccount(ChatActivity.this, "" + finfo.getUid(), "" + minfo.getUid(), token,
-                            minfo.getName(), minfo.getHead(), finfo.getName4Show(), finfo.getHead(), new TransAccountCallBack() {
-                                @Override
-                                public void transResult(TransAccountBean transAccountBean) {
-                                    String rid = transAccountBean.getTransferOrder();
-                                    String info = transAccountBean.getTransferDesc();
-                                    String money = transAccountBean.getTransferAmount();
-                                    //设置转账消息
-//                                    MsgAllBean msgAllbean = SocketData.send4Trans(toUId, rid, info, money);
-//                                    showSendObj(msgAllbean);
-//                                    MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
-                                    TransferMessage message = SocketData.createTransferMessage(SocketData.getUUID(), rid, money, info);
-                                    sendMessage(message, ChatEnum.EMessageType.TRANSFER);
-                                }
-                            });
-                }
-            }
-        });
-    }
 
     /***
      * 发红包
