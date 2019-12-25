@@ -23,7 +23,7 @@ import net.cb.cb.library.view.AppActivity;
 import org.greenrobot.eventbus.EventBus;
 
 /**
- *
+ * 音视频接听界面
  */
 public class ChatActionActivity extends AppActivity {
     public static final String AGM_DATA = "data";
@@ -34,6 +34,24 @@ public class ChatActionActivity extends AppActivity {
     private LinearLayout viewYes;
     private Vibrator vibrator;
     private MsgAllBean msgAllbean;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_chat_action);
+        findViews();
+        initEvent();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (vibrator != null) {
+            vibrator.cancel();
+        }
+
+    }
 
     //自动寻找控件
     private void findViews() {
@@ -91,21 +109,4 @@ public class ChatActionActivity extends AppActivity {
     }
 
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (vibrator != null) {
-            vibrator.cancel();
-        }
-
-    }
-
-    @Override
-
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat_action);
-        findViews();
-        initEvent();
-    }
 }

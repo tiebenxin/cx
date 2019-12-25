@@ -326,6 +326,31 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        //激活当前会话
+        if (isGroup()) {
+            MessageManager.getInstance().setSessionGroup(toGid);
+        } else {
+            MessageManager.getInstance().setSessionSolo(toUId);
+        }
+        //刷新群资料
+        taskSessionInfo();
+        clickAble = true;
+        //更新阅后即焚状态
+        initSurvivaltimeState();
+        sendRead();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //取消激活会话
+        MessageManager.getInstance().setSessionNull();
+
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         AudioPlayManager.getInstance().stopPlay();
@@ -1099,6 +1124,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 btnEmj.setEnabled(false);
                 btnFunc.setEnabled(false);
 
+                MessageManager.setCanStamp(false);
             }
 
             @Override
@@ -1118,6 +1144,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                 //  alert.show();
 
+                MessageManager.setCanStamp(true);
             }
         }));
 
@@ -1510,49 +1537,49 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     //图片测试逻辑
     private void taskTestImage(int count) {
-        ToastUtil.show(getContext(), "内部指令，请重新输入");
-        editChat.setText("");
-        return;
+//        ToastUtil.show(getContext(), "内部指令，请重新输入");
+//        editChat.setText("");
+//        return;
 
-//        String file = "/storage/emulated/0/changXin/zgd123.jpg";
-//        File f = new File(file);
-//        if (!f.exists()) {
-//            ToastUtil.show(getContext(), "图片不存在，请在changXin文件夹下构建 zgd123.jpg 图片");
-//            return;
-//        }
-//        ToastUtil.show(getContext(), "连续发送" + count + "图片测试开始");
-//        try {
-//            for (int i = 1; i <= count; i++) {
-//                MsgAllBean imgMsgBean = null;
-//                if (StringUtil.isNotNull(file)) {
-//                    final boolean isArtworkMaster = false;
-//                    final String imgMsgId = SocketData.getUUID();
-//                    // 记录本次上传图片的ID跟本地路径
-//                    //:使用file:
-//                    // 路径会使得检测本地路径不存在
-//                    ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" +*/ file, isArtworkMaster);
-//                    imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
-//                    msgListData.add(imgMsgBean);
-//                    // 不等于常信小助手
-//                    if (!Constants.CX_HELPER_UID.equals(toUId)) {
-//                        UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
-//                        startService(new Intent(getContext(), UpLoadService.class));
-//                    }
-//                }
-//
-//                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, imgMsgBean);
-//                notifyData2Bottom(true);
-//
-//                if (i % 10 == 0) {
-//                    Thread.sleep(2 * 1000);
-////                    SocketData.send4Chat(toUId, toGid, "连续测试发送" + i + "-------");
-////                    SocketData.send4Chat(toUId, toGid, "-------");
-//                }
-//
-//            }
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        String file = "/storage/emulated/0/changXin/zgd123.jpg";
+        File f = new File(file);
+        if (!f.exists()) {
+            ToastUtil.show(getContext(), "图片不存在，请在changXin文件夹下构建 zgd123.jpg 图片");
+            return;
+        }
+        ToastUtil.show(getContext(), "连续发送" + count + "图片测试开始");
+        try {
+            for (int i = 1; i <= count; i++) {
+                MsgAllBean imgMsgBean = null;
+                if (StringUtil.isNotNull(file)) {
+                    final boolean isArtworkMaster = false;
+                    final String imgMsgId = SocketData.getUUID();
+                    // 记录本次上传图片的ID跟本地路径
+                    //:使用file:
+                    // 路径会使得检测本地路径不存在
+                    ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" +*/ file, isArtworkMaster);
+                    imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
+                    msgListData.add(imgMsgBean);
+                    // 不等于常信小助手
+                    if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                        UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
+                        startService(new Intent(getContext(), UpLoadService.class));
+                    }
+                }
+
+                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, imgMsgBean);
+                notifyData2Bottom(true);
+
+                if (i % 10 == 0) {
+                    Thread.sleep(2 * 1000);
+//                    SocketData.send4Chat(toUId, toGid, "连续测试发送" + i + "-------");
+//                    SocketData.send4Chat(toUId, toGid, "-------");
+                }
+
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -1828,31 +1855,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private boolean clickAble = false;
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //激活当前会话
-        if (isGroup()) {
-            MessageManager.getInstance().setSessionGroup(toGid);
-        } else {
-            MessageManager.getInstance().setSessionSolo(toUId);
-        }
-        //刷新群资料
-        taskSessionInfo();
-        clickAble = true;
-        //更新阅后即焚状态
-        initSurvivaltimeState();
-        sendRead();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        //取消激活会话
-        MessageManager.getInstance().setSessionNull();
-
-    }
 
     private UpFileAction upFileAction = new UpFileAction();
 
@@ -3142,47 +3144,49 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             holder.viewChatItem.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    holder.viewChatItem.selectTextBubble(true);
-                    // ToastUtil.show(getContext(),"长按");
-                    if (msgbean.getMsg_type() == ChatEnum.EMessageType.VOICE) {//为语音单独处理
-                        menus.clear();
-                        menus.add(new OptionMenu("删除"));
-                        if (msgDao.userSetingGet().getVoicePlayer() == 0) {
+                    if(!ViewUtils.isFastDoubleClick()){//防止触发两次  移除父类才能添加
+                        holder.viewChatItem.selectTextBubble(true);
+                        // ToastUtil.show(getContext(),"长按");
+                        if (msgbean.getMsg_type() == ChatEnum.EMessageType.VOICE) {//为语音单独处理
+                            menus.clear();
+                            menus.add(new OptionMenu("删除"));
+                            if (msgDao.userSetingGet().getVoicePlayer() == 0) {
 
-                            menus.add(0, new OptionMenu("听筒播放"));
-                        } else {
-                            menus.add(0, new OptionMenu("扬声器播放"));
+                                menus.add(0, new OptionMenu("听筒播放"));
+                            } else {
+                                menus.add(0, new OptionMenu("扬声器播放"));
+                            }
                         }
-                    }
 
-                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-                        if (msgbean.getFrom_uid() != null && msgbean.getFrom_uid().longValue() == UserAction.getMyId().longValue() && msgbean.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE && !isAtBanedCancel(msgbean)) {
-                            if (System.currentTimeMillis() - msgbean.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
-                                boolean isExist = false;
-                                for (OptionMenu optionMenu : menus) {
-                                    if (optionMenu.getTitle().equals("撤回")) {
-                                        isExist = true;
+                        if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+                            if (msgbean.getFrom_uid() != null && msgbean.getFrom_uid().longValue() == UserAction.getMyId().longValue() && msgbean.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE && !isAtBanedCancel(msgbean)) {
+                                if (System.currentTimeMillis() - msgbean.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
+                                    boolean isExist = false;
+                                    for (OptionMenu optionMenu : menus) {
+                                        if (optionMenu.getTitle().equals("撤回")) {
+                                            isExist = true;
+                                        }
                                     }
-                                }
 
-                                if (!isExist) {
+                                    if (!isExist) {
 
-                                    menus.add(new OptionMenu("撤回"));
+                                        menus.add(new OptionMenu("撤回"));
+                                    }
                                 }
                             }
                         }
+                        showPop(v, menus, msgbean, new IMenuSelectListener() {
+                            @Override
+                            public void onSelected() {
+                                holder.viewChatItem.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        holder.viewChatItem.selectTextBubble(false);
+                                    }
+                                }, 100);
+                            }
+                        }, holder);
                     }
-                    showPop(v, menus, msgbean, new IMenuSelectListener() {
-                        @Override
-                        public void onSelected() {
-                            holder.viewChatItem.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    holder.viewChatItem.selectTextBubble(false);
-                                }
-                            }, 100);
-                        }
-                    }, holder);
                     return true;
                 }
             });
@@ -3419,6 +3423,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 replaceListDataAndNotify(finalBean);
             }
         });
+
+        if(ChatEnum.EPlayStatus.PLAYING==status){
+            MessageManager.setCanStamp(false);
+        }else if(ChatEnum.EPlayStatus.STOP_PLAY==status||ChatEnum.EPlayStatus.PLAYED==status){
+            MessageManager.setCanStamp(true);
+        }
     }
 
     private void startPlayVoice(MsgAllBean bean, boolean canAutoPlay, final int position) {
@@ -3480,11 +3490,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         // 获取View在屏幕的位置
         int[] locationView = new int[2];
         v.getLocationOnScreen(locationView);
-
-        //移除父类才能添加
-        if(mRootView!=null){
-            ((ViewGroup)mRootView).removeAllViews();
-        }
 
         mPopupWindow = new PopupWindow(mRootView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         // 设置弹窗外可点击
