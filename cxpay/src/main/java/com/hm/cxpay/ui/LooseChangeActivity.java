@@ -29,8 +29,11 @@ import com.hm.cxpay.ui.bank.BankSettingActivity;
 import com.hm.cxpay.ui.bank.BindBankActivity;
 import com.hm.cxpay.ui.bill.BillDetailListActivity;
 import com.hm.cxpay.ui.change.ChangeDetailListActivity;
+import com.hm.cxpay.ui.identification.IdentificationInfoActivity;
 import com.hm.cxpay.ui.payword.ManagePaywordActivity;
 import com.hm.cxpay.ui.payword.SetPaywordActivity;
+import com.hm.cxpay.ui.recharege.RechargeActivity;
+import com.hm.cxpay.ui.withdraw.WithdrawActivity;
 import com.hm.cxpay.utils.UIUtils;
 
 import net.cb.cb.library.utils.DensityUtil;
@@ -59,8 +62,6 @@ public class LooseChangeActivity extends BasePayActivity {
 
     private Activity activity;
 
-    public static int REFRESH_BALANCE = 98;//获取最新余额展示
-    public static int REFRESH_BANKCARD_NUM = 97;//刷新银行卡数
     private int myCardListSize = 0;//我的银行卡个数 (判断是否添加过银行卡)
 //    private ControllerPaySetting viewAccountInfo;
 
@@ -72,12 +73,12 @@ public class LooseChangeActivity extends BasePayActivity {
         activity = this;
         initView();
         initEvent();
-        getBankList();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        getBankList();
         httpGetUserInfo();
     }
 
@@ -150,7 +151,7 @@ public class LooseChangeActivity extends BasePayActivity {
                 layoutRecharge.setEnabled(false);
                 // 1 已设置支付密码 -> 允许跳转
                 if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
-                    startActivityForResult(new Intent(activity, RechargeActivity.class), REFRESH_BALANCE);
+                    startActivity(new Intent(activity, RechargeActivity.class));
                 } else {
                     //2 未设置支付密码 -> 需要先设置
                     showSetPaywordDialog();
@@ -165,7 +166,7 @@ public class LooseChangeActivity extends BasePayActivity {
                 if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
                     //2 是否添加过银行卡
                     if (myCardListSize > 0) {
-                        startActivityForResult(new Intent(activity, WithdrawActivity.class), REFRESH_BALANCE);
+                        startActivity(new Intent(activity, WithdrawActivity.class));
                     } else {
                         showAddBankCardDialog();
                     }
@@ -236,7 +237,7 @@ public class LooseChangeActivity extends BasePayActivity {
                 viewMyCard.setEnabled(false);
                 //已设置支付密码 -> 允许跳转
                 if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
-                    startActivityForResult(new Intent(activity, BankSettingActivity.class), REFRESH_BANKCARD_NUM);
+                    startActivity(new Intent(activity, BankSettingActivity.class));
                 } else {
                     //未设置支付密码 -> 需要先设置
                     showSetPaywordDialog();
@@ -259,21 +260,6 @@ public class LooseChangeActivity extends BasePayActivity {
                 }
             }
         });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REFRESH_BALANCE) {
-            if (resultCode == RESULT_OK) {
-                httpGetUserInfo();
-                getBankList();
-            }
-        } else if (requestCode == REFRESH_BANKCARD_NUM) {
-            if (resultCode == RESULT_OK) {
-                getBankList();
-            }
-        }
     }
 
     /**
@@ -377,7 +363,7 @@ public class LooseChangeActivity extends BasePayActivity {
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         //设置宽高
         WindowManager.LayoutParams lp = window.getAttributes();
-        lp.height = DensityUtil.dip2px(activity, 155);
+        lp.height = DensityUtil.dip2px(activity, 136);
         lp.width = DensityUtil.dip2px(activity, 277);
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
@@ -442,7 +428,7 @@ public class LooseChangeActivity extends BasePayActivity {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
-                startActivityForResult(new Intent(activity, BindBankActivity.class), REFRESH_BANKCARD_NUM);
+                startActivity(new Intent(activity, BindBankActivity.class));
             }
         });
         //取消
@@ -459,7 +445,7 @@ public class LooseChangeActivity extends BasePayActivity {
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         //设置宽高
         WindowManager.LayoutParams lp = window.getAttributes();
-        lp.height = DensityUtil.dip2px(activity, 123);
+        lp.height = DensityUtil.dip2px(activity, 136);
         lp.width = DensityUtil.dip2px(activity, 277);
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);

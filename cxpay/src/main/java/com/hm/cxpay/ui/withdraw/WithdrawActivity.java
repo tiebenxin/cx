@@ -1,4 +1,4 @@
-package com.hm.cxpay.ui;
+package com.hm.cxpay.ui.withdraw;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -34,6 +34,7 @@ import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.SelectBankCardActivity;
 import com.hm.cxpay.ui.payword.CheckPaywordActivity;
+import com.hm.cxpay.ui.recharege.RechargeSuccessActivity;
 import com.hm.cxpay.utils.UIUtils;
 
 import net.cb.cb.library.utils.BigDecimalUtils;
@@ -46,8 +47,7 @@ import net.cb.cb.library.view.HeadView;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hm.cxpay.ui.LooseChangeActivity.REFRESH_BANKCARD_NUM;
-import static com.hm.cxpay.ui.RechargeActivity.SELECT_BANKCARD;
+import static com.hm.cxpay.ui.recharege.RechargeActivity.SELECT_BANKCARD;
 
 /**
  * @类名：零钱->提现
@@ -241,16 +241,17 @@ public class WithdrawActivity extends AppActivity {
                     public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
                             if (baseResponse.getData() != null) {
-                                if (baseResponse.getData().getCode() == 1) {
-                                    Toast.makeText(context, "提现申请成功!请耐心等待，稍后会有系统通知...", Toast.LENGTH_LONG).show();
-                                    setResult(RESULT_OK);
-                                    finish();
+                                //1 成功 99 处理中
+                                if (baseResponse.getData().getCode() == 1 || baseResponse.getData().getCode() == 99) {
+                                    Intent intent = new Intent(activity,WithdrawSuccessActivity.class);
+                                    intent.putExtra("bank_name",tvBankName.getText().toString());
+                                    intent.putExtra("withdraw_money",etWithdraw.getText().toString());
+                                    intent.putExtra("service_fee",serviceMoney+"");
+                                    intent.putExtra("get_money",realMoney+"");
+                                    startActivity(intent);
                                 } else if (baseResponse.getData().getCode() == 2) {
                                     Toast.makeText(context, "提现失败!如有疑问，请联系客服", Toast.LENGTH_LONG).show();
-                                } else if (baseResponse.getData().getCode() == 99) {
-                                    Toast.makeText(context, "交易处理中，请耐心等待...", Toast.LENGTH_LONG).show();
-                                    finish();
-                                } else {
+                                }else {
                                     ToastUtil.show(context, baseResponse.getMessage());
                                 }
                             }
@@ -421,9 +422,4 @@ public class WithdrawActivity extends AppActivity {
         dialog.setContentView(dialogView);
     }
 
-    @Override
-    public void onBackPressed() {
-        setResult(REFRESH_BANKCARD_NUM);
-        finish();
-    }
 }

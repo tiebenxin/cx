@@ -124,9 +124,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_rate_notice"
             android:layout_marginLeft="18dp"
-            android:layout_marginTop="7dp"
-            android:layout_marginBottom="4dp"
             android:text="可提现余额  ¥0.00"
+            android:padding="10dp"
             android:textColor="@color/c_868686"
             android:textSize="12sp" />
 
@@ -137,9 +136,10 @@
             android:layout_alignParentRight="true"
             android:layout_below="@+id/tv_rate_notice"
             android:text="全部提现"
+            android:layout_marginRight="18dp"
             android:padding="10dp"
             android:textColor="@color/c_374882"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
 
 
         <TextView
@@ -175,7 +175,7 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="80dp"
+            android:layout_marginBottom="23dp"
             android:padding="10dp"
             android:text="常见问题"
             android:textColor="@color/c_374882"

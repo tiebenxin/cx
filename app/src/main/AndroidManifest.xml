@@ -390,7 +390,7 @@
 
         <!--实名认证-->
         <activity
-            android:name="com.hm.cxpay.ui.IdentificationUserActivity"
+            android:name="com.hm.cxpay.ui.identification.IdentificationUserActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
