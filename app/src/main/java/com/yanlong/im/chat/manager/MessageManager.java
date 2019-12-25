@@ -114,6 +114,8 @@ public class MessageManager {
     private long playTimeOld = 0;//当前声音播放时间
     private long playVBTimeOld = 0; //当前震动时间
 
+    private static Boolean CAN_STAMP = true;//true 允许戳一戳弹窗 ,false 不允许
+
 
     public static MessageManager getInstance() {
         if (INSTANCE == null) {
@@ -159,7 +161,8 @@ public class MessageManager {
      * @return 返回结果，不需要处理逻辑的消息，默认处理成功
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify, String requestId) {
-        if(wrapMessage!=null&&wrapMessage.getMsgType()!=null&&wrapMessage.getMsgType()!=MsgBean.MessageType.ACTIVE_STAT_CHANGE){
+
+        if (wrapMessage != null && wrapMessage.getMsgType() != null && wrapMessage.getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
             LogUtil.getLog().e("===收到=msg=" + GsonUtils.optObject(wrapMessage));
         }
 
@@ -312,7 +315,7 @@ public class MessageManager {
                 break;
             case REQUEST_GROUP://群主会收到成员进群的请求的通知
 //                LogUtil.getLog().e("==wrapMessage=json="+GsonUtils.optObject(wrapMessage));
-                for (MsgBean.GroupNoticeMessage ntm : wrapMessage.getRequestGroup().getNoticeMessageList()) {
+                for (MsgBean.GroupMember ntm : wrapMessage.getRequestGroup().getNoticeMessageList()) {
 
                     ApplyBean applyBean = new ApplyBean();
                     applyBean.setAid(wrapMessage.getGid() + ntm.getUid());
@@ -459,7 +462,12 @@ public class MessageManager {
                 LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getRead().getTimestamp());
                 break;
             case SWITCH_CHANGE: //开关变更
+
+                if (wrapMessage.getSwitchChange().getSwitchType() == MsgBean.SwitchChangeMessage.SwitchType.UNRECOGNIZED) {
+                    return true;
+                }
                 LogUtil.getLog().d(TAG, "开关变更:" + wrapMessage.getSwitchChange().getSwitchType());
+
                 int switchType = wrapMessage.getSwitchChange().getSwitchType().getNumber();
                 int switchValue = wrapMessage.getSwitchChange().getSwitchValue();
                 long uid = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
@@ -1229,6 +1237,12 @@ public class MessageManager {
         SESSION_GID = null;
     }
 
+    //允许戳一戳弹窗
+    public static void setCanStamp(Boolean canStamp) {
+        CAN_STAMP = canStamp;
+        LogUtil.getLog().e("==CAN_STAMP==" + CAN_STAMP);
+    }
+
     /***
      * 根据接收到的消息内容，更新用户头像昵称等资料
      * @param msg
@@ -1296,6 +1310,7 @@ public class MessageManager {
         //会话已经静音
         Session session = isGroup ? DaoUtil.findOne(Session.class, "gid", msg.getGid()) : DaoUtil.findOne(Session.class, "from_uid", msg.getFromUid());
         if (session != null && session.getIsMute() == 1) {
+
             return;
         }
         if (isGroup && SESSION_TYPE == 2 && SESSION_GID.equals(msg.getGid())) { //群
@@ -1308,7 +1323,7 @@ public class MessageManager {
             }
         } else if (SESSION_TYPE == 3) {//静音模式
 
-        } else if (msg.getMsgType() == MsgBean.MessageType.STAMP) {//戳一戳
+        } else if (msg.getMsgType() == MsgBean.MessageType.STAMP && CAN_STAMP) {//戳一戳
             //不在聊天页 或 在聊天页，当前聊天人不是这个人
             AppConfig.getContext().startActivity(new Intent(AppConfig.getContext(), ChatActionActivity.class)
                     .putExtra(ChatActionActivity.AGM_DATA, msg.toByteArray())

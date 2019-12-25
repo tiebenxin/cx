@@ -20,6 +20,7 @@ import com.lansosdk.videoeditor.LanSongFileUtil;
 import com.lansosdk.videoeditor.VideoEditor;
 import com.lansosdk.videoeditor.onVideoEditorProgressListener;
 import com.libyuv.LibyuvUtil;
+import com.zhaoss.weixinrecorded.CanStampEventWX;
 import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.util.CameraHelp;
 import com.zhaoss.weixinrecorded.util.MyVideoEditor;
@@ -29,6 +30,8 @@ import com.zhaoss.weixinrecorded.util.Utils;
 import com.zhaoss.weixinrecorded.util.ViewUtils;
 import com.zhaoss.weixinrecorded.view.LineProgressView;
 import com.zhaoss.weixinrecorded.view.RecordView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -111,6 +114,8 @@ public class RecordedActivity extends BaseActivity {
         initUI();
         initData();
         initMediaRecorder();
+
+        EventBus.getDefault().post(new CanStampEventWX(false));
     }
 
     private void initUI() {
@@ -642,6 +647,8 @@ public class RecordedActivity extends BaseActivity {
         if (mRecordUtil != null) {
             mRecordUtil.stop();
         }
+
+        EventBus.getDefault().post(new CanStampEventWX(true));
     }
 
     @Override

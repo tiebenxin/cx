@@ -59,6 +59,7 @@ import com.yanlong.im.utils.TimeUtils;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.update.UpdateManage;
+import com.zhaoss.weixinrecorded.CanStampEventWX;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
@@ -68,6 +69,7 @@ import net.cb.cb.library.bean.EventNetStatus;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
+import net.cb.cb.library.bean.CanStampEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.manager.TokenManager;
 import net.cb.cb.library.event.EventFactory;
@@ -884,6 +886,25 @@ public class MainActivity extends AppActivity {
 
 
             }
+        }
+    }
+
+
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void posting(CanStampEvent event) {
+        if (!isFinishing()) {
+            //允许
+            MessageManager.setCanStamp(event.canStamp);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void posting(CanStampEventWX event) {
+        if (!isFinishing()) {
+            //允许
+            MessageManager.setCanStamp(event.canStamp);
         }
     }
 

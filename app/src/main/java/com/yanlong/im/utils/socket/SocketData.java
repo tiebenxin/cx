@@ -123,6 +123,9 @@ public class SocketData {
         }
         ack = amsg.build();
 
+        //添加到消息队中监听
+        SendList.addSendList(ack.getRequestId(), amsg);
+
         return SocketPact.getPakage(SocketPact.DataType.ACK, ack.toByteArray());
 
     }
@@ -1003,6 +1006,7 @@ public class SocketData {
         MsgBean.ReadMessage msg = MsgBean.ReadMessage.newBuilder()
                 .setTimestamp(timestamp)
                 .build();
+        LogUtil.writeLog(">>>已读消息 toId:" + toId + " timestamp:" + timestamp);
         return send4Base(false, toId, null, MsgBean.MessageType.READ, msg);
     }
 
@@ -1321,7 +1325,6 @@ public class SocketData {
         }
 
         MsgAllBean msg = new MsgAllBean();
-        msg.setMsg_id(obj.getMsgId());
         msg.setMsg_id(obj.getMsgId());
         msg.setMsg_type(msgType);
         msg.setTimestamp(time > 0 ? time : getFixTime());

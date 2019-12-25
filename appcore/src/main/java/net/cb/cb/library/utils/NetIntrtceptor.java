@@ -2,9 +2,14 @@ package net.cb.cb.library.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.MainApplication;
 import net.cb.cb.library.bean.EventLoginOut;
+import net.cb.cb.library.bean.EventLoginOut4Conflict;
+import net.cb.cb.library.constant.BuglyTag;
+import net.cb.cb.library.utils.encrypt.AESEncrypt;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -30,6 +35,8 @@ public class NetIntrtceptor implements Interceptor {
     private static MediaType mediaType = MediaType.parse("application/json; charset=UTF-8");
     public static Headers headers = Headers.of();
 
+    // Bugly登录异常标签
+    private final int BUGLY_TAG_LOGIN = 139070;
 
     @Override
     public Response intercept(Chain chain) throws IOException {
@@ -103,7 +110,10 @@ public class NetIntrtceptor implements Interceptor {
                 break;
             case 401:
                 LogUtil.getLog().e(TAG, "<<拦截器:401 url:" + resp.request().url().url().toString());
-
+                // 上报后的Crash会显示该标签
+                CrashReport.setUserSceneTag(MainApplication.getInstance().getApplicationContext(), BUGLY_TAG_LOGIN);
+                // 上传异常数据
+                CrashReport.putUserData(MainApplication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_3, "401：" + resp.message() + " " + resp.body());
                 EventBus.getDefault().post(new EventLoginOut());
               /*  if(token==null||token.getToken()==null){//没登录,在当前页面弹登录
                     EventBus.getDefault().post(new EventLoginOut());
@@ -117,7 +127,10 @@ public class NetIntrtceptor implements Interceptor {
 
             case 403:
                 LogUtil.getLog().e(TAG, "<<拦截器:403 url:" + resp.request().url().url().toString());
-
+                // 上报后的Crash会显示该标签
+                CrashReport.setUserSceneTag(MainApplication.getInstance().getApplicationContext(), BUGLY_TAG_LOGIN);
+                // 上传异常数据
+                CrashReport.putUserData(MainApplication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_3, "403：" + resp.message() + " " + resp.body());
                 EventBus.getDefault().post(new EventLoginOut());
                 break;
             case 404:
