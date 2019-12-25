@@ -1,28 +1,14 @@
-package com.yanlong.im.utils;
+package net.cb.cb.library.utils;
 
-import android.annotation.SuppressLint;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
 
-import com.yanlong.im.MainActivity;
-import com.yanlong.im.MyAppLication;
-import com.yanlong.im.user.ui.SplashActivity;
-import com.zhaoss.weixinrecorded.util.RxJavaUtil;
-
-import net.cb.cb.library.event.EventFactory;
-import net.cb.cb.library.utils.IntentUtil;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -112,28 +98,6 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         if (ex == null) {
             return false;
         }
-        RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<Object>() {
-
-            @Override
-            public Object doInBackground() throws Throwable {
-                //收集设备参数信息
-                collectDeviceInfo(mContext);
-                //保存日志文件
-                saveCrashInfo2File(ex);
-
-                return null;
-            }
-
-            @Override
-            public void onFinish(Object result) {
-
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-        });
 
         return true;
     }
@@ -172,7 +136,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
      * @param ex
      * @return 返回文件名称, 便于将文件传送到服务器
      */
-    private void saveCrashInfo2File(Throwable ex) {
+    public void saveCrashInfo2File(Throwable ex) {
 
         StringBuffer sb = new StringBuffer();
         for (Map.Entry<String, String> entry : infos.entrySet()) {

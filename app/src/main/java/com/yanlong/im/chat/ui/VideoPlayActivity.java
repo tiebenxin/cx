@@ -35,6 +35,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.MyDiskCache;
 import com.yanlong.im.utils.MyDiskCacheUtils;
@@ -113,6 +114,8 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         if (!TextUtils.isEmpty(bgUrl)) {
             Glide.with(this).load(bgUrl).into(img_bg);
         }
+
+        MessageManager.setCanStamp(false);
     }
 
     private void downVideo(final MsgAllBean msgAllBean, final VideoMessage videoMessage) {
@@ -398,6 +401,8 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
+
+        MessageManager.setCanStamp(true);
     }
 
     @Override

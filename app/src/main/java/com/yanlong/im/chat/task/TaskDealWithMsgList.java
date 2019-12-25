@@ -5,6 +5,9 @@ import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.tencent.bugly.crashreport.CrashReport;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -13,9 +16,11 @@ import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
+import com.yanlong.im.utils.socket.SocketPact;
 import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.constant.BuglyTag;
 import net.cb.cb.library.utils.LogUtil;
 
 import java.util.ArrayList;
@@ -45,6 +50,9 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
     List<Long> uids = new ArrayList<>();//批量消息接收到单聊uid
     private int taskCount = 0;//任务总数
 
+    // Bugly数据保存异常标签
+    private final int BUGLY_TAG_SAVE_DATA = 139066;
+
     private Map<String, MsgAllBean> pendingMessages = new HashMap<>();//批量接收到的消息，待保存到数据库
     private Map<String, MsgAllBean> pendingCancelMessages = new HashMap<>();//批量接收到的撤销消息，待保存到数据库
     private Map<Long, UserInfo> pendingUsers = new HashMap<>();//批量用户信息（头像和昵称），待保存到数据库
@@ -69,6 +77,11 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
                 if (result) {
                     cutTaskCount();
                 } else {
+                    // 上报后的Crash会显示该标签
+                    CrashReport.setUserSceneTag(MyAppLication.getInstance().getApplicationContext(), BUGLY_TAG_SAVE_DATA);
+                    // 上传异常数据
+                    CrashReport.putUserData(MyAppLication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_1,
+                            "requestId:" + requestId + ";MsgType:" +wrapMessage.getMsgType());
                 }
             }
         }
@@ -206,16 +219,25 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
                 if (msgList.size() > 0) {
                     boolean isSuccess = msgDao.insertOrUpdateMsgList(msgList);
                     if (isSuccess) {
-                        SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null), null);
-                        System.out.println(TAG + "--发送回执--requestId=" + requestId);
+                        SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null), null,requestId);
+                        System.out.println(TAG + "--发送回执2--requestId=" + requestId);
+                        LogUtil.writeLog("--发送回执2--requestId=" + requestId);
+                    } else {
+                        LogUtil.writeLog("--数据更新失败--requestId="+ requestId + ";" + new Gson().toJson(msgList));
+                        // 上报后的Crash会显示该标签
+                        CrashReport.setUserSceneTag(MyAppLication.getInstance().getApplicationContext(), BUGLY_TAG_SAVE_DATA);
+                        // 上传异常数据
+                        CrashReport.putUserData(MyAppLication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_1, "Id:" + requestId + ";" + new Gson().toJson(msgList));
                     }
                 } else {
-                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null), null);
-                    System.out.println(TAG + "--发送回执--requestId=" + requestId);
+                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null), null,requestId);
+                    System.out.println(TAG + "--发送回执3--requestId=" + requestId);
+                    LogUtil.writeLog("--发送回执3--requestId=" + requestId);
                 }
             } else {
-                SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null), null);
-                System.out.println(TAG + "--发送回执--requestId=" + requestId);
+                SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null), null,requestId);
+                System.out.println(TAG + "--发送回执4--requestId=" + requestId);
+                LogUtil.writeLog("--发送回执4--requestId=" + requestId);
             }
             Map<String, MsgAllBean> mapCancel = /*MessageManager.getInstance().*/getPendingCancelMap();
             if (mapCancel != null && mapCancel.size() > 0) {

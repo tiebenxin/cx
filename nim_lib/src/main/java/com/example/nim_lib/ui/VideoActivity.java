@@ -71,6 +71,7 @@ import com.netease.nrtc.video.render.IVideoRender;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.CanStampEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
@@ -258,6 +259,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         init();
         initData();
         registerObserves(true);
+        EventBus.getDefault().post(new CanStampEvent(false));
     }
 
     public void setStatusBarColor(int color) {
@@ -494,6 +496,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 EventBus.getDefault().unregister(this);
             }
         }
+
+        EventBus.getDefault().post(new CanStampEvent(true));
     }
 
     /**

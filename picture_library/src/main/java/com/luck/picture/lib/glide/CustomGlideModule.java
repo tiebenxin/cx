@@ -34,9 +34,9 @@ public class CustomGlideModule extends AppGlideModule {
 //            LogManager.getLogger().i("a===","Glide缓存位置：/com.yanlong.cll/cache/image");
             if (Environment.isExternalStorageEmulated()) {
                 File storageDirectory = Environment.getExternalStorageDirectory();
-                String cachePath = storageDirectory + "/changliaoliao/cache/image/";
+                String cachePath = storageDirectory + "/changxin/cache/image/";
                 builder.setDiskCache(new DiskLruCacheFactory(cachePath, memoryCacheSizeBytes * 5));
-//            builder.setDiskCache(new DiskLruCacheFactory("/sacard/changliaoliao/cache/image", memoryCacheSizeBytes * 5));
+//            builder.setDiskCache(new DiskLruCacheFactory("/sacard/changxin/cache/image", memoryCacheSizeBytes * 5));
             } else {
                 builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
             }

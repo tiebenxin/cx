@@ -63,7 +63,7 @@ public class UserUtil {
      * @return
      */
     public static boolean isSystemUser(Long toUId) {
-        if (toUId != null && (toUId.intValue() == Constants.CX_HELPER_UID || toUId.intValue() == Constants.CX888_UID || toUId.intValue() == Constants.CX999_UID)) {
+        if (toUId != null && (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX888_UID.equals(toUId) ||  Constants.CX999_UID.equals(toUId))) {
             return true;
         }
         return false;

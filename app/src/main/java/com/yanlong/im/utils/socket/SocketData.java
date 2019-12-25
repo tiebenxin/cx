@@ -105,6 +105,9 @@ public class SocketData {
         }
         ack = amsg.build();
 
+        //添加到消息队中监听
+        SendList.addSendList(ack.getRequestId(), amsg);
+
         return SocketPact.getPakage(SocketPact.DataType.ACK, ack.toByteArray());
 
     }
@@ -352,7 +355,7 @@ public class SocketData {
      * @time time > 0
      * */
     private static MsgAllBean send4Base(boolean isSave, boolean isSend, String msgId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
-        LogUtil.getLog().i(TAG, ">>>---发送到toid" + toId + "--gid" + toGid);
+        LogUtil.getLog().i(TAG, ">>>-=msg=--发送到toid=" + toId + "--gid" + toGid);
         MsgBean.UniversalMessage.Builder msg = toMsgBuilder(msgId, toId, toGid, time > 0 ? time : getFixTime(), type, value);
 
         if (isSave && msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
@@ -985,6 +988,7 @@ public class SocketData {
         MsgBean.ReadMessage msg = MsgBean.ReadMessage.newBuilder()
                 .setTimestamp(timestamp)
                 .build();
+        LogUtil.writeLog(">>>已读消息 toId:" + toId + " timestamp:" + timestamp);
         return send4Base(false, toId, null, MsgBean.MessageType.READ, msg);
     }
 
@@ -1147,7 +1151,7 @@ public class SocketData {
         if (type != null && value != null && isSend) {
             MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
             //立即发送
-            LogUtil.getLog().e("===发送=msg==="+GsonUtils.optObject(msg));
+            LogUtil.getLog().e("===发送=msg===" + GsonUtils.optObject(msg));
             SocketUtil.getSocketUtil().sendData4Msg(msg);
         }
     }
@@ -1628,7 +1632,7 @@ public class SocketData {
 
 
     //位置消息
-    public static LocationMessage createLocationMessage(String msgId , int latitude , int longitude , String address , String addressDescribe) {
+    public static LocationMessage createLocationMessage(String msgId, int latitude, int longitude, String address, String addressDescribe) {
         LocationMessage message = new LocationMessage();
         message.setMsgId(msgId);
         message.setLatitude(latitude);

@@ -108,6 +108,10 @@ dependencies {
     api 'org.greenrobot:eventbus:3.0.0'
     //图片
     api project(':picture_library')
+    // Bugly
+    api 'com.tencent.bugly:crashreport:latest.release'
+    api 'com.tencent.bugly:nativecrashreport:latest.release'
+
     //常用控件
     api 'com.kyleduo.switchbutton:library:2.0.0'
     api 'com.baoyz.pullrefreshlayout:library:1.2.0'

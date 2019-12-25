@@ -36,7 +36,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private Long to_uid;
     //   private UserInfo to_user;
     private String gid;
-    private int read = 0; //已读
+    private int read = 0; //0 未读  ， 1  已读
 
     @ChatEnum.EMessageType
     private Integer msg_type;

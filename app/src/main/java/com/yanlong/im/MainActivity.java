@@ -1,8 +1,5 @@
 package com.yanlong.im;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
@@ -25,9 +22,6 @@ import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.example.nim_lib.util.PermissionsUtil;
-import com.netease.nimlib.sdk.NIMClient;
-import com.netease.nimlib.sdk.StatusCode;
-import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
@@ -55,6 +49,7 @@ import com.yanlong.im.utils.TimeUtils;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.update.UpdateManage;
+import com.zhaoss.weixinrecorded.CanStampEventWX;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventLoginOut;
@@ -63,6 +58,7 @@ import net.cb.cb.library.bean.EventNetStatus;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
+import net.cb.cb.library.bean.CanStampEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.net.NetWorkUtils;
@@ -838,6 +834,25 @@ public class MainActivity extends AppActivity {
             } else {
 
             }
+        }
+    }
+
+
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void posting(CanStampEvent event) {
+        if (!isFinishing()) {
+            //允许
+            MessageManager.setCanStamp(event.canStamp);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void posting(CanStampEventWX event) {
+        if (!isFinishing()) {
+            //允许
+            MessageManager.setCanStamp(event.canStamp);
         }
     }
 }
