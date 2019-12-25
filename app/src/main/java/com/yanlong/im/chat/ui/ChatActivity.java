@@ -70,6 +70,7 @@ import com.hm.cxpay.ui.redenvelope.MultiRedPacketActivity;
 import com.hm.cxpay.ui.bill.BillDetailActivity;
 import com.hm.cxpay.ui.transfer.TransferActivity;
 import com.hm.cxpay.ui.transfer.TransferDetailActivity;
+import com.hm.cxpay.utils.UIUtils;
 import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
@@ -3127,13 +3128,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 case ChatEnum.EMessageType.TRANSFER:
                     menus.add(new OptionMenu("删除"));
                     TransferMessage ts = msgbean.getTransfer();
-                    Boolean isInvalidTs = false;
                     String infoTs = ts.getComment();
-                    String titleTs = ts.getTransaction_amount() + "元";
-                    final String tsId = ts.getId();
-                    String typeTs = "好友转账";
+                    String titleTs = "¥" + UIUtils.getYuan(ts.getTransaction_amount());
+                    String typeTs = "零钱转账";
                     int tranType = 0;//转账类型
-                    holder.viewChatItem.setData6(isInvalidTs, titleTs, infoTs, typeTs, R.color.transparent, tranType, new ChatItemView.EventRP() {
+                    holder.viewChatItem.setData6(ts.getOpType(), titleTs, infoTs, typeTs, R.color.transparent, tranType, new ChatItemView.EventRP() {
                         @Override
                         public void onClick(boolean isInvalid, int tranType) {
                             Intent intent = TransferDetailActivity.newIntent(ChatActivity.this, ts.getId(), msgbean.isMe());
@@ -3143,7 +3142,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     break;
                 case ChatEnum.EMessageType.VOICE://语音消息
-
                     menus.add(new OptionMenu("删除"));
                     final VoiceMessage vm = msgbean.getVoiceMessage();
                     String url = msgbean.isMe() ? vm.getLocalUrl() : vm.getUrl();

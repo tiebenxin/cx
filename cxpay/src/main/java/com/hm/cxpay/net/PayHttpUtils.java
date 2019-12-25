@@ -8,6 +8,7 @@ import com.google.gson.GsonBuilder;
 import com.hm.cxpay.bean.BillBean;
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.bean.TransferDetailBean;
+import com.hm.cxpay.bean.TransferResultBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.bean.BankBean;
@@ -365,6 +366,32 @@ public class PayHttpUtils {
         Map<String, String> map = new HashMap<>();
         map.put("tradeId", tradeId);
         return HttpChannel.getInstance().getPayService().getTransferDetail(getRequestBody(map));
+    }
+
+    /**
+     * 领取转账
+     *
+     * @param fromUid 转账发送者id
+     */
+    public Observable<BaseResponse<TransferResultBean>> receiveTransfer(String actionId, String tradeId, long fromUid) {
+        Map<String, String> map = new HashMap<>();
+        map.put("actionId", actionId);
+        map.put("tradeId", tradeId);
+        map.put("fromUid", fromUid + "");
+        return HttpChannel.getInstance().getPayService().receiveTransfer(getRequestBody(map));
+    }
+
+    /**
+     * 拒收转账
+     *
+     * @param fromUid 转账发送者id
+     */
+    public Observable<BaseResponse<TransferResultBean>> returnTransfer(String actionId, String tradeId, long fromUid) {
+        Map<String, String> map = new HashMap<>();
+        map.put("actionId", actionId);
+        map.put("tradeId", tradeId);
+        map.put("fromUid", fromUid + "");
+        return HttpChannel.getInstance().getPayService().receiveTransfer(getRequestBody(map));
     }
 
 

@@ -8,8 +8,13 @@ import android.view.View;
 
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
+import com.hm.cxpay.bean.CxTransferBean;
+import com.hm.cxpay.bean.SendResultBean;
 import com.hm.cxpay.bean.TransferDetailBean;
+import com.hm.cxpay.bean.TransferResultBean;
 import com.hm.cxpay.databinding.ActivityTransferDetailBinding;
+import com.hm.cxpay.eventbus.TransferSuccessEvent;
+import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
@@ -19,6 +24,8 @@ import com.hm.cxpay.utils.UIUtils;
 
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
+
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * @author Liszt
@@ -31,6 +38,7 @@ public class TransferDetailActivity extends BasePayActivity {
     //    private CxTransferBean bean;
     private boolean isFromMe;
     private String tradeId;
+    private TransferDetailBean detailBean;
 
     public static Intent newIntent(Context context, String tradeId, boolean isFromMe) {
         Intent intent = new Intent(context, TransferDetailActivity.class);
@@ -77,7 +85,7 @@ public class TransferDetailActivity extends BasePayActivity {
         ui.tvReturn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                returnTransfer();
             }
         });
 
@@ -85,7 +93,7 @@ public class TransferDetailActivity extends BasePayActivity {
         ui.tvReceive.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                receiveTransfer();
             }
         });
 
@@ -224,6 +232,95 @@ public class TransferDetailActivity extends BasePayActivity {
                     }
                 });
 
+    }
+
+    /**
+     * 领取转账
+     */
+    private void receiveTransfer() {
+        if (detailBean == null) {
+            return;
+        }
+        String actionId = UIUtils.getUUID();
+
+        PayHttpUtils.getInstance().receiveTransfer(actionId, tradeId, detailBean.getPayUser().getUid())
+                .compose(RxSchedulers.<BaseResponse<TransferResultBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<TransferResultBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<TransferResultBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<TransferResultBean> baseResponse) {
+                        if (baseResponse.getData() != null) {
+                            //如果当前页有数据
+                            TransferResultBean resultBean = baseResponse.getData();
+                            notifyTransfer(createTransferBean(resultBean, PayEnum.ETransferOpType.TRANS_RECEIVE));
+                            finish();
+                        } else {
+
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse<TransferResultBean> baseResponse) {
+                        super.onHandleError(baseResponse);
+                        ToastUtil.show(context, baseResponse.getMessage());
+                    }
+                });
+
+    }
+
+    /**
+     * 拒收转账
+     */
+    private void returnTransfer() {
+        if (detailBean == null) {
+            return;
+        }
+        String actionId = UIUtils.getUUID();
+
+        PayHttpUtils.getInstance().receiveTransfer(actionId, tradeId, detailBean.getPayUser().getUid())
+                .compose(RxSchedulers.<BaseResponse<TransferResultBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<TransferResultBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<TransferResultBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<TransferResultBean> baseResponse) {
+                        if (baseResponse.getData() != null) {
+                            //如果当前页有数据
+                            TransferResultBean resultBean = baseResponse.getData();
+                            notifyTransfer(createTransferBean(resultBean, PayEnum.ETransferOpType.TRANS_REJECT));
+                            finish();
+                        } else {
+                            ToastUtil.show(context, baseResponse.getMessage());
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse<TransferResultBean> baseResponse) {
+                        super.onHandleError(baseResponse);
+                        ToastUtil.show(context, baseResponse.getMessage());
+                    }
+                });
+
+    }
+
+    public CxTransferBean createTransferBean(TransferResultBean bean, @PayEnum.ETransferOpType int type) {
+        long id = UIUtils.getTradeId(tradeId);
+        if (detailBean == null || id <= 0) {
+            return null;
+        }
+        CxTransferBean transferBean = new CxTransferBean();
+        transferBean.setUid(detailBean.getPayUser().getUid());
+        transferBean.setAmount(detailBean.getAmt());
+        transferBean.setOpType(type);
+        transferBean.setInfo(detailBean.getNote());
+        transferBean.setSign(bean.getSign());
+        transferBean.setTradeId(id);
+        return transferBean;
+    }
+
+    public void notifyTransfer(CxTransferBean bean) {
+        EventBus.getDefault().post(new TransferSuccessEvent(bean));
     }
 
 

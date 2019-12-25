@@ -95,4 +95,10 @@ public class Route {
 
     //获取转账详情
     public static final String GET_TRANSFER_DETAIL = "/order/get_trans_detail";
+
+    //领取转账
+    public static final String RECEIVE_TRANSFER = "/order/receive_transfer";
+
+    //退还转账
+    public static final String RETURN_TRANSFER = "/order/reject_transfer";
 }

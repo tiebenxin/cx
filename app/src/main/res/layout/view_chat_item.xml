@@ -1039,7 +1039,7 @@
                             android:layout_height="90dp"
                             android:background="@drawable/bg_chat_me_rp"
                             android:orientation="vertical"
-                            android:visibility="gone">
+                            android:visibility="visible">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -1052,9 +1052,8 @@
                                 <ImageView
                                     android:id="@+id/img_me_ts_state"
                                     android:layout_width="wrap_content"
-
                                     android:layout_height="wrap_content"
-                                    android:src="@mipmap/ic_rb_zfb_n" />
+                                    android:src="@mipmap/ic_transfer_rb" />
 
                                 <LinearLayout
                                     android:layout_width="match_parent"
@@ -1091,7 +1090,7 @@
                                     style="@style/app_txt_content_1"
                                     android:layout_width="wrap_content"
                                     android:layout_weight="1"
-                                    android:text="支付宝红包" />
+                                    android:text="零钱转账" />
 
                                 <ImageView
                                     android:id="@+id/img_me_ts_icon"

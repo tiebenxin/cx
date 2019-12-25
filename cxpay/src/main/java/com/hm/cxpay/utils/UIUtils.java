@@ -41,6 +41,27 @@ public class UIUtils {
         }
     }
 
+    public static String getYuan(String amt) {
+        long amo = 0;
+        if (!TextUtils.isEmpty(amt)) {
+            try {
+                amo = Long.parseLong(amt);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (amo == 0) {
+            return "0.00";
+        } else if (amo > 0 && amo < 100) {
+            double money = (amo * 1.00) / 100;
+            return money + "";
+        } else {
+            double money = (amo * 1.00) / 100;
+            DecimalFormat df = new DecimalFormat("#.00");
+            return df.format(money);
+        }
+    }
+
     //String 转为 分
     public static long getFen(String money) {
         long fen = 0;
@@ -118,6 +139,18 @@ public class UIUtils {
                 .dontAnimate()
                 .skipMemoryCache(false);
         Glide.with(ivAvatar.getContext()).load(avatar).apply(mRequestOptions).into(ivAvatar);
+    }
+
+    public static long getTradeId(String trade) {
+        long tradeId = 0;
+        if (!TextUtils.isEmpty(trade)) {
+            try {
+                tradeId = Long.parseLong(trade);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return tradeId;
     }
 
 }
