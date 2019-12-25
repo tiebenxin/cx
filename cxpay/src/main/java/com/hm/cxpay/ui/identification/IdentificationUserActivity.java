@@ -1,4 +1,4 @@
-package com.hm.cxpay.ui;
+package com.hm.cxpay.ui.identification;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -13,6 +13,7 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.BindPhoneNumActivity;
 
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;

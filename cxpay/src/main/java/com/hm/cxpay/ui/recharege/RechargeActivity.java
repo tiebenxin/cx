@@ -1,4 +1,4 @@
-package com.hm.cxpay.ui;
+package com.hm.cxpay.ui.recharege;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.alibaba.android.arouter.launcher.ARouter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
@@ -44,7 +45,6 @@ import net.cb.cb.library.view.HeadView;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hm.cxpay.ui.LooseChangeActivity.REFRESH_BANKCARD_NUM;
 
 /**
  * @类名：零钱->充值
@@ -73,6 +73,8 @@ public class RechargeActivity extends AppActivity {
     private AlertDialog dialogTwo;//充值支付弹框
     private TextView tvBankNameTwo;//已有银行卡切换->显示银行卡名
     private ImageView ivBankIconTwo;//已有银行卡切换->显示银行卡头像
+    private TextView tvNotice;//低于10元顶部提示
+    private TextView tvQuestion;//常见问题
 
     public static final int SELECT_BANKCARD = 99;
     private BankBean selectBankcard;//选中的银行卡
@@ -105,6 +107,8 @@ public class RechargeActivity extends AppActivity {
         tvSelectFour = findViewById(R.id.tv_select_four);
         tvSelectFive = findViewById(R.id.tv_select_five);
         tvSelectSix = findViewById(R.id.tv_select_six);
+        tvNotice = findViewById(R.id.tv_notice);
+        tvQuestion = findViewById(R.id.tv_question);
         actionbar = headView.getActionbar();
     }
 
@@ -131,7 +135,7 @@ public class RechargeActivity extends AppActivity {
                 //1 充值金额不能为空
                 if (!TextUtils.isEmpty(etRecharge.getText().toString())) {
                     //2 最低充值1元
-                    if (Integer.valueOf(etRecharge.getText().toString()) >= 1) {
+                    if (Integer.valueOf(etRecharge.getText().toString()) >= 10) {
                         //3-1 已经添加过银行卡
                         if (ifAddBankcard) {
                             showRechargeDialog(2);
@@ -141,7 +145,7 @@ public class RechargeActivity extends AppActivity {
                         }
 
                     } else {
-                        ToastUtil.show(context, "最低充值金额1元");
+                        ToastUtil.show(context, "最低充值金额10元");
                     }
                 } else {
                     ToastUtil.show(context, "充值金额不能为空");
@@ -242,9 +246,21 @@ public class RechargeActivity extends AppActivity {
                         ToastUtil.show(activity, "单笔充值最高不能超过500元");
                         etRecharge.setText("");
                     }
+                    //4 低于10元顶部提示
+                    if(Double.valueOf(total) < 10){
+                        tvNotice.setVisibility(View.VISIBLE);
+                    }else {
+                        tvNotice.setVisibility(View.INVISIBLE);
+                    }
                 } else {
                     clearSelectedStatus();
                 }
+            }
+        });
+        tvQuestion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ARouter.getInstance().build("/app/HelpActivity").navigation();
             }
         });
 
@@ -459,18 +475,15 @@ public class RechargeActivity extends AppActivity {
                     @Override
                     public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
                         if (baseResponse.getData() != null) {
-                            if (baseResponse.getData().getCode() == 1) {
-                                ToastUtil.showLong(context, "充值成功!");
-                                setResult(RESULT_OK);
+                            //1 成功 99 处理中
+                            if (baseResponse.getData().getCode() == 1 || baseResponse.getData().getCode() == 99) {
+                                startActivity(new Intent(activity,RechargeSuccessActivity.class).putExtra("money",etRecharge.getText().toString()));
                             } else if (baseResponse.getData().getCode() == 2) {
                                 ToastUtil.showLong(context, "充值失败!如有疑问，请联系客服");
-                            } else if (baseResponse.getData().getCode() == 99) {
-                                ToastUtil.showLong(context, "交易处理中，请耐心等待，稍后会有系统通知...");
                             } else {
                                 ToastUtil.showLong(context, baseResponse.getMessage());
                             }
                         }
-                        finish();
                     }
 
                     @Override
@@ -508,10 +521,4 @@ public class RechargeActivity extends AppActivity {
         }
     }
 
-
-    @Override
-    public void onBackPressed() {
-        setResult(REFRESH_BANKCARD_NUM);
-        finish();
-    }
 }

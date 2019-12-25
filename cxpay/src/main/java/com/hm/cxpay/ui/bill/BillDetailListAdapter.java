@@ -25,7 +25,7 @@ import java.util.List;
  * @类名：账单明细适配器
  * @Date：2019/12/9
  * @by zjy
- * @备注：
+ * @备注：零钱明细复用
  */
 
 public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

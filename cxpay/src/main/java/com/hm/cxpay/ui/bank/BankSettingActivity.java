@@ -122,9 +122,4 @@ public class BankSettingActivity extends BasePayActivity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        setResult(RESULT_OK);
-        finish();
-    }
 }

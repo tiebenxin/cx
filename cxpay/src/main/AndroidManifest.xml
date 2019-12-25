@@ -7,13 +7,16 @@
             android:screenOrientation="portrait"
             android:launchMode="singleTask"/>
         <activity
-            android:name=".ui.IdentificationUserActivity"
+            android:name=".ui.identification.IdentificationUserActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.IdentificationInfoActivity"
+            android:name=".ui.identification.IdentificationInfoActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.RechargeActivity"
+            android:name=".ui.recharege.RechargeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.recharege.RechargeSuccessActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.payword.CheckPaywordActivity"
@@ -38,7 +41,10 @@
             android:name=".ui.bank.SelectBankCardActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.WithdrawActivity"
+            android:name=".ui.withdraw.WithdrawActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.withdraw.WithdrawSuccessActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.BindPhoneNumActivity"

@@ -22,7 +22,7 @@ import net.cb.cb.library.view.ActionbarView;
 
 import java.util.List;
 
-import static com.hm.cxpay.ui.RechargeActivity.SELECT_BANKCARD;
+import static com.hm.cxpay.ui.recharege.RechargeActivity.SELECT_BANKCARD;
 
 
 /**

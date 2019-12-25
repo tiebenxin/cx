@@ -268,7 +268,7 @@ public class BindPhoneNumActivity extends AppActivity {
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         //设置宽高
         WindowManager.LayoutParams lp = window.getAttributes();
-        lp.height = DensityUtil.dip2px(activity, 155);
+        lp.height = DensityUtil.dip2px(activity, 136);
         lp.width = DensityUtil.dip2px(activity, 277);
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);

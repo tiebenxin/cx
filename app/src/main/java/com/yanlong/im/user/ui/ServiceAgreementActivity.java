@@ -12,7 +12,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
 
-import com.hm.cxpay.ui.IdentificationUserActivity;
+import com.hm.cxpay.ui.identification.IdentificationUserActivity;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.databinding.ActivityServiceAgreementBinding;
