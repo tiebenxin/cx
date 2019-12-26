@@ -66,12 +66,15 @@ public class PayEnum {
     }
 
     //转账操作type
-    @IntDef({ETransferOpType.TRANS_SEND, ETransferOpType.TRANS_RECEIVE, ETransferOpType.TRANS_REJECT})
+    @IntDef({ETransferOpType.TRANS_SEND, ETransferOpType.TRANS_RECEIVE, ETransferOpType.TRANS_REJECT, ETransferOpType.TRANS_PAST})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ETransferOpType {
         int TRANS_SEND = 0;//发起转账
         int TRANS_RECEIVE = 1;//接收转账
         int TRANS_REJECT = 2;//退还转账
+
+
+        int TRANS_PAST = 100;//过期
     }
 
     //转账状态

@@ -55,6 +55,7 @@ import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.bean.CxTransferBean;
+import com.hm.cxpay.bean.TransferDetailBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.dailog.DialogDefault;
 import com.hm.cxpay.dailog.DialogEnvelope;
@@ -817,7 +818,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void onClick(View v) {
 
-                if(ViewUtils.isFastDoubleClick()){
+                if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
 
@@ -1886,7 +1887,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     public void eventTransferSuccess(TransferSuccessEvent event) {
         CxTransferBean transferBean = event.getBean();
         if (transferBean != null) {
-            TransferMessage message = SocketData.createTansferMessage(SocketData.getUUID(), transferBean.getTradeId(), transferBean.getAmount(), transferBean.getInfo(), transferBean.getSign(), PayEnum.ETransferOpType.TRANS_SEND);
+            if (transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_RECEIVE || transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_REJECT
+                    || transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_PAST) {
+                if (!TextUtils.isEmpty(transferBean.getMsgJson())) {
+                    MsgAllBean msg = GsonUtils.getObject(transferBean.getMsgJson(), MsgAllBean.class);
+                    TransferMessage preTransfer = msg.getTransfer();
+                    preTransfer.setOpType(transferBean.getOpType());
+                    replaceListDataAndNotify(msg);
+                }
+                msgDao.updateTransferStatus(transferBean.getTradeId() + "", transferBean.getOpType());
+            }
+            TransferMessage message = SocketData.createTansferMessage(SocketData.getUUID(), transferBean.getTradeId(), transferBean.getAmount(), transferBean.getInfo(), transferBean.getSign(), transferBean.getOpType());
             sendMessage(message, ChatEnum.EMessageType.TRANSFER);
         }
     }
@@ -3139,15 +3150,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 case ChatEnum.EMessageType.TRANSFER:
                     menus.add(new OptionMenu("删除"));
                     TransferMessage ts = msgbean.getTransfer();
-                    String infoTs = ts.getComment();
+                    String infoTs = getTransferInfo(ts.getComment(), ts.getOpType(), msgbean.isMe(), msgbean.getTo_user().getName());
                     String titleTs = "¥" + UIUtils.getYuan(ts.getTransaction_amount());
                     String typeTs = "零钱转账";
                     int tranType = 0;//转账类型
                     holder.viewChatItem.setData6(ts.getOpType(), titleTs, infoTs, typeTs, R.color.transparent, tranType, new ChatItemView.EventRP() {
                         @Override
                         public void onClick(boolean isInvalid, int tranType) {
-                            Intent intent = TransferDetailActivity.newIntent(ChatActivity.this, ts.getId(), msgbean.isMe());
-                            startActivity(intent);
+                            showLoadingDialog();
+                            httpGetTransferDetail(ts.getId(), ts.getOpType(), msgbean);
                         }
                     });
 
@@ -3308,7 +3319,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             holder.viewChatItem.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if(!ViewUtils.isFastDoubleClick()){//防止触发两次  移除父类才能添加
+                    if (!ViewUtils.isFastDoubleClick()) {//防止触发两次  移除父类才能添加
                         holder.viewChatItem.selectTextBubble(true);
                         // ToastUtil.show(getContext(),"长按");
                         if (msgbean.getMsg_type() == ChatEnum.EMessageType.VOICE) {//为语音单独处理
@@ -3607,9 +3618,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         });
 
-        if(ChatEnum.EPlayStatus.PLAYING==status){
+        if (ChatEnum.EPlayStatus.PLAYING == status) {
             MessageManager.setCanStamp(false);
-        }else if(ChatEnum.EPlayStatus.STOP_PLAY==status||ChatEnum.EPlayStatus.PLAYED==status){
+        } else if (ChatEnum.EPlayStatus.STOP_PLAY == status || ChatEnum.EPlayStatus.PLAYED == status) {
             MessageManager.setCanStamp(true);
         }
     }
@@ -3717,7 +3728,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 初始化PopupWindow
      */
     private void initPopupWindow() {
-        mRootView = getLayoutInflater().inflate(R.layout.view_chat_bubble, null,false);
+        mRootView = getLayoutInflater().inflate(R.layout.view_chat_bubble, null, false);
         //获取自身的长宽高
         mRootView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         popupWidth = mRootView.getMeasuredWidth();
@@ -4095,7 +4106,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (TextUtils.isEmpty(toGid)) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
             if (bean != null) {
-                LogUtil.getLog().e("===sendRead==msg====="+bean.getMsg_id()+"===msgid="+msgid+"==bean.getRead()="+bean.getRead()+"==bean.getTimestamp()="+bean.getTimestamp());
+                LogUtil.getLog().e("===sendRead==msg=====" + bean.getMsg_id() + "===msgid=" + msgid + "==bean.getRead()=" + bean.getRead() + "==bean.getTimestamp()=" + bean.getTimestamp());
                 if (bean.getRead() == 0) {
 //                if ((TextUtils.isEmpty(msgid) || !msgid.equals(bean.getMsg_id())) && bean.getRead() == 0) {
                     msgid = bean.getMsg_id();
@@ -5126,6 +5137,101 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 });
         dialogSettingPayPsw.show();
 
+    }
+
+    /**
+     * 获取账单详情
+     */
+    private void httpGetTransferDetail(String tradeId, int opType, MsgAllBean msgBean) {
+        PayHttpUtils.getInstance().getTransferDetail(tradeId)
+                .compose(RxSchedulers.<BaseResponse<TransferDetailBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<TransferDetailBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<TransferDetailBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<TransferDetailBean> baseResponse) {
+                        if (baseResponse.getData() != null) {
+                            dismissLoadingDialog();
+                            //如果当前页有数据
+                            TransferDetailBean detailBean = baseResponse.getData();
+                            Intent intent;
+                            if (opType == PayEnum.ETransferOpType.TRANS_SEND) {
+                                intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, msgBean.isMe(), GsonUtils.optObject(msgBean));
+                            } else {
+                                intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, msgBean.isMe());
+                            }
+                            startActivity(intent);
+                        } else {
+
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse<TransferDetailBean> baseResponse) {
+                        super.onHandleError(baseResponse);
+                        ToastUtil.show(context, baseResponse.getMessage());
+                    }
+                });
+
+    }
+
+    public String getTransferInfo(String info, int opType, boolean isMe, String nick) {
+        String result = "";
+        if (opType == PayEnum.ETransferOpType.TRANS_SEND) {
+            if (TextUtils.isEmpty(info)) {
+                if (isMe) {
+                    result = "转账给" + nick;
+                } else {
+                    result = "转账给你";
+                }
+            } else {
+                result = info;
+
+            }
+        } else if (opType == PayEnum.ETransferOpType.TRANS_RECEIVE) {
+            if (TextUtils.isEmpty(info)) {
+                if (isMe) {
+                    result = "已收款";
+                } else {
+                    result = "已被领取";
+                }
+            } else {
+                if (isMe) {
+                    result = "已收款-" + info;
+                } else {
+                    result = "已被领取-" + info;
+                }
+            }
+        } else if (opType == PayEnum.ETransferOpType.TRANS_REJECT) {
+            if (TextUtils.isEmpty(info)) {
+                if (isMe) {
+                    result = "已退款";
+                } else {
+                    result = "已被退款";
+                }
+            } else {
+                if (isMe) {
+                    result = "已退款-" + info;
+                } else {
+                    result = "已被退款-" + info;
+                }
+            }
+        } else if (opType == PayEnum.ETransferOpType.TRANS_PAST) {
+            if (TextUtils.isEmpty(info)) {
+                if (isMe) {
+                    result = "已过期";
+                } else {
+                    result = "已过期";
+                }
+            } else {
+                if (isMe) {
+                    result = "已过期-" + info;
+                } else {
+                    result = "已过期-" + info;
+                }
+            }
+        }
+        return result;
     }
 
 

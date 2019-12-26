@@ -4,14 +4,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.CxTransferBean;
-import com.hm.cxpay.bean.SendResultBean;
 import com.hm.cxpay.bean.TransferDetailBean;
 import com.hm.cxpay.bean.TransferResultBean;
+import com.hm.cxpay.dailog.DialogDefault;
 import com.hm.cxpay.databinding.ActivityTransferDetailBinding;
 import com.hm.cxpay.eventbus.TransferSuccessEvent;
 import com.hm.cxpay.global.PayEnum;
@@ -21,6 +22,7 @@ import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.utils.DateUtils;
 import com.hm.cxpay.utils.UIUtils;
+import com.jrmf360.tools.utils.ThreadUtil;
 
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -35,16 +37,28 @@ import org.greenrobot.eventbus.EventBus;
 public class TransferDetailActivity extends BasePayActivity {
 
     private ActivityTransferDetailBinding ui;
-    //    private CxTransferBean bean;
     private boolean isFromMe;
     private String tradeId;
     private TransferDetailBean detailBean;
+    private String actionId;
+    private String msgJson = "";
 
-    public static Intent newIntent(Context context, String tradeId, boolean isFromMe) {
+    public static Intent newIntent(Context context, TransferDetailBean bean, String tradeId, boolean isFromMe, String msgJson) {
         Intent intent = new Intent(context, TransferDetailActivity.class);
-//        Bundle bundle = new Bundle();
-//        bundle.putParcelable("data", bean);
-//        intent.putExtras(bundle);
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("data", bean);
+        intent.putExtras(bundle);
+        intent.putExtra("isFromMe", isFromMe);
+        intent.putExtra("tradeId", tradeId);
+        intent.putExtra("msg", msgJson);
+        return intent;
+    }
+
+    public static Intent newIntent(Context context, TransferDetailBean bean, String tradeId, boolean isFromMe) {
+        Intent intent = new Intent(context, TransferDetailActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("data", bean);
+        intent.putExtras(bundle);
         intent.putExtra("isFromMe", isFromMe);
         intent.putExtra("tradeId", tradeId);
         return intent;
@@ -55,11 +69,16 @@ public class TransferDetailActivity extends BasePayActivity {
         super.onCreate(savedInstanceState);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_transfer_detail);
         Intent intent = getIntent();
-//        bean = intent.getParcelableExtra("data");
+        detailBean = intent.getParcelableExtra("data");
         isFromMe = intent.getBooleanExtra("isFromMe", false);
         tradeId = intent.getStringExtra("tradeId");
+        msgJson = intent.getStringExtra("msg");
         initView();
-        httpGetDetail();
+        if (detailBean != null) {
+            initData(detailBean);
+        } else {
+            httpGetDetail();
+        }
     }
 
     private void initView() {
@@ -85,7 +104,7 @@ public class TransferDetailActivity extends BasePayActivity {
         ui.tvReturn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                returnTransfer();
+                showReturnTransferDialog();
             }
         });
 
@@ -217,7 +236,7 @@ public class TransferDetailActivity extends BasePayActivity {
                     public void onHandleSuccess(BaseResponse<TransferDetailBean> baseResponse) {
                         if (baseResponse.getData() != null) {
                             //如果当前页有数据
-                            TransferDetailBean detailBean = baseResponse.getData();
+                            detailBean = baseResponse.getData();
                             initData(detailBean);
                         } else {
 
@@ -253,9 +272,14 @@ public class TransferDetailActivity extends BasePayActivity {
                             //如果当前页有数据
                             TransferResultBean resultBean = baseResponse.getData();
                             notifyTransfer(createTransferBean(resultBean, PayEnum.ETransferOpType.TRANS_RECEIVE));
-                            finish();
+                            ThreadUtil.getInstance().runMainThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    TransferDetailActivity.this.finish();
+                                }
+                            });
                         } else {
-
+                            ToastUtil.show(context, baseResponse.getMessage());
                         }
 
                     }
@@ -276,9 +300,13 @@ public class TransferDetailActivity extends BasePayActivity {
         if (detailBean == null) {
             return;
         }
-        String actionId = UIUtils.getUUID();
+        if (TextUtils.isEmpty(actionId)) {
+            actionId = UIUtils.getUUID();
+        } else {
+            return;
+        }
 
-        PayHttpUtils.getInstance().receiveTransfer(actionId, tradeId, detailBean.getPayUser().getUid())
+        PayHttpUtils.getInstance().returnTransfer(actionId, tradeId, detailBean.getPayUser().getUid())
                 .compose(RxSchedulers.<BaseResponse<TransferResultBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<TransferResultBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<TransferResultBean>>() {
@@ -288,7 +316,12 @@ public class TransferDetailActivity extends BasePayActivity {
                             //如果当前页有数据
                             TransferResultBean resultBean = baseResponse.getData();
                             notifyTransfer(createTransferBean(resultBean, PayEnum.ETransferOpType.TRANS_REJECT));
-                            finish();
+                            ThreadUtil.getInstance().runMainThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    TransferDetailActivity.this.finish();
+                                }
+                            });
                         } else {
                             ToastUtil.show(context, baseResponse.getMessage());
                         }
@@ -306,7 +339,7 @@ public class TransferDetailActivity extends BasePayActivity {
 
     public CxTransferBean createTransferBean(TransferResultBean bean, @PayEnum.ETransferOpType int type) {
         long id = UIUtils.getTradeId(tradeId);
-        if (detailBean == null || id <= 0) {
+        if (detailBean == null || id <= 0 || detailBean.getPayUser() == null || detailBean.getRecvUser() == null) {
             return null;
         }
         CxTransferBean transferBean = new CxTransferBean();
@@ -316,11 +349,31 @@ public class TransferDetailActivity extends BasePayActivity {
         transferBean.setInfo(detailBean.getNote());
         transferBean.setSign(bean.getSign());
         transferBean.setTradeId(id);
+        transferBean.setMsgJson(msgJson);
         return transferBean;
     }
 
     public void notifyTransfer(CxTransferBean bean) {
         EventBus.getDefault().post(new TransferSuccessEvent(bean));
+    }
+
+    private void showReturnTransferDialog() {
+        DialogDefault diaglogReturn = new DialogDefault(this);
+        diaglogReturn.setTitleAndSure(false, true);
+        diaglogReturn.setContent("是否退还" + detailBean.getPayUser().getNickname() + "的转账")
+                .setRight("退还")
+                .setLeft("取消")
+                .setListener(new DialogDefault.IDialogListener() {
+                    @Override
+                    public void onSure() {
+                        returnTransfer();
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+                });
     }
 
 

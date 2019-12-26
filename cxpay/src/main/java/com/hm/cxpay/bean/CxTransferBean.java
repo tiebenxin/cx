@@ -17,6 +17,7 @@ public class CxTransferBean extends BaseBean implements Parcelable {
     String sign = "";//签名’
     int opType;//操作类型
     long uid;
+    String msgJson;//发起转账消息json
 
     public CxTransferBean() {
     }
@@ -28,6 +29,7 @@ public class CxTransferBean extends BaseBean implements Parcelable {
         sign = in.readString();
         opType = in.readInt();
         uid = in.readLong();
+        msgJson = in.readString();
     }
 
     public static final Creator<CxTransferBean> CREATOR = new Creator<CxTransferBean>() {
@@ -95,6 +97,14 @@ public class CxTransferBean extends BaseBean implements Parcelable {
         this.uid = uid;
     }
 
+    public String getMsgJson() {
+        return msgJson;
+    }
+
+    public void setMsgJson(String msgJson) {
+        this.msgJson = msgJson;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(tradeId);
@@ -103,5 +113,6 @@ public class CxTransferBean extends BaseBean implements Parcelable {
         dest.writeString(sign);
         dest.writeInt(opType);
         dest.writeLong(uid);
+        dest.writeString(msgJson);
     }
 }

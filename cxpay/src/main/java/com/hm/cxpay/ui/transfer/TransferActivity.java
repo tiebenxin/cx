@@ -33,6 +33,7 @@ import com.hm.cxpay.ui.bank.BindBankActivity;
 import com.hm.cxpay.ui.redenvelope.AdapterSelectPayStyle;
 import com.hm.cxpay.utils.BankUtils;
 import com.hm.cxpay.utils.UIUtils;
+import com.jrmf360.tools.utils.ThreadUtil;
 
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -183,12 +184,17 @@ public class TransferActivity extends BasePayActivity {
                                     dismissLoadingDialog();
                                     isSending = false;
                                     eventTransferSuccess();
-                                    toTransferResult(money);
+                                    ThreadUtil.getInstance().runMainThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            toTransferResult(money);
+                                        }
+                                    });
                                 } else if (sendBean.getCode() == 2) {//失败
                                     ToastUtil.show(getContext(), sendBean.getErrMsg());
                                 } else if (sendBean.getCode() == 99) {//待处理
                                     isSending = false;
-                                    showLoadingDialog();
+//                                    showLoadingDialog();
                                 } else if (sendBean.getCode() == -21000) {//密码错误
                                     isSending = false;
                                     dialogPassword.clearPsw();
@@ -241,7 +247,7 @@ public class TransferActivity extends BasePayActivity {
             @Override
             public void onCompleted(String psw, long bankCardId) {
                 dialogPassword.dismiss();
-                String note = UIUtils.getRedEnvelopeContent(ui.etDescription);
+                String note = ui.etDescription.getText().toString().trim();
                 String actionId = UIUtils.getUUID();
                 httpSendTransfer(actionId, money, psw, toUid, note, bankCardId);
             }

@@ -18,6 +18,7 @@ import android.view.inputmethod.InputMethodManager;
 import com.umeng.analytics.MobclickAgent;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.dialog.DialogLoadingProgress;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -35,8 +36,9 @@ public class AppActivity extends AppCompatActivity {
     public Context context;
     public LayoutInflater inflater;
     public AlertWait alert;
-
     public Boolean isFirstRequestPermissionsResult=true;//第一次请求权限返回
+    DialogLoadingProgress payWaitDialog;
+
 
 
     @Override
@@ -194,6 +196,19 @@ public class AppActivity extends AppCompatActivity {
                 isFirstRequestPermissionsResult=false;
                 break;
             }
+        }
+    }
+
+    public void showLoadingDialog() {
+        if (payWaitDialog == null) {
+            payWaitDialog = new DialogLoadingProgress(this);
+        }
+        payWaitDialog.show();
+    }
+
+    public void dismissLoadingDialog() {
+        if (payWaitDialog != null) {
+            payWaitDialog.dismiss();
         }
     }
 }

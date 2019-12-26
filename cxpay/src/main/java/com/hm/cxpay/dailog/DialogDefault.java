@@ -73,6 +73,11 @@ public class DialogDefault extends BaseDialog {
         return this;
     }
 
+    public DialogDefault setContent(String txt) {
+        tvContent.setText(txt);
+        return this;
+    }
+
 
     @Override
     public void processClick(View view) {

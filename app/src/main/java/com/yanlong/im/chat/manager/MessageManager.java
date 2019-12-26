@@ -199,7 +199,7 @@ public class MessageManager {
             case STAMP://戳一戳
             case VOICE://语音
             case SHORT_VIDEO://短视频
-            case TRANSFER://转账
+//            case TRANSFER://转账
             case BUSINESS_CARD://名片
             case RED_ENVELOPER://红包
             case RECEIVE_RED_ENVELOPER://领取红包
@@ -503,6 +503,18 @@ public class MessageManager {
                 MsgBean.PayResultMessage payResult = wrapMessage.getPayResult();
                 System.out.println(TAG + "--支付结果=" + payResult.getResult());
                 notifyPayResult(payResult);
+                break;
+            case TRANSFER://转账消息
+                if (bean != null) {
+                    MsgBean.TransferMessage transferMessage = wrapMessage.getTransfer();
+                    if (transferMessage != null) {
+                        //领取或退还转账,先更新历史转账消息状态，后存消息
+                        if (transferMessage.getOpType() == MsgBean.TransferMessage.OpType.RECEIVE || transferMessage.getOpType() == MsgBean.TransferMessage.OpType.REJECT) {
+                            msgDao.updateTransferStatus(transferMessage.getId(), transferMessage.getOpTypeValue());
+                        }
+                    }
+                    result = saveMessageNew(bean, isList);
+                }
                 break;
         }
         //刷新单个,接收到音视频通话消息不需要刷新

@@ -1,4 +1,4 @@
-package com.hm.cxpay.dailog;
+package net.cb.cb.library.dialog;
 
 import android.content.Context;
 import android.view.View;
@@ -7,8 +7,8 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-import com.hm.cxpay.R;
 
+import net.cb.cb.library.R;
 import net.cb.cb.library.base.BaseDialog;
 
 /**

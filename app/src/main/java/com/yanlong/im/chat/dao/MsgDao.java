@@ -3301,5 +3301,26 @@ public class MsgDao {
         return result;
     }
 
+    //更新转账状态
+    public void updateTransferStatus(String tradeId, int opType) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            TransferMessage transfer = realm.where(TransferMessage.class)
+                    .beginGroup().equalTo("id", tradeId).endGroup()
+                    .and()
+                    .beginGroup().equalTo("opType", PayEnum.ETransferOpType.TRANS_SEND).endGroup()
+                    .findFirst();
+            if (transfer == null) {
+                return;
+            }
+            transfer.setOpType(opType);
+            realm.commitTransaction();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
 
 }

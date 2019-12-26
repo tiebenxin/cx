@@ -189,7 +189,7 @@ public class MsgConversionBean {
                 transferMessage.setId(bean.getTransfer().getId());
                 transferMessage.setComment(bean.getTransfer().getComment());
                 transferMessage.setTransaction_amount(bean.getTransfer().getTransactionAmount());
-
+                transferMessage.setOpType(bean.getTransfer().getOpTypeValue());
                 msgAllBean.setTransfer(transferMessage);
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.TRANSFER);
                 break;

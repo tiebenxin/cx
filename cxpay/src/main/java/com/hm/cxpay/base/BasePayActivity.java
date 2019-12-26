@@ -1,11 +1,9 @@
 package com.hm.cxpay.base;
 
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 
-import com.hm.cxpay.dailog.DialogLoadingProgress;
+import net.cb.cb.library.dialog.DialogLoadingProgress;
 
-import net.cb.cb.library.view.AlertWait;
 import net.cb.cb.library.view.AppActivity;
 
 /**
@@ -14,7 +12,6 @@ import net.cb.cb.library.view.AppActivity;
  * Description
  */
 public class BasePayActivity extends AppActivity {
-    DialogLoadingProgress payWaitDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,16 +19,5 @@ public class BasePayActivity extends AppActivity {
     }
 
 
-    public void showLoadingDialog() {
-        if (payWaitDialog == null) {
-            payWaitDialog = new DialogLoadingProgress(this);
-        }
-        payWaitDialog.show();
-    }
 
-    public void dismissLoadingDialog() {
-        if (payWaitDialog != null) {
-            payWaitDialog.dismiss();
-        }
-    }
 }

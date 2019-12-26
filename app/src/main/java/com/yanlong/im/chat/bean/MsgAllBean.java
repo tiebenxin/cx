@@ -3,6 +3,7 @@ package com.yanlong.im.chat.bean;
 
 import androidx.annotation.Nullable;
 
+import com.hm.cxpay.global.PayEnum;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.ui.cell.IChatModel;
 import com.yanlong.im.user.action.UserAction;
@@ -325,7 +326,38 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         } else if (msg_type == ChatEnum.EMessageType.BUSINESS_CARD) {
             str = "[名片]";// + getBusiness_card().getNickname();
         } else if (msg_type == ChatEnum.EMessageType.TRANSFER) {
-            str = "[收款]";
+            TransferMessage transferMessage = getTransfer();
+            if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_SEND) {
+                if (isMe()) {
+                    str = "[转账]：等待朋友收款";
+                } else {
+                    str = "[转账]：等待你收款";
+                }
+            } else if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_RECEIVE) {
+                if (isMe()) {
+                    str = "[转账]：朋友已确认收款";
+                } else {
+                    str = "[转账]：已收款";
+                }
+            } else if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_REJECT) {
+                if (isMe()) {
+                    str = "[转账]：已退款";
+                } else {
+                    str = "[转账]：已退款";
+                }
+            } else if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_PAST) {
+                if (isMe()) {
+                    str = "[转账]：已过期";
+                } else {
+                    str = "[转账]：已过期";
+                }
+            } else {
+                if (isMe()) {
+                    str = "[转账]";
+                } else {
+                    str = "[转账]";
+                }
+            }
         } else if (msg_type == ChatEnum.EMessageType.VOICE) {
             str = "[语音]";
         } else if (msg_type == ChatEnum.EMessageType.AT) {
@@ -344,7 +376,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             }
         } else if (msg_type == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME) {//阅后即焚
             str = getMsgCancel().getNote();
-        }else if (msg_type == ChatEnum.EMessageType.LOCATION) {//位置
+        } else if (msg_type == ChatEnum.EMessageType.LOCATION) {//位置
             str = "[位置]";
         } else if (msg_type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {//阅后即焚
             str = "[零钱小助手消息]";
