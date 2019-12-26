@@ -670,6 +670,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             mtListView.getListView().getAdapter().notifyItemRangeInserted(size, 1);
             // 处理发送失败时位置错乱问题
             mtListView.getListView().getAdapter().notifyItemRangeChanged(size + 1, msgListData.size() - 1);
+
+            //红包通知 不滚动到底部
+            if(msgAllbean.getMsgNotice()!=null&&(msgAllbean.getMsgNotice().getMsgType()==ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE
+                    ||msgAllbean.getMsgNotice().getMsgType()==ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF)){
+                return;
+            }
             scrollListView(true);
         } else {
             taskRefreshMessage(false);
@@ -4666,7 +4672,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean, null));
             LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间1----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
         }
-//        LogUtil.getLog().e("=1=msgbean.toString===2=="+msgbean.toString());
+//        LogUtil.getLog().e("==msgbean.toString===2=="+msgbean.toString());
     }
 
     public void addSurvivalTimeAndRead(MsgAllBean msgbean) {
@@ -4681,7 +4687,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean, null));
             LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间2----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
         }
-//        LogUtil.getLog().e("=1=msgbean.toString===3=="+msgbean.toString());
+//        LogUtil.getLog().e("==msgbean.toString===3=="+msgbean.toString());
     }
 
 
