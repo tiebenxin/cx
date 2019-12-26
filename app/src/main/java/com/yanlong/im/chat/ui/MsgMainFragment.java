@@ -662,21 +662,36 @@ public class MsgMainFragment extends Fragment {
 
                 } else if (bean.getType() == 1) {//群
                     int type = bean.getMessageType();
-                    if (type == 0 || type == 1) {
+                    if (type == 0 ) {
                         if (!TextUtils.isEmpty(bean.getAtMessage()) && !TextUtils.isEmpty(name)) {
                             info = name + bean.getAtMessage();
                         } else {
                             info = name + info;
 
                         }
+                    }else if(type == 1){
+                        if (!TextUtils.isEmpty(bean.getAtMessage()) && !TextUtils.isEmpty(name)) {
+                            info = bean.getAtMessage();
+                            if(StringUtil.isNotNull(info)&&info.startsWith("@所有人")){
+                                info = info.replace("@所有人","");
+                            }
+                            info = name + info;
+                        } else {
+                            info = name + info;
+                        }
                     } else if (msginfo != null && (ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME + "").equals(msginfo.getMsg_type() + "")) {
                         //阅后即焚不通知 不显示谁发的 肯定是群主修改的
                         // info=info;
                     } else if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {//草稿除外
+                        if((ChatEnum.EMessageType.AT + "").equals(msginfo.getMsg_type() + "")
+                                &&StringUtil.isNotNull(info)&&info.startsWith("@所有人")){
+                            info = info.replace("@所有人","");
+                        }
                         info = name + info;
                     }
-                    // TODO　处理公告...问题
+                    // 处理公告...问题
                     info = info.replace("\r\n","  ");
+
                     switch (type) {
                         case 0:
                             if (StringUtil.isNotNull(bean.getAtMessage())) {
@@ -829,6 +844,9 @@ public class MsgMainFragment extends Fragment {
          */
         protected void showMessage(TextView txtInfo, String message, SpannableString spannableString) {
             if (spannableString == null) {
+                if(StringUtil.isNotNull(message)&&message.startsWith("@所有人  ")){
+                    message=message.replace("@所有人  ","");
+                }
                 spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, message);
             } else {
                 spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, spannableString);
