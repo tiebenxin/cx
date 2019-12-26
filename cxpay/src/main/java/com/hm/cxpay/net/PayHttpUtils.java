@@ -391,7 +391,7 @@ public class PayHttpUtils {
         map.put("actionId", actionId);
         map.put("tradeId", tradeId);
         map.put("fromUid", fromUid + "");
-        return HttpChannel.getInstance().getPayService().receiveTransfer(getRequestBody(map));
+        return HttpChannel.getInstance().getPayService().returnTransfer(getRequestBody(map));
     }
 
 
