@@ -128,7 +128,7 @@ public class CommonSetingActivity extends AppActivity {
                         }
                     }
                 }else {
-                    ToastUtil.show(CommonSetingActivity.this, "不能用空字符");
+                    ToastUtil.show(CommonSetingActivity.this, "昵称不能为空/且不能用空字符");
                     return;
                 }
 

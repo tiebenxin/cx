@@ -69,7 +69,7 @@ public class RegisterUserNameActivity extends AppActivity {
                 }
             }
         }else {
-            ToastUtil.show(RegisterUserNameActivity.this, "昵称不能为空或使用空字符");
+            ToastUtil.show(RegisterUserNameActivity.this, "昵称不能为空/且不能用空字符");
             return;
         }
         taskUserInfoSet(userName);
