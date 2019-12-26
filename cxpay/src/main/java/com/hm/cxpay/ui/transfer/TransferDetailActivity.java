@@ -367,7 +367,7 @@ public class TransferDetailActivity extends BasePayActivity {
     private void showReturnTransferDialog() {
         DialogDefault dialogReturn = new DialogDefault(this);
         dialogReturn.setTitleAndSure(false, true);
-        dialogReturn.setContent("是否退还" + detailBean.getPayUser().getNickname() + "的转账")
+        dialogReturn.setContent("是否退还" + detailBean.getPayUser().getNickname() + "的转账",true)
                 .setRight("退还")
                 .setLeft("取消")
                 .setListener(new DialogDefault.IDialogListener() {

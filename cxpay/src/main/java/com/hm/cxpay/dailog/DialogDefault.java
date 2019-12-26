@@ -3,6 +3,7 @@ package com.hm.cxpay.dailog;
 import android.content.Context;
 import android.graphics.Color;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 
@@ -73,8 +74,14 @@ public class DialogDefault extends BaseDialog {
         return this;
     }
 
-    public DialogDefault setContent(String txt) {
+    /**
+     * @param center 是否内容居中，默认居右
+     */
+    public DialogDefault setContent(String txt, boolean center) {
         tvContent.setText(txt);
+        if (center) {
+            tvContent.setGravity(Gravity.CENTER);
+        }
         return this;
     }
 

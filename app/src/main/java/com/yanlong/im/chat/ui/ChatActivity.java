@@ -443,6 +443,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             viewFunc.removeView(viewRb);
             viewFunc.removeView(viewCard);
             viewFunc.removeView(view_location_ll);
+            viewFunc.removeView(viewTransfer);
         }
 
         if (isGroup()) {//去除群的控件
