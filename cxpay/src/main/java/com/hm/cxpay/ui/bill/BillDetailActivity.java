@@ -311,9 +311,10 @@ public class BillDetailActivity extends AppActivity {
                 tvRedPacketStatus.setText("处理中");
             }
             tvRedPacketPayTime.setText(DateUtils.timeStamp2Date(data.getCreateTime(), ""));
-            if (data.getBillType() == 1) {
-                tvRedPacketPayStyle.setText("零钱");
-            }
+//            if (data.getBillType() == 1) {
+//                tvRedPacketPayStyle.setText("零钱");
+//            }
+            tvRedPacketPayStyle.setText("零钱");
             tvRedPacketGetMoneyTime.setText(DateUtils.timeStamp2Date(data.getStatConfirmTime(), ""));
             tvRedPacketOrderId.setText(data.getTradeId() + "");
 

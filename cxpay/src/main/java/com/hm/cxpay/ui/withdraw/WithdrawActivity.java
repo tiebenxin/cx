@@ -233,7 +233,7 @@ public class WithdrawActivity extends AppActivity {
      * 请求->提现
      */
     private void httpWithdraw(String payword, long bankId) {
-        PayHttpUtils.getInstance().toWithdraw(Integer.valueOf(etWithdraw.getText().toString()), bankId, payword)
+        PayHttpUtils.getInstance().toWithdraw(etWithdraw.getText().toString(), bankId, payword)
                 .compose(RxSchedulers.<BaseResponse<CommonBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<CommonBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<CommonBean>>() {

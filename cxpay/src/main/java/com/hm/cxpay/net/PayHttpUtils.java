@@ -155,9 +155,9 @@ public class PayHttpUtils {
     }
 
     //提现
-    public Observable<BaseResponse<CommonBean>> toWithdraw(int amt, long bankCardId, String payPwd) {
+    public Observable<BaseResponse<CommonBean>> toWithdraw(String amt, long bankCardId, String payPwd) {
         Map<String, String> map = new HashMap<>();
-        map.put("amt", UIUtils.getFen(amt + "") + "");
+        map.put("amt", UIUtils.getFen(amt) + "");
         map.put("bankCardId", bankCardId + "");
         map.put("payPwd", MD5.md5(payPwd));
         map.put("actionId", UIUtils.getUUID());
@@ -360,7 +360,7 @@ public class PayHttpUtils {
     /**
      * 发送转账
      *
-     * @param toUid 转账接受者id
+     * @param tradeId 转账接受者id
      */
     public Observable<BaseResponse<TransferDetailBean>> getTransferDetail(String tradeId) {
         Map<String, String> map = new HashMap<>();
