@@ -48,6 +48,7 @@
                     android:layout_marginRight="5dp"
                     android:gravity="right|center_vertical"
                     android:hint="0.00"
+                    android:paddingRight="10dp"
                     android:inputType="numberDecimal" />
 
                 <TextView
@@ -95,6 +96,7 @@
                     android:layout_marginRight="5dp"
                     android:gravity="right|center_vertical"
                     android:hint="填写个数"
+                    android:paddingRight="10dp"
                     android:inputType="number" />
 
                 <TextView

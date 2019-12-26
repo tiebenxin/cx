@@ -216,6 +216,7 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
             return;
         }
         setSending(true);
+        showLoadingDialog();
         handler.postDelayed(runnable, WAIT_TIME);
         PayHttpUtils.getInstance().sendRedEnvelopeToUser(actionId, money, 1, psw, 0, bankCardId, note, uid)
                 .compose(RxSchedulers.<BaseResponse<SendResultBean>>compose())
@@ -223,23 +224,25 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                 .subscribe(new FGObserver<BaseResponse<SendResultBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<SendResultBean> baseResponse) {
-                        payFailed();
                         if (baseResponse.isSuccess()) {
                             SendResultBean sendBean = baseResponse.getData();
                             if (sendBean != null) {
                                 envelopeBean = convertToEnvelopeBean(sendBean, PayEnum.ERedEnvelopeType.NORMAL, note, 1);
                                 if (sendBean.getCode() == 1) {//成功
+                                    dismissLoadingDialog();
                                     setResultOk();
                                     PayEnvironment.getInstance().notifyRefreshBalance();
                                 } else if (sendBean.getCode() == 2) {//失败
+                                    payFailed();
                                     ToastUtil.show(getContext(), sendBean.getErrMsg());
                                 } else if (sendBean.getCode() == 99) {//待处理
-                                    showLoadingDialog();
                                     PayEnvironment.getInstance().notifyRefreshBalance();
                                 } else if (sendBean.getCode() == -21000) {//密码错误
+                                    payFailed();
                                     dialogPayPassword.clearPsw();
                                     showPswErrorDialog();
                                 } else {
+                                    payFailed();
                                     ToastUtil.show(getContext(), baseResponse.getMessage());
                                 }
                             }

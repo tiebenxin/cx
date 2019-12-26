@@ -334,6 +334,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             return;
         }
         setSending(true);
+        showLoadingDialog();
         handler.postDelayed(runnable, WAIT_TIME);
         PayHttpUtils.getInstance().sendRedEnvelopeToGroup(actionId, money, count, psw, type, bankCardId, note, gid)
                 .compose(RxSchedulers.<BaseResponse<SendResultBean>>compose())
@@ -341,22 +342,23 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                 .subscribe(new FGObserver<BaseResponse<SendResultBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<SendResultBean> baseResponse) {
-                        payFailed();
                         if (baseResponse.isSuccess()) {
                             SendResultBean sendBean = baseResponse.getData();
                             if (sendBean != null) {
                                 envelopeBean = convertToEnvelopeBean(sendBean, redPacketType, note, count);
                                 if (sendBean.getCode() == 1) {//code  1表示成功，2失败，99处理中
+                                    dismissLoadingDialog();
                                     setSending(false);
                                     setResultOk();
                                     PayEnvironment.getInstance().notifyRefreshBalance();
                                 } else if (sendBean.getCode() == 99) {
-                                    showLoadingDialog();
                                     PayEnvironment.getInstance().notifyRefreshBalance();
                                 } else if (sendBean.getCode() == -21000) {//密码错误
+                                    payFailed();
                                     dialogPayPassword.clearPsw();
                                     showPswErrorDialog();
                                 } else {
+                                    payFailed();
                                     ToastUtil.show(getContext(), sendBean.getErrMsg());
                                     setResult(RESULT_CANCELED);
                                     finish();

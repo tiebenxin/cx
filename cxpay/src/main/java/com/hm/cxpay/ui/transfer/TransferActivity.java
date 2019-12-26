@@ -126,7 +126,16 @@ public class TransferActivity extends BasePayActivity {
                 String moneyTxt = ui.edMoney.getText().toString();
                 money = UIUtils.getFen(moneyTxt);
                 if (money > MIN_AMOUNT) {
-                    showInputPasswordDialog(money);
+                    if (BankUtils.isLooseEnough(money)) {
+                        showInputPasswordDialog(money, PayEnum.EPayStyle.LOOSE, null);
+                    } else {
+                        BankBean bank = PayEnvironment.getInstance().getFirstBank();
+                        if (bank != null) {
+                            showInputPasswordDialog(money, PayEnum.EPayStyle.BANK, bank);
+                        } else {
+                            showBalanceNoEnoughDialog(money, PayEnvironment.getInstance().getUser().getBalance());
+                        }
+                    }
                 }
             }
         });
@@ -216,6 +225,8 @@ public class TransferActivity extends BasePayActivity {
                         isSending = false;
                         if (baseResponse.getCode() == -21000) {//密码错误
                             showPswErrorDialog();
+                        } else if (baseResponse.getCode() == 40014) {//余额不足
+                            showBalanceOfBankNoEnough();
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
                         }
@@ -231,18 +242,9 @@ public class TransferActivity extends BasePayActivity {
 
 
     //输入密码弹窗
-    private void showInputPasswordDialog(final long money) {
+    private void showInputPasswordDialog(final long money, int payStyle, BankBean bankBean) {
         dialogPassword = new DialogInputTransferPassword(this);
-        if (BankUtils.isLooseEnough(money)) {
-            dialogPassword.init(money, PayEnum.EPayStyle.LOOSE, null);
-        } else {
-            BankBean bank = PayEnvironment.getInstance().getFirstBank();
-            if (bank != null) {
-                dialogPassword.init(money, PayEnum.EPayStyle.BANK, bank);
-            } else {
-                dialogPassword.init(money, PayEnum.EPayStyle.LOOSE, null);
-            }
-        }
+        dialogPassword.init(money, payStyle, bankBean);
         dialogPassword.setPswListener(new DialogInputTransferPassword.IPswListener() {
             @Override
             public void onCompleted(String psw, long bankCardId) {
@@ -324,6 +326,8 @@ public class TransferActivity extends BasePayActivity {
         DialogDefault dialogBankNoEnough = new DialogDefault(this);
         dialogBankNoEnough.setTitleAndSure(false, true)
                 .setRight("换卡支付").setLeft("取消")
+                .setTitle("转账失败")
+                .setContent("银行卡可用余额不足，请核实后再试", true)
                 .setListener(new DialogDefault.IDialogListener() {
                     @Override
                     public void onSure() {
@@ -331,6 +335,8 @@ public class TransferActivity extends BasePayActivity {
                         if (banks != null) {
                             if (banks.size() > 1) {
                                 showSelectPayStyleDialog();
+                            } else {
+                                toBindBankActivity();
                             }
                         } else {
                             toBindBankActivity();
@@ -343,28 +349,6 @@ public class TransferActivity extends BasePayActivity {
                     }
                 });
     }
-
-    //换卡支付弹窗
-    public void showChangeBankDialog() {
-        DialogSelectPayStyle dialogSelectPayStyle = new DialogSelectPayStyle(this);
-        dialogSelectPayStyle.setListener(new AdapterSelectPayStyle.ISelectPayStyleListener() {
-            @Override
-            public void onSelectPay(int style, BankBean bank) {
-
-            }
-
-            @Override
-            public void onAddBank() {
-
-            }
-
-            @Override
-            public void onBack() {
-
-            }
-        });
-    }
-
 
     /**
      * @param money   转账金额
@@ -380,6 +364,7 @@ public class TransferActivity extends BasePayActivity {
                 toBindBankActivity();
             }
         });
+        dialogBalanceNoEnough.show();
     }
 
     public void toBindBankActivity() {

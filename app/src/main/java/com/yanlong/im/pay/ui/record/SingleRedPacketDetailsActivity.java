@@ -195,7 +195,12 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
                 }
             }
         }
-        findSelf();
+        //设置金额
+        if (envelopeDetailBean.getType() == PayEnum.ERedEnvelopeType.NORMAL) {
+            ui.tvMoney.setText(UIUtils.getYuan(envelopeDetailBean.getAmt()));
+        } else {
+            findSelf();
+        }
 
     }
 
