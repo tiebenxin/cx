@@ -105,6 +105,13 @@ public class TransferDetailActivity extends BasePayActivity {
             @Override
             public void onClick(View v) {
                 showReturnTransferDialog();
+
+//                ui.tvReturn.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//
+//                    }
+//                }, 100);
             }
         });
 
@@ -358,9 +365,9 @@ public class TransferDetailActivity extends BasePayActivity {
     }
 
     private void showReturnTransferDialog() {
-        DialogDefault diaglogReturn = new DialogDefault(this);
-        diaglogReturn.setTitleAndSure(false, true);
-        diaglogReturn.setContent("是否退还" + detailBean.getPayUser().getNickname() + "的转账")
+        DialogDefault dialogReturn = new DialogDefault(this);
+        dialogReturn.setTitleAndSure(false, true);
+        dialogReturn.setContent("是否退还" + detailBean.getPayUser().getNickname() + "的转账")
                 .setRight("退还")
                 .setLeft("取消")
                 .setListener(new DialogDefault.IDialogListener() {
@@ -374,6 +381,7 @@ public class TransferDetailActivity extends BasePayActivity {
 
                     }
                 });
+        dialogReturn.show();
     }
 
 

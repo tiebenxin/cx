@@ -83,8 +83,8 @@ public class PayEnum {
     public @interface ETransferStatus {
         int NORMAL = 0;//正常
         int RECEIVED = 1;//已经领取
-        int REJECT = 3;//拒收
-        int PAST = 4;//过期
+        int REJECT = 2;//拒收
+        int PAST = 3;//过期
     }
 
 }

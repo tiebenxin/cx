@@ -779,17 +779,17 @@ public class ChatItemView extends LinearLayout {
 
     //转账消息
     public void setData6(final int transferStatus, String title, String info, String typeName, int typeIconRes, int reType, final EventRP eventRP) {
-        if (transferStatus == PayEnum.ETransferStatus.NORMAL) {
+        if (transferStatus == PayEnum.ETransferOpType.TRANS_SEND) {
             imgMeTsState.setImageResource(R.mipmap.ic_transfer_rb);
             imgOtTsState.setImageResource(R.mipmap.ic_transfer_rb);
             viewMe6.setBackgroundResource(R.drawable.bg_chat_me_rp);
             viewOt6.setBackgroundResource(R.drawable.bg_chat_other_rp);
-        } else if (transferStatus == PayEnum.ETransferStatus.RECEIVED) {
+        } else if (transferStatus == PayEnum.ETransferOpType.TRANS_RECEIVE) {
             imgMeTsState.setImageResource(R.mipmap.ic_transfer_receive_rb);
             imgOtTsState.setImageResource(R.mipmap.ic_transfer_receive_rb);
             viewMe6.setBackgroundResource(R.drawable.bg_chat_me_rp_h);
             viewOt6.setBackgroundResource(R.drawable.bg_chat_other_rp_h);
-        } else if (transferStatus == PayEnum.ETransferStatus.RECEIVED) {
+        } else if (transferStatus == PayEnum.ETransferOpType.TRANS_REJECT) {
             imgMeTsState.setImageResource(R.mipmap.ic_transfer_return_rb);
             imgOtTsState.setImageResource(R.mipmap.ic_transfer_return_rb);
             viewMe6.setBackgroundResource(R.drawable.bg_chat_me_rp_h);
