@@ -220,7 +220,7 @@ public class GroupInfoMumberActivity extends AppActivity {
         //自动寻找ViewHold
         @Override
         public RCViewTopHolder onCreateViewHolder(ViewGroup view, int i) {
-            RCViewTopHolder holder = new RCViewTopHolder(inflater.inflate(R.layout.item_group_create_top2, view, false));
+            RCViewTopHolder holder = new RCViewTopHolder(inflater.inflate(R.layout.item_group_create_top3, view, false));
             return holder;
         }
 

@@ -5,6 +5,8 @@ import android.content.res.Resources;
 import android.view.Gravity;
 import android.widget.Toast;
 
+import net.cb.cb.library.AppConfig;
+
 /***
  * @author jyj
  * @date 2016/11/29
@@ -65,6 +67,22 @@ public class ToastUtil {
             //    toast.setGravity(Gravity.CENTER, 0, 0);
 
             toast.show();
+        }
+
+    }
+
+
+    public static void show(String txt) {
+        if (txt != null && txt.length() > 0&& AppConfig.APP_CONTEXT!=null) {
+            if (toast != null){
+                toast.cancel();
+            }
+            try{
+                toast = Toast.makeText(AppConfig.APP_CONTEXT, txt, Toast.LENGTH_SHORT);
+                toast.show();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
 
     }

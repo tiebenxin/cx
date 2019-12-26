@@ -113,6 +113,16 @@ public class StringUtil {
     }
 
     /**
+     * 字符串是否包含emoji
+     * @param content
+     * @return
+     * 备注：一个emoji在String中占2个长度
+     */
+    public static boolean ifContainEmoji(String content){
+        return EMOJI.matcher(content).find();
+    }
+
+    /**
      * 获取APK渠道号
      * @param context
      * @return

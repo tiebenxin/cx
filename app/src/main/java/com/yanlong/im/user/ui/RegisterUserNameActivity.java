@@ -2,7 +2,9 @@ package com.yanlong.im.user.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,6 +13,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -49,6 +52,33 @@ public class RegisterUserNameActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 setUserName();
+            }
+        });
+        etSetingUserName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String editValue = "";
+                if(!TextUtils.isEmpty(etSetingUserName.getText().toString())){
+                    editValue = etSetingUserName.getText().toString();
+                    //截取前两位判断开头是否为emoji
+                    if(editValue.length()>=2){
+                        editValue = editValue.substring(0,2);
+                        if(StringUtil.ifContainEmoji(editValue)){
+                            ToastUtil.show(context,"昵称首位暂不支持emoji~ 〒▽〒");
+                            etSetingUserName.setText("");
+                        }
+                    }
+                }
             }
         });
     }

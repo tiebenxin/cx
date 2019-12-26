@@ -3,9 +3,11 @@ package com.yanlong.im.user.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -13,6 +15,7 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 import com.yanlong.im.utils.PasswordTextWather;
 
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -101,6 +104,35 @@ public class CommonSetingActivity extends AppActivity {
             case 1:
                 mEdContent.addTextChangedListener(new PasswordTextWather(mEdContent,this));
                 break;
+            case 0:
+                mEdContent.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        String editValue = "";
+                        if(!TextUtils.isEmpty(mEdContent.getText().toString())){
+                            editValue = mEdContent.getText().toString();
+                            //截取前两位判断开头是否为emoji
+                            if(editValue.length()>=2){
+                                editValue = editValue.substring(0,2);
+                                if(StringUtil.ifContainEmoji(editValue)){
+                                    ToastUtil.show(context,"昵称首位暂不支持emoji~ 〒▽〒");
+                                    mEdContent.setText("");
+                                }
+                            }
+                        }
+                    }
+                });
+                break;
         }
     }
 
@@ -159,6 +191,5 @@ public class CommonSetingActivity extends AppActivity {
         }
         return isCheck;
     }
-
 
 }
