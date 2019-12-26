@@ -315,7 +315,7 @@ public class MessageManager {
                 break;
             case REQUEST_GROUP://群主会收到成员进群的请求的通知
 //                LogUtil.getLog().e("==wrapMessage=json="+GsonUtils.optObject(wrapMessage));
-                for (MsgBean.GroupMember ntm : wrapMessage.getRequestGroup().getNoticeMessageList()) {
+                for (MsgBean.GroupNoticeMessage ntm : wrapMessage.getRequestGroup().getNoticeMessageList()) {
 
                     ApplyBean applyBean = new ApplyBean();
                     applyBean.setAid(wrapMessage.getGid() + ntm.getUid());
