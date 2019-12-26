@@ -1105,6 +1105,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
+
+                UserBean user = PayEnvironment.getInstance().getUser();
+                if (user != null) {
+                    if (user.getRealNameStat() != 1) {//未认证
+                        showIdentifyDialog();
+                        return;
+                    } else if (user.getPayPwdStat() != 1) {//未设置支付密码
+                        showSettingPswDialog();
+                        return;
+                    }
+                }
                 if (mFinfo == null) {
                     mFinfo = userDao.findUserInfo(toUId);
                 }

@@ -3,6 +3,7 @@ package com.hm.cxpay.ui.redenvelope;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
@@ -10,6 +11,7 @@ import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.bean.SendResultBean;
 import com.hm.cxpay.bean.UserBean;
+import com.hm.cxpay.dailog.DialogDefault;
 import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
@@ -27,7 +29,6 @@ import org.greenrobot.eventbus.EventBus;
  * Description
  */
 public class BaseSendRedEnvelopeActivity extends BasePayActivity {
-    public final int WAIT_TIME = 30 * 1000;
     boolean isSending;
     @SuppressLint("HandlerLeak")
     public final Handler handler = new Handler();
@@ -56,6 +57,19 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
         EventBus.getDefault().unregister(this);
     }
 
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+            if (isSending) {
+                showBackNoticeDialog();
+            } else {
+                finish();
+            }
+            return true;
+        }
+        //继续执行父类其他点击事件
+        return super.onKeyUp(keyCode, event);
+    }
 
     /**
      * 请求->获取用户信息
@@ -135,5 +149,24 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
 
     public void setSending(boolean b) {
         isSending = b;
+    }
+
+    public void showBackNoticeDialog() {
+        final DialogDefault dialogBack = new DialogDefault(this);
+        dialogBack.setTitleAndSure(false, true)
+                .setContent("红包正在发送中，此时返回，将导致红包发送失败。如已扣款，将会在24小时内自动退回您的零钱账户", true)
+                .setLeft("取消").setRight("继续返回")
+                .setListener(new DialogDefault.IDialogListener() {
+                    @Override
+                    public void onSure() {
+                        setResult(RESULT_CANCELED);
+                        finish();
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+                }).show();
     }
 }

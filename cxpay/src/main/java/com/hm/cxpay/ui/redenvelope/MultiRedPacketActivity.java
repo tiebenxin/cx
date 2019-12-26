@@ -18,11 +18,13 @@ import com.alibaba.android.arouter.launcher.ARouter;
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.bean.SendResultBean;
+import com.hm.cxpay.dailog.DialogDefault;
 import com.hm.cxpay.dailog.DialogErrorPassword;
 import com.hm.cxpay.dailog.DialogInputPayPassword;
 import com.hm.cxpay.dailog.DialogSelectPayStyle;
 import com.hm.cxpay.databinding.ActivityMultiRedPacketBinding;
 import com.hm.cxpay.eventbus.PayResultEvent;
+import com.hm.cxpay.global.PayConstants;
 import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
@@ -30,7 +32,9 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.bean.BankBean;
+import com.hm.cxpay.ui.bank.BankSettingActivity;
 import com.hm.cxpay.ui.bank.BindBankActivity;
+import com.hm.cxpay.ui.transfer.TransferActivity;
 import com.hm.cxpay.utils.BankUtils;
 import com.hm.cxpay.utils.UIUtils;
 
@@ -42,9 +46,12 @@ import net.cb.cb.library.view.PopupSelectView;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.List;
+
 import static com.hm.cxpay.global.PayConstants.MAX_AMOUNT;
 import static com.hm.cxpay.global.PayConstants.MIN_AMOUNT;
 import static com.hm.cxpay.global.PayConstants.TOTAL_MAX_AMOUNT;
+import static com.hm.cxpay.global.PayConstants.WAIT_TIME;
 
 //发送群红包界面
 public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implements View.OnClickListener {
@@ -335,6 +342,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
         }
         setSending(true);
         showLoadingDialog();
+        dialogPayPassword.dismiss();
         handler.postDelayed(runnable, WAIT_TIME);
         PayHttpUtils.getInstance().sendRedEnvelopeToGroup(actionId, money, count, psw, type, bankCardId, note, gid)
                 .compose(RxSchedulers.<BaseResponse<SendResultBean>>compose())
@@ -353,10 +361,6 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                                     PayEnvironment.getInstance().notifyRefreshBalance();
                                 } else if (sendBean.getCode() == 99) {
                                     PayEnvironment.getInstance().notifyRefreshBalance();
-                                } else if (sendBean.getCode() == -21000) {//密码错误
-                                    payFailed();
-                                    dialogPayPassword.clearPsw();
-                                    showPswErrorDialog();
                                 } else {
                                     payFailed();
                                     ToastUtil.show(getContext(), sendBean.getErrMsg());
@@ -376,6 +380,8 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                         payFailed();
                         if (baseResponse.getCode() == -21000) {
                             showPswErrorDialog();
+                        } else if (baseResponse.getCode() == 40014) {//余额不足
+                            showBalanceOfBankNoEnough();
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
                         }
@@ -410,7 +416,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
         dialogPayPassword.setPswListener(new DialogInputPayPassword.IPswListener() {
             @Override
             public void onCompleted(String psw, long bankCardId) {
-//                dialogPayPassword.dismiss();
+                dialogPayPassword.dismiss();
                 String note = UIUtils.getRedEnvelopeContent(ui.edContent);
                 int count = UIUtils.getRedEnvelopeCount(ui.edRedPacketNum.getText().toString().trim());
                 String actionId = UIUtils.getUUID();
@@ -439,7 +445,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                 dialogSelectPayStyle.dismiss();
                 if (dialogPayPassword != null) {
                     dialogPayPassword.init(UIUtils.getFen(money), style, bank);
-                    dialogPayPassword.show();
+                    resetShowDialogPayPassword();
                 }
             }
 
@@ -483,6 +489,40 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
             dialogPayPassword.show();
             showSoftKeyword(dialogPayPassword.getPswView());
         }
+    }
+
+    //银行卡余额不足弹窗
+    public void showBalanceOfBankNoEnough() {
+        DialogDefault dialogBankNoEnough = new DialogDefault(this);
+        dialogBankNoEnough.setTitleAndSure(false, true)
+                .setRight("换卡支付").setLeft("取消")
+                .setTitle("转账失败")
+                .setContent("银行卡可用余额不足，请核实后再试", true)
+                .setListener(new DialogDefault.IDialogListener() {
+                    @Override
+                    public void onSure() {
+                        List<BankBean> banks = PayEnvironment.getInstance().getBanks();
+                        if (banks != null) {
+                            if (banks.size() > 1) {
+                                showSelectPayStyleDialog();
+                            } else {
+                                toBindBankActivity();
+                            }
+                        } else {
+                            toBindBankActivity();
+                        }
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+                });
+        dialogBankNoEnough.show();
+    }
+
+    public void toBindBankActivity() {
+        startActivity(new Intent(MultiRedPacketActivity.this, BankSettingActivity.class));
     }
 
 

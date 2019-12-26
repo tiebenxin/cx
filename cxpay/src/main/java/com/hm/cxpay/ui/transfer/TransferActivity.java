@@ -46,6 +46,7 @@ import java.util.List;
 
 import static com.hm.cxpay.global.PayConstants.MIN_AMOUNT;
 import static com.hm.cxpay.global.PayConstants.TOTAL_TRANSFER_MAX_AMOUNT;
+import static com.hm.cxpay.global.PayConstants.WAIT_TIME;
 
 /**
  * @author Liszt
@@ -109,6 +110,7 @@ public class TransferActivity extends BasePayActivity {
 
     private void initView() {
         UIUtils.loadAvatar(avatar, ui.ivAvatar);
+        ui.tvName.setText(name);
 
         ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -179,6 +181,7 @@ public class TransferActivity extends BasePayActivity {
     public void httpSendTransfer(String actionId, final long money, String psw, final long toUid, final String note, long banCardId) {
         isSending = true;
         showLoadingDialog();
+        handler.postDelayed(runnable, WAIT_TIME);
         PayHttpUtils.getInstance().sendTransfer(actionId, money, psw, toUid, note, banCardId)
                 .compose(RxSchedulers.<BaseResponse<SendResultBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<SendResultBean>>handleResult())
@@ -200,15 +203,12 @@ public class TransferActivity extends BasePayActivity {
                                         }
                                     });
                                 } else if (sendBean.getCode() == 2) {//失败
+                                    payFailed();
                                     ToastUtil.show(getContext(), sendBean.getErrMsg());
                                 } else if (sendBean.getCode() == 99) {//待处理
-                                    isSending = false;
-//                                    showLoadingDialog();
-                                } else if (sendBean.getCode() == -21000) {//密码错误
-                                    isSending = false;
-                                    dialogPassword.clearPsw();
-                                    showPswErrorDialog();
+
                                 } else {
+                                    payFailed();
                                     isSending = false;
                                     ToastUtil.show(getContext(), baseResponse.getMessage());
                                 }
@@ -222,7 +222,7 @@ public class TransferActivity extends BasePayActivity {
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
                         super.onHandleError(baseResponse);
-                        isSending = false;
+                        payFailed();
                         if (baseResponse.getCode() == -21000) {//密码错误
                             showPswErrorDialog();
                         } else if (baseResponse.getCode() == 40014) {//余额不足
@@ -276,7 +276,7 @@ public class TransferActivity extends BasePayActivity {
                 dialogSelectPayStyle.dismiss();
                 if (dialogPassword != null) {
                     dialogPassword.init(money, style, bank);
-                    dialogPassword.show();
+                    resetShowDialogPayPassword();
                 }
             }
 
@@ -348,6 +348,7 @@ public class TransferActivity extends BasePayActivity {
 
                     }
                 });
+        dialogBankNoEnough.show();
     }
 
     /**
