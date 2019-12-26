@@ -123,7 +123,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_rate_notice"
-            android:layout_marginLeft="18dp"
+            android:layout_marginLeft="7dp"
             android:text="可提现余额  ¥0.00"
             android:padding="10dp"
             android:textColor="@color/c_868686"
@@ -136,7 +136,7 @@
             android:layout_alignParentRight="true"
             android:layout_below="@+id/tv_rate_notice"
             android:text="全部提现"
-            android:layout_marginRight="18dp"
+            android:layout_marginRight="5dp"
             android:padding="10dp"
             android:textColor="@color/c_374882"
             android:textSize="12sp" />
@@ -167,6 +167,19 @@
             android:text="预计2小时后到账"
             android:textColor="@color/c_868686"
             android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_account_time"
+            android:layout_marginLeft="17dp"
+            android:layout_marginTop="50dp"
+            android:textSize="12sp"
+            android:textColor="@color/c_868686"
+            android:text="提现说明：\n
+1.单日提现次数:3次\n
+2.单日最高提现金额10000元"/>
+
 
         <TextView
             android:id="@+id/tv_question"
