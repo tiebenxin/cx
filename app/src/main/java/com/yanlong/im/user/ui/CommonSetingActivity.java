@@ -104,35 +104,6 @@ public class CommonSetingActivity extends AppActivity {
             case 1:
                 mEdContent.addTextChangedListener(new PasswordTextWather(mEdContent,this));
                 break;
-            case 0:
-                mEdContent.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                        String editValue = "";
-                        if(!TextUtils.isEmpty(mEdContent.getText().toString())){
-                            editValue = mEdContent.getText().toString();
-                            //截取前两位判断开头是否为emoji
-                            if(editValue.length()>=2){
-                                editValue = editValue.substring(0,2);
-                                if(StringUtil.ifContainEmoji(editValue)){
-                                    ToastUtil.show(context,"昵称首位暂不支持emoji~ 〒▽〒");
-                                    mEdContent.setText("");
-                                }
-                            }
-                        }
-                    }
-                });
-                break;
         }
     }
 
@@ -147,10 +118,20 @@ public class CommonSetingActivity extends AppActivity {
             @Override
             public void onRight() {
                 String content = mEdContent.getText().toString();
-                if (!TextUtils.isEmpty(content) && TextUtils.isEmpty(content.trim())) {
+                content = content.trim();
+                if (!TextUtils.isEmpty(content)){
+                    //截取前两位判断开头是否为emoji
+                    if(content.length()>=2){
+                        String emoji = content.substring(0,2);
+                        if(StringUtil.ifContainEmoji(emoji)){
+                            content = " "+content;
+                        }
+                    }
+                }else {
                     ToastUtil.show(CommonSetingActivity.this, "不能用空字符");
                     return;
                 }
+
                 if(special == 1){
                     if(checkProduct()){
                         return;
@@ -158,7 +139,7 @@ public class CommonSetingActivity extends AppActivity {
                 }
 
                 Intent intent = new Intent();
-                intent.putExtra(CONTENT, content.trim());
+                intent.putExtra(CONTENT, content);
                 setResult(RESULT_OK, intent);
                 onBackPressed();
 
