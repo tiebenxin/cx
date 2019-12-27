@@ -33,6 +33,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.CommonSetingActivity;
 import com.yanlong.im.user.ui.ComplaintActivity;
+import com.yanlong.im.user.ui.GroupAddActivity;
 import com.yanlong.im.user.ui.ImageHeadActivity;
 import com.yanlong.im.user.ui.MyselfQRCodeActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
@@ -50,8 +51,10 @@ import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CallBack4Btn;
+import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
@@ -101,11 +104,13 @@ public class GroupInfoActivity extends AppActivity {
     private LinearLayout viewGroupVerif;
     private LinearLayout viewClearChatRecord;
     private LinearLayout viewComplaint;
+    private LinearLayout viewGroupAdd;
     private CheckBox ckGroupVerif;
     private Button btnDel;
     private Gson gson = new Gson();
     private Group ginfo;
     private boolean isSessionChange = false;
+    public boolean isPercentage = true;// 大于等于400人显示增加群人数上限至1000人
 
     private int destroyTime;
     private LinearLayout viewDestroyTime;
@@ -144,6 +149,7 @@ public class GroupInfoActivity extends AppActivity {
         viewGroupSave = findViewById(R.id.view_group_save);
         viewGroupManage = findViewById(R.id.view_group_manage);
         viewGroupImg = findViewById(R.id.view_group_img);
+        viewGroupAdd = findViewById(R.id.view_group_add);
 
         ckGroupVerif = findViewById(R.id.ck_group_verif);
         viewGroupVerif = findViewById(R.id.view_group_verif);
@@ -178,7 +184,6 @@ public class GroupInfoActivity extends AppActivity {
 
             }
         });
-
 
         btnDel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -271,16 +276,16 @@ public class GroupInfoActivity extends AppActivity {
             }
         });
 
-        final RealmList<MemberUser> list = ginfo.getUsers();
-        if (list.size() < 400) {
-            isPercentage = false;
-        }
-
         viewGroupManage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(new Intent(getContext(), GroupManageActivity.class)
-                        .putExtra(GroupManageActivity.AGM_GID, gid).putExtra(GroupManageActivity.PERCENTAGE, isPercentage), GROUP_MANAGER);
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                Bundle bundle = new Bundle();
+                bundle.putString(GroupManageActivity.AGM_GID, gid);
+                bundle.putBoolean(GroupManageActivity.IS_ADMIN, isAdmin());
+                IntentUtil.gotoActivityForResult(GroupInfoActivity.this, GroupManageActivity.class, bundle, GROUP_MANAGER);
             }
         });
 
@@ -331,7 +336,6 @@ public class GroupInfoActivity extends AppActivity {
             }
         });
 
-
         viewDestroyTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -355,13 +359,23 @@ public class GroupInfoActivity extends AppActivity {
             }
         });
 
+        viewGroupAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                Intent intent = new Intent(GroupInfoActivity.this, GroupAddActivity.class).putExtra("gid", gid);
+                startActivity(intent);
+            }
+        });
+
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void setingReadDestroy(ReadDestroyBean bean) {
 
     }
-
 
 
     @Override
@@ -381,9 +395,6 @@ public class GroupInfoActivity extends AppActivity {
         }
     }
 
-
-    public boolean isPercentage = true;
-
     private void initData() {
         //顶部处理
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 5);
@@ -402,6 +413,9 @@ public class GroupInfoActivity extends AppActivity {
             if (UserAction.getMyInfo() != null) {
                 txtGroupNick.setText(UserAction.getMyInfo().getName());
             }
+        }
+        if (!isPercentage) {
+            viewGroupAdd.setVisibility(View.GONE);
         }
         ckDisturb.setChecked(ginfo.getNotNotify() == 1);
         ckGroupSave.setChecked(ginfo.getSaved() == 1);
@@ -482,11 +496,13 @@ public class GroupInfoActivity extends AppActivity {
                         if (number.getUid() == UserAction.getMyId().longValue()) {
                             return;
                         }
+                        boolean value = isAdmin()||isAdministrators();
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, number.getUid())
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
                                 .putExtra(UserInfoActivity.GID, gid)
                                 .putExtra(UserInfoActivity.IS_GROUP, true)
+                                .putExtra(UserInfoActivity.IS_ADMINS, value)
                                 .putExtra(UserInfoActivity.MUC_NICK, number.getMembername()));
 
                     }
@@ -637,6 +653,23 @@ public class GroupInfoActivity extends AppActivity {
         return ginfo.getMaster().equals("" + UserAction.getMyId());
     }
 
+    /**
+     * 判断是否是管理员
+     * @return
+     */
+    private boolean isAdministrators(){
+        boolean isManager = false;
+        if (ginfo.getViceAdmins() != null && ginfo.getViceAdmins().size() > 0) {
+            for (Long user : ginfo.getViceAdmins()) {
+                if (user.equals(UserAction.getMyId())) {
+                    isManager = true;
+                    break;
+                }
+            }
+        }
+        return  isManager;
+    }
+
     private void taskGetInfo() {
         CallBack callBack = new CallBack<ReturnBean<Group>>() {
             @Override
@@ -676,8 +709,15 @@ public class GroupInfoActivity extends AppActivity {
                         }
 
                         listDataTop.add(null);
-                        viewGroupManage.setVisibility(View.GONE);
-
+                        if (isAdministrators()) {
+                            viewGroupManage.setVisibility(View.VISIBLE);
+                        } else {
+                            viewGroupManage.setVisibility(View.GONE);
+                        }
+                    }
+                    final RealmList<MemberUser> list = ginfo.getUsers();
+                    if (list.size() < 400) {
+                        isPercentage = false;
                     }
                     initData();
                 }
@@ -1019,7 +1059,7 @@ public class GroupInfoActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void closeActivityEvent(CloseActivityEvent event) {
-        if(event.type.contains("GroupInfoActivity")){
+        if (event.type.contains("GroupInfoActivity")) {
             finish();
         }
     }

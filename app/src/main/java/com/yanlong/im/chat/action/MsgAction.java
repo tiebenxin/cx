@@ -1,14 +1,14 @@
 package com.yanlong.im.chat.action;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
+import com.yanlong.im.chat.bean.ExitGroupUser;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.GroupUserInfo;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgNotice;
+import com.yanlong.im.chat.bean.NoRedEnvelopesBean;
 import com.yanlong.im.chat.bean.RobotInfoBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -417,6 +417,17 @@ public class MsgAction {
         NetUtil.getNet().exec(server.groupSwitchIntimately(gid, intimately), callback);
     }
 
+    /**
+     * 全员禁言
+     * @param gid
+     * @param intimately
+     * @param callback
+     */
+    public void setAllForbiddenWords(final String gid, int intimately, Callback<ReturnBean> callback) {
+
+        NetUtil.getNet().exec(server.setAllForbiddenWords(gid, intimately), callback);
+    }
+
     /***
      * 单人详情的开关
      * @param isMute
@@ -667,5 +678,54 @@ public class MsgAction {
         NetUtil.getNet().exec(server.changeSurvivalTime(gid, survivalTime), callback);
     }
 
+    /**
+     * 增删管理员
+     * @param adminsJson 管理员列表
+     * @param gid 群id
+     * @param opt -1 取消 0 不做操作 1 新增
+     * @param callback
+     */
+    public void groupChangeAdmins(String adminsJson,String gid,int opt, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.groupChangeAdmins(adminsJson,gid,opt), callback);
+    }
 
+    /**
+     * 获取退群成员列表
+     * @param gid 群id
+     * @param callback
+     */
+    public void exitGroupList(String gid,Callback<ReturnBean<List<ExitGroupUser>>> callback) {
+        NetUtil.getNet().exec(server.exitGroupList(gid), callback);
+    }
+
+    /**
+     * 开关群成员禁领红包
+     * @param uidJson 成员列表
+     * @param gid 群id
+     * @param ops -1 取消 0 不做操作 1 新增
+     * @param callback
+     */
+    public void toggleOpenUpRedEnvelope(String uidJson,String gid,int ops, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.toggleOpenUpRedEnvelope(uidJson,gid,ops), callback);
+    }
+
+    /**
+     * 获取禁领红包群成员列表
+     * @param gid 群id
+     * @param callback
+     */
+    public void getCantOpenUpRedMembers(String gid,Callback<ReturnBean<List<NoRedEnvelopesBean>>> callback) {
+        NetUtil.getNet().exec(server.getCantOpenUpRedMembers(gid), callback);
+    }
+
+    /**
+     * 开关群成员禁言
+     * @param uidJson 成员列表
+     * @param gid 群id
+     * @param duration 禁言时间以秒为单位
+     * @param callback
+     */
+    public void toggleWordsNotAllowed(String uidJson,String gid,int duration, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.toggleWordsNotAllowed(uidJson,gid,duration), callback);
+    }
 }

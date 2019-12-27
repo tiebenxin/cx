@@ -32,4 +32,7 @@ public class Preferences {
     public static final String INTERRUPT = "interrupt";
 
     public static final String IS_FIRST_DIALOG = "is_first_dialog";
+    public static final String TITLE = "title";
+    public static final String HEAD_SCULPTURE = "head_sculpture";
+    public static final String DATA = "data";
 }

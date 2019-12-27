@@ -1,9 +1,6 @@
 package com.yanlong.im.utils;
 
-import android.util.Log;
-
 import com.tencent.bugly.crashreport.CrashReport;
-import com.yanlong.im.user.action.UserAction;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.LogUtil;

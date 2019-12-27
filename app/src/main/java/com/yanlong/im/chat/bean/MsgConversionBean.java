@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.chat.ui.groupmanager.GroupMemPowerSetActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -12,9 +13,11 @@ import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
-import net.cb.cb.library.utils.GsonUtils;
+import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import io.realm.RealmList;
 
@@ -67,9 +70,9 @@ public class MsgConversionBean {
         msgAllBean.setTo_uid(bean.getToUid());
 
         msgAllBean.setGid(bean.getGid());
-        if (bean.getFromUid() == UserAction.getMyId().intValue()){//自己发的
+        if (bean.getFromUid() == UserAction.getMyId().intValue()) {//自己发的
             msgAllBean.setRead(true);
-        }else {
+        } else {
             if (!TextUtils.isEmpty(bean.getGid())) {//群聊
                 if (!TextUtils.isEmpty(MessageManager.SESSION_GID) && MessageManager.SESSION_GID.equals(bean.getGid())) {
                     msgAllBean.setRead(true);
@@ -364,6 +367,29 @@ public class MsgConversionBean {
                         info.setNote("新群名称:" + bean.getChangeGroupMeta().getName());
                         msgAllBean.setMsgNotice(info);
                         break;
+                    case SHUT_UP:// 是否开启全群禁言
+                    {
+                        name = new MsgDao().getUsername4Show(bean.getGid(), bean.getFromUid());
+                        StringBuffer stringBuffer1 = new StringBuffer();
+                        msgAllBean.setGid(bean.getGid());
+                        msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
+                        MsgNotice msgNotice1 = new MsgNotice();
+                        msgNotice1.setMsgid(msgAllBean.getMsg_id());
+
+                        EventGroupChange event = new EventGroupChange();
+                        event.setNeedLoad(true);
+                        if (bean.getChangeGroupMeta().getShutUp()) {
+                            msgNotice1.setMsgType(ChatEnum.ENoticeType.FORBIDDEN_WORDS_OPEN);
+                            stringBuffer1.append("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name + "</font>\"将全员禁言已打开");
+                        } else {
+                            msgNotice1.setMsgType(ChatEnum.ENoticeType.FORBIDDEN_WORDS_CLOSE);
+                            stringBuffer1.append("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name + "</font>\"将全员禁言已关闭");
+                        }
+                        EventBus.getDefault().post(event);
+                        msgNotice1.setNote(stringBuffer1 + "<div id='" + bean.getGid() + "'></div>");
+                        msgAllBean.setMsgNotice(msgNotice1);
+                    }
+                    break;
                     case PROTECT_MEMBER://群成员保护
                         return null;
                     case AVATAR://群头像
@@ -428,19 +454,19 @@ public class MsgConversionBean {
                 String survivaNotice = "";
                 if (bean.getChangeSurvivalTime().getSurvivalTime() == -1) {
                     if (TextUtils.isEmpty(bean.getGid())) {
-                        survivaNotice = "\""+bean.getNickname()+"\""+ "设置了退出即焚";
+                        survivaNotice = "\"" + bean.getNickname() + "\"" + "设置了退出即焚";
                     } else {
                         survivaNotice = "\"群主\"设置了退出即焚";
                     }
                 } else if (bean.getChangeSurvivalTime().getSurvivalTime() == 0) {
                     if (TextUtils.isEmpty(bean.getGid())) {
-                        survivaNotice = "\""+bean.getNickname()+"\""+ "取消了阅后即焚";
+                        survivaNotice = "\"" + bean.getNickname() + "\"" + "取消了阅后即焚";
                     } else {
                         survivaNotice = "\"群主\"取消了阅后即焚";
                     }
                 } else {
                     if (TextUtils.isEmpty(bean.getGid())) {
-                        survivaNotice = "\""+bean.getNickname()+"\"" + "设置了消息" +
+                        survivaNotice = "\"" + bean.getNickname() + "\"" + "设置了消息" +
                                 new ReadDestroyUtil().getDestroyTimeContent(bean.getChangeSurvivalTime().getSurvivalTime()) + "后消失";
                     } else {
                         survivaNotice = "\"群主\"设置了消息" +
@@ -465,7 +491,7 @@ public class MsgConversionBean {
                 msgAllBean.setP2PAuVideoDialMessage(p2PAuVideoDialMessage);
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_VOICE_VIDEO_NOTICE);
                 break;
-            case SNAPSHOT_LOCATION:
+            case SNAPSHOT_LOCATION:// 地图位置
                 LocationMessage locationMessage = new LocationMessage();
                 locationMessage.setMsgId(msgAllBean.getMsg_id());
                 locationMessage.setLatitude(bean.getSnapshotLocation().getLat());
@@ -478,6 +504,74 @@ public class MsgConversionBean {
 
 //                LogUtil.getLog().e("====location==bean==="+ GsonUtils.optObject(bean));
 //                LogUtil.getLog().e("====location==msgAllBean==="+ GsonUtils.optObject(msgAllBean));
+                break;
+            case CHANGE_VICE_ADMINS:// 管理员变更通知
+                msgAllBean.setGid(bean.getGid());
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
+                MsgNotice changeViceAdminsNotice = new MsgNotice();
+                changeViceAdminsNotice.setMsgid(msgAllBean.getMsg_id());
+
+                StringBuffer stringBuffer = new StringBuffer();
+                EventGroupChange event = new EventGroupChange();
+                event.setNeedLoad(true);
+                if (MsgBean.ChangeViceAdminsMessage.Opt.APPEND.getNumber() == bean.getChangeViceAdminsOrBuilder().getOptValue()) {// 新增
+                    for (MsgBean.GroupNoticeMessage groupNotice : bean.getChangeViceAdminsOrBuilder().getMembersList()) {
+                        if (groupNotice.getUid() == UserAction.getMyId().longValue()) {
+                            stringBuffer.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>你</font>\"");
+                        } else {
+                            stringBuffer.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>" + groupNotice.getNickname() + "</font>\"、");
+                        }
+                    }
+                    stringBuffer.append("已成为管理员");
+                    changeViceAdminsNotice.setMsgType(ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_ADD);
+                } else {
+                    name = new MsgDao().getUsername4Show(bean.getGid(), bean.getFromUid());
+                    stringBuffer.append("你已被\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name + "</font>\"取消管理员身份");
+                    changeViceAdminsNotice.setMsgType(ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCLE);
+                }
+                EventBus.getDefault().post(event);
+                changeViceAdminsNotice.setNote(stringBuffer + "<div id='" + bean.getGid() + "'></div>");
+                msgAllBean.setMsgNotice(changeViceAdminsNotice);
+                break;
+
+            case SWITCH_CHANGE: //开关变更
+                // TODO　处理老版本不兼容问题
+                if(bean.getSwitchChange().getSwitchType()!= MsgBean.SwitchChangeMessage.SwitchType.UNRECOGNIZED){
+                    int switchType = bean.getSwitchChange().getSwitchType().getNumber();
+                    int switchValue = bean.getSwitchChange().getSwitchValue();// 禁言时间/秒
+                    if(switchType == MsgBean.SwitchChangeMessage.SwitchType.SHUT_UP.getNumber()){// 单人禁言
+                        msgAllBean.setGid(bean.getGid());
+                        msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
+                        MsgNotice msgNotice1 = new MsgNotice();
+                        msgNotice1.setMsgid(msgAllBean.getMsg_id());
+                        msgNotice1.setMsgType(ChatEnum.ENoticeType.FORBIDDEN_WORDS_SINGE);
+                        StringBuffer sb = new StringBuffer();
+                        name = new MsgDao().getUsername4Show(bean.getGid(), bean.getFromUid());
+
+                        if(bean.getSwitchChange().getMembersList()!=null&&bean.getSwitchChange().getMembersList().size()>0){
+                            MsgBean.GroupNoticeMessage message = bean.getSwitchChange().getMembers(0);
+                            long uid = message.getUid();
+                            if(switchValue ==0){
+                                if(uid== UserAction.getMyId().longValue()){
+                                    sb.append("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" +name
+                                            + "</font>\""+"解除了\"<font color='#276baa' id='" + message.getUid() + "'>你</font>\"禁言");
+                                }else{
+                                    sb.append("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" +name
+                                            + "</font>\""+"解除了\"<font color='#276baa' id='" + message.getUid() + "'>" + message.getNickname() + "</font>\"禁言");
+                                }
+                            }else{
+                                if(uid== UserAction.getMyId().longValue()){
+                                    sb.append("你被\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name + "</font>\"禁言"+ GroupMemPowerSetActivity.getSurvivaltime(switchValue));
+                                }else{
+                                    sb.append("\"<font color='#276baa' id='" + message.getUid() + "'>" + message.getNickname()
+                                            + "</font>\""+"被\"<font color='#276baa' id='" + bean.getFromUid() + "'>" +name + "</font>\"禁言"+GroupMemPowerSetActivity.getSurvivaltime(switchValue));
+                                }
+                            }
+                            msgNotice1.setNote(sb + "<div id='" + bean.getGid() + "'></div>");
+                            msgAllBean.setMsgNotice(msgNotice1);
+                        }
+                    }
+                }
                 break;
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;

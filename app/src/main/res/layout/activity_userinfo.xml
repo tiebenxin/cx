@@ -70,12 +70,10 @@
                 android:visibility="gone" />
 
         </LinearLayout>
-
-
+        <!-- 设置备注-->
         <LinearLayout
             android:id="@+id/view_setting_name"
             style="@style/app_layout_list2"
-            android:layout_marginBottom="@dimen/app_margin_item_top"
             android:visibility="gone">
 
             <LinearLayout
@@ -95,8 +93,7 @@
             </LinearLayout>
 
         </LinearLayout>
-
-
+        <!-- 进群方式-->
         <LinearLayout
             android:id="@+id/view_join_group_type"
             style="@style/app_layout_list2"
@@ -135,11 +132,39 @@
                     android:visibility="invisible" />
             </LinearLayout>
 
-            <View
-                style="@style/app_line"
-                android:layout_height="0.5px" />
         </LinearLayout>
 
+        <!-- 设置标签-->
+        <LinearLayout
+            android:id="@+id/view_setting_label"
+            style="@style/app_layout_list2"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:id="@+id/view_label"
+                style="@style/app_layout_list2_item">
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:layout_weight="1"
+                    android:text="设置标签" />
+
+                <TextView
+                    android:id="@+id/txt_label"
+                    style="@style/app_txt_title_2"
+                    android:layout_width="wrap_content"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:textColor="@color/gray_300"
+                    android:text="" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_btn_goto" />
+            </LinearLayout>
+
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/layout_msg"
@@ -148,12 +173,10 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-
             <LinearLayout
-                style="@style/app_layout_list2"
-                android:layout_marginTop="0dp">
+                style="@style/app_layout_list2">
 
-
+                <!-- 加入黑名单-->
                 <LinearLayout
                     android:id="@+id/view_black"
                     style="@style/app_layout_list2_item">
@@ -170,7 +193,7 @@
                         android:layout_height="wrap_content"
                         android:src="@mipmap/ic_btn_goto" />
                 </LinearLayout>
-
+                <!-- 删除联系人-->
                 <LinearLayout
                     android:id="@+id/view_del"
                     style="@style/app_layout_list2_item">
@@ -191,41 +214,76 @@
 
         </LinearLayout>
 
+        <!-- 权限设置-->
+        <LinearLayout
+            android:id="@+id/view_setting_power"
+            style="@style/app_layout_list2"
+            android:visibility="gone">
 
-            <LinearLayout style="@style/app_layout_list2">
+            <LinearLayout
+                android:id="@+id/view_power"
+                style="@style/app_layout_list2_item">
 
-                <LinearLayout
-                    android:id="@+id/view_complaint"
-                    style="@style/app_layout_list2_item"
-                    android:visibility="gone">
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:layout_weight="1"
+                    android:text="权限设置" />
 
-                    <TextView
-                        style="@style/app_txt_title_2"
-                        android:layout_marginRight="@dimen/app_margin_item"
-                        android:layout_weight="1"
-                        android:text="投诉" />
+                <TextView
+                    android:id="@+id/txt_power"
+                    style="@style/app_txt_title_2"
+                    android:layout_width="wrap_content"
+                    android:layout_marginRight="6dp"
+                    android:textColor="@color/gray_300"
+                    android:text="关闭" />
 
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@mipmap/ic_btn_goto" />
-                </LinearLayout>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_btn_goto" />
+            </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/app_margin_item_top"
+                android:paddingLeft="@dimen/app_margin_main"
+                android:textColor="@color/gray_300"
+                android:textSize="@dimen/dimen_12"
+                android:text="禁言、领取零钱红包等权限设置"/>
+        </LinearLayout>
 
+        <!-- 投诉-->
+        <LinearLayout style="@style/app_layout_list2">
+
+            <LinearLayout
+                android:id="@+id/view_complaint"
+                style="@style/app_layout_list2_item"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:layout_weight="1"
+                    android:text="投诉" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_btn_goto" />
             </LinearLayout>
 
+        </LinearLayout>
 
-            <Button
-                android:id="@+id/btn_msg"
-                style="@style/app_btn_green"
-                android:layout_marginLeft="@dimen/app_margin_main"
-                android:layout_marginTop="20dp"
-                android:layout_marginRight="@dimen/app_margin_main"
-                android:visibility="gone"
-                android:text="发送消息" />
-
-
-
-
+        <Button
+            android:id="@+id/btn_msg"
+            style="@style/app_btn_green"
+            android:layout_marginLeft="@dimen/app_margin_main"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="@dimen/app_margin_main"
+            android:visibility="gone"
+            android:text="发送消息" />
+        <!-- 功能介绍-->
         <LinearLayout
             android:id="@+id/view_introduce"
             android:layout_width="match_parent"

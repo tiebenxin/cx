@@ -10,6 +10,8 @@
     <color name="transparent_80">#80000000</color>
     <color name="transparent_cc">#cc000000</color>
     <color name="transparent_ff">#ff000000</color>
+    <!--10%透明-->
+    <color name="transparent_0D">#0D000000</color>
     <!-- gray -->
     <!--用于大背景-->
     <color name="gray_100">#f1f1f1</color>

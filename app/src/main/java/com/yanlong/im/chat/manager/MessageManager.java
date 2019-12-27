@@ -204,6 +204,7 @@ public class MessageManager {
             case RECEIVE_RED_ENVELOPER://领取红包
             case SNAPSHOT_LOCATION://位置
             case ASSISTANT://小助手消息
+            case CHANGE_VICE_ADMINS:// 管理员变更通知
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }
@@ -361,6 +362,12 @@ public class MessageManager {
                         break;
                     case AVATAR://群头像
                         break;
+                    case SHUT_UP:// 是否开启全群禁言
+                        // 更新群禁言状态
+                        if (bean != null) {
+                            result = saveMessageNew(bean, isList);
+                        }
+                        break;
                 }
                 break;
             case DESTROY_GROUP://销毁群
@@ -462,6 +469,10 @@ public class MessageManager {
                 break;
             case SWITCH_CHANGE: //开关变更
                 LogUtil.getLog().d(TAG, "开关变更:" + wrapMessage.getSwitchChange().getSwitchType());
+                // TODO　处理老版本不兼容问题
+                if(wrapMessage.getSwitchChange().getSwitchType()== MsgBean.SwitchChangeMessage.SwitchType.UNRECOGNIZED){
+                    return true;
+                }
                 int switchType = wrapMessage.getSwitchChange().getSwitchType().getNumber();
                 int switchValue = wrapMessage.getSwitchChange().getSwitchValue();
                 long uid = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
@@ -487,6 +498,11 @@ public class MessageManager {
                         userInfo.setMasterRead(switchValue);
                         userDao.updateUserinfo(userInfo);
                         EventBus.getDefault().post(new EventIsShowRead());
+                        break;
+                    case 3: // 单人禁言
+                        if (bean != null) {
+                            result = saveMessageNew(bean, isList);
+                        }
                         break;
                 }
                 break;

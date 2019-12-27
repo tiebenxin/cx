@@ -16,6 +16,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.nim_lib.config.Preferences;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
@@ -28,6 +31,7 @@ import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
@@ -52,7 +56,12 @@ public class GroupSelectUserActivity extends AppActivity {
     public static final int RET_CODE_SELECTUSR = 18245;
     public static final String TYPE = "type";
     public static final String UID = "uid";
+    public static final String UIDS = "uids";
     public static final String MEMBERNAME = "membername";
+    private final int TYPE_0 = 0;// 表示转让群主选择联系人
+    private final int TYPE_1 = 1;// @用戶
+    private final int TYPE_2 = 2;// 添加管理员
+    private final int TYPE_3 = 3;// 禁止领取零钱红包
     private HeadView headView;
     private ActionbarView actionbar;
     private UserInfo mUserBean;
@@ -62,16 +71,23 @@ public class GroupSelectUserActivity extends AppActivity {
     private List<UserInfo> tempData = new ArrayList<>();
     private PySortView viewType;
     private String gid;
-    private int type;// 0 表示转让群主选择联系人  1 @用戶
+    private int mType;// 0 表示转让群主选择联系人  1 @用戶  2 添加管理员 3 禁止领取零钱红包
     private ClearEditText edtSearch;
     private RecyclerViewAdapter adapter;
     private LinearLayout llAtAll;
     private AlertYesNo alertYesNo;
 
+    private List<Long> mAdmins = new ArrayList<>();// 管理员列表
+
     //自动寻找控件
     private void findViews() {
         gid = getIntent().getStringExtra(GID);
-        type = getIntent().getIntExtra(TYPE, 0);
+        mType = getIntent().getIntExtra(TYPE, 0);
+        // 已添加过的管理员
+        if (!TextUtils.isEmpty(getIntent().getStringExtra(UIDS))) {
+            mAdmins = new Gson().fromJson(getIntent().getStringExtra(UIDS), new TypeToken<List<Long>>() {
+            }.getType());
+        }
         headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
         mtListView = findViewById(R.id.mtListView);
@@ -97,7 +113,19 @@ public class GroupSelectUserActivity extends AppActivity {
         actionbar.getTxtRight().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDialog(mUserBean);
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                if (mType == TYPE_1) {
+                    showDialog(mUserBean);
+                } else if (mType == TYPE_2 || mType == TYPE_3) {
+                    Intent intent = new Intent();
+                    intent.putExtra(Preferences.DATA, new Gson().toJson(getCheckUser()));
+                    setResult(RESULT_OK, intent);
+                    finish();
+                } else {
+                    finish();
+                }
             }
         });
         adapter = new RecyclerViewAdapter();
@@ -155,9 +183,19 @@ public class GroupSelectUserActivity extends AppActivity {
 
     private void initData() {
         taskGetInfo();
-        if (type == 0) {
+        if (mType == TYPE_0) {
             actionbar.setTxtRight("完成");
             actionbar.setTitle("选择新群主");
+            actionbar.getTxtRight().setVisibility(View.GONE);
+        } else if (mType == TYPE_2) {
+            actionbar.setTxtRight("完成");
+            actionbar.setTitle("添加管理员");
+            viewType.setVisibility(View.GONE);
+            actionbar.getTxtRight().setVisibility(View.GONE);
+        } else if (mType == TYPE_3) {
+            actionbar.setTxtRight("完成");
+            actionbar.setTitle("禁止领取零钱红包");
+            viewType.setVisibility(View.GONE);
             actionbar.getTxtRight().setVisibility(View.GONE);
         }
     }
@@ -170,12 +208,18 @@ public class GroupSelectUserActivity extends AppActivity {
                     return;
                 }
                 if (response.body().isOk()) {
-                    if (type == 0) {
+                    if (mType == TYPE_0) {
                         listData = delectMaster(response.body().getData());
                     } else {
                         listData = delectMyslfe(response.body().getData());
                     }
-                    showAtAll(response.body().getData());
+                    if (mType == TYPE_2||mType== TYPE_3) {
+                        filterUser(listData);
+                    }
+                    if (mType == TYPE_1) {
+                        showAtAll(response.body().getData());
+                    }
+
                     // 升序
                     Collections.sort(listData, new Comparator<UserInfo>() {
                         @Override
@@ -206,6 +250,19 @@ public class GroupSelectUserActivity extends AppActivity {
                 }
             }
         });
+    }
+
+    private List<UserInfo> getCheckUser() {
+        List<UserInfo> users = new ArrayList<>();
+        List<UserInfo> list = adapter.getList();
+        if (list != null && list.size() > 0) {
+            for (UserInfo userInfo : list) {
+                if (userInfo.isChecked()) {
+                    users.add(userInfo);
+                }
+            }
+        }
+        return users;
     }
 
     private List<UserInfo> delectMaster(Group group) {
@@ -249,11 +306,30 @@ public class GroupSelectUserActivity extends AppActivity {
         return users;
     }
 
+    /**
+     * 过滤群管理员
+     *
+     * @param listData
+     * @return
+     */
+    private void filterUser(List<UserInfo> listData) {
+
+        if (mAdmins != null && listData.size() > 0) {
+            for (Long uid : mAdmins) {
+                for (int i = listData.size() - 1; i >= 0; i--) {
+                    UserInfo userInfo = listData.get(i);
+                    if (userInfo.getUid() != null && userInfo.getUid().equals(uid)) {
+                        listData.remove(i);
+                    }
+                }
+            }
+        }
+    }
 
     private void showAtAll(Group group) {
         long uid = UserAction.getMyId();
         String master = group.getMaster();
-        if (master.equals(uid + "") && type != 0) {
+        if (master.equals(uid + "") && mType != TYPE_0) {
             llAtAll.setVisibility(View.VISIBLE);
         }
 
@@ -280,7 +356,6 @@ public class GroupSelectUserActivity extends AppActivity {
         alertYesNo.show();
     }
 
-
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> implements Filterable {
         private List<UserInfo> mFilterList = new ArrayList<>();
@@ -291,6 +366,9 @@ public class GroupSelectUserActivity extends AppActivity {
             mSourceList = list;
         }
 
+        public List<UserInfo> getList() {
+            return mFilterList;
+        }
 
         @Override
         public int getItemCount() {
@@ -327,19 +405,15 @@ public class GroupSelectUserActivity extends AppActivity {
                     hd.viewLine.setVisibility(View.GONE);
                 }
             }
-            if (bean.isChecked()) {
-                hd.ckSelect.setChecked(true);
-            } else {
-                hd.ckSelect.setChecked(false);
-            }
+            hd.ckSelect.setChecked(bean.isChecked());
 
-            hd.layoutRoot.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mUserBean = bean;
-                    onItemClick(bean);
-                }
-            });
+//            hd.layoutRoot.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    mUserBean = bean;
+//                    onItemClick(bean);
+//                }
+//            });
             hd.ckSelect.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -350,17 +424,27 @@ public class GroupSelectUserActivity extends AppActivity {
         }
 
         private void onItemClick(UserInfo bean) {
-            for (UserInfo info : mFilterList) {
-                if (info.getUid().equals(bean.getUid())) {
-                    info.setChecked(!bean.isChecked());
-                } else {
-                    info.setChecked(false);
+            if (mType == TYPE_0) {// 表示转让群主选择联系人
+                for (UserInfo info : mFilterList) {
+                    if (info.getUid().equals(bean.getUid())) {
+                        info.setChecked(!bean.isChecked());
+                    } else {
+                        info.setChecked(false);
+                    }
                 }
-            }
-            mtListView.notifyDataSetChange();
-            if (type == 0) {
+                mtListView.notifyDataSetChange();
                 actionbar.getTxtRight().setVisibility(bean.isChecked() ? View.VISIBLE : View.GONE);
-            } else {
+            } else if (mType == TYPE_2 || mType == TYPE_3) {// 添加管理员/禁止领取零钱红包
+                bean.setChecked(!bean.isChecked());
+                boolean isCheck = false;
+                for (UserInfo info : mFilterList) {
+                    if (info.isChecked()) {
+                        isCheck = true;
+                        break;
+                    }
+                }
+                actionbar.getTxtRight().setVisibility(isCheck ? View.VISIBLE : View.GONE);
+            } else {// @用户
                 Intent intent = new Intent();
                 intent.putExtra(UID, bean.getUid() + "");
                 intent.putExtra(MEMBERNAME, !TextUtils.isEmpty(bean.getMembername()) ? bean.getMembername() : bean.getName());

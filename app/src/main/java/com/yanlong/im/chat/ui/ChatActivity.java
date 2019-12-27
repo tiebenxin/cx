@@ -795,7 +795,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void onClick(View v) {
 
-                if(ViewUtils.isFastDoubleClick()){
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                if (checkForbiddenWords()) {
+                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
                     return;
                 }
 
@@ -989,7 +993,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             @Override
             public void onClick(View v) {
-
+                if (checkForbiddenWords()) {
+                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    return;
+                }
                 permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
                     @Override
                     public void onSuccess() {
@@ -1024,7 +1031,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (checkForbiddenWords()) {
+                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    return;
+                }
                 PictureSelector.create(ChatActivity.this)
 //                        .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                         .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
@@ -1051,6 +1061,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewTransfer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (checkForbiddenWords()) {
+                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    return;
+                }
                 taskTrans();
             }
         });
@@ -1059,7 +1073,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (checkForbiddenWords()) {
+                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    return;
+                }
                 AlertTouch alertTouch = new AlertTouch();
                 alertTouch.init(ChatActivity.this, "请输入戳一下消息", "确定", R.mipmap.ic_chat_actionme, new AlertTouch.Event() {
                     @Override
@@ -1089,8 +1106,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // go(SelectUserActivity.class);
                 if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                if (checkForbiddenWords()) {
+                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
                     return;
                 }
                 startActivityForResult(new Intent(getContext(), SelectUserActivity.class), SelectUserActivity.RET_CODE_SELECTUSR);
@@ -1101,6 +1121,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         btnVoice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (checkForbiddenWords()) {
+                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    return;
+                }
                 //申请权限 7.2
                 permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
                     @Override
@@ -1217,6 +1241,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 if (!checkNetConnectStatus()) {
                     return;
                 }
+
                 hideBt();
                 DialogHelper.getInstance().createSelectDialog(ChatActivity.this, new ICustomerItemClick() {
                     @Override
@@ -1241,7 +1266,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         view_location_ll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LocationActivity.openActivity(ChatActivity.this,false,28136296,112953042);
+                if (checkForbiddenWords()) {
+                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    return;
+                }
+                LocationActivity.openActivity(ChatActivity.this, false, 28136296, 112953042);
             }
         });
 
@@ -1417,6 +1446,42 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             finish();
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    /**
+     * 检查是否群禁言
+     *
+     * @return
+     */
+    private boolean checkForbiddenWords() {
+        boolean check = false;
+        if (groupInfo != null && groupInfo.getWordsNotAllowed() == 1 && !isAdmin()&&!isAdministrators()) {
+            check = true;
+        }
+        return check;
+    }
+
+    private boolean isAdmin() {
+        if (groupInfo == null || !StringUtil.isNotNull(groupInfo.getMaster()))
+            return false;
+        return groupInfo.getMaster().equals("" + UserAction.getMyId());
+    }
+
+    /**
+     * 判断是否是管理员
+     * @return
+     */
+    private boolean isAdministrators(){
+        boolean isManager = false;
+        if (groupInfo.getViceAdmins() != null && groupInfo.getViceAdmins().size() > 0) {
+            for (Long user : groupInfo.getViceAdmins()) {
+                if (user.equals(UserAction.getMyId())) {
+                    isManager = true;
+                    break;
+                }
+            }
+        }
+        return  isManager;
     }
 
     /**
@@ -2141,7 +2206,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
     }
 
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshChat(EventGroupChange event) {
         if (event.isNeedLoad()) {
@@ -2170,7 +2234,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             viewFunc.addView(llChatVideoCall);
         }
     }
-
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskUpImgEvevt(EventUpImgLoadEvent event) {
@@ -2216,18 +2279,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void locationSendEvent(LocationSendEvent event) {
         LocationMessage message = SocketData.createLocationMessage(SocketData.getUUID(), event.message.getLatitude(),
-                event.message.getLongitude(),event.message.getAddress(),event.message.getAddressDescribe());
+                event.message.getLongitude(), event.message.getAddress(), event.message.getAddressDescribe());
 
 //        LogUtil.getLog().e("====location=message=="+GsonUtils.optObject(message));
         sendMessage(message, ChatEnum.EMessageType.LOCATION);
     }
-
-
-
-
-
-
-
 
 
     private void setChatImageBackground() {
@@ -3072,8 +3128,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     holder.viewChatItem.setDataLocation(msgbean.getLocationMessage(), new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            LocationActivity.openActivity(ChatActivity.this,true,
-                                    msgbean.getLocationMessage().getLatitude(),msgbean.getLocationMessage().getLongitude());
+                            LocationActivity.openActivity(ChatActivity.this, true,
+                                    msgbean.getLocationMessage().getLatitude(), msgbean.getLocationMessage().getLongitude());
                         }
                     });
                     break;
@@ -3150,7 +3206,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             holder.viewChatItem.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if(!ViewUtils.isFastDoubleClick()){//防止触发两次  移除父类才能添加
+                    if (!ViewUtils.isFastDoubleClick()) {//防止触发两次  移除父类才能添加
                         holder.viewChatItem.selectTextBubble(true);
                         // ToastUtil.show(getContext(),"长按");
                         if (msgbean.getMsg_type() == ChatEnum.EMessageType.VOICE) {//为语音单独处理
@@ -3430,9 +3486,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         });
 
-        if(ChatEnum.EPlayStatus.PLAYING==status){
+        if (ChatEnum.EPlayStatus.PLAYING == status) {
             MessageManager.setCanStamp(false);
-        }else if(ChatEnum.EPlayStatus.STOP_PLAY==status||ChatEnum.EPlayStatus.PLAYED==status){
+        } else if (ChatEnum.EPlayStatus.STOP_PLAY == status || ChatEnum.EPlayStatus.PLAYED == status) {
             MessageManager.setCanStamp(true);
         }
     }
@@ -3540,7 +3596,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 初始化PopupWindow
      */
     private void initPopupWindow() {
-        mRootView = getLayoutInflater().inflate(R.layout.view_chat_bubble, null,false);
+        mRootView = getLayoutInflater().inflate(R.layout.view_chat_bubble, null, false);
         //获取自身的长宽高
         mRootView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         popupWidth = mRootView.getMeasuredWidth();
@@ -3668,7 +3724,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * @param msgbean
      */
     private void onRetransmission(final MsgAllBean msgbean) {
-
+        if (checkForbiddenWords()) {
+            ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+            return;
+        }
         startActivity(new Intent(getContext(), MsgForwardActivity.class)
                 .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean)));
     }
@@ -3918,7 +3977,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (TextUtils.isEmpty(toGid)) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
             if (bean != null) {
-                LogUtil.getLog().e("===sendRead==msg====="+bean.getMsg_id()+"===msgid="+msgid+"==bean.getRead()="+bean.getRead()+"==bean.getTimestamp()="+bean.getTimestamp());
+                LogUtil.getLog().e("===sendRead==msg=====" + bean.getMsg_id() + "===msgid=" + msgid + "==bean.getRead()=" + bean.getRead() + "==bean.getTimestamp()=" + bean.getTimestamp());
                 if (bean.getRead() == 0) {
 //                if ((TextUtils.isEmpty(msgid) || !msgid.equals(bean.getMsg_id())) && bean.getRead() == 0) {
                     msgid = bean.getMsg_id();
