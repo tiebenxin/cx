@@ -32,6 +32,7 @@ public class Group extends RealmObject {
     private Integer notNotify;// 消息免打扰
     private Integer needVerification;//是否需要群验证
     private Integer contactIntimately;//是否需要群保护
+    private Integer wordsNotAllowed;// 全员禁言
     @SerializedName("toTop")
     private Integer isTop;
 
@@ -42,23 +43,15 @@ public class Group extends RealmObject {
     //名称
     private String robotname;
 
-
+    private RealmList<Long> viceAdmins;// 管理员
 
     @Ignore
-    private  boolean isSelect=false;//本地字段
+    private boolean isSelect = false;//本地字段
     @Ignore
     private MemberUser keyUser;//符合搜索条件key的群成员
 
     private int survivaltime;  // 阅后即焚时间
     private String merchantEntry;// 群机器人网址
-
-
-
-
-
-
-
-
 
     public int getSurvivaltime() {
         return survivaltime;
@@ -101,6 +94,25 @@ public class Group extends RealmObject {
             contactIntimately = 0;
         }
         return contactIntimately;
+    }
+
+    public Integer getWordsNotAllowed() {
+        if (wordsNotAllowed == null) {
+            wordsNotAllowed = 0;
+        }
+        return wordsNotAllowed;
+    }
+
+    public void setWordsNotAllowed(Integer wordsNotAllowed) {
+        this.wordsNotAllowed = wordsNotAllowed;
+    }
+
+    public RealmList<Long> getViceAdmins() {
+        return viceAdmins == null ? new RealmList<Long>() : viceAdmins;
+    }
+
+    public void setViceAdmins(RealmList<Long> viceAdmins) {
+        this.viceAdmins = viceAdmins;
     }
 
     public void setContactIntimately(Integer contactIntimately) {

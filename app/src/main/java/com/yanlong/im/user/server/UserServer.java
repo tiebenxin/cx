@@ -2,6 +2,7 @@ package com.yanlong.im.user.server;
 
 
 import com.yanlong.im.chat.bean.ApplyBean;
+import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IdCardBean;
 import com.yanlong.im.user.bean.LoginBean;
@@ -195,5 +196,7 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean> friendsSetRead(@Field("friend") long uid,@Field("read") int read);
 
-
+    @POST("/group/get-single-member")
+    @FormUrlEncoded
+    Call<ReturnBean<SingleMeberInfoBean>> getSingleMemberInfo(@Field("gid") String gid, @Field("uid") int uid);
 }

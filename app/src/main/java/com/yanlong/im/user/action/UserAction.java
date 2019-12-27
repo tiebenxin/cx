@@ -14,6 +14,7 @@ import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
+import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
@@ -853,6 +854,16 @@ public class UserAction {
      */
     public void friendsSetRead(long uid, int read, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.friendsSetRead(uid, read), callback);
+    }
+
+    /**
+     * 获取单个群成员信息
+     * @param gid 群id
+     * @param uid 群成员ID
+     * @param callback
+     */
+    public void getSingleMemberInfo(String gid,int uid,Callback<ReturnBean<SingleMeberInfoBean>> callback) {
+        NetUtil.getNet().exec(server.getSingleMemberInfo(gid,uid), callback);
     }
 
 }

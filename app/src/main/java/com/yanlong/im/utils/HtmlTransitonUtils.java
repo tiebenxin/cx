@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class HtmlTransitonUtils {
     private static final String TAG = "HtmlTransitonUtils";
-    private final String REST_EDIT="重新编辑";
+    private final String REST_EDIT = "重新编辑";
 
     public SpannableStringBuilder getSpannableString(Context context, String html, int type) {
         SpannableStringBuilder style = new SpannableStringBuilder();
@@ -75,7 +75,24 @@ public class HtmlTransitonUtils {
                 case ChatEnum.ENoticeType.LOCK://端到端加密
                     setType12(context, style, bean);
                     break;
-
+                case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_ADD://群管理变更通知
+                    setType13(context, style, bean);
+                    break;
+                case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCLE:
+                    setType14(context, style, bean);
+                    break;
+                case ChatEnum.ENoticeType.FORBIDDEN_WORDS_OPEN:// 群禁言
+                case ChatEnum.ENoticeType.FORBIDDEN_WORDS_CLOSE:// 群禁言
+                    setType15(context, style, bean, type);
+                    break;
+                case ChatEnum.ENoticeType.FORBIDDEN_WORDS_SINGE:// 单人禁言
+                    if(html.contains("解除")){
+                        setType17(context, style, bean);
+                    }else{
+                        String value = html.substring(html.lastIndexOf("禁言"),html.indexOf("<div"));
+                        setType16(context, style, bean, value);
+                    }
+                    break;
             }
 
         }
@@ -460,6 +477,225 @@ public class HtmlTransitonUtils {
 
     }
 
+    private void setType13(Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+        List<HtmlBeanList> list = htmlBean.getList();
+
+        for (int i = 0; i < list.size(); i++) {
+            HtmlBeanList bean = list.get(i);
+            final String content = "\"" + bean.getName() + "\"";
+            builder.append(content);
+            if (list.size() > 1) {
+                builder.append("、");
+            }
+            if ("你".equals(bean.getName())) {
+                continue;
+            }
+            int state;
+            int end;
+            if (list.size() == 1) {
+                state = builder.toString().length() - content.length() + 1;
+                end = builder.toString().length() - 1;
+            } else {
+                state = builder.toString().length() - content.length();
+                end = builder.toString().length() - 2;
+            }
+
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    Intent intent = new Intent(context, UserInfoActivity.class);
+                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
+                    intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
+                    context.startActivity(intent);
+
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+
+            };
+            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        builder.append("已成为管理员");
+    }
+
+    private void setType14(Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+        List<HtmlBeanList> list = htmlBean.getList();
+
+        for (int i = 0; i < list.size(); i++) {
+            HtmlBeanList bean = list.get(i);
+            final String content = "你已被\"" + bean.getName() + "\"";
+            builder.append(content);
+
+            int state = builder.toString().length() - content.length() + 4;
+            int end = builder.toString().length() - 1;
+
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    Intent intent = new Intent(context, UserInfoActivity.class);
+                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
+                    intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
+                    context.startActivity(intent);
+
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+
+            };
+            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        builder.append("取消管理员身份");
+    }
+
+    private void setType15(Context context, SpannableStringBuilder builder, final HtmlBean htmlBean, int type) {
+        List<HtmlBeanList> list = htmlBean.getList();
+
+        for (int i = 0; i < list.size(); i++) {
+            HtmlBeanList bean = list.get(i);
+            final String content = "\"" + bean.getName() + "\"";
+            builder.append(content);
+
+            int state = builder.toString().length() - content.length() + 1;
+            int end = builder.toString().length() - 1;
+
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    Intent intent = new Intent(context, UserInfoActivity.class);
+                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
+                    intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
+                    context.startActivity(intent);
+
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+
+            };
+            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        if (type == ChatEnum.ENoticeType.FORBIDDEN_WORDS_OPEN) {
+            builder.append("将全员禁言已打开");
+        } else {
+            builder.append("将全员禁言已关闭");
+        }
+    }
+
+    private void setType16(Context context, SpannableStringBuilder builder, final HtmlBean htmlBean, String time) {
+        List<HtmlBeanList> list = htmlBean.getList();
+
+        for (int i = 0; i < list.size(); i++) {
+            HtmlBeanList bean = list.get(i);
+            final String content = "\"" + bean.getName() + "\"";
+            if (list.size() == 1) {
+                builder.append("你被");
+            }
+            builder.append(content);
+            if (list.size() > 1 && i != list.size() - 1) {
+                builder.append("被");
+            }
+
+            int state;
+            int end;
+            if (list.size() == 1) {
+                state = builder.toString().length() - content.length() + 1;
+                end = builder.toString().length() - 1;
+            } else {
+                if (i == 0) {
+                    state = 1;
+                    end = builder.toString().length() - 2;
+                } else {
+                    state = builder.toString().length() - content.length();
+                    end = builder.toString().length() - 1;
+                }
+            }
+
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    Intent intent = new Intent(context, UserInfoActivity.class);
+                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
+                    intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
+                    context.startActivity(intent);
+
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+
+            };
+            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        builder.append(time);
+    }
+
+    private void setType17(Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+        List<HtmlBeanList> list = htmlBean.getList();
+
+        for (int i = 0; i < list.size(); i++) {
+            HtmlBeanList bean = list.get(i);
+            final String content = "\"" + bean.getName() + "\"";
+            builder.append(content);
+            if("你".equals(bean.getName())){
+                continue;
+            }
+
+            int state;
+            int end;
+            if (i == 0) {
+                builder.append("解除了");
+                state = 1;
+                end = builder.toString().length() - 4;
+            } else {
+                state = builder.toString().length() - content.length();
+                end = builder.toString().length() - 1;
+            }
+
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    Intent intent = new Intent(context, UserInfoActivity.class);
+                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
+                    intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
+                    context.startActivity(intent);
+
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+
+            };
+            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        builder.append("禁言");
+    }
 
     private void goToUserInfoActivity(Context context, Long id, String gid) {
         context.startActivity(new Intent(context, UserInfoActivity.class)

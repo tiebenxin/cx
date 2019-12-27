@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.nim_lib.config.Preferences;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
@@ -22,6 +23,8 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.ChatActivity;
+import com.yanlong.im.chat.ui.groupmanager.GroupMemPowerSetActivity;
+import com.yanlong.im.chat.ui.groupmanager.SetupGroupMemberLableActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -35,7 +38,9 @@ import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.RefreshApplyEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
@@ -68,6 +73,7 @@ public class UserInfoActivity extends AppActivity {
     public static final String MUC_NICK = "mucNick";//
     public static final String FROM = "from";//从哪个页面跳转过来
     public static final String IS_GROUP = "isGroup";// 是否是群跳转过来
+    public static final String IS_ADMINS = "isAdmins";// 是否是群主
 
     private HeadView headView;
     private ActionbarView actionbar;
@@ -83,6 +89,10 @@ public class UserInfoActivity extends AppActivity {
     private LinearLayout viewComplaint;
     private LinearLayout mLayoutMsg;
     private LinearLayout mViewSettingName;
+    private LinearLayout mViewSettingPower;
+    private LinearLayout mviewSettingLabel;
+    private LinearLayout mViewLabel;
+    private LinearLayout mViewPower;
     private Button mBtnAdd;
     private Button btnMsg;
 
@@ -93,6 +103,7 @@ public class UserInfoActivity extends AppActivity {
     private String gid;
     private String inviterName;
     private boolean mIsFromGroup;// 是否是来自群聊
+    private boolean mIsAdmin;// 是否是群主或管理员
     private long inviter;
     private long id;
     private String sayHi;
@@ -148,6 +159,10 @@ public class UserInfoActivity extends AppActivity {
         tv_introduce = findViewById(R.id.tv_introduce);
         tvJoinGroupName = findViewById(R.id.tv_join_group_name);
 
+        mViewSettingPower = findViewById(R.id.view_setting_power);
+        mviewSettingLabel = findViewById(R.id.view_setting_label);
+        mViewLabel = findViewById(R.id.view_label);
+        mViewPower = findViewById(R.id.view_power);
     }
 
     //自动生成的控件事件
@@ -253,6 +268,25 @@ public class UserInfoActivity extends AppActivity {
             }
         });
 
+        mViewLabel.setOnClickListener(o->{
+            if(ViewUtils.isFastDoubleClick()){
+                return;
+            }
+            Bundle bundle = new Bundle();
+            bundle.putString(Preferences.TOGID,gid);
+            bundle.putLong(Preferences.TOUID,id);
+            IntentUtil.gotoActivity(this, SetupGroupMemberLableActivity.class,bundle);
+
+        });
+        mViewPower.setOnClickListener(o->{
+            if(ViewUtils.isFastDoubleClick()){
+                return;
+            }
+            Bundle bundle = new Bundle();
+            bundle.putString(Preferences.TOGID,gid);
+            bundle.putLong(Preferences.TOUID,id);
+            IntentUtil.gotoActivity(this, GroupMemPowerSetActivity.class,bundle);
+        });
 
         if (isApply == 0) {
             actionbar.setTitle("详细资料");
@@ -273,7 +307,6 @@ public class UserInfoActivity extends AppActivity {
                 }
             });
         }
-
 
     }
 
@@ -308,9 +341,9 @@ public class UserInfoActivity extends AppActivity {
         gid = intent.getStringExtra(GID);
         from = intent.getIntExtra(FROM, ChatEnum.EFromType.DEFAULT);
         mIsFromGroup = intent.getBooleanExtra(IS_GROUP, false);
+        mIsAdmin = intent.getBooleanExtra(IS_ADMINS, false);
         taskFindExist();
         taskUserInfo(id);
-
     }
 
     @Override
@@ -329,7 +362,10 @@ public class UserInfoActivity extends AppActivity {
         }
     }
 
-
+    /**
+     *
+     * @param type 0.已经是好友 1.不是好友添加好友 2.黑名单 3.自己
+     */
     private void setItemShow(int type) {
         System.out.println(UserInfoActivity.class.getSimpleName() + "--stat=" + type);
         viewComplaint.setVisibility(View.VISIBLE);
@@ -340,6 +376,10 @@ public class UserInfoActivity extends AppActivity {
             mViewSettingName.setVisibility(View.VISIBLE);
             tvBlack.setText("加入黑名单");
             viewIntroduce.setVisibility(View.GONE);
+            if(mIsAdmin){
+                mViewSettingPower.setVisibility(View.VISIBLE);
+                mviewSettingLabel.setVisibility(View.VISIBLE);
+            }
         } else if (type == 1) {
             mLayoutMsg.setVisibility(View.GONE);
             btnMsg.setVisibility(View.GONE);
@@ -352,6 +392,10 @@ public class UserInfoActivity extends AppActivity {
                 mTvRemark.setText(sayHi);
             }
             viewIntroduce.setVisibility(View.GONE);
+            if(mIsAdmin) {
+                mViewSettingPower.setVisibility(View.VISIBLE);
+                mviewSettingLabel.setVisibility(View.VISIBLE);
+            }
         } else if (type == 2) {
             mLayoutMsg.setVisibility(View.VISIBLE);
             btnMsg.setVisibility(View.VISIBLE);
@@ -730,4 +774,5 @@ public class UserInfoActivity extends AppActivity {
             }
         }
     }
+
 }

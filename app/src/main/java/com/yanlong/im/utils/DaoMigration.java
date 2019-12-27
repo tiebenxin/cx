@@ -72,14 +72,16 @@ public class DaoMigration implements RealmMigration {
                 updateV13(schema);
                 oldVersion++;
             }
-
             if (newVersion > oldVersion && oldVersion == 13) {
                 updateV14(schema);
                 oldVersion++;
             }
-
             if (newVersion > oldVersion && oldVersion == 14) {
                 updateV15(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 15) {
+                updateV16(schema);
                 oldVersion++;
             }
         }
@@ -296,9 +298,18 @@ public class DaoMigration implements RealmMigration {
         schema.get("TransferMessage")
                 .addField("sign", String.class)
                 .addField("opType", int.class);
-
     }
 
+    /**
+     * 更群管理
+     * @param schema
+     */
+    private void updateV16(RealmSchema schema) {
+        schema.get("Group")
+                .addRealmListField("viceAdmins", Long.class);
+        schema.get("Group")
+                .addField("wordsNotAllowed", Integer.class);
+    }
 
     @Override
     public boolean equals(@Nullable Object obj) {
