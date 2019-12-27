@@ -504,6 +504,38 @@
             android:launchMode="singleInstance"
             android:taskAffinity="" />
 
+        <!--设置管理员-->
+        <activity
+            android:name=".chat.ui.groupmanager.SetupSysManagerActivity"
+            android:screenOrientation="portrait" />
+        <!--禁止领取零钱红包-->
+        <activity
+            android:name=".chat.ui.groupmanager.NoRedEnvelopesActivity"
+            android:screenOrientation="portrait" />
+        <!--未领取零钱红包-->
+        <activity
+            android:name=".chat.ui.groupmanager.NoRedBagActivity"
+            android:screenOrientation="portrait" />
+        <!--不活跃群成员-->
+        <activity
+            android:name=".chat.ui.groupmanager.InactiveMemberActivity"
+            android:screenOrientation="portrait" />
+        <!--不活跃群成员列表-->
+        <activity
+            android:name=".chat.ui.groupmanager.InactiveMemberListActivity"
+            android:screenOrientation="portrait" />
+        <!--退群成员列表-->
+        <activity
+            android:name=".chat.ui.groupmanager.ExitGroupActivity"
+            android:screenOrientation="portrait" />
+        <!--群成员权限设置-->
+        <activity
+            android:name=".chat.ui.groupmanager.GroupMemPowerSetActivity"
+            android:screenOrientation="portrait" />
+        <!--设置标签-->
+        <activity
+            android:name=".chat.ui.groupmanager.SetupGroupMemberLableActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".user.ui.FeedbackShowImageActivity"
             android:launchMode="singleTask"

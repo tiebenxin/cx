@@ -705,6 +705,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
             mtListView.getListView().getAdapter().notifyItemRangeInserted(size, 1);
             // 处理发送失败时位置错乱问题
             mtListView.getListView().getAdapter().notifyItemRangeChanged(size + 1, msgListData.size() - 1);
+
+            //红包通知 不滚动到底部
+            if (msgAllbean.getMsgNotice() != null && (msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE
+                    || msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF)) {
+                return;
+            }
             scrollListView(true);
         } else {
             taskRefreshMessage(false);
@@ -825,6 +831,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
             public void onClick(View v) {
 
                 if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                if (checkForbiddenWords()) {
+                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
                     return;
                 }
 
@@ -1018,7 +1028,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
             @Override
             public void onClick(View v) {
-
+                if (checkForbiddenWords()) {
+                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    return;
+                }
                 permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
                     @Override
                     public void onSuccess() {
@@ -1053,7 +1066,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         viewPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (checkForbiddenWords()) {
+                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    return;
+                }
                 PictureSelector.create(ChatActivity.this)
 //                        .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                         .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
@@ -1106,7 +1122,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         viewTransfer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                taskTrans();
+                if (checkForbiddenWords()) {
+                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    return;
+                }
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
@@ -1139,7 +1158,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         viewAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (checkForbiddenWords()) {
+                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    return;
+                }
                 AlertTouch alertTouch = new AlertTouch();
                 alertTouch.init(ChatActivity.this, "请输入戳一下消息", "确定", R.mipmap.ic_chat_actionme, new AlertTouch.Event() {
                     @Override
@@ -1169,8 +1191,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         viewCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // go(SelectUserActivity.class);
                 if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                if (checkForbiddenWords()) {
+                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
                     return;
                 }
                 startActivityForResult(new Intent(getContext(), SelectUserActivity.class), SelectUserActivity.RET_CODE_SELECTUSR);
@@ -1181,6 +1206,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         btnVoice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (checkForbiddenWords()) {
+                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    return;
+                }
                 //申请权限 7.2
                 permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
                     @Override
@@ -1297,6 +1326,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                 if (!checkNetConnectStatus()) {
                     return;
                 }
+
                 hideBt();
                 DialogHelper.getInstance().createSelectDialog(ChatActivity.this, new ICustomerItemClick() {
                     @Override
@@ -1321,6 +1351,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         view_location_ll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (checkForbiddenWords()) {
+                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    return;
+                }
                 LocationActivity.openActivity(ChatActivity.this, false, 28136296, 112953042);
             }
         });
@@ -1520,6 +1554,43 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
             finish();
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    /**
+     * 检查是否群禁言
+     *
+     * @return
+     */
+    private boolean checkForbiddenWords() {
+        boolean check = false;
+        if (groupInfo != null && groupInfo.getWordsNotAllowed() == 1 && !isAdmin() && !isAdministrators()) {
+            check = true;
+        }
+        return check;
+    }
+
+    private boolean isAdmin() {
+        if (groupInfo == null || !StringUtil.isNotNull(groupInfo.getMaster()))
+            return false;
+        return groupInfo.getMaster().equals("" + UserAction.getMyId());
+    }
+
+    /**
+     * 判断是否是管理员
+     *
+     * @return
+     */
+    private boolean isAdministrators() {
+        boolean isManager = false;
+        if (groupInfo.getViceAdmins() != null && groupInfo.getViceAdmins().size() > 0) {
+            for (Long user : groupInfo.getViceAdmins()) {
+                if (user.equals(UserAction.getMyId())) {
+                    isManager = true;
+                    break;
+                }
+            }
+        }
+        return isManager;
     }
 
     /**
@@ -2223,6 +2294,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
                     break;
                 case REQ_RP://红包
+                    LogUtil.writeEnvelopeLog("云红包回调了");
+                    LogUtil.getLog().e("云红包回调了");
                     if (!checkNetConnectStatus()) {
                         return;
                     }
@@ -2231,7 +2304,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                         //  ToastUtil.show(getContext(), "红包的回调" + envelopeInfo.toString());
                         String info = envelopeInfo.getEnvelopeMessage();
                         String rid = envelopeInfo.getEnvelopesID();
-
+                        LogUtil.writeEnvelopeLog("rid=" + rid);
+                        LogUtil.getLog().e("rid=" + rid);
                         MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL;
                         if (envelopeInfo.getEnvelopeType() == 1) {//拼手气
                             style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
@@ -2277,7 +2351,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         }
     }
 
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshChat(EventGroupChange event) {
         if (event.isNeedLoad()) {
@@ -2306,7 +2379,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
             viewFunc.addView(llChatVideoCall);
         }
     }
-
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskUpImgEvevt(EventUpImgLoadEvent event) {
@@ -3893,7 +3965,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
      * @param msgbean
      */
     private void onRetransmission(final MsgAllBean msgbean) {
-
+        if (checkForbiddenWords()) {
+            ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+            return;
+        }
         startActivity(new Intent(getContext(), MsgForwardActivity.class)
                 .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean)));
     }
@@ -4466,11 +4541,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                         JrmfRpClient.sendGroupEnvelopeForResult(ChatActivity.this, "" + toGid, "" + UserAction.getMyId(), token,
                                 group.getUsers().size(), minfo.getName(), minfo.getHead(), REQ_RP);
                     } else {
-
                         UserInfo minfo = UserAction.getMyInfo();
                         JrmfRpClient.sendSingleEnvelopeForResult(ChatActivity.this, "" + toUId, "" + minfo.getUid(), token,
                                 minfo.getName(), minfo.getHead(), REQ_RP);
                     }
+                    LogUtil.writeEnvelopeLog("准备发红包");
 
                 }
             }
@@ -4886,7 +4961,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
             EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean, null));
             LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间1----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
         }
-//        LogUtil.getLog().e("=1=msgbean.toString===2=="+msgbean.toString());
+//        LogUtil.getLog().e("==msgbean.toString===2=="+msgbean.toString());
     }
 
     public void addSurvivalTimeAndRead(MsgAllBean msgbean) {
@@ -4901,7 +4976,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
             EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean, null));
             LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间2----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
         }
-//        LogUtil.getLog().e("=1=msgbean.toString===3=="+msgbean.toString());
+//        LogUtil.getLog().e("==msgbean.toString===3=="+msgbean.toString());
     }
 
 

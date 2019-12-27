@@ -210,7 +210,7 @@
                         android:layout_marginLeft="@dimen/app_margin_main"
                         android:layout_marginRight="@dimen/app_margin_main"
                         android:maxLines="4"
-                        tool:text="fhhsdfhfhijfdi"
+                        tool:text=""
                         android:layout_marginBottom="5dp"
                         android:textColor="@color/gray_300" />
                 </LinearLayout>
@@ -230,6 +230,31 @@
                         android:layout_weight="1"
                         android:text="群管理" />
 
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/ic_btn_goto" />
+                </LinearLayout>
+
+                <!--增加群人数上限至1000人-->
+                <LinearLayout
+                    android:id="@+id/view_group_add"
+                    style="@style/app_layout_list2_item">
+
+                    <TextView
+                        style="@style/app_txt_title_red"
+                        android:textColor="@color/red_400"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:text="增加群人数上限至1000人" />
+
+                    <TextView
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:id="@+id/txt_group_add"
+                        style="@style/app_txt_title_4"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:text="" />
 
                     <ImageView
                         android:layout_width="wrap_content"

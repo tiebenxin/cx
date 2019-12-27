@@ -104,35 +104,6 @@ public class CommonSetingActivity extends AppActivity {
             case 1:
                 mEdContent.addTextChangedListener(new PasswordTextWather(mEdContent,this));
                 break;
-            case 0:
-                mEdContent.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                        String editValue = "";
-                        if(!TextUtils.isEmpty(mEdContent.getText().toString())){
-                            editValue = mEdContent.getText().toString();
-                            //截取前两位判断开头是否为emoji
-                            if(editValue.length()>=2){
-                                editValue = editValue.substring(0,2);
-                                if(StringUtil.ifContainEmoji(editValue)){
-                                    ToastUtil.show(context,"昵称首位暂不支持emoji~ 〒▽〒");
-                                    mEdContent.setText("");
-                                }
-                            }
-                        }
-                    }
-                });
-                break;
         }
     }
 
@@ -147,18 +118,34 @@ public class CommonSetingActivity extends AppActivity {
             @Override
             public void onRight() {
                 String content = mEdContent.getText().toString();
-                if (!TextUtils.isEmpty(content) && TextUtils.isEmpty(content.trim())) {
-                    ToastUtil.show(CommonSetingActivity.this, "不能用空字符");
-                    return;
+                //群昵称可以设置空字符串(取默认名)、用户名设置和备注不可以用空字符串
+                if(!TextUtils.isEmpty(mHeadView.getActionbar().getTitle())){
+                    if(!mHeadView.getActionbar().getTitle().equals("我在本群的信息")){
+                        if (!TextUtils.isEmpty(content) && TextUtils.isEmpty(content.trim())) {
+                            ToastUtil.show(CommonSetingActivity.this, "不能用空字符");
+                            return;
+                        }
+                    }else {
+                        content = content.trim();//群昵称可以为空格，过滤空格并传""则取原来昵称
+                    }
                 }
+                if (!TextUtils.isEmpty(content)){
+                    //截取前两位判断开头是否为emoji
+                    if(content.length()>=2){
+                        String emoji = content.substring(0,2);
+                        if(StringUtil.ifContainEmoji(emoji)){
+                            content = " "+content;
+                        }
+                    }
+                }
+
                 if(special == 1){
                     if(checkProduct()){
                         return;
                     }
                 }
-
                 Intent intent = new Intent();
-                intent.putExtra(CONTENT, content.trim());
+                intent.putExtra(CONTENT, content);
                 setResult(RESULT_OK, intent);
                 onBackPressed();
 

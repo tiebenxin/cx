@@ -1,7 +1,9 @@
 package com.yanlong.im.chat.server;
 
-import com.yanlong.im.chat.bean.GroupJoinBean;
+import com.yanlong.im.chat.bean.ExitGroupUser;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.GroupJoinBean;
+import com.yanlong.im.chat.bean.NoRedEnvelopesBean;
 import com.yanlong.im.chat.bean.RobotInfoBean;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -51,6 +53,10 @@ public interface MsgServer {
     @POST("/group/change-group-switch")
     @FormUrlEncoded
     Call<ReturnBean> groupSwitchIntimately(@Field("gid") String gid, @Field("contactIntimately") Integer contactIntimately);
+
+    @POST("/group/change-group-switch")
+    @FormUrlEncoded
+    Call<ReturnBean> setAllForbiddenWords(@Field("gid") String gid, @Field("wordsNotAllowed") Integer wordsNotAllowed);
 
     @POST("group/get-my-saved")
     Call<ReturnBean<List<Group>>> getMySaved();
@@ -123,4 +129,25 @@ public interface MsgServer {
     @POST("/group/get-batch-group")
     @FormUrlEncoded
     Call<ReturnBean<List<Group>>> getGroupsByIds(@Field("@gids") String json);
+
+    @POST("/group/change-admins")
+    @FormUrlEncoded
+    Call<ReturnBean> groupChangeAdmins(@Field("@admins") String adminsJson,@Field("gid") String gid,@Field("opt") int opt);
+
+    @POST("/group/get-gone-members")
+    @FormUrlEncoded
+    Call<ReturnBean<List<ExitGroupUser>>> exitGroupList(@Field("gid") String gid);
+
+    @POST("/group/toggle-open-up-red-envelope")
+    @FormUrlEncoded
+    Call<ReturnBean> toggleOpenUpRedEnvelope(@Field("@uidList") String uidJson,@Field("gid") String gid,@Field("ops") int ops);
+
+    @POST("/group/get-cant-open-up-red-envelope-members")
+    @FormUrlEncoded
+    Call<ReturnBean<List<NoRedEnvelopesBean>>> getCantOpenUpRedMembers(@Field("gid") String gid);
+
+    @POST("/group/toggle-words-not-allowed")
+    @FormUrlEncoded
+    Call<ReturnBean> toggleWordsNotAllowed(@Field("@uidList") String uidJson,@Field("gid") String gid,@Field("duration") int duration);
+
 }

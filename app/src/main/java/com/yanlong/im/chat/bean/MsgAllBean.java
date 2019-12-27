@@ -52,6 +52,28 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
     private long serverTime; //服务器时间
 
+    private ChatMessage chat;
+
+    private ImageMessage image;
+    private VideoMessage videoMessage;
+    private RedEnvelopeMessage red_envelope;
+    private ReceiveRedEnvelopeMessage receive_red_envelope;
+    private TransferMessage transfer;
+    private StampMessage stamp;
+    private BusinessCardMessage business_card;
+    private MsgNotice msgNotice;
+    private MsgCancel msgCancel;
+    private VoiceMessage voiceMessage;
+    private AtMessage atMessage;
+    private AssistantMessage assistantMessage;
+    private ChangeSurvivalTimeMessage changeSurvivalTimeMessage;
+    private P2PAuVideoMessage p2PAuVideoMessage;
+    private P2PAuVideoDialMessage p2PAuVideoDialMessage;
+    private BalanceAssistantMessage balanceAssistantMessage;
+    private LocationMessage locationMessage;
+    private TransferNoticeMessage transferNoticeMessage;
+
+
     public long getServerTime() {
         return serverTime;
     }
@@ -100,11 +122,6 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         this.survival_time = survival_time;
     }
 
-    private ChatMessage chat;
-
-    private ImageMessage image;
-    private VideoMessage videoMessage;
-
     public VideoMessage getVideoMessage() {
         return videoMessage;
     }
@@ -112,27 +129,6 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     public void setVideoMessage(VideoMessage videoMessage) {
         this.videoMessage = videoMessage;
     }
-
-    private RedEnvelopeMessage red_envelope;
-
-    private ReceiveRedEnvelopeMessage receive_red_envelope;
-
-    private TransferMessage transfer;
-
-    private StampMessage stamp;
-
-    private BusinessCardMessage business_card;
-
-    private MsgNotice msgNotice;
-    private MsgCancel msgCancel;
-
-    private VoiceMessage voiceMessage;
-
-    private AtMessage atMessage;
-
-    private AssistantMessage assistantMessage;
-
-    private ChangeSurvivalTimeMessage changeSurvivalTimeMessage;
 
     public ChangeSurvivalTimeMessage getChangeSurvivalTimeMessage() {
         return changeSurvivalTimeMessage;
@@ -142,12 +138,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         this.changeSurvivalTimeMessage = changeSurvivalTimeMessage;
     }
 
-    private P2PAuVideoMessage p2PAuVideoMessage;
 
-    private P2PAuVideoDialMessage p2PAuVideoDialMessage;
-
-    private BalanceAssistantMessage balanceAssistantMessage;
-    private LocationMessage locationMessage;
 
     public P2PAuVideoMessage getP2PAuVideoMessage() {
         return p2PAuVideoMessage;
@@ -465,7 +456,14 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         this.business_card = business_card;
     }
 
-   /* public RequestFriendMessage getRequest_friend() {
+    public TransferNoticeMessage getTransferNoticeMessage() {
+        return transferNoticeMessage;
+    }
+
+    public void setTransferNoticeMessage(TransferNoticeMessage transferNoticeMessage) {
+        this.transferNoticeMessage = transferNoticeMessage;
+    }
+    /* public RequestFriendMessage getRequest_friend() {
         return request_friend;
     }
 

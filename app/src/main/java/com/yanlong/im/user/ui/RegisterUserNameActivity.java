@@ -54,41 +54,23 @@ public class RegisterUserNameActivity extends AppActivity {
                 setUserName();
             }
         });
-        etSetingUserName.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String editValue = "";
-                if(!TextUtils.isEmpty(etSetingUserName.getText().toString())){
-                    editValue = etSetingUserName.getText().toString();
-                    //截取前两位判断开头是否为emoji
-                    if(editValue.length()>=2){
-                        editValue = editValue.substring(0,2);
-                        if(StringUtil.ifContainEmoji(editValue)){
-                            ToastUtil.show(context,"昵称首位暂不支持emoji~ 〒▽〒");
-                            etSetingUserName.setText("");
-                        }
-                    }
-                }
-            }
-        });
     }
 
 
     private void setUserName(){
         String userName = etSetingUserName.getText().toString();
-        if(TextUtils.isEmpty(userName)){
-            ToastUtil.show(context,"请输入昵称");
+        if(TextUtils.isEmpty(userName.trim())){
+            //优化: 不允许输入多个空格作为昵称
+            ToastUtil.show(context,"昵称不能为空/或空字符");
             return;
+        }else {
+            //截取前两位判断开头是否为emoji
+            if(userName.length()>=2){
+                String emoji = userName.substring(0,2);
+                if(StringUtil.ifContainEmoji(emoji)){
+                    userName = " "+userName;
+                }
+            }
         }
         taskUserInfoSet(userName);
     }
