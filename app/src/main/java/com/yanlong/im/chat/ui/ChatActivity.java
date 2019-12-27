@@ -4221,10 +4221,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      *
      */
     private boolean updateSessionDraftAndAtMessage() {
-        boolean hasChange = checkAndSaveDraft();
+        boolean hasChange = false;
         if (session != null && !TextUtils.isEmpty(session.getAtMessage())) {
             hasChange = true;
             dao.updateSessionAtMsg(toGid, toUId);
+        }
+        if(checkAndSaveDraft()){
+            hasChange=true;
         }
         return hasChange;
     }
@@ -4236,11 +4239,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         String df = editChat.getText().toString().trim();
         boolean hasChange = false;
         if (!TextUtils.isEmpty(draft)) {
-            if (TextUtils.isEmpty(df) || !draft.equals(df)) {
+//            if (TextUtils.isEmpty(df) || !draft.equals(df)) {
                 hasChange = true;
                 dao.sessionDraft(toGid, toUId, df);
                 draft = df;
-            }
+//            }
         } else {
             if (!TextUtils.isEmpty(df)) {
                 hasChange = true;

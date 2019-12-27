@@ -477,7 +477,8 @@ public class FriendMainFragment extends Fragment {
     }
 
     private void taskRemoveUser(long uid) {
-        userDao.updateUserUtype(uid, 0);
+        userDao.updateUserUtype(uid, 0);//设置为陌生人
+        userDao.updateReadDestroy(uid, 0);//关闭阅后即焚
         // 更新置顶状态
         msgDao.updateUserSessionTop(uid, 0);
         // 刷新列表
