@@ -16,6 +16,7 @@ import com.hm.cxpay.dailog.DialogDefault;
 import com.hm.cxpay.databinding.ActivityTransferDetailBinding;
 import com.hm.cxpay.eventbus.TransferSuccessEvent;
 import com.hm.cxpay.global.PayEnum;
+import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
@@ -97,7 +98,7 @@ public class TransferDetailActivity extends BasePayActivity {
         ui.tvNoticeReceive.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                showNoticeReceiveDialog();
             }
         });
         //立即退还
@@ -105,13 +106,6 @@ public class TransferDetailActivity extends BasePayActivity {
             @Override
             public void onClick(View v) {
                 showReturnTransferDialog();
-
-//                ui.tvReturn.postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//
-//                    }
-//                }, 100);
             }
         });
 
@@ -367,7 +361,7 @@ public class TransferDetailActivity extends BasePayActivity {
     private void showReturnTransferDialog() {
         DialogDefault dialogReturn = new DialogDefault(this);
         dialogReturn.setTitleAndSure(false, true);
-        dialogReturn.setContent("是否退还" + detailBean.getPayUser().getNickname() + "的转账",true)
+        dialogReturn.setContent("是否退还" + detailBean.getPayUser().getNickname() + "的转账", true)
                 .setRight("退还")
                 .setLeft("取消")
                 .setListener(new DialogDefault.IDialogListener() {
@@ -382,6 +376,28 @@ public class TransferDetailActivity extends BasePayActivity {
                     }
                 });
         dialogReturn.show();
+    }
+
+    private void showNoticeReceiveDialog() {
+        DialogDefault dialogNotice = new DialogDefault(this);
+        dialogNotice.setTitleAndSure(false, true);
+        dialogNotice.setContent("再发一条提醒消息提示朋友收款", true)
+                .setRight("确定")
+                .setLeft("取消")
+                .setListener(new DialogDefault.IDialogListener() {
+                    @Override
+                    public void onSure() {
+                        if (!TextUtils.isEmpty(tradeId)) {
+                            PayEnvironment.getInstance().notifyReceive(tradeId);
+                        }
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+                });
+        dialogNotice.show();
     }
 
 

@@ -31,9 +31,8 @@ public class MsgTagHandler implements TagHandler {
     private IActionTagClickListener actionListener;
 
 
-    public static final String VALIDATION = "validation";//群确认
-    public static final String CANCEL = "cancel";//邀请撤销
-    public static final String SEND_VERIFY = "verify";//发送验证
+    public static final String ENVELOPE = "envelope";//红包或者转账
+    public static final String USER = "user";//用户
 
     private int sIndex = 0;
     private int eIndex = 0;
@@ -111,13 +110,9 @@ public class MsgTagHandler implements TagHandler {
         if (propertyValue == null) {
             propertyValue = new Stack<>();
         }
-        if (tag.equalsIgnoreCase("user")) {
+        if (tag.equalsIgnoreCase(USER)) {
             propertyValue.push(getProperty(xmlReader, "id"));
-        } else if (tag.equalsIgnoreCase(VALIDATION)) {
-            propertyValue.push(getProperty(xmlReader, "id"));
-        } else if (tag.equalsIgnoreCase(CANCEL)) {
-            propertyValue.push(getProperty(xmlReader, "id"));
-        } else if (tag.equalsIgnoreCase(SEND_VERIFY)) {
+        } else if (tag.equalsIgnoreCase(ENVELOPE)) {
             propertyValue.push(getProperty(xmlReader, "id"));
         }
     }
@@ -127,9 +122,8 @@ public class MsgTagHandler implements TagHandler {
         if (!isEmpty(propertyValue)) {
             try {
                 String id = propertyValue.pop();
-                output
-                        .setSpan(new MxgsaSpan(id, output.subSequence(sIndex, eIndex).toString(), tag),
-                                sIndex, eIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                output.setSpan(new MxgsaSpan(id, output.subSequence(sIndex, eIndex).toString(), tag),
+                        sIndex, eIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -145,12 +139,12 @@ public class MsgTagHandler implements TagHandler {
 
     private class MxgsaSpan extends ClickableSpan {
 
-        private String userId;
+        private String id;
         private String nick;
         private String tag;
 
-        public MxgsaSpan(String userId, String nick, String tag) {
-            this.userId = userId;
+        public MxgsaSpan(String id, String nick, String tag) {
+            this.id = id;
             this.nick = nick;
             this.tag = tag;
         }
@@ -158,30 +152,23 @@ public class MsgTagHandler implements TagHandler {
         @Override
         public void onClick(View widget) {
             // TODO Auto-generated method stub
-            if (tag.equalsIgnoreCase("user")) {
-                if (actionListener != null && !TextUtils.isEmpty(userId)) {
-                    actionListener.clickUser(userId);
+            if (tag.equalsIgnoreCase(USER)) {
+                if (actionListener != null && !TextUtils.isEmpty(id)) {
+                    actionListener.clickUser(id);
                 }
-            } else if (tag.equalsIgnoreCase(VALIDATION)) {
-
-
-            } else if (tag.equalsIgnoreCase(CANCEL)) {
-
-            } else if (tag.equalsIgnoreCase(SEND_VERIFY)) {
-
+            } else if (tag.equalsIgnoreCase(ENVELOPE)) {
+                if (actionListener != null && !TextUtils.isEmpty(id)) {
+                    actionListener.clickUser(id);
+                }
             }
         }
 
         @Override
         public void updateDrawState(TextPaint ds) {
             super.updateDrawState(ds);
-            if (tag.equalsIgnoreCase("user")) {
+            if (tag.equalsIgnoreCase(USER)) {
                 ds.setColor(ContextCompat.getColor(mContext, R.color.msg_tag_color));
-            } else if (tag.equalsIgnoreCase(VALIDATION)) {
-                ds.setColor(Color.GREEN);
-            } else if (tag.equalsIgnoreCase(CANCEL)) {
-                ds.setColor(Color.GREEN);
-            } else if (tag.equalsIgnoreCase(SEND_VERIFY)) {
+            } else if (tag.equalsIgnoreCase(ENVELOPE)) {
                 ds.setColor(Color.GREEN);
             }
             ds.setUnderlineText(true);

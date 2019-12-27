@@ -131,7 +131,7 @@ public class MyAppLication extends MainApplication {
         initCache();
         // 初始化表情
         FaceView.initFaceMap();
-        initLocation();//初始化定位
+//        initLocation();//初始化定位
         initARouter();//初始化路由
     }
 

@@ -88,12 +88,20 @@ public class RechargeActivity extends AppActivity {
         setContentView(R.layout.activity_recharge);
         initView();
         initData();
+        PayEnvironment.getInstance().notifyStampUpdate(false);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         getBankList();
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        PayEnvironment.getInstance().notifyStampUpdate(true);
     }
 
     private void initView() {
@@ -247,9 +255,9 @@ public class RechargeActivity extends AppActivity {
                         etRecharge.setText("");
                     }
                     //4 低于10元顶部提示
-                    if(Double.valueOf(total) < 10){
+                    if (Double.valueOf(total) < 10) {
                         tvNotice.setVisibility(View.VISIBLE);
-                    }else {
+                    } else {
                         tvNotice.setVisibility(View.INVISIBLE);
                     }
                 } else {
@@ -477,7 +485,7 @@ public class RechargeActivity extends AppActivity {
                         if (baseResponse.getData() != null) {
                             //1 成功 99 处理中
                             if (baseResponse.getData().getCode() == 1 || baseResponse.getData().getCode() == 99) {
-                                startActivity(new Intent(activity,RechargeSuccessActivity.class).putExtra("money",etRecharge.getText().toString()));
+                                startActivity(new Intent(activity, RechargeSuccessActivity.class).putExtra("money", etRecharge.getText().toString()));
                             } else if (baseResponse.getData().getCode() == 2) {
                                 ToastUtil.showLong(context, "充值失败!如有疑问，请联系客服");
                             } else {

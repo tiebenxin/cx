@@ -4,7 +4,10 @@ import android.content.Context;
 
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.bean.BankBean;
+import com.hm.cxpay.eventbus.NoticeReceiveEvent;
 import com.hm.cxpay.eventbus.RefreshBalanceEvent;
+
+import net.cb.cb.library.bean.CanStampEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -101,4 +104,15 @@ public class PayEnvironment {
     public void notifyRefreshBalance() {
         EventBus.getDefault().post(new RefreshBalanceEvent());
     }
+
+    //通知更改是否能显示戳一戳，发红包，充值，提现 均不能显示戳一戳
+    public void notifyStampUpdate(boolean canStamp) {
+        EventBus.getDefault().post(new CanStampEvent(canStamp));
+    }
+
+    //提醒对方收款
+    public void notifyReceive(String rid) {
+        EventBus.getDefault().post(new NoticeReceiveEvent(rid));
+    }
+
 }

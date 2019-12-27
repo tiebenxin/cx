@@ -21,6 +21,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -59,6 +60,7 @@ import com.hm.cxpay.bean.TransferDetailBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.dailog.DialogDefault;
 import com.hm.cxpay.dailog.DialogEnvelope;
+import com.hm.cxpay.eventbus.NoticeReceiveEvent;
 import com.hm.cxpay.eventbus.TransferSuccessEvent;
 import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
@@ -73,6 +75,8 @@ import com.hm.cxpay.ui.transfer.TransferActivity;
 import com.hm.cxpay.ui.transfer.TransferDetailActivity;
 import com.hm.cxpay.utils.UIUtils;
 import com.jrmf360.tools.utils.ThreadUtil;
+import com.yanlong.im.chat.MsgTagHandler;
+import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
 import com.hm.cxpay.bean.EnvelopeDetailBean;
@@ -162,6 +166,7 @@ import com.yanlong.im.view.face.bean.FaceBean;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFindHistory;
@@ -230,7 +235,7 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public class ChatActivity extends AppActivity implements ICellEventListener {
+public class ChatActivity extends AppActivity implements ICellEventListener, IActionTagClickListener {
     private static String TAG = "ChatActivity";
     public final static int MIN_TEXT = 1000;//
     private final int RELINQUISH_TIME = 5;// 5分钟内显示重新编辑
@@ -1909,9 +1914,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 }
                 msgDao.updateTransferStatus(transferBean.getTradeId() + "", transferBean.getOpType());
             }
-            TransferMessage message = SocketData.createTansferMessage(SocketData.getUUID(), transferBean.getTradeId(), transferBean.getAmount(), transferBean.getInfo(), transferBean.getSign(), transferBean.getOpType());
+            TransferMessage message = SocketData.createTransferMessage(SocketData.getUUID(), transferBean.getTradeId(), transferBean.getAmount(), transferBean.getInfo(), transferBean.getSign(), transferBean.getOpType());
             sendMessage(message, ChatEnum.EMessageType.TRANSFER);
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventNoticeReceive(NoticeReceiveEvent event) {
+
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -2674,6 +2684,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     }
 
+    @Override
+    public void clickUser(String userId) {
+
+    }
+
+    @Override
+    public void clickEnvelope(String rid) {
+
+    }
+
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
@@ -2922,7 +2942,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 || notice.getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR) {
                             holder.viewChatItem.setData0(notice.getNote());
                         } else {
-                            holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this, notice.getNote(), notice.getMsgType()));
+                            if (notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE) {
+                                holder.viewChatItem.setNoticeString(Html.fromHtml(notice.getNote(), null,
+                                        new MsgTagHandler(AppConfig.getContext(), true, msgid, ChatActivity.this)));
+                            } else {
+                                holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this, notice.getNote(), notice.getMsgType()));
+                            }
                         }
                         //8.22 如果是红包消息类型则显示红包图
                         if (notice.getMsgType() != null && (notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED
@@ -4994,7 +5019,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     if (!msgBean.isMe()) {
                         SocketData.sendReceivedEnvelopeMsg(msgBean.getFrom_uid(), toGid, rid + "", reType);//发送抢红包消息
                     }
-                    MsgNotice message = SocketData.createMsgNoticeOfRb(SocketData.getUUID(), msgBean.getFrom_uid(), toGid);
+                    MsgNotice message = SocketData.createMsgNoticeOfRb(SocketData.getUUID(), msgBean.getFrom_uid(), toGid, rid + "");
                     sendMessage(message, ChatEnum.EMessageType.NOTICE, false);
                 }
             }

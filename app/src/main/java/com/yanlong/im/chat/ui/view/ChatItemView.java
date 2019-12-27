@@ -8,11 +8,13 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
@@ -210,6 +212,7 @@ public class ChatItemView extends LinearLayout {
     private RelativeLayout location_you_ll, location_me_ll;
     private ImageView location_image_you_iv, location_image_me_iv;
     private TextView location_name_you_tv, location_desc_you_tv, location_name_me_tv, location_desc_me_tv;
+    private LinearLayout viewOtChild;
 
 
     public ChatItemView(Context context, AttributeSet attrs) {
@@ -234,6 +237,7 @@ public class ChatItemView extends LinearLayout {
         viewBroadcast = rootView.findViewById(R.id.view_broadcast);
 
         viewOt = rootView.findViewById(R.id.view_ot);
+        viewOtChild = rootView.findViewById(R.id.view_ot_touch_child);
         imgOtHead = rootView.findViewById(R.id.img_ot_head);
         viewOt1 = rootView.findViewById(R.id.view_ot_1);
         txtOt1 = rootView.findViewById(R.id.txt_ot_1);
@@ -300,8 +304,8 @@ public class ChatItemView extends LinearLayout {
 
         viewOt7 = rootView.findViewById(R.id.view_ot_7);
         viewMe7 = rootView.findViewById(R.id.view_me_7);
-        viewOtTouch = rootView.findViewById(R.id.view_me_touch);
-        viewMeTouch = rootView.findViewById(R.id.view_ot_touch);
+        viewMeTouch = rootView.findViewById(R.id.view_me_touch);
+        viewOtTouch = rootView.findViewById(R.id.view_ot_touch);
 
         //小助手消息
         viewOt8 = rootView.findViewById(R.id.view_ot_8);
@@ -553,18 +557,26 @@ public class ChatItemView extends LinearLayout {
     //设置无头像UI
     private void setNoAvatarUI(boolean isMe) {
         if (isMe) {
-            viewMe.setPadding(10, 0, 10, 0);
             imgMeHead.setVisibility(GONE);//不显示头像
+            viewMe.setPadding(10, 0, 10, 0);
         } else {
-            viewOt.setPadding(10, 0, 10, 0);
             imgOtHead.setVisibility(GONE);//不显示头像
+            viewOt.setPadding(10, 0, 10, 0);
+            viewOtTouch.setPadding(0, 0, 0, 0);
         }
+//        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//        viewOtChild.setLayoutParams(params);
     }
 
     //公告
     public void setData0(String msghtml) {
         imgBroadcast.setVisibility(GONE);
         txtBroadcast.setText(Html.fromHtml(msghtml));
+    }
+
+    public void setNoticeString(Spanned string) {
+        imgBroadcast.setVisibility(GONE);
+        txtBroadcast.setText(string);
     }
 
     public void setData0(SpannableStringBuilder stringBuilder) {

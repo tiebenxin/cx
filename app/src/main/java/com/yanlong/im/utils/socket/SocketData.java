@@ -1234,17 +1234,33 @@ public class SocketData {
         return note;
     }
 
-    public static MsgNotice createMsgNoticeOfRb(String msgId, Long uid, String gid) {
+//    public static MsgNotice createMsgNoticeOfRb(String msgId, Long uid, String gid) {
+//        MsgNotice note = new MsgNotice();
+//        note.setMsgid(msgId);
+//        if (uid != null && uid.longValue() == UserAction.getMyId().longValue()) {
+//            note.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
+//            note.setNote("你领取了自己的<font color='#cc5944'>零钱红包</font>");
+//        } else {
+//            note.setMsgType(ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE);
+//            String name = msgDao.getUsername4Show(gid, uid);
+//            String rname = "<font color='#276baa' id='" + uid + "'>" + name + "</font>";
+//            note.setNote("你领取了\"" + rname + "的零钱红包" + "<div id= '" + gid + "'></div>");
+//        }
+//
+//        return note;
+//    }
+
+    public static MsgNotice createMsgNoticeOfRb(String msgId, Long uid, String gid, String rid) {
         MsgNotice note = new MsgNotice();
         note.setMsgid(msgId);
         if (uid != null && uid.longValue() == UserAction.getMyId().longValue()) {
             note.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
-            note.setNote("你领取了自己的<font color='#cc5944'>零钱红包</font>");
+            note.setNote("你领取了自己的<envelope id=" + rid + ">零钱红包</envelope>");
         } else {
             note.setMsgType(ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE);
             String name = msgDao.getUsername4Show(gid, uid);
-            String rname = "<font color='#276baa' id='" + uid + "'>" + name + "</font>";
-            note.setNote("你领取了\"" + rname + "的零钱红包" + "<div id= '" + gid + "'></div>");
+            String n = "<user id='" + uid + "'>" + name + "</user>";
+            note.setNote("你领取了\"" + n + "\"的" + "<envelope id=\" + rid + \">零钱红包</envelope>");
         }
 
         return note;
@@ -1746,7 +1762,7 @@ public class SocketData {
     }
 
     //创建转账消息
-    public static TransferMessage createTansferMessage(String msgId, long traceId, long money, String info, String sign, int opType) {
+    public static TransferMessage createTransferMessage(String msgId, long traceId, long money, String info, String sign, int opType) {
         TransferMessage message = new TransferMessage();
         message.setMsgid(msgId);
         message.setId(traceId + "");
