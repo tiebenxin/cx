@@ -672,8 +672,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             mtListView.getListView().getAdapter().notifyItemRangeChanged(size + 1, msgListData.size() - 1);
 
             //红包通知 不滚动到底部
-            if(msgAllbean.getMsgNotice()!=null&&(msgAllbean.getMsgNotice().getMsgType()==ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE
-                    ||msgAllbean.getMsgNotice().getMsgType()==ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF)){
+            if (msgAllbean.getMsgNotice() != null && (msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE
+                    || msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF)) {
                 return;
             }
             scrollListView(true);
@@ -795,7 +795,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void onClick(View v) {
 
-                if(ViewUtils.isFastDoubleClick()){
+                if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
 
@@ -1241,7 +1241,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         view_location_ll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LocationActivity.openActivity(ChatActivity.this,false,28136296,112953042);
+                LocationActivity.openActivity(ChatActivity.this, false, 28136296, 112953042);
             }
         });
 
@@ -2095,6 +2095,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     break;
                 case REQ_RP://红包
+                    LogUtil.writeEnvelopeLog("云红包回调了");
                     if (!checkNetConnectStatus()) {
                         return;
                     }
@@ -2103,7 +2104,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         //  ToastUtil.show(getContext(), "红包的回调" + envelopeInfo.toString());
                         String info = envelopeInfo.getEnvelopeMessage();
                         String rid = envelopeInfo.getEnvelopesID();
-
+                        LogUtil.writeEnvelopeLog("rid=" + rid);
                         MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL;
                         if (envelopeInfo.getEnvelopeType() == 1) {//拼手气
                             style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
@@ -2216,18 +2217,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void locationSendEvent(LocationSendEvent event) {
         LocationMessage message = SocketData.createLocationMessage(SocketData.getUUID(), event.message.getLatitude(),
-                event.message.getLongitude(),event.message.getAddress(),event.message.getAddressDescribe());
+                event.message.getLongitude(), event.message.getAddress(), event.message.getAddressDescribe());
 
 //        LogUtil.getLog().e("====location=message=="+GsonUtils.optObject(message));
         sendMessage(message, ChatEnum.EMessageType.LOCATION);
     }
-
-
-
-
-
-
-
 
 
     private void setChatImageBackground() {
@@ -3072,8 +3066,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     holder.viewChatItem.setDataLocation(msgbean.getLocationMessage(), new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            LocationActivity.openActivity(ChatActivity.this,true,
-                                    msgbean.getLocationMessage().getLatitude(),msgbean.getLocationMessage().getLongitude());
+                            LocationActivity.openActivity(ChatActivity.this, true,
+                                    msgbean.getLocationMessage().getLatitude(), msgbean.getLocationMessage().getLongitude());
                         }
                     });
                     break;
@@ -3150,7 +3144,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             holder.viewChatItem.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if(!ViewUtils.isFastDoubleClick()){//防止触发两次  移除父类才能添加
+                    if (!ViewUtils.isFastDoubleClick()) {//防止触发两次  移除父类才能添加
                         holder.viewChatItem.selectTextBubble(true);
                         // ToastUtil.show(getContext(),"长按");
                         if (msgbean.getMsg_type() == ChatEnum.EMessageType.VOICE) {//为语音单独处理
@@ -3430,9 +3424,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         });
 
-        if(ChatEnum.EPlayStatus.PLAYING==status){
+        if (ChatEnum.EPlayStatus.PLAYING == status) {
             MessageManager.setCanStamp(false);
-        }else if(ChatEnum.EPlayStatus.STOP_PLAY==status||ChatEnum.EPlayStatus.PLAYED==status){
+        } else if (ChatEnum.EPlayStatus.STOP_PLAY == status || ChatEnum.EPlayStatus.PLAYED == status) {
             MessageManager.setCanStamp(true);
         }
     }
@@ -3540,7 +3534,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 初始化PopupWindow
      */
     private void initPopupWindow() {
-        mRootView = getLayoutInflater().inflate(R.layout.view_chat_bubble, null,false);
+        mRootView = getLayoutInflater().inflate(R.layout.view_chat_bubble, null, false);
         //获取自身的长宽高
         mRootView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         popupWidth = mRootView.getMeasuredWidth();
@@ -3918,7 +3912,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (TextUtils.isEmpty(toGid)) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
             if (bean != null) {
-                LogUtil.getLog().e("===sendRead==msg====="+bean.getMsg_id()+"===msgid="+msgid+"==bean.getRead()="+bean.getRead()+"==bean.getTimestamp()="+bean.getTimestamp());
+                LogUtil.getLog().e("===sendRead==msg=====" + bean.getMsg_id() + "===msgid=" + msgid + "==bean.getRead()=" + bean.getRead() + "==bean.getTimestamp()=" + bean.getTimestamp());
                 if (bean.getRead() == 0) {
 //                if ((TextUtils.isEmpty(msgid) || !msgid.equals(bean.getMsg_id())) && bean.getRead() == 0) {
                     msgid = bean.getMsg_id();
@@ -4275,11 +4269,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         JrmfRpClient.sendGroupEnvelopeForResult(ChatActivity.this, "" + toGid, "" + UserAction.getMyId(), token,
                                 group.getUsers().size(), minfo.getName(), minfo.getHead(), REQ_RP);
                     } else {
-
                         UserInfo minfo = UserAction.getMyInfo();
                         JrmfRpClient.sendSingleEnvelopeForResult(ChatActivity.this, "" + toUId, "" + minfo.getUid(), token,
                                 minfo.getName(), minfo.getHead(), REQ_RP);
                     }
+                    LogUtil.writeEnvelopeLog("准备发红包");
 
                 }
             }

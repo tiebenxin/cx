@@ -158,6 +158,39 @@ public class LogUtil {
         }).start();
     }
 
+    /**
+     * 写入红包日志
+     *
+     * @param value
+     */
+    public synchronized static void writeEnvelopeLog(final String value) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy_MM_dd");
+                    SimpleDateFormat momentFormat = new SimpleDateFormat("yyyy_MM_dd HH:mm:ss");
+                    Date curDate = new Date(System.currentTimeMillis());// 获取当前时间
+                    String day = dayFormat.format(curDate);
+                    String moment = momentFormat.format(curDate);
+                    StringBuffer sb = new StringBuffer();
+                    sb.append(moment + "  " + value + "\n");
+                    File file = new File(FileConfig.PATH_LOG + "envelope" +".txt");
+                    if (!file.exists()) {
+                        file.createNewFile();
+                    }
+                    FileOutputStream ops = new FileOutputStream(file, true);
+                    ops.write(sb.toString().getBytes());
+                    ops.flush();
+                    ops.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+
     public static String createDir(String dirPath) {
         //因为文件夹可能有多层，比如:  a/b/c/ff.txt  需要先创建a文件夹，然后b文件夹然后...
         try {
