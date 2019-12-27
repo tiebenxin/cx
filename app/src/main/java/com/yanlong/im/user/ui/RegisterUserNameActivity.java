@@ -59,8 +59,11 @@ public class RegisterUserNameActivity extends AppActivity {
 
     private void setUserName(){
         String userName = etSetingUserName.getText().toString();
-        userName = userName.trim();
-        if (!TextUtils.isEmpty(userName)){
+        if(TextUtils.isEmpty(userName.trim())){
+            //优化: 不允许输入多个空格作为昵称
+            ToastUtil.show(context,"昵称不能为空/或空字符");
+            return;
+        }else {
             //截取前两位判断开头是否为emoji
             if(userName.length()>=2){
                 String emoji = userName.substring(0,2);
@@ -68,9 +71,6 @@ public class RegisterUserNameActivity extends AppActivity {
                     userName = " "+userName;
                 }
             }
-        }else {
-            ToastUtil.show(RegisterUserNameActivity.this, "昵称不能为空/且不能用空字符");
-            return;
         }
         taskUserInfoSet(userName);
     }

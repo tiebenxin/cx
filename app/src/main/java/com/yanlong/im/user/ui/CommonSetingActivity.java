@@ -118,7 +118,17 @@ public class CommonSetingActivity extends AppActivity {
             @Override
             public void onRight() {
                 String content = mEdContent.getText().toString();
-                content = content.trim();
+                //群昵称可以设置空字符串(取默认名)、用户名设置和备注不可以用空字符串
+                if(!TextUtils.isEmpty(mHeadView.getActionbar().getTitle())){
+                    if(!mHeadView.getActionbar().getTitle().equals("我在本群的信息")){
+                        if (!TextUtils.isEmpty(content) && TextUtils.isEmpty(content.trim())) {
+                            ToastUtil.show(CommonSetingActivity.this, "不能用空字符");
+                            return;
+                        }
+                    }else {
+                        content = content.trim();//群昵称可以为空格，过滤空格并传""则取原来昵称
+                    }
+                }
                 if (!TextUtils.isEmpty(content)){
                     //截取前两位判断开头是否为emoji
                     if(content.length()>=2){
@@ -127,9 +137,6 @@ public class CommonSetingActivity extends AppActivity {
                             content = " "+content;
                         }
                     }
-                }else {
-                    ToastUtil.show(CommonSetingActivity.this, "昵称不能为空/且不能用空字符");
-                    return;
                 }
 
                 if(special == 1){
@@ -137,7 +144,6 @@ public class CommonSetingActivity extends AppActivity {
                         return;
                     }
                 }
-
                 Intent intent = new Intent();
                 intent.putExtra(CONTENT, content);
                 setResult(RESULT_OK, intent);
