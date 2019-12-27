@@ -116,7 +116,7 @@ public class GroupSelectUserActivity extends AppActivity {
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-                if (mType == TYPE_1) {
+                if (mType == TYPE_0) {
                     showDialog(mUserBean);
                 } else if (mType == TYPE_2 || mType == TYPE_3) {
                     Intent intent = new Intent();
@@ -329,10 +329,26 @@ public class GroupSelectUserActivity extends AppActivity {
     private void showAtAll(Group group) {
         long uid = UserAction.getMyId();
         String master = group.getMaster();
-        if (master.equals(uid + "") && mType != TYPE_0) {
+        if ((master.equals(uid + "")||isAdministrators(group)) && mType == TYPE_1) {
             llAtAll.setVisibility(View.VISIBLE);
         }
+    }
 
+    /**
+     * 判断是否是管理员
+     * @return
+     */
+    private boolean isAdministrators(Group group){
+        boolean isManager = false;
+        if (group.getViceAdmins() != null && group.getViceAdmins().size() > 0) {
+            for (Long user : group.getViceAdmins()) {
+                if (user.equals(UserAction.getMyId())) {
+                    isManager = true;
+                    break;
+                }
+            }
+        }
+        return  isManager;
     }
 
     private void showDialog(UserInfo bean) {

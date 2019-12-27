@@ -39,6 +39,7 @@ import net.cb.cb.library.bean.RefreshApplyEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.IntentUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
@@ -378,7 +379,7 @@ public class UserInfoActivity extends AppActivity {
             viewIntroduce.setVisibility(View.GONE);
             if(mIsAdmin){
                 mViewSettingPower.setVisibility(View.VISIBLE);
-                mviewSettingLabel.setVisibility(View.VISIBLE);
+//                mviewSettingLabel.setVisibility(View.VISIBLE);
             }
         } else if (type == 1) {
             mLayoutMsg.setVisibility(View.GONE);
@@ -394,7 +395,7 @@ public class UserInfoActivity extends AppActivity {
             viewIntroduce.setVisibility(View.GONE);
             if(mIsAdmin) {
                 mViewSettingPower.setVisibility(View.VISIBLE);
-                mviewSettingLabel.setVisibility(View.VISIBLE);
+//                mviewSettingLabel.setVisibility(View.VISIBLE);
             }
         } else if (type == 2) {
             mLayoutMsg.setVisibility(View.VISIBLE);
@@ -523,6 +524,11 @@ public class UserInfoActivity extends AppActivity {
                 mBtnAdd.setVisibility(View.GONE);
             }
         }
+
+        if(isAdmin()||isAdministrators()){
+            mViewSettingPower.setVisibility(View.VISIBLE);
+//            mviewSettingLabel.setVisibility(View.VISIBLE);
+        }
         for (MemberUser bean : group.getUsers()) {
             if (bean.getUid() == id) {
                 viewJoinGroupType.setVisibility(View.VISIBLE);
@@ -555,6 +561,29 @@ public class UserInfoActivity extends AppActivity {
                 });
             }
         }
+    }
+
+    private boolean isAdmin() {
+        if (!StringUtil.isNotNull(group.getMaster()))
+            return false;
+        return group.getMaster().equals("" + UserAction.getMyId());
+    }
+
+    /**
+     * 判断是否是管理员
+     * @return
+     */
+    private boolean isAdministrators(){
+        boolean isManager = false;
+        if (group.getViceAdmins() != null && group.getViceAdmins().size() > 0) {
+            for (Long user : group.getViceAdmins()) {
+                if (user.equals(UserAction.getMyId())) {
+                    isManager = true;
+                    break;
+                }
+            }
+        }
+        return  isManager;
     }
 
 
