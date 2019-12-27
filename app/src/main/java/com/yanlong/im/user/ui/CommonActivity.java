@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.nim_lib.controll.AVChatProfile;
+import com.hm.cxpay.global.PayEnvironment;
 import com.lansosdk.videoeditor.LanSongFileUtil;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.netease.nimlib.sdk.NIMClient;
@@ -165,6 +166,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
                 break;
             case R.id.btn_exit:
                 MessageManager.getInstance().clearCache();
+                PayEnvironment.getInstance().clear();
                 loginOut(UserAction.getMyInfo().isEmptyPassword());
                 break;
             case R.id.view_about_as:
@@ -243,7 +245,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
                 MessageManager.getInstance().notifyRefreshMsg();
                 // 清空本地小视频
                 File file = new File(LanSongFileUtil.DEFAULT_DIR);
-                if(file.exists()){
+                if (file.exists()) {
                     LanSongFileUtil.deleteDir(file);
                 }
             }

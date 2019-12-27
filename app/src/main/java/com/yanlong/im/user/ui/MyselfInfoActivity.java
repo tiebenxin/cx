@@ -197,14 +197,14 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 startActivityForResult(sexIntent, SEX);
                 break;
             case R.id.view_identity:
-                if (authStat == 0) {
-                    Intent identityIntent = new Intent(MyselfInfoActivity.this, IdentityAttestationActitiy.class);
-                    startActivityForResult(identityIntent, IDENTITY);
-
-                } else {
-                    Intent identityIntent = new Intent(MyselfInfoActivity.this, IdentificationCentreActivity.class);
-                    startActivity(identityIntent);
-                }
+//                if (authStat == 0) {
+//                    Intent identityIntent = new Intent(MyselfInfoActivity.this, IdentityAttestationActitiy.class);
+//                    startActivityForResult(identityIntent, IDENTITY);
+//
+//                } else {
+//                    Intent identityIntent = new Intent(MyselfInfoActivity.this, IdentificationUserActivity.class);
+//                    startActivity(identityIntent);
+//                }
                 break;
             case R.id.view_head:
                 Intent headIntent = new Intent(MyselfInfoActivity.this, ImageHeadActivity.class);

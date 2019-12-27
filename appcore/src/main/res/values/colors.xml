@@ -87,5 +87,26 @@
     <color name="c_5acd54">#5acd54</color>
     <color name="c_e4e4e4">#e4e4e4</color>
     <color name="c_1cadee">#1cadee</color>
+    <!--零钱模块-->
+    <color name="c_0f0f0f">#0f0f0f</color>
+    <color name="c_0f000000">#0f000000</color>
+    <color name="c_f0f0f0">#f0f0f0</color>
+    <color name="c_868686">#868686</color>
+    <color name="c_878787">#878787</color>
+    <color name="c_517da2">#517da2</color>
+    <color name="c_32b053">#32b053</color>
+    <color name="c_000000">#000000</color>
+    <color name="c_c2c2c4">#c2c2c4</color>
+    <color name="c_828282">#828282</color>
+    <color name="c_c85749">#c85749</color>
+    <color name="c_c05042">#c05042</color>
+    <color name="c_374882">#374882</color>
+    <color name="c_353535">#353535</color>
+    <color name="c_31a156">#31a156</color>
+    <color name="c_f6f6f6">#f6f6f6</color>
+    <color name="c_121516">#121516</color>
+    <color name="c_dcdddd">#dcdddd</color>
+    <color name="c_e95f52">#e95f52</color>
+    <color name="c_A7051A">#A7051A</color>
 
 </resources>

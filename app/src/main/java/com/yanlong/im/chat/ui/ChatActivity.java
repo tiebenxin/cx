@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,9 +17,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -32,6 +35,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,6 +54,33 @@ import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
+import com.hm.cxpay.bean.CxEnvelopeBean;
+import com.hm.cxpay.bean.CxTransferBean;
+import com.hm.cxpay.bean.TransferDetailBean;
+import com.hm.cxpay.bean.UserBean;
+import com.hm.cxpay.dailog.DialogDefault;
+import com.hm.cxpay.dailog.DialogEnvelope;
+import com.hm.cxpay.eventbus.NoticeReceiveEvent;
+import com.hm.cxpay.eventbus.TransferSuccessEvent;
+import com.hm.cxpay.global.PayEnum;
+import com.hm.cxpay.global.PayEnvironment;
+import com.hm.cxpay.net.FGObserver;
+import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.payword.SetPaywordActivity;
+import com.hm.cxpay.ui.redenvelope.MultiRedPacketActivity;
+import com.hm.cxpay.ui.bill.BillDetailActivity;
+import com.hm.cxpay.ui.transfer.TransferActivity;
+import com.hm.cxpay.ui.transfer.TransferDetailActivity;
+import com.hm.cxpay.utils.UIUtils;
+import com.jrmf360.tools.utils.ThreadUtil;
+import com.yanlong.im.chat.MsgTagHandler;
+import com.yanlong.im.chat.interf.IActionTagClickListener;
+import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
+import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
+import com.hm.cxpay.bean.EnvelopeDetailBean;
+import com.hm.cxpay.bean.GrabEnvelopeBean;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
 import com.jrmf360.rplib.bean.GrabRpBean;
@@ -107,6 +138,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.SelectUserActivity;
+import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
@@ -134,6 +166,7 @@ import com.yanlong.im.view.face.bean.FaceBean;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFindHistory;
@@ -202,7 +235,7 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public class ChatActivity extends AppActivity implements ICellEventListener {
+public class ChatActivity extends AppActivity implements ICellEventListener, IActionTagClickListener {
     private static String TAG = "ChatActivity";
     public final static int MIN_TEXT = 1000;//
     private final int RELINQUISH_TIME = 5;// 5分钟内显示重新编辑
@@ -259,7 +292,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     //红包和转账
     public static final int REQ_RP = 9653;
     public static final int VIDEO_RP = 9419;
-    public static final int REQ_TRANS = 9653;
+    public static final int REQUEST_RED_ENVELOPE = 1 << 2;
+//    public static final int REQUEST_TRANSFER = 1 << 3;
 
     private MessageAdapter messageAdapter;
     private int lastOffset = -1;
@@ -411,23 +445,23 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (UserUtil.isSystemUser(toUId)) {
             viewRbZfb.setVisibility(View.INVISIBLE);
             viewAction.setVisibility(View.INVISIBLE);
-//            viewFunc.removeView(viewRbZfb);
-//            viewFunc.removeView(viewAction);
+            viewFunc.removeView(viewRb);
             viewFunc.removeView(viewCard);
+            viewFunc.removeView(view_location_ll);
+            viewFunc.removeView(viewTransfer);
         }
 
         if (isGroup()) {//去除群的控件
             viewFunc.removeView(viewAction);
-            //viewFunc.removeView(viewTransfer);
+            viewFunc.removeView(viewTransfer);
             viewChatRobot.setVisibility(View.INVISIBLE);
             viewFunc.removeView(llChatVideoCall);
         } else {
             viewFunc.removeView(viewChatRobot);
         }
         viewFunc.removeView(ll_part_chat_video);
-        viewFunc.removeView(viewRb);
-        //test 6.26
-        viewFunc.removeView(viewTransfer);
+//        viewFunc.removeView(viewRb);
+//        viewFunc.removeView(viewTransfer);
     }
 
     //自动寻找控件
@@ -444,6 +478,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewCamera = findViewById(R.id.view_camera);
         viewRb = findViewById(R.id.view_rb);
         viewRbZfb = findViewById(R.id.view_rb_zfb);
+//        viewRbSys = findViewById(R.id.view_rb_system);
         viewAction = findViewById(R.id.view_action);
         viewTransfer = findViewById(R.id.view_transfer);
         viewCard = findViewById(R.id.view_card);
@@ -1049,7 +1084,33 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
             }
         });
-        //支付宝红包
+        //系统红包
+        viewRb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                UserBean user = PayEnvironment.getInstance().getUser();
+                if (user != null) {
+                    if (user.getRealNameStat() != 1) {//未认证
+                        showIdentifyDialog();
+                        return;
+                    } else if (user.getPayPwdStat() != 1) {//未设置支付密码
+                        showSettingPswDialog();
+                        return;
+                    }
+                }
+                if (isGroup()) {
+                    Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivity.this, toGid, groupInfo.getUsers().size());
+                    startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
+                } else {
+                    Intent intentMulti = SingleRedPacketActivity.newIntent(ChatActivity.this, toUId);
+                    startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
+                }
+            }
+        });
+        //支付宝红包，魔方红包
         viewRbZfb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1066,7 +1127,31 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
                     return;
                 }
-                taskTrans();
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+
+                UserBean user = PayEnvironment.getInstance().getUser();
+                if (user != null) {
+                    if (user.getRealNameStat() != 1) {//未认证
+                        showIdentifyDialog();
+                        return;
+                    } else if (user.getPayPwdStat() != 1) {//未设置支付密码
+                        showSettingPswDialog();
+                        return;
+                    }
+                }
+                if (mFinfo == null) {
+                    mFinfo = userDao.findUserInfo(toUId);
+                }
+                String name = "";
+                String avatar = "";
+                if (mFinfo != null) {
+                    name = mFinfo.getName();
+                    avatar = mFinfo.getHead();
+                }
+                Intent intent = TransferActivity.newIntent(ChatActivity.this, toUId, name, avatar);
+                startActivity(intent);
             }
         });
 
@@ -1425,7 +1510,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType) {
         MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getSysTime(), message);
         if (msgAllBean != null) {
-            if (Constants.CX_HELPER_UID.equals(toUId)) {
+            if (!filterMessage(message)) {
                 SocketData.sendAndSaveMessage(msgAllBean, false);
             } else {
                 SocketData.sendAndSaveMessage(msgAllBean);
@@ -1433,6 +1518,29 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             showSendObj(msgAllBean);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
         }
+    }
+
+    //消息发送，canSend--是否需要发送
+    private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType, boolean canSend) {
+        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getSysTime(), message);
+        if (msgAllBean != null) {
+            SocketData.sendAndSaveMessage(msgAllBean, canSend);
+            showSendObj(msgAllBean);
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
+        }
+    }
+
+    private boolean filterMessage(IMsgContent message) {
+        boolean isSend = true;
+        if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_BALANCE_UID.equals(toUId)) {//常信小助手不需要发送到后台
+            isSend = false;
+        } /*else if (message instanceof RedEnvelopeMessage) {
+            RedEnvelopeMessage bean = (RedEnvelopeMessage) message;
+            if (bean.getRe_type() == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {//系统红包消息不需要发送到后台
+                isSend = false;
+            }
+        }*/
+        return isSend;
     }
 
 
@@ -1863,6 +1971,31 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         checkMoreVoice(event.getPosition(), (MsgAllBean) event.getBean());
     }
 
+    //转账成功。发送IM消息
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventTransferSuccess(TransferSuccessEvent event) {
+        CxTransferBean transferBean = event.getBean();
+        if (transferBean != null) {
+            if (transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_RECEIVE || transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_REJECT
+                    || transferBean.getOpType() == PayEnum.ETransferOpType.TRANS_PAST) {
+                if (!TextUtils.isEmpty(transferBean.getMsgJson())) {
+                    MsgAllBean msg = GsonUtils.getObject(transferBean.getMsgJson(), MsgAllBean.class);
+                    TransferMessage preTransfer = msg.getTransfer();
+                    preTransfer.setOpType(transferBean.getOpType());
+                    replaceListDataAndNotify(msg);
+                }
+                msgDao.updateTransferStatus(transferBean.getTradeId() + "", transferBean.getOpType());
+            }
+            TransferMessage message = SocketData.createTransferMessage(SocketData.getUUID(), transferBean.getTradeId(), transferBean.getAmount(), transferBean.getInfo(), transferBean.getSign(), transferBean.getOpType());
+            sendMessage(message, ChatEnum.EMessageType.TRANSFER);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventNoticeReceive(NoticeReceiveEvent event) {
+
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventCheckVoice(ActivityForwordEvent event) {
         PictureSelector.create(ChatActivity.this)
@@ -2187,6 +2320,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                     }
                     break;
+
+                case REQUEST_RED_ENVELOPE:
+                    CxEnvelopeBean envelopeBean = data.getParcelableExtra("envelope");
+                    if (envelopeBean != null) {
+                        RedEnvelopeMessage message = SocketData.createSystemRbMessage(SocketData.getUUID(), envelopeBean.getTradeId(), envelopeBean.getActionId(),
+                                envelopeBean.getMessage(), MsgBean.RedEnvelopeType.SYSTEM.getNumber(), envelopeBean.getEnvelopeType(), envelopeBean.getSign());
+                        sendMessage(message, ChatEnum.EMessageType.RED_ENVELOPE);
+                    }
+                    break;
                 case GroupSelectUserActivity.RET_CODE_SELECTUSR:
                     String uid = data.getStringExtra(GroupSelectUserActivity.UID);
                     String name = data.getStringExtra(GroupSelectUserActivity.MEMBERNAME);
@@ -2194,7 +2336,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         editChat.addAtSpan(null, name, Long.valueOf(uid));
                     }
                     break;
-
             }
         } else if (resultCode == SelectUserActivity.RET_CODE_SELECTUSR) {//选择通讯录中的某个人
             if (!checkNetConnectStatus()) {
@@ -2621,6 +2762,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     }
 
+    @Override
+    public void clickUser(String userId) {
+
+    }
+
+    @Override
+    public void clickEnvelope(String rid) {
+
+    }
+
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
@@ -2862,17 +3013,27 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             switch (msgbean.getMsg_type()) {
                 case ChatEnum.EMessageType.NOTICE:
                     if (msgbean.getMsgNotice() != null) {
-//                        holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
-                        if (msgbean.getMsgNotice().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT
-                                || msgbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
-                                || msgbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR) {
-                            holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
+                        MsgNotice notice = msgbean.getMsgNotice();
+                        if (notice.getMsgType() == MsgNotice.MSG_TYPE_DEFAULT
+                                || notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
+                                || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF
+                                || notice.getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR) {
+                            holder.viewChatItem.setData0(notice.getNote());
                         } else {
-                            holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
-                                    msgbean.getMsgNotice().getNote(), msgbean.getMsgNotice().getMsgType()));
+                            if (notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE) {
+                                holder.viewChatItem.setNoticeString(Html.fromHtml(notice.getNote(), null,
+                                        new MsgTagHandler(AppConfig.getContext(), true, msgid, ChatActivity.this)));
+                            } else {
+                                holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this, notice.getNote(), notice.getMsgType()));
+                            }
                         }
                         //8.22 如果是红包消息类型则显示红包图
-                        if (msgbean.getMsgNotice().getMsgType() != null && (msgbean.getMsgNotice().getMsgType() == 7 || msgbean.getMsgNotice().getMsgType() == 8 || msgbean.getMsgNotice().getMsgType() == 17)) {
+                        if (notice.getMsgType() != null && (notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED
+                                || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE
+                                || notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
+                                || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED
+                                || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE
+                                || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF)) {
                             holder.viewChatItem.showBroadcastIcon(true, null);
                         }
 
@@ -2920,33 +3081,81 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     menus.add(new OptionMenu("删除"));
                     RedEnvelopeMessage rb = msgbean.getRed_envelope();
                     Boolean isInvalid = rb.getIsInvalid() == 0 ? false : true;
-                    String info = isInvalid ? "已领取" : "领取红包";
+                    String info = getEnvelopeInfo(rb.getEnvelopStatus());
+                    if (rb.getEnvelopStatus() == PayEnum.EEnvelopeStatus.PAST) {
+                        isInvalid = true;
+                    }
                     String title = msgbean.getRed_envelope().getComment();
                     final String rid = rb.getId();
                     final Long touid = msgbean.getFrom_uid();
                     final int style = msgbean.getRed_envelope().getStyle();
                     String type = null;
-                    if (rb.getRe_type().intValue() == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
+                    int reType = rb.getRe_type().intValue();//红包类型
+                    if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
                         type = "云红包";
+                    } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
+                        type = "零钱红包";
                     }
 
-
-                    holder.viewChatItem.setData3(isInvalid, title, info, type, R.color.transparent, new ChatItemView.EventRP() {
+                    holder.viewChatItem.setData3(isInvalid, title, info, type, R.color.transparent, reType, new ChatItemView.EventRP() {
                         @Override
-                        public void onClick(boolean isInvalid) {
-
-                            /*if (!isInvalid) {//红包没拆,先检查已经领完没
-                                taskPayRbCheck(msgbean, rid);
-
-                            }*/
-
-
-                            if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
-                                //ToastUtil.show(getContext(), "红包详情");
-                                taskPayRbDetail(msgbean, rid);
-
-                            } else {
-                                taskPayRbGet(msgbean, touid, rid);
+                        public void onClick(boolean isInvalid, int reType) {
+                            if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {//魔方红包
+                                if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
+                                    //ToastUtil.show(getContext(), "红包详情");
+                                    taskPayRbDetail(msgbean, rid);
+                                } else {
+                                    taskPayRbGet(msgbean, touid, rid);
+                                }
+                            } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
+                                long tradeId = rb.getTraceId();
+                                if (tradeId == 0 && !TextUtils.isEmpty(rid)) {
+                                    try {
+                                        tradeId = Long.parseLong(rid);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                if (tradeId == 0) {
+                                    ToastUtil.show(ChatActivity.this, "无红包id");
+                                    return;
+                                }
+                                int envelopeStatus = rb.getEnvelopStatus();
+                                boolean isNormalStyle = style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE;
+                                if (envelopeStatus == PayEnum.EEnvelopeStatus.NORMAL) {
+                                    if (msgbean.isMe() && isNormalStyle) {
+                                        getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                                    } else {
+                                        if (!TextUtils.isEmpty(rb.getAccessToken())) {
+                                            showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msgbean, reType);
+                                        } else {
+                                            grabRedEnvelope(msgbean, tradeId, reType);
+                                        }
+                                    }
+                                } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED) {
+                                    getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                                } else if (envelopeStatus == PayEnum.EEnvelopeStatus.RECEIVED_FINISHED) {
+                                    if (msgbean.isMe()) {
+                                        getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                                    } else {
+                                        showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msgbean, reType);
+                                    }
+                                } else if (envelopeStatus == PayEnum.EEnvelopeStatus.PAST) {
+                                    if (msgbean.isMe()) {
+                                        getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+                                    } else {
+                                        showEnvelopeDialog(rb.getAccessToken(), envelopeStatus, msgbean, reType);
+                                    }
+                                }
+//                                if (isInvalid || (msgbean.isMe() && isNormalStyle)) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
+//                                    getRedEnvelopeDetail(msgbean, tradeId, rb.getAccessToken(), reType, isNormalStyle);
+//                                } else {
+//                                    if (!TextUtils.isEmpty(rb.getAccessToken())) {
+//                                        showEnvelopeDialog(rb.getAccessToken(), 1, msgbean, reType);
+//                                    } else {
+//                                        grabRedEnvelope(msgbean, tradeId, reType);
+//                                    }
+//                                }
                             }
                         }
                     });
@@ -3056,24 +3265,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 case ChatEnum.EMessageType.TRANSFER:
                     menus.add(new OptionMenu("删除"));
                     TransferMessage ts = msgbean.getTransfer();
-                    Boolean isInvalidTs = false;
-                    String infoTs = ts.getComment();
-                    String titleTs = ts.getTransaction_amount() + "元";
-                    final String tsId = ts.getId();
-                    String typeTs = "好友转账";
-
-
-                    holder.viewChatItem.setData6(isInvalidTs, titleTs, infoTs, typeTs, R.color.transparent, new ChatItemView.EventRP() {
+                    String infoTs = getTransferInfo(ts.getComment(), ts.getOpType(), msgbean.isMe(), msgbean.getTo_user().getName());
+                    String titleTs = "¥" + UIUtils.getYuan(ts.getTransaction_amount());
+                    String typeTs = "零钱转账";
+                    int tranType = 0;//转账类型
+                    holder.viewChatItem.setData6(ts.getOpType(), titleTs, infoTs, typeTs, R.color.transparent, tranType, new ChatItemView.EventRP() {
                         @Override
-                        public void onClick(boolean isInvalid) {
-                            tsakTransGet(tsId);
+                        public void onClick(boolean isInvalid, int tranType) {
+                            showLoadingDialog();
+                            httpGetTransferDetail(ts.getId(), ts.getOpType(), msgbean);
                         }
                     });
 
-
                     break;
                 case ChatEnum.EMessageType.VOICE://语音消息
-
                     menus.add(new OptionMenu("删除"));
                     final VoiceMessage vm = msgbean.getVoiceMessage();
                     String url = msgbean.isMe() ? vm.getLocalUrl() : vm.getUrl();
@@ -3131,6 +3336,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     if (msgbean.getMsgCancel() != null) {
                         holder.viewChatItem.setReadDestroy(msgbean.getMsgCancel().getNote());
                     }
+                case ChatEnum.EMessageType.BALANCE_ASSISTANT:
+                    holder.viewChatItem.setBalanceMsg(msgbean.getBalanceAssistantMessage(), new ChatItemView.EventBalance() {
+                        @Override
+                        public void onClick(long tradeId, int detailType) {
+                            if (detailType == MsgBean.BalanceAssistantMessage.DetailType.RED_ENVELOPE_VALUE) {//红包详情
+                                Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, tradeId, 1);
+                                startActivity(intent);
+                            } else if (detailType == MsgBean.BalanceAssistantMessage.DetailType.TRANS_VALUE) {//订单详情
+                                BillDetailActivity.jumpToBillDetail(ChatActivity.this, tradeId + "");
+                            }
+                        }
+                    });
                     break;
                 case ChatEnum.EMessageType.LOCATION:
                     menus.add(new OptionMenu("转发"));
@@ -3154,6 +3371,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 }
             });
+
             itemLongClick(holder, msgbean, menus);
 
         }
@@ -3264,6 +3482,25 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             });
         }
 
+    }
+
+    private String getEnvelopeInfo(@PayEnum.EEnvelopeStatus int envelopStatus) {
+        String info = "";
+        switch (envelopStatus) {
+            case PayEnum.EEnvelopeStatus.NORMAL:
+                info = "领取红包";
+                break;
+            case PayEnum.EEnvelopeStatus.RECEIVED:
+                info = "已领取";
+                break;
+            case PayEnum.EEnvelopeStatus.RECEIVED_FINISHED:
+                info = "已被领完";
+                break;
+            case PayEnum.EEnvelopeStatus.PAST:
+                info = "已过期";
+                break;
+        }
+        return info;
     }
 
     private Handler handler = new Handler() {
@@ -4288,40 +4525,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewChatBottomc.setVisibility(isExited ? GONE : VISIBLE);
     }
 
-    /***
-     * 转账
-     */
-    private void taskTrans() {
-        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
-                if (response.body() == null)
-                    return;
-                if (response.body().isOk()) {
-                    SignatureBean sign = response.body().getData();
-                    String token = sign.getSign();
-                    UserInfo finfo = userDao.findUserInfo(toUId);
-                    UserInfo minfo = UserAction.getMyInfo();
-
-                    JrmfRpClient.transAccount(ChatActivity.this, "" + finfo.getUid(), "" + minfo.getUid(), token,
-                            minfo.getName(), minfo.getHead(), finfo.getName4Show(), finfo.getHead(), new TransAccountCallBack() {
-                                @Override
-                                public void transResult(TransAccountBean transAccountBean) {
-                                    String rid = transAccountBean.getTransferOrder();
-                                    String info = transAccountBean.getTransferDesc();
-                                    String money = transAccountBean.getTransferAmount();
-                                    //设置转账消息
-//                                    MsgAllBean msgAllbean = SocketData.send4Trans(toUId, rid, info, money);
-//                                    showSendObj(msgAllbean);
-//                                    MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
-                                    TransferMessage message = SocketData.createTransferMessage(SocketData.getUUID(), rid, money, info);
-                                    sendMessage(message, ChatEnum.EMessageType.TRANSFER);
-                                }
-                            });
-                }
-            }
-        });
-    }
 
     /***
      * 发红包
@@ -4381,13 +4584,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             //0 正常状态未领取，1 红包已经被领取，2 红包失效不能领取，3 红包未失效但已经被领完，4 普通红包并且用户点击自己红包
                             int envelopeStatus = grabRpBean.getEnvelopeStatus();
                             if (envelopeStatus == 0 && grabRpBean.isHadGrabRp()) {
-                                MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid);
+                                MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE);
                                 showSendObj(msgAllbean);
                                 MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
-                                taskPayRbCheck(msgbean, rbid);
+                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
                             }
                             if (envelopeStatus == 2 || envelopeStatus == 3) {
-                                taskPayRbCheck(msgbean, rbid);
+                                taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
                             }
                         }
                     };
@@ -4478,10 +4681,33 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 红包是否已经被抢,红包改为失效
      * @param rid
      */
-    private void taskPayRbCheck(MsgAllBean msgAllBean, final String rid) {
-        msgAllBean.getRed_envelope().setIsInvalid(1);
-        msgDao.redEnvelopeOpen(rid, true);
+    private void taskPayRbCheck(MsgAllBean msgAllBean, String rid, int reType, String token, int envelopeStatus) {
+        if (envelopeStatus != PayEnum.EEnvelopeStatus.NORMAL) {
+            msgAllBean.getRed_envelope().setIsInvalid(1);
+            msgAllBean.getRed_envelope().setEnvelopStatus(envelopeStatus);
+        }
+        if (!TextUtils.isEmpty(token)) {
+            msgAllBean.getRed_envelope().setAccessToken(token);
+        }
+        msgDao.redEnvelopeOpen(rid, envelopeStatus, reType, token);
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                replaceListDataAndNotify(msgAllBean);
+            }
+        });
+    }
+
+    //抢红包后，更新红包token
+    private void updateEnvelopeToken(MsgAllBean msgAllBean, final String rid, int reType, String token, int envelopeStatus) {
+        if (!TextUtils.isEmpty(token)) {
+            msgAllBean.getRed_envelope().setAccessToken(token);
+            msgAllBean.getRed_envelope().setEnvelopStatus(envelopeStatus);
+        }
         replaceListDataAndNotify(msgAllBean);
+        msgDao.redEnvelopeOpen(rid, envelopeStatus, reType, token);
+
+
     }
 
     private Group groupInfo;
@@ -4797,6 +5023,336 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         }
         return isOk;
+    }
+
+    //抢红包，获取token
+    public void grabRedEnvelope(MsgAllBean msgBean, long rid, int reType) {
+        PayHttpUtils.getInstance().grabRedEnvelope(rid)
+                .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<GrabEnvelopeBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<GrabEnvelopeBean> baseResponse) {
+                        if (baseResponse.isSuccess()) {
+                            GrabEnvelopeBean bean = baseResponse.getData();
+                            if (bean != null) {
+                                int status = getGrabEnvelopeStatus(bean.getStat());
+                                updateEnvelopeToken(msgBean, rid + "", reType, bean.getAccessToken(), status);
+                                showEnvelopeDialog(bean.getAccessToken(), status, msgBean, reType);
+//                                if (bean.getStat() == 1) {//1 未领取
+//                                    showEnvelopeDialog(bean.getAccessToken(), bean.getStat(), msgBean, reType);
+//                                } else {
+//
+//                                }
+                            }
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        super.onHandleError(baseResponse);
+                        if (baseResponse.getCode() == -21000) {
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
+                    }
+                });
+    }
+
+    //获取抢红包后，红包状态
+    private int getGrabEnvelopeStatus(int stat) {
+        int status = PayEnum.EEnvelopeStatus.NORMAL;
+        if (stat == 1) {//1 未领取
+            status = PayEnum.EEnvelopeStatus.NORMAL;
+        } else if (stat == 2) {//已领完
+            status = PayEnum.EEnvelopeStatus.RECEIVED_FINISHED;
+        } else if (stat == 3) {//已过期
+            status = PayEnum.EEnvelopeStatus.PAST;
+        } else if (stat == 4) {//领到
+            status = PayEnum.EEnvelopeStatus.RECEIVED;
+        }
+        return status;
+    }
+
+    //获取拆红包后，红包状态
+    private int getOpenEnvelopeStatus(int stat) {
+        int status = PayEnum.EEnvelopeStatus.RECEIVED;
+        if (stat == 1) {//1 领取
+            status = PayEnum.EEnvelopeStatus.RECEIVED;
+        } else if (stat == 2) {//已领完
+            status = PayEnum.EEnvelopeStatus.RECEIVED_FINISHED;
+        } else if (stat == 3) {//已过期
+            status = PayEnum.EEnvelopeStatus.PAST;
+        } else if (stat == 4) {//领到
+            status = PayEnum.EEnvelopeStatus.RECEIVED;
+        }
+        return status;
+    }
+
+    private void showEnvelopeDialog(String token, int status, MsgAllBean msgBean, int reType) {
+        DialogEnvelope dialogEnvelope = new DialogEnvelope(ChatActivity.this, com.hm.cxpay.R.style.MyDialogTheme);
+        dialogEnvelope.setEnvelopeListener(new DialogEnvelope.IEnvelopeListener() {
+            @Override
+            public void onOpen(long rid, int envelopeStatus) {
+                //TODO: 开红包后，先发送领取红包消息给服务端，然后更新红包状态，最后保存领取红包通知消息到本地
+                taskPayRbCheck(msgBean, rid + "", reType, token, getOpenEnvelopeStatus(envelopeStatus));
+                if (envelopeStatus == 1) {//抢到了
+                    if (!msgBean.isMe()) {
+                        SocketData.sendReceivedEnvelopeMsg(msgBean.getFrom_uid(), toGid, rid + "", reType);//发送抢红包消息
+                    }
+                    MsgNotice message = SocketData.createMsgNoticeOfRb(SocketData.getUUID(), msgBean.getFrom_uid(), toGid, rid + "");
+                    sendMessage(message, ChatEnum.EMessageType.NOTICE, false);
+                }
+            }
+
+            @Override
+            public void viewRecord(long rid, String token, int style) {
+                getRedEnvelopeDetail(msgBean, rid, token, reType, style == 0);
+            }
+        });
+        RedEnvelopeMessage message = msgBean.getRed_envelope();
+        dialogEnvelope.setInfo(token, status, msgBean.getFrom_avatar(), msgBean.getFrom_nickname(), getEnvelopeId(message.getId(), message.getTraceId()), message.getComment(), message.getStyle());
+        dialogEnvelope.show();
+    }
+
+    //获取红包详情
+    public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType, boolean isNormalStyle) {
+        if (TextUtils.isEmpty(token)) {
+            PayHttpUtils.getInstance().grabRedEnvelope(rid)
+                    .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>compose())
+                    .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>handleResult())
+                    .subscribe(new FGObserver<BaseResponse<GrabEnvelopeBean>>() {
+                        @Override
+                        public void onHandleSuccess(BaseResponse<GrabEnvelopeBean> baseResponse) {
+                            if (baseResponse.isSuccess()) {
+                                GrabEnvelopeBean bean = baseResponse.getData();
+                                if (bean != null) {
+                                    if (isNormalStyle) {//普通玩法红包需要保存
+                                        taskPayRbCheck(msgBean, rid + "", reType, bean.getAccessToken(), PayEnum.EEnvelopeStatus.NORMAL);
+                                    }
+                                    getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus());
+                                }
+                            } else {
+                                ToastUtil.show(getContext(), baseResponse.getMessage());
+                            }
+                        }
+
+                        @Override
+                        public void onHandleError(BaseResponse baseResponse) {
+                            super.onHandleError(baseResponse);
+                            if (baseResponse.getCode() == -21000) {
+                            } else {
+                                ToastUtil.show(getContext(), baseResponse.getMessage());
+                            }
+                        }
+                    });
+        } else {
+            getEnvelopeDetail(rid, token, msgBean.getRed_envelope().getEnvelopStatus());
+        }
+    }
+
+    private void getEnvelopeDetail(long rid, String token, int envelopeStatus) {
+        PayHttpUtils.getInstance().getEnvelopeDetail(rid, token, 0)
+                .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<EnvelopeDetailBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<EnvelopeDetailBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<EnvelopeDetailBean> baseResponse) {
+                        if (baseResponse.isSuccess()) {
+                            EnvelopeDetailBean bean = baseResponse.getData();
+                            if (bean != null) {
+                                bean.setChatType(isGroup() ? 1 : 0);
+                                bean.setEnvelopeStatus(envelopeStatus);
+                                Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, bean);
+                                startActivity(intent);
+                            }
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        super.onHandleError(baseResponse);
+                        if (baseResponse.getCode() == -21000) {
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
+                        }
+                    }
+                });
+    }
+
+    public long getEnvelopeId(String rid, long tradeId) {
+        long result = tradeId;
+        if (tradeId == 0 && !TextUtils.isEmpty(rid)) {
+            try {
+                result = Long.parseLong(rid);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+
+    /**
+     * 实名认证提示弹框
+     */
+    private void showIdentifyDialog() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setCancelable(false);//取消点击外部消失弹窗
+        final AlertDialog dialog = dialogBuilder.create();
+        View dialogView = LayoutInflater.from(this).inflate(com.hm.cxpay.R.layout.dialog_identify, null);
+        TextView tvCancel = dialogView.findViewById(com.hm.cxpay.R.id.tv_cancel);
+        TextView tvIdentify = dialogView.findViewById(com.hm.cxpay.R.id.tv_identify);
+        //取消
+        tvCancel.setOnClickListener(new android.view.View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        //去认证(需要先同意协议)
+        tvIdentify.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(context, ServiceAgreementActivity.class));
+                dialog.dismiss();
+            }
+        });
+        //展示界面
+        dialog.show();
+        //解决圆角shape背景无效问题
+        Window window = dialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        //设置宽高
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.height = DensityUtil.dip2px(context, 139);
+        lp.width = DensityUtil.dip2px(context, 277);
+        dialog.getWindow().setAttributes(lp);
+        dialog.setContentView(dialogView);
+    }
+
+    public void showSettingPswDialog() {
+        DialogDefault dialogSettingPayPsw = new DialogDefault(this, R.style.MyDialogTheme);
+        dialogSettingPayPsw
+                .setTitleAndSure(true, false)
+                .setTitle("温馨提示")
+                .setLeft("设置支付密码")
+                .setRight("取消")
+                .setListener(new DialogDefault.IDialogListener() {
+                    @Override
+                    public void onSure() {
+                        startActivity(new Intent(ChatActivity.this, SetPaywordActivity.class));
+
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+                });
+        dialogSettingPayPsw.show();
+
+    }
+
+    /**
+     * 获取账单详情
+     */
+    private void httpGetTransferDetail(String tradeId, int opType, MsgAllBean msgBean) {
+        PayHttpUtils.getInstance().getTransferDetail(tradeId)
+                .compose(RxSchedulers.<BaseResponse<TransferDetailBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<TransferDetailBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<TransferDetailBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<TransferDetailBean> baseResponse) {
+                        if (baseResponse.getData() != null) {
+                            dismissLoadingDialog();
+                            //如果当前页有数据
+                            TransferDetailBean detailBean = baseResponse.getData();
+                            Intent intent;
+                            if (opType == PayEnum.ETransferOpType.TRANS_SEND) {
+                                intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, msgBean.isMe(), GsonUtils.optObject(msgBean));
+                            } else {
+                                intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, msgBean.isMe());
+                            }
+                            startActivity(intent);
+                        } else {
+
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse<TransferDetailBean> baseResponse) {
+                        super.onHandleError(baseResponse);
+                        ToastUtil.show(context, baseResponse.getMessage());
+                    }
+                });
+
+    }
+
+    public String getTransferInfo(String info, int opType, boolean isMe, String nick) {
+        String result = "";
+        if (opType == PayEnum.ETransferOpType.TRANS_SEND) {
+            if (TextUtils.isEmpty(info)) {
+                if (isMe) {
+                    result = "转账给" + nick;
+                } else {
+                    result = "转账给你";
+                }
+            } else {
+                result = info;
+
+            }
+        } else if (opType == PayEnum.ETransferOpType.TRANS_RECEIVE) {
+            if (TextUtils.isEmpty(info)) {
+                if (isMe) {
+                    result = "已收款";
+                } else {
+                    result = "已被领取";
+                }
+            } else {
+                if (isMe) {
+                    result = "已收款-" + info;
+                } else {
+                    result = "已被领取-" + info;
+                }
+            }
+        } else if (opType == PayEnum.ETransferOpType.TRANS_REJECT) {
+            if (TextUtils.isEmpty(info)) {
+                if (isMe) {
+                    result = "已退款";
+                } else {
+                    result = "已被退款";
+                }
+            } else {
+                if (isMe) {
+                    result = "已退款-" + info;
+                } else {
+                    result = "已被退款-" + info;
+                }
+            }
+        } else if (opType == PayEnum.ETransferOpType.TRANS_PAST) {
+            if (TextUtils.isEmpty(info)) {
+                if (isMe) {
+                    result = "已过期";
+                } else {
+                    result = "已过期";
+                }
+            } else {
+                if (isMe) {
+                    result = "已过期-" + info;
+                } else {
+                    result = "已过期-" + info;
+                }
+            }
+        }
+        return result;
     }
 
 

@@ -192,7 +192,7 @@ public class MsgConversionBean {
                 transferMessage.setId(bean.getTransfer().getId());
                 transferMessage.setComment(bean.getTransfer().getComment());
                 transferMessage.setTransaction_amount(bean.getTransfer().getTransactionAmount());
-
+                transferMessage.setOpType(bean.getTransfer().getOpTypeValue());
                 msgAllBean.setTransfer(transferMessage);
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.TRANSFER);
                 break;
@@ -210,7 +210,16 @@ public class MsgConversionBean {
                 RedEnvelopeMessage envelopeMessage = new RedEnvelopeMessage();
                 envelopeMessage.setMsgid(msgAllBean.getMsg_id());
                 envelopeMessage.setComment(bean.getRedEnvelope().getComment());
-                envelopeMessage.setId(bean.getRedEnvelope().getId());
+                if (bean.getRedEnvelope().getReTypeValue() == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
+                    envelopeMessage.setId(bean.getRedEnvelope().getId());
+                } else if (bean.getRedEnvelope().getReTypeValue() == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
+                    try {
+                        long tradeId = Long.parseLong(bean.getRedEnvelope().getId());
+                        envelopeMessage.setTraceId(tradeId);
+                    } catch (Exception e) {
+                        envelopeMessage.setId(bean.getRedEnvelope().getId());
+                    }
+                }
                 envelopeMessage.setRe_type(bean.getRedEnvelope().getReTypeValue());
                 envelopeMessage.setStyle(bean.getRedEnvelope().getStyleValue());
                 msgAllBean.setRed_envelope(envelopeMessage);
@@ -220,14 +229,23 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice rbNotice = new MsgNotice();
                 rbNotice.setMsgid(msgAllBean.getMsg_id());
-
                 //jyj 8.19
-                if (bean.getFromUid() == UserAction.getMyId().longValue()) {
-                    rbNotice.setNote("你领取了自己的<font color='#cc5944'>云红包</font>");
-                    rbNotice.setMsgType(17);
-                } else {
-                    rbNotice.setMsgType(7);
-                    rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "\"领取了你的云红包 <div id='" + bean.getGid() + "'></div>");
+                if (bean.getReceiveRedEnvelope().getReType().getNumber() == 0) {
+                    if (bean.getFromUid() == UserAction.getMyId().longValue()) {
+                        rbNotice.setNote("你领取了自己的<font color='#cc5944'>云红包</font>");
+                        rbNotice.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF);
+                    } else {
+                        rbNotice.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED);
+                        rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "\"领取了你的云红包 <div id='" + bean.getGid() + "'></div>");
+                    }
+                } else if (bean.getReceiveRedEnvelope().getReType().getNumber() == 1) {
+                    if (bean.getFromUid() == UserAction.getMyId().longValue()) {
+                        rbNotice.setNote("你领取了自己的<font color='#cc5944'>零钱红包</font>");
+                        rbNotice.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
+                    } else {
+                        rbNotice.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED);
+                        rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "\"领取了你的零钱红包 <div id='" + bean.getGid() + "'></div>");
+                    }
                 }
 
                 msgAllBean.setMsgNotice(rbNotice);
@@ -490,6 +508,22 @@ public class MsgConversionBean {
                 p2PAuVideoDialMessage.setAv_type(bean.getP2PAuVideoDial().getAvTypeValue());
                 msgAllBean.setP2PAuVideoDialMessage(p2PAuVideoDialMessage);
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_VOICE_VIDEO_NOTICE);
+                break;
+            case BALANCE_ASSISTANT://零钱助手消息
+                BalanceAssistantMessage balanceMessage = new BalanceAssistantMessage();
+                balanceMessage.setMsgId(bean.getMsgId());
+                balanceMessage.setTradeId(bean.getBalanceAssistant().getTradeId());
+                balanceMessage.setAmount(bean.getBalanceAssistant().getAmt());
+                balanceMessage.setDetailType(bean.getBalanceAssistant().getDetailTypeValue());
+                balanceMessage.setTitle(bean.getBalanceAssistant().getTitle());
+                balanceMessage.setTime(bean.getBalanceAssistant().getTime());
+                balanceMessage.setAmountTitle(bean.getBalanceAssistant().getAmtLabel());
+                String items = GsonUtils.optObject(bean.getBalanceAssistant().getItemList());
+                if (!TextUtils.isEmpty(items)) {
+                    balanceMessage.setItems(items);
+                }
+                msgAllBean.setBalanceAssistantMessage(balanceMessage);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.BALANCE_ASSISTANT);
                 break;
             case SNAPSHOT_LOCATION:// 地图位置
                 LocationMessage locationMessage = new LocationMessage();

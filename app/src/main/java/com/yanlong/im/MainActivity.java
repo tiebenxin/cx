@@ -21,6 +21,15 @@ import android.widget.TextView;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
+import com.hm.cxpay.bean.UserBean;
+import com.hm.cxpay.eventbus.IdentifyUserEvent;
+import com.hm.cxpay.eventbus.RefreshBalanceEvent;
+import com.hm.cxpay.global.PayEnvironment;
+import com.hm.cxpay.net.FGObserver;
+import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.bean.BankBean;
 import com.example.nim_lib.util.PermissionsUtil;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
@@ -38,6 +47,7 @@ import com.yanlong.im.notify.NotifySettingDialog;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
 import com.yanlong.im.user.bean.NewVersionBean;
+import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.user.dao.UserDao;
@@ -51,6 +61,7 @@ import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.update.UpdateManage;
 import com.zhaoss.weixinrecorded.CanStampEventWX;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
@@ -60,6 +71,7 @@ import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.CanStampEvent;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.manager.TokenManager;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.net.NetworkReceiver;
@@ -418,12 +430,47 @@ public class MainActivity extends AppActivity {
         taskGetMsgNum();
         //taskClearNotification();
         checkNotificationOK();
+        checkPayEnvironmentInit();
+    }
+
+    //检测支付环境的初始化
+    private void checkPayEnvironmentInit() {
+        checkPayToken();
+        UserInfo info = UserAction.getMyInfo();
+        if (info != null) {
+            PayEnvironment.getInstance().setPhone(info.getPhone());
+            PayEnvironment.getInstance().setNick(info.getName());
+            UserBean bean = PayEnvironment.getInstance().getUser();
+            if (bean == null || (bean != null && bean.getUid() != info.getUid().intValue())) {
+                httpGetUserInfo();
+            }
+        }
+        PayEnvironment.getInstance().setContext(AppConfig.getContext());
+        if (PayEnvironment.getInstance().getBanks() == null) {//初始化银行
+            getBankList();
+        }
+    }
+
+    private void checkPayToken() {
+        if (TextUtils.isEmpty(PayEnvironment.getInstance().getToken())) {
+            TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+            if (token != null) {
+                TokenManager.initToken(token.getAccessToken());
+                PayEnvironment.getInstance().setToken(token.getAccessToken());
+//                CommonInterceptor.headers = Headers.of(TokenManager.TOKEN_KEY, token.getAccessToken());
+            }
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefresh(EventRefreshMainMsg event) {
         taskGetMsgNum();
         taskGetFriendNum();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshBalance(RefreshBalanceEvent event) {
+        httpGetUserInfo();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -435,6 +482,11 @@ public class MainActivity extends AppActivity {
         Intent loginIntent = new Intent(this, LoginActivity.class);
         startActivity(loginIntent);
         finish();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventIdentifyUser(IdentifyUserEvent event) {
+        httpGetUserInfo();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -545,7 +597,6 @@ public class MainActivity extends AppActivity {
             Intent intent = new Intent(this, SplashActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-
             android.os.Process.killProcess(android.os.Process.myPid());
         }
     }
@@ -662,7 +713,7 @@ public class MainActivity extends AppActivity {
     }
 
     private void taskNewVersion() {
-        userAction.getNewVersion(StringUtil.getChannelName(context),new CallBack<ReturnBean<NewVersionBean>>() {
+        userAction.getNewVersion(StringUtil.getChannelName(context), new CallBack<ReturnBean<NewVersionBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<NewVersionBean>> call, Response<ReturnBean<NewVersionBean>> response) {
                 if (response.body() == null || response.body().getData() == null) {
@@ -833,6 +884,7 @@ public class MainActivity extends AppActivity {
                 }
             } else {
 
+
             }
         }
     }
@@ -854,5 +906,55 @@ public class MainActivity extends AppActivity {
             //允许
             MessageManager.setCanStamp(event.canStamp);
         }
+    }
+
+    /**
+     * 获取 绑定的银行卡列表
+     * <p>
+     * 备注：主要用于零钱首页更新"我的银行卡" 张数，暂时仅"充值、提现、我的银行卡"返回此界面后需要刷新
+     */
+    private void getBankList() {
+        PayHttpUtils.getInstance().getBankList()
+                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>compose())
+                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<List<BankBean>>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<List<BankBean>> baseResponse) {
+                        List<BankBean> info = baseResponse.getData();
+                        if (info != null) {
+                            PayEnvironment.getInstance().setBanks(info);
+                        }
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        super.onHandleError(baseResponse);
+                    }
+                });
+    }
+
+    /**
+     * 请求零钱红包用户信息,刷新用户余额
+     */
+    private void httpGetUserInfo() {
+        PayHttpUtils.getInstance().getUserInfo()
+                .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<UserBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<UserBean> baseResponse) {
+                        if (baseResponse.isSuccess()) {
+                            if (baseResponse.getData() != null) {
+                                UserBean userBean = baseResponse.getData();
+                                PayEnvironment.getInstance().setUser(userBean);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse<UserBean> baseResponse) {
+                        super.onHandleError(baseResponse);
+                    }
+                });
     }
 }

@@ -3,6 +3,7 @@ package com.yanlong.im.chat.manager;
 import android.content.Intent;
 import android.text.TextUtils;
 
+import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ApplyBean;
@@ -69,8 +70,8 @@ import static com.yanlong.im.utils.socket.SocketData.createMsgBean;
 import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
 
 /**
- * @anthor Liszt
- * @data 2019/9/24
+ * @author Liszt
+ * @date 2019/9/24
  * Description 消息管理类
  */
 public class MessageManager {
@@ -161,7 +162,7 @@ public class MessageManager {
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify, String requestId) {
 
-        if(wrapMessage!=null&&wrapMessage.getMsgType()!=null&&wrapMessage.getMsgType()!=MsgBean.MessageType.ACTIVE_STAT_CHANGE){
+        if (wrapMessage != null && wrapMessage.getMsgType() != null && wrapMessage.getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
             LogUtil.getLog().e("===收到=msg=" + GsonUtils.optObject(wrapMessage));
         }
 
@@ -198,12 +199,13 @@ public class MessageManager {
             case STAMP://戳一戳
             case VOICE://语音
             case SHORT_VIDEO://短视频
-            case TRANSFER://转账
+//            case TRANSFER://转账
             case BUSINESS_CARD://名片
             case RED_ENVELOPER://红包
             case RECEIVE_RED_ENVELOPER://领取红包
             case SNAPSHOT_LOCATION://位置
             case ASSISTANT://小助手消息
+            case BALANCE_ASSISTANT://零钱助手消息
             case CHANGE_VICE_ADMINS:// 管理员变更通知
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
@@ -371,7 +373,6 @@ public class MessageManager {
                 }
                 break;
             case DESTROY_GROUP://销毁群
-
                 String groupName = wrapMessage.getDestroyGroup().getName();
                 String icon = wrapMessage.getDestroyGroup().getAvatar();
                 msgDao.groupExit(wrapMessage.getGid(), groupName, icon, 1);
@@ -468,7 +469,12 @@ public class MessageManager {
                 LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getRead().getTimestamp());
                 break;
             case SWITCH_CHANGE: //开关变更
+
+                if (wrapMessage.getSwitchChange().getSwitchType() == MsgBean.SwitchChangeMessage.SwitchType.UNRECOGNIZED) {
+                    return true;
+                }
                 LogUtil.getLog().d(TAG, "开关变更:" + wrapMessage.getSwitchChange().getSwitchType());
+
                 // TODO　处理老版本不兼容问题
                 if(wrapMessage.getSwitchChange().getSwitchType()== MsgBean.SwitchChangeMessage.SwitchType.UNRECOGNIZED){
                     return true;
@@ -508,6 +514,23 @@ public class MessageManager {
                 break;
 
             case P2P_AU_VIDEO_DIAL:// 音视频通知
+                break;
+            case PAY_RESULT://支付结果
+                MsgBean.PayResultMessage payResult = wrapMessage.getPayResult();
+                System.out.println(TAG + "--支付结果=" + payResult.getResult());
+                notifyPayResult(payResult);
+                break;
+            case TRANSFER://转账消息
+                if (bean != null) {
+                    MsgBean.TransferMessage transferMessage = wrapMessage.getTransfer();
+                    if (transferMessage != null) {
+                        //领取或退还转账,先更新历史转账消息状态，后存消息
+                        if (transferMessage.getOpType() == MsgBean.TransferMessage.OpType.RECEIVE || transferMessage.getOpType() == MsgBean.TransferMessage.OpType.REJECT) {
+                            msgDao.updateTransferStatus(transferMessage.getId(), transferMessage.getOpTypeValue());
+                        }
+                    }
+                    result = saveMessageNew(bean, isList);
+                }
                 break;
         }
         //刷新单个,接收到音视频通话消息不需要刷新
@@ -653,8 +676,10 @@ public class MessageManager {
      * */
     private boolean saveMessageNew(MsgAllBean msgAllBean, boolean isList) {
         boolean result = false;
-        boolean isFromSelf = msgAllBean.getFrom_uid() == UserAction.getMyId().intValue();
-
+        boolean isFromSelf = false;
+        if (UserAction.getMyId() != null) {
+            isFromSelf = msgAllBean.getFrom_uid() == UserAction.getMyId().intValue();
+        }
         try {
             msgAllBean.setTo_uid(msgAllBean.getTo_uid());
             //收到直接存表
@@ -1243,7 +1268,7 @@ public class MessageManager {
     //允许戳一戳弹窗
     public static void setCanStamp(Boolean canStamp) {
         CAN_STAMP = canStamp;
-        LogUtil.getLog().e("==CAN_STAMP=="+CAN_STAMP);
+        LogUtil.getLog().e("==CAN_STAMP==" + CAN_STAMP);
     }
 
     /***
@@ -1326,7 +1351,7 @@ public class MessageManager {
             }
         } else if (SESSION_TYPE == 3) {//静音模式
 
-        } else if (msg.getMsgType() == MsgBean.MessageType.STAMP&&CAN_STAMP) {//戳一戳
+        } else if (msg.getMsgType() == MsgBean.MessageType.STAMP && CAN_STAMP) {//戳一戳
             //不在聊天页 或 在聊天页，当前聊天人不是这个人
             AppConfig.getContext().startActivity(new Intent(AppConfig.getContext(), ChatActionActivity.class)
                     .putExtra(ChatActionActivity.AGM_DATA, msg.toByteArray())
@@ -1594,6 +1619,20 @@ public class MessageManager {
 
     public TaskDealWithMsgList getMsgTask(String requestId) {
         return taskMaps.get(requestId);
+    }
+
+    //通知支付结果
+    public void notifyPayResult(MsgBean.PayResultMessage resultMessage) {
+        if (resultMessage == null) {
+            return;
+        }
+        PayResultEvent event = new PayResultEvent();
+        MsgBean.PayResultMessage.PayResult result = resultMessage.getResult();
+        event.setActionId(resultMessage.getActionId());
+        event.setTradeId(resultMessage.getTradeId());
+        event.setErrMsg(resultMessage.getErrorMsg());
+        event.setResult(result.getNumber());
+        EventBus.getDefault().post(event);
     }
 
 

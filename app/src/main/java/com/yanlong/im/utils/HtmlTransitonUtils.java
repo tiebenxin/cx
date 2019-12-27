@@ -11,6 +11,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
 
+import com.hm.cxpay.global.PayEnum;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.HtmlBean;
@@ -38,7 +39,6 @@ public class HtmlTransitonUtils {
 
     public SpannableStringBuilder getSpannableString(Context context, String html, int type) {
         SpannableStringBuilder style = new SpannableStringBuilder();
-        LogUtil.getLog().e(TAG, "html---------------->" + html);
         if (!TextUtils.isEmpty(html)) {
             HtmlBean bean = htmlTransition(html);
             switch (type) {
@@ -75,6 +75,12 @@ public class HtmlTransitonUtils {
                 case ChatEnum.ENoticeType.LOCK://端到端加密
                     setType12(context, style, bean);
                     break;
+                case ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED: // xxx领取了你的云红包
+                    setTypeEnvelopSend(context, style, bean,1);
+                    break;
+                case ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE: // 你领取的xxx的云红包
+                    setTypeEnvelopeReceived(context, style, bean,1);
+                    break;
                 case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_ADD://群管理变更通知
                     setType13(context, style, bean);
                     break;
@@ -94,9 +100,7 @@ public class HtmlTransitonUtils {
                     }
                     break;
             }
-
         }
-
         return style;
     }
 
@@ -759,5 +763,68 @@ public class HtmlTransitonUtils {
 //        lockDialog.getWindow().setAttributes(lp);
         lockDialog.create();
         lockDialog.show();
+    }
+
+    //别人领取你的
+    private void setTypeEnvelopSend(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean, int envelopeType) {
+        String envelopeName = envelopeType == 0 ? "云红包" : "零钱红包";
+        List<HtmlBeanList> list = htmlBean.getList();
+        for (final HtmlBeanList bean : list) {
+            String content = "\"" + bean.getName() + "\"";
+            builder.append(content);
+
+            int state = builder.toString().length() - content.length() + 1;
+            int end = builder.toString().length() - 1;
+
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+
+            };
+            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        builder.append("领取了你的").append(envelopeName);
+        ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#cc5944"));
+        builder.setSpan(protocolColorSpan, builder.toString().length() - 3, builder.toString().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+
+    //你领取
+    private void setTypeEnvelopeReceived(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean, int envelopeType) {
+        String envelopeName = envelopeType == 0 ? "云红包" : "零钱红包";
+        List<HtmlBeanList> list = htmlBean.getList();
+        builder.append("你领取了");
+        for (final HtmlBeanList bean : list) {
+            String content = "\"" + bean.getName() + "\"";
+            builder.append(content);
+            int state = builder.toString().length() - content.length() + 1;
+            int end = builder.toString().length() - 1;
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+
+            };
+            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        builder.append("的").append(envelopeName);
+        ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#cc5944"));
+        builder.setSpan(protocolColorSpan, builder.toString().length() - 3, builder.toString().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 }

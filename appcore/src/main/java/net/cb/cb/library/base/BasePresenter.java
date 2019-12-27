@@ -3,8 +3,8 @@ package net.cb.cb.library.base;
 import java.lang.ref.WeakReference;
 
 /**
- * @anthor Liszt
- * @data 2019/8/10
+ * @author Liszt
+ * @date 2019/8/10
  * Description
  */
 public abstract class BasePresenter<M extends IModel, V extends IView> implements IPresenter<M, V> {

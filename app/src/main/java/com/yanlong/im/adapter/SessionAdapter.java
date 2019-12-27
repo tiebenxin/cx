@@ -42,8 +42,8 @@ import net.cb.cb.library.view.StrikeButton;
 import java.io.File;
 
 /**
- * @anthor Liszt
- * @data 2019/9/25
+ * @author Liszt
+ * @date 2019/9/25
  * Description
  */
 public class SessionAdapter extends AbstractRecyclerAdapter<Session> {

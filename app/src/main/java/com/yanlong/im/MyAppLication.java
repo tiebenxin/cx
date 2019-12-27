@@ -7,6 +7,8 @@ import android.content.Context;
 import android.text.TextUtils;
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
+
+import com.alibaba.android.arouter.launcher.ARouter;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.controll.AVChatSoundPlayer;
 import com.example.nim_lib.ui.VideoActivity;
@@ -98,7 +100,7 @@ public class MyAppLication extends MainApplication {
         }
         //初始化日志
         LogUtil.getLog().init(AppConfig.DEBUG);
-        LSLog.TAG="a===LanSongSDK=";
+        LSLog.TAG = "a===LanSongSDK=";
 //        建议统一使用LogUtil.getLog().d标注频繁日志(如 socket，视频播放，通话，每秒都会有日志)
 //        建议统一使用LogUtil.getLog().e标注一般日志(如 打印个人信息，打印某个参数等)
 //        现在各种格式都有
@@ -129,9 +131,8 @@ public class MyAppLication extends MainApplication {
         initCache();
         // 初始化表情
         FaceView.initFaceMap();
-        initLocation();//初始化定位
-
-
+//        initLocation();//初始化定位
+        initARouter();//初始化路由
     }
 
     /**
@@ -315,6 +316,15 @@ public class MyAppLication extends MainApplication {
                 }
             }
         });
+    }
+
+    public void initARouter() {
+        if (BuildConfig.DEBUG) {
+            ARouter.openLog();
+            ARouter.openDebug();
+        }
+        ARouter.init(this);
+
     }
 
     //初始化定位sdk，建议在Application中创建

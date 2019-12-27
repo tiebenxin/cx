@@ -10,8 +10,8 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.MainApplication;
 
 /**
- * @anthor Liszt
- * @data 2019/11/26
+ * @author Liszt
+ * @date 2019/11/26
  * Description
  */
 public class NetWorkUtils {

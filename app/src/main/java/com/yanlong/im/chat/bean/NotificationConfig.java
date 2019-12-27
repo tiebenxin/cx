@@ -3,8 +3,8 @@ package com.yanlong.im.chat.bean;
 import net.cb.cb.library.base.BaseBean;
 
 /**
- * @anthor Liszt
- * @data 2019/8/28
+ * @author Liszt
+ * @date 2019/8/28
  * Description 通知config信息
  */
 public class NotificationConfig extends BaseBean {

@@ -1,8 +1,5 @@
 package net.cb.cb.library.utils;
 
-import android.text.TextUtils;
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tencent.bugly.crashreport.CrashReport;
@@ -17,8 +14,6 @@ import net.cb.cb.library.utils.encrypt.AESEncrypt;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,9 +32,9 @@ import okhttp3.Response;
  */
 public class NetIntrtceptor implements Interceptor {
     private static final String TAG = "NetIntrtceptor";
-    private static Gson gson = new Gson();
     private static MediaType mediaType = MediaType.parse("application/json; charset=UTF-8");
     public static Headers headers = Headers.of();
+
     // Bugly登录异常标签
     private final int BUGLY_TAG_LOGIN = 139070;
 

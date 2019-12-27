@@ -3,8 +3,8 @@ package com.yanlong.im.chat.bean;
 import net.cb.cb.library.base.BaseBean;
 
 /**
- * @anthor Liszt
- * @data 2019/8/19
+ * @author Liszt
+ * @date 2019/8/19
  * Description  滚动位置config
  */
 public class ScrollConfig extends BaseBean {
