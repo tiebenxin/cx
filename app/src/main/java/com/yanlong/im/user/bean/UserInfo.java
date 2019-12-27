@@ -74,6 +74,8 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     @Ignore
     private boolean isChecked = false;
 
+    private String bankReqSignKey;//支付签名
+
 
     public int getMasterRead() {
         return masterRead;
@@ -506,6 +508,14 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
     public void setLockCloudRedEnvelope(int lockCloudRedEnvelope) {
         this.lockCloudRedEnvelope = lockCloudRedEnvelope;
+    }
+
+    public String getBankReqSignKey() {
+        return bankReqSignKey;
+    }
+
+    public void setBankReqSignKey(String bankReqSignKey) {
+        this.bankReqSignKey = bankReqSignKey;
     }
 
     @Override

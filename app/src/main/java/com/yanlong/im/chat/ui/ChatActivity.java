@@ -1455,7 +1455,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     private boolean checkForbiddenWords() {
         boolean check = false;
-        if (groupInfo != null && groupInfo.getWordsNotAllowed() == 1 && !isAdmin()&&!isAdministrators()) {
+        if (groupInfo != null && groupInfo.getWordsNotAllowed() == 1 && !isAdmin() && !isAdministrators()) {
             check = true;
         }
         return check;
@@ -1469,9 +1469,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     /**
      * 判断是否是管理员
+     *
      * @return
      */
-    private boolean isAdministrators(){
+    private boolean isAdministrators() {
         boolean isManager = false;
         if (groupInfo.getViceAdmins() != null && groupInfo.getViceAdmins().size() > 0) {
             for (Long user : groupInfo.getViceAdmins()) {
@@ -1481,7 +1482,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 }
             }
         }
-        return  isManager;
+        return isManager;
     }
 
     /**
@@ -2161,6 +2162,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     break;
                 case REQ_RP://红包
                     LogUtil.writeEnvelopeLog("云红包回调了");
+                    LogUtil.getLog().e("云红包回调了");
                     if (!checkNetConnectStatus()) {
                         return;
                     }
@@ -2170,6 +2172,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         String info = envelopeInfo.getEnvelopeMessage();
                         String rid = envelopeInfo.getEnvelopesID();
                         LogUtil.writeEnvelopeLog("rid=" + rid);
+                        LogUtil.getLog().e("rid=" + rid);
                         MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL;
                         if (envelopeInfo.getEnvelopeType() == 1) {//拼手气
                             style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;

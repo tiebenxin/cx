@@ -301,14 +301,37 @@ public class DaoMigration implements RealmMigration {
     }
 
     /**
-     * 更群管理
+     * 更群管理, 发送失败红包临时存储表，领取转账通知表
+     *
      * @param schema
      */
     private void updateV16(RealmSchema schema) {
         schema.get("Group")
-                .addRealmListField("viceAdmins", Long.class);
-        schema.get("Group")
+                .addRealmListField("viceAdmins", Long.class)
                 .addField("wordsNotAllowed", Integer.class);
+
+        schema.get("UserInfo")
+                .addField("bankReqSignKey", String.class);
+
+
+        schema.create("EnvelopeInfo")
+                .addField("rid", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("comment", String.class)
+                .addField("reType", int.class)
+                .addField("envelopeStyle", int.class)
+                .addField("sendStatus", int.class)
+                .addField("sign", String.class)
+                .addField("createTime", long.class);
+
+        schema.create("TransferNoticeMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("rid", String.class)
+                .addField("content", String.class);
+
+        schema.get("MsgAllBean")
+                .addRealmObjectField("transferNoticeMessage", schema.get("TransferNoticeMessage"));
+
+
     }
 
     @Override
