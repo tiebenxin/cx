@@ -265,6 +265,7 @@ public class GroupRobotActivity extends AppActivity {
                     return;
                 if (response.body().isOk()) {
                     // finish();
+                    rid="-1";
                     showType = 0;
                     infoBean = null;
                     initData();
