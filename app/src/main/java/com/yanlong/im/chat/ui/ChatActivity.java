@@ -799,7 +799,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     return;
                 }
                 if (checkForbiddenWords()) {
-                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
                     return;
                 }
 
@@ -915,6 +915,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         Intent intent = new Intent(ChatActivity.this, GroupSelectUserActivity.class);
                         intent.putExtra(GroupSelectUserActivity.TYPE, 1);
                         intent.putExtra(GroupSelectUserActivity.GID, toGid);
+
                         startActivityForResult(intent, GroupSelectUserActivity.RET_CODE_SELECTUSR);
                     }
                 }
@@ -994,7 +995,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void onClick(View v) {
                 if (checkForbiddenWords()) {
-                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
                     return;
                 }
                 permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
@@ -1032,7 +1033,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void onClick(View v) {
                 if (checkForbiddenWords()) {
-                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
                     return;
                 }
                 PictureSelector.create(ChatActivity.this)
@@ -1062,7 +1063,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void onClick(View v) {
                 if (checkForbiddenWords()) {
-                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
                     return;
                 }
                 taskTrans();
@@ -1074,7 +1075,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void onClick(View v) {
                 if (checkForbiddenWords()) {
-                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
                     return;
                 }
                 AlertTouch alertTouch = new AlertTouch();
@@ -1110,7 +1111,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     return;
                 }
                 if (checkForbiddenWords()) {
-                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
                     return;
                 }
                 startActivityForResult(new Intent(getContext(), SelectUserActivity.class), SelectUserActivity.RET_CODE_SELECTUSR);
@@ -1122,7 +1123,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void onClick(View v) {
                 if (checkForbiddenWords()) {
-                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
                     return;
                 }
                 //申请权限 7.2
@@ -1267,7 +1268,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void onClick(View v) {
                 if (checkForbiddenWords()) {
-                    ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
                     return;
                 }
                 LocationActivity.openActivity(ChatActivity.this, false, 28136296, 112953042);
@@ -2227,6 +2228,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventSwitchDisturb(EventSwitchDisturb event) {
         taskSessionInfo();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventSwitchDisturb(EventFactory.ToastEvent event) {
+        ToastUtil.showCenter(this,getString(R.string.group_you_forbidden_words));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -3729,7 +3735,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     private void onRetransmission(final MsgAllBean msgbean) {
         if (checkForbiddenWords()) {
-            ToastUtil.show(ChatActivity.this, getString(R.string.group_main_forbidden_words));
+            ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
             return;
         }
         startActivity(new Intent(getContext(), MsgForwardActivity.class)

@@ -2,9 +2,7 @@ package com.yanlong.im.utils.socket;
 
 import android.accounts.NetworkErrorException;
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.google.gson.Gson;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
@@ -18,6 +16,7 @@ import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.constant.BuglyTag;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 
@@ -68,7 +67,14 @@ public class SocketUtil {
                     if (msg != null) {
                         DaoUtil.update(msg);
                     }
-                } else if (bean.getRejectType() == MsgBean.RejectType.RATE_LIMIT) {//服务端有限流，测试代码自动发送消息时会引起此问题
+                }  else if (bean.getRejectType() == MsgBean.RejectType.WORDS_NOT_ALLOWED) {
+                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, ChatEnum.ENoticeType.FORBIDDEN_WORDS_SINGE);
+                    //收到直接存表
+                    if (msg != null) {
+                        DaoUtil.update(msg);
+                    }
+                    EventBus.getDefault().post(new EventFactory.ToastEvent());
+                }else if (bean.getRejectType() == MsgBean.RejectType.RATE_LIMIT) {//服务端有限流，测试代码自动发送消息时会引起此问题
                     LogUtil.getLog().d(TAG, "消息发送失败--服务端限流--requestId=" + bean.getRequestId());
 //                    System.out.println("Socket--消息发送失败--服务端限流---requestId=" + bean.getRequestId());
                 }
