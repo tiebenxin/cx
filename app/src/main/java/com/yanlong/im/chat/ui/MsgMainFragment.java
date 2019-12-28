@@ -52,6 +52,7 @@ import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.wight.avatar.MultiImageView;
 import com.zhaoss.weixinrecorded.util.RxJavaUtil;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventNetStatus;
 import net.cb.cb.library.utils.DensityUtil;
@@ -184,6 +185,7 @@ public class MsgMainFragment extends Fragment {
                     @Override
                     public void run() {
                         LogUtil.getLog().d("tyad", "run: state=" + state);
+                        AppConfig.setOnline(state);
                         actionBar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
                         if (!state && getActivityMe().isActivityStop()) {
                             return;
@@ -630,43 +632,50 @@ public class MsgMainFragment extends Fragment {
                 if (msginfo != null) {
                     info = msginfo.getMsg_typeStr();
                 }
+                int type = bean.getMessageType();
                 if (bean.getType() == 0) {//单人
-                    if (StringUtil.isNotNull(bean.getDraft())) {
-                        SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
+                    if (type == ChatEnum.ESessionType.ENVELOPE_FAIL) {
+                        SpannableString style = new SpannableString("[红包发送失败]" + info);
                         ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
-                        style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        showMessage(holder.txtInfo, bean.getDraft(), style);
+                        style.setSpan(protocolColorSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        showMessage(holder.txtInfo, info, style);
                     } else {
-                        // 判断是否是动画表情
-                        if (info.length() == PatternUtil.FACE_CUSTOMER_LENGTH) {
-                            Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
-                            Matcher matcher = patten.matcher(info);
-                            if (matcher.matches()) {
-                                holder.txtInfo.setText(TYPE_FACE);
+                        if (StringUtil.isNotNull(bean.getDraft())) {
+                            SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
+                            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
+                            style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            showMessage(holder.txtInfo, bean.getDraft(), style);
+                        } else {
+                            // 判断是否是动画表情
+                            if (info.length() == PatternUtil.FACE_CUSTOMER_LENGTH) {
+                                Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
+                                Matcher matcher = patten.matcher(info);
+                                if (matcher.matches()) {
+                                    holder.txtInfo.setText(TYPE_FACE);
+                                } else {
+                                    showMessage(holder.txtInfo, info, null);
+                                }
                             } else {
                                 showMessage(holder.txtInfo, info, null);
                             }
-                        } else {
-                            showMessage(holder.txtInfo, info, null);
                         }
                     }
                     headList.add(icon);
                     holder.imgHead.setList(headList);
 
                 } else if (bean.getType() == 1) {//群
-                    int type = bean.getMessageType();
-                    if (type == 0 ) {
+                    if (type == 0) {
                         if (!TextUtils.isEmpty(bean.getAtMessage()) && !TextUtils.isEmpty(name)) {
                             info = name + bean.getAtMessage();
                         } else {
                             info = name + info;
 
                         }
-                    }else if(type == 1){
+                    } else if (type == 1) {
                         if (!TextUtils.isEmpty(bean.getAtMessage()) && !TextUtils.isEmpty(name)) {
                             info = bean.getAtMessage();
-                            if(StringUtil.isNotNull(info)&&info.startsWith("@所有人")){
-                                info = info.replace("@所有人","");
+                            if (StringUtil.isNotNull(info) && info.startsWith("@所有人")) {
+                                info = info.replace("@所有人", "");
                             }
                             info = name + info;
                         } else {
@@ -676,14 +685,14 @@ public class MsgMainFragment extends Fragment {
                         //阅后即焚不通知 不显示谁发的 肯定是群主修改的
                         // info=info;
                     } else if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {//草稿除外
-                        if((ChatEnum.EMessageType.AT + "").equals(msginfo.getMsg_type() + "")
-                                &&StringUtil.isNotNull(info)&&info.startsWith("@所有人")){
-                            info = info.replace("@所有人","");
+                        if ((ChatEnum.EMessageType.AT + "").equals(msginfo.getMsg_type() + "")
+                                && StringUtil.isNotNull(info) && info.startsWith("@所有人")) {
+                            info = info.replace("@所有人", "");
                         }
                         info = name + info;
                     }
                     // 处理公告...问题
-                    info = info.replace("\r\n","  ");
+                    info = info.replace("\r\n", "  ");
 
                     switch (type) {
                         case 0:
@@ -736,6 +745,12 @@ public class MsgMainFragment extends Fragment {
                                     showMessage(holder.txtInfo, info, null);
                                 }
                             }
+                            break;
+                        case 3:
+                            SpannableString style = new SpannableString("[红包发送失败]" + info);
+                            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
+                            style.setSpan(protocolColorSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            showMessage(holder.txtInfo, info, style);
                             break;
                         default:
                             // 判断是否是动画表情
@@ -839,8 +854,8 @@ public class MsgMainFragment extends Fragment {
          */
         protected void showMessage(TextView txtInfo, String message, SpannableString spannableString) {
             if (spannableString == null) {
-                if(StringUtil.isNotNull(message)&&message.startsWith("@所有人  ")){
-                    message=message.replace("@所有人  ","");
+                if (StringUtil.isNotNull(message) && message.startsWith("@所有人  ")) {
+                    message = message.replace("@所有人  ", "");
                 }
                 spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, message);
             } else {
@@ -869,7 +884,6 @@ public class MsgMainFragment extends Fragment {
                 imgHead.setList(headList);
             }
         }
-
 
 
         public class RCViewHolder extends RecyclerView.ViewHolder {
