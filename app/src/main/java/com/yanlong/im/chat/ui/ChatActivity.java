@@ -5365,7 +5365,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     }
 
     private void checkHasEnvelopeSendFailed() {
-        EnvelopeInfo envelopeInfo = msgDao.queryEnvelopeInfo(toGid, toUId);
+        EnvelopeInfo envelopeInfo = msgDao.queryEnvelopeInfo(toGid, toUId == null ? 0 : toUId.longValue());
         if (envelopeInfo != null) {
             long createTime = envelopeInfo.getCreateTime();
             if (createTime - System.currentTimeMillis() >= TimeToString.DAY) {//超过24小时
@@ -5448,7 +5448,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         envelopeInfo.setEnvelopeStyle(style.getNumber());
         envelopeInfo.setCreateTime(System.currentTimeMillis());
         envelopeInfo.setGid(toGid);
-        envelopeInfo.setUid(toUId);
+        envelopeInfo.setUid(toUId == null ? 0 : toUId.longValue());
         envelopeInfo.setSendStatus(0);
         envelopeInfo.setSign("");
         msgDao.updateEnvelopeInfo(envelopeInfo);
