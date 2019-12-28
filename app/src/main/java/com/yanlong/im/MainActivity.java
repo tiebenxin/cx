@@ -442,7 +442,7 @@ public class MainActivity extends AppActivity {
             PayEnvironment.getInstance().setNick(info.getName());
             UserBean bean = PayEnvironment.getInstance().getUser();
             if (bean == null || (bean != null && bean.getUid() != info.getUid().intValue())) {
-                httpGetUserInfo(info.getUid());
+                httpGetUserInfo();
             }
         }
         PayEnvironment.getInstance().setContext(AppConfig.getContext());
@@ -470,7 +470,7 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshBalance(RefreshBalanceEvent event) {
-        httpGetUserInfo(PayEnvironment.getInstance().getUser().getUid());
+        httpGetUserInfo();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -486,7 +486,7 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventIdentifyUser(IdentifyUserEvent event) {
-        httpGetUserInfo(PayEnvironment.getInstance().getUser().getUid());
+        httpGetUserInfo();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -936,8 +936,8 @@ public class MainActivity extends AppActivity {
     /**
      * 请求零钱红包用户信息,刷新用户余额
      */
-    private void httpGetUserInfo(long uid) {
-        PayHttpUtils.getInstance().getUserInfo(uid)
+    private void httpGetUserInfo() {
+        PayHttpUtils.getInstance().getUserInfo()
                 .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<UserBean>>() {
