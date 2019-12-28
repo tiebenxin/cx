@@ -432,7 +432,8 @@ public class MainActivity extends AppActivity {
         taskGetMsgNum();
         //taskClearNotification();
         checkNotificationOK();
-        checkPayEnvironmentInit();
+        //TODO 暂时关闭零钱红包
+//        checkPayEnvironmentInit();
     }
 
     //检测支付环境的初始化
