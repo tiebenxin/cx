@@ -12,23 +12,24 @@ public abstract  class BaseDialog extends Dialog implements OnClickListener{
 	
 	public BaseDialog(Context context, boolean cancelable, OnCancelListener cancelListener) {
 		super(context, cancelable, cancelListener);
+		initView();
 
 	}
 
 	public BaseDialog(Context context, int theme) {
 		super(context, theme);
+		initView();
 
 	}
 
 	public BaseDialog(Context context) {
 		super(context);
-
+		initView();
 	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		initView();
 		initdata();
 		initEvent();
 	}

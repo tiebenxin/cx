@@ -252,7 +252,7 @@ public class ChatEnum {
      * */
     @IntDef({ENoticeType.ENTER_BY_QRCODE, ENoticeType.INVITED, ENoticeType.KICK, ENoticeType.FORTH, ENoticeType.TRANSFER_GROUP_OWNER, ENoticeType.LEAVE, ENoticeType.RED_ENVELOPE_RECEIVED,
             ENoticeType.RECEIVE_RED_ENVELOPE, ENoticeType.CANCEL, ENoticeType.BLACK_ERROR, ENoticeType.NO_FRI_ERROR, ENoticeType.LOCK, ENoticeType.RED_ENVELOPE_RECEIVED_SELF,
-            ENoticeType.CHANGE_VICE_ADMINS_ADD,ENoticeType.CHANGE_VICE_ADMINS_CANCLE,ENoticeType.FORBIDDEN_WORDS_OPEN,ENoticeType.FORBIDDEN_WORDS_CLOSE,ENoticeType.FORBIDDEN_WORDS_SINGE})
+            ENoticeType.CHANGE_VICE_ADMINS_ADD, ENoticeType.CHANGE_VICE_ADMINS_CANCLE, ENoticeType.FORBIDDEN_WORDS_OPEN, ENoticeType.FORBIDDEN_WORDS_CLOSE, ENoticeType.FORBIDDEN_WORDS_SINGE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ENoticeType {
         int ENTER_BY_QRCODE = 1; //扫二维码进群
@@ -269,9 +269,9 @@ public class ChatEnum {
         int LOCK = 12;//端对端加密
         int CHANGE_VICE_ADMINS_ADD = 13;// 群管理变更通知 新增
         int CHANGE_VICE_ADMINS_CANCLE = 14;// 群管理变更通知 取消
-        int FORBIDDEN_WORDS_OPEN  = 15;// 群禁言 开
-        int FORBIDDEN_WORDS_CLOSE  = 16;// 群禁言 关
-        int FORBIDDEN_WORDS_SINGE  = 18;// 单人禁言
+        int FORBIDDEN_WORDS_OPEN = 15;// 群禁言 开
+        int FORBIDDEN_WORDS_CLOSE = 16;// 群禁言 关
+        int FORBIDDEN_WORDS_SINGE = 18;// 单人禁言
 
         int RED_ENVELOPE_RECEIVED_SELF = 17;//自己领取自己的红包
     }
@@ -319,5 +319,18 @@ public class ChatEnum {
         int FUNCTION = 0; // 主功能
         int EMOJI = 1; // emoji
         int VOICE = 2; // 语音
+    }
+
+    /*
+     *session 消息类型
+     * */
+    @IntDef({ESessionType.DEFAULT, ESessionType.SINGLE, ESessionType.ALL, ESessionType.DRAFT, ESessionType.ENVELOPE_FAIL})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ESessionType {
+        int DEFAULT = 1000; // 主功能
+        int SINGLE = 0; // @单人
+        int ALL = 1; // @所有人
+        int DRAFT = 2; // 草稿
+        int ENVELOPE_FAIL = 3;//红包发送失败
     }
 }

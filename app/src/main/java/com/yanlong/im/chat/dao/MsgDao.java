@@ -9,6 +9,7 @@ import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.ChangeSurvivalTimeMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
+import com.yanlong.im.chat.bean.EnvelopeInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.GroupImageHead;
@@ -3268,11 +3269,99 @@ public class MsgDao {
                 }
             }
             realm.commitTransaction();
+            realm.close();
         } catch (Exception e) {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
         return result;
+    }
+
+    //更新发送失败红包信息
+    public void updateEnvelopeInfo(EnvelopeInfo info) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            realm.insertOrUpdate(info);
+            Session session;
+            if (!TextUtils.isEmpty(info.getGid())) {
+                session = realm.where(Session.class).equalTo("gid", info.getGid()).findFirst();
+            } else {
+                session = realm.where(Session.class).equalTo("from_uid", info.getUid()).findFirst();
+            }
+            if (session != null) {
+                session.setMessageType(ChatEnum.ESessionType.ENVELOPE_FAIL);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
+    public EnvelopeInfo queryEnvelopeInfo(String gid, long uid) {
+        EnvelopeInfo envelopeInfo = null;
+        Realm realm = DaoUtil.open();
+        try {
+            EnvelopeInfo info;
+            if (!TextUtils.isEmpty(gid)) {
+                info = realm.where(EnvelopeInfo.class).equalTo("gid", gid).findFirst();
+            } else {
+                info = realm.where(EnvelopeInfo.class).equalTo("uid", uid).findFirst();
+            }
+            if (info != null) {
+                envelopeInfo = realm.copyFromRealm(info);
+            }
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return envelopeInfo;
+    }
+
+    public List<EnvelopeInfo> queryEnvelopeInfoList() {
+        List<EnvelopeInfo> list = null;
+        Realm realm = DaoUtil.open();
+        try {
+            RealmResults<EnvelopeInfo> realmList = realm.where(EnvelopeInfo.class).equalTo("sendStatus", 0).findAll();
+            if (realmList != null) {
+                list = realm.copyFromRealm(realmList);
+            }
+
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return list;
+    }
+
+    //删除发送失败红包信息
+    public void deleteEnvelopeInfo(String rid, String gid, long uid) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            EnvelopeInfo info = realm.where(EnvelopeInfo.class).equalTo("rid", rid).findFirst();
+            if (info != null) {
+                info.deleteFromRealm();
+                Session session;
+                if (!TextUtils.isEmpty(gid)) {
+                    session = realm.where(Session.class).equalTo("gid", gid).findFirst();
+                } else {
+                    session = realm.where(Session.class).equalTo("from_uid", uid).findFirst();
+                }
+                if (session != null) {
+                    session.setMessageType(ChatEnum.ESessionType.DEFAULT);
+                }
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
     }
 
 

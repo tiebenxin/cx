@@ -25,6 +25,7 @@ import com.example.nim_lib.util.PermissionsUtil;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.EnvelopeInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.NotificationConfig;
@@ -72,6 +73,7 @@ import net.cb.cb.library.utils.NotificationsUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.AlertYesNo;
@@ -662,7 +664,7 @@ public class MainActivity extends AppActivity {
     }
 
     private void taskNewVersion() {
-        userAction.getNewVersion(StringUtil.getChannelName(context),new CallBack<ReturnBean<NewVersionBean>>() {
+        userAction.getNewVersion(StringUtil.getChannelName(context), new CallBack<ReturnBean<NewVersionBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<NewVersionBean>> call, Response<ReturnBean<NewVersionBean>> response) {
                 if (response.body() == null || response.body().getData() == null) {
@@ -838,8 +840,6 @@ public class MainActivity extends AppActivity {
     }
 
 
-
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void posting(CanStampEvent event) {
         if (!isFinishing()) {
@@ -854,5 +854,23 @@ public class MainActivity extends AppActivity {
             //允许
             MessageManager.setCanStamp(event.canStamp);
         }
+    }
+
+    private void checkHasEnvelopeSendFailed() {
+        List<EnvelopeInfo> list = msgDao.queryEnvelopeInfoList();
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                EnvelopeInfo info = list.get(i);
+                if (info.getCreateTime() - System.currentTimeMillis() >= TimeToString.DAY) {//超过24小时
+                    deleteEnvelopInfo(info);
+                }
+            }
+        }
+    }
+
+    //删除临时红包信息
+    private void deleteEnvelopInfo(EnvelopeInfo envelopeInfo) {
+        msgDao.deleteEnvelopeInfo(envelopeInfo.getRid(), envelopeInfo.getGid(), envelopeInfo.getUid());
+        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(envelopeInfo.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, envelopeInfo.getUid(), envelopeInfo.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, null);
     }
 }
