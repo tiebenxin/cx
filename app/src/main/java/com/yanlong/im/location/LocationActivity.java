@@ -315,17 +315,21 @@ public class LocationActivity extends AppActivity {
                 if (suggestionResult != null && "NO_ERROR".equals(suggestionResult.error.name())
                         && suggestionResult.getAllSuggestions() != null&&suggestionResult.getAllSuggestions().size()>0) {
                     List<SuggestionResult.SuggestionInfo> list=suggestionResult.getAllSuggestions();
+                    boolean hasSetBitmap=false;
                     for (int i = 0; i < list.size(); i++) {
                         SuggestionResult.SuggestionInfo sug=list.get(i);
-                        LocationMessage locationMessage=new LocationMessage();
-                        locationMessage.setLatitude((int)(sug.pt.latitude*LocationUtils.beishu));
-                        locationMessage.setLongitude((int)(sug.pt.longitude*LocationUtils.beishu));
-                        locationMessage.setAddress(sug.getKey());
-                        locationMessage.setAddressDescribe(sug.getCity()+sug.getDistrict()+sug.getAddress());
-                        locationList.add(locationMessage);
+                        if(sug!=null&&sug.pt!=null){
+                            LocationMessage locationMessage=new LocationMessage();
+                            locationMessage.setLatitude((int)(sug.pt.latitude*LocationUtils.beishu));
+                            locationMessage.setLongitude((int)(sug.pt.longitude*LocationUtils.beishu));
+                            locationMessage.setAddress(sug.getKey());
+                            locationMessage.setAddressDescribe(sug.getCity()+sug.getDistrict()+sug.getAddress());
+                            locationList.add(locationMessage);
 
-                        if(i==0){
-                            setLocationBitmap(sug.pt.latitude,sug.pt.longitude);
+                            if(!hasSetBitmap){
+                                setLocationBitmap(sug.pt.latitude,sug.pt.longitude);
+                                hasSetBitmap=true;
+                            }
                         }
                     }
 
