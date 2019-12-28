@@ -28,7 +28,7 @@ import retrofit2.http.POST;
  * Description
  */
 public interface PayService {
-
+    //TODO
     //用户认证接口,idNumber 身份证号码；idType 目前只有身份证，传1即可；realName 真实姓名
     @POST(Route.URL_USER_AUTH)
     Observable<BaseResponse> authUserInfo(@Body RequestBody body);
