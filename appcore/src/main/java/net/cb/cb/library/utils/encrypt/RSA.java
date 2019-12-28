@@ -98,10 +98,10 @@ public class RSA implements Serializable {
 	 * @throws CryptoException
 	 */
 
-	public static RSAPublicKey publibKey(String publicKeyStr) throws CryptoException {
+	public static RSAPublicKey publicKey(String publicKeyStr) throws CryptoException {
 		try {
 			byte[] buffer = Decrypt.base64(publicKeyStr.getBytes());
-			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+			KeyFactory keyFactory = KeyFactory.getInstance("RSA","BC");
 			X509EncodedKeySpec keySpec = new X509EncodedKeySpec(buffer);
 			return (RSAPublicKey) keyFactory.generatePublic(keySpec);
 		} catch (Exception e) {
