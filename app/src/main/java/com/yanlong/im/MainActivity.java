@@ -432,7 +432,7 @@ public class MainActivity extends AppActivity {
         taskGetMsgNum();
         //taskClearNotification();
         checkNotificationOK();
-//        checkPayEnvironmentInit();
+        checkPayEnvironmentInit();
         if (AppConfig.isOnline()){
             checkHasEnvelopeSendFailed();
         }
