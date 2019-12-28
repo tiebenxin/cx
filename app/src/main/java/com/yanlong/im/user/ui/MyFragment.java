@@ -406,7 +406,8 @@ public class MyFragment extends Fragment {
      * 请求->获取用户信息
      */
     private void httpGetUserInfo() {
-        PayHttpUtils.getInstance().getUserInfo(PayEnvironment.getInstance().getUser().getUid())
+        UserInfo info = UserAction.getMyInfo();
+        PayHttpUtils.getInstance().getUserInfo(info.getUid())
                 .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<UserBean>>() {
