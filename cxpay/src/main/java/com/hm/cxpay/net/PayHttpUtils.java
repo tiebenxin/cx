@@ -69,7 +69,7 @@ public class PayHttpUtils {
         String rand = PayUtils.getRandomNumber()+"";//随机数
         String ts = System.currentTimeMillis()+"";//时间戳
         String uid = "";//uid
-        String key ="123";//TODO 密钥
+        String key = "";//密钥
         if(PayEnvironment.getInstance().getUser()!=null){
             if(PayEnvironment.getInstance().getUser().getUid()!=0){
                 uid = PayEnvironment.getInstance().getUser().getUid()+"" ;
