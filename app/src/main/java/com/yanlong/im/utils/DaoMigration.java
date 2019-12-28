@@ -84,6 +84,10 @@ public class DaoMigration implements RealmMigration {
                 updateV16(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 16) {
+                updateV17(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -330,7 +334,14 @@ public class DaoMigration implements RealmMigration {
 
         schema.get("MsgAllBean")
                 .addRealmObjectField("transferNoticeMessage", schema.get("TransferNoticeMessage"));
+    }
 
+    //更新红包消息token
+    private void updateV17(RealmSchema schema) {
+        schema.get("EnvelopeInfo")
+                .addField("gid", String.class)
+                .addField("uid", int.class)
+                .addField("amount", long.class);
 
     }
 

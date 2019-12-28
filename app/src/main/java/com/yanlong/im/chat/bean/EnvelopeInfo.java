@@ -11,12 +11,15 @@ import io.realm.annotations.PrimaryKey;
 public class EnvelopeInfo extends RealmObject {
     @PrimaryKey
     String rid;
-    String comment;
+    String comment;//红包内容，恭喜发财，大吉大利
     int reType;//红包类型0，魔方, 1系统红包
     int envelopeStyle;// 0 普通, 1 拼手气
     int sendStatus;//发送状态 0 未发送， 1 已发送
     String sign;//签名
     long createTime;//创建时间
+    String gid;//群聊
+    long uid;//单聊 红包接受者
+    long amount;//发送金额
 
     public String getRid() {
         return rid;
@@ -72,5 +75,29 @@ public class EnvelopeInfo extends RealmObject {
 
     public void setCreateTime(long createTime) {
         this.createTime = createTime;
+    }
+
+    public String getGid() {
+        return gid;
+    }
+
+    public void setGid(String gid) {
+        this.gid = gid;
+    }
+
+    public long getUid() {
+        return uid;
+    }
+
+    public void setUid(long uid) {
+        this.uid = uid;
+    }
+
+    public long getAmount() {
+        return amount;
+    }
+
+    public void setAmount(long amount) {
+        this.amount = amount;
     }
 }

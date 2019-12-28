@@ -323,4 +323,17 @@ public class ChatEnum {
         int EMOJI = 1; // emoji
         int VOICE = 2; // 语音
     }
+
+    /*
+     *session 消息类型
+     * */
+    @IntDef({ESessionType.DEFAULT, ESessionType.SINGLE, ESessionType.ALL, ESessionType.DRAFT, ESessionType.ENVELOPE_FAIL})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ESessionType {
+        int DEFAULT = 1000; // 主功能
+        int SINGLE = 0; // @单人
+        int ALL = 1; // @所有人
+        int DRAFT = 2; // 草稿
+        int ENVELOPE_FAIL = 3;//红包发送失败
+    }
 }

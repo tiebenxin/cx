@@ -27,6 +27,7 @@ public class AppConfig {
     public static final String USER_AGREEMENT = "https://changxin.zhixun6.com/yhxy.html";
     // 隐私政策
     public static final String USER_PRIVACY = "https://changxin.zhixun6.com/yszc.html";
+    private static boolean isOnline;
 
     //设置全局字体
     public static void setFont(float font) {
@@ -117,5 +118,13 @@ public class AppConfig {
             e.printStackTrace();
         }
         return channelName;
+    }
+
+    public static void setOnline(boolean online){
+        isOnline = online;
+    }
+
+    public static boolean isOnline(){
+        return isOnline;
     }
 }

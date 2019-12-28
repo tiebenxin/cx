@@ -64,6 +64,10 @@ public class TimeToString {
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
         return dateFormat.format(new Date(time));
     }
+    public static String HH_MM2(Long time) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH时mm分");
+        return dateFormat.format(new Date(time));
+    }
 
     public static String YYYY_MM_DD_HH_MM(Long time) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
