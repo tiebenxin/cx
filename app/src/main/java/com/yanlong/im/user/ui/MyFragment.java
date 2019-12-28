@@ -165,9 +165,9 @@ public class MyFragment extends Fragment {
         ClickFilter.onClick(viewMoney, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(PayEnvironment.getInstance().getUser()!=null){
+                if (PayEnvironment.getInstance().getUser() != null) {
                     checkUserStatus(PayEnvironment.getInstance().getUser());
-                }else {
+                } else {
                     httpGetUserInfo();
                 }
             }
@@ -367,7 +367,7 @@ public class MyFragment extends Fragment {
     /**
      * 实名认证提示弹框
      */
-    private void showIdentifyDialog(){
+    private void showIdentifyDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
         dialogBuilder.setCancelable(false);//取消点击外部消失弹窗
         final AlertDialog dialog = dialogBuilder.create();
@@ -385,7 +385,7 @@ public class MyFragment extends Fragment {
         tvIdentify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(context,ServiceAgreementActivity.class));
+                startActivity(new Intent(context, ServiceAgreementActivity.class));
                 dialog.dismiss();
             }
         });
@@ -407,22 +407,25 @@ public class MyFragment extends Fragment {
      */
     private void httpGetUserInfo() {
         UserInfo info = UserAction.getMyInfo();
-        PayHttpUtils.getInstance().getUserInfo()
+        if (info == null) {
+            return;
+        }
+        PayHttpUtils.getInstance().getUserInfo(info.getUid())
                 .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<UserBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<UserBean> baseResponse) {
-                        if(baseResponse.isSuccess()){
+                        if (baseResponse.isSuccess()) {
                             UserBean userBean = null;
-                            if(baseResponse.getData()!=null){
+                            if (baseResponse.getData() != null) {
                                 userBean = baseResponse.getData();
-                            }else {
+                            } else {
                                 userBean = new UserBean();
                             }
                             PayEnvironment.getInstance().setUser(userBean);
                             checkUserStatus(userBean);
-                        }else {
+                        } else {
                             ToastUtil.show(context, baseResponse.getMessage());
                         }
 
@@ -439,17 +442,17 @@ public class MyFragment extends Fragment {
     /**
      * 改为两层判断：是否同意隐私协议->是否实名认证->是否绑定手机号
      */
-    private void checkUserStatus(UserBean userBean){
+    private void checkUserStatus(UserBean userBean) {
         //1 已实名认证
-        if(userBean.getRealNameStat()==1){
+        if (userBean.getRealNameStat() == 1) {
             //1-1 是否完成绑定手机号流程
-            if(userBean.getPhoneBindStat()==1){
-                startActivity(new Intent(getActivity(),LooseChangeActivity.class));
-            }else {
+            if (userBean.getPhoneBindStat() == 1) {
+                startActivity(new Intent(getActivity(), LooseChangeActivity.class));
+            } else {
                 ToastUtil.show(context, "请继续完成绑定手机号的流程");
-                startActivity(new Intent(getActivity(),BindPhoneNumActivity.class));
+                startActivity(new Intent(getActivity(), BindPhoneNumActivity.class));
             }
-        }else {
+        } else {
             //2 未实名认证->分三步走流程(1 同意->2 实名认证->3 绑定手机号)
             showIdentifyDialog();
         }

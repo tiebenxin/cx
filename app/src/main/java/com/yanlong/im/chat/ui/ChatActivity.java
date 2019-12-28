@@ -2654,7 +2654,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                 }
                 break;
             case ChatEnum.ECellEventType.AVATAR_CLICK:
-                toUserInfoActivity(message);
+//                toUserInfoActivity(message);
                 break;
             case ChatEnum.ECellEventType.RESEND_CLICK:
                 resendMessage(message);
@@ -2675,12 +2675,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
      *
      * @param message
      */
-    private void toUserInfoActivity(MsgAllBean message) {
+    private void toUserInfoActivity(long uid) {
+        String name = "";
+        if (isGroup()) {
+            name = msgDao.getGroupMemberName2(toGid, uid);
+        } else if (mFinfo != null) {
+            name = mFinfo.getName4Show();
+        }
         startActivity(new Intent(getContext(), UserInfoActivity.class)
-                .putExtra(UserInfoActivity.ID, message.getFrom_uid())
+                .putExtra(UserInfoActivity.ID, uid)
                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
                 .putExtra(UserInfoActivity.GID, toGid)
-                .putExtra(UserInfoActivity.MUC_NICK, message.getFrom_nickname()));
+                .putExtra(UserInfoActivity.MUC_NICK, name));
     }
 
     /**
@@ -2773,12 +2779,19 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
     @Override
     public void clickUser(String userId) {
-
+        long user = StringUtil.getLong(userId);
+        if (user > 0) {
+            toUserInfoActivity(user);
+        }
     }
 
     @Override
     public void clickEnvelope(String rid) {
-
+        long tradeId = StringUtil.getLong(rid);
+        if (tradeId > 0) {
+            Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, tradeId, 1);
+            startActivity(intent);
+        }
     }
 
 
@@ -2975,18 +2988,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                             return;
                         }
                         //TODO:优先显示群备注、查询最新的在本群的昵称
-                        String name = "";
-                        if (isGroup()) {
-                            name = msgDao.getGroupMemberName2(toGid, msgbean.getFrom_uid());
-                        } else if (mFinfo != null) {
-                            name = mFinfo.getName4Show();
-                        }
-                        startActivity(new Intent(getContext(), UserInfoActivity.class)
-                                .putExtra(UserInfoActivity.ID, msgbean.getFrom_uid())
-                                .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
-                                .putExtra(UserInfoActivity.GID, toGid)
-                                .putExtra(UserInfoActivity.IS_GROUP, isGroup())
-                                .putExtra(UserInfoActivity.MUC_NICK, name));
+                        toUserInfoActivity(msgbean.getFrom_uid());
+
                     }
                 });
             }
@@ -3025,11 +3028,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                         MsgNotice notice = msgbean.getMsgNotice();
                         if (notice.getMsgType() == MsgNotice.MSG_TYPE_DEFAULT
                                 || notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
-                                || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF
                                 || notice.getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR) {
                             holder.viewChatItem.setData0(notice.getNote());
                         } else {
-                            if (notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE) {
+                            if (notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE
+                                    || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF) {
                                 holder.viewChatItem.setNoticeString(Html.fromHtml(notice.getNote(), null,
                                         new MsgTagHandler(AppConfig.getContext(), true, msgid, ChatActivity.this)));
                             } else {
@@ -3665,7 +3668,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         return bean;
     }
 
-    private void playVoice(final MsgAllBean bean, final boolean canAutoPlay, final int position) {
+    private void playVoice(final MsgAllBean bean, final boolean canAutoPlay,
+                           final int position) {
 //        LogUtil.getLog().i(TAG, "playVoice--" + position);
         VoiceMessage vm = bean.getVoiceMessage();
         if (vm == null || TextUtils.isEmpty(vm.getUrl())) {
@@ -3721,7 +3725,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         }
     }
 
-    private void updatePlayStatus(MsgAllBean bean, int position, @ChatEnum.EPlayStatus int status) {
+    private void updatePlayStatus(MsgAllBean bean, int position,
+                                  @ChatEnum.EPlayStatus int status) {
 //        LogUtil.getLog().i(TAG, "updatePlayStatus--" + status + "--position=" + position);
         bean = amendMsgALlBean(position, bean);
         VoiceMessage voiceMessage = bean.getVoiceMessage();
@@ -4690,7 +4695,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
      * 红包是否已经被抢,红包改为失效
      * @param rid
      */
-    private void taskPayRbCheck(MsgAllBean msgAllBean, String rid, int reType, String token, int envelopeStatus) {
+    private void taskPayRbCheck(MsgAllBean msgAllBean, String rid, int reType, String token,
+                                int envelopeStatus) {
         if (envelopeStatus != PayEnum.EEnvelopeStatus.NORMAL) {
             msgAllBean.getRed_envelope().setIsInvalid(1);
             msgAllBean.getRed_envelope().setEnvelopStatus(envelopeStatus);
@@ -4708,15 +4714,19 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     }
 
     //抢红包后，更新红包token
-    private void updateEnvelopeToken(MsgAllBean msgAllBean, final String rid, int reType, String token, int envelopeStatus) {
+    private void updateEnvelopeToken(MsgAllBean msgAllBean, final String rid, int reType, String
+            token, int envelopeStatus) {
         if (!TextUtils.isEmpty(token)) {
             msgAllBean.getRed_envelope().setAccessToken(token);
             msgAllBean.getRed_envelope().setEnvelopStatus(envelopeStatus);
         }
-        replaceListDataAndNotify(msgAllBean);
         msgDao.redEnvelopeOpen(rid, envelopeStatus, reType, token);
-
-
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                replaceListDataAndNotify(msgAllBean);
+            }
+        });
     }
 
     private Group groupInfo;
@@ -5128,7 +5138,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     }
 
     //获取红包详情
-    public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType, boolean isNormalStyle) {
+    public void getRedEnvelopeDetail(MsgAllBean msgBean, long rid, String token, int reType,
+                                     boolean isNormalStyle) {
         if (TextUtils.isEmpty(token)) {
             PayHttpUtils.getInstance().grabRedEnvelope(rid)
                     .compose(RxSchedulers.<BaseResponse<GrabEnvelopeBean>>compose())
@@ -5438,7 +5449,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     private void saveMFEnvelope(EnvelopeBean bean) {
         EnvelopeInfo envelopeInfo = new EnvelopeInfo();
         envelopeInfo.setRid(bean.getEnvelopesID());
-        envelopeInfo.setAmount(StringUtil.getLong(bean.getEnvelopeAmount()));
+        envelopeInfo.setAmount(StringUtil.getYuanToLong(bean.getEnvelopeAmount()));
         envelopeInfo.setComment(bean.getEnvelopeMessage());
         envelopeInfo.setReType(0);//0 MF  1 SYS
         MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL;

@@ -158,7 +158,7 @@ public class MsgTagHandler implements TagHandler {
                 }
             } else if (tag.equalsIgnoreCase(ENVELOPE)) {
                 if (actionListener != null && !TextUtils.isEmpty(id)) {
-                    actionListener.clickUser(id);
+                    actionListener.clickEnvelope(id);
                 }
             }
         }
@@ -169,9 +169,9 @@ public class MsgTagHandler implements TagHandler {
             if (tag.equalsIgnoreCase(USER)) {
                 ds.setColor(ContextCompat.getColor(mContext, R.color.msg_tag_color));
             } else if (tag.equalsIgnoreCase(ENVELOPE)) {
-                ds.setColor(Color.GREEN);
+                ds.setColor(ContextCompat.getColor(mContext, R.color.msg_tag_color));
             }
-            ds.setUnderlineText(true);
+            ds.setUnderlineText(false);//不需要下划线
         }
 
     }

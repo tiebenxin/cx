@@ -1259,8 +1259,8 @@ public class SocketData {
         } else {
             note.setMsgType(ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE);
             String name = msgDao.getUsername4Show(gid, uid);
-            String n = "<user id='" + uid + "'>" + name + "</user>";
-            note.setNote("你领取了\"" + n + "\"的" + "<envelope id=\" + rid + \">零钱红包</envelope>");
+            String user = "<user id='" + uid + "'>" + name + "</user>";
+            note.setNote("你领取了\"" + user + "\"的" + "<envelope id=" + rid + ">零钱红包</envelope>");
         }
 
         return note;

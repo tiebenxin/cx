@@ -211,12 +211,25 @@ public class StringUtil {
         return new String(bytes);
     }
 
-    public static long getLong(String s) {
+    public static long getYuanToLong(String s) {
         long result = 0;
         if (!TextUtils.isEmpty(s)) {
             try {
                 double money = Double.parseDouble(s);
                 result = (long) (money * 100);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+
+    public static long getLong(String s) {
+        long result = 0;
+        if (!TextUtils.isEmpty(s)) {
+            try {
+                result = Long.parseLong(s);
             } catch (Exception e) {
                 e.printStackTrace();
             }
