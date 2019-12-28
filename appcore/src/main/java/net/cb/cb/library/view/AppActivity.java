@@ -12,11 +12,13 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import com.umeng.analytics.MobclickAgent;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.dialog.DialogLoadingProgress;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -24,8 +26,6 @@ import net.cb.cb.library.utils.ToastUtil;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import org.greenrobot.eventbus.EventBus;
 
 /***
  * 统一的activity
@@ -36,8 +36,9 @@ public class AppActivity extends AppCompatActivity {
     public Context context;
     public LayoutInflater inflater;
     public AlertWait alert;
-
     public Boolean isFirstRequestPermissionsResult=true;//第一次请求权限返回
+    DialogLoadingProgress payWaitDialog;
+
 
 
     @Override
@@ -139,6 +140,28 @@ public class AppActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 新增->强制弹出软键盘
+     * @param view
+     * 备注：延迟任务解决之前无法弹出问题
+     */
+    public void showSoftKeyword(final View view) {
+        if (view == null) {
+            return;
+        }
+        view.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                view.requestFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.showSoftInput(view, 0);
+                }
+            }
+        }, 100);
+
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -173,6 +196,19 @@ public class AppActivity extends AppCompatActivity {
                 isFirstRequestPermissionsResult=false;
                 break;
             }
+        }
+    }
+
+    public void showLoadingDialog() {
+        if (payWaitDialog == null) {
+            payWaitDialog = new DialogLoadingProgress(this);
+        }
+        payWaitDialog.show();
+    }
+
+    public void dismissLoadingDialog() {
+        if (payWaitDialog != null) {
+            payWaitDialog.dismiss();
         }
     }
 }

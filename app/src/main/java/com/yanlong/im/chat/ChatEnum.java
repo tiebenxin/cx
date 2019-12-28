@@ -215,7 +215,7 @@ public class ChatEnum {
         int SELF = 1; //自己
         int FRIEND = 2;//通讯录好友
         int BLACK = 3;//黑名单
-        int ASSISTANT = 4;//小助手
+        int ASSISTANT = 4;//系统小助手
     }
 
     /*
@@ -252,6 +252,7 @@ public class ChatEnum {
      * */
     @IntDef({ENoticeType.ENTER_BY_QRCODE, ENoticeType.INVITED, ENoticeType.KICK, ENoticeType.FORTH, ENoticeType.TRANSFER_GROUP_OWNER, ENoticeType.LEAVE, ENoticeType.RED_ENVELOPE_RECEIVED,
             ENoticeType.RECEIVE_RED_ENVELOPE, ENoticeType.CANCEL, ENoticeType.BLACK_ERROR, ENoticeType.NO_FRI_ERROR, ENoticeType.LOCK, ENoticeType.RED_ENVELOPE_RECEIVED_SELF,
+            ENoticeType.SYS_ENVELOPE_RECEIVED, ENoticeType.SYS_ENVELOPE_RECEIVED_SELF, ENoticeType.RECEIVE_SYS_ENVELOPE,
             ENoticeType.CHANGE_VICE_ADMINS_ADD, ENoticeType.CHANGE_VICE_ADMINS_CANCLE, ENoticeType.FORBIDDEN_WORDS_OPEN, ENoticeType.FORBIDDEN_WORDS_CLOSE, ENoticeType.FORBIDDEN_WORDS_SINGE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ENoticeType {
@@ -261,7 +262,7 @@ public class ChatEnum {
         int FORTH = 4; //
         int TRANSFER_GROUP_OWNER = 5; //群主转让
         int LEAVE = 6;//离开群聊
-        int RED_ENVELOPE_RECEIVED = 7;//xx领取你的红包
+        int RED_ENVELOPE_RECEIVED = 7;//xx领取你的云红包
         int RECEIVE_RED_ENVELOPE = 8;//你领取了xx的红包
         int CANCEL = 9;//撤回
         int BLACK_ERROR = 10;//拉黑，消息被拒错误
@@ -272,8 +273,10 @@ public class ChatEnum {
         int FORBIDDEN_WORDS_OPEN = 15;// 群禁言 开
         int FORBIDDEN_WORDS_CLOSE = 16;// 群禁言 关
         int FORBIDDEN_WORDS_SINGE = 18;// 单人禁言
-
-        int RED_ENVELOPE_RECEIVED_SELF = 17;//自己领取自己的红包
+        int RED_ENVELOPE_RECEIVED_SELF = 17;//自己领取自己的零钱红包
+        int SYS_ENVELOPE_RECEIVED = 19;//xx领取你的零钱红包
+        int SYS_ENVELOPE_RECEIVED_SELF = 20;//自己领取自己的零钱红包
+        int RECEIVE_SYS_ENVELOPE = 21;//你领取了xx的零钱红包
     }
 
 

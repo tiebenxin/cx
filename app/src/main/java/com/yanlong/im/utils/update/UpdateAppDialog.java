@@ -16,6 +16,8 @@ import com.yanlong.im.R;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
+import net.cb.cb.library.utils.ToastUtil;
 
 public class UpdateAppDialog {
 
@@ -62,7 +64,12 @@ public class UpdateAppDialog {
 
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                event.onUpdate();
+                if(NetUtil.isNetworkConnected()){
+                    event.onUpdate();
+                }else {
+                    ToastUtil.show(context,"请检查网络连接是否正常");
+                }
+
             }
         });
 

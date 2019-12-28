@@ -3,6 +3,7 @@ package com.yanlong.im.chat.bean;
 
 import androidx.annotation.Nullable;
 
+import com.hm.cxpay.global.PayEnum;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.ui.cell.IChatModel;
 import com.yanlong.im.user.action.UserAction;
@@ -297,21 +298,57 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             //公告:
             //8.9 过滤拉人通知里面的颜色标签
             str = "" + StringUtil.delHTMLTag(getMsgNotice().getNote());
-
         } else if (msg_type == ChatEnum.EMessageType.TEXT) {//普通消息
             str = getChat().getMsg();
-
         } else if (msg_type == ChatEnum.EMessageType.STAMP) {
             str = "[戳一下]" + getStamp().getComment();
-
         } else if (msg_type == ChatEnum.EMessageType.RED_ENVELOPE) {
-            str = "[云红包]" + getRed_envelope().getComment();
+            RedEnvelopeMessage envelopeMessage = getRed_envelope();
+            if (envelopeMessage != null) {
+                int reType = envelopeMessage.getRe_type();
+                if (reType == 1) {
+                    str = "[零钱红包]" + getRed_envelope().getComment();
+                } else {
+                    str = "[云红包]" + getRed_envelope().getComment();
+                }
+            }
         } else if (msg_type == ChatEnum.EMessageType.IMAGE) {
             str = "[图片]";
         } else if (msg_type == ChatEnum.EMessageType.BUSINESS_CARD) {
             str = "[名片]";// + getBusiness_card().getNickname();
         } else if (msg_type == ChatEnum.EMessageType.TRANSFER) {
-            str = "[收款]";
+            TransferMessage transferMessage = getTransfer();
+            if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_SEND) {
+                if (isMe()) {
+                    str = "[转账]：等待朋友收款";
+                } else {
+                    str = "[转账]：等待你收款";
+                }
+            } else if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_RECEIVE) {
+                if (isMe()) {
+                    str = "[转账]：朋友已确认收款";
+                } else {
+                    str = "[转账]：已收款";
+                }
+            } else if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_REJECT) {
+                if (isMe()) {
+                    str = "[转账]：已退款";
+                } else {
+                    str = "[转账]：已退款";
+                }
+            } else if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_PAST) {
+                if (isMe()) {
+                    str = "[转账]：已过期";
+                } else {
+                    str = "[转账]：已过期";
+                }
+            } else {
+                if (isMe()) {
+                    str = "[转账]";
+                } else {
+                    str = "[转账]";
+                }
+            }
         } else if (msg_type == ChatEnum.EMessageType.VOICE) {
             str = "[语音]";
         } else if (msg_type == ChatEnum.EMessageType.AT) {
@@ -330,8 +367,10 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             }
         } else if (msg_type == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME) {//阅后即焚
             str = getMsgCancel().getNote();
-        }else if (msg_type == ChatEnum.EMessageType.LOCATION) {//位置
+        } else if (msg_type == ChatEnum.EMessageType.LOCATION) {//位置
             str = "[位置]";
+        } else if (msg_type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {//阅后即焚
+            str = "[零钱小助手消息]";
         }
 
         return str;

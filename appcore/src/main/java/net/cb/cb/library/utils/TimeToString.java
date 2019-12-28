@@ -29,6 +29,12 @@ public class TimeToString {
         return dateFormat.format(new Date(time));
     }
 
+    public static String getSelectMouth(long time) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy年MM月");
+        return dateFormat.format(new Date(time));
+    }
+
+
     public static long toYYYY_MM(String time) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM");
         try {

@@ -13,13 +13,11 @@ public abstract  class BaseDialog extends Dialog implements OnClickListener{
 	public BaseDialog(Context context, boolean cancelable, OnCancelListener cancelListener) {
 		super(context, cancelable, cancelListener);
 		initView();
-
 	}
 
 	public BaseDialog(Context context, int theme) {
 		super(context, theme);
 		initView();
-
 	}
 
 	public BaseDialog(Context context) {
@@ -30,12 +28,13 @@ public abstract  class BaseDialog extends Dialog implements OnClickListener{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		initdata();
+//		initView();
+		initData();
 		initEvent();
 	}
 
 	public abstract void initView();
-	public void initdata(){}
+	public void initData(){}
 	public void initEvent(){}
 	public abstract void processClick(View view);
 	@Override

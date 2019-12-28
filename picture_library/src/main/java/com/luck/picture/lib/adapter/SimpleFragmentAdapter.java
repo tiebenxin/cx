@@ -32,7 +32,7 @@ import java.util.List;
 
 /**
  * @author：luck
- * @data：2018/1/27 下午7:50
+ * @date：2018/1/27 下午7:50
  * @描述:图片预览
  */
 

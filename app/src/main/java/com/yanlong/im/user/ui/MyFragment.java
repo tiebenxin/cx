@@ -1,23 +1,37 @@
 package com.yanlong.im.user.ui;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.hm.cxpay.bean.UserBean;
+import com.hm.cxpay.global.PayEnvironment;
+import com.hm.cxpay.net.FGObserver;
+import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.BindPhoneNumActivity;
+import com.hm.cxpay.ui.LooseChangeActivity;
 import com.jrmf360.walletlib.JrmfWalletClient;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -37,12 +51,11 @@ import com.yanlong.im.utils.update.UpdateManage;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.IntentUtil;
+import net.cb.cb.library.utils.ClickFilter;
+import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
-import net.cb.cb.library.utils.SpUtil;
-import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
 
@@ -73,6 +86,7 @@ public class MyFragment extends Fragment {
     private LinearLayout mViewHelp;
     private TextView tvNewVersions;
     private LinearLayout viewService;
+    private Context context;
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -147,10 +161,15 @@ public class MyFragment extends Fragment {
                 startActivity(arCodeIntent);
             }
         });
-        viewMoney.setOnClickListener(new View.OnClickListener() {
+        //涉及网络请求均加入防重复点击
+        ClickFilter.onClick(viewMoney, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if(PayEnvironment.getInstance().getUser()!=null){
+                    checkUserStatus(PayEnvironment.getInstance().getUser());
+                }else {
+                    httpGetUserInfo();
+                }
             }
         });
         mViewScanQrcode.setOnClickListener(new View.OnClickListener() {
@@ -172,15 +191,11 @@ public class MyFragment extends Fragment {
                 startActivity(new Intent(getActivity(), HelpActivity.class));
             }
         });
+        //云红包
         viewWallet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String value = SpUtil.getSpUtil().getSPValue("ServieAgreement", "");
-                if (StringUtil.isNotNull(value)) {
-                    taskWallet();
-                } else {
-                    IntentUtil.gotoActivity(getActivity(), ServiceAgreementActivity.class);
-                }
+                taskWallet();
             }
         });
 
@@ -251,7 +266,7 @@ public class MyFragment extends Fragment {
         ViewGroup.LayoutParams layparm = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         rootView.setLayoutParams(layparm);
         findViews(rootView);
-
+        context = getActivity();
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
@@ -347,6 +362,97 @@ public class MyFragment extends Fragment {
     private void toChatActivity() {
         //CX888 uid=100121
         startActivity(new Intent(getContext(), ChatActivity.class).putExtra(ChatActivity.AGM_TOUID, Constants.CX888_UID));
+    }
+
+    /**
+     * 实名认证提示弹框
+     */
+    private void showIdentifyDialog(){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        dialogBuilder.setCancelable(false);//取消点击外部消失弹窗
+        final AlertDialog dialog = dialogBuilder.create();
+        View dialogView = LayoutInflater.from(context).inflate(com.hm.cxpay.R.layout.dialog_identify, null);
+        TextView tvCancel = dialogView.findViewById(com.hm.cxpay.R.id.tv_cancel);
+        TextView tvIdentify = dialogView.findViewById(com.hm.cxpay.R.id.tv_identify);
+        //取消
+        tvCancel.setOnClickListener(new android.view.View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        //去认证(需要先同意协议)
+        tvIdentify.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(context,ServiceAgreementActivity.class));
+                dialog.dismiss();
+            }
+        });
+        //展示界面
+        dialog.show();
+        //解决圆角shape背景无效问题
+        Window window = dialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        //设置宽高
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.height = DensityUtil.dip2px(context, 139);
+        lp.width = DensityUtil.dip2px(context, 277);
+        dialog.getWindow().setAttributes(lp);
+        dialog.setContentView(dialogView);
+    }
+
+    /**
+     * 请求->获取用户信息
+     */
+    private void httpGetUserInfo() {
+        PayHttpUtils.getInstance().getUserInfo(/*PayEnvironment.getInstance().getUser().getUid()*/)
+                .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<UserBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<UserBean> baseResponse) {
+                        if(baseResponse.isSuccess()){
+                            UserBean userBean = null;
+                            if(baseResponse.getData()!=null){
+                                userBean = baseResponse.getData();
+                            }else {
+                                userBean = new UserBean();
+                            }
+                            PayEnvironment.getInstance().setUser(userBean);
+                            checkUserStatus(userBean);
+                        }else {
+                            ToastUtil.show(context, baseResponse.getMessage());
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse<UserBean> baseResponse) {
+                        super.onHandleError(baseResponse);
+                        ToastUtil.show(context, baseResponse.getMessage());
+                    }
+                });
+    }
+
+    /**
+     * 改为两层判断：是否同意隐私协议->是否实名认证->是否绑定手机号
+     */
+    private void checkUserStatus(UserBean userBean){
+        //1 已实名认证
+        if(userBean.getRealNameStat()==1){
+            //1-1 是否完成绑定手机号流程
+            if(userBean.getPhoneBindStat()==1){
+                startActivity(new Intent(getActivity(),LooseChangeActivity.class));
+            }else {
+                ToastUtil.show(context, "请继续完成绑定手机号的流程");
+                startActivity(new Intent(getActivity(),BindPhoneNumActivity.class));
+            }
+        }else {
+            //2 未实名认证->分三步走流程(1 同意->2 实名认证->3 绑定手机号)
+            showIdentifyDialog();
+        }
+
     }
 
 }

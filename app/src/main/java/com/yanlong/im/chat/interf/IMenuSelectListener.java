@@ -1,8 +1,8 @@
 package com.yanlong.im.chat.interf;
 
 /**
- * @anthor Liszt
- * @data 2019/8/20
+ * @author Liszt
+ * @date 2019/8/20
  * Description
  */
 public interface IMenuSelectListener {

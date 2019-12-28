@@ -15,8 +15,8 @@ import com.yanlong.im.user.dao.UserDao;
 import java.util.List;
 
 /**
- * @anthor Liszt
- * @data 2019/10/11
+ * @author Liszt
+ * @date 2019/10/11
  * Description 初始化session数据
  */
 public class TaskSession extends AsyncTask<Void, Integer, Boolean> {

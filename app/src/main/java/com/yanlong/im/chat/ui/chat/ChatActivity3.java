@@ -64,8 +64,8 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 /**
- * @anthor Liszt
- * @data 2019/9/19
+ * @author Liszt
+ * @date 2019/9/19
  * Description
  */
 public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPresenter> implements ICellEventListener, ChatView {

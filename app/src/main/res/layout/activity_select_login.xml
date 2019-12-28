@@ -12,15 +12,6 @@
         android:layout_marginTop="100dp"
         android:src="@mipmap/ic_launcher"/>
 
-    <Button
-        android:id="@+id/btn_login"
-        android:layout_width="200dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="50dp"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        android:text="登录"
-        android:background="@drawable/bg_btn_select_login"/>
 
     <Button
         android:id="@+id/btn_register"
@@ -32,6 +23,15 @@
         android:text="注册"
         android:background="@drawable/bg_btn_select_register"/>
 
+    <Button
+        android:id="@+id/btn_login"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="50dp"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:text="登录"
+        android:background="@drawable/bg_btn_select_login"/>
 
     <TextView
         android:layout_width="wrap_content"

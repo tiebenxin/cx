@@ -48,7 +48,7 @@ import static com.luck.picture.lib.config.PictureConfig.IS_ARTWORK_MASTER;
 
 /**
  * @author：luck
- * @data：2018/3/28 下午1:00
+ * @date：2018/3/28 下午1:00
  * @描述: Activity基类
  */
 public class PictureBaseActivity extends FragmentActivity {

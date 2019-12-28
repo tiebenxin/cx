@@ -335,10 +335,6 @@
             android:screenOrientation="portrait" />
 
         <!--零钱-->
-        <activity
-            android:name=".pay.ui.LooseChangeActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
         <!--登录-->
         <activity
             android:name=".user.ui.LoginActivity"
@@ -394,32 +390,32 @@
 
         <!--实名认证-->
         <activity
-            android:name=".user.ui.IdentificationCentreActivity"
+            android:name="com.hm.cxpay.ui.identification.IdentificationUserActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--单个红包-->
-        <activity
-            android:name=".pay.ui.SingleRedPacketActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            android:theme="@style/RedAppThrme" />
+<!--        <activity-->
+<!--            android:name="com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity"-->
+<!--            android:launchMode="singleTask"-->
+<!--            android:screenOrientation="portrait"-->
+<!--            android:theme="@style/RedAppThrme" />-->
         <!--群红包-->
-        <activity
-            android:name=".pay.ui.MultiRedPacketActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            android:theme="@style/RedAppThrme" />
+<!--        <activity-->
+<!--            android:name="com.hm.cxpay.ui.redenvelope.MultiRedPacketActivity"-->
+<!--            android:launchMode="singleTask"-->
+<!--            android:screenOrientation="portrait"-->
+<!--            android:theme="@style/RedAppThrme" />-->
         <!--红包详情-->
         <activity
-            android:name=".pay.ui.RedPacketDetailsActivity"
+            android:name=".pay.ui.record.SingleRedPacketDetailsActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/RedAppThrme" />
 
         <!--红包记录-->
         <activity
-            android:name=".pay.ui.RedpacketRecordActivity"
+            android:name=".pay.ui.record.RedpacketRecordActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/RedAppThrme" />
@@ -633,6 +629,8 @@
             android:name=".location.LocationActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
+
+        <activity android:name=".pay.ui.record.RedEnvelopeRecordActivity" />
 
     </application>
 

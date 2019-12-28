@@ -20,8 +20,8 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 
 /**
- * @anthor Liszt
- * @data 2019/8/12
+ * @author Liszt
+ * @date 2019/8/12
  * Description
  *  消息转发 通讯录
  */

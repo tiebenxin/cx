@@ -19,8 +19,8 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 /**
- * @anthor Liszt
- * @data 2019/9/29
+ * @author Liszt
+ * @date 2019/9/29
  * Description 好友验证页面
  */
 public class FriendVerifyActivity extends AppActivity {

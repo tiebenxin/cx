@@ -36,8 +36,8 @@ import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 /**
- * @anthor Liszt
- * @data 2019/10/11
+ * @author Liszt
+ * @date 2019/10/11
  * Description 批量处理接收到的消息，针对收到单聊，或者群聊消息，而本地无用户或者群数据，需要异步请求用户或者群数据的情况。
  * 批量消息必须所有消息处理完毕，才能通知刷新session和未读数
  * 风险：当请求用户数据和群数据失败的时候，可能导致任务无法正常处理完

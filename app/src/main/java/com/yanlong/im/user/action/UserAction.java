@@ -5,6 +5,8 @@ import android.text.TextUtils;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
+import com.hm.cxpay.global.PayEnvironment;
+import com.hm.cxpay.rx.interceptor.CommonInterceptor;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.http.model.BaseModel;
 import com.jrmf360.tools.http.OkHttpModelCallBack;
@@ -31,6 +33,7 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.manager.TokenManager;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.Installation;
 import net.cb.cb.library.utils.LogUtil;
@@ -41,6 +44,7 @@ import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.VersionUtil;
+import net.cb.cb.library.utils.encrypt.AESEncrypt;
 import net.cb.cb.library.utils.encrypt.MD5;
 
 import java.util.List;
@@ -158,7 +162,7 @@ public class UserAction {
                     setToken(response.body().getData());
                     //如果是手机号码登录，则删除上次常信号登陆的账号
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).save2Json("");
-                    getMyInfo4Web(response.body().getData().getUid(),"");
+                    getMyInfo4Web(response.body().getData().getUid(), "");
                 }
 
                 callback.onResponse(call, response);
@@ -190,7 +194,7 @@ public class UserAction {
 
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
-                    getMyInfo4Web(response.body().getData().getUid(),imid);
+                    getMyInfo4Web(response.body().getData().getUid(), imid);
                 }
 
                 callback.onResponse(call, response);
@@ -208,7 +212,7 @@ public class UserAction {
     /***
      * 拉取服务器的自己的信息到数据库
      */
-    private void getMyInfo4Web(Long usrid,String imid) {
+    private void getMyInfo4Web(Long usrid, String imid) {
         NetUtil.getNet().exec(server.getUserInfo(usrid), new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
@@ -216,12 +220,18 @@ public class UserAction {
                     UserInfo userInfo = response.body().getData();
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead() + "");
                     //保存手机或常信号登录
-                    if(StringUtil.isNotNull(imid)){
+                    if (StringUtil.isNotNull(imid)) {
                         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).save2Json(imid);
                     }
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone());
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).save2Json(userInfo.getUid());
                     userInfo.toTag();
+                    if (!TextUtils.isEmpty(userInfo.getBankReqSignKey())) {
+                        String key = userInfo.getBankReqSignKey();
+                        String result = AESEncrypt.encrypt(key);
+//                        String s = AESEncrypt.decrypt(result);
+                        userInfo.setBankReqSignKey(result);
+                    }
                     updateUserinfo2DB(userInfo);
                     MessageManager.getInstance().notifyRefreshUser(userInfo);
                 }
@@ -305,9 +315,12 @@ public class UserAction {
      * 无网登录
      */
     public void login4tokenNotNet(TokenBean token) {
-
         initDB("" + token.getUid());
-        NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
+        setToken(token);
+//        NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
+//        TokenManager.initToken(token.getAccessToken());
+//        PayEnvironment.getInstance().setToken(token.getAccessToken());
+
     }
 
     public void login4token(String dev_id, final Callback<ReturnBean<TokenBean>> callback) {
@@ -319,7 +332,10 @@ public class UserAction {
         }
 
         //设置token
-        NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
+        setToken(token);
+//        NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
+//        TokenManager.initToken(token.getAccessToken());
+//        PayEnvironment.getInstance().setToken(token.getAccessToken());
         //或者把token传给后端
 
         NetUtil.getNet().exec(server.login4token(dev_id, "android"), new CallBack<ReturnBean<TokenBean>>() {
@@ -328,7 +344,7 @@ public class UserAction {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
-                    getMyInfo4Web(response.body().getData().getUid(),"");
+                    getMyInfo4Web(response.body().getData().getUid(), "");
                     callback.onResponse(call, response);
                 } else {
                     callback.onFailure(call, null);
@@ -379,6 +395,8 @@ public class UserAction {
         token.setValidTime(validTime);
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
         NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
+        PayEnvironment.getInstance().setToken(token.getAccessToken());
+//        TokenManager.initToken(token.getAccessToken());
     }
 
 
@@ -587,7 +605,7 @@ public class UserAction {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
-                    getMyInfo4Web(response.body().getData().getUid(),"");
+                    getMyInfo4Web(response.body().getData().getUid(), "");
                 }
                 callback.onResponse(call, response);
             }
@@ -612,7 +630,7 @@ public class UserAction {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
-                    getMyInfo4Web(response.body().getData().getUid(),"");
+                    getMyInfo4Web(response.body().getData().getUid(), "");
                 }
                 callback.onResponse(call, response);
             }
@@ -728,8 +746,8 @@ public class UserAction {
     /**
      * 版本更新
      */
-    public void getNewVersion(String channelName,CallBack<ReturnBean<NewVersionBean>> callback) {
-        NetUtil.getNet().exec(server.getNewVersion("android",channelName), callback);
+    public void getNewVersion(String channelName, CallBack<ReturnBean<NewVersionBean>> callback) {
+        NetUtil.getNet().exec(server.getNewVersion("android", channelName), callback);
     }
 
     /*
@@ -740,20 +758,6 @@ public class UserAction {
             return null;
         }
         return dao.findUserInfo(uid);
-    }
-
-    public UserInfo createAssitantUser() {
-        UserInfo info = new UserInfo();
-        info.setUid(1L);
-        info.setName("常信小助手");
-        info.setMkName("常信小助手");
-        info.setuType(ChatEnum.EUserType.ASSISTANT);
-        info.setFriendvalid(CoreEnum.ESureType.NO);
-        info.setAuthStat(ChatEnum.EAuthStatus.AUTH_SECOND);
-        info.setActiveType(CoreEnum.ESureType.YES);
-        info.setDisturb(CoreEnum.ESureType.NO);
-        info.setLastonline(System.currentTimeMillis());
-        return info;
     }
 
 
@@ -858,12 +862,13 @@ public class UserAction {
 
     /**
      * 获取单个群成员信息
-     * @param gid 群id
-     * @param uid 群成员ID
+     *
+     * @param gid      群id
+     * @param uid      群成员ID
      * @param callback
      */
-    public void getSingleMemberInfo(String gid,int uid,Callback<ReturnBean<SingleMeberInfoBean>> callback) {
-        NetUtil.getNet().exec(server.getSingleMemberInfo(gid,uid), callback);
+    public void getSingleMemberInfo(String gid, int uid, Callback<ReturnBean<SingleMeberInfoBean>> callback) {
+        NetUtil.getNet().exec(server.getSingleMemberInfo(gid, uid), callback);
     }
 
 }

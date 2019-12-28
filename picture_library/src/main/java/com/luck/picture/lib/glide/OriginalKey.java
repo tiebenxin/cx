@@ -6,8 +6,8 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 
 /**
- * @anthor Liszt
- * @data 2019/9/25
+ * @author Liszt
+ * @date 2019/9/25
  * Description
  */
 public class OriginalKey implements Key {

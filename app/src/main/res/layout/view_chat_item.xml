@@ -141,7 +141,7 @@
 
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
@@ -164,7 +164,7 @@
 
                 <LinearLayout
                     android:id="@+id/view_ot_touch_child"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     tool:ignore="MissingConstraints">
@@ -338,24 +338,6 @@
                         </RelativeLayout>
 
                     </LinearLayout>
-
-                    <!--                <RelativeLayout-->
-                    <!--                    android:layout_width="wrap_content"-->
-                    <!--                    android:gravity="left"-->
-                    <!--                    android:layout_height="wrap_content">-->
-
-                    <!--                    <ImageView-->
-                    <!--                        android:layout_width="wrap_content"-->
-                    <!--                        android:layout_height="wrap_content"></ImageView>-->
-                    <!--                    <TextView-->
-                    <!--                        android:layout_width="wrap_content"-->
-                    <!--                        android:layout_height="wrap_content"-->
-                    <!--                        android:text="123"-->
-                    <!--                        android:textColor="#fff"-->
-                    <!--                        android:layout_alignParentRight="true"-->
-                    <!--                        android:layout_alignParentBottom="true"-->
-                    <!--                        ></TextView>-->
-                    <!--                </RelativeLayout>-->
 
 
                     <!-- 名片消息-->
@@ -562,94 +544,93 @@
                             android:layout_width="80dp"
                             android:layout_height="80dp"
                             android:layout_centerInParent="true" />
+                    </LinearLayout>
 
-                        <!-- 游戏分享消息-->
+
+                    <!-- 游戏分享消息-->
+                    <LinearLayout
+                        android:id="@+id/view_ot_game_share"
+                        android:layout_width="226dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/selector_card_other_touch"
+                        android:orientation="vertical"
+                        android:visibility="visible">
+
                         <LinearLayout
-                            android:id="@+id/view_ot_game_share"
-                            android:layout_width="226dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@drawable/selector_card_other_touch"
+                            android:gravity="center"
                             android:orientation="vertical"
-                            android:visibility="visible">
+                            android:paddingLeft="10dp"
+                            android:paddingRight="10dp">
+
+                            <TextView
+                                android:id="@+id/tv_ot_game_title"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:maxLines="2"
+                                android:paddingTop="3dp"
+                                android:textColor="#353535"
+                                android:textSize="16sp"
+                                tool:text="标题" />
+
 
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:paddingLeft="10dp"
-                                android:paddingRight="10dp">
+                                android:orientation="horizontal">
 
                                 <TextView
-                                    android:id="@+id/tv_ot_game_title"
+                                    android:id="@+id/tv_ot_game_info"
+                                    style="@style/app_txt_content_1"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
+                                    android:layout_marginTop="5dp"
+                                    android:layout_weight="1"
                                     android:maxLines="2"
-                                    android:paddingTop="3dp"
-                                    android:textColor="#353535"
-                                    android:textSize="16sp"
+                                    android:visibility="visible"
                                     tool:text="标题" />
 
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal">
-
-                                    <TextView
-                                        android:id="@+id/tv_ot_game_info"
-                                        style="@style/app_txt_content_1"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginTop="5dp"
-                                        android:layout_weight="1"
-                                        android:maxLines="2"
-                                        android:visibility="visible"
-                                        tool:text="标题" />
-
-                                    <ImageView
-                                        android:id="@+id/iv_ot_game_icon"
-                                        style="@style/app_img_head"
-                                        android:layout_width="41dp"
-                                        android:layout_height="41dp" />
-                                </LinearLayout>
-
-                            </LinearLayout>
-
-                            <View
-                                android:layout_width="match_parent"
-                                android:layout_height="1px"
-                                android:background="#e9ebea" />
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal"
-                                android:paddingLeft="10dp"
-                                android:paddingTop="3dp"
-                                android:paddingRight="10dp">
-
                                 <ImageView
-                                    android:id="@+id/iv_ot_app_icon"
+                                    android:id="@+id/iv_ot_game_icon"
                                     style="@style/app_img_head"
-                                    android:layout_width="13dp"
-                                    android:layout_height="13dp" />
-
-                                <TextView
-                                    android:id="@+id/tv_ot_game_name"
-                                    style="@style/app_txt_content_1"
-                                    android:layout_width="wrap_content"
-                                    android:layout_marginLeft="3dp"
-                                    android:layout_weight="1"
-                                    tool:text="游戏名字" />
-
+                                    android:layout_width="41dp"
+                                    android:layout_height="41dp" />
                             </LinearLayout>
 
                         </LinearLayout>
 
-                    </LinearLayout>
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1px"
+                            android:background="#e9ebea" />
 
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingLeft="10dp"
+                            android:paddingTop="3dp"
+                            android:paddingRight="10dp">
+
+                            <ImageView
+                                android:id="@+id/iv_ot_app_icon"
+                                style="@style/app_img_head"
+                                android:layout_width="13dp"
+                                android:layout_height="13dp" />
+
+                            <TextView
+                                android:id="@+id/tv_ot_game_name"
+                                style="@style/app_txt_content_1"
+                                android:layout_width="wrap_content"
+                                android:layout_marginLeft="3dp"
+                                android:layout_weight="1"
+                                tool:text="游戏名字" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
 
                     <!-- 位置消息 -->
                     <RelativeLayout
@@ -661,39 +642,45 @@
 
                         <ImageView
                             android:id="@+id/location_image_you_iv"
-                            android:scaleType="fitXY"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent" />
+                            android:layout_height="match_parent"
+                            android:scaleType="fitXY" />
 
                         <LinearLayout
-                            android:background="@drawable/shape_transparent_botton5"
-                            android:layout_alignParentBottom="true"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:padding="5dp"
-                            android:orientation="vertical">
+                            android:layout_alignParentBottom="true"
+                            android:background="@drawable/shape_transparent_botton5"
+                            android:orientation="vertical"
+                            android:padding="5dp">
 
                             <TextView
                                 android:id="@+id/location_name_you_tv"
                                 style="@style/app_txt_title_2"
-                                android:textColor="@color/white"
-                                android:text="湘江时代(长沙市岳麓区)" />
+                                android:text="湘江时代(长沙市岳麓区)"
+                                android:textColor="@color/white" />
 
                             <TextView
                                 android:id="@+id/location_desc_you_tv"
                                 style="@style/app_txt_content_1"
-                                android:textColor="@color/white"
-                                android:text="长沙市岳麓区先导路" />
+                                android:text="长沙市岳麓区先导路"
+                                android:textColor="@color/white" />
 
                         </LinearLayout>
 
                         <ImageView
-                            android:layout_centerInParent="true"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:src="@mipmap/location_four"/>
+                            android:layout_centerInParent="true"
+                            android:src="@mipmap/location_four" />
                     </RelativeLayout>
 
+
+                    <!--零钱助手消息-->
+                    <com.yanlong.im.chat.ui.view.LabelItemView
+                        android:id="@+id/view_ot_balance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
 
                 </LinearLayout>
 
@@ -702,12 +689,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@mipmap/icon_st_1"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="@+id/view_ot_touch_child"
                     app:layout_constraintLeft_toRightOf="@+id/view_ot_touch_child"
                     app:layout_constraintRight_toRightOf="@+id/view_ot_touch_child"
                     app:layout_constraintTop_toBottomOf="@+id/view_ot_touch_child" />
             </android.support.constraint.ConstraintLayout>
+
+
         </LinearLayout>
 
     </LinearLayout>
@@ -1050,7 +1039,7 @@
                             android:layout_height="90dp"
                             android:background="@drawable/bg_chat_me_rp"
                             android:orientation="vertical"
-                            android:visibility="gone">
+                            android:visibility="visible">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -1063,9 +1052,8 @@
                                 <ImageView
                                     android:id="@+id/img_me_ts_state"
                                     android:layout_width="wrap_content"
-
                                     android:layout_height="wrap_content"
-                                    android:src="@mipmap/ic_rb_zfb_n" />
+                                    android:src="@mipmap/ic_transfer_rb" />
 
                                 <LinearLayout
                                     android:layout_width="match_parent"
@@ -1102,7 +1090,7 @@
                                     style="@style/app_txt_content_1"
                                     android:layout_width="wrap_content"
                                     android:layout_weight="1"
-                                    android:text="支付宝红包" />
+                                    android:text="零钱转账" />
 
                                 <ImageView
                                     android:id="@+id/img_me_ts_icon"
@@ -1268,6 +1256,12 @@
 
                         </LinearLayout>
 
+                        <!--零钱助手消息-->
+                        <!--                        <com.yanlong.im.chat.ui.view.LabelItemView-->
+                        <!--                            android:id="@+id/view_me_balance"-->
+                        <!--                            android:layout_width="match_parent"-->
+                        <!--                            android:layout_height="wrap_content" />-->
+
                         <!-- 位置消息 -->
                         <RelativeLayout
                             android:id="@+id/location_me_ll"
@@ -1278,37 +1272,37 @@
 
                             <ImageView
                                 android:id="@+id/location_image_me_iv"
-                                android:scaleType="fitXY"
                                 android:layout_width="match_parent"
-                                android:layout_height="match_parent" />
+                                android:layout_height="match_parent"
+                                android:scaleType="fitXY" />
 
                             <LinearLayout
-                                android:background="@drawable/shape_transparent_botton5"
-                                android:layout_alignParentBottom="true"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:padding="5dp"
-                                android:orientation="vertical">
+                                android:layout_alignParentBottom="true"
+                                android:background="@drawable/shape_transparent_botton5"
+                                android:orientation="vertical"
+                                android:padding="5dp">
 
                                 <TextView
                                     android:id="@+id/location_name_me_tv"
                                     style="@style/app_txt_title_2"
-                                    android:textColor="@color/white"
-                                    android:text="湘江时代(长沙市岳麓区)" />
+                                    android:text="湘江时代(长沙市岳麓区)"
+                                    android:textColor="@color/white" />
 
                                 <TextView
                                     android:id="@+id/location_desc_me_tv"
                                     style="@style/app_txt_content_1"
-                                    android:textColor="@color/white"
-                                    android:text="长沙市岳麓区先导路" />
+                                    android:text="长沙市岳麓区先导路"
+                                    android:textColor="@color/white" />
 
                             </LinearLayout>
 
                             <ImageView
-                                android:layout_centerInParent="true"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:src="@mipmap/location_four"/>
+                                android:layout_centerInParent="true"
+                                android:src="@mipmap/location_four" />
 
                         </RelativeLayout>
 
