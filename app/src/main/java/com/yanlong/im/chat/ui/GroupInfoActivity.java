@@ -496,7 +496,14 @@ public class GroupInfoActivity extends AppActivity {
                         if (number.getUid() == UserAction.getMyId().longValue()) {
                             return;
                         }
-                        boolean value = isAdmin() || isAdministrators();
+                        boolean value = false;
+                        if (isAdmin()) {
+                            value = true;
+                        } else {
+                            if (isAdministrators(UserAction.getMyId())) {
+                                value = !isAdministrators(number.getUid());
+                            }
+                        }
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, number.getUid())
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
@@ -509,13 +516,15 @@ public class GroupInfoActivity extends AppActivity {
                 });
                 if (ginfo.getMaster().equals("" + number.getUid())) {
                     holder.txtMain.setVisibility(View.VISIBLE);
-                    holder.txtManager.setVisibility(View.GONE);
+                    holder.txtMain.setBackgroundResource(R.drawable.shape_circle_head_yellow);
+                    holder.txtMain.setText("群主");
                 } else {
-                    holder.txtMain.setVisibility(View.GONE);
-                    if(isAdministrators(number.getUid())){
-                        holder.txtManager.setVisibility(View.VISIBLE);
-                    }else{
-                        holder.txtManager.setVisibility(View.GONE);
+                    if (isAdministrators(number.getUid())) {
+                        holder.txtMain.setVisibility(View.VISIBLE);
+                        holder.txtMain.setBackgroundResource(R.drawable.shape_circle_head_blue);
+                        holder.txtMain.setText("管理员");
+                    } else {
+                        holder.txtMain.setVisibility(View.GONE);
                     }
                 }
             } else {
@@ -558,7 +567,6 @@ public class GroupInfoActivity extends AppActivity {
             private ImageView imgHead;
             private TextView txtName;
             private TextView txtMain;
-            private TextView txtManager;
 
             //自动寻找ViewHold
             public RCViewTopHolder(View convertView) {
@@ -566,8 +574,29 @@ public class GroupInfoActivity extends AppActivity {
                 imgHead = convertView.findViewById(R.id.img_head);
                 txtMain = convertView.findViewById(R.id.txt_main);
                 txtName = convertView.findViewById(R.id.txt_name);
-                txtManager= convertView.findViewById(R.id.txt_manager);
             }
+        }
+    }
+
+    /**
+     * 管理员排序 放到群主后面
+     */
+    private void listSort() {
+        if (listDataTop != null && listDataTop.size() > 0) {
+            List<MemberUser> listManager = new ArrayList<>();
+            List<MemberUser> listUser = new ArrayList<>();
+            listManager.add(listDataTop.get(0));
+            for (int i = 1; i < listDataTop.size(); i++) {
+                MemberUser memberUser = listDataTop.get(i);
+                if (isAdministrators(memberUser.getUid())) {
+                    listManager.add(memberUser);
+                } else {
+                    listUser.add(memberUser);
+                }
+            }
+            listDataTop.clear();
+            listDataTop.addAll(0, listManager);
+            listDataTop.addAll(listUser);
         }
     }
 
@@ -704,39 +733,11 @@ public class GroupInfoActivity extends AppActivity {
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
                     setGroupNote(ginfo.getAnnouncement());
                     listDataTop.clear();
-                    if (isAdmin() || isAdministrators()) {
-                        if (ginfo.getUsers().size() > 18) {
-                            viewGroupMore.setVisibility(View.VISIBLE);
-                            for (int i = 0; i < 18; i++) {
-                                listDataTop.add(ginfo.getUsers().get(i));
-                            }
 
-                        } else {
-                            listDataTop.addAll(ginfo.getUsers());
-                            viewGroupMore.setVisibility(View.GONE);
-                        }
-                        listDataTop.add(null);
-                        listDataTop.add(null);
-                        viewGroupManage.setVisibility(View.VISIBLE);
-                    } else {
-                        if (ginfo.getUsers().size() > 19) {
-                            viewGroupMore.setVisibility(View.VISIBLE);
-                            for (int i = 0; i < 19; i++) {
-                                listDataTop.add(ginfo.getUsers().get(i));
-                            }
-
-                        } else {
-                            listDataTop.addAll(ginfo.getUsers());
-                            viewGroupMore.setVisibility(View.GONE);
-                        }
-
-                        listDataTop.add(null);
-                        if (isAdministrators()) {
-                            viewGroupManage.setVisibility(View.VISIBLE);
-                        } else {
-                            viewGroupManage.setVisibility(View.GONE);
-                        }
-                    }
+                    listDataTop.addAll(ginfo.getUsers());
+                    // 保证管理员在前面
+                    listSort();
+                    filterData();
                     final RealmList<MemberUser> list = ginfo.getUsers();
                     if (list.size() < 400) {
                         isPercentage = false;
@@ -782,32 +783,10 @@ public class GroupInfoActivity extends AppActivity {
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
                     setGroupNote(ginfo.getAnnouncement());
                     listDataTop.clear();
-                    if (isAdmin() || isAdministrators()) {
-                        if (ginfo.getUsers().size() > 18) {
-                            viewGroupMore.setVisibility(View.VISIBLE);
-                            for (int i = 0; i < 18; i++) {
-                                listDataTop.add(ginfo.getUsers().get(i));
-                            }
-                        } else {
-                            listDataTop.addAll(ginfo.getUsers());
-                            viewGroupMore.setVisibility(View.GONE);
-                        }
-                        listDataTop.add(null);
-                        listDataTop.add(null);
-                        viewGroupManage.setVisibility(View.VISIBLE);
-                    } else {
-                        if (ginfo.getUsers().size() > 19) {
-                            viewGroupMore.setVisibility(View.VISIBLE);
-                            for (int i = 0; i < 19; i++) {
-                                listDataTop.add(ginfo.getUsers().get(i));
-                            }
-                        } else {
-                            listDataTop.addAll(ginfo.getUsers());
-                            viewGroupMore.setVisibility(View.GONE);
-                        }
-                        listDataTop.add(null);
-                        viewGroupManage.setVisibility(View.GONE);
-                    }
+                    listDataTop.addAll(ginfo.getUsers());
+                    // 保证管理员在前面
+                    listSort();
+                    filterData();
                     initData();
                 }
             }
@@ -815,6 +794,36 @@ public class GroupInfoActivity extends AppActivity {
         msgAction.groupInfo(gid, callBack);
     }
 
+    private void filterData() {
+        if (isAdmin() || isAdministrators()) {// 群主、管理员
+            if (ginfo.getUsers().size() > 18) {
+                viewGroupMore.setVisibility(View.VISIBLE);
+                for (int i = listDataTop.size() - 1; i >= 18; i--) {
+                    listDataTop.remove(i);
+                }
+            } else {
+                viewGroupMore.setVisibility(View.GONE);
+            }
+            listDataTop.add(null);
+            listDataTop.add(null);
+            viewGroupManage.setVisibility(View.VISIBLE);
+        } else {// 普通用户
+            if (ginfo.getUsers().size() > 19) {
+                viewGroupMore.setVisibility(View.VISIBLE);
+                for (int i = listDataTop.size() - 1; i >= 19; i--) {
+                    listDataTop.remove(i);
+                }
+            } else {
+                viewGroupMore.setVisibility(View.GONE);
+            }
+            listDataTop.add(null);
+            if (isAdministrators()) {
+                viewGroupManage.setVisibility(View.VISIBLE);
+            } else {
+                viewGroupManage.setVisibility(View.GONE);
+            }
+        }
+    }
 
     /*
      * 置顶

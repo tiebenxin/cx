@@ -76,7 +76,9 @@ public class SocketUtil {
                     if (msg != null) {
                         DaoUtil.update(msg);
                     }
-                    EventBus.getDefault().post(new EventFactory.ToastEvent());
+                    EventFactory.ToastEvent toastEvent = new EventFactory.ToastEvent();
+                    toastEvent.value = bean.getDesc();
+                    EventBus.getDefault().post(toastEvent);
                 }else if (bean.getRejectType() == MsgBean.RejectType.RATE_LIMIT) {//服务端有限流，测试代码自动发送消息时会引起此问题
                     LogUtil.getLog().d(TAG, "消息发送失败--服务端限流--requestId=" + bean.getRequestId());
 //                    System.out.println("Socket--消息发送失败--服务端限流---requestId=" + bean.getRequestId());

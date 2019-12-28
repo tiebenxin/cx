@@ -35,20 +35,21 @@ import net.cb.cb.library.view.AppActivity;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.RealmList;
 import retrofit2.Call;
 import retrofit2.Response;
 
 public class GroupInfoMumberActivity extends AppActivity {
-    private String gid;
 
+    private String gid;
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private net.cb.cb.library.view.ClearEditText edtSearch;
     private net.cb.cb.library.view.MultiListView mtListView;
 
-
     private Gson gson = new Gson();
     private Group ginfo;
+    private RealmList<MemberUser> listDataTop = new RealmList<>();
 
     /***
      * 搜索模式
@@ -62,7 +63,6 @@ public class GroupInfoMumberActivity extends AppActivity {
         findViews();
         initEvent();
     }
-
 
     @Override
     protected void onResume() {
@@ -84,7 +84,6 @@ public class GroupInfoMumberActivity extends AppActivity {
     private void initEvent() {
         gid = getIntent().getStringExtra(GroupInfoActivity.AGM_GID);
         taskGetInfo();
-
 
         mtListView.getLoadView().setStateNormal();
 
@@ -132,8 +131,6 @@ public class GroupInfoMumberActivity extends AppActivity {
 
     }
 
-
-
     private void initData() {
         //顶部处理
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 5);
@@ -141,8 +138,32 @@ public class GroupInfoMumberActivity extends AppActivity {
         mtListView.init(new RecyclerViewTopAdapter());
         mtListView.getListView().setLayoutManager(gridLayoutManager);
         mtListView.notifyDataSetChange();
+    }
 
 
+    /**
+     * 管理员排序 放到群主后面
+     */
+    private void listSort() {
+        listDataTop.clear();
+        listDataTop.addAll(ginfo.getUsers());
+        if (listDataTop != null && listDataTop.size() > 0) {
+            List<MemberUser> listManager = new ArrayList<>();
+            List<MemberUser> listUser = new ArrayList<>();
+            listManager.add(listDataTop.get(0));
+            for (int i = 1; i < listDataTop.size(); i++) {
+                MemberUser memberUser = listDataTop.get(i);
+                if (isAdministrators(memberUser.getUid())) {
+                    listManager.add(memberUser);
+                } else {
+                    listUser.add(memberUser);
+                }
+            }
+            listDataTop.clear();
+            listDataTop.addAll(0, listManager);
+            listDataTop.addAll(listUser);
+            ginfo.setUsers(listDataTop);
+        }
     }
 
     //自动生成RecyclerViewAdapter
@@ -182,10 +203,18 @@ public class GroupInfoMumberActivity extends AppActivity {
                     }
                 });
                 if (ginfo.getMaster().equals("" + number.getUid())) {
-                    holder.imgGroup.setVisibility(View.VISIBLE);
+                    holder.txtMain.setVisibility(View.VISIBLE);
+                    holder.txtMain.setBackgroundResource(R.drawable.shape_circle_head_yellow);
+                    holder.txtMain.setText("群主");
                 } else {
-                    holder.imgGroup.setVisibility(View.GONE);
-
+                    holder.txtMain.setVisibility(View.GONE);
+                    if (isAdministrators(number.getUid())) {
+                        holder.txtMain.setVisibility(View.VISIBLE);
+                        holder.txtMain.setBackgroundResource(R.drawable.shape_circle_head_blue);
+                        holder.txtMain.setText("管理员");
+                    } else {
+                        holder.txtMain.setVisibility(View.GONE);
+                    }
                 }
             } else {
                 if (isAdmin() && position == ginfo.getUsers().size() - 1) {
@@ -220,7 +249,7 @@ public class GroupInfoMumberActivity extends AppActivity {
         //自动寻找ViewHold
         @Override
         public RCViewTopHolder onCreateViewHolder(ViewGroup view, int i) {
-            RCViewTopHolder holder = new RCViewTopHolder(inflater.inflate(R.layout.item_group_create_top3, view, false));
+            RCViewTopHolder holder = new RCViewTopHolder(inflater.inflate(R.layout.item_group_create_top2, view, false));
             return holder;
         }
 
@@ -229,14 +258,14 @@ public class GroupInfoMumberActivity extends AppActivity {
         public class RCViewTopHolder extends RecyclerView.ViewHolder {
             private ImageView imgHead;
             private TextView txtName;
-            private ImageView imgGroup;
+            private TextView txtMain;
 
             //自动寻找ViewHold
             public RCViewTopHolder(View convertView) {
                 super(convertView);
                 imgHead = convertView.findViewById(R.id.img_head);
                 txtName = convertView.findViewById(R.id.txt_name);
-                imgGroup = convertView.findViewById(R.id.img_group);
+                txtMain = convertView.findViewById(R.id.txt_main);
             }
 
         }
@@ -265,12 +294,21 @@ public class GroupInfoMumberActivity extends AppActivity {
             }
 
         }
-
-
         userInfos = userInfos == null ? new ArrayList() : userInfos;
-
-
         return userInfos;
+    }
+
+    private boolean isAdministrators(Long uid) {
+        boolean isManager = false;
+        if (ginfo.getViceAdmins() != null && ginfo.getViceAdmins().size() > 0) {
+            for (Long user : ginfo.getViceAdmins()) {
+                if (user.equals(uid)) {
+                    isManager = true;
+                    break;
+                }
+            }
+        }
+        return isManager;
     }
 
     /***
@@ -291,7 +329,6 @@ public class GroupInfoMumberActivity extends AppActivity {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
 
-
                     //8.8 如果是有群昵称显示自己群昵称
                     for (MemberUser number : ginfo.getUsers()) {
                         if (StringUtil.isNotNull(number.getMembername())) {
@@ -299,22 +336,15 @@ public class GroupInfoMumberActivity extends AppActivity {
                         }
                     }
 
-
                     actionbar.setTitle("群成员(" + ginfo.getUsers().size() + ")");
-
+                    listSort();
                     if (isAdmin()) {
-
                         ginfo.getUsers().add(null);
                         ginfo.getUsers().add(null);
 
                     } else {
-
                         ginfo.getUsers().add(null);
-
-
                     }
-
-
                     initData();
                 }
             }

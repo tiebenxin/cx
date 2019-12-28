@@ -506,6 +506,7 @@ public class MessageManager {
                         EventBus.getDefault().post(new EventIsShowRead());
                         break;
                     case 3: // 单人禁言
+                    case 4: // 领取群红包
                         if (bean != null) {
                             result = saveMessageNew(bean, isList);
                         }

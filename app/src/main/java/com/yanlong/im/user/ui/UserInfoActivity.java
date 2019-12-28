@@ -269,24 +269,24 @@ public class UserInfoActivity extends AppActivity {
             }
         });
 
-        mViewLabel.setOnClickListener(o->{
-            if(ViewUtils.isFastDoubleClick()){
+        mViewLabel.setOnClickListener(o -> {
+            if (ViewUtils.isFastDoubleClick()) {
                 return;
             }
             Bundle bundle = new Bundle();
-            bundle.putString(Preferences.TOGID,gid);
-            bundle.putLong(Preferences.TOUID,id);
-            IntentUtil.gotoActivity(this, SetupGroupMemberLableActivity.class,bundle);
+            bundle.putString(Preferences.TOGID, gid);
+            bundle.putLong(Preferences.TOUID, id);
+            IntentUtil.gotoActivity(this, SetupGroupMemberLableActivity.class, bundle);
 
         });
-        mViewPower.setOnClickListener(o->{
-            if(ViewUtils.isFastDoubleClick()){
+        mViewPower.setOnClickListener(o -> {
+            if (ViewUtils.isFastDoubleClick()) {
                 return;
             }
             Bundle bundle = new Bundle();
-            bundle.putString(Preferences.TOGID,gid);
-            bundle.putLong(Preferences.TOUID,id);
-            IntentUtil.gotoActivity(this, GroupMemPowerSetActivity.class,bundle);
+            bundle.putString(Preferences.TOGID, gid);
+            bundle.putLong(Preferences.TOUID, id);
+            IntentUtil.gotoActivity(this, GroupMemPowerSetActivity.class, bundle);
         });
 
         if (isApply == 0) {
@@ -364,7 +364,6 @@ public class UserInfoActivity extends AppActivity {
     }
 
     /**
-     *
      * @param type 0.已经是好友 1.不是好友添加好友 2.黑名单 3.自己
      */
     private void setItemShow(int type) {
@@ -377,10 +376,7 @@ public class UserInfoActivity extends AppActivity {
             mViewSettingName.setVisibility(View.VISIBLE);
             tvBlack.setText("加入黑名单");
             viewIntroduce.setVisibility(View.GONE);
-            if(mIsAdmin){
-                mViewSettingPower.setVisibility(View.VISIBLE);
-//                mviewSettingLabel.setVisibility(View.VISIBLE);
-            }
+            checkPower();
         } else if (type == 1) {
             mLayoutMsg.setVisibility(View.GONE);
             btnMsg.setVisibility(View.GONE);
@@ -393,10 +389,7 @@ public class UserInfoActivity extends AppActivity {
                 mTvRemark.setText(sayHi);
             }
             viewIntroduce.setVisibility(View.GONE);
-            if(mIsAdmin) {
-                mViewSettingPower.setVisibility(View.VISIBLE);
-//                mviewSettingLabel.setVisibility(View.VISIBLE);
-            }
+            checkPower();
         } else if (type == 2) {
             mLayoutMsg.setVisibility(View.VISIBLE);
             btnMsg.setVisibility(View.VISIBLE);
@@ -525,10 +518,8 @@ public class UserInfoActivity extends AppActivity {
             }
         }
 
-        if(isAdmin()||isAdministrators()){
-            mViewSettingPower.setVisibility(View.VISIBLE);
-//            mviewSettingLabel.setVisibility(View.VISIBLE);
-        }
+        checkPower();
+
         for (MemberUser bean : group.getUsers()) {
             if (bean.getUid() == id) {
                 viewJoinGroupType.setVisibility(View.VISIBLE);
@@ -563,27 +554,39 @@ public class UserInfoActivity extends AppActivity {
         }
     }
 
+    private void checkPower() {
+        if (group != null) {
+            if (isAdmin()) {
+                mViewSettingPower.setVisibility(View.VISIBLE);
+                // mviewSettingLabel.setVisibility(View.VISIBLE);
+            } else {
+                if (isAdministrators(UserAction.getMyId())) {// 同级别不允许设置权限
+                    if (!isAdministrators(id) && !group.getMaster().equals(id + "")) {
+                        mViewSettingPower.setVisibility(View.VISIBLE);
+                        // mviewSettingLabel.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+        }
+    }
+
     private boolean isAdmin() {
         if (!StringUtil.isNotNull(group.getMaster()))
             return false;
         return group.getMaster().equals("" + UserAction.getMyId());
     }
 
-    /**
-     * 判断是否是管理员
-     * @return
-     */
-    private boolean isAdministrators(){
+    private boolean isAdministrators(Long uid) {
         boolean isManager = false;
         if (group.getViceAdmins() != null && group.getViceAdmins().size() > 0) {
             for (Long user : group.getViceAdmins()) {
-                if (user.equals(UserAction.getMyId())) {
+                if (user.equals(uid)) {
                     isManager = true;
                     break;
                 }
             }
         }
-        return  isManager;
+        return isManager;
     }
 
 

@@ -2382,7 +2382,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventSwitchDisturb(EventFactory.ToastEvent event) {
-        ToastUtil.showCenter(this, getString(R.string.group_you_forbidden_words));
+        if(!TextUtils.isEmpty(event.value)){
+            ToastUtil.showCenter(this,event.value);
+        }else{
+            ToastUtil.showCenter(this,getString(R.string.group_you_forbidden_words));
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

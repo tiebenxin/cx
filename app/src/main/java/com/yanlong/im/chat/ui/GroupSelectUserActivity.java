@@ -31,6 +31,7 @@ import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
@@ -66,9 +67,11 @@ public class GroupSelectUserActivity extends AppActivity {
     private ActionbarView actionbar;
     private UserInfo mUserBean;
 
+    private Group mGinfo;
     private MultiListView mtListView;
     private List<UserInfo> listData = new ArrayList<>();
     private List<UserInfo> tempData = new ArrayList<>();
+    private List<UserInfo> adminData = new ArrayList<>();
     private PySortView viewType;
     private String gid;
     private int mType;// 0 表示转让群主选择联系人  1 @用戶  2 添加管理员 3 禁止领取零钱红包
@@ -95,7 +98,6 @@ public class GroupSelectUserActivity extends AppActivity {
         viewType = findViewById(R.id.view_type);
         llAtAll = findViewById(R.id.ll_at_all);
     }
-
 
     //自动生成的控件事件
     private void initEvent() {
@@ -208,16 +210,18 @@ public class GroupSelectUserActivity extends AppActivity {
                     return;
                 }
                 if (response.body().isOk()) {
+                    mGinfo = response.body().getData();
                     if (mType == TYPE_0) {
-                        listData = delectMaster(response.body().getData());
+                        listData = delectMaster(mGinfo);
                     } else {
-                        listData = delectMyslfe(response.body().getData());
+                        if (mType == TYPE_1) {// @群主跟管理员放到前面
+                            listSort(mGinfo.getUsers());
+                        } else {
+                            listData = delectMyslfe(mGinfo.getUsers());
+                        }
                     }
-                    if (mType == TYPE_2||mType== TYPE_3) {
+                    if (mType == TYPE_2 || mType == TYPE_3) {
                         filterUser(listData);
-                    }
-                    if (mType == TYPE_1) {
-                        showAtAll(response.body().getData());
                     }
 
                     // 升序
@@ -242,14 +246,39 @@ public class GroupSelectUserActivity extends AppActivity {
                     adapter.setList(listData);
                     mtListView.notifyDataSetChange();
                     for (int i = 0; i < listData.size(); i++) {
-                        //UserInfo infoBean:
                         viewType.putTag(listData.get(i).getTag(), i);
                     }
                     // 添加存在用户的首字母列表
                     viewType.addItemView(UserUtil.userParseString(listData));
+
+                    if (mType == TYPE_1) {// 群主跟管理员不需要字母搜索
+                        showAtAll(response.body().getData());
+                        listData.addAll(0, adminData);
+                    }
                 }
             }
         });
+    }
+
+    /**
+     * 管理员排序 放到群主后面
+     */
+    private void listSort(List<MemberUser> list) {
+        if (list != null && list.size() > 0) {
+            List<MemberUser> listManager = new ArrayList<>();
+            List<MemberUser> listUser = new ArrayList<>();
+            listManager.add(list.get(0));
+            for (int i = 1; i < list.size(); i++) {
+                MemberUser memberUser = list.get(i);
+                if (isAdministrators(memberUser.getUid())) {
+                    listManager.add(memberUser);
+                } else {
+                    listUser.add(memberUser);
+                }
+            }
+            listData = delectMyslfe(listUser);
+            adminData = delectMyslfe(listManager);
+        }
     }
 
     private List<UserInfo> getCheckUser() {
@@ -285,9 +314,8 @@ public class GroupSelectUserActivity extends AppActivity {
         return users;
     }
 
-    private List<UserInfo> delectMyslfe(Group group) {
+    private List<UserInfo> delectMyslfe(List<MemberUser> list) {
         Long uid = UserAction.getMyId();
-        List<MemberUser> list = group.getUsers();
         List<UserInfo> users = new ArrayList<>();
         if (list != null) {
             int len = list.size();
@@ -329,16 +357,17 @@ public class GroupSelectUserActivity extends AppActivity {
     private void showAtAll(Group group) {
         long uid = UserAction.getMyId();
         String master = group.getMaster();
-        if ((master.equals(uid + "")||isAdministrators(group)) && mType == TYPE_1) {
+        if ((master.equals(uid + "") || isAdministrators(group)) && mType == TYPE_1) {
             llAtAll.setVisibility(View.VISIBLE);
         }
     }
 
     /**
      * 判断是否是管理员
+     *
      * @return
      */
-    private boolean isAdministrators(Group group){
+    private boolean isAdministrators(Group group) {
         boolean isManager = false;
         if (group.getViceAdmins() != null && group.getViceAdmins().size() > 0) {
             for (Long user : group.getViceAdmins()) {
@@ -348,7 +377,26 @@ public class GroupSelectUserActivity extends AppActivity {
                 }
             }
         }
-        return  isManager;
+        return isManager;
+    }
+
+    private boolean isAdministrators(Long uid) {
+        boolean isManager = false;
+        if (mGinfo.getViceAdmins() != null && mGinfo.getViceAdmins().size() > 0) {
+            for (Long user : mGinfo.getViceAdmins()) {
+                if (user.equals(uid)) {
+                    isManager = true;
+                    break;
+                }
+            }
+        }
+        return isManager;
+    }
+
+    private boolean isAdmin(Long uid) {
+        if (!StringUtil.isNotNull(mGinfo.getMaster()))
+            return false;
+        return mGinfo.getMaster().equals(uid + "");
     }
 
     private void showDialog(UserInfo bean) {
@@ -405,11 +453,46 @@ public class GroupSelectUserActivity extends AppActivity {
             } else {
                 hd.txtName.setText(bean.getName4Show());
             }
-            hd.viewType.setVisibility(View.VISIBLE);
+            if (mType == TYPE_1) {// @用戶
+                hd.ckSelect.setVisibility(View.GONE);
+                if (isAdmin(bean.getUid()) || isAdministrators(bean.getUid())) {
+                    hd.txtType.setVisibility(View.GONE);
+                    hd.txtAdmin.setVisibility(View.VISIBLE);
+                    hd.txtLable.setVisibility(View.VISIBLE);
+                    if (mGinfo.getViceAdmins() != null && mGinfo.getViceAdmins().size() > 0) {
+                        hd.txtAdmin.setText("群主、管理员(" + mGinfo.getViceAdmins().size() + "人)");
+                    } else {
+                        hd.txtAdmin.setText("群主、管理员");
+                    }
+                    if(isAdmin(bean.getUid())){
+                        hd.txtLable.setText("群主");
+                        hd.txtLable.setBackgroundResource(R.drawable.shape_circle_head_yellow);
+                    }else{
+                        hd.txtLable.setText("管理员");
+                        hd.txtLable.setBackgroundResource(R.drawable.shape_circle_head_blue);
+                    }
+                    if (position == 0) {
+                        hd.viewType.setVisibility(View.VISIBLE);
+                    } else {
+                        hd.viewType.setVisibility(View.GONE);
+                    }
+                } else {
+                    hd.txtLable.setVisibility(View.GONE);
+                    hd.txtAdmin.setVisibility(View.GONE);
+                    hd.viewType.setVisibility(View.VISIBLE);
+                    hd.txtType.setVisibility(View.VISIBLE);
+                }
+            } else {
+                hd.txtLable.setVisibility(View.GONE);
+                hd.txtType.setVisibility(View.VISIBLE);
+                hd.txtAdmin.setVisibility(View.GONE);
+                hd.ckSelect.setVisibility(View.VISIBLE);
+                hd.viewType.setVisibility(View.VISIBLE);
+            }
             hd.viewLine.setVisibility(View.VISIBLE);
             if (position > 0) {
                 UserInfo lastbean = mFilterList.get(position - 1);
-                if (lastbean.getTag().equals(bean.getTag())) {
+                if (lastbean.getTag().equals(bean.getTag())&&!(isAdmin(bean.getUid())||isAdministrators(bean.getUid()))) {
                     hd.viewType.setVisibility(View.GONE);
                 }
             }
@@ -417,7 +500,7 @@ public class GroupSelectUserActivity extends AppActivity {
                 hd.viewLine.setVisibility(View.GONE);
             } else {
                 UserInfo lastbean = mFilterList.get(position + 1);
-                if (!lastbean.getTag().equals(bean.getTag())) {
+                if (!lastbean.getTag().equals(bean.getTag())&&!(isAdmin(bean.getUid())||isAdministrators(bean.getUid()))) {
                     hd.viewLine.setVisibility(View.GONE);
                 }
             }
@@ -518,8 +601,10 @@ public class GroupSelectUserActivity extends AppActivity {
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private LinearLayout viewType;
             private TextView txtType;
+            private TextView txtAdmin;
             private ImageView imgHead;
             private TextView txtName;
+            private TextView txtLable;
             private CheckBox ckSelect;
             private View layoutRoot;
             private View viewLine;
@@ -529,11 +614,13 @@ public class GroupSelectUserActivity extends AppActivity {
                 super(convertView);
                 viewType = convertView.findViewById(R.id.view_type);
                 txtType = convertView.findViewById(R.id.txt_type);
+                txtAdmin = convertView.findViewById(R.id.txt_admin);
                 imgHead = convertView.findViewById(R.id.img_head);
                 txtName = convertView.findViewById(R.id.txt_name);
                 ckSelect = convertView.findViewById(R.id.ck_select);
                 layoutRoot = convertView.findViewById(R.id.layout_root);
                 viewLine = convertView.findViewById(R.id.view_line);
+                txtLable = convertView.findViewById(R.id.txt_lable);
             }
         }
     }

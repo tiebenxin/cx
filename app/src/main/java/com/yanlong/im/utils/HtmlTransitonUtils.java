@@ -92,11 +92,18 @@ public class HtmlTransitonUtils {
                     setType15(context, style, bean, type);
                     break;
                 case ChatEnum.ENoticeType.FORBIDDEN_WORDS_SINGE:// 单人禁言
-                    if(html.contains("解除")){
+                    if (html.contains("解除")) {
                         setType17(context, style, bean);
-                    }else{
-                        String value = html.substring(html.lastIndexOf("禁言"),html.indexOf("<div"));
+                    } else {
+                        String value = html.substring(html.lastIndexOf("禁言"), html.indexOf("<div"));
                         setType16(context, style, bean, value);
+                    }
+                    break;
+                case ChatEnum.ENoticeType.OPEN_UP_RED_ENVELOPER:// 领取群红包
+                    if (html.contains("允许")) {
+                        setType18(context, style, bean);
+                    } else {
+                        setType19(context, style, bean);
                     }
                     break;
             }
@@ -670,7 +677,7 @@ public class HtmlTransitonUtils {
             HtmlBeanList bean = list.get(i);
             final String content = "\"" + bean.getName() + "\"";
             builder.append(content);
-            if("你".equals(bean.getName())){
+            if ("你".equals(bean.getName())) {
                 continue;
             }
 
@@ -709,6 +716,147 @@ public class HtmlTransitonUtils {
             builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         builder.append("禁言");
+    }
+
+    private void setType18(Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+        List<HtmlBeanList> list = htmlBean.getList();
+
+        for (int i = 0; i < list.size(); i++) {
+            HtmlBeanList bean = list.get(i);
+            final String content = "\"" + bean.getName() + "\"";
+            builder.append(content);
+            if ("你".equals(bean.getName())) {
+                continue;
+            }
+            int state;
+            int end;
+            if (i == 0) {
+                builder.append("允许");
+                state = 1;
+                end = builder.toString().length() - 3;
+            } else {
+                state = builder.toString().length() - content.length();
+                end = builder.toString().length() - 1;
+            }
+
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    Intent intent = new Intent(context, UserInfoActivity.class);
+                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
+                    intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
+                    intent.putExtra(UserInfoActivity.GID, htmlBean.getGid());
+                    intent.putExtra(UserInfoActivity.IS_GROUP, true);
+                    context.startActivity(intent);
+
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+
+            };
+            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        builder.append("在本群领取零钱红包");
+    }
+
+    private void setType19(Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+        List<HtmlBeanList> list = htmlBean.getList();
+        if (list.size() == 2) {
+            for (int i = 0; i < list.size(); i++) {
+                HtmlBeanList bean = list.get(i);
+                final String content = "\"" + bean.getName() + "\"";
+                builder.append(content);
+                if ("你".equals(bean.getName())) {
+                    continue;
+                }
+                int state;
+                int end;
+                if (i == 0) {
+                    builder.append("已禁止");
+                    state = 1;
+                    end = builder.toString().length() - 4;
+                } else {
+                    state = builder.toString().length() - content.length();
+                    end = builder.toString().length() - 1;
+                }
+
+                ClickableSpan clickProtocol = new ClickableSpan() {
+                    @Override
+                    public void onClick(View widget) {
+                        Intent intent = new Intent(context, UserInfoActivity.class);
+                        intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
+                        intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
+                        intent.putExtra(UserInfoActivity.GID, htmlBean.getGid());
+                        intent.putExtra(UserInfoActivity.IS_GROUP, true);
+                        context.startActivity(intent);
+
+                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                    }
+
+                    @Override
+                    public void updateDrawState(TextPaint ds) {
+                        ds.setUnderlineText(false);
+                    }
+
+                };
+                builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+                builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+            builder.append("在本群领取零钱红包");
+        } else {
+            for (int i = 0; i < list.size(); i++) {
+                HtmlBeanList bean = list.get(i);
+                final String content = "\"" + bean.getName() + "\"";
+                builder.append(content);
+
+                if (list.size() > 1) {
+                    builder.append("、");
+                }
+                if ("你".equals(bean.getName())) {
+                    continue;
+                }
+                int state;
+                int end;
+                if (list.size() == 1) {
+                    state = builder.toString().length() - content.length() + 1;
+                    end = builder.toString().length() - 1;
+                } else {
+                    state = builder.toString().length() - content.length();
+                    end = builder.toString().length() - 2;
+                }
+
+                ClickableSpan clickProtocol = new ClickableSpan() {
+                    @Override
+                    public void onClick(View widget) {
+                        Intent intent = new Intent(context, UserInfoActivity.class);
+                        intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
+                        intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
+                        intent.putExtra(UserInfoActivity.GID, htmlBean.getGid());
+                        intent.putExtra(UserInfoActivity.IS_GROUP, true);
+                        context.startActivity(intent);
+
+                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                    }
+
+                    @Override
+                    public void updateDrawState(TextPaint ds) {
+                        ds.setUnderlineText(false);
+                    }
+
+                };
+                builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+                builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+            builder.append("已禁止在本群领取零钱红包");
+        }
     }
 
     private void goToUserInfoActivity(Context context, Long id, String gid) {
