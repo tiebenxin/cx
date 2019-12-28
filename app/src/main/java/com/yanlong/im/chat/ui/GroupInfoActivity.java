@@ -496,7 +496,7 @@ public class GroupInfoActivity extends AppActivity {
                         if (number.getUid() == UserAction.getMyId().longValue()) {
                             return;
                         }
-                        boolean value = isAdmin()||isAdministrators();
+                        boolean value = isAdmin() || isAdministrators();
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, number.getUid())
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
@@ -508,13 +508,19 @@ public class GroupInfoActivity extends AppActivity {
                     }
                 });
                 if (ginfo.getMaster().equals("" + number.getUid())) {
-                    holder.imgGroup.setVisibility(View.VISIBLE);
-
+                    holder.txtMain.setVisibility(View.VISIBLE);
+                    holder.txtManager.setVisibility(View.GONE);
                 } else {
-                    holder.imgGroup.setVisibility(View.GONE);
+                    holder.txtMain.setVisibility(View.GONE);
+                    if(isAdministrators(number.getUid())){
+                        holder.txtManager.setVisibility(View.VISIBLE);
+                    }else{
+                        holder.txtManager.setVisibility(View.GONE);
+                    }
                 }
             } else {
-                if (isAdmin() && position == listDataTop.size() - 1) {
+                boolean value = isAdmin() || isAdministrators();
+                if (value && position == listDataTop.size() - 1) {
                     // holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_c)).build());
                     holder.imgHead.setImageResource(R.mipmap.ic_group_c);
                     holder.txtName.setText("");
@@ -551,14 +557,16 @@ public class GroupInfoActivity extends AppActivity {
         public class RCViewTopHolder extends RecyclerView.ViewHolder {
             private ImageView imgHead;
             private TextView txtName;
-            private ImageView imgGroup;
+            private TextView txtMain;
+            private TextView txtManager;
 
             //自动寻找ViewHold
             public RCViewTopHolder(View convertView) {
                 super(convertView);
                 imgHead = convertView.findViewById(R.id.img_head);
-                imgGroup = convertView.findViewById(R.id.img_group);
+                txtMain = convertView.findViewById(R.id.txt_main);
                 txtName = convertView.findViewById(R.id.txt_name);
+                txtManager= convertView.findViewById(R.id.txt_manager);
             }
         }
     }
@@ -655,9 +663,10 @@ public class GroupInfoActivity extends AppActivity {
 
     /**
      * 判断是否是管理员
+     *
      * @return
      */
-    private boolean isAdministrators(){
+    private boolean isAdministrators() {
         boolean isManager = false;
         if (ginfo.getViceAdmins() != null && ginfo.getViceAdmins().size() > 0) {
             for (Long user : ginfo.getViceAdmins()) {
@@ -667,7 +676,20 @@ public class GroupInfoActivity extends AppActivity {
                 }
             }
         }
-        return  isManager;
+        return isManager;
+    }
+
+    private boolean isAdministrators(Long uid) {
+        boolean isManager = false;
+        if (ginfo.getViceAdmins() != null && ginfo.getViceAdmins().size() > 0) {
+            for (Long user : ginfo.getViceAdmins()) {
+                if (user.equals(uid)) {
+                    isManager = true;
+                    break;
+                }
+            }
+        }
+        return isManager;
     }
 
     private void taskGetInfo() {
@@ -682,7 +704,7 @@ public class GroupInfoActivity extends AppActivity {
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
                     setGroupNote(ginfo.getAnnouncement());
                     listDataTop.clear();
-                    if (isAdmin()) {
+                    if (isAdmin() || isAdministrators()) {
                         if (ginfo.getUsers().size() > 18) {
                             viewGroupMore.setVisibility(View.VISIBLE);
                             for (int i = 0; i < 18; i++) {
@@ -760,7 +782,7 @@ public class GroupInfoActivity extends AppActivity {
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
                     setGroupNote(ginfo.getAnnouncement());
                     listDataTop.clear();
-                    if (isAdmin()) {
+                    if (isAdmin() || isAdministrators()) {
                         if (ginfo.getUsers().size() > 18) {
                             viewGroupMore.setVisibility(View.VISIBLE);
                             for (int i = 0; i < 18; i++) {
@@ -897,10 +919,29 @@ public class GroupInfoActivity extends AppActivity {
 
     private void taskDel() {
         List<MemberUser> userInfos = taskGetNumbers();
-        for (MemberUser u : userInfos) {
-            if (u.getUid() == UserAction.getMyId().longValue()) {
-                userInfos.remove(u);
-                break;
+        if (isAdmin()) {
+            for (MemberUser u : userInfos) {
+                if (u.getUid() == UserAction.getMyId().longValue()) {
+                    userInfos.remove(u);
+                    break;
+                }
+            }
+        } else {
+            if (userInfos != null && ginfo != null) {
+                for (int i = userInfos.size() - 1; i >= 0; i--) {
+                    MemberUser u = userInfos.get(i);
+                    // TODO 去掉自己、管理员、群主
+                    if (u.getUid() == UserAction.getMyId().longValue() || (u.getUid() + "").equals(ginfo.getMaster())) {
+                        userInfos.remove(u);
+                    } else if (ginfo.getViceAdmins() != null && ginfo.getViceAdmins().size() > 0) {
+                        for (Long user : ginfo.getViceAdmins()) {
+                            if (user.equals(u.getUid())) {
+                                userInfos.remove(u);
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
 

@@ -10,6 +10,7 @@ import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.ChangeSurvivalTimeMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
+import com.yanlong.im.chat.bean.EnvelopeInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.GroupImageHead;
@@ -1026,7 +1027,17 @@ public class MsgDao {
      * 更新或者创建session
      *
      * */
-    public void sessionReadUpdate(String gid, Long from_uid, String cancelId, boolean canChangeUnread) {
+    public void sessionReadUpdate(String gid, Long from_uid ,boolean canChangeUnread ,MsgAllBean bean) {
+        //是否是 撤回
+        String cancelId = null;
+        if(bean!=null){
+            boolean isCancel = bean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL;
+            if (isCancel && bean.getMsgCancel() != null) {
+                cancelId = bean.getMsgCancel().getMsgidCancel();
+            }
+        }
+
+
         //isCancel 是否是撤回消息  ，  canChangeUnread 不在聊天页面 注意true表示不在聊天页面
         Session session;
         if (StringUtil.isNotNull(gid)) {//群消息
@@ -1124,9 +1135,18 @@ public class MsgDao {
             }
             session.setUp_time(System.currentTimeMillis());
         }
+
         if (StringUtil.isNotNull(cancelId)) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
             session.setMessageType(1000);
+        }else if(bean!=null&&bean.getAtMessage()!=null&&bean.getAtMessage().getAt_type()!=1000){
+            //对at消息处理 而且不是撤回消息
+//          LogUtil.getLog().e("===bean.getAtMessage().getAt_type()="+bean.getAtMessage().getAt_type()+"===bean.getAtMessage().getMsg()="+bean.getAtMessage().getMsg());
+            int messageType=bean.getAtMessage().getAt_type();
+            String atMessage=bean.getAtMessage().getMsg();
+            session.setMessageType(messageType);
+            session.setAtMessage(atMessage);
         }
+
 
         DaoUtil.update(session);
     }
@@ -2776,6 +2796,7 @@ public class MsgDao {
         return sum;
     }
 
+    //判断群是否已存在
     public boolean isGroupExist(String groupId) {
         boolean exist = false;
         if (!TextUtils.isEmpty(groupId)) {
@@ -3294,11 +3315,99 @@ public class MsgDao {
                 }
             }
             realm.commitTransaction();
+            realm.close();
         } catch (Exception e) {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
         return result;
+    }
+
+    //更新发送失败红包信息
+    public void updateEnvelopeInfo(EnvelopeInfo info) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            realm.insertOrUpdate(info);
+            Session session;
+            if (!TextUtils.isEmpty(info.getGid())) {
+                session = realm.where(Session.class).equalTo("gid", info.getGid()).findFirst();
+            } else {
+                session = realm.where(Session.class).equalTo("from_uid", info.getUid()).findFirst();
+            }
+            if (session != null) {
+                session.setMessageType(ChatEnum.ESessionType.ENVELOPE_FAIL);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
+    public EnvelopeInfo queryEnvelopeInfo(String gid, long uid) {
+        EnvelopeInfo envelopeInfo = null;
+        Realm realm = DaoUtil.open();
+        try {
+            EnvelopeInfo info;
+            if (!TextUtils.isEmpty(gid)) {
+                info = realm.where(EnvelopeInfo.class).equalTo("gid", gid).findFirst();
+            } else {
+                info = realm.where(EnvelopeInfo.class).equalTo("uid", uid).findFirst();
+            }
+            if (info != null) {
+                envelopeInfo = realm.copyFromRealm(info);
+            }
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return envelopeInfo;
+    }
+
+    public List<EnvelopeInfo> queryEnvelopeInfoList() {
+        List<EnvelopeInfo> list = null;
+        Realm realm = DaoUtil.open();
+        try {
+            RealmResults<EnvelopeInfo> realmList = realm.where(EnvelopeInfo.class).equalTo("sendStatus", 0).findAll();
+            if (realmList != null) {
+                list = realm.copyFromRealm(realmList);
+            }
+
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return list;
+    }
+
+    //删除发送失败红包信息
+    public void deleteEnvelopeInfo(String rid, String gid, long uid) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            EnvelopeInfo info = realm.where(EnvelopeInfo.class).equalTo("rid", rid).findFirst();
+            if (info != null) {
+                info.deleteFromRealm();
+                Session session;
+                if (!TextUtils.isEmpty(gid)) {
+                    session = realm.where(Session.class).equalTo("gid", gid).findFirst();
+                } else {
+                    session = realm.where(Session.class).equalTo("from_uid", uid).findFirst();
+                }
+                if (session != null) {
+                    session.setMessageType(ChatEnum.ESessionType.DEFAULT);
+                }
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
     }
 
     //更新转账状态

@@ -34892,6 +34892,24 @@ public final class MsgBean {
      * <code>uint64 timestamp = 4;</code>
      */
     long getTimestamp();
+
+    /**
+     * <pre>
+     * 拒收描述
+     * </pre>
+     *
+     * <code>string desc = 5;</code>
+     */
+    java.lang.String getDesc();
+    /**
+     * <pre>
+     * 拒收描述
+     * </pre>
+     *
+     * <code>string desc = 5;</code>
+     */
+    com.google.protobuf.ByteString
+        getDescBytes();
   }
   /**
    * <pre>
@@ -34914,6 +34932,7 @@ public final class MsgBean {
       requestId_ = "";
       msgId_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       timestamp_ = 0L;
+      desc_ = "";
     }
 
     @java.lang.Override
@@ -34971,6 +34990,12 @@ public final class MsgBean {
             case 32: {
 
               timestamp_ = input.readUInt64();
+              break;
+            }
+            case 42: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              desc_ = s;
               break;
             }
           }
@@ -35117,6 +35142,48 @@ public final class MsgBean {
       return timestamp_;
     }
 
+    public static final int DESC_FIELD_NUMBER = 5;
+    private volatile java.lang.Object desc_;
+    /**
+     * <pre>
+     * 拒收描述
+     * </pre>
+     *
+     * <code>string desc = 5;</code>
+     */
+    public java.lang.String getDesc() {
+      java.lang.Object ref = desc_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        desc_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * 拒收描述
+     * </pre>
+     *
+     * <code>string desc = 5;</code>
+     */
+    public com.google.protobuf.ByteString
+        getDescBytes() {
+      java.lang.Object ref = desc_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        desc_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -35140,6 +35207,9 @@ public final class MsgBean {
       }
       if (timestamp_ != 0L) {
         output.writeUInt64(4, timestamp_);
+      }
+      if (!getDescBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 5, desc_);
       }
       unknownFields.writeTo(output);
     }
@@ -35168,6 +35238,9 @@ public final class MsgBean {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt64Size(4, timestamp_);
       }
+      if (!getDescBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, desc_);
+      }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
       return size;
@@ -35191,6 +35264,8 @@ public final class MsgBean {
           .equals(other.getMsgIdList());
       result = result && (getTimestamp()
           == other.getTimestamp());
+      result = result && getDesc()
+          .equals(other.getDesc());
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -35213,6 +35288,8 @@ public final class MsgBean {
       hash = (37 * hash) + TIMESTAMP_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
           getTimestamp());
+      hash = (37 * hash) + DESC_FIELD_NUMBER;
+      hash = (53 * hash) + getDesc().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -35354,6 +35431,8 @@ public final class MsgBean {
         bitField0_ = (bitField0_ & ~0x00000004);
         timestamp_ = 0L;
 
+        desc_ = "";
+
         return this;
       }
 
@@ -35386,6 +35465,7 @@ public final class MsgBean {
         }
         result.msgId_ = msgId_;
         result.timestamp_ = timestamp_;
+        result.desc_ = desc_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -35447,6 +35527,10 @@ public final class MsgBean {
         }
         if (other.getTimestamp() != 0L) {
           setTimestamp(other.getTimestamp());
+        }
+        if (!other.getDesc().isEmpty()) {
+          desc_ = other.desc_;
+          onChanged();
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -35773,6 +35857,95 @@ public final class MsgBean {
       public Builder clearTimestamp() {
         
         timestamp_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object desc_ = "";
+      /**
+       * <pre>
+       * 拒收描述
+       * </pre>
+       *
+       * <code>string desc = 5;</code>
+       */
+      public java.lang.String getDesc() {
+        java.lang.Object ref = desc_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          desc_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 拒收描述
+       * </pre>
+       *
+       * <code>string desc = 5;</code>
+       */
+      public com.google.protobuf.ByteString
+          getDescBytes() {
+        java.lang.Object ref = desc_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          desc_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 拒收描述
+       * </pre>
+       *
+       * <code>string desc = 5;</code>
+       */
+      public Builder setDesc(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        desc_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 拒收描述
+       * </pre>
+       *
+       * <code>string desc = 5;</code>
+       */
+      public Builder clearDesc() {
+        
+        desc_ = getDefaultInstance().getDesc();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 拒收描述
+       * </pre>
+       *
+       * <code>string desc = 5;</code>
+       */
+      public Builder setDescBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        desc_ = value;
         onChanged();
         return this;
       }
@@ -48276,91 +48449,91 @@ public final class MsgBean {
       "pe\022\014\n\004time\030\003 \001(\004\022\r\n\005title\030\004 \001(\t\022\021\n\tamt_l" +
       "abel\030\005 \001(\t\022\013\n\003amt\030\006 \001(\004\022\035\n\004item\030\007 \003(\0132\017." +
       "LabelValueItem\"3\n\nDetailType\022\010\n\004NONE\020\000\022\020" +
-      "\n\014RED_ENVELOPE\020\001\022\t\n\005TRANS\020\002\"e\n\nAckMessag" +
+      "\n\014RED_ENVELOPE\020\001\022\t\n\005TRANS\020\002\"s\n\nAckMessag" +
       "e\022 \n\013reject_type\030\001 \001(\0162\013.RejectType\022\022\n\nr" +
       "equest_id\030\002 \001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimes" +
-      "tamp\030\004 \001(\004\"*\n\022AuthRequestMessage\022\024\n\014acce" +
-      "ss_token\030\001 \001(\t\":\n\023AuthResponseMessage\022\020\n" +
-      "\010accepted\030\001 \001(\021\022\021\n\ttimestamp\030\002 \001(\004\"\235\020\n\020U" +
-      "niversalMessage\022\022\n\nrequest_id\030\001 \001(\t\022\016\n\006t" +
-      "o_uid\030\002 \001(\004\022/\n\007wrapMsg\030\221N \003(\0132\035.Universa" +
-      "lMessage.WrapMessage\032\263\017\n\013WrapMessage\022\021\n\t" +
-      "timestamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014.Mess" +
-      "ageType\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(" +
-      "\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n\006avat" +
-      "ar\030\007 \001(\t\022\022\n\nmembername\030\010 \001(\t\022\025\n\rsurvival" +
-      "_time\030\t \001(\021\022\023\n\013device_type\030\n \001(\r\022\016\n\006to_u" +
-      "id\030\013 \001(\004\022\035\n\004chat\030\220N \001(\0132\014.ChatMessageH\000\022" +
-      "\037\n\005image\030\221N \001(\0132\r.ImageMessageH\000\022,\n\014red_" +
-      "envelope\030\222N \001(\0132\023.RedEnvelopeMessageH\000\022;" +
-      "\n\024receive_red_envelope\030\223N \001(\0132\032.ReceiveR" +
-      "edEnvelopeMessageH\000\022%\n\010transfer\030\224N \001(\0132\020" +
-      ".TransferMessageH\000\022\037\n\005stamp\030\225N \001(\0132\r.Sta" +
-      "mpMessageH\000\022.\n\rbusiness_card\030\226N \001(\0132\024.Bu" +
-      "sinessCardMessageH\000\022\037\n\005voice\030\227N \001(\0132\r.Vo" +
-      "iceMessageH\000\022\031\n\002at\030\230N \001(\0132\n.AtMessageH\000\022" +
-      "\'\n\tassistant\030\231N \001(\0132\021.AssistantMessageH\000" +
-      "\022!\n\006cancel\030\232N \001(\0132\016.CancelMessageH\000\022*\n\013s" +
-      "hort_video\030\233N \001(\0132\022.ShortVideoMessageH\000\022" +
-      "6\n\021snapshot_location\030\234N \001(\0132\030.SnapshotLo" +
-      "cationMessageH\000\0220\n\016request_friend\030\364N \001(\013" +
-      "2\025.RequestFriendMessageH\000\0225\n\021accept_be_f" +
-      "riends\030\365N \001(\0132\027.AcceptBeFriendsMessageH\000" +
-      "\022.\n\rremove_friend\030\366N \001(\0132\024.RemoveFriendM" +
-      "essageH\000\022.\n\rrequest_group\030\330O \001(\0132\024.Reque" +
-      "stGroupMessageH\000\0221\n\017accept_be_group\030\331O \001" +
-      "(\0132\025.AcceptBeGroupMessageH\000\0229\n\023remove_gr" +
-      "oup_member\030\332O \001(\0132\031.RemoveGroupMemberMes" +
-      "sageH\000\0229\n\023change_group_master\030\333O \001(\0132\031.C" +
-      "hangeGroupMasterMessageH\000\022.\n\rdestroy_gro" +
-      "up\030\336O \001(\0132\024.DestroyGroupMessageH\000\022;\n\024rem" +
-      "ove_group_member2\030\337O \001(\0132\032.RemoveGroupMe" +
-      "mber2MessageH\000\022&\n\tout_group\030\342O \001(\0132\020.Out" +
-      "GroupMessageH\000\0225\n\021change_group_meta\030\344O \001" +
-      "(\0132\027.ChangeGroupMetaMessageH\000\022;\n\024change_" +
-      "survival_time\030\345O \001(\0132\032.ChangeSurvivalTim" +
-      "eMessageH\000\022+\n\014p2p_au_video\030\352O \001(\0132\022.P2PA" +
-      "uVideoMessageH\000\0224\n\021p2p_au_video_dial\030\353O " +
-      "\001(\0132\026.P2PAuVideoDialMessageH\000\022\035\n\004read\030\354O" +
-      " \001(\0132\014.ReadMessageH\000\022&\n\tsend_file\030\355O \001(\013" +
-      "2\020.SendFileMessageH\000\0227\n\022change_vice_admi" +
-      "ns\030\356O \001(\0132\030.ChangeViceAdminsMessageH\000\022.\n" +
-      "\rforce_offline\030\274P \001(\0132\024.ForceOfflineMess" +
-      "ageH\000\0227\n\022active_stat_change\030\275P \001(\0132\030.Act" +
-      "iveStatChangeMessageH\000\022.\n\rresource_lock\030" +
-      "\276P \001(\0132\024.ResourceLockMessageH\000\022.\n\rswitch" +
-      "_change\030\277P \001(\0132\024.SwitchChangeMessageH\000\022(" +
-      "\n\npay_result\030\261T \001(\0132\021.PayResultMessageH\000" +
-      "\0226\n\021balance_assistant\030\262T \001(\0132\030.BalanceAs" +
-      "sistantMessageH\000\022,\n\014trans_notify\030\263T \001(\0132" +
-      "\023.TransNotifyMessageH\000B\n\n\010real_msg*\302\005\n\013M" +
-      "essageType\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_E" +
-      "NVELOPER\020\002\022\031\n\025RECEIVE_RED_ENVELOPER\020\003\022\014\n" +
-      "\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSINESS_CARD\020" +
-      "\006\022\t\n\005VOICE\020\007\022\006\n\002AT\020\010\022\r\n\tASSISTANT\020\t\022\n\n\006C" +
-      "ANCEL\020\n\022\017\n\013SHORT_VIDEO\020\013\022\025\n\021SNAPSHOT_LOC" +
-      "ATION\020\014\022\022\n\016REQUEST_FRIEND\020d\022\025\n\021ACCEPT_BE" +
-      "_FRIENDS\020e\022\021\n\rREMOVE_FRIEND\020f\022\021\n\rREQUEST" +
-      "_GROUP\020g\022\023\n\017ACCEPT_BE_GROUP\020h\022\027\n\023REMOVE_" +
-      "GROUP_MEMBER\020i\022\027\n\023CHANGE_GROUP_MASTER\020j\022" +
-      "\030\n\024REMOVE_GROUP_MEMBER2\020k\022\021\n\rDESTROY_GRO" +
-      "UP\020m\022\r\n\tOUT_GROUP\020n\022\025\n\021CHANGE_GROUP_META" +
-      "\020p\022\030\n\024CHANGE_SURVIVAL_TIME\020q\022\020\n\014P2P_AU_V" +
-      "IDEO\020v\022\025\n\021P2P_AU_VIDEO_DIAL\020w\022\010\n\004READ\020x\022" +
-      "\r\n\tSEND_FILE\020y\022\026\n\022CHANGE_VICE_ADMINS\020z\022\022" +
-      "\n\rFORCE_OFFLINE\020\310\001\022\027\n\022ACTIVE_STAT_CHANGE" +
-      "\020\311\001\022\022\n\rRESOURCE_LOCK\020\312\001\022\022\n\rSWITCH_CHANGE" +
-      "\020\313\001\022\017\n\nPAY_RESULT\020\264\002\022\026\n\021BALANCE_ASSISTAN" +
-      "T\020\265\002\022\021\n\014TRANS_NOTIFY\020\266\002*.\n\022ForceOfflineR" +
-      "eason\022\014\n\010CONFLICT\020\000\022\n\n\006LOCKED\020\001*\215\001\n\nReje" +
-      "ctType\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT_FRIENDS_OR_G" +
-      "ROUP_MEMBER\020\001\022\020\n\014IN_BLACKLIST\020\002\022\025\n\021WORDS" +
-      "_NOT_ALLOWED\020\003\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVIC" +
-      "E_UNAVAILABLE\020d*(\n\rJoinGroupType\022\n\n\006QRCO" +
-      "DE\020\000\022\013\n\007PASSIVE\020\001*(\n\017RedEnvelopeType\022\t\n\005" +
-      "MFPAY\020\000\022\n\n\006SYSTEM\020\001*#\n\013AuVideoType\022\t\n\005Au" +
-      "dio\020\000\022\t\n\005Vedio\020\001B&\n\033com.yanlong.im.utils" +
-      ".socketB\007MsgBeanb\006proto3"
+      "tamp\030\004 \001(\004\022\014\n\004desc\030\005 \001(\t\"*\n\022AuthRequestM" +
+      "essage\022\024\n\014access_token\030\001 \001(\t\":\n\023AuthResp" +
+      "onseMessage\022\020\n\010accepted\030\001 \001(\021\022\021\n\ttimesta" +
+      "mp\030\002 \001(\004\"\235\020\n\020UniversalMessage\022\022\n\nrequest" +
+      "_id\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004\022/\n\007wrapMsg\030\221N " +
+      "\003(\0132\035.UniversalMessage.WrapMessage\032\263\017\n\013W" +
+      "rapMessage\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg_typ" +
+      "e\030\002 \001(\0162\014.MessageType\022\016\n\006msg_id\030\003 \001(\t\022\020\n" +
+      "\010from_uid\030\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010nickname" +
+      "\030\006 \001(\t\022\016\n\006avatar\030\007 \001(\t\022\022\n\nmembername\030\010 \001" +
+      "(\t\022\025\n\rsurvival_time\030\t \001(\021\022\023\n\013device_type" +
+      "\030\n \001(\r\022\016\n\006to_uid\030\013 \001(\004\022\035\n\004chat\030\220N \001(\0132\014." +
+      "ChatMessageH\000\022\037\n\005image\030\221N \001(\0132\r.ImageMes" +
+      "sageH\000\022,\n\014red_envelope\030\222N \001(\0132\023.RedEnvel" +
+      "opeMessageH\000\022;\n\024receive_red_envelope\030\223N " +
+      "\001(\0132\032.ReceiveRedEnvelopeMessageH\000\022%\n\010tra" +
+      "nsfer\030\224N \001(\0132\020.TransferMessageH\000\022\037\n\005stam" +
+      "p\030\225N \001(\0132\r.StampMessageH\000\022.\n\rbusiness_ca" +
+      "rd\030\226N \001(\0132\024.BusinessCardMessageH\000\022\037\n\005voi" +
+      "ce\030\227N \001(\0132\r.VoiceMessageH\000\022\031\n\002at\030\230N \001(\0132" +
+      "\n.AtMessageH\000\022\'\n\tassistant\030\231N \001(\0132\021.Assi" +
+      "stantMessageH\000\022!\n\006cancel\030\232N \001(\0132\016.Cancel" +
+      "MessageH\000\022*\n\013short_video\030\233N \001(\0132\022.ShortV" +
+      "ideoMessageH\000\0226\n\021snapshot_location\030\234N \001(" +
+      "\0132\030.SnapshotLocationMessageH\000\0220\n\016request" +
+      "_friend\030\364N \001(\0132\025.RequestFriendMessageH\000\022" +
+      "5\n\021accept_be_friends\030\365N \001(\0132\027.AcceptBeFr" +
+      "iendsMessageH\000\022.\n\rremove_friend\030\366N \001(\0132\024" +
+      ".RemoveFriendMessageH\000\022.\n\rrequest_group\030" +
+      "\330O \001(\0132\024.RequestGroupMessageH\000\0221\n\017accept" +
+      "_be_group\030\331O \001(\0132\025.AcceptBeGroupMessageH" +
+      "\000\0229\n\023remove_group_member\030\332O \001(\0132\031.Remove" +
+      "GroupMemberMessageH\000\0229\n\023change_group_mas" +
+      "ter\030\333O \001(\0132\031.ChangeGroupMasterMessageH\000\022" +
+      ".\n\rdestroy_group\030\336O \001(\0132\024.DestroyGroupMe" +
+      "ssageH\000\022;\n\024remove_group_member2\030\337O \001(\0132\032" +
+      ".RemoveGroupMember2MessageH\000\022&\n\tout_grou" +
+      "p\030\342O \001(\0132\020.OutGroupMessageH\000\0225\n\021change_g" +
+      "roup_meta\030\344O \001(\0132\027.ChangeGroupMetaMessag" +
+      "eH\000\022;\n\024change_survival_time\030\345O \001(\0132\032.Cha" +
+      "ngeSurvivalTimeMessageH\000\022+\n\014p2p_au_video" +
+      "\030\352O \001(\0132\022.P2PAuVideoMessageH\000\0224\n\021p2p_au_" +
+      "video_dial\030\353O \001(\0132\026.P2PAuVideoDialMessag" +
+      "eH\000\022\035\n\004read\030\354O \001(\0132\014.ReadMessageH\000\022&\n\tse" +
+      "nd_file\030\355O \001(\0132\020.SendFileMessageH\000\0227\n\022ch" +
+      "ange_vice_admins\030\356O \001(\0132\030.ChangeViceAdmi" +
+      "nsMessageH\000\022.\n\rforce_offline\030\274P \001(\0132\024.Fo" +
+      "rceOfflineMessageH\000\0227\n\022active_stat_chang" +
+      "e\030\275P \001(\0132\030.ActiveStatChangeMessageH\000\022.\n\r" +
+      "resource_lock\030\276P \001(\0132\024.ResourceLockMessa" +
+      "geH\000\022.\n\rswitch_change\030\277P \001(\0132\024.SwitchCha" +
+      "ngeMessageH\000\022(\n\npay_result\030\261T \001(\0132\021.PayR" +
+      "esultMessageH\000\0226\n\021balance_assistant\030\262T \001" +
+      "(\0132\030.BalanceAssistantMessageH\000\022,\n\014trans_" +
+      "notify\030\263T \001(\0132\023.TransNotifyMessageH\000B\n\n\010" +
+      "real_msg*\302\005\n\013MessageType\022\010\n\004CHAT\020\000\022\t\n\005IM" +
+      "AGE\020\001\022\021\n\rRED_ENVELOPER\020\002\022\031\n\025RECEIVE_RED_" +
+      "ENVELOPER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\r" +
+      "BUSINESS_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n\002AT\020\010\022\r\n\tAS" +
+      "SISTANT\020\t\022\n\n\006CANCEL\020\n\022\017\n\013SHORT_VIDEO\020\013\022\025" +
+      "\n\021SNAPSHOT_LOCATION\020\014\022\022\n\016REQUEST_FRIEND\020" +
+      "d\022\025\n\021ACCEPT_BE_FRIENDS\020e\022\021\n\rREMOVE_FRIEN" +
+      "D\020f\022\021\n\rREQUEST_GROUP\020g\022\023\n\017ACCEPT_BE_GROU" +
+      "P\020h\022\027\n\023REMOVE_GROUP_MEMBER\020i\022\027\n\023CHANGE_G" +
+      "ROUP_MASTER\020j\022\030\n\024REMOVE_GROUP_MEMBER2\020k\022" +
+      "\021\n\rDESTROY_GROUP\020m\022\r\n\tOUT_GROUP\020n\022\025\n\021CHA" +
+      "NGE_GROUP_META\020p\022\030\n\024CHANGE_SURVIVAL_TIME" +
+      "\020q\022\020\n\014P2P_AU_VIDEO\020v\022\025\n\021P2P_AU_VIDEO_DIA" +
+      "L\020w\022\010\n\004READ\020x\022\r\n\tSEND_FILE\020y\022\026\n\022CHANGE_V" +
+      "ICE_ADMINS\020z\022\022\n\rFORCE_OFFLINE\020\310\001\022\027\n\022ACTI" +
+      "VE_STAT_CHANGE\020\311\001\022\022\n\rRESOURCE_LOCK\020\312\001\022\022\n" +
+      "\rSWITCH_CHANGE\020\313\001\022\017\n\nPAY_RESULT\020\264\002\022\026\n\021BA" +
+      "LANCE_ASSISTANT\020\265\002\022\021\n\014TRANS_NOTIFY\020\266\002*.\n" +
+      "\022ForceOfflineReason\022\014\n\010CONFLICT\020\000\022\n\n\006LOC" +
+      "KED\020\001*\215\001\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033NO" +
+      "T_FRIENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_BLACKL" +
+      "IST\020\002\022\025\n\021WORDS_NOT_ALLOWED\020\003\022\016\n\nRATE_LIM" +
+      "IT\020c\022\027\n\023SERVICE_UNAVAILABLE\020d*(\n\rJoinGro" +
+      "upType\022\n\n\006QRCODE\020\000\022\013\n\007PASSIVE\020\001*(\n\017RedEn" +
+      "velopeType\022\t\n\005MFPAY\020\000\022\n\n\006SYSTEM\020\001*#\n\013AuV" +
+      "ideoType\022\t\n\005Audio\020\000\022\t\n\005Vedio\020\001B&\n\033com.ya" +
+      "nlong.im.utils.socketB\007MsgBeanb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -48619,7 +48792,7 @@ public final class MsgBean {
     internal_static_AckMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AckMessage_descriptor,
-        new java.lang.String[] { "RejectType", "RequestId", "MsgId", "Timestamp", });
+        new java.lang.String[] { "RejectType", "RequestId", "MsgId", "Timestamp", "Desc", });
     internal_static_AuthRequestMessage_descriptor =
       getDescriptor().getMessageTypes().get(41);
     internal_static_AuthRequestMessage_fieldAccessorTable = new

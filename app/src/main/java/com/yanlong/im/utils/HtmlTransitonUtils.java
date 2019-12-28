@@ -510,6 +510,8 @@ public class HtmlTransitonUtils {
                     Intent intent = new Intent(context, UserInfoActivity.class);
                     intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
                     intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
+                    intent.putExtra(UserInfoActivity.GID, htmlBean.getGid());
+                    intent.putExtra(UserInfoActivity.IS_GROUP, true);
                     context.startActivity(intent);
 
                     goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
@@ -545,6 +547,8 @@ public class HtmlTransitonUtils {
                     Intent intent = new Intent(context, UserInfoActivity.class);
                     intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
                     intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
+                    intent.putExtra(UserInfoActivity.GID, htmlBean.getGid());
+                    intent.putExtra(UserInfoActivity.IS_GROUP, true);
                     context.startActivity(intent);
 
                     goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
@@ -580,6 +584,8 @@ public class HtmlTransitonUtils {
                     Intent intent = new Intent(context, UserInfoActivity.class);
                     intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
                     intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
+                    intent.putExtra(UserInfoActivity.GID, htmlBean.getGid());
+                    intent.putExtra(UserInfoActivity.IS_GROUP, true);
                     context.startActivity(intent);
 
                     goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
@@ -637,6 +643,8 @@ public class HtmlTransitonUtils {
                     Intent intent = new Intent(context, UserInfoActivity.class);
                     intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
                     intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
+                    intent.putExtra(UserInfoActivity.GID, htmlBean.getGid());
+                    intent.putExtra(UserInfoActivity.IS_GROUP, true);
                     context.startActivity(intent);
 
                     goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
@@ -683,6 +691,8 @@ public class HtmlTransitonUtils {
                     Intent intent = new Intent(context, UserInfoActivity.class);
                     intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
                     intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
+                    intent.putExtra(UserInfoActivity.GID, htmlBean.getGid());
+                    intent.putExtra(UserInfoActivity.IS_GROUP, true);
                     context.startActivity(intent);
 
                     goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());

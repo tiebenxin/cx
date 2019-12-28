@@ -407,7 +407,7 @@ public class MyFragment extends Fragment {
      */
     private void httpGetUserInfo() {
         UserInfo info = UserAction.getMyInfo();
-        PayHttpUtils.getInstance().getUserInfo(info.getUid())
+        PayHttpUtils.getInstance().getUserInfo()
                 .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<UserBean>>() {

@@ -20,8 +20,8 @@ android {
         applicationId "com.yanlong.im"
         minSdkVersion 22
         targetSdkVersion 28
-        versionCode 135
-        versionName "1.1.25"
+        versionCode 137
+        versionName "1.1.27"
         //  versionName "0.9.0_${releaseTime()}"
         
         //---------------------------------------

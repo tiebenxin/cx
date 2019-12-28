@@ -113,6 +113,12 @@ public class EventFactory extends BaseEvent {
     }
 
     /**
+     * 禁言提示
+     */
+    public static class ToastEvent extends BaseEvent {
+    }
+
+    /**
      * 网络监听
      */
     public static class EventNetStatus {

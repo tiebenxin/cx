@@ -211,8 +211,7 @@
                                 style="@style/app_txt_title_2"
                                 android:layout_marginRight="@dimen/app_margin_item"
                                 android:layout_weight="1"
-                                android:text="群主管理员转让" />
-
+                                android:text="群主管理权转让" />
 
                             <ImageView
                                 android:layout_width="wrap_content"

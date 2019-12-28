@@ -34,6 +34,7 @@ import com.example.nim_lib.util.PermissionsUtil;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.EnvelopeInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.NotificationConfig;
@@ -84,6 +85,7 @@ import net.cb.cb.library.utils.NotificationsUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.AlertYesNo;
@@ -430,7 +432,10 @@ public class MainActivity extends AppActivity {
         taskGetMsgNum();
         //taskClearNotification();
         checkNotificationOK();
-        checkPayEnvironmentInit();
+//        checkPayEnvironmentInit();
+        if (AppConfig.isOnline()){
+            checkHasEnvelopeSendFailed();
+        }
     }
 
     //检测支付环境的初始化
@@ -442,7 +447,7 @@ public class MainActivity extends AppActivity {
             PayEnvironment.getInstance().setNick(info.getName());
             UserBean bean = PayEnvironment.getInstance().getUser();
             if (bean == null || (bean != null && bean.getUid() != info.getUid().intValue())) {
-                httpGetUserInfo(info.getUid());
+                httpGetUserInfo();
             }
         }
         PayEnvironment.getInstance().setContext(AppConfig.getContext());
@@ -470,7 +475,7 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshBalance(RefreshBalanceEvent event) {
-        httpGetUserInfo(PayEnvironment.getInstance().getUser().getUid());
+        httpGetUserInfo();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -486,7 +491,7 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventIdentifyUser(IdentifyUserEvent event) {
-        httpGetUserInfo(PayEnvironment.getInstance().getUser().getUid());
+        httpGetUserInfo();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -890,8 +895,6 @@ public class MainActivity extends AppActivity {
     }
 
 
-
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void posting(CanStampEvent event) {
         if (!isFinishing()) {
@@ -906,6 +909,24 @@ public class MainActivity extends AppActivity {
             //允许
             MessageManager.setCanStamp(event.canStamp);
         }
+    }
+
+    private void checkHasEnvelopeSendFailed() {
+        List<EnvelopeInfo> list = msgDao.queryEnvelopeInfoList();
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                EnvelopeInfo info = list.get(i);
+                if (info.getCreateTime() - System.currentTimeMillis() >= TimeToString.DAY) {//超过24小时
+                    deleteEnvelopInfo(info);
+                }
+            }
+        }
+    }
+
+    //删除临时红包信息
+    private void deleteEnvelopInfo(EnvelopeInfo envelopeInfo) {
+        msgDao.deleteEnvelopeInfo(envelopeInfo.getRid(), envelopeInfo.getGid(), envelopeInfo.getUid());
+        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(envelopeInfo.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, envelopeInfo.getUid(), envelopeInfo.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, null);
     }
 
     /**
@@ -936,8 +957,8 @@ public class MainActivity extends AppActivity {
     /**
      * 请求零钱红包用户信息,刷新用户余额
      */
-    private void httpGetUserInfo(long uid) {
-        PayHttpUtils.getInstance().getUserInfo(uid)
+    private void httpGetUserInfo() {
+        PayHttpUtils.getInstance().getUserInfo()
                 .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<UserBean>>() {

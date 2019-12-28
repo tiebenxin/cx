@@ -99,8 +99,14 @@ public class ExitGroupActivity extends BaseBindActivity<ActivityExitGroupBinding
                     mList.clear();
                     List<ExitGroupUser> list = response.body().getData();
                     mList.addAll(list);
+                    if(list.size()>0){
+                        setVisibleData(true);
+                    }else{
+                        setVisibleData(false);
+                    }
                     mViewAdapter.notifyDataSetChanged();
                 } else {
+                    setVisibleData(false);
                     ToastUtil.show(ExitGroupActivity.this, "获取群信息失败");
                 }
             }
@@ -108,7 +114,18 @@ public class ExitGroupActivity extends BaseBindActivity<ActivityExitGroupBinding
             @Override
             public void onFailure(Call<ReturnBean<List<ExitGroupUser>>> call, Throwable t) {
                 super.onFailure(call, t);
+                setVisibleData(false);
             }
         });
+    }
+
+    private void setVisibleData(boolean value){
+        if(value){
+            bindingView.recyclerView.setVisibility(View.VISIBLE);
+            bindingView.viewNoData.setVisibility(View.GONE);
+        }else{
+            bindingView.recyclerView.setVisibility(View.GONE);
+            bindingView.viewNoData.setVisibility(View.VISIBLE);
+        }
     }
 }

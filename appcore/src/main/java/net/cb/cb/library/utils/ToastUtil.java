@@ -33,6 +33,26 @@ public class ToastUtil {
 
     }
 
+    public static void showCenter(Context context, String txt) {
+        if (txt != null && txt.length() > 0) {
+            if (toast != null)
+                toast.cancel();
+            try{
+                //  Looper.prepare();
+                toast = Toast.makeText(context, txt, Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                //    Looper.loop();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            //    toast.setGravity(Gravity.CENTER, 0, 0);
+
+            toast.show();
+        }
+
+    }
+
     public static void show(Context context, int txt) {
         if (toast != null)
             toast.cancel();
