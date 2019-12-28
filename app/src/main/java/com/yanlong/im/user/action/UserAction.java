@@ -44,6 +44,7 @@ import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.VersionUtil;
+import net.cb.cb.library.utils.encrypt.AESEncrypt;
 import net.cb.cb.library.utils.encrypt.MD5;
 
 import java.util.List;
@@ -225,6 +226,12 @@ public class UserAction {
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone());
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).save2Json(userInfo.getUid());
                     userInfo.toTag();
+                    if (!TextUtils.isEmpty(userInfo.getBankReqSignKey())) {
+                        String key = userInfo.getBankReqSignKey();
+                        String result = AESEncrypt.encrypt(key);
+//                        String s = AESEncrypt.decrypt(result);
+                        userInfo.setBankReqSignKey(result);
+                    }
                     updateUserinfo2DB(userInfo);
                     MessageManager.getInstance().notifyRefreshUser(userInfo);
                 }
@@ -739,8 +746,8 @@ public class UserAction {
     /**
      * 版本更新
      */
-    public void getNewVersion(String channelName,CallBack<ReturnBean<NewVersionBean>> callback) {
-        NetUtil.getNet().exec(server.getNewVersion("android",channelName), callback);
+    public void getNewVersion(String channelName, CallBack<ReturnBean<NewVersionBean>> callback) {
+        NetUtil.getNet().exec(server.getNewVersion("android", channelName), callback);
     }
 
     /*
@@ -855,12 +862,13 @@ public class UserAction {
 
     /**
      * 获取单个群成员信息
-     * @param gid 群id
-     * @param uid 群成员ID
+     *
+     * @param gid      群id
+     * @param uid      群成员ID
      * @param callback
      */
-    public void getSingleMemberInfo(String gid,int uid,Callback<ReturnBean<SingleMeberInfoBean>> callback) {
-        NetUtil.getNet().exec(server.getSingleMemberInfo(gid,uid), callback);
+    public void getSingleMemberInfo(String gid, int uid, Callback<ReturnBean<SingleMeberInfoBean>> callback) {
+        NetUtil.getNet().exec(server.getSingleMemberInfo(gid, uid), callback);
     }
 
 }
