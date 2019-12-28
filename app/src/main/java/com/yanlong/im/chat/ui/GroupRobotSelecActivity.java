@@ -1,7 +1,9 @@
 package com.yanlong.im.chat.ui;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -12,7 +14,10 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
 
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
@@ -97,10 +102,10 @@ public class GroupRobotSelecActivity extends AppActivity {
                     key="";
                 } else {
                     key = edtSearch.getText().toString();
-
-                    taskSearch();
                 }
 
+                listData.clear();
+                mtListView.notifyDataSetChange();
             }
         });
     }
@@ -115,55 +120,81 @@ public class GroupRobotSelecActivity extends AppActivity {
     }
 
     //自动生成RecyclerViewAdapter
-    class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
-
-        @Override
-        public int getItemCount() {
-            return listData == null ? 0 : listData.size();
-        }
-
-        //自动生成控件事件
-        @Override
-        public void onBindViewHolder(RCViewHolder holder, int position) {
-            final RobotInfoBean infobean = listData.get(position);
-            holder.txtInfoTitle.setText(infobean.getRname());
-         //   holder.imgInfoIcon.setImageURI(Uri.parse(infobean.getAvatar()));
-
-            Glide.with(context).load(infobean.getAvatar())
-                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgInfoIcon);
-            holder.txtInfoMore.setText(infobean.getRobotDescription());
-
-            holder.btnInfoAdd.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    setResult(GroupRobotActivity.RET_SELECT, new Intent()
-                            .putExtra(GroupRobotActivity.AGM_GID, gid)
-                            .putExtra(GroupRobotActivity.AGM_RID, infobean.getRid()));
-                    finish();
-
-                }
-            });
-
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(getContext(), GroupRobotActivity.class).putExtra(GroupRobotActivity.AGM_SHOW_TYPE, GroupRobotActivity.AGM_SHOW_TYPE_ADD)
-                            .putExtra(GroupRobotActivity.AGM_GID, gid)
-                            .putExtra(GroupRobotActivity.AGM_RID, infobean.getRid())
-
-                    );
-                }
-            });
-
-        }
-
+    class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         //自动寻找ViewHold
         @Override
-        public RCViewHolder onCreateViewHolder(ViewGroup view, int i) {
-            RCViewHolder holder = new RCViewHolder(inflater.inflate(R.layout.item_group_robot, view, false));
-            return holder;
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup view, int viewType) {
+            if (viewType == 0) {
+                RSearchViewHolder holder = new RSearchViewHolder(getLayoutInflater().inflate(R.layout.item_search_net, view, false));
+                return holder;
+            }else {
+                RCViewHolder holder = new RCViewHolder(inflater.inflate(R.layout.item_group_robot, view, false));
+                return holder;
+            }
         }
 
+        @Override
+        public int getItemViewType(int position) {
+            if (!TextUtils.isEmpty(key) && position == 0) {
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            if (listData != null) {
+                if (!TextUtils.isEmpty(key)) {
+                    return listData.size() + 1;
+                } else {
+                    return listData.size() ;
+                }
+            }
+            return 0;
+        }
+
+        //自动生成控件事件
+        @RequiresApi(api = Build.VERSION_CODES.M)
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+            if (viewHolder instanceof RSearchViewHolder) {
+                RSearchViewHolder holder = (RSearchViewHolder) viewHolder;
+                holder.setKey();
+            }else if (viewHolder instanceof RCViewHolder) {
+                RCViewHolder holder = (RCViewHolder) viewHolder;
+                final RobotInfoBean infobean = listData.get(position);
+                holder.txtInfoTitle.setText(infobean.getRname());
+                //   holder.imgInfoIcon.setImageURI(Uri.parse(infobean.getAvatar()));
+
+                Glide.with(context).load(infobean.getAvatar())
+                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgInfoIcon);
+                holder.txtInfoMore.setText(infobean.getRobotDescription());
+
+                holder.btnInfoAdd.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        setResult(GroupRobotActivity.RET_SELECT, new Intent()
+                                .putExtra(GroupRobotActivity.AGM_GID, gid)
+                                .putExtra(GroupRobotActivity.AGM_RID, infobean.getRid()));
+                        finish();
+
+                    }
+                });
+
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(getContext(), GroupRobotActivity.class).putExtra(GroupRobotActivity.AGM_SHOW_TYPE, GroupRobotActivity.AGM_SHOW_TYPE_ADD)
+                                .putExtra(GroupRobotActivity.AGM_GID, gid)
+                                .putExtra(GroupRobotActivity.AGM_RID, infobean.getRid())
+
+                        );
+                    }
+                });
+
+            }
+        }
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
@@ -179,6 +210,31 @@ public class GroupRobotSelecActivity extends AppActivity {
                 txtInfoTitle = convertView.findViewById(R.id.txt_info_title);
                 txtInfoMore = convertView.findViewById(R.id.txt_info_more);
                 btnInfoAdd = convertView.findViewById(R.id.btn_info_add);
+            }
+
+        }
+
+        class RSearchViewHolder extends RecyclerView.ViewHolder {
+            private final TextView tv_content;
+            private final LinearLayout ll_root;
+
+            public RSearchViewHolder(@NonNull View itemView) {
+                super(itemView);
+                ll_root = itemView.findViewById(R.id.ll_root);
+                tv_content = itemView.findViewById(R.id.tv_content);
+                ll_root.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        taskSearch();
+                    }
+                });
+            }
+
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            public void setKey( ) {
+                String content = "网络查找常信号:" + key;
+//                tv_content.setText(getSpan(content, key, 8));
+                tv_content.setText(content);
             }
 
         }
@@ -200,8 +256,10 @@ public class GroupRobotSelecActivity extends AppActivity {
                 if (response.body() == null)
                     return;
 
-                listData = response.body().getData();
-                mtListView.notifyDataSetChange();
+                key="";
+                listData.clear();
+                listData.addAll(response.body().getData());
+                mtListView.notifyDataSetChange(response);
             }
         });
 

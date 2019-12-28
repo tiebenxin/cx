@@ -138,8 +138,8 @@ public class SplashActivity extends AppActivity {
             @Override
             public void run() {
                 SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FIRST_TIME);
-                Boolean isFiast = preferencesUtil.get4Json(Boolean.class);
-                if (isFiast == null) {
+                Boolean isFirst = preferencesUtil.get4Json(Boolean.class);
+                if (isFirst == null) {
                     goActivity(true);
                 } else {
                     goActivity(false);
@@ -160,7 +160,7 @@ public class SplashActivity extends AppActivity {
     }
 
 
-    private void updateToken(final boolean isFlast) {
+    private void updateToken(final boolean isFirst) {
 //        LogUtil.getLog().i("youmeng", "SplashActivity------->getDevId");
         LogUtil.getLog().d("a=", SplashActivity.class.getSimpleName() + "--更新token");
         new RunUtils(new RunUtils.Enent() {
@@ -177,7 +177,7 @@ public class SplashActivity extends AppActivity {
                     @Override
                     public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                         LogUtil.getLog().e("youmeng", "SplashActivity---->updateToken---->onResponse");
-                        if (isFlast) {
+                        if (isFirst) {
                             startActivity(new Intent(SplashActivity.this, SelectLoginActivity.class));
                             setFinishFlags();
                             finish();
@@ -191,7 +191,7 @@ public class SplashActivity extends AppActivity {
                     @Override
                     public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
                         LogUtil.getLog().i("youmeng", "SplashActivity---->updateToken---->onFailure");
-                        if (isFlast) {
+                        if (isFirst) {
                             startActivity(new Intent(SplashActivity.this, SelectLoginActivity.class));
                             setFinishFlags();
                             finish();
@@ -220,14 +220,14 @@ public class SplashActivity extends AppActivity {
     }
 
 
-    private void goActivity(boolean isFlast) {
+    private void goActivity(boolean isFirst) {
         //同步使用友盟设备号,如果同步失败使用自己设备号
         TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
         Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
 //        String imId = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).get4Json(String.class);
         if (token != null) {
             if (!token.isTokenValid(uid) && NetUtil.isNetworkConnected()) {
-                updateToken(isFlast);
+                updateToken(isFirst);
             } else {
                 userAction.login4tokenNotNet(token);
                 //6.17 无网处理
@@ -238,7 +238,7 @@ public class SplashActivity extends AppActivity {
             }
         } else {
             if (TextUtils.isEmpty(phone)) {
-                startActivity(new Intent(SplashActivity.this, PasswordLoginActivity.class));
+                startActivity(new Intent(SplashActivity.this, SelectLoginActivity.class));//PasswordLoginActivity.class
                 // 提前将全屏切换为非全屏状态，解决从全屏进入非全屏标题栏闪动的问题
                 setFinishFlags();
                 finish();
@@ -277,7 +277,6 @@ public class SplashActivity extends AppActivity {
     private void showPage() {
 //        mLayoutGuidance.setVisibility(View.GONE);
 //        mIvStart.setVisibility(View.VISIBLE);
-
         new CheckPermission2Util().requestPermissions(this, new CheckPermission2Util.Event() {
             @Override
             public void onSuccess() {
@@ -291,15 +290,6 @@ public class SplashActivity extends AppActivity {
                 startTimer();
             }
         }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
-
-//        SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FIRST_TIME);
-//        Boolean isFiast = preferencesUtil.get4Json(Boolean.class);
-//        if (isFiast == null) {
-//            initViewPager();
-//            preferencesUtil.save2Json(true);
-//        } else {
-//            startTimer();
-//        }
     }
 
 
