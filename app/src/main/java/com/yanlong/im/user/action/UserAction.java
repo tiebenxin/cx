@@ -45,6 +45,7 @@ import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.utils.encrypt.AESEncrypt;
+import net.cb.cb.library.utils.encrypt.EncrypUtil;
 import net.cb.cb.library.utils.encrypt.MD5;
 
 import java.util.List;
@@ -226,11 +227,13 @@ public class UserAction {
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone());
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).save2Json(userInfo.getUid());
                     userInfo.toTag();
+                    //银行签名，加密存储
                     if (!TextUtils.isEmpty(userInfo.getBankReqSignKey())) {
                         String key = userInfo.getBankReqSignKey();
-                        String result = AESEncrypt.encrypt(key);
-//                        String s = AESEncrypt.decrypt(result);
+                        String result = EncrypUtil.aesEncode(key);
                         userInfo.setBankReqSignKey(result);
+                        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.BANK_SIGN).save2Json(result);
+                        PayEnvironment.getInstance().setBankSign(key);
                     }
                     updateUserinfo2DB(userInfo);
                     MessageManager.getInstance().notifyRefreshUser(userInfo);

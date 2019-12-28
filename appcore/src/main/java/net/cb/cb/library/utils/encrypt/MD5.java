@@ -31,4 +31,11 @@ public class MD5 {
         }
         return "";
     }
+
+    public static byte[] toByte(String sourceString) throws Exception {
+        MessageDigest digest = MessageDigest.getInstance("MD5");
+        digest.update(sourceString.getBytes());
+        byte[] messageDigest = digest.digest();
+        return messageDigest;
+    }
 }
