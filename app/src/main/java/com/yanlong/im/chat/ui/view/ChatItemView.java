@@ -8,11 +8,13 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
@@ -52,9 +54,11 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.hm.cxpay.global.PayEnum;
 import com.luck.picture.lib.tools.StringUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.BalanceAssistantMessage;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -72,6 +76,7 @@ import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.ScreenUtils;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.WebPageActivity;
@@ -201,11 +206,13 @@ public class ChatItemView extends LinearLayout {
     private TextView tvMeGameInfo;
     private ImageView ivMeGameIcon;
     private ImageView ivMeAppIcon;
+    private LabelItemView viewOtBalance;
 
     //位置
-    private RelativeLayout location_you_ll,location_me_ll;
-    private ImageView location_image_you_iv,location_image_me_iv;
-    private TextView location_name_you_tv,location_desc_you_tv,location_name_me_tv,location_desc_me_tv;
+    private RelativeLayout location_you_ll, location_me_ll;
+    private ImageView location_image_you_iv, location_image_me_iv;
+    private TextView location_name_you_tv, location_desc_you_tv, location_name_me_tv, location_desc_me_tv;
+    private LinearLayout viewOtChild;
 
 
     public ChatItemView(Context context, AttributeSet attrs) {
@@ -230,6 +237,7 @@ public class ChatItemView extends LinearLayout {
         viewBroadcast = rootView.findViewById(R.id.view_broadcast);
 
         viewOt = rootView.findViewById(R.id.view_ot);
+        viewOtChild = rootView.findViewById(R.id.view_ot_touch_child);
         imgOtHead = rootView.findViewById(R.id.img_ot_head);
         viewOt1 = rootView.findViewById(R.id.view_ot_1);
         txtOt1 = rootView.findViewById(R.id.txt_ot_1);
@@ -296,8 +304,8 @@ public class ChatItemView extends LinearLayout {
 
         viewOt7 = rootView.findViewById(R.id.view_ot_7);
         viewMe7 = rootView.findViewById(R.id.view_me_7);
-        viewOtTouch = rootView.findViewById(R.id.view_me_touch);
-        viewMeTouch = rootView.findViewById(R.id.view_ot_touch);
+        viewMeTouch = rootView.findViewById(R.id.view_me_touch);
+        viewOtTouch = rootView.findViewById(R.id.view_ot_touch);
 
         //小助手消息
         viewOt8 = rootView.findViewById(R.id.view_ot_8);
@@ -341,6 +349,10 @@ public class ChatItemView extends LinearLayout {
         tvMeGameInfo = rootView.findViewById(R.id.tv_me_game_info);
         ivMeGameIcon = rootView.findViewById(R.id.iv_me_game_icon);
         ivMeAppIcon = rootView.findViewById(R.id.iv_me_app_icon);
+
+        //零钱助手消息，只有接收消息
+//        viewMeBalance = rootView.findViewById(R.id.view_me_balance);
+        viewOtBalance = rootView.findViewById(R.id.view_ot_balance);
 
         //位置
         location_you_ll = rootView.findViewById(R.id.location_you_ll);
@@ -396,6 +408,7 @@ public class ChatItemView extends LinearLayout {
             viewMe.setVisibility(GONE);
             viewOt.setVisibility(VISIBLE);
         }
+        imgOtHead.setVisibility(VISIBLE);
         viewBroadcast.setVisibility(GONE);
         //  imgMeErr.setVisibility(GONE);
         viewMe1.setVisibility(GONE);
@@ -429,6 +442,7 @@ public class ChatItemView extends LinearLayout {
         viewOtCustomerFace.setVisibility(GONE);
         viewMeGameShare.setVisibility(GONE);
         viewOtGameShare.setVisibility(GONE);
+        viewOtBalance.setVisibility(GONE);
 
         //位置
         location_you_ll.setVisibility(GONE);
@@ -504,6 +518,10 @@ public class ChatItemView extends LinearLayout {
                 location_you_ll.setVisibility(VISIBLE);
                 location_me_ll.setVisibility(VISIBLE);
                 break;
+            case ChatEnum.EMessageType.BALANCE_ASSISTANT:
+                setNoAvatarUI(isMe);
+                viewOtBalance.setVisibility(VISIBLE);
+                break;
         }
 
         if (headUrl != null) {
@@ -536,10 +554,29 @@ public class ChatItemView extends LinearLayout {
         viewOtTouch.setOnLongClickListener(null);
     }
 
+    //设置无头像UI
+    private void setNoAvatarUI(boolean isMe) {
+        if (isMe) {
+            imgMeHead.setVisibility(GONE);//不显示头像
+            viewMe.setPadding(10, 0, 10, 0);
+        } else {
+            imgOtHead.setVisibility(GONE);//不显示头像
+            viewOt.setPadding(10, 0, 10, 0);
+            viewOtTouch.setPadding(0, 0, 0, 0);
+        }
+//        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//        viewOtChild.setLayoutParams(params);
+    }
+
     //公告
     public void setData0(String msghtml) {
         imgBroadcast.setVisibility(GONE);
         txtBroadcast.setText(Html.fromHtml(msghtml));
+    }
+
+    public void setNoticeString(Spanned string) {
+        imgBroadcast.setVisibility(GONE);
+        txtBroadcast.setText(string);
     }
 
     public void setData0(SpannableStringBuilder stringBuilder) {
@@ -705,7 +742,7 @@ public class ChatItemView extends LinearLayout {
     }
 
     //红包消息
-    public void setData3(final boolean isInvalid, String title, String info, String typeName, int typeIconRes, final EventRP eventRP) {
+    public void setData3(final boolean isInvalid, String title, String info, String typeName, int typeIconRes, int reType, final EventRP eventRP) {
         if (isInvalid) {//失效
             imgMeRbState.setImageResource(R.mipmap.ic_rb_zfb_n);
             imgOtRbState.setImageResource(R.mipmap.ic_rb_zfb_n);
@@ -727,7 +764,7 @@ public class ChatItemView extends LinearLayout {
             viewMeTouch.setOnClickListener(onk = new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    eventRP.onClick(isInvalid);
+                    eventRP.onClick(isInvalid, reType);
                 }
             });
             viewOtTouch.setOnClickListener(onk);
@@ -749,23 +786,31 @@ public class ChatItemView extends LinearLayout {
             imgMeRbIcon.setImageResource(typeIconRes);
             imgOtRbIcon.setImageResource(typeIconRes);
         }
-
-
     }
 
 
     //转账消息
-    public void setData6(final boolean isInvalid, String title, String info, String typeName, int typeIconRes, final EventRP eventRP) {
-        if (isInvalid) {//失效
-            imgMeTsState.setImageResource(R.mipmap.ic_rb_zfb_n);
-            imgOtTsState.setImageResource(R.mipmap.ic_rb_zfb_n);
-            viewMe6.setBackgroundResource(R.drawable.bg_chat_me_rp_h);
-            viewOt6.setBackgroundResource(R.drawable.bg_chat_other_rp_h);
-        } else {
-            imgMeTsState.setImageResource(R.mipmap.ic_launcher);
-            imgOtTsState.setImageResource(R.mipmap.ic_launcher);
+    public void setData6(final int transferStatus, String title, String info, String typeName, int typeIconRes, int reType, final EventRP eventRP) {
+        if (transferStatus == PayEnum.ETransferOpType.TRANS_SEND) {
+            imgMeTsState.setImageResource(R.mipmap.ic_transfer_rb);
+            imgOtTsState.setImageResource(R.mipmap.ic_transfer_rb);
             viewMe6.setBackgroundResource(R.drawable.bg_chat_me_rp);
             viewOt6.setBackgroundResource(R.drawable.bg_chat_other_rp);
+        } else if (transferStatus == PayEnum.ETransferOpType.TRANS_RECEIVE) {
+            imgMeTsState.setImageResource(R.mipmap.ic_transfer_receive_rb);
+            imgOtTsState.setImageResource(R.mipmap.ic_transfer_receive_rb);
+            viewMe6.setBackgroundResource(R.drawable.bg_chat_me_rp_h);
+            viewOt6.setBackgroundResource(R.drawable.bg_chat_other_rp_h);
+        } else if (transferStatus == PayEnum.ETransferOpType.TRANS_REJECT) {
+            imgMeTsState.setImageResource(R.mipmap.ic_transfer_return_rb);
+            imgOtTsState.setImageResource(R.mipmap.ic_transfer_return_rb);
+            viewMe6.setBackgroundResource(R.drawable.bg_chat_me_rp_h);
+            viewOt6.setBackgroundResource(R.drawable.bg_chat_other_rp_h);
+        } else if (transferStatus == PayEnum.ETransferStatus.PAST) {
+            imgMeTsState.setImageResource(R.mipmap.ic_transfer_return_rb);
+            imgOtTsState.setImageResource(R.mipmap.ic_transfer_return_rb);
+            viewMe6.setBackgroundResource(R.drawable.bg_chat_me_rp_h);
+            viewOt6.setBackgroundResource(R.drawable.bg_chat_other_rp_h);
         }
 
         if (eventRP != null) {
@@ -773,7 +818,7 @@ public class ChatItemView extends LinearLayout {
             viewMeTouch.setOnClickListener(onk = new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    eventRP.onClick(isInvalid);
+                    eventRP.onClick(true, reType);
                 }
             });
             viewOtTouch.setOnClickListener(onk);
@@ -888,6 +933,21 @@ public class ChatItemView extends LinearLayout {
         tvLock.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
+    //零钱助手消息
+    public void setBalanceMsg(BalanceAssistantMessage message, EventBalance eventBalance) {
+        if (viewOtBalance != null && message != null) {
+            viewOtBalance.bindData(message);
+            viewOtBalance.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (eventBalance != null) {
+                        eventBalance.onClick(message.getTradeId(), message.getDetailType());
+                    }
+                }
+            });
+        }
+    }
+
 
     public void setFont(Integer size) {
         txtMe1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
@@ -899,7 +959,7 @@ public class ChatItemView extends LinearLayout {
 
 
     public interface EventRP {
-        void onClick(boolean isInvalid);
+        void onClick(boolean isInvalid, int reType);
     }
 
     //视频消息
@@ -1185,8 +1245,8 @@ public class ChatItemView extends LinearLayout {
 
 
     //位置消息
-    public void setDataLocation(LocationMessage locationMessage,OnClickListener onk) {
-        if(locationMessage==null){
+    public void setDataLocation(LocationMessage locationMessage, OnClickListener onk) {
+        if (locationMessage == null) {
             return;
         }
         location_name_you_tv.setText(locationMessage.getAddress());
@@ -1196,7 +1256,7 @@ public class ChatItemView extends LinearLayout {
         location_desc_me_tv.setText(locationMessage.getAddressDescribe());
 
         //百度地图参数
-        String baiduImageUrl= LocationUtils.getLocationUrl(locationMessage.getLatitude(),locationMessage.getLongitude());
+        String baiduImageUrl = LocationUtils.getLocationUrl(locationMessage.getLatitude(), locationMessage.getLongitude());
         Glide.with(this).load(baiduImageUrl).apply(GlideOptionsUtil.imageOptions()).into(location_image_you_iv);
         Glide.with(this).load(baiduImageUrl).apply(GlideOptionsUtil.imageOptions()).into(location_image_me_iv);
 
@@ -1218,8 +1278,6 @@ public class ChatItemView extends LinearLayout {
 //            imgReadDestroy.setImageResource(R.mipmap.icon_read_destroy_seting);
 //        }
     }
-
-
 
 
     private int netState;
@@ -1251,7 +1309,7 @@ public class ChatItemView extends LinearLayout {
                 }
                 break;
             case -1://图片待发送
-                LogUtil.getLog().e("===state="+state+"===isShowLoad="+isShowLoad);
+                LogUtil.getLog().e("===state=" + state + "===isShowLoad=" + isShowLoad);
                 if (isShowLoad) {
                     imgMeErr.setImageResource(R.mipmap.ic_net_load);
                     Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
@@ -1305,6 +1363,10 @@ public class ChatItemView extends LinearLayout {
         viewOt8.setSelected(flag);
         viewMe8.setSelected(flag);
 
+    }
+
+    public interface EventBalance {
+        void onClick(long tradeId, int detailType);
     }
 
 

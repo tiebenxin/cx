@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @anthor Liszt
- * @data 2019/8/10
+ * @author Liszt
+ * @date 2019/8/10
  * Description  转发roster选择列表 通讯录
  */
 public class ForwardRosterFragment extends BaseMvpFragment<ForwardModel, ForwardView, ForwardPresenter> implements ForwardView {

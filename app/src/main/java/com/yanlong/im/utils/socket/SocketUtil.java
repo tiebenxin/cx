@@ -50,7 +50,10 @@ public class SocketUtil {
             SocketData.setPreServerAckTime(bean.getTimestamp());
             if (bean.getRejectType() == MsgBean.RejectType.ACCEPTED) {//接收到发送的消息了
                 LogUtil.getLog().d(TAG, ">>>>>保存[发送]的消息到数据库 ");
-                SocketData.msgSave4Me(bean);
+                boolean result = SocketData.updateMsgSendStatusByAck(bean);
+                if (!result) {
+                    SocketData.msgSave4Me(bean);
+                }
             } else {
                 LogUtil.getLog().d(TAG, ">>>>>ack被拒绝 :" + bean.getRejectType());
                 LogUtil.writeLog(">>>>>ack被拒绝 :" + bean.getRejectType());

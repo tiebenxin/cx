@@ -34,8 +34,8 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 /**
- * @anthor Liszt
- * @data 2019/9/6
+ * @author Liszt
+ * @date 2019/9/6
  * Description 群公告查看界面
  */
 public class GroupNoteDetailEditActivity extends AppActivity {

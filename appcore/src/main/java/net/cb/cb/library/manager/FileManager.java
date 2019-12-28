@@ -5,8 +5,8 @@ import android.os.Environment;
 import java.io.File;
 
 /**
- * @anthor Liszt
- * @data 2019/9/28
+ * @author Liszt
+ * @date 2019/9/28
  * Description  缓存文件管理类，图片，语音，视频，其他
  */
 public class FileManager {

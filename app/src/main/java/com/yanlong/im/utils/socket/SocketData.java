@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.hm.cxpay.global.PayEnum;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.AssistantMessage;
 import com.yanlong.im.chat.bean.AtMessage;
@@ -62,6 +63,23 @@ public class SocketData {
         MsgBean.UniversalMessage.Builder msg = MsgBean.UniversalMessage.newBuilder();
         MsgBean.UniversalMessage.WrapMessage.Builder wp = MsgBean.UniversalMessage.WrapMessage.newBuilder();
         msg.setRequestId("" + getSysTime());
+        msg.addWrapMsg(0, wp.build());
+
+        return msg;
+    }
+
+    /***
+     * 处理一些统一的数据,用于发送消息时获取
+     * @return
+     */
+    public static MsgBean.UniversalMessage.Builder getMsgBuild(String requestId) {
+        MsgBean.UniversalMessage.Builder msg = MsgBean.UniversalMessage.newBuilder();
+        MsgBean.UniversalMessage.WrapMessage.Builder wp = MsgBean.UniversalMessage.WrapMessage.newBuilder();
+        if (TextUtils.isEmpty(requestId)) {
+            msg.setRequestId("" + getSysTime());
+        } else {
+            msg.setRequestId(requestId);
+        }
         msg.addWrapMsg(0, wp.build());
 
         return msg;
@@ -355,8 +373,8 @@ public class SocketData {
      * @time time > 0
      * */
     private static MsgAllBean send4Base(boolean isSave, boolean isSend, String msgId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
-        LogUtil.getLog().i(TAG, ">>>-=msg=--发送到toid=" + toId + "--gid" + toGid);
-        MsgBean.UniversalMessage.Builder msg = toMsgBuilder(msgId, toId, toGid, time > 0 ? time : getFixTime(), type, value);
+        LogUtil.getLog().i(TAG, ">>>---发送到toid" + toId + "--gid" + toGid);
+        MsgBean.UniversalMessage.Builder msg = toMsgBuilder("", msgId, toId, toGid, time > 0 ? time : getFixTime(), type, value);
 
         if (isSave && msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
             msgSave4MeSendFront(msg); //5.27 发送前先保存到库,
@@ -390,8 +408,8 @@ public class SocketData {
      * @param value
      * @return
      */
-    private static MsgBean.UniversalMessage.Builder toMsgBuilder(String msgid, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
-        MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild();
+    private static MsgBean.UniversalMessage.Builder toMsgBuilder(String requestId, String msgid, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
+        MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild(requestId);
         MsgBean.UniversalMessage.WrapMessage.Builder wmsg = msg.getWrapMsgBuilder(0);
         UserInfo userInfo = UserAction.getMyInfo();
         wmsg.setFromUid(userInfo.getUid());
@@ -940,14 +958,14 @@ public class SocketData {
      * @param rid
      * @return
      */
-    public static MsgAllBean send4RbRev(Long toId, String toGid, String rid) {
-        msgDao.redEnvelopeOpen(rid, true);
+    public static MsgAllBean send4RbRev(Long toId, String toGid, String rid, int reType) {
+        msgDao.redEnvelopeOpen(rid, PayEnum.EEnvelopeStatus.RECEIVED, reType, "");
         MsgBean.ReceiveRedEnvelopeMessage msg = MsgBean.ReceiveRedEnvelopeMessage.newBuilder()
                 .setId(rid)
                 .build();
 
         if (toId.longValue() == UserAction.getMyId().longValue()) {//自己的不发红包通知,只保存
-            MsgBean.UniversalMessage.Builder umsg = toMsgBuilder(null, toId, toGid, getFixTime(), MsgBean.MessageType.RECEIVE_RED_ENVELOPER, msg);
+            MsgBean.UniversalMessage.Builder umsg = toMsgBuilder("", null, toId, toGid, getFixTime(), MsgBean.MessageType.RECEIVE_RED_ENVELOPER, msg);
             msgSave4Me(umsg, 0);
             return MsgConversionBean.ToBean(umsg.getWrapMsg(0));
         }
@@ -1035,12 +1053,15 @@ public class SocketData {
     }
 
     /**
-     * 常信小助手发的消息不需要上会服务器
+     * 常信小助手发的消息不需要上会服务器，待完善
      *
      * @param bean
      * @param isSend 是否需要发送服务器
      */
     public static void sendAndSaveMessage(MsgAllBean bean, boolean isSend) {
+        if (TextUtils.isEmpty(bean.getRequest_id())) {
+            bean.setRequest_id(getUUID());
+        }
         int msgType = bean.getMsg_type();
         MsgBean.MessageType type = null;
         Object value = null;
@@ -1111,27 +1132,43 @@ public class SocketData {
             case ChatEnum.EMessageType.TRANSFER://转账
                 TransferMessage transfer = bean.getTransfer();
                 MsgBean.TransferMessage.Builder transferBuild = MsgBean.TransferMessage.newBuilder();
+
                 transferBuild.setTransactionAmount(transfer.getTransaction_amount());
                 transferBuild.setComment(transfer.getComment());
                 transferBuild.setId(transfer.getId());
+                transferBuild.setOpType(MsgBean.TransferMessage.OpType.forNumber(transfer.getOpType()));
+                transferBuild.setSign(transfer.getSign());
                 value = transferBuild.build();
                 type = MsgBean.MessageType.TRANSFER;
                 break;
             case ChatEnum.EMessageType.RED_ENVELOPE://红包
                 RedEnvelopeMessage red = bean.getRed_envelope();
-                MsgBean.RedEnvelopeMessage.Builder redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
-                        .setId(red.getId())
-                        .setComment(red.getComment())
-                        .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
-                        .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
-                value = redBuild.build();
-                type = MsgBean.MessageType.RED_ENVELOPER;
+                int reType = red.getRe_type().intValue();
+                MsgBean.RedEnvelopeMessage.Builder redBuild = null;
+                if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
+                    redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
+                            .setId(red.getId())
+                            .setComment(red.getComment())
+                            .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
+                            .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
+                } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
+                    redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
+                            .setId(red.getTraceId() + "")
+                            .setComment(red.getComment())
+                            .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
+                            .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()))
+                            .setSign(red.getSign());
+                }
+                if (redBuild != null) {
+                    value = redBuild.build();
+                    type = MsgBean.MessageType.RED_ENVELOPER;
+                }
                 break;
             case ChatEnum.EMessageType.READ://已读消息，不需要保存
 
                 needSave = false;
                 break;
-            case ChatEnum.EMessageType.MSG_CANCEL://
+            case ChatEnum.EMessageType.MSG_CANCEL://撤销消息
 
                 break;
             case ChatEnum.EMessageType.LOCATION://位置
@@ -1145,11 +1182,13 @@ public class SocketData {
                 type = MsgBean.MessageType.SNAPSHOT_LOCATION;
                 break;
         }
+
         if (needSave) {
             saveMessage(bean);
         }
         if (type != null && value != null && isSend) {
-            MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
+            SendList.addMsgToSendSequence(bean.getRequest_id(), bean);//添加到发送队列
+            MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getRequest_id(), bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
             //立即发送
             LogUtil.getLog().e("===发送=msg===" + GsonUtils.optObject(msg));
             SocketUtil.getSocketUtil().sendData4Msg(msg);
@@ -1195,6 +1234,38 @@ public class SocketData {
         return note;
     }
 
+//    public static MsgNotice createMsgNoticeOfRb(String msgId, Long uid, String gid) {
+//        MsgNotice note = new MsgNotice();
+//        note.setMsgid(msgId);
+//        if (uid != null && uid.longValue() == UserAction.getMyId().longValue()) {
+//            note.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
+//            note.setNote("你领取了自己的<font color='#cc5944'>零钱红包</font>");
+//        } else {
+//            note.setMsgType(ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE);
+//            String name = msgDao.getUsername4Show(gid, uid);
+//            String rname = "<font color='#276baa' id='" + uid + "'>" + name + "</font>";
+//            note.setNote("你领取了\"" + rname + "的零钱红包" + "<div id= '" + gid + "'></div>");
+//        }
+//
+//        return note;
+//    }
+
+    public static MsgNotice createMsgNoticeOfRb(String msgId, Long uid, String gid, String rid) {
+        MsgNotice note = new MsgNotice();
+        note.setMsgid(msgId);
+        if (uid != null && uid.longValue() == UserAction.getMyId().longValue()) {
+            note.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
+            note.setNote("你领取了自己的<envelope id=" + rid + ">零钱红包</envelope>");
+        } else {
+            note.setMsgType(ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE);
+            String name = msgDao.getUsername4Show(gid, uid);
+            String n = "<user id='" + uid + "'>" + name + "</user>";
+            note.setNote("你领取了\"" + n + "\"的" + "<envelope id=\" + rid + \">零钱红包</envelope>");
+        }
+
+        return note;
+    }
+
     public static String getNoticeString(MsgAllBean bean, @ChatEnum.ENoticeType int type) {
         String note = "";
         if (bean != null) {
@@ -1222,7 +1293,6 @@ public class SocketData {
     }
 
     public static void setPreServerAckTime(long preServerAckTime) {
-//        LogUtil.getLog().i(TAG, "时间戳--preServerAckTime=" + preServerAckTime);
         SocketData.preServerAckTime = preServerAckTime;
     }
 
@@ -1237,7 +1307,6 @@ public class SocketData {
     //获取修正时间
     public static long getFixTime() {
         long currentTime = System.currentTimeMillis();
-//        LogUtil.getLog().i(TAG, "时间戳--currentTime=" + currentTime + "--preServerAckTime=" + preServerAckTime + "--preSendLocalTime=" + preSendLocalTime);
         if (preServerAckTime > preSendLocalTime && preServerAckTime > currentTime) {//服务器回执时间最新
             currentTime = preServerAckTime + 1;
             preServerAckTime = currentTime;
@@ -1247,7 +1316,6 @@ public class SocketData {
         } else {//本地系统时间最新
             preSendLocalTime = currentTime;
         }
-//        LogUtil.getLog().i(TAG, "时间戳--currentTime=" + currentTime);
         return currentTime;
     }
 
@@ -1630,6 +1698,56 @@ public class SocketData {
         return message;
     }
 
+    //创建系统红包消息
+    public static RedEnvelopeMessage createSystemRbMessage(String msgId, long traceId, String actionId, String info, int reType, int style, String sign) {
+        RedEnvelopeMessage message = new RedEnvelopeMessage();
+        message.setMsgid(msgId);
+        message.setTraceId(traceId);
+        message.setActionId(actionId);
+        message.setComment(info);
+        message.setRe_type(reType);
+        message.setStyle(style);
+        message.setSign(sign);
+        return message;
+    }
+
+    //更新发送状态，根据ack
+    public static boolean updateMsgSendStatusByAck(MsgBean.AckMessage ackMessage) {
+        MsgAllBean msgAllBean = SendList.getMsgFromSendSequence(ackMessage.getRequestId());
+        if (msgAllBean != null) {
+            SendList.removeMsgFromSendSequence(ackMessage.getRequestId());
+            SendList.removeSendListJust(ackMessage.getRequestId());
+            msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
+            if (msgAllBean.getVideoMessage() != null && !TextUtils.isEmpty(videoLocalUrl)) {
+                msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
+            }
+            DaoUtil.update(msgAllBean);
+            return true;
+        }
+        return false;
+    }
+
+    /***
+     * 发送领取红包消息, 不会加入发送队列，没有重发机制
+     * @param toId
+     * @param toGid
+     * @param rid
+     * @return
+     */
+    public static void sendReceivedEnvelopeMsg(Long toId, String toGid, String rid, int reType) {
+        //自己抢自己的红包，不需要发送
+        if (toId != null && UserAction.getMyId() != null && toId.longValue() == UserAction.getMyId().longValue()) {
+            return;
+        }
+        MsgBean.RedEnvelopeType type = MsgBean.RedEnvelopeType.forNumber(reType);
+        MsgBean.ReceiveRedEnvelopeMessage contentMsg = MsgBean.ReceiveRedEnvelopeMessage.newBuilder()
+                .setId(rid)
+                .setReType(type)
+                .build();
+        MsgBean.UniversalMessage.Builder msg = toMsgBuilder("", SocketData.getUUID(), toId, toGid, SocketData.getFixTime(), MsgBean.MessageType.RECEIVE_RED_ENVELOPER, contentMsg);
+        //立即发送
+        SocketUtil.getSocketUtil().sendData4Msg(msg);
+    }
 
     //位置消息
     public static LocationMessage createLocationMessage(String msgId, int latitude, int longitude, String address, String addressDescribe) {
@@ -1642,5 +1760,18 @@ public class SocketData {
         //message.setImg("http://e7-test.oss-cn-beijing.aliyuncs.com/Android/20190730/2dfe5997-68a5-4545-8099-712982b765c9.jpg");
         return message;
     }
+
+    //创建转账消息
+    public static TransferMessage createTransferMessage(String msgId, long traceId, long money, String info, String sign, int opType) {
+        TransferMessage message = new TransferMessage();
+        message.setMsgid(msgId);
+        message.setId(traceId + "");
+        message.setComment(info);
+        message.setTransaction_amount(money + "");
+        message.setSign(sign);
+        message.setOpType(opType);
+        return message;
+    }
+
 
 }

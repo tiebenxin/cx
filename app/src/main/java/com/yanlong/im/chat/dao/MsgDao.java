@@ -2,6 +2,7 @@ package com.yanlong.im.chat.dao;
 
 import android.text.TextUtils;
 
+import com.hm.cxpay.global.PayEnum;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.AssistantMessage;
@@ -32,6 +33,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
+import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventRefreshChat;
@@ -2078,34 +2080,58 @@ public class MsgDao {
      * @param rid
      * @param isOpen
      */
-    public void redEnvelopeOpen(String rid, boolean isOpen) {
+    public void redEnvelopeOpen(String rid, int envelopeStatus, int reType, String token) {
         Realm realm = DaoUtil.open();
-        realm.beginTransaction();
-
-        RedEnvelopeMessage envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("id", rid).findFirst();
-        if (envelopeMessage != null) {
-            envelopeMessage.setIsInvalid(isOpen ? 1 : 0);
-            realm.insertOrUpdate(envelopeMessage);
+        try {
+            realm.beginTransaction();
+            RedEnvelopeMessage envelopeMessage = null;
+            if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
+                envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("id", rid).findFirst();
+            } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
+                long traceId = Long.parseLong(rid);
+                envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("traceId", traceId).findFirst();
+                if (envelopeMessage
+                        != null) {
+                    if (!TextUtils.isEmpty(token)) {
+                        envelopeMessage.setAccessToken(token);
+                    }
+                    envelopeMessage.setEnvelopStatus(envelopeStatus);
+                }
+            }
+            if (envelopeMessage != null) {
+                if (envelopeMessage.getIsInvalid() == 0) {//没拆才更新，已经拆过了不更新
+                    envelopeMessage.setIsInvalid(envelopeStatus != PayEnum.EEnvelopeStatus.NORMAL ? 1 : 0);
+                }
+                realm.insertOrUpdate(envelopeMessage);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
-
-        realm.commitTransaction();
-        realm.close();
     }
 
 
     //7.8 要写语音已读的处理
     public void msgRead(String msgid, boolean isRead) {
         Realm realm = DaoUtil.open();
-        realm.beginTransaction();
-
-        MsgAllBean msgBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
-        if (msgBean != null) {
-            msgBean.setRead(isRead);
-            realm.insertOrUpdate(msgBean);
+        try {
+            realm.beginTransaction();
+            MsgAllBean msgBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
+            if (msgBean != null) {
+                msgBean.setRead(isRead);
+                realm.insertOrUpdate(msgBean);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.reportException(e);
+            DaoUtil.close(realm);
         }
 
-        realm.commitTransaction();
-        realm.close();
     }
 
     /***
@@ -3293,6 +3319,27 @@ public class MsgDao {
             DaoUtil.reportException(e);
         }
         return result;
+    }
+
+    //更新转账状态
+    public void updateTransferStatus(String tradeId, int opType) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            TransferMessage transfer = realm.where(TransferMessage.class)
+                    .beginGroup().equalTo("id", tradeId).endGroup()
+                    .and()
+                    .beginGroup().equalTo("opType", PayEnum.ETransferOpType.TRANS_SEND).endGroup()
+                    .findFirst();
+            if (transfer == null) {
+                return;
+            }
+            transfer.setOpType(opType);
+            realm.commitTransaction();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
     }
 
 

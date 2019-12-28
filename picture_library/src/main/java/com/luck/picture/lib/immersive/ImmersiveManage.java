@@ -9,7 +9,7 @@ import android.view.WindowManager;
 
 /**
  * @author：luck
- * @data：2018/3/28 下午1:00
+ * @date：2018/3/28 下午1:00
  * @描述: 沉浸式相关
  */
 

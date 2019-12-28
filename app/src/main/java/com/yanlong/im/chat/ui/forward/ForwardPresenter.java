@@ -13,8 +13,8 @@ import java.util.List;
 import io.reactivex.Observable;
 
 /**
- * @anthor Liszt
- * @data 2019/8/10
+ * @author Liszt
+ * @date 2019/8/10
  * Description
  */
 public class ForwardPresenter extends BasePresenter<ForwardModel, ForwardView> {

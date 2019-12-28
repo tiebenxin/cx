@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.bean;
 
+import com.google.gson.annotations.SerializedName;
+
 import net.cb.cb.library.base.BaseBean;
 
 /**
@@ -10,7 +12,9 @@ import net.cb.cb.library.base.BaseBean;
 public class LabelItem extends BaseBean {
 //    @PrimaryKey
 //    long tradeId;//订单id
+    @SerializedName("label_")
     String label = "";
+    @SerializedName("value_")
     String value = "";
 //
 //    public long getTradeId() {

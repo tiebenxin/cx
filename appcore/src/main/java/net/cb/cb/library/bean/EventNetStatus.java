@@ -4,8 +4,8 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.event.BaseEvent;
 
 /**
- * @anthor Liszt
- * @data 2019/9/19
+ * @author Liszt
+ * @date 2019/9/19
  * Description
  */
 public class EventNetStatus extends BaseEvent {

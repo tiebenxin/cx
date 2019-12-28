@@ -10,7 +10,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
-import com.yanlong.im.view.PickValueView;
+
+import net.cb.cb.library.view.pick.PickValueView;
 
 /**
  * @version V1.0

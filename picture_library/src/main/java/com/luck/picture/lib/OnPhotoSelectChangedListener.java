@@ -5,8 +5,8 @@ import com.luck.picture.lib.entity.LocalMedia;
 import java.util.List;
 
 /**
- * @anthor Liszt
- * @data 2019/8/14
+ * @author Liszt
+ * @date 2019/8/14
  * Description
  */
 public interface OnPhotoSelectChangedListener {

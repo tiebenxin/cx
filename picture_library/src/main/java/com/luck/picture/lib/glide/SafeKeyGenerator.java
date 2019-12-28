@@ -8,8 +8,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * @anthor Liszt
- * @data 2019/9/25
+ * @author Liszt
+ * @date 2019/9/25
  * Description
  */
 public class SafeKeyGenerator {
