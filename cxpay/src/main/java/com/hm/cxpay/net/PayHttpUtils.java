@@ -82,6 +82,21 @@ public class PayHttpUtils {
         return authMap;
     }
 
+    /**
+     * 新增认证签名 - 获取用户信息接口专用
+     * @return
+     */
+    private Map<String, String> getUserInfoAuthMap(long uid) {
+        String rand = PayUtils.getRandomNumber()+"";//随机数
+        String ts = System.currentTimeMillis()+"";//时间戳
+        String key ="123";//TODO 密钥
+        Map<String, String> authMap = new HashMap<>();
+        authMap.put("rand", rand);
+        authMap.put("ts", ts);
+        authMap.put("sign", PayUtils.getSignature(rand+"."+ts+"."+uid,key));
+        return authMap;
+    }
+
 
     //用户认证
     public Observable<BaseResponse> authUserInfo(String idNum, String realName) {
@@ -129,8 +144,8 @@ public class PayHttpUtils {
     }
 
     //获取用户信息
-    public Observable<BaseResponse<UserBean>> getUserInfo() {
-        return HttpChannel.getInstance().getPayService().getUserInfo(getAuthMap());
+    public Observable<BaseResponse<UserBean>> getUserInfo(long uid) {
+        return HttpChannel.getInstance().getPayService().getUserInfo(getUserInfoAuthMap(uid));
     }
 
     //设置支付密码
