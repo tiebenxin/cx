@@ -1024,7 +1024,17 @@ public class MsgDao {
      * 更新或者创建session
      *
      * */
-    public void sessionReadUpdate(String gid, Long from_uid, String cancelId, boolean canChangeUnread) {
+    public void sessionReadUpdate(String gid, Long from_uid ,boolean canChangeUnread ,MsgAllBean bean) {
+        //是否是 撤回
+        String cancelId = null;
+        if(bean!=null){
+            boolean isCancel = bean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL;
+            if (isCancel && bean.getMsgCancel() != null) {
+                cancelId = bean.getMsgCancel().getMsgidCancel();
+            }
+        }
+
+
         //isCancel 是否是撤回消息  ，  canChangeUnread 不在聊天页面 注意true表示不在聊天页面
         Session session;
         if (StringUtil.isNotNull(gid)) {//群消息
@@ -1122,9 +1132,18 @@ public class MsgDao {
             }
             session.setUp_time(System.currentTimeMillis());
         }
+
         if (StringUtil.isNotNull(cancelId)) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
             session.setMessageType(1000);
+        }else if(bean!=null&&bean.getAtMessage()!=null&&bean.getAtMessage().getAt_type()!=1000){
+            //对at消息处理 而且不是撤回消息
+//          LogUtil.getLog().e("===bean.getAtMessage().getAt_type()="+bean.getAtMessage().getAt_type()+"===bean.getAtMessage().getMsg()="+bean.getAtMessage().getMsg());
+            int messageType=bean.getAtMessage().getAt_type();
+            String atMessage=bean.getAtMessage().getMsg();
+            session.setMessageType(messageType);
+            session.setAtMessage(atMessage);
         }
+
 
         DaoUtil.update(session);
     }
@@ -2750,6 +2769,7 @@ public class MsgDao {
         return sum;
     }
 
+    //判断群是否已存在
     public boolean isGroupExist(String groupId) {
         boolean exist = false;
         if (!TextUtils.isEmpty(groupId)) {
