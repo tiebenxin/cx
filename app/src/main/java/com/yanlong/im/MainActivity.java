@@ -153,7 +153,11 @@ public class MainActivity extends AppActivity {
         SpUtil spUtil = SpUtil.getSpUtil();
         boolean isFist = spUtil.getSPValue(Preferences.IS_FIRST_DIALOG, false);
         if (!isFist) {
-            permissionCheck();
+            String brand = android.os.Build.BRAND;
+            brand = brand.toUpperCase();
+            if(brand.contains("OPPO")){
+                permissionCheck();
+            }
         }
     }
 

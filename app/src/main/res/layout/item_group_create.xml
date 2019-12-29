@@ -60,7 +60,7 @@
                     android:text="群主"
                     android:gravity="center"
                     android:textColor="@color/white"
-                    android:textSize="9sp"
+                    android:textSize="@dimen/font_size8"
                     android:visibility="gone" />
         </FrameLayout>
         <LinearLayout
