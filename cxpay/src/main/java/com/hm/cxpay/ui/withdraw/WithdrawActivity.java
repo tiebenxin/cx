@@ -159,7 +159,12 @@ public class WithdrawActivity extends AppActivity {
                     if (Double.valueOf(etWithdraw.getText().toString()) >= minMoney) {
                         //3 不能超过余额
                         if (Double.valueOf(etWithdraw.getText().toString()) <= balanceValue) {
-                            startActivityForResult(new Intent(activity, CheckPaywordActivity.class), WITHDRAW);
+                            //4 单笔不超过10000
+                            if(Double.valueOf(etWithdraw.getText().toString()) <= 10000){
+                                startActivityForResult(new Intent(activity, CheckPaywordActivity.class), WITHDRAW);
+                            }else {
+                                ToastUtil.show(context, "单日最高提现金额10000元");
+                            }
                         } else {
                             ToastUtil.show(context, "您的可提现余额不足");
                         }
