@@ -82,7 +82,7 @@
             android:layout_toRightOf="@+id/line_two"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="确定"
+            android:text="知道了"
             android:textColor="@color/c_32b053"
             android:textSize="16sp" />
 
