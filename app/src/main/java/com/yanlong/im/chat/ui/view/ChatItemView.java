@@ -451,12 +451,14 @@ public class ChatItemView extends LinearLayout {
 
         switch (type) {
             case ChatEnum.EMessageType.MSG_CANCEL://撤回的消息
-            case 0://公告
+            case ChatEnum.EMessageType.NOTICE://公告
                 viewBroadcast.setVisibility(VISIBLE);
                 viewMe.setVisibility(GONE);
                 viewOt.setVisibility(GONE);
                 break;
-            case 1:
+            case ChatEnum.EMessageType.TEXT:
+            case ChatEnum.EMessageType.TRANSFER_NOTICE:
+            case ChatEnum.EMessageType.AT:
                 viewMe1.setVisibility(VISIBLE);
                 viewOt1.setVisibility(VISIBLE);
                 break;
@@ -483,10 +485,6 @@ public class ChatItemView extends LinearLayout {
             case 7:
                 viewMe7.setVisibility(VISIBLE);
                 viewOt7.setVisibility(VISIBLE);
-                break;
-            case 8:
-                viewMe1.setVisibility(VISIBLE);
-                viewOt1.setVisibility(VISIBLE);
                 break;
             case ChatEnum.EMessageType.ASSISTANT:
                 viewMe8.setVisibility(VISIBLE);
@@ -578,6 +576,13 @@ public class ChatItemView extends LinearLayout {
         imgBroadcast.setVisibility(GONE);
         txtBroadcast.setText(string);
         txtBroadcast.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    public void setTransferNotice(Spanned string) {
+        txtMe1.setText(string);
+        txtOt1.setText(string);
+        txtOt1.setMovementMethod(LinkMovementMethod.getInstance());
+        txtMe1.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     public void setData0(SpannableStringBuilder stringBuilder) {

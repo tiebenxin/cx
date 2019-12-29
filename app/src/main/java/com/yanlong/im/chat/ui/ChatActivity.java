@@ -76,6 +76,7 @@ import com.hm.cxpay.ui.transfer.TransferDetailActivity;
 import com.hm.cxpay.utils.UIUtils;
 import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.chat.MsgTagHandler;
+import com.yanlong.im.chat.bean.TransferNoticeMessage;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
@@ -3371,6 +3372,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                                     msgbean.getLocationMessage().getLatitude(), msgbean.getLocationMessage().getLongitude());
                         }
                     });
+                    break;
+                case ChatEnum.EMessageType.TRANSFER_NOTICE:
+                    TransferNoticeMessage transNotifyMessage = msgbean.getTransferNoticeMessage();
+                    holder.viewChatItem.setTransferNotice(Html.fromHtml(transNotifyMessage.getContent(), null,
+                            new MsgTagHandler(AppConfig.getContext(), true, msgid, ChatActivity.this)));
                     break;
             }
 

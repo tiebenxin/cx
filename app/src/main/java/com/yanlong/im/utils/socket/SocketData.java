@@ -21,6 +21,7 @@ import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
+import com.yanlong.im.chat.bean.TransferNoticeMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -1181,6 +1182,16 @@ public class SocketData {
                 value = locationBuilder.build();
                 type = MsgBean.MessageType.SNAPSHOT_LOCATION;
                 break;
+            case ChatEnum.EMessageType.TRANSFER_NOTICE://位置
+                TransferNoticeMessage noticeMessage = bean.getTransferNoticeMessage();
+                long tradeId = StringUtil.getLong(noticeMessage.getRid());
+                if (tradeId > 0) {
+                    MsgBean.TransNotifyMessage.Builder noticeBuilder = MsgBean.TransNotifyMessage.newBuilder();
+                    noticeBuilder.setTradeId(tradeId);
+                    value = noticeBuilder.build();
+                    type = MsgBean.MessageType.TRANS_NOTIFY;
+                }
+                break;
         }
 
         if (needSave) {
@@ -1770,6 +1781,15 @@ public class SocketData {
         message.setTransaction_amount(money + "");
         message.setSign(sign);
         message.setOpType(opType);
+        return message;
+    }
+
+    //创建转账提醒消息
+    public static TransferNoticeMessage createTransferNoticeMessage(String msgId, String traceId) {
+        TransferNoticeMessage message = new TransferNoticeMessage();
+        message.setMsgId(msgId);
+        message.setRid(traceId);
+        message.setContent("你有一笔等待收款的<envelope id=" + traceId + ">转账</envelope>");
         return message;
     }
 

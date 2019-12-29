@@ -246,7 +246,7 @@ public class MsgConversionBean {
                     } else {
                         rbNotice.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED);
                         String user = "<user id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</user>";
-                        rbNotice.setNote("\"" + user + "\"领取了\"" + "\"你的" + "<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
+                        rbNotice.setNote("\"" + user + "\"领取了你的" + "<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
                     }
                 }
 
@@ -608,6 +608,13 @@ public class MsgConversionBean {
                         }
                     }
                 }
+                break;
+            case TRANS_NOTIFY:
+                TransferNoticeMessage transferNoticeMessage = new TransferNoticeMessage();
+                transferNoticeMessage.setMsgId(bean.getMsgId());
+                transferNoticeMessage.setRid(bean.getTransNotify().getTradeId() + "");
+                transferNoticeMessage.setContent("你有一笔等待收款的<envelope id=" + bean.getTransNotify().getTradeId() + ">转账</envelope>");
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.TRANSFER_NOTICE);
                 break;
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;
