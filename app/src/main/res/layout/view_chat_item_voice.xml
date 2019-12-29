@@ -6,7 +6,7 @@
 
     <LinearLayout
         android:id="@+id/view_ot_voice"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
@@ -48,7 +48,14 @@
             android:src="@mipmap/bg_red_num_small"
             android:visibility="gone" />
 
-
+        <ImageView
+            android:id="@+id/img_ot_load"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="@dimen/app_margin_item"
+            android:src="@mipmap/ic_net_load"
+            android:visibility="gone" />
     </LinearLayout>
 
 
