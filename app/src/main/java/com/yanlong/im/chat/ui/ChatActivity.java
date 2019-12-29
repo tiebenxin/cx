@@ -2000,7 +2000,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventNoticeReceive(NoticeReceiveEvent event) {
-
+        if (!TextUtils.isEmpty(event.getTradeId())) {
+            TransferNoticeMessage transferNoticeMessage = SocketData.createTransferNoticeMessage(SocketData.getUUID(), event.getTradeId());
+            sendMessage(transferNoticeMessage, ChatEnum.EMessageType.TRANSFER_NOTICE);
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

@@ -77,6 +77,9 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
      * 请求->获取用户信息
      */
     public void httpGetUserInfo() {
+        if (PayEnvironment.getInstance().getUser() == null) {
+            return;
+        }
         PayHttpUtils.getInstance().getUserInfo(PayEnvironment.getInstance().getUser().getUid())
                 .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
