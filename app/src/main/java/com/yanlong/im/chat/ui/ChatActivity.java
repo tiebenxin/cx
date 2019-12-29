@@ -5398,6 +5398,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                     @Override
                     public void onSure() {
                         RedEnvelopeMessage message = null;
+                        deleteEnvelopInfo(info);
                         if (info.getReType() == 0) {
                             message = SocketData.createRbMessage(SocketData.getUUID(), info.getRid(), info.getComment(), info.getReType(), info.getEnvelopeStyle());
                         } else {
@@ -5406,7 +5407,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                         if (message != null) {
                             sendMessage(message, ChatEnum.EMessageType.RED_ENVELOPE);
                         }
-                        deleteEnvelopInfo(info);
                     }
 
                     @Override
