@@ -22,6 +22,7 @@
                 <LinearLayout
                     android:id="@+id/layout_setup_manager"
                     android:layout_marginBottom="@dimen/app_margin_item_top"
+                    android:visibility="gone"
                     style="@style/app_layout_list2_item">
 
                     <TextView
@@ -44,6 +45,7 @@
                 <!--全员禁言-->
                 <LinearLayout
                     android:id="@+id/layout_forbidden_words"
+                    android:visibility="gone"
                     style="@style/app_layout_list2_item">
 
                     <TextView
@@ -59,6 +61,7 @@
                 <TextView
                     style="@style/app_txt_content_2"
                     android:paddingLeft="@dimen/app_margin_main"
+                    android:visibility="gone"
                     android:paddingRight="@dimen/app_margin_main"
                     android:layout_marginBottom="5dp"
                     android:text="开启后，仅群主和管理员可发言。进入群成员资料页面，可对单个成员禁言" />
@@ -116,6 +119,7 @@
                 <!--退群成员列表-->
                 <LinearLayout
                     android:id="@+id/layout_exit_group_user"
+                    android:visibility="gone"
                     style="@style/app_layout_list2_item">
 
                     <TextView

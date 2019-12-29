@@ -22,19 +22,7 @@
             android:text="群主"
             android:gravity="center"
             android:textColor="@color/white"
-            android:textSize="9sp"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/txt_manager"
-            android:layout_width="30dp"
-            android:layout_height="15dp"
-            android:layout_gravity="right"
-            android:background="@drawable/shape_circle_head_blue"
-            android:text="管理员"
-            android:gravity="center"
-            android:textColor="@color/white"
-            android:textSize="8sp"
+            android:textSize="@dimen/font_size8"
             android:visibility="gone" />
     </FrameLayout>
 

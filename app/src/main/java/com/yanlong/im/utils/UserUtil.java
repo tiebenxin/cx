@@ -70,7 +70,7 @@ public class UserUtil {
         if (toUId == null) {
             return false;
         }
-        if ((toUId.intValue() == Constants.CX_HELPER_UID || toUId.intValue() == Constants.CX888_UID || toUId.intValue() == Constants.CX999_UID) || toUId.intValue() == Constants.CX_BALANCE_UID) {
+        if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX888_UID.equals(toUId) ||  Constants.CX999_UID.equals(toUId)) {
             return true;
         }
         return false;

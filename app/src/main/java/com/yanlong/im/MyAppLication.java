@@ -5,10 +5,12 @@ import android.app.ActivityManager;
 
 import android.content.Context;
 import android.text.TextUtils;
+
+import com.alibaba.android.arouter.launcher.ARouter;
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
 
-import com.alibaba.android.arouter.launcher.ARouter;
+
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.controll.AVChatSoundPlayer;
 import com.example.nim_lib.ui.VideoActivity;

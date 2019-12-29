@@ -181,6 +181,7 @@ import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.dialog.DialogCommon;
+import net.cb.cb.library.dialog.DialogEnvelopePast;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.inter.ICustomerItemClick;
 import net.cb.cb.library.manager.Constants;
@@ -263,7 +264,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     private LinearLayout viewTransfer;
     private LinearLayout viewCard;
     private LinearLayout viewChatRobot, ll_part_chat_video;
-    private LinearLayout view_location_ll;
+    private LinearLayout location_ll;
     private LinearLayout llChatVideoCall;
     private View viewChatBottom;
     private View viewChatBottomc;
@@ -453,8 +454,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
             viewAction.setVisibility(View.INVISIBLE);
             viewFunc.removeView(viewRb);
             viewFunc.removeView(viewCard);
-            viewFunc.removeView(view_location_ll);
             viewFunc.removeView(viewTransfer);
+            viewFunc.removeView(location_ll);
+//            viewFunc.removeView(viewTransfer);
         }
 
         if (isGroup()) {//去除群的控件
@@ -497,7 +499,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         txtVoice = findViewById(R.id.txt_voice);
         tv_ban = findViewById(R.id.tv_ban);
         viewFaceView = findViewById(R.id.chat_view_faceview);
-        view_location_ll = findViewById(R.id.view_location_ll);
+        location_ll = findViewById(R.id.location_ll);
         setChatImageBackground();
     }
 
@@ -1356,7 +1358,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         });
 
 
-        view_location_ll.setOnClickListener(new View.OnClickListener() {
+        location_ll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (checkForbiddenWords()) {
@@ -2386,7 +2388,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventSwitchDisturb(EventFactory.ToastEvent event) {
-        ToastUtil.showCenter(this, getString(R.string.group_you_forbidden_words));
+        if (!TextUtils.isEmpty(event.value)) {
+            ToastUtil.showCenter(this, event.value);
+        } else {
+            ToastUtil.showCenter(this, getString(R.string.group_you_forbidden_words));
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -5433,23 +5439,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     }
 
     private void showEnvelopePastDialog(EnvelopeInfo info) {
-        DialogCommon dialogCommon = new DialogCommon(this);
+        DialogEnvelopePast dialogCommon = new DialogEnvelopePast(this);
         dialogCommon.setCanceledOnTouchOutside(false);
         String time = TimeToString.HH_MM2(info.getCreateTime());
         String money = info.getAmount() * 1.00 / 100 + "元";
         String content = "您有一个" + time + " 金额为" + money + "的红包未发送成功。已自动退回云红包账户";
-        dialogCommon.setTitleAndSure(true, true)
-                .setTitle("温馨提示")
-                .setContent(content, false)
-                .setLeft("取消")
-                .setRight("知道了")
-                .setListener(new DialogCommon.IDialogListener() {
+        dialogCommon.setContent(content)
+                .setListener(new DialogEnvelopePast.IDialogListener() {
                     @Override
                     public void onSure() {
                     }
 
                     @Override
                     public void onCancel() {
+
                     }
                 });
         dialogCommon.show();
@@ -5477,7 +5480,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
     //删除临时红包信息
     private void deleteEnvelopInfo(EnvelopeInfo envelopeInfo) {
-        msgDao.deleteEnvelopeInfo(envelopeInfo.getRid(), toGid, toUId);
+        msgDao.deleteEnvelopeInfo(envelopeInfo.getRid(), toGid, toUId, true);
         MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
     }
 
