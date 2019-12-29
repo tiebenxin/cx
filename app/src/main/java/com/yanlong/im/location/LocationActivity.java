@@ -264,7 +264,7 @@ public class LocationActivity extends AppActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (edtSearch.getText().toString().length() == 0) {
                     //搜索关键字为0的时候，重新显示全部消息
-                    locService.start();
+//                    locService.start();
                 }
             }
 
@@ -361,13 +361,13 @@ public class LocationActivity extends AppActivity {
             // 这个方法是将坐标转化为具体地址
             @Override
             public void onGetReverseGeoCodeResult(ReverseGeoCodeResult arg0) {
-                LogUtil.getLog().e("===location=地理编码搜索=arg0=" + GsonUtils.optObject(arg0));
+                LogUtil.getLog().e("===location=地理编码搜索=arg0==address="+address+"==="  + GsonUtils.optObject(arg0));
             }
 
             // 将具体的地址转化为坐标
             @Override
             public void onGetGeoCodeResult(GeoCodeResult arg1) {
-                LogUtil.getLog().e("===location=地理编码搜索=arg1=" + GsonUtils.optObject(arg1));
+                LogUtil.getLog().e("===location=地理编码搜索=arg1==address="+address+"===" + GsonUtils.optObject(arg1));
                 if (arg1 != null && "NO_ERROR".equals(arg1.error.name()) && arg1.getLocation() != null) {
                     for (int i = 0; i < locationList.size(); i++) {
                         if(address.equals(locationList.get(i).getAddress())){
