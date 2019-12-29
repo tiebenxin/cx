@@ -14,7 +14,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
 
-import com.alibaba.android.arouter.facade.annotation.Route;
 import com.yanlong.im.R;
 
 import net.cb.cb.library.view.ActionbarView;
@@ -26,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Route(path = "/app/HelpActivity")
+//@Route(path = "/app/HelpActivity")
 public class HelpActivity extends AppActivity {
 
     private ClearEditText mEdtSearch;

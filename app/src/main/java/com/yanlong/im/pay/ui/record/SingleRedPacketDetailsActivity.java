@@ -13,10 +13,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.alibaba.android.arouter.facade.annotation.Route;
-import com.alibaba.android.arouter.launcher.ARouter;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
+import com.hm.cxpay.bean.EnvelopeDetailBean;
+import com.hm.cxpay.bean.EnvelopeReceiverBean;
+import com.hm.cxpay.bean.FromUserBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.databinding.ActivityRedPacketDetailsBinding;
 import com.hm.cxpay.global.PayEnum;
@@ -25,9 +26,6 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.bean.EnvelopeDetailBean;
-import com.hm.cxpay.bean.EnvelopeReceiverBean;
-import com.hm.cxpay.bean.FromUserBean;
 import com.hm.cxpay.utils.DateUtils;
 import com.hm.cxpay.utils.UIUtils;
 import com.hm.cxpay.widget.CircleImageView;
@@ -43,7 +41,7 @@ import java.util.List;
 /**
  * 红包详情页面
  */
-@Route(path = "/app/singleRedPacketDetailsActivity")
+//@Route(path = "/app/singleRedPacketDetailsActivity")
 public class SingleRedPacketDetailsActivity extends BasePayActivity {
     private List<EnvelopeReceiverBean> list = new ArrayList<>();
 
@@ -255,7 +253,7 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
             public void onItem(String string, int postsion) {
                 switch (postsion) {
                     case 0:
-                        ARouter.getInstance().build("/app/redEnvelopeDetailsActivity").navigation();
+//                        ARouter.getInstance().build("/app/redEnvelopeDetailsActivity").navigation();
                         break;
                 }
                 popupSelectView.dismiss();
