@@ -18,7 +18,9 @@ import javax.crypto.spec.SecretKeySpec;
  * @类名：金融相关支付/签名工具类
  * @Date：2019/12/27
  * @by zjy
- * @备注： 1 生成随机数
+ * @备注：
+ *
+ * 1 生成随机数
  * 2 HmacSHA256签名+ Base64编码+ URL编码
  */
 public class PayUtils {
