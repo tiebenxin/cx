@@ -64,6 +64,7 @@ public class TimeToString {
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
         return dateFormat.format(new Date(time));
     }
+
     public static String HH_MM2(Long time) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH时mm分");
         return dateFormat.format(new Date(time));
@@ -71,6 +72,11 @@ public class TimeToString {
 
     public static String YYYY_MM_DD_HH_MM(Long time) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        return dateFormat.format(new Date(time));
+    }
+
+    public static String MM_DD_HH_MM2(Long time) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM月dd日HH时mm分");
         return dateFormat.format(new Date(time));
     }
 
@@ -196,5 +202,20 @@ public class TimeToString {
             }
             return Html.fromHtml(timestr);
         }
+    }
+
+    public static String getEnvelopeTime(long time) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(time);
+        Calendar todayCalendar = Calendar.getInstance();
+        String result = "";
+        if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
+            if (todayCalendar.get(Calendar.DAY_OF_YEAR) == calendar.get(Calendar.DAY_OF_YEAR)) { //同一天
+                result = HH_MM2(time);
+            } else {
+                result = "昨天 " + HH_MM2(time);
+            }
+        }
+        return result;
     }
 }
