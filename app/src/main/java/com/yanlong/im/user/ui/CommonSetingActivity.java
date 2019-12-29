@@ -118,27 +118,31 @@ public class CommonSetingActivity extends AppActivity {
             @Override
             public void onRight() {
                 String content = mEdContent.getText().toString();
-                //群昵称可以设置空字符串(取默认名)、用户名设置和备注不可以用空字符串
-                if(!TextUtils.isEmpty(mHeadView.getActionbar().getTitle())){
-                    if(!mHeadView.getActionbar().getTitle().equals("我在本群的信息")){
-                        if (!TextUtils.isEmpty(content) && TextUtils.isEmpty(content.trim())) {
-                            ToastUtil.show(CommonSetingActivity.this, "不能用空字符");
+                //1 内容不为空
+                if (!TextUtils.isEmpty(content)){
+                    //2-1 若为纯空格
+                    if(TextUtils.isEmpty(content.trim())){
+                        //群昵称可以为纯空格，回传""字符串取原来昵称
+                        if(mHeadView.getActionbar().getTitle().equals("我在本群的信息")){
+                            content = content.trim();
+                        }else {
+                            //用户名设置和备注不可以用纯空格
+                            ToastUtil.show(CommonSetingActivity.this, "不能全部用空格");
                             return;
                         }
                     }else {
-                        content = content.trim();//群昵称可以为空格，过滤空格并传""则取原来昵称
-                    }
-                }
-                if (!TextUtils.isEmpty(content)){
-                    //截取前两位判断开头是否为emoji
-                    if(content.length()>=2){
-                        String emoji = content.substring(0,2);
-                        if(StringUtil.ifContainEmoji(emoji)){
-                            content = " "+content;
+                        //2-2 若不为纯空格，先过滤掉空格字符
+                        content = content.trim();
+                        //截取前两位判断开头是否为emoji
+                        if(content.length()>=2){
+                            String emoji = content.substring(0,2);
+                            if(StringUtil.ifContainEmoji(emoji)){
+                                content = " "+content;
+                            }
                         }
+
                     }
                 }
-
                 if(special == 1){
                     if(checkProduct()){
                         return;
@@ -148,7 +152,6 @@ public class CommonSetingActivity extends AppActivity {
                 intent.putExtra(CONTENT, content);
                 setResult(RESULT_OK, intent);
                 onBackPressed();
-
             }
         });
     }
