@@ -92,7 +92,10 @@ public class PayHttpUtils {
     private Map<String, String> getUserInfoAuthMap(long uid) {
         String rand = PayUtils.getRandomNumber()+"";//随机数
         String ts = System.currentTimeMillis()+"";//时间戳
-        String key ="123";//TODO 密钥
+        String key = "";//密钥
+        if(!TextUtils.isEmpty(PayEnvironment.getInstance().getBankSign())){
+            key = PayEnvironment.getInstance().getBankSign();
+        }
         Map<String, String> authMap = new HashMap<>();
         authMap.put("rand", rand);
         authMap.put("ts", ts);
