@@ -263,7 +263,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     private LinearLayout viewTransfer;
     private LinearLayout viewCard;
     private LinearLayout viewChatRobot, ll_part_chat_video;
-    private LinearLayout view_location_ll;
+    private LinearLayout location_ll;
     private LinearLayout llChatVideoCall;
     private View viewChatBottom;
     private View viewChatBottomc;
@@ -453,7 +453,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
             viewAction.setVisibility(View.INVISIBLE);
 //            viewFunc.removeView(viewRb);
             viewFunc.removeView(viewCard);
-            viewFunc.removeView(view_location_ll);
+            viewFunc.removeView(location_ll);
 //            viewFunc.removeView(viewTransfer);
         }
 
@@ -497,7 +497,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         txtVoice = findViewById(R.id.txt_voice);
         tv_ban = findViewById(R.id.tv_ban);
         viewFaceView = findViewById(R.id.chat_view_faceview);
-        view_location_ll = findViewById(R.id.view_location_ll);
+        location_ll = findViewById(R.id.location_ll);
         setChatImageBackground();
     }
 
@@ -1356,7 +1356,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         });
 
 
-        view_location_ll.setOnClickListener(new View.OnClickListener() {
+        location_ll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (checkForbiddenWords()) {

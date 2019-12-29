@@ -3,9 +3,7 @@ package net.cb.cb.library.view;
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,9 +12,7 @@ import android.widget.TextView;
 
 import net.cb.cb.library.R;
 import net.cb.cb.library.utils.DensityUtil;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
-import net.cb.cb.library.utils.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -115,9 +111,9 @@ public class PySortView extends LinearLayout {
      */
     public static void moveToPosition(LinearLayoutManager manager, int n) {
         try {
-            Log.i("1212", "postion:" + n);
             manager.scrollToPositionWithOffset(n, 0);
-            manager.setStackFromEnd(true);
+            // TODO 当条数少时，会直接显示到底部
+//            manager.setStackFromEnd(true);
         } catch (Exception e) {
         }
     }

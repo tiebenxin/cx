@@ -224,7 +224,7 @@
 
         <!-- 位置功能 -->
         <LinearLayout
-            android:id="@+id/view_location_ll"
+            android:id="@+id/location_ll"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
             android:gravity="center_horizontal"

@@ -555,19 +555,20 @@ public class UserInfoActivity extends AppActivity {
     }
 
     private void checkPower() {
-        if (group != null) {
-            if (isAdmin()) {
-                mViewSettingPower.setVisibility(View.VISIBLE);
-                // mviewSettingLabel.setVisibility(View.VISIBLE);
-            } else {
-                if (isAdministrators(UserAction.getMyId())) {// 同级别不允许设置权限
-                    if (!isAdministrators(id) && !group.getMaster().equals(id + "")) {
-                        mViewSettingPower.setVisibility(View.VISIBLE);
-                        // mviewSettingLabel.setVisibility(View.VISIBLE);
-                    }
-                }
-            }
-        }
+
+//        if (group != null) {
+//            if (isAdmin()) {
+//                mViewSettingPower.setVisibility(View.VISIBLE);
+//                // mviewSettingLabel.setVisibility(View.VISIBLE);
+//            } else {
+//                if (isAdministrators(UserAction.getMyId())) {// 同级别不允许设置权限
+//                    if (!isAdministrators(id) && !group.getMaster().equals(id + "")) {
+//                        mViewSettingPower.setVisibility(View.VISIBLE);
+//                        // mviewSettingLabel.setVisibility(View.VISIBLE);
+//                    }
+//                }
+//            }
+//        }
     }
 
     private boolean isAdmin() {
