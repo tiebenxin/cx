@@ -61,11 +61,11 @@ android {
                 VIVO_APPID    : "15217", // VIVO平台注册的appid
         ]
 
-//        javaCompileOptions {
-//            annotationProcessorOptions {
-//                arguments = [moduleName: project.getName()]
-//            }
-//        }
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [moduleName: project.getName()]
+            }
+        }
 
 
     }
@@ -222,8 +222,8 @@ dependencies {
     implementation project(':nim_lib')
     implementation project(':cxpay')
     //ali 路由
-//    implementation 'com.alibaba:arouter-api:1.3.1'
-//    annotationProcessor 'com.alibaba:arouter-compiler:1.1.4'
+    implementation 'com.alibaba:arouter-api:1.3.1'
+    annotationProcessor 'com.alibaba:arouter-compiler:1.1.4'
 
 
 }

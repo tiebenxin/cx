@@ -5,6 +5,8 @@ import android.app.ActivityManager;
 
 import android.content.Context;
 import android.text.TextUtils;
+
+import com.alibaba.android.arouter.launcher.ARouter;
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
 
@@ -132,7 +134,7 @@ public class MyAppLication extends MainApplication {
         // 初始化表情
         FaceView.initFaceMap();
         initLocation();//初始化定位
-//        initARouter();//初始化路由
+        initARouter();//初始化路由
     }
 
     /**
@@ -319,11 +321,11 @@ public class MyAppLication extends MainApplication {
     }
 
     public void initARouter() {
-//        if (BuildConfig.DEBUG) {
-//            ARouter.openLog();
-//            ARouter.openDebug();
-//        }
-//        ARouter.init(this);
+        if (BuildConfig.DEBUG) {
+            ARouter.openLog();
+            ARouter.openDebug();
+        }
+        ARouter.init(this);
 
     }
 

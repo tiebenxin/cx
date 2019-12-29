@@ -245,5 +245,18 @@
 -dontwarn org.apache.commons.codec.binary.**
 
 
+#=================arouter=======================
+-keep public class com.alibaba.android.arouter.routes.**{*;}
+-keep public class com.alibaba.android.arouter.facade.**{*;}
+-keep class * implements com.alibaba.android.arouter.facade.template.ISyringe{*;}
+
+-keepnames class com.yanlong.im.pay.ui.record.RedEnvelopeRecordActivity
+-keepnames class com.yanlong.im.pay.ui.record.RedpacketRecordActivity
+-keepnames class com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity
+-keepnames class com.yanlong.im.user.ui.HelpActivity
+#=================arouter=======================
+
+
+
 
 
