@@ -46,6 +46,7 @@
         <!-- 视频通话 -->
         <activity android:name=".ui.VideoActivity"
             android:launchMode="singleInstance"
+            android:windowSoftInputMode="stateAlwaysHidden"
             android:screenOrientation="portrait"/>
 
         <!-- APP key, 可以在这里设置，也可以在 SDKOptions 中提供。

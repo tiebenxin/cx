@@ -107,14 +107,6 @@ public class GroupCreateActivity extends AppActivity {
             }
         });
 
-//        ClickFilter.onClick(actionbar.getViewRight(), new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                actionbar.getViewRight().setEnabled(false);
-//                taskCreate();
-//            }
-//        });
-
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLoadView().setStateNormal();
         //联动
@@ -286,25 +278,6 @@ public class GroupCreateActivity extends AppActivity {
         }
     }
 
-    //----------------
-//    public static void showThumb(SimpleDraweeView draweeView, String url, int resizeWidthDp, int resizeHeightDp) {
-//        if (url == null || "".equals(url))
-//            return;
-//        if (draweeView == null)
-//            return;
-//        ImageRequest request = ImageRequestBuilder.newBuilderWithSource(Uri.parse(url))
-//                .setResizeOptions(new ResizeOptions(DensityUtil.dip2px(draweeView.getContext(), resizeWidthDp), DensityUtil.dip2px(draweeView.getContext(), resizeHeightDp)))
-//                .build();
-//        DraweeController controller = Fresco.newDraweeControllerBuilder()
-//                .setImageRequest(request)
-//                .setOldController(draweeView.getController())
-//                .setControllerListener(new BaseControllerListener<ImageInfo>())
-//                .build();
-//        draweeView.setController(controller);
-//    }
-    //---------------------
-
-
     private MsgAction msgACtion = new MsgAction();
     private UserDao userDao = new UserDao();
 
@@ -414,65 +387,5 @@ public class GroupCreateActivity extends AppActivity {
                 super.onFailure(call, t);
             }
         });
-
-//        upFileAction.upFile(UpFileAction.PATH.HEAD_GROUP, getContext(), new UpFileUtil.OssUpCallback() {
-//            @Override
-//            public void success(String icon) {
-//                msgACtion.groupCreate(UserAction.getMyInfo().getName(), "", icon, templist, new CallBack<ReturnBean<Group>>() {
-//                    @Override
-//                    public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-//                        actionbar.getViewRight().setEnabled(true);
-//                        alert.dismiss();
-//                        if (response.body() == null)
-//                            return;
-//                        if (response.body().isOk()) {
-//                            finish();
-//                            startActivity(new Intent(getContext(), ChatActivity.class)
-//                                    .putExtra(ChatActivity.AGM_TOGID, response.body().getData().getGid())
-//                            );
-//                        } else {
-//                            ToastUtil.show(getContext(), response.body().getMsg());
-//
-//                        }
-//
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
-//                        actionbar.getViewRight().setEnabled(true);
-//                        alert.dismiss();
-//                        super.onFailure(call, t);
-//                    }
-//                });
-//            }
-//
-//            @Override
-//            public void fail() {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        actionbar.getViewRight().setEnabled(true);
-//                        alert.dismiss();
-//                        ToastUtil.show(getContext(), "上传失败(oss)");
-//                    }
-//                });
-//
-//            }
-//
-//            @Override
-//            public void inProgress(long progress, long zong) {
-//
-//            }
-//        }, file.getAbsolutePath());
-
-
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        //   ((ViewGroup)mtListView.getListView().getParent()) .removeAllViews();
-        //   ((ViewGroup)topListView.getParent()) .removeAllViews();
-
     }
 }

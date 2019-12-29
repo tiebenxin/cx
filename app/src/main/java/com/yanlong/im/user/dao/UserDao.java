@@ -3,24 +3,15 @@ package com.yanlong.im.user.dao;
 import android.text.TextUtils;
 
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.bean.ChangeSurvivalTimeMessage;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.bean.MsgCancel;
-import com.yanlong.im.chat.bean.MsgNotice;
-import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
-import com.yanlong.im.utils.ReadDestroyUtil;
-import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.manager.Constants;
 
-
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import io.realm.Realm;
@@ -213,6 +204,8 @@ public class UserDao {
                         .beginGroup().equalTo("uType", 2).endGroup()
                         .and()
                         .beginGroup().notEqualTo("uid", Constants.CX888_UID).endGroup()
+                        .and()
+                        .beginGroup().notEqualTo("uid", Constants.CX_BALANCE_UID).endGroup()
                         .sort("tag", Sort.ASCENDING).findAll();
             } else {
                 ls = realm.where(UserInfo.class).equalTo("uType", 2).sort("tag", Sort.ASCENDING).findAll();

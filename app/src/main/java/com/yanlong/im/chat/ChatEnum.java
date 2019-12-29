@@ -165,7 +165,7 @@ public class ChatEnum {
      * */
     @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CANCEL,
             UNRECOGNIZED, EMessageType.MSG_VIDEO, EMessageType.MSG_VOICE_VIDEO, EMessageType.LOCK, EMessageType.CHANGE_SURVIVAL_TIME,
-            EMessageType.READ, EMessageType.MSG_VOICE_VIDEO_NOTICE, EMessageType.LOCATION, EMessageType.BALANCE_ASSISTANT})
+            EMessageType.READ, EMessageType.MSG_VOICE_VIDEO_NOTICE, EMessageType.LOCATION, EMessageType.BALANCE_ASSISTANT, EMessageType.TRANSFER_NOTICE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMessageType {
         int UNRECOGNIZED = -1; //未识别
@@ -185,6 +185,7 @@ public class ChatEnum {
         int MSG_VOICE_VIDEO_NOTICE = 13; //音视频消息通知
         int LOCATION = 14; //位置消息
         int BALANCE_ASSISTANT = 15; //零钱助手消息
+        int TRANSFER_NOTICE = 16; //转账提醒
         int CHANGE_SURVIVAL_TIME = 113;//阅后即焚
         int READ = 120;//已读消息
 
@@ -251,9 +252,9 @@ public class ChatEnum {
      *
      * */
     @IntDef({ENoticeType.ENTER_BY_QRCODE, ENoticeType.INVITED, ENoticeType.KICK, ENoticeType.FORTH, ENoticeType.TRANSFER_GROUP_OWNER, ENoticeType.LEAVE, ENoticeType.RED_ENVELOPE_RECEIVED,
-            ENoticeType.RECEIVE_RED_ENVELOPE, ENoticeType.CANCEL, ENoticeType.BLACK_ERROR, ENoticeType.NO_FRI_ERROR, ENoticeType.LOCK, ENoticeType.RED_ENVELOPE_RECEIVED_SELF,
-            ENoticeType.SYS_ENVELOPE_RECEIVED, ENoticeType.SYS_ENVELOPE_RECEIVED_SELF, ENoticeType.RECEIVE_SYS_ENVELOPE,
-            ENoticeType.CHANGE_VICE_ADMINS_ADD, ENoticeType.CHANGE_VICE_ADMINS_CANCLE, ENoticeType.FORBIDDEN_WORDS_OPEN, ENoticeType.FORBIDDEN_WORDS_CLOSE, ENoticeType.FORBIDDEN_WORDS_SINGE})
+            ENoticeType.RECEIVE_RED_ENVELOPE, ENoticeType.CANCEL, ENoticeType.BLACK_ERROR, ENoticeType.NO_FRI_ERROR, ENoticeType.LOCK, ENoticeType.CHANGE_VICE_ADMINS_ADD,
+            ENoticeType.CHANGE_VICE_ADMINS_CANCLE,ENoticeType.FORBIDDEN_WORDS_OPEN,ENoticeType.FORBIDDEN_WORDS_CLOSE,ENoticeType.RED_ENVELOPE_RECEIVED_SELF,
+            ENoticeType.FORBIDDEN_WORDS_SINGE,ENoticeType.OPEN_UP_RED_ENVELOPER,ENoticeType.SYS_ENVELOPE_RECEIVED_SELF,ENoticeType.RECEIVE_SYS_ENVELOPE,ENoticeType.SYS_ENVELOPE_RECEIVED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ENoticeType {
         int ENTER_BY_QRCODE = 1; //扫二维码进群
@@ -272,13 +273,13 @@ public class ChatEnum {
         int CHANGE_VICE_ADMINS_CANCLE = 14;// 群管理变更通知 取消
         int FORBIDDEN_WORDS_OPEN = 15;// 群禁言 开
         int FORBIDDEN_WORDS_CLOSE = 16;// 群禁言 关
-        int FORBIDDEN_WORDS_SINGE = 18;// 单人禁言
         int RED_ENVELOPE_RECEIVED_SELF = 17;//自己领取自己的零钱红包
-        int SYS_ENVELOPE_RECEIVED = 19;//xx领取你的零钱红包
+        int FORBIDDEN_WORDS_SINGE = 18;// 单人禁言
+        int OPEN_UP_RED_ENVELOPER  = 19;// 领取群红包
         int SYS_ENVELOPE_RECEIVED_SELF = 20;//自己领取自己的零钱红包
         int RECEIVE_SYS_ENVELOPE = 21;//你领取了xx的零钱红包
+        int SYS_ENVELOPE_RECEIVED = 22;//xx领取你的零钱红包
     }
-
 
     /*
      * AT 类型

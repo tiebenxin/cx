@@ -3385,13 +3385,15 @@ public class MsgDao {
     }
 
     //删除发送失败红包信息
-    public void deleteEnvelopeInfo(String rid, String gid, long uid) {
+    public void deleteEnvelopeInfo(String rid, String gid, long uid,boolean deleInfo) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
             EnvelopeInfo info = realm.where(EnvelopeInfo.class).equalTo("rid", rid).findFirst();
             if (info != null) {
-                info.deleteFromRealm();
+                if (deleInfo) {
+                    info.deleteFromRealm();
+                }
                 Session session;
                 if (!TextUtils.isEmpty(gid)) {
                     session = realm.where(Session.class).equalTo("gid", gid).findFirst();

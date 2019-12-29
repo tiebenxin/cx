@@ -24,6 +24,7 @@ import com.yanlong.im.databinding.ItemSetupManagerBinding;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
+import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.IntentUtil;
@@ -32,6 +33,8 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.AlertYesNo;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -212,6 +215,10 @@ public class SetupSysManagerActivity extends BaseBindActivity<ActivitySetupSysMa
                     } else {
                         mList.remove(userInfo);
                     }
+                    // 更新群信息
+                    EventGroupChange event = new EventGroupChange();
+                    event.setNeedLoad(true);
+                    EventBus.getDefault().post(event);
                     mViewAdapter.notifyDataSetChanged();
                 } else {
                     if (isAdd) {
