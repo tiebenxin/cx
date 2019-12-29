@@ -1027,7 +1027,7 @@ public class MsgDao {
      * 更新或者创建session
      *
      * */
-    public void sessionReadUpdate(String gid, Long from_uid ,boolean canChangeUnread ,MsgAllBean bean) {
+    public void sessionReadUpdate(String gid, Long from_uid ,boolean canChangeUnread ,MsgAllBean bean ,String firstFlag) {
         //是否是 撤回
         String cancelId = null;
         if(bean!=null){
@@ -1138,9 +1138,9 @@ public class MsgDao {
 
         if (StringUtil.isNotNull(cancelId)) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
             session.setMessageType(1000);
-        }else if(bean!=null&&bean.getAtMessage()!=null&&bean.getAtMessage().getAt_type()!=1000){
+        }else if("first".equals(firstFlag)&&bean!=null&&bean.getAtMessage()!=null&&bean.getAtMessage().getAt_type()!=1000){
             //对at消息处理 而且不是撤回消息
-//          LogUtil.getLog().e("===bean.getAtMessage().getAt_type()="+bean.getAtMessage().getAt_type()+"===bean.getAtMessage().getMsg()="+bean.getAtMessage().getMsg());
+//            LogUtil.getLog().e("===bean.getAtMessage().getAt_type()="+bean.getAtMessage().getAt_type()+"===bean.getAtMessage().getMsg()="+bean.getAtMessage().getMsg());
             int messageType=bean.getAtMessage().getAt_type();
             String atMessage=bean.getAtMessage().getMsg();
             session.setMessageType(messageType);
@@ -2079,7 +2079,7 @@ public class MsgDao {
      * 红包开
      *
      * @param rid
-     * @param isOpen
+     * @param
      */
     public void redEnvelopeOpen(String rid, int envelopeStatus, int reType, String token) {
         Realm realm = DaoUtil.open();

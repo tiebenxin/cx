@@ -701,7 +701,7 @@ public class MessageManager {
                     loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
                 } else {
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), msgAllBean);
+                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), msgAllBean,null);
                         setMessageChange(true);
                     } else {
                         updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel, msgAllBean.getRequest_id());
@@ -722,7 +722,7 @@ public class MessageManager {
                 } else {
                     LogUtil.getLog().d("a=", TAG + "--异步加载用户信息更新未读数");
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), chatterId ,msgAllBean);
+                        updateSessionUnread(msgAllBean.getGid(), chatterId ,msgAllBean,null);
                         setMessageChange(true);
                     } else {
                         updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel, msgAllBean.getRequest_id());
@@ -732,7 +732,7 @@ public class MessageManager {
             } else {
                 if (!TextUtils.isEmpty(msgAllBean.getGid())) {
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(),msgAllBean);
+                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(),msgAllBean,null);
                         setMessageChange(true);
                     } else {
                         updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel, msgAllBean.getRequest_id());
@@ -740,7 +740,7 @@ public class MessageManager {
                 } else {
                     long chatterId = isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid();
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), chatterId, msgAllBean);
+                        updateSessionUnread(msgAllBean.getGid(), chatterId, msgAllBean,null);
                         setMessageChange(true);
                     } else {
                         updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel, msgAllBean.getRequest_id());
@@ -779,7 +779,7 @@ public class MessageManager {
                         taskMsgList.updateTaskCount();
                     }
                 } else {
-                    updateSessionUnread(gid, uid, bean);
+                    updateSessionUnread(gid, uid, bean,null);
                     setMessageChange(true);
                     notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
                 }
@@ -795,7 +795,7 @@ public class MessageManager {
                         taskMsgList.updateTaskCount();
                     }
                 } else {
-                    updateSessionUnread(gid, uid, bean);
+                    updateSessionUnread(gid, uid, bean,null);
                     notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
                 }
             }
@@ -822,7 +822,7 @@ public class MessageManager {
                         taskMsgList.updateTaskCount();
                     }
                 } else {
-                    updateSessionUnread(gid, uid, bean);
+                    updateSessionUnread(gid, uid, bean,"first");
                     setMessageChange(true);
                     notifyRefreshMsg(CoreEnum.EChatType.GROUP, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
                 }
@@ -838,7 +838,7 @@ public class MessageManager {
                         taskMsgList.updateTaskCount();
                     }
                 } else {
-                    updateSessionUnread(gid, uid, bean);
+                    updateSessionUnread(gid, uid, bean,null);
                     notifyRefreshMsg(CoreEnum.EChatType.GROUP, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
                 }
             }
@@ -860,7 +860,7 @@ public class MessageManager {
     /*
      * 更新session未读数
      * */
-    public synchronized void updateSessionUnread(String gid, Long from_uid ,MsgAllBean bean) {
+    public synchronized void updateSessionUnread(String gid, Long from_uid ,MsgAllBean bean,String firstFlag) {
 //        LogUtil.getLog().d("a=", TAG + "--更新Session--updateSessionUnread" + "--isCancel=" + isCancel);
         boolean canChangeUnread = true;
         if (!TextUtils.isEmpty(gid)) {
@@ -873,7 +873,7 @@ public class MessageManager {
             }
 
         }
-        msgDao.sessionReadUpdate(gid, from_uid,canChangeUnread, bean);
+        msgDao.sessionReadUpdate(gid, from_uid,canChangeUnread, bean,firstFlag);
     }
 
     /*

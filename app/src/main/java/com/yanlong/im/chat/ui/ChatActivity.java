@@ -400,6 +400,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         boolean hasClear = taskCleanRead(false);
         boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
         boolean hasChange = updateSessionDraftAndAtMessage();
+//        LogUtil.getLog().e("===hasClear="+hasClear+"==hasUpdate="+hasUpdate+"==hasChange="+hasChange);
         if (hasClear || hasUpdate || hasChange) {
             MessageManager.getInstance().setMessageChange(true);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
@@ -962,6 +963,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                     }
                 }
                 isFirst++;
+
+                scrollListView(true);
             }
 
             @Override
