@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.text.TextUtils;
 import android.view.View;
 
+import com.alibaba.android.arouter.facade.annotation.Route;
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
@@ -34,7 +35,7 @@ import java.util.List;
  * @date 2019/12/2
  * Description 红包明细界面
  */
-//@Route(path = "/app/redEnvelopeDetailsActivity")
+@Route(path = "/app/redEnvelopeDetailsActivity")
 public class RedEnvelopeRecordActivity extends AppActivity {
 
     private ActivityRedEnvelopeDetailBinding ui;

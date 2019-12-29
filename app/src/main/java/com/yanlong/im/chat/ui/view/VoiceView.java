@@ -24,6 +24,7 @@ public class VoiceView extends LinearLayout {
     private TextView txtOtVoice;
     private View viewOtP;
     private ImageView imgOtUnRead;
+    private ImageView imgOtLoad;
     private LinearLayout viewMeVoice;
     private View viewMeP;
     private TextView txtMeVoice;
@@ -44,6 +45,7 @@ public class VoiceView extends LinearLayout {
         txtOtVoice = (TextView) rootView.findViewById(R.id.txt_ot_voice);
         viewOtP = (View) rootView.findViewById(R.id.view_ot_p);
         imgOtUnRead = rootView.findViewById(R.id.img_ot_unread);
+        imgOtLoad = rootView.findViewById(R.id.img_ot_load);
         viewMeVoice = (LinearLayout) rootView.findViewById(R.id.view_me_voice);
         viewMeP = (View) rootView.findViewById(R.id.view_me_p);
         txtMeVoice = (TextView) rootView.findViewById(R.id.txt_me_voice);
@@ -73,7 +75,7 @@ public class VoiceView extends LinearLayout {
             viewMeVoice.setVisibility(GONE);
             viewOtVoice.setVisibility(VISIBLE);
             imgOtUnRead.setVisibility(playStatus != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
-            imgOtUnRead.setImageResource(R.mipmap.bg_red_num_small);
+            imgOtLoad.setVisibility(GONE);
         }
         txtOtVoice.setText(second + "''");
         txtMeVoice.setText(second + "''");
@@ -124,15 +126,14 @@ public class VoiceView extends LinearLayout {
         switch (state) {
             case ChatEnum.EPlayStatus.DOWNLOADING://正常
                 if (!isRead) {
-                    imgOtUnRead.setImageResource(R.mipmap.ic_net_load);
                     Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
-                    imgOtUnRead.startAnimation(rotateAnimation);
-                    imgOtUnRead.setVisibility(VISIBLE);
+                    imgOtLoad.startAnimation(rotateAnimation);
+                    imgOtLoad.setVisibility(VISIBLE);
                 }
                 break;
             case ChatEnum.EPlayStatus.NO_PLAY:
-                imgOtUnRead.clearAnimation();
-                imgOtUnRead.setVisibility(GONE);
+                imgOtLoad.clearAnimation();
+                imgOtLoad.setVisibility(GONE);
                 break;
         }
     }
