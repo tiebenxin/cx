@@ -3,11 +3,8 @@ package com.yanlong.im.user.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.Editable;
 import android.text.InputFilter;
-import android.text.InputType;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -15,7 +12,6 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 import com.yanlong.im.utils.PasswordTextWather;
 
-import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -132,18 +128,10 @@ public class CommonSetingActivity extends AppActivity {
                             return;
                         }
                     }else {
-                        //2-2 若不为纯空格，先过滤掉空格字符
-                        content = content.trim();
-                        //截取前两位判断开头是否为emoji
-                        if(content.length()>=2){
-                            String emoji = content.substring(0,2);
-                            if(StringUtil.ifContainEmoji(emoji)){
-                                content = " "+content;
-                            }
-                        }
-
+                        content = content.trim();//群昵称可以为空格，过滤空格并传""则取原来昵称
                     }
                 }
+
                 if(special == 1){
                     if(checkProduct()){
                         return;

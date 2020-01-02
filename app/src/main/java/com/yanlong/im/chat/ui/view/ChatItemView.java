@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Html;
 import android.text.Spannable;
@@ -36,14 +35,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.baidu.mapapi.map.BaiduMap;
-import com.baidu.mapapi.map.BitmapDescriptor;
-import com.baidu.mapapi.map.BitmapDescriptorFactory;
-import com.baidu.mapapi.map.MapStatusUpdateFactory;
-import com.baidu.mapapi.map.MapView;
-import com.baidu.mapapi.map.MarkerOptions;
-import com.baidu.mapapi.map.OverlayOptions;
-import com.baidu.mapapi.model.LatLng;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.RequestBuilder;
@@ -76,7 +67,6 @@ import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
-import net.cb.cb.library.utils.ScreenUtils;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.WebPageActivity;
@@ -1043,7 +1033,6 @@ public class ChatItemView extends LinearLayout {
         }
 //        Glide.with(this).load(imageHead)
 //                .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
-
         Glide.with(this).load(videoMessage.getBg_url()).apply(options).into(imgOt4);
         Glide.with(this).load(videoMessage.getBg_url()).apply(options).into(imgMe4);
 

@@ -434,7 +434,11 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
         String[] n = PinyinHelper.toHanyuPinyinStringArray(name.charAt(0));
         if (n == null) {
-            setTag("" + (name.toUpperCase()).charAt(0));
+            if (StringUtil.ifContainEmoji(name)) {
+                setTag("#");
+            } else {
+                setTag("" + (name.toUpperCase()).charAt(0));
+            }
         } else {
             String value = "";
             // 判断是否为多音字
