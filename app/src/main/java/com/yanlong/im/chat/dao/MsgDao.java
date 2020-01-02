@@ -160,31 +160,6 @@ public class MsgDao {
     }
 
 
-    /***
-     * 单用户消息列表
-     * @param userid
-     * @return
-     */
-    public List<MsgAllBean> getMsg4User(Long userid, int page) {
-        List<MsgAllBean> beans = new ArrayList<>();
-        Realm realm = DaoUtil.open();
-
-        RealmResults list = realm.where(MsgAllBean.class).equalTo("gid", "")
-                //   .notEqualTo("msg_type", 0)
-                .and()
-                .equalTo("from_uid", userid).or().equalTo("to_uid", userid)
-
-                .sort("timestamp", Sort.DESCENDING)
-                .findAll();
-
-        beans = DaoUtil.page(page, list, realm);
-
-
-        //翻转列表
-        Collections.reverse(beans);
-        realm.close();
-        return beans;
-    }
 
 
     /**
@@ -363,10 +338,10 @@ public class MsgDao {
         try {
             beans = new ArrayList<>();
 
-            RealmResults list = realm.where(MsgAllBean.class).equalTo("gid", "").beginGroup()
-                    .equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
-
-                    .equalTo("msg_type", 4)
+            RealmResults list = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .beginGroup().equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
+                    .beginGroup().equalTo("msg_type", 4).endGroup()
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
             beans = realm.copyFromRealm(list);
@@ -1025,10 +1000,10 @@ public class MsgDao {
      * 更新或者创建session
      *
      * */
-    public void sessionReadUpdate(String gid, Long from_uid ,boolean canChangeUnread ,MsgAllBean bean ,String firstFlag) {
+    public void sessionReadUpdate(String gid, Long from_uid, boolean canChangeUnread, MsgAllBean bean, String firstFlag) {
         //是否是 撤回
         String cancelId = null;
-        if(bean!=null){
+        if (bean != null) {
             boolean isCancel = bean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL;
             if (isCancel && bean.getMsgCancel() != null) {
                 cancelId = bean.getMsgCancel().getMsgidCancel();
@@ -1136,11 +1111,11 @@ public class MsgDao {
 
         if (StringUtil.isNotNull(cancelId)) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
             session.setMessageType(1000);
-        }else if("first".equals(firstFlag)&&bean!=null&&bean.getAtMessage()!=null&&bean.getAtMessage().getAt_type()!=1000){
+        } else if ("first".equals(firstFlag) && bean != null && bean.getAtMessage() != null && bean.getAtMessage().getAt_type() != 1000) {
             //对at消息处理 而且不是撤回消息
 //            LogUtil.getLog().e("===bean.getAtMessage().getAt_type()="+bean.getAtMessage().getAt_type()+"===bean.getAtMessage().getMsg()="+bean.getAtMessage().getMsg());
-            int messageType=bean.getAtMessage().getAt_type();
-            String atMessage=bean.getAtMessage().getMsg();
+            int messageType = bean.getAtMessage().getAt_type();
+            String atMessage = bean.getAtMessage().getMsg();
             session.setMessageType(messageType);
             session.setAtMessage(atMessage);
         }
@@ -2673,18 +2648,12 @@ public class MsgDao {
             return "";
         }
         String result = group.getName();
-//        String result = "";
         if (TextUtils.isEmpty(result)) {
             List<MemberUser> users = group.getUsers();
             if (users != null && users.size() > 0) {
                 int len = users.size();
                 for (int i = 0; i < len; i++) {
                     MemberUser info = users.get(i);
-//                    GropLinkInfo linkInfo = getGropLinkInfo(gid, info.getUid());
-//                    String memberName = "";
-//                    if (info != null) {
-//                        memberName = info.getMembername();
-//                    }
                     if (i == len - 1) {
                         result += StringUtil.getUserName("", info.getMembername(), info.getName(), info.getUid());
                     } else {
@@ -2732,31 +2701,6 @@ public class MsgDao {
         return result;
     }
 
-
-    /*
-     * isRead 无用
-     * */
-//    public long getUnreadCount(String gid, Long uid) {
-//        Realm realm = DaoUtil.open();
-//        long result;
-//        if (!TextUtils.isEmpty(gid)) {
-//            result = realm.where(MsgAllBean.class)
-//                    .beginGroup().notEqualTo("gid", gid).endGroup()
-//                    .and()
-//                    .beginGroup().equalTo("isRead", false).endGroup()
-//                    .count();
-//        } else {
-//            result = realm.where(MsgAllBean.class)
-//                    .beginGroup().equalTo("gid", "").endGroup()
-//                    .and()
-//                    .beginGroup().notEqualTo("from_uid", uid).and().notEqualTo("to_uid", uid).endGroup()
-//                    .and()
-//                    .beginGroup().equalTo("isRead", false).endGroup()
-//                    .count();
-//        }
-//        realm.close();
-//        return result;
-//    }
 
 
     /***
@@ -3384,7 +3328,7 @@ public class MsgDao {
     }
 
     //删除发送失败红包信息
-    public void deleteEnvelopeInfo(String rid, String gid, long uid,boolean deleInfo) {
+    public void deleteEnvelopeInfo(String rid, String gid, long uid, boolean deleInfo) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
