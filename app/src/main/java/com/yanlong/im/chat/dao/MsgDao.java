@@ -1561,7 +1561,7 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         try {
             MsgAllBean bean = realm.where(MsgAllBean.class)
-                    .beginGroup().equalTo("gid", "").and().isNotNull("gid").endGroup()
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                     .and()
                     .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
                     .sort("timestamp", Sort.DESCENDING).findFirst();
@@ -1585,7 +1585,7 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         try {
             MsgAllBean bean = realm.where(MsgAllBean.class)
-                    .beginGroup().equalTo("gid", "").and().isNotNull("gid").endGroup()
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                     .and()
                     .beginGroup().equalTo("from_uid", uid).endGroup()
                     .sort("timestamp", Sort.DESCENDING).findFirst();
