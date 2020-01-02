@@ -798,6 +798,10 @@ public class SocketData {
         msgAllBean.setRequest_id(getSysTime() + "");
         msgAllBean.setTimestamp(time);
         msgAllBean.setMsg_type(type);
+
+        int survivaltime = new UserDao().getReadDestroy(toId, toGid);
+        msgAllBean.setSurvival_time(survivaltime);
+
         msgAllBean.setRead(true);//自己发送时已读的
         switch (type) {
             case ChatEnum.EMessageType.IMAGE:
