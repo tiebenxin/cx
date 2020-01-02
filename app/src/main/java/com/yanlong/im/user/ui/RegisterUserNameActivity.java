@@ -2,22 +2,21 @@ package com.yanlong.im.user.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
+
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -63,14 +62,6 @@ public class RegisterUserNameActivity extends AppActivity {
             //优化: 不允许输入多个空格作为昵称
             ToastUtil.show(context,"昵称不能为空/或空字符");
             return;
-        }else {
-            //截取前两位判断开头是否为emoji
-            if(userName.length()>=2){
-                String emoji = userName.substring(0,2);
-                if(StringUtil.ifContainEmoji(emoji)){
-                    userName = " "+userName;
-                }
-            }
         }
         taskUserInfoSet(userName);
     }

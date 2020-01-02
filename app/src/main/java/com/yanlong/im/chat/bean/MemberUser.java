@@ -172,7 +172,11 @@ public class MemberUser extends RealmObject implements Comparable<MemberUser> {
             }
             String[] n = PinyinHelper.toHanyuPinyinStringArray(name.charAt(0));
             if (n == null) {
-                tag = name.toUpperCase().charAt(0) + "";
+                if(StringUtil.ifContainEmoji(name)){
+                    tag = "#";
+                }else{
+                    tag = name.toUpperCase().charAt(0) + "";
+                }
             } else {
                 String value = "";
                 // 判断是否为多音字

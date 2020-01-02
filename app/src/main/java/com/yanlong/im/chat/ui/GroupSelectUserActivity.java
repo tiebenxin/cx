@@ -509,6 +509,7 @@ public class GroupSelectUserActivity extends AppActivity {
             hd.layoutRoot.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    hd.ckSelect.setChecked(!hd.ckSelect.isChecked());
                     mUserBean = bean;
                     onItemClick(bean);
                 }

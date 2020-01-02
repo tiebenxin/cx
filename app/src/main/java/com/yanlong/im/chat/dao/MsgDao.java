@@ -38,8 +38,6 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventRefreshChat;
-import net.cb.cb.library.utils.GsonUtils;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -538,7 +536,7 @@ public class MsgDao {
 
             }
             //更新自己的群昵称
-            ginfo.getMygroupName();
+//            ginfo.getMygroupName();
 //            ginfo.setUsers(nums);
             realm.insertOrUpdate(ginfo);
             realm.commitTransaction();
@@ -1681,13 +1679,14 @@ public class MsgDao {
         realm.beginTransaction();
         try {
             List<MsgAllBean> list = realm.where(MsgAllBean.class)
-                    .beginGroup().equalTo("gid", "").and().isNotNull("gid").endGroup()
-                    .and().beginGroup().equalTo("to_uid", uid).endGroup()
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup().equalTo("to_uid", uid).endGroup()
                     .findAll();
             if (list != null) {
                 for (int i = 0; i < list.size(); i++) {
                     MsgAllBean msgAllBean = list.get(i);
-                    if (msgAllBean.getTimestamp() <= timestamp && msgAllBean.getRead() == 0) {
+                    if (msgAllBean.getRead() == 0) {//msgAllBean.getTimestamp() <= timestamp &&
                         msgAllBean.setRead(1);
                         msgAllBean.setReadTime(timestamp);
                     }
