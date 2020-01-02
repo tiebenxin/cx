@@ -401,6 +401,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         boolean hasClear = taskCleanRead(false);
         boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
         boolean hasChange = updateSessionDraftAndAtMessage();
+//        LogUtil.getLog().e("===hasClear="+hasClear+"==hasUpdate="+hasUpdate+"==hasChange="+hasChange);
         if (hasClear || hasUpdate || hasChange) {
             MessageManager.getInstance().setMessageChange(true);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
@@ -964,6 +965,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                     }
                 }
                 isFirst++;
+
+                scrollListView(true);
             }
 
             @Override
@@ -5407,9 +5410,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     private void showSendEnvelopeDialog(EnvelopeInfo info) {
         DialogCommon dialogCommon = new DialogCommon(this);
         dialogCommon.setCanceledOnTouchOutside(false);
-        String time = TimeToString.HH_MM2(info.getCreateTime());
+        String time = TimeToString.getEnvelopeTime(info.getCreateTime());
         String money = info.getAmount() * 1.00 / 100 + "元";
-        String content = "您有一个" + time + " 金额为" + money + "的红包未发送成功,是否重新发送此红包？";
+        String content = "您有一个" + time + " 金额为" + money + "的红包已扣款未发送成功,是否重新发送此红包？";
         dialogCommon.setTitleAndSure(true, true)
                 .setTitle("温馨提示")
                 .setContent(content, false)
@@ -5441,7 +5444,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     private void showEnvelopePastDialog(EnvelopeInfo info) {
         DialogEnvelopePast dialogCommon = new DialogEnvelopePast(this);
         dialogCommon.setCanceledOnTouchOutside(false);
-        String time = TimeToString.HH_MM2(info.getCreateTime());
+        String time = TimeToString.MM_DD_HH_MM2(info.getCreateTime());
         String money = info.getAmount() * 1.00 / 100 + "元";
         String content = "您有一个" + time + " 金额为" + money + "的红包未发送成功。已自动退回云红包账户";
         dialogCommon.setContent(content)
@@ -5481,7 +5484,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     //删除临时红包信息
     private void deleteEnvelopInfo(EnvelopeInfo envelopeInfo) {
         msgDao.deleteEnvelopeInfo(envelopeInfo.getRid(), toGid, toUId, true);
-        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+        MsgAllBean lastMsg = null;
+        if (msgListData != null) {
+            int len = msgListData.size();
+            lastMsg = msgListData.get(len - 1);
+        }
+        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, lastMsg);
     }
 
 
