@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 import com.yanlong.im.utils.PasswordTextWather;
 
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -123,6 +124,13 @@ public class CommonSetingActivity extends AppActivity {
                         }
                     }else {
                         content = content.trim();//群昵称可以为空格，过滤空格并传""则取原来昵称
+                        //截取前两位判断开头是否为emoji
+                        if(content.length()>=2){
+                            String emoji = content.substring(0,2);
+                            if(StringUtil.ifContainEmoji(emoji)){
+                                content = " "+content;
+                            }
+                        }
                     }
                 }
 
