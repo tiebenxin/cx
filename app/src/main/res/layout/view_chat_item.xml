@@ -164,7 +164,7 @@
 
                 <LinearLayout
                     android:id="@+id/view_ot_touch_child"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     tool:ignore="MissingConstraints">
@@ -680,7 +680,8 @@
                     <com.yanlong.im.chat.ui.view.LabelItemView
                         android:id="@+id/view_ot_balance"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"/>
 
                 </LinearLayout>
 
