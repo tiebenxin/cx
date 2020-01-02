@@ -235,7 +235,7 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                             if (sendBean != null) {
                                 envelopeBean = convertToEnvelopeBean(sendBean, PayEnum.ERedEnvelopeType.NORMAL, note, 1);
                                 if (sendBean.getCode() == 1) {//成功
-                                    dismissLoadingDialog();
+                                    payFailed();
                                     setResultOk();
                                     PayEnvironment.getInstance().notifyRefreshBalance();
                                 } else if (sendBean.getCode() == 2) {//失败

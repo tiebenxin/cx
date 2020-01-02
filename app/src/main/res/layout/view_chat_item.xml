@@ -680,7 +680,8 @@
                     <com.yanlong.im.chat.ui.view.LabelItemView
                         android:id="@+id/view_ot_balance"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"/>
 
                 </LinearLayout>
 
