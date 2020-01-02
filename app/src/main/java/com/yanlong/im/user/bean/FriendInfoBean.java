@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import net.cb.cb.library.base.BaseBean;
 import net.cb.cb.library.utils.PinyinUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
 
 public class FriendInfoBean extends BaseBean implements Comparable<FriendInfoBean> {
@@ -89,7 +90,11 @@ public class FriendInfoBean extends BaseBean implements Comparable<FriendInfoBea
     public void toTag() {
         String[] n = PinyinHelper.toHanyuPinyinStringArray(nickname.charAt(0));
         if (n == null) {
-            setTag("" + (nickname.toUpperCase()).charAt(0));
+            if (StringUtil.ifContainEmoji(nickname)) {
+                setTag("#");
+            } else {
+                setTag("" + (nickname.toUpperCase()).charAt(0));
+            }
         } else {
             String value = "";
             // 判断是否为多音字

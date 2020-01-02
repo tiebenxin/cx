@@ -38,8 +38,6 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventRefreshChat;
-import net.cb.cb.library.utils.GsonUtils;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -538,7 +536,7 @@ public class MsgDao {
 
             }
             //更新自己的群昵称
-            ginfo.getMygroupName();
+//            ginfo.getMygroupName();
 //            ginfo.setUsers(nums);
             realm.insertOrUpdate(ginfo);
             realm.commitTransaction();
