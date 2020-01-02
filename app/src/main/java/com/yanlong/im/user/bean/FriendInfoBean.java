@@ -88,25 +88,31 @@ public class FriendInfoBean extends BaseBean implements Comparable<FriendInfoBea
 
      */
     public void toTag() {
-        String[] n = PinyinHelper.toHanyuPinyinStringArray(nickname.charAt(0));
-        if (n == null) {
-            if (StringUtil.ifContainEmoji(nickname)) {
-                setTag("#");
-            } else {
-                setTag("" + (nickname.toUpperCase()).charAt(0));
-            }
+        if (TextUtils.isEmpty(nickname)) {
+            setTag("#");
+        } else if (!("" + nickname.charAt(0)).matches("^[0-9a-zA-Z\\u4e00-\\u9fa5]+$")) {
+            setTag("#");
         } else {
-            String value = "";
-            // 判断是否为多音字
-            if (n.length > 1) {
-                value = PinyinUtil.getUserName(nickname.charAt(0) + "");
-                if (TextUtils.isEmpty(value)) {
-                    setTag("" + n[0].toUpperCase().charAt(0));
+            String[] n = PinyinHelper.toHanyuPinyinStringArray(nickname.charAt(0));
+            if (n == null) {
+                if (StringUtil.ifContainEmoji(nickname)) {
+                    setTag("#");
                 } else {
-                    setTag(value);
+                    setTag("" + (nickname.toUpperCase()).charAt(0));
                 }
             } else {
-                setTag("" + n[0].toUpperCase().charAt(0));
+                String value = "";
+                // 判断是否为多音字
+                if (n.length > 1) {
+                    value = PinyinUtil.getUserName(nickname.charAt(0) + "");
+                    if (TextUtils.isEmpty(value)) {
+                        setTag("" + n[0].toUpperCase().charAt(0));
+                    } else {
+                        setTag(value);
+                    }
+                } else {
+                    setTag("" + n[0].toUpperCase().charAt(0));
+                }
             }
         }
     }

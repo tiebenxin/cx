@@ -45,12 +45,13 @@ public class EllipsizedTextView extends android.support.v7.widget.AppCompatTextV
         if ((text != null && text.length() > 0) && (mMaxLines != Integer.MAX_VALUE && mMaxLines > 0) && getWidth() != 0) {
             StaticLayout layout = new StaticLayout(text, getPaint(), getWidth(), Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
             //需要显示的文字加上"..."的总宽度
-            float textAndEllipsizeWidth = 0;
-            for (int i = 0; i < mMaxLines; i++) {
-                //此处用getWidth()计算的话会有误差，所以用getLineWidth()
-                textAndEllipsizeWidth += layout.getLineWidth(i);
-            }
-            text = TextUtils.ellipsize(text, getPaint(), textAndEllipsizeWidth, TextUtils.TruncateAt.END);
+//            float textAndEllipsizeWidth = 0;
+//            for (int i = 0; i < mMaxLines; i++) {
+//                //此处用getWidth()计算的话会有误差，所以用getLineWidth() getLineWidth
+//                textAndEllipsizeWidth += layout.getWidth();
+//            }
+//            textAndEllipsizeWidth += layout.getWidth();
+            text = TextUtils.ellipsize(text, getPaint(), layout.getWidth(), TextUtils.TruncateAt.END);
         }
         super.setText(text, type);
     }

@@ -128,7 +128,6 @@
 
                         </LinearLayout>
 
-                        <!-- QQ和微信也是表情显示不完整 建议使用 TextView -->
                         <net.cb.cb.library.view.EllipsizedTextView
                             android:id="@+id/txt_info"
                             style="@style/app_txt_content_1"
