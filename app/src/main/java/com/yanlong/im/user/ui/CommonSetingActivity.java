@@ -94,6 +94,7 @@ public class CommonSetingActivity extends AppActivity {
         String seting = intent.getStringExtra(SETING);
         if (!TextUtils.isEmpty(seting)) {
             mEdContent.setText(seting);
+            mEdContent.setSelection(seting.length());
         }
 
         int size = intent.getIntExtra(SIZE, 70);
