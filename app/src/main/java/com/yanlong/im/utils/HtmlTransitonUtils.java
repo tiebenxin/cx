@@ -11,7 +11,6 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
 
-import com.hm.cxpay.global.PayEnum;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.HtmlBean;
@@ -20,6 +19,7 @@ import com.yanlong.im.dialog.LockDialog;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.ViewUtils;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -128,7 +128,7 @@ public class HtmlTransitonUtils {
                 ClickableSpan clickProtocol = new ClickableSpan() {
                     @Override
                     public void onClick(View widget) {
-                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
                     }
 
                     @Override
@@ -155,7 +155,7 @@ public class HtmlTransitonUtils {
                 ClickableSpan clickProtocol = new ClickableSpan() {
                     @Override
                     public void onClick(View widget) {
-                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
                     }
 
                     @Override
@@ -187,7 +187,7 @@ public class HtmlTransitonUtils {
                 ClickableSpan clickProtocol = new ClickableSpan() {
                     @Override
                     public void onClick(View widget) {
-                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
                     }
 
                     @Override
@@ -216,7 +216,7 @@ public class HtmlTransitonUtils {
                 ClickableSpan clickProtocol = new ClickableSpan() {
                     @Override
                     public void onClick(View widget) {
-                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
                     }
 
                     @Override
@@ -244,7 +244,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
                 }
 
                 @Override
@@ -272,7 +272,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
                 }
 
                 @Override
@@ -301,7 +301,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
                 }
 
                 @Override
@@ -330,7 +330,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
                 }
 
                 @Override
@@ -362,7 +362,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
                 }
 
                 @Override
@@ -438,7 +438,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
                 }
 
                 @Override
@@ -514,14 +514,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    Intent intent = new Intent(context, UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                    intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
-                    intent.putExtra(UserInfoActivity.GID, htmlBean.getGid());
-                    intent.putExtra(UserInfoActivity.IS_GROUP, true);
-                    context.startActivity(intent);
-
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),true);
                 }
 
                 @Override
@@ -551,14 +544,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    Intent intent = new Intent(context, UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                    intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
-                    intent.putExtra(UserInfoActivity.GID, htmlBean.getGid());
-                    intent.putExtra(UserInfoActivity.IS_GROUP, true);
-                    context.startActivity(intent);
-
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),true);
                 }
 
                 @Override
@@ -588,14 +574,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    Intent intent = new Intent(context, UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                    intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
-                    intent.putExtra(UserInfoActivity.GID, htmlBean.getGid());
-                    intent.putExtra(UserInfoActivity.IS_GROUP, true);
-                    context.startActivity(intent);
-
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),true);
                 }
 
                 @Override
@@ -647,14 +626,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    Intent intent = new Intent(context, UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                    intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
-                    intent.putExtra(UserInfoActivity.GID, htmlBean.getGid());
-                    intent.putExtra(UserInfoActivity.IS_GROUP, true);
-                    context.startActivity(intent);
-
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),true);
                 }
 
                 @Override
@@ -695,14 +667,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    Intent intent = new Intent(context, UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                    intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
-                    intent.putExtra(UserInfoActivity.GID, htmlBean.getGid());
-                    intent.putExtra(UserInfoActivity.IS_GROUP, true);
-                    context.startActivity(intent);
-
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),true);
                 }
 
                 @Override
@@ -742,14 +707,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    Intent intent = new Intent(context, UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                    intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
-                    intent.putExtra(UserInfoActivity.GID, htmlBean.getGid());
-                    intent.putExtra(UserInfoActivity.IS_GROUP, true);
-                    context.startActivity(intent);
-
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),true);
                 }
 
                 @Override
@@ -789,14 +747,7 @@ public class HtmlTransitonUtils {
                 ClickableSpan clickProtocol = new ClickableSpan() {
                     @Override
                     public void onClick(View widget) {
-                        Intent intent = new Intent(context, UserInfoActivity.class);
-                        intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                        intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
-                        intent.putExtra(UserInfoActivity.GID, htmlBean.getGid());
-                        intent.putExtra(UserInfoActivity.IS_GROUP, true);
-                        context.startActivity(intent);
-
-                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),true);
                     }
 
                     @Override
@@ -835,14 +786,7 @@ public class HtmlTransitonUtils {
                 ClickableSpan clickProtocol = new ClickableSpan() {
                     @Override
                     public void onClick(View widget) {
-                        Intent intent = new Intent(context, UserInfoActivity.class);
-                        intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                        intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
-                        intent.putExtra(UserInfoActivity.GID, htmlBean.getGid());
-                        intent.putExtra(UserInfoActivity.IS_GROUP, true);
-                        context.startActivity(intent);
-
-                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),true);
                     }
 
                     @Override
@@ -859,11 +803,15 @@ public class HtmlTransitonUtils {
         }
     }
 
-    private void goToUserInfoActivity(Context context, Long id, String gid) {
+    private void goToUserInfoActivity(Context context, Long id, String gid,boolean isGroup) {
+        if(ViewUtils.isFastDoubleClick()){
+            return;
+        }
         context.startActivity(new Intent(context, UserInfoActivity.class)
                 .putExtra(UserInfoActivity.ID, id)
                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
-                .putExtra(UserInfoActivity.GID, gid));
+                .putExtra(UserInfoActivity.GID, gid)
+                .putExtra(UserInfoActivity.IS_GROUP,isGroup));
     }
 
 
@@ -927,7 +875,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
                 }
 
                 @Override
@@ -958,7 +906,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
                 }
 
                 @Override

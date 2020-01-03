@@ -16,6 +16,10 @@ import com.yanlong.im.MyAppLication;
 public class LocationUtils {
     public LocationService locationService;
     public static double beishu=1000000d;
+    public static String baiduImageUrl = "http://api.map.baidu.com/staticimage/v2";//静态图地址
+    public static String ak = "ak=L7VrjgIV1dMONUenMO8XmIwOPKGLSDE5";//秘钥
+    public static String mcode = "mcode=62:84:03:64:9A:E7:CD:28:13:24:91:1A:16:60:8F:47:83:8D:98:B3;com.yanlong.im";//安全码  sha1+包名
+    public static String widthAndHeight = "width=300&height=200&zoom=18";//尺寸和缩放比例
 
     //根据 坐标 获取静态图url
     public static String getLocationUrl(int latitude, int longitude) {
@@ -27,11 +31,14 @@ public class LocationUtils {
 
         double latitudeDouble = latitude / beishu;
         double longitudeDouble = longitude / beishu;
-        String baiduImageUrl = "http://api.map.baidu.com/staticimage/v2";//静态图地址
-        String ak = "ak=L7VrjgIV1dMONUenMO8XmIwOPKGLSDE5";//秘钥
-        String mcode = "mcode=62:84:03:64:9A:E7:CD:28:13:24:91:1A:16:60:8F:47:83:8D:98:B3;com.yanlong.im";//安全码  sha1+包名
         String center = "center=" + longitudeDouble + "," + latitudeDouble;//中心点坐标
-        String widthAndHeight = "width=300&height=200&zoom=18";//尺寸和缩放比例
+        String locationUrl = baiduImageUrl + "?" + ak + "&" + mcode + "&" + center + "&" + widthAndHeight;
+        return locationUrl;
+    }
+
+    //根据 坐标 获取静态图url
+    public static String getLocationUrl2(double latitude, double longitude) {
+        String center = "center=" + longitude + "," + latitude;//中心点坐标
         String locationUrl = baiduImageUrl + "?" + ak + "&" + mcode + "&" + center + "&" + widthAndHeight;
         return locationUrl;
     }

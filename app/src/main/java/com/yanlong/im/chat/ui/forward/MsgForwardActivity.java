@@ -408,7 +408,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
             if (isSingleSelected) {
                 LocationMessage location = msgAllBean.getLocationMessage();
-                LocationMessage locationMessage = SocketData.createLocationMessage(SocketData.getUUID(), location.getLatitude(), location.getLongitude(), location.getAddress(), location.getAddressDescribe());
+                LocationMessage locationMessage = SocketData.createLocationMessage(SocketData.getUUID(), location);
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), locationMessage);
                 if (allBean != null) {
                     SocketData.sendAndSaveMessage(allBean);
@@ -420,8 +420,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 for (int i = 0; i < moreSessionBeanList.size(); i++) {
                     MoreSessionBean bean = moreSessionBeanList.get(i);
 
-                    LocationMessage location = msgAllBean.getLocationMessage();
-                    LocationMessage locationMessage = SocketData.createLocationMessage(SocketData.getUUID(), location.getLatitude(), location.getLongitude(), location.getAddress(), location.getAddressDescribe());
+                    LocationMessage locationMessage = SocketData.createLocationMessage(SocketData.getUUID(), msgAllBean.getLocationMessage());
                     MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), locationMessage);
                     if (allBean != null) {
                         SocketData.sendAndSaveMessage(allBean);

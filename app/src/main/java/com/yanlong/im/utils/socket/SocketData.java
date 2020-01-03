@@ -1180,6 +1180,7 @@ public class SocketData {
                 MsgBean.SnapshotLocationMessage.Builder locationBuilder = MsgBean.SnapshotLocationMessage.newBuilder();
                 locationBuilder.setLat(locationMessage.getLatitude());
                 locationBuilder.setLon(locationMessage.getLongitude());
+                locationBuilder.setImg(locationMessage.getImg());
                 locationBuilder.setAddr(locationMessage.getAddress());
                 locationBuilder.setDesc(locationMessage.getAddressDescribe());
                 value = locationBuilder.build();
@@ -1754,13 +1755,14 @@ public class SocketData {
     }
 
     //位置消息
-    public static LocationMessage createLocationMessage(String msgId, int latitude, int longitude, String address, String addressDescribe) {
+    public static LocationMessage createLocationMessage(String msgId, LocationMessage messageTemp) {
         LocationMessage message = new LocationMessage();
         message.setMsgId(msgId);
-        message.setLatitude(latitude);
-        message.setLongitude(longitude);
-        message.setAddress(address);
-        message.setAddressDescribe(addressDescribe);
+        message.setLatitude(messageTemp.getLatitude());
+        message.setLongitude(messageTemp.getLongitude());
+        message.setImg(messageTemp.getImg());
+        message.setAddress(messageTemp.getAddress());
+        message.setAddressDescribe(messageTemp.getAddressDescribe());
         //message.setImg("http://e7-test.oss-cn-beijing.aliyuncs.com/Android/20190730/2dfe5997-68a5-4545-8099-712982b765c9.jpg");
         return message;
     }

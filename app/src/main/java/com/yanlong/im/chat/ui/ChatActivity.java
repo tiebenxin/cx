@@ -309,7 +309,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     private boolean isSendingHypertext = false;
     private int textPosition;
     private int contactIntimately;
-    private String master;
+    private String master="";
     private TextView tv_ban;
     private String draft;
     private int isFirst;
@@ -856,11 +856,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                     editChat.getText().clear();
                     return;
                 }
-//                if (text.startsWith("@000")) {
-//                    int count = Integer.parseInt(text.split("_")[1]);
-//                    taskTestSend(count);
-//                    return;
-//                }
 
 //                try {
 //                    if (text.startsWith("@000_")) { //文字测试
@@ -2446,8 +2441,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void locationSendEvent(LocationSendEvent event) {
-        LocationMessage message = SocketData.createLocationMessage(SocketData.getUUID(), event.message.getLatitude(),
-                event.message.getLongitude(), event.message.getAddress(), event.message.getAddressDescribe());
+        LocationMessage message = SocketData.createLocationMessage(SocketData.getUUID(), event.message);
 
 //        LogUtil.getLog().e("====location=message=="+GsonUtils.optObject(message));
         sendMessage(message, ChatEnum.EMessageType.LOCATION);
@@ -4561,15 +4555,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                     SignatureBean sign = response.body().getData();
                     String token = sign.getSign();
                     if (isGroup()) {
-                        UserInfo minfo = UserAction.getMyInfo();
                         Group group = msgDao.getGroup4Id(toGid);
-
+                        int totalSize = 0;
+                        if (group != null && group.getUsers() != null){
+                            totalSize = group.getUsers().size();
+                        }
                         JrmfRpClient.sendGroupEnvelopeForResult(ChatActivity.this, "" + toGid, "" + UserAction.getMyId(), token,
-                                group.getUsers().size(), minfo.getName(), minfo.getHead(), REQ_RP);
+                                totalSize, info.getName(), info.getHead(), REQ_RP);
                     } else {
-                        UserInfo minfo = UserAction.getMyInfo();
-                        JrmfRpClient.sendSingleEnvelopeForResult(ChatActivity.this, "" + toUId, "" + minfo.getUid(), token,
-                                minfo.getName(), minfo.getHead(), REQ_RP);
+                        JrmfRpClient.sendSingleEnvelopeForResult(ChatActivity.this, "" + toUId, "" + info.getUid(), token,
+                                info.getName(), info.getHead(), REQ_RP);
                     }
                     LogUtil.writeEnvelopeLog("准备发红包");
 
