@@ -43,6 +43,7 @@ public abstract class FGObserver<T> extends BaseObserver<T> {
     public void onHandleError(T t) {
         if (t instanceof BaseResponse) {
             Log.e(TAG, ((BaseResponse) t).getMessage());
+            onHandleError(t);
         }
 
     }

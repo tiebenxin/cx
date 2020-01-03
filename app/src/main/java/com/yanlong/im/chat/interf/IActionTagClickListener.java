@@ -13,4 +13,7 @@ public interface IActionTagClickListener {
     //红包或者转账
     void clickEnvelope(String rid);
 
+    //红包或者转账
+    void clickTransfer(String rid,String msgId);
+
 }

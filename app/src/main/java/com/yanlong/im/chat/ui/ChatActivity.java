@@ -2807,6 +2807,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         }
     }
 
+    @Override
+    public void clickTransfer(String rid, String msgId) {
+        long tradeId = StringUtil.getLong(rid);
+        if (tradeId > 0) {
+            MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
+            if (msgAllBean != null) {
+                showLoadingDialog();
+                httpGetTransferDetail(rid, PayEnum.ETransferOpType.TRANS_SEND, msgAllBean);
+            }
+        }
+    }
+
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
@@ -3047,7 +3059,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                             if (notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE
                                     || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF) {
                                 holder.viewChatItem.setNoticeString(Html.fromHtml(notice.getNote(), null,
-                                        new MsgTagHandler(AppConfig.getContext(), true, msgid, ChatActivity.this)));
+                                        new MsgTagHandler(AppConfig.getContext(), true, msgbean.getMsg_id(), ChatActivity.this)));
                             } else {
                                 holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this, notice.getNote(), notice.getMsgType()));
                             }
@@ -3388,7 +3400,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                 case ChatEnum.EMessageType.TRANSFER_NOTICE:
                     TransferNoticeMessage transNotifyMessage = msgbean.getTransferNoticeMessage();
                     holder.viewChatItem.setTransferNotice(Html.fromHtml(transNotifyMessage.getContent(), null,
-                            new MsgTagHandler(AppConfig.getContext(), true, msgid, ChatActivity.this)));
+                            new MsgTagHandler(AppConfig.getContext(), true, msgbean.getMsg_id(), ChatActivity.this)));
                     break;
             }
 
@@ -5328,6 +5340,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                     @Override
                     public void onHandleError(BaseResponse<TransferDetailBean> baseResponse) {
                         super.onHandleError(baseResponse);
+                        dismissLoadingDialog();
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });

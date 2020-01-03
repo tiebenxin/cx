@@ -1182,7 +1182,7 @@ public class SocketData {
                 value = locationBuilder.build();
                 type = MsgBean.MessageType.SNAPSHOT_LOCATION;
                 break;
-            case ChatEnum.EMessageType.TRANSFER_NOTICE://位置
+            case ChatEnum.EMessageType.TRANSFER_NOTICE://转发提醒
                 TransferNoticeMessage noticeMessage = bean.getTransferNoticeMessage();
                 long tradeId = StringUtil.getLong(noticeMessage.getRid());
                 if (tradeId > 0) {
@@ -1466,6 +1466,13 @@ public class SocketData {
                     return null;
                 }
 //                LogUtil.getLog().e("===location==LocationMessage="+ GsonUtils.optObject(msg));
+                break;
+            case ChatEnum.EMessageType.TRANSFER_NOTICE:
+                if (obj instanceof TransferNoticeMessage) {
+                    msg.setTransferNoticeMessage((TransferNoticeMessage) obj);
+                } else {
+                    return null;
+                }
                 break;
 
         }
@@ -1789,7 +1796,7 @@ public class SocketData {
         TransferNoticeMessage message = new TransferNoticeMessage();
         message.setMsgId(msgId);
         message.setRid(traceId);
-        message.setContent("你有一笔等待收款的<envelope id=" + traceId + ">转账</envelope>");
+        message.setContent("你有一笔等待收款的<transfer id=" + traceId + ">转账</transfer>");
         return message;
     }
 

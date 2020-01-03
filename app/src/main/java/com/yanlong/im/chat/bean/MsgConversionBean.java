@@ -658,8 +658,9 @@ public class MsgConversionBean {
                 TransferNoticeMessage transferNoticeMessage = new TransferNoticeMessage();
                 transferNoticeMessage.setMsgId(bean.getMsgId());
                 transferNoticeMessage.setRid(bean.getTransNotify().getTradeId() + "");
-                transferNoticeMessage.setContent("你有一笔等待收款的<envelope id=" + bean.getTransNotify().getTradeId() + ">转账</envelope>");
+                transferNoticeMessage.setContent("你有一笔等待收款的<transfer id=" + bean.getTransNotify().getTradeId() + ">转账</transfer>");
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.TRANSFER_NOTICE);
+                msgAllBean.setTransferNoticeMessage(transferNoticeMessage);
                 break;
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;

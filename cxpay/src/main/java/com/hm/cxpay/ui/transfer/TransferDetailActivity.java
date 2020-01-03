@@ -164,11 +164,12 @@ public class TransferDetailActivity extends BasePayActivity {
 
     private String getNote(int income, int status, String nick) {
         String note = "";
+        nick = TextUtils.isEmpty(nick)?"对方":nick;
         if (status == 1) {
             if (income == 1) {
                 note = "等待确认收款";
             } else {
-                note = "等待" + nick + "确认收款";
+                note = "等待" + nick+ "确认收款";
             }
         } else if (status == 2) {
             if (income == 1) {
@@ -389,6 +390,7 @@ public class TransferDetailActivity extends BasePayActivity {
                     public void onSure() {
                         if (!TextUtils.isEmpty(tradeId)) {
                             PayEnvironment.getInstance().notifyReceive(tradeId);
+                            finish();
                         }
                     }
 

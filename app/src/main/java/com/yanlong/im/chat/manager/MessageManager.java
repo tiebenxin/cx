@@ -207,6 +207,7 @@ public class MessageManager {
             case ASSISTANT://小助手消息
             case BALANCE_ASSISTANT://零钱助手消息
             case CHANGE_VICE_ADMINS:// 管理员变更通知
+            case TRANS_NOTIFY:// 管理员变更通知
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }

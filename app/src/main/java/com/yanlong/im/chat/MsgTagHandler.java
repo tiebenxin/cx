@@ -29,8 +29,8 @@ public class MsgTagHandler implements TagHandler {
 
     private IActionTagClickListener actionListener;
 
-
-    public static final String ENVELOPE = "envelope";//红包或者转账
+    public static final String TRANSFER = "transfer";//转账
+    public static final String ENVELOPE = "envelope";//红包
     public static final String USER = "user";//用户
 
     private int sIndex = 0;
@@ -113,6 +113,8 @@ public class MsgTagHandler implements TagHandler {
             propertyValue.push(getProperty(xmlReader, "id"));
         } else if (tag.equalsIgnoreCase(ENVELOPE)) {
             propertyValue.push(getProperty(xmlReader, "id"));
+        } else if (tag.equalsIgnoreCase(TRANSFER)) {
+            propertyValue.push(getProperty(xmlReader, "id"));
         }
     }
 
@@ -159,17 +161,24 @@ public class MsgTagHandler implements TagHandler {
                 if (actionListener != null && !TextUtils.isEmpty(id)) {
                     actionListener.clickEnvelope(id);
                 }
+            } else if (tag.equalsIgnoreCase(TRANSFER)) {
+                if (actionListener != null && !TextUtils.isEmpty(id)) {
+                    actionListener.clickTransfer(id, msgId);
+                }
             }
         }
 
         @Override
         public void updateDrawState(TextPaint ds) {
             super.updateDrawState(ds);
-            if (tag.equalsIgnoreCase(USER)) {
-                ds.setColor(ContextCompat.getColor(mContext, R.color.msg_tag_color));
-            } else if (tag.equalsIgnoreCase(ENVELOPE)) {
-                ds.setColor(ContextCompat.getColor(mContext, R.color.msg_tag_color));
-            }
+            ds.setColor(ContextCompat.getColor(mContext, R.color.msg_tag_color));
+//            if (tag.equalsIgnoreCase(USER)) {
+//                ds.setColor(ContextCompat.getColor(mContext, R.color.msg_tag_color));
+//            } else if (tag.equalsIgnoreCase(ENVELOPE)) {
+//                ds.setColor(ContextCompat.getColor(mContext, R.color.msg_tag_color));
+//            }else {
+//                ds.setColor(ContextCompat.getColor(mContext, R.color.msg_tag_color));
+//            }
             ds.setUnderlineText(false);//不需要下划线
         }
 

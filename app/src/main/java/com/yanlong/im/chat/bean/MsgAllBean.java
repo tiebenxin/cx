@@ -139,7 +139,6 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     }
 
 
-
     public P2PAuVideoMessage getP2PAuVideoMessage() {
         return p2PAuVideoMessage;
     }
@@ -371,6 +370,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             str = "[位置]";
         } else if (msg_type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {//阅后即焚
             str = "[零钱小助手消息]";
+        } else if (msg_type == ChatEnum.EMessageType.TRANSFER_NOTICE) {//转账提醒消息
+            str = "你有一笔等待收款的转账";
         }
 
         return str;
