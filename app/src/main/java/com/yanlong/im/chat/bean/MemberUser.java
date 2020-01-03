@@ -166,29 +166,29 @@ public class MemberUser extends RealmObject implements Comparable<MemberUser> {
             String name = StringUtil.isNotNull(this.membername) ? this.membername : this.name;
             if (TextUtils.isEmpty(name)) {
                 tag = "#";
-            }
-            if (!("" + name.charAt(0)).matches("^[0-9a-zA-Z\\u4e00-\\u9fa5]+$")) {
+            } else if (!("" + name.charAt(0)).matches("^[0-9a-zA-Z\\u4e00-\\u9fa5]+$")) {
                 tag = "#";
-            }
-            String[] n = PinyinHelper.toHanyuPinyinStringArray(name.charAt(0));
-            if (n == null) {
-                if(StringUtil.ifContainEmoji(name)){
-                    tag = "#";
-                }else{
-                    tag = name.toUpperCase().charAt(0) + "";
-                }
             } else {
-                String value = "";
-                // 判断是否为多音字
-                if (n.length > 1) {
-                    value = PinyinUtil.getUserName(name.charAt(0) + "");
-                    if (TextUtils.isEmpty(value)) {
-                        setTag("" + n[0].toUpperCase().charAt(0));
+                String[] n = PinyinHelper.toHanyuPinyinStringArray(name.charAt(0));
+                if (n == null) {
+                    if (StringUtil.ifContainEmoji(name)) {
+                        tag = "#";
                     } else {
-                        setTag(value);
+                        tag = name.toUpperCase().charAt(0) + "";
                     }
                 } else {
-                    setTag("" + n[0].toUpperCase().charAt(0));
+                    String value = "";
+                    // 判断是否为多音字
+                    if (n.length > 1) {
+                        value = PinyinUtil.getUserName(name.charAt(0) + "");
+                        if (TextUtils.isEmpty(value)) {
+                            setTag("" + n[0].toUpperCase().charAt(0));
+                        } else {
+                            setTag(value);
+                        }
+                    } else {
+                        setTag("" + n[0].toUpperCase().charAt(0));
+                    }
                 }
             }
         }
