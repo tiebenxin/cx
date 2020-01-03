@@ -1245,12 +1245,15 @@ public class ChatItemView extends LinearLayout {
         location_desc_me_tv.setText(locationMessage.getAddressDescribe());
 
         //百度地图参数
-        String baiduImageUrl = LocationUtils.getLocationUrl(locationMessage.getLatitude(), locationMessage.getLongitude());
-        Glide.with(this).load(baiduImageUrl).apply(GlideOptionsUtil.imageOptions()).into(location_image_you_iv);
-        Glide.with(this).load(baiduImageUrl).apply(GlideOptionsUtil.imageOptions()).into(location_image_me_iv);
+        if(StringUtil.isNotNull(locationMessage.getImg())){
+            Glide.with(this).load(locationMessage.getImg()).apply(GlideOptionsUtil.imageOptions()).into(location_image_you_iv);
+            Glide.with(this).load(locationMessage.getImg()).apply(GlideOptionsUtil.imageOptions()).into(location_image_me_iv);
+        }else {
+            String baiduImageUrl = LocationUtils.getLocationUrl(locationMessage.getLatitude(), locationMessage.getLongitude());
+            Glide.with(this).load(baiduImageUrl).apply(GlideOptionsUtil.imageOptions()).into(location_image_you_iv);
+            Glide.with(this).load(baiduImageUrl).apply(GlideOptionsUtil.imageOptions()).into(location_image_me_iv);
+        }
 
-//        location_you_ll.setOnClickListener(onk);
-//        location_me_ll.setOnClickListener(onk);
         viewMeTouch.setOnClickListener(onk);
         viewOtTouch.setOnClickListener(onk);
     }

@@ -531,6 +531,7 @@ public class MsgConversionBean {
                 locationMessage.setMsgId(msgAllBean.getMsg_id());
                 locationMessage.setLatitude(bean.getSnapshotLocation().getLat());
                 locationMessage.setLongitude(bean.getSnapshotLocation().getLon());
+                locationMessage.setImg(bean.getSnapshotLocation().getImg());
                 locationMessage.setAddress(bean.getSnapshotLocation().getAddr());
                 locationMessage.setAddressDescribe(bean.getSnapshotLocation().getDesc());
 
