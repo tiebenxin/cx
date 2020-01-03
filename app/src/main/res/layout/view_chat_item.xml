@@ -224,7 +224,7 @@
                     <!-- 红包消息-->
                     <LinearLayout
                         android:id="@+id/view_ot_3"
-                        android:layout_width="211dp"
+                        android:layout_width="200dp"
                         android:layout_height="90dp"
                         android:background="@drawable/bg_chat_other_rp"
                         android:orientation="vertical"
@@ -343,7 +343,7 @@
                     <!-- 名片消息-->
                     <LinearLayout
                         android:id="@+id/view_ot_5"
-                        android:layout_width="211dp"
+                        android:layout_width="200dp"
                         android:layout_height="90dp"
                         android:background="@drawable/selector_card_other_touch"
                         android:orientation="vertical"
@@ -408,7 +408,7 @@
 
                     <LinearLayout
                         android:id="@+id/view_ot_6"
-                        android:layout_width="211dp"
+                        android:layout_width="200dp"
                         android:layout_height="90dp"
                         android:background="@drawable/bg_chat_other_rp"
                         android:orientation="vertical"
@@ -830,7 +830,7 @@
                         <!-- 红包消息-->
                         <LinearLayout
                             android:id="@+id/view_me_3"
-                            android:layout_width="211dp"
+                            android:layout_width="200dp"
                             android:layout_height="90dp"
                             android:background="@drawable/bg_chat_me_rp"
                             android:orientation="vertical"
@@ -970,7 +970,7 @@
                         <!-- 名片消息-->
                         <LinearLayout
                             android:id="@+id/view_me_5"
-                            android:layout_width="211dp"
+                            android:layout_width="200dp"
                             android:layout_height="90dp"
                             android:background="@drawable/selector_card_me_touch"
                             android:orientation="vertical"
@@ -1036,7 +1036,7 @@
                         <!-- 转账消息-->
                         <LinearLayout
                             android:id="@+id/view_me_6"
-                            android:layout_width="211dp"
+                            android:layout_width="200dp"
                             android:layout_height="90dp"
                             android:background="@drawable/bg_chat_me_rp"
                             android:orientation="vertical"
