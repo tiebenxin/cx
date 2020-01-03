@@ -10,8 +10,11 @@ import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -365,10 +368,15 @@ public class RechargeActivity extends AppActivity {
             //解决圆角shape背景无效问题
             Window window = dialogOne.getWindow();
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            //设置宽高
+            //相关配置
             WindowManager.LayoutParams lp = window.getAttributes();
-            lp.height = DensityUtil.dip2px(activity, 195);
-            lp.width = DensityUtil.dip2px(activity, 277);
+            window.setGravity(Gravity.CENTER);
+            WindowManager manager = window.getWindowManager();
+            DisplayMetrics metrics = new DisplayMetrics();
+            manager.getDefaultDisplay().getMetrics(metrics);
+            //设置宽高，高度自适应，宽度屏幕0.8
+            lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            lp.width = (int) (metrics.widthPixels*0.8);
             dialogOne.getWindow().setAttributes(lp);
             dialogOne.setContentView(dialogView);
         } else if (type == 2) {
@@ -426,18 +434,27 @@ public class RechargeActivity extends AppActivity {
 
                 }
             });
-            dialogTwo.show();
             //强制唤起软键盘
             showSoftKeyword(pswView);
             //解决dialog里edittext不响应键盘的问题
             dialogTwo.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-            Window window = dialogTwo.getWindow();
+
+            //展示界面
+            dialogOne.show();
+            //解决圆角shape背景无效问题
+            Window window = dialogOne.getWindow();
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            //相关配置
             WindowManager.LayoutParams lp = window.getAttributes();
-            lp.height = DensityUtil.dip2px(activity, 277);
-            lp.width = DensityUtil.dip2px(activity, 277);
-            dialogTwo.getWindow().setAttributes(lp);
-            dialogTwo.setContentView(dialogView);
+            window.setGravity(Gravity.CENTER);
+            WindowManager manager = window.getWindowManager();
+            DisplayMetrics metrics = new DisplayMetrics();
+            manager.getDefaultDisplay().getMetrics(metrics);
+            //设置宽高，高度自适应，宽度屏幕0.8
+            lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            lp.width = (int) (metrics.widthPixels*0.8);
+            dialogOne.getWindow().setAttributes(lp);
+            dialogOne.setContentView(dialogView);
         }
     }
 

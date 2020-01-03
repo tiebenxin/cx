@@ -1,6 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="277dp"
-    android:layout_height="160dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/shape_13radius_solid_ffffff">
     <ImageView
@@ -51,6 +51,7 @@
         app:borderColor="@color/c_f0f0f0"
         app:borderRadius="5dp"
         app:passwordWidth="5dp"
+        android:layout_marginBottom="30dp"
         app:passwordColor="@color/c_000000"/>
 
 
