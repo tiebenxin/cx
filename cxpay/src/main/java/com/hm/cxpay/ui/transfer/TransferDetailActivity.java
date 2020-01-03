@@ -139,10 +139,10 @@ public class TransferDetailActivity extends BasePayActivity {
             ui.tvTimeReturn.setVisibility(View.GONE);
         } else if (status == 2) {
             ui.tvTimeReturn.setVisibility(View.VISIBLE);
-            ui.tvTimeTransfer.setText("收款时间：" + DateUtils.getTransferTime(detailBean.getRecvTime()));
+            ui.tvTimeReturn.setText("收款时间：" + DateUtils.getTransferTime(detailBean.getRecvTime()));
         } else if (status == 3) {
             ui.tvTimeReturn.setVisibility(View.VISIBLE);
-            ui.tvTimeTransfer.setText("退还时间：" + DateUtils.getTransferTime(detailBean.getRejectTime()));
+            ui.tvTimeReturn.setText("退还时间：" + DateUtils.getTransferTime(detailBean.getRejectTime()));
         } else if (status == 4) {
             ui.tvTimeReturn.setVisibility(View.GONE);
         }
@@ -164,12 +164,12 @@ public class TransferDetailActivity extends BasePayActivity {
 
     private String getNote(int income, int status, String nick) {
         String note = "";
-        nick = TextUtils.isEmpty(nick)?"对方":nick;
+        nick = TextUtils.isEmpty(nick) ? "对方" : nick;
         if (status == 1) {
             if (income == 1) {
                 note = "等待确认收款";
             } else {
-                note = "等待" + nick+ "确认收款";
+                note = "等待" + nick + "确认收款";
             }
         } else if (status == 2) {
             if (income == 1) {
@@ -262,14 +262,15 @@ public class TransferDetailActivity extends BasePayActivity {
         if (detailBean == null) {
             return;
         }
+        showLoadingDialog();
         String actionId = UIUtils.getUUID();
-
         PayHttpUtils.getInstance().receiveTransfer(actionId, tradeId, detailBean.getPayUser().getUid())
                 .compose(RxSchedulers.<BaseResponse<TransferResultBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<TransferResultBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<TransferResultBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<TransferResultBean> baseResponse) {
+                        dismissLoadingDialog();
                         if (baseResponse.getData() != null) {
                             //如果当前页有数据
                             TransferResultBean resultBean = baseResponse.getData();
@@ -289,6 +290,7 @@ public class TransferDetailActivity extends BasePayActivity {
                     @Override
                     public void onHandleError(BaseResponse<TransferResultBean> baseResponse) {
                         super.onHandleError(baseResponse);
+                        dismissLoadingDialog();
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });
@@ -307,13 +309,14 @@ public class TransferDetailActivity extends BasePayActivity {
         } else {
             return;
         }
-
+        showLoadingDialog();
         PayHttpUtils.getInstance().returnTransfer(actionId, tradeId, detailBean.getPayUser().getUid())
                 .compose(RxSchedulers.<BaseResponse<TransferResultBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<TransferResultBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<TransferResultBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<TransferResultBean> baseResponse) {
+                        dismissLoadingDialog();
                         if (baseResponse.getData() != null) {
                             //如果当前页有数据
                             TransferResultBean resultBean = baseResponse.getData();
@@ -333,6 +336,7 @@ public class TransferDetailActivity extends BasePayActivity {
                     @Override
                     public void onHandleError(BaseResponse<TransferResultBean> baseResponse) {
                         super.onHandleError(baseResponse);
+                        dismissLoadingDialog();
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });

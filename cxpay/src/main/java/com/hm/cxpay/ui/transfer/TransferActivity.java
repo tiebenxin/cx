@@ -192,9 +192,8 @@ public class TransferActivity extends BasePayActivity {
                             SendResultBean sendBean = baseResponse.getData();
                             if (sendBean != null) {
                                 cxTransferBean = createTransferBean(sendBean, money, PayEnum.ETransferOpType.TRANS_SEND, note);
-                                if (sendBean.getCode() == 1) {//成功\
-                                    dismissLoadingDialog();
-                                    isSending = false;
+                                if (sendBean.getCode() == 1) {//成功
+                                    payFailed();
                                     eventTransferSuccess();
                                     ThreadUtil.getInstance().runMainThread(new Runnable() {
                                         @Override

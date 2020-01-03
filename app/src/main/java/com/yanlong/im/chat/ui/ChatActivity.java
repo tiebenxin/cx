@@ -1114,7 +1114,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                     }
                 }
                 if (isGroup()) {
-                    Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivity.this, toGid, groupInfo.getUsers().size());
+                    int totalSize = 1;
+                    if (groupInfo == null){
+                        groupInfo = msgDao.getGroup4Id(toGid);
+                        if (groupInfo != null && groupInfo.getUsers() != null){
+                            totalSize = groupInfo.getUsers().size();
+                        }
+                    }
+                    Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivity.this, toGid, totalSize);
                     startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
                 } else {
                     Intent intentMulti = SingleRedPacketActivity.newIntent(ChatActivity.this, toUId);
