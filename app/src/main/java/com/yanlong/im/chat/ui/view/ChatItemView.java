@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Html;
 import android.text.Spannable;
@@ -552,8 +553,8 @@ public class ChatItemView extends LinearLayout {
             viewOt.setPadding(10, 0, 10, 0);
             viewOtTouch.setPadding(0, 0, 0, 0);
         }
-//        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//        viewOtChild.setLayoutParams(params);
+        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        viewOtChild.setLayoutParams(params);
     }
 
     //公告
