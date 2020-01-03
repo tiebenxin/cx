@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.hm.cxpay.global.PayEnvironment;
-import com.hm.cxpay.rx.interceptor.CommonInterceptor;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.http.model.BaseModel;
 import com.jrmf360.tools.http.OkHttpModelCallBack;
@@ -33,7 +32,6 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.manager.TokenManager;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.Installation;
 import net.cb.cb.library.utils.LogUtil;
@@ -94,7 +92,7 @@ public class UserAction {
      */
     public static Long getMyId() {
         if (getMyInfo() == null) {
-            return null;
+            return -1l;// 处理 intValue、longValue 空指针问题
         }
         return getMyInfo().getUid();
     }
@@ -834,17 +832,20 @@ public class UserAction {
                         if (param != null) {
                             AVChatProfile.setAccount(param.getAccount());
                         }
-                        LogUtil.getLog().d("UserAction", "onSuccess");
+                        LogUtil.getLog().d("MainActivity", "网易云登录onSuccess");
+                        LogUtil.writeLog(">>>>>>>>>网易云登录onSuccess>>>>>>>>>>>> ");
                     }
 
                     @Override
                     public void onFailed(int code) {
-                        LogUtil.getLog().d("UserAction", "onFailed:" + code);
+                        LogUtil.getLog().d("MainActivity", "网易云登录onFailed:" + code);
+                        LogUtil.writeLog(">>>>>>>>>网易云登录onFailed>>>>>>>>>>>> code:"+code);
                     }
 
                     @Override
                     public void onException(Throwable exception) {
-                        LogUtil.getLog().d("UserAction", "exception:" + exception.getMessage());
+                        LogUtil.getLog().d("MainActivity", "网易云登录exception:" + exception.getMessage());
+                        LogUtil.writeLog(">>>>>>>>>网易云登录exception>>>>>>>>>>>> exception:"+exception.getMessage());
                     }
                     // 可以在此保存LoginInfo到本地，下次启动APP做自动登录用
                 };

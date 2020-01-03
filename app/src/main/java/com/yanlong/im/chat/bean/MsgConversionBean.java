@@ -71,7 +71,7 @@ public class MsgConversionBean {
         msgAllBean.setTo_uid(bean.getToUid());
 
         msgAllBean.setGid(bean.getGid());
-        if (bean.getFromUid() == UserAction.getMyId().intValue()) {//自己发的
+        if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().intValue()) {//自己发的
             msgAllBean.setRead(true);
         } else {
             if (!TextUtils.isEmpty(bean.getGid())) {//群聊
@@ -232,7 +232,7 @@ public class MsgConversionBean {
                 rbNotice.setMsgid(msgAllBean.getMsg_id());
                 //jyj 8.19
                 if (bean.getReceiveRedEnvelope().getReType().getNumber() == 0) {
-                    if (bean.getFromUid() == UserAction.getMyId().longValue()) {
+                    if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().longValue()) {
                         rbNotice.setNote("你领取了自己的<font color='#cc5944'>云红包</font>");
                         rbNotice.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF);
                     } else {
@@ -240,7 +240,7 @@ public class MsgConversionBean {
                         rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "\"领取了你的云红包 <div id='" + bean.getGid() + "'></div>");
                     }
                 } else if (bean.getReceiveRedEnvelope().getReType().getNumber() == 1) {
-                    if (bean.getFromUid() == UserAction.getMyId().longValue()) {
+                    if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().longValue()) {
                         rbNotice.setNote("你领取了自己的<font color='#cc5944'>零钱红包</font>");
                         rbNotice.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
                     } else {
@@ -267,7 +267,7 @@ public class MsgConversionBean {
                 String names = "";
                 for (int i = 0; i < bean.getAcceptBeGroup().getNoticeMessageCount(); i++) {
                     //7.13 加入替换自己的昵称
-                    if (bean.getAcceptBeGroup().getNoticeMessage(i).getUid() == UserAction.getMyId().longValue()) {
+                    if (UserAction.getMyId() != null && bean.getAcceptBeGroup().getNoticeMessage(i).getUid() == UserAction.getMyId().longValue()) {
                         names += "\"<font value ='1'> 你、</font>\"、";
 
                     } else {
@@ -290,7 +290,7 @@ public class MsgConversionBean {
                 }
                 names = names.length() > 0 ? names.substring(0, names.length() - 1) : names;
                 String inviterName = bean.getAcceptBeGroup().getInviterName();//邀请者名字
-                if (bean.getAcceptBeGroup().getInviter() == UserAction.getMyId().longValue()) {
+                if (UserAction.getMyId() != null && bean.getAcceptBeGroup().getInviter() == UserAction.getMyId().longValue()) {
                     inviterName = "\"<font value ='3'> 你</font>\"";
                 } else {
                     MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(bean.getGid(), bean.getAcceptBeGroup().getInviter());
@@ -347,7 +347,7 @@ public class MsgConversionBean {
                 MsgNotice gnewAdminNotice = new MsgNotice();
                 gnewAdminNotice.setMsgid(msgAllBean.getMsg_id());
 
-                if (bean.getChangeGroupMaster().getUid() == UserAction.getMyId().longValue()) {
+                if (UserAction.getMyId() != null && bean.getChangeGroupMaster().getUid() == UserAction.getMyId().longValue()) {
                     gnewAdminNotice.setNote("你已成为新的群主");
                 } else {
                     gnewAdminNotice.setMsgType(5);
@@ -438,7 +438,7 @@ public class MsgConversionBean {
             case CANCEL://撤回消息
                 String rname = "";
                 MsgCancel msgCel = new MsgCancel();
-                if (bean.getFromUid() == UserAction.getMyId().longValue()) {
+                if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().longValue()) {
                     rname = "你";
                 } else {//对方撤回的消息当通知处理
                     msgCel.setMsgType(9);
@@ -552,7 +552,7 @@ public class MsgConversionBean {
                 event.setNeedLoad(true);
                 if (MsgBean.ChangeViceAdminsMessage.Opt.APPEND.getNumber() == bean.getChangeViceAdminsOrBuilder().getOptValue()) {// 新增
                     for (MsgBean.GroupNoticeMessage groupNotice : bean.getChangeViceAdminsOrBuilder().getMembersList()) {
-                        if (groupNotice.getUid() == UserAction.getMyId().longValue()) {
+                        if (UserAction.getMyId() != null && groupNotice.getUid() == UserAction.getMyId().longValue()) {
                             stringBuffer.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>你</font>\"");
                         } else {
                             stringBuffer.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>" + groupNotice.getNickname() + "</font>\"、");
@@ -588,7 +588,7 @@ public class MsgConversionBean {
                             MsgBean.GroupNoticeMessage message = bean.getSwitchChange().getMembers(0);
                             long uid = message.getUid();
                             if (switchValue == 0) {
-                                if (uid == UserAction.getMyId().longValue()) {
+                                if (UserAction.getMyId() != null && uid == UserAction.getMyId().longValue()) {
                                     sb.append("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name
                                             + "</font>\"" + "解除了\"<font color='#276baa' id='" + message.getUid() + "'>你</font>\"禁言");
                                 } else {
@@ -596,7 +596,7 @@ public class MsgConversionBean {
                                             + "</font>\"" + "解除了\"<font color='#276baa' id='" + message.getUid() + "'>" + message.getNickname() + "</font>\"禁言");
                                 }
                             } else {
-                                if (uid == UserAction.getMyId().longValue()) {
+                                if (UserAction.getMyId() != null && uid == UserAction.getMyId().longValue()) {
                                     sb.append("你被\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name + "</font>\"禁言" + GroupMemPowerSetActivity.getSurvivaltime(switchValue));
                                 } else {
                                     sb.append("\"<font color='#276baa' id='" + message.getUid() + "'>" + message.getNickname()
@@ -619,7 +619,7 @@ public class MsgConversionBean {
                             MsgBean.GroupNoticeMessage message = bean.getSwitchChange().getMembers(0);
                             long uid = message.getUid();
                             if (switchValue == 0) {
-                                if (uid == UserAction.getMyId().longValue()) {
+                                if (UserAction.getMyId() != null && uid == UserAction.getMyId().longValue()) {
                                     sb.append("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name
                                             + "</font>\"" + "允许\"<font color='#276baa' id='" + message.getUid() + "'>你</font>\"在本群领取零钱红包");
                                 } else {
@@ -628,7 +628,7 @@ public class MsgConversionBean {
                                 }
                             } else {
                                 if (bean.getSwitchChange().getMembersList().size() == 1) {
-                                    if (uid == UserAction.getMyId().longValue()) {
+                                    if (UserAction.getMyId() != null && uid == UserAction.getMyId().longValue()) {
                                         sb.append("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name
                                                 + "</font>\"" + "已禁止\"<font color='#276baa' id='" + message.getUid() + "'>你</font>\"在本群领取零钱红包");
                                     } else {
@@ -637,7 +637,7 @@ public class MsgConversionBean {
                                     }
                                 } else {
                                     for (MsgBean.GroupNoticeMessage groupNotice : bean.getSwitchChange().getMembersList()) {
-                                        if (groupNotice.getUid() == UserAction.getMyId().longValue()) {
+                                        if (UserAction.getMyId() != null && groupNotice.getUid() == UserAction.getMyId().longValue()) {
                                             sb.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>你</font>\"");
                                         } else {
                                             sb.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>" + groupNotice.getNickname() + "</font>\"、");

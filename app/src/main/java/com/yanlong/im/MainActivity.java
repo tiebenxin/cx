@@ -21,6 +21,8 @@ import android.widget.TextView;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
+import com.example.nim_lib.util.PermissionsUtil;
+import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.eventbus.IdentifyUserEvent;
 import com.hm.cxpay.eventbus.RefreshBalanceEvent;
@@ -29,8 +31,9 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.bean.BankBean;
-import com.example.nim_lib.util.PermissionsUtil;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.StatusCode;
+import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
@@ -64,16 +67,16 @@ import com.zhaoss.weixinrecorded.CanStampEventWX;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.CanStampEvent;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventNetStatus;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
-import net.cb.cb.library.bean.CanStampEvent;
 import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.manager.TokenManager;
 import net.cb.cb.library.event.EventFactory;
+import net.cb.cb.library.manager.TokenManager;
 import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
@@ -150,15 +153,49 @@ public class MainActivity extends AppActivity {
         getSurvivalTimeData();
         checkRosters();
         doRegisterNetReceiver();
+        checkNeteaseLogin();
         SpUtil spUtil = SpUtil.getSpUtil();
         boolean isFist = spUtil.getSPValue(Preferences.IS_FIRST_DIALOG, false);
         if (!isFist) {
             String brand = android.os.Build.BRAND;
             brand = brand.toUpperCase();
-            if(brand.contains("OPPO")){
+            if (brand.contains("OPPO")) {
                 permissionCheck();
             }
         }
+    }
+
+    /**
+     * 部份手机覆盖安装后，网易云在MyApplicon有时会登录失败，导致部分用户使用不了音视频，所以在首页10秒后在检查网易云是否登录，没登录重新登录
+     */
+    private void checkNeteaseLogin() {
+        if (!isFinishing()) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (!isFinishing()) {
+                            if (NIMClient.getStatus() != StatusCode.LOGINED) {
+                                LogUtil.getLog().i(MainActivity.class.getName(), "网易云登录失败，重新登录了:" + NIMClient.getStatus());
+                                LogUtil.writeLog(">>>>>>>>>网易云登录失败，重新登录了 状态是: "+NIMClient.getStatus());
+                                NIMClient.getService(AuthService.class).logout();// 需要先登出网易登录，在重新登录
+                                UserAction userAction = new UserAction();
+                                SpUtil spUtil = SpUtil.getSpUtil();
+                                String account = spUtil.getSPValue("account", "");
+                                String token = spUtil.getSPValue("token", "");
+                                userAction.doNeteaseLogin(account, token);
+                            } else {
+                                LogUtil.getLog().i(MainActivity.class.getName(), "网易云登录成功");
+                                LogUtil.writeLog(">>>>>>>>>网易云登录成功>>>>>>>>> ");
+                            }
+                        }
+                    } catch (Exception e) {
+
+                    }
+                }
+            }, 10000);
+        }
+
     }
 
     @Override
@@ -437,7 +474,7 @@ public class MainActivity extends AppActivity {
         //taskClearNotification();
         checkNotificationOK();
 //        checkPayEnvironmentInit();
-        if (AppConfig.isOnline()){
+        if (AppConfig.isOnline()) {
             checkHasEnvelopeSendFailed();
         }
     }
@@ -929,7 +966,7 @@ public class MainActivity extends AppActivity {
 
     //删除临时红包信息
     private void deleteEnvelopInfo(EnvelopeInfo envelopeInfo) {
-        msgDao.deleteEnvelopeInfo(envelopeInfo.getRid(), envelopeInfo.getGid(), envelopeInfo.getUid(),false);
+        msgDao.deleteEnvelopeInfo(envelopeInfo.getRid(), envelopeInfo.getGid(), envelopeInfo.getUid(), false);
         MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(envelopeInfo.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, envelopeInfo.getUid(), envelopeInfo.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, null);
     }
 

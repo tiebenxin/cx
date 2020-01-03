@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.ui.view;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -1118,8 +1119,11 @@ public class ChatItemView extends LinearLayout {
                     imgOt4.post(new Runnable() {
                         @Override
                         public void run() {
-                            Glide.with(getContext()).asBitmap().load(options).into(imgOt4);
-                            Glide.with(getContext()).asBitmap().load(options).into(imgMe4);
+                            // 处理Bulgy#29303 java.lang.IllegalArgumentException You cannot start a load for a destroyed activity
+                            if (getContext() != null && !((Activity) getContext()).isFinishing()) {
+                                Glide.with(getContext()).asBitmap().load(options).into(imgOt4);
+                                Glide.with(getContext()).asBitmap().load(options).into(imgMe4);
+                            }
                         }
                     });
 
@@ -1137,47 +1141,48 @@ public class ChatItemView extends LinearLayout {
             };
 
             RequestOptions rOptions = new RequestOptions();
+            // 处理Bulgy#29303 java.lang.IllegalArgumentException You cannot start a load for a destroyed activity
+            if (getContext() != null && !((Activity) getContext()).isFinishing()) {
 
+                RequestManager in = Glide.with(getContext());
 
-            RequestManager in = Glide.with(getContext());
-
-            RequestBuilder rb;
-            if (image.getThumbnailShow().toLowerCase().endsWith(".gif")) {
-                LogUtil.getLog().e("gif", "setData4: isgif");
-                rb = in.asGif();
-                rOptions.priority(Priority.LOW).diskCacheStrategy(DiskCacheStrategy.ALL);
-            } else {
-                rb = in.asBitmap();
-                rOptions.override(width, height)
-                        .priority(Priority.HIGH).diskCacheStrategy(DiskCacheStrategy.ALL);
-            }
+                RequestBuilder rb;
+                if (image.getThumbnailShow().toLowerCase().endsWith(".gif")) {
+                    LogUtil.getLog().e("gif", "setData4: isgif");
+                    rb = in.asGif();
+                    rOptions.priority(Priority.LOW).diskCacheStrategy(DiskCacheStrategy.ALL);
+                } else {
+                    rb = in.asBitmap();
+                    rOptions.override(width, height)
+                            .priority(Priority.HIGH).diskCacheStrategy(DiskCacheStrategy.ALL);
+                }
 
 //            rb.apply(rOptions).listener(requestListener).load(uri);
-            rb.apply(options).listener(requestListener).load(image.getThumbnailShow());
-            rb.into(imgMe4);
-            rb.into(imgOt4);
-            if (pg != null) {
-                setImageProgress(pg);
-            } else {
-                if (netState == -1) {
-                    setImageProgress(0);
+                rb.apply(options).listener(requestListener).load(image.getThumbnailShow());
+                rb.into(imgMe4);
+                rb.into(imgOt4);
+                if (pg != null) {
+                    setImageProgress(pg);
                 } else {
-                    setImageProgress(null);
+                    if (netState == -1) {
+                        setImageProgress(0);
+                    } else {
+                        setImageProgress(null);
+                    }
                 }
             }
-        }
-        if (eventPic != null) {
+            if (eventPic != null) {
 
-            OnClickListener onk;
-            viewMeTouch.setOnClickListener(onk = new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    eventPic.onClick(image.getThumbnailShow());
-                }
-            });
-            viewOtTouch.setOnClickListener(onk);
+                OnClickListener onk;
+                viewMeTouch.setOnClickListener(onk = new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        eventPic.onClick(image.getThumbnailShow());
+                    }
+                });
+                viewOtTouch.setOnClickListener(onk);
+            }
         }
-
     }
 
     public void setImageProgress(Integer pg) {

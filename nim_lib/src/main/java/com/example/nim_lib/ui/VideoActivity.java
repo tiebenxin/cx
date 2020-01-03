@@ -324,6 +324,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                     sendEventBus(Preferences.HANGUP, AVChatExitCode.HANGUP);
                 }
             } else {
+                sendEventBus(Preferences.CANCLE, AVChatExitCode.CANCEL);
                 Toast.makeText(VideoActivity.this, R.string.avchat_cancel, Toast.LENGTH_SHORT).show();
                 finish();
             }

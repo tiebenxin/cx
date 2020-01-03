@@ -309,7 +309,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     private boolean isSendingHypertext = false;
     private int textPosition;
     private int contactIntimately;
-    private String master;
+    private String master="";
     private TextView tv_ban;
     private String draft;
     private int isFirst;
