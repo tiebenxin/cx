@@ -71,6 +71,7 @@
         android:id="@+id/ll_detail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingTop="8dp"
         android:paddingBottom="3dp">
@@ -80,6 +81,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:minHeight="20dp"
             android:text="查看详情"
             android:textColor="@color/c_868686"
             android:textSize="14sp" />
