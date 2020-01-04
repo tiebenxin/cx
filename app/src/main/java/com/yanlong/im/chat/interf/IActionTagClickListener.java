@@ -7,7 +7,7 @@ package com.yanlong.im.chat.interf;
 public interface IActionTagClickListener {
 
     //用户
-    void clickUser(String userId);
+    void clickUser(String userId,String gid);
 
 
     //红包或者转账

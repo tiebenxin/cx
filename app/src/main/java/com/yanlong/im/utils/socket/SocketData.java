@@ -1259,7 +1259,7 @@ public class SocketData {
         } else {
             note.setMsgType(ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE);
             String name = msgDao.getUsername4Show(gid, uid);
-            String user = "<user id='" + uid + "' gid=>" + name + "</user>";
+            String user = "<user id='" + uid + "' gid= " + gid + ">" + name + "</user>";
             note.setNote("你领取了\"" + user + "\"的" + "<envelope id=" + rid + ">零钱红包</envelope>");
         }
 

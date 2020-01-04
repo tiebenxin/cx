@@ -2794,7 +2794,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     }
 
     @Override
-    public void clickUser(String userId) {
+    public void clickUser(String userId,String gid) {
         long user = StringUtil.getLong(userId);
         if (user > 0) {
             toUserInfoActivity(user);

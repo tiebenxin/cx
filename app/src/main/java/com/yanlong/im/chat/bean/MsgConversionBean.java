@@ -248,7 +248,7 @@ public class MsgConversionBean {
                         rbNotice.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
                     } else {
                         rbNotice.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED);
-                        String user = "<user id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</user>";
+                        String user = "<user id='" + bean.getFromUid() + "' gid=" + bean.getGid() + ">" + bean.getNickname() + "</user>";
                         rbNotice.setNote("\"" + user + "\"领取了你的" + "<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
                     }
                 }

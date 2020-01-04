@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.Stack;
 
 /**
- * Created by xhdl0002 on 2018/3/27.
+ * Created by Liszt on 2019/12/11.
  * action信息解析
  */
 public class MsgTagHandler implements TagHandler {
@@ -111,6 +111,10 @@ public class MsgTagHandler implements TagHandler {
         }
         if (tag.equalsIgnoreCase(USER)) {
             propertyValue.push(getProperty(xmlReader, "id"));
+            String gid = getProperty(xmlReader, "gid");
+            if (!TextUtils.isEmpty(gid)) {
+                propertyValue.push(gid);
+            }
         } else if (tag.equalsIgnoreCase(ENVELOPE)) {
             propertyValue.push(getProperty(xmlReader, "id"));
         } else if (tag.equalsIgnoreCase(TRANSFER)) {
@@ -122,9 +126,16 @@ public class MsgTagHandler implements TagHandler {
 
         if (!isEmpty(propertyValue)) {
             try {
-                String id = propertyValue.pop();
-                output.setSpan(new MxgsaSpan(id, output.subSequence(sIndex, eIndex).toString(), tag),
-                        sIndex, eIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                String id = "";
+                String gid = "";
+                //先进先出
+                if (propertyValue.size() == 2) {
+                    gid = propertyValue.pop();
+                    id = propertyValue.pop();
+                } else if (propertyValue.size() == 1) {
+                    id = propertyValue.pop();
+                }
+                output.setSpan(new MxgsaSpan(id, gid, output.subSequence(sIndex, eIndex).toString(), tag), sIndex, eIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -141,11 +152,13 @@ public class MsgTagHandler implements TagHandler {
     private class MxgsaSpan extends ClickableSpan {
 
         private String id;
+        private String gid;
         private String nick;
         private String tag;
 
-        public MxgsaSpan(String id, String nick, String tag) {
+        public MxgsaSpan(String id, String gid, String nick, String tag) {
             this.id = id;
+            this.gid = gid;
             this.nick = nick;
             this.tag = tag;
         }
@@ -155,7 +168,7 @@ public class MsgTagHandler implements TagHandler {
             // TODO Auto-generated method stub
             if (tag.equalsIgnoreCase(USER)) {
                 if (actionListener != null && !TextUtils.isEmpty(id)) {
-                    actionListener.clickUser(id);
+                    actionListener.clickUser(id,gid);
                 }
             } else if (tag.equalsIgnoreCase(ENVELOPE)) {
                 if (actionListener != null && !TextUtils.isEmpty(id)) {
