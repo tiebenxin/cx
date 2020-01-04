@@ -100,6 +100,12 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
+    <style name="app_txt_blue_600" parent="app_txt_base">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/blue_600</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
 
     <!--emoji样式-->
 <!--    <style name="app_txt_content_emoji" parent="app_txt_title_2">-->

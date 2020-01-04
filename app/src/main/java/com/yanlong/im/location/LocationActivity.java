@@ -3,18 +3,16 @@ package com.yanlong.im.location;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClientOption;
-import com.baidu.location.Poi;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
@@ -45,7 +43,6 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.ClearEditText;
-import net.cb.cb.library.view.HeadView;
 import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,18 +53,27 @@ import java.util.List;
  */
 
 public class LocationActivity extends AppActivity {
-    private HeadView headView;
+//    private HeadView headView;
     private ActionbarView actionbar;
     private MapView mapview;
+    private TextView search_tv;
+    private LinearLayout view_search;
+
+    private LinearLayout search_ll;
     private ClearEditText edtSearch;
-    private MaxHeightRecyclerView recyclerview;
-    private RelativeLayout search_ll;
+    private TextView cancel_tv;
 
     private BaiduMap mBaiduMap;
     private LocationService locService;
     private BDAbstractLocationListener listener;
+
+    private MaxHeightRecyclerView recyclerview;
     private List<LocationMessage> locationList;
     private LocationPoiAdapter locationPoiAdapter;
+
+    private MaxHeightRecyclerView recyclerview2;
+    private List<LocationMessage> locationList2;
+    private LocationPoiAdapter locationPoiAdapter2;
 
     private Boolean isShow=true;
     private String city="长沙市";//默认城市
@@ -95,6 +101,7 @@ public class LocationActivity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
+        getWindow().setStatusBarColor(0xff517da2);
 
         findViews();
         initEvent();
@@ -127,11 +134,19 @@ public class LocationActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        headView = findViewById(R.id.headView);
-        actionbar = headView.getActionbar();
+//        headView = findViewById(R.id.headView);
+//        actionbar = headView.getActionbar();
+        actionbar = findViewById(R.id.actionbar_view);
+        actionbar.setTitle("位置");
         mapview = findViewById(R.id.mapview);
-        edtSearch = findViewById(R.id.edt_search);
+        search_tv = findViewById(R.id.search_tv);
+        view_search = findViewById(R.id.view_search);
+
         search_ll = findViewById(R.id.search_ll);
+        search_ll.setVisibility(View.GONE);
+        edtSearch = findViewById(R.id.edt_search);
+//        search_rl = findViewById(R.id.search_rl);
+        cancel_tv = findViewById(R.id.cancel_tv);
 
         recyclerview = findViewById(R.id.recyclerview);
         recyclerview.setVisibility(View.GONE);
@@ -148,6 +163,37 @@ public class LocationActivity extends AppActivity {
                     if(locationMessage.getLatitude()==-1||locationMessage.getLongitude()==-1){
                         getPoi(true,city,locationMessage.getAddress());
                     }else {
+                        setLocationBitmap(locationMessage.getLatitude()/LocationUtils.beishu, locationMessage.getLongitude()/LocationUtils.beishu);
+                    }
+                }
+            }
+        });
+
+        locationList2 = new ArrayList<>();
+        recyclerview2 = findViewById(R.id.recyclerview2);
+        locationPoiAdapter2 = new LocationPoiAdapter(context, locationList2);
+        recyclerview2.setAdapter(locationPoiAdapter2);
+        locationPoiAdapter2.setListener(new BaseListener() {
+            @Override
+            public void onSuccess(Object object) {
+                super.onSuccess(object);
+                if(object!=null){
+                    LocationMessage locationMessage=(LocationMessage) object;
+                    if(locationMessage.getLatitude()==-1||locationMessage.getLongitude()==-1){
+                        getPoi(true,city,locationMessage.getAddress());
+                    }else {
+
+                        actionbar.setVisibility(View.VISIBLE);
+                        view_search.setVisibility(View.VISIBLE);
+
+                        search_ll.setVisibility(View.GONE);
+
+                        locationList.clear();
+                        locationList.addAll(locationList2);
+                        locationPoiAdapter.position=locationPoiAdapter2.position;
+                        recyclerview.getAdapter().notifyDataSetChanged();
+                        recyclerview.scrollToPosition(locationPoiAdapter.position);
+
                         setLocationBitmap(locationMessage.getLatitude()/LocationUtils.beishu, locationMessage.getLongitude()/LocationUtils.beishu);
                     }
                 }
@@ -241,12 +287,37 @@ public class LocationActivity extends AppActivity {
         locService.registerListener(listener);
 
         if(isShow){
-            search_ll.setVisibility(View.GONE);
+            view_search.setVisibility(View.GONE);
         }else {
             actionbar.setTxtRight("发送");
             locService.start();
         }
 
+
+        search_tv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                actionbar.setVisibility(View.GONE);
+                view_search.setVisibility(View.GONE);
+
+                search_ll.setVisibility(View.VISIBLE);
+//                search_ll.setBackgroundResource(R.color.transparent_33);
+                edtSearch.requestFocus();
+                InputUtil.showKeyboard(edtSearch);
+
+            }
+        });
+
+        cancel_tv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                actionbar.setVisibility(View.VISIBLE);
+                view_search.setVisibility(View.VISIBLE);
+
+                search_ll.setVisibility(View.GONE);
+                InputUtil.hideKeyboard(edtSearch);
+            }
+        });
 
         edtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -269,6 +340,9 @@ public class LocationActivity extends AppActivity {
                 if (edtSearch.getText().toString().length() == 0) {
                     //搜索关键字为0的时候，重新显示全部消息
 //                    locService.start();
+                    locationList2.clear();
+                    locationPoiAdapter2.position=0;
+                    recyclerview2.getAdapter().notifyDataSetChanged();
                 }
             }
 
@@ -305,9 +379,9 @@ public class LocationActivity extends AppActivity {
 
         InputUtil.hideKeyboard(edtSearch);
 
-        locationList.clear();
-        locationPoiAdapter.position=0;
-        recyclerview.getAdapter().notifyDataSetChanged();
+        locationList2.clear();
+        locationPoiAdapter2.position=0;
+        recyclerview2.getAdapter().notifyDataSetChanged();
 
         //建议搜索
         SuggestionSearch mSuggestionSearch = SuggestionSearch.newInstance();
@@ -318,6 +392,7 @@ public class LocationActivity extends AppActivity {
                 //处理sug检索结果
                 if (suggestionResult != null && "NO_ERROR".equals(suggestionResult.error.name())
                         && suggestionResult.getAllSuggestions() != null&&suggestionResult.getAllSuggestions().size()>0) {
+                    search_ll.setBackgroundResource(R.color.white);
                     List<SuggestionResult.SuggestionInfo> list=suggestionResult.getAllSuggestions();
                     boolean hasSetBitmap=false;
                     for (int i = 0; i < list.size(); i++) {
@@ -329,17 +404,17 @@ public class LocationActivity extends AppActivity {
                             locationMessage.setImg(LocationUtils.getLocationUrl2(sug.pt.latitude,sug.pt.longitude));
                             locationMessage.setAddress(sug.getKey());
                             locationMessage.setAddressDescribe(sug.getCity()+sug.getDistrict()+sug.getAddress());
-                            locationList.add(locationMessage);
+                            locationList2.add(locationMessage);
 
-                            if(!hasSetBitmap){
-                                setLocationBitmap(sug.pt.latitude,sug.pt.longitude);
-                                hasSetBitmap=true;
-                            }
+//                            if(!hasSetBitmap){
+//                                setLocationBitmap(sug.pt.latitude,sug.pt.longitude);
+//                                hasSetBitmap=true;
+//                            }
                         }
                     }
 
-                    recyclerview.getAdapter().notifyDataSetChanged();
-                    recyclerview.setVisibility(View.VISIBLE);
+                    recyclerview2.getAdapter().notifyDataSetChanged();
+//                    recyclerview2.setVisibility(View.VISIBLE);
 
                 }
             }
