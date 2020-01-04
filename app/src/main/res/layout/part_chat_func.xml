@@ -229,7 +229,7 @@
             android:layout_columnWeight="1"
             android:gravity="center_horizontal"
             android:layout_gravity="center_horizontal"
-            android:visibility="gone"
+            android:visibility="visible"
             android:orientation="vertical">
 
             <ImageView
