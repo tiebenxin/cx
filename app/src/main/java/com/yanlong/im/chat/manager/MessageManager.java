@@ -135,6 +135,7 @@ public class MessageManager {
                 if (length == 1) {//收到单条消息
                     MsgBean.UniversalMessage.WrapMessage wrapMessage = msgList.get(0);
                     dealWithMsg(wrapMessage, false, true, bean.getRequestId());
+                    checkServerTimeInit(wrapMessage);
 
                 } else {//收到多条消息（如离线）
 //                    LogUtil.getLog().d("a=", "--总任务数="  + "--当前时间-3=" + System.currentTimeMillis());
@@ -150,6 +151,13 @@ public class MessageManager {
 //                    LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--总任务数="  + "--当前时间-4=" + System.currentTimeMillis());
                 }
             }
+        }
+    }
+
+    //如果当前未初始化服务器时间，以接收到的消息作为服务器时间
+    private void checkServerTimeInit(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        if (SocketData.getPreServerAckTime() <= 0) {
+            SocketData.setPreServerAckTime(wrapMessage.getTimestamp());
         }
     }
 
@@ -476,7 +484,7 @@ public class MessageManager {
                 LogUtil.getLog().d(TAG, "开关变更:" + wrapMessage.getSwitchChange().getSwitchType());
 
                 // TODO　处理老版本不兼容问题
-                if(wrapMessage.getSwitchChange().getSwitchType()== MsgBean.SwitchChangeMessage.SwitchType.UNRECOGNIZED){
+                if (wrapMessage.getSwitchChange().getSwitchType() == MsgBean.SwitchChangeMessage.SwitchType.UNRECOGNIZED) {
                     return true;
                 }
                 int switchType = wrapMessage.getSwitchChange().getSwitchType().getNumber();
@@ -701,7 +709,7 @@ public class MessageManager {
                     loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
                 } else {
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), msgAllBean,null);
+                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), msgAllBean, null);
                         setMessageChange(true);
                     } else {
                         updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel, msgAllBean.getRequest_id());
@@ -722,7 +730,7 @@ public class MessageManager {
                 } else {
                     LogUtil.getLog().d("a=", TAG + "--异步加载用户信息更新未读数");
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), chatterId ,msgAllBean,null);
+                        updateSessionUnread(msgAllBean.getGid(), chatterId, msgAllBean, null);
                         setMessageChange(true);
                     } else {
                         updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel, msgAllBean.getRequest_id());
@@ -732,7 +740,7 @@ public class MessageManager {
             } else {
                 if (!TextUtils.isEmpty(msgAllBean.getGid())) {
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(),msgAllBean,null);
+                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), msgAllBean, null);
                         setMessageChange(true);
                     } else {
                         updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel, msgAllBean.getRequest_id());
@@ -740,7 +748,7 @@ public class MessageManager {
                 } else {
                     long chatterId = isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid();
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), chatterId, msgAllBean,null);
+                        updateSessionUnread(msgAllBean.getGid(), chatterId, msgAllBean, null);
                         setMessageChange(true);
                     } else {
                         updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel, msgAllBean.getRequest_id());
@@ -779,7 +787,7 @@ public class MessageManager {
                         taskMsgList.updateTaskCount();
                     }
                 } else {
-                    updateSessionUnread(gid, uid, bean,null);
+                    updateSessionUnread(gid, uid, bean, null);
                     setMessageChange(true);
                     notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
                 }
@@ -795,7 +803,7 @@ public class MessageManager {
                         taskMsgList.updateTaskCount();
                     }
                 } else {
-                    updateSessionUnread(gid, uid, bean,null);
+                    updateSessionUnread(gid, uid, bean, null);
                     notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
                 }
             }
@@ -822,7 +830,7 @@ public class MessageManager {
                         taskMsgList.updateTaskCount();
                     }
                 } else {
-                    updateSessionUnread(gid, uid, bean,"first");
+                    updateSessionUnread(gid, uid, bean, "first");
                     setMessageChange(true);
                     notifyRefreshMsg(CoreEnum.EChatType.GROUP, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
                 }
@@ -838,7 +846,7 @@ public class MessageManager {
                         taskMsgList.updateTaskCount();
                     }
                 } else {
-                    updateSessionUnread(gid, uid, bean,null);
+                    updateSessionUnread(gid, uid, bean, null);
                     notifyRefreshMsg(CoreEnum.EChatType.GROUP, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
                 }
             }
@@ -860,7 +868,7 @@ public class MessageManager {
     /*
      * 更新session未读数
      * */
-    public synchronized void updateSessionUnread(String gid, Long from_uid ,MsgAllBean bean,String firstFlag) {
+    public synchronized void updateSessionUnread(String gid, Long from_uid, MsgAllBean bean, String firstFlag) {
 //        LogUtil.getLog().d("a=", TAG + "--更新Session--updateSessionUnread" + "--isCancel=" + isCancel);
         boolean canChangeUnread = true;
         if (!TextUtils.isEmpty(gid)) {
@@ -873,7 +881,7 @@ public class MessageManager {
             }
 
         }
-        msgDao.sessionReadUpdate(gid, from_uid,canChangeUnread, bean,firstFlag);
+        msgDao.sessionReadUpdate(gid, from_uid, canChangeUnread, bean, firstFlag);
     }
 
     /*
@@ -1214,6 +1222,9 @@ public class MessageManager {
             return;
         }
         fetchTimeDiff(message.getTimestamp());
+        if (message.getActiveTypeValue() == 1) {
+            SocketData.setPreServerAckTime(message.getTimestamp());
+        }
         userDao.updateUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
         MessageManager.getInstance().updateCacheUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
     }
