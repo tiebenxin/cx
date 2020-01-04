@@ -135,6 +135,7 @@ public class MessageManager {
                 if (length == 1) {//收到单条消息
                     MsgBean.UniversalMessage.WrapMessage wrapMessage = msgList.get(0);
                     dealWithMsg(wrapMessage, false, true, bean.getRequestId());
+                    checkServerTimeInit(wrapMessage);
 
                 } else {//收到多条消息（如离线）
 //                    LogUtil.getLog().d("a=", "--总任务数="  + "--当前时间-3=" + System.currentTimeMillis());
@@ -150,6 +151,13 @@ public class MessageManager {
 //                    LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--总任务数="  + "--当前时间-4=" + System.currentTimeMillis());
                 }
             }
+        }
+    }
+
+    //如果当前未初始化服务器时间，以接收到的消息作为服务器时间
+    private void checkServerTimeInit(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        if (SocketData.getPreServerAckTime() <= 0) {
+            SocketData.setPreServerAckTime(wrapMessage.getTimestamp());
         }
     }
 
