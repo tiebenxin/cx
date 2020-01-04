@@ -1,6 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="277dp"
-    android:layout_height="139dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:background="@drawable/shape_13radius_solid_ffffff">
 
     <TextView
@@ -19,34 +19,44 @@
         style="@style/payword_line"
         android:layout_below="@+id/tv_title" />
 
-    <TextView
-        android:id="@+id/tv_try_again"
-        android:layout_width="138dp"
-        android:layout_height="48dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_below="@+id/line_one"
-        android:gravity="center"
-        android:text="重试"
-        android:textColor="@color/c_828282"
-        android:textSize="16sp" />
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/tv_try_again"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"
+            android:layout_below="@+id/line_one"
+            android:gravity="center"
+            android:text="重试"
+            android:textColor="@color/c_828282"
+            android:textSize="16sp" />
 
-    <View
-        android:id="@+id/line_two"
-        android:layout_width="1dp"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/line_one"
-        android:layout_toRightOf="@+id/tv_try_again"
-        android:background="@color/c_f0f0f0" />
+        <View
+            android:id="@+id/line_two"
+            android:layout_width="1dp"
+            android:layout_height="50dp"
+            android:layout_below="@+id/line_one"
+            android:layout_toRightOf="@+id/tv_try_again"
+            android:background="@color/c_f0f0f0" />
 
-    <TextView
-        android:id="@+id/tv_forget_psw"
-        android:layout_width="138dp"
-        android:layout_height="48dp"
-        android:layout_below="@+id/line_one"
-        android:layout_toRightOf="@+id/line_two"
-        android:gravity="center"
-        android:text="忘记密码"
-        android:textColor="@color/c_32b053"
-        android:textSize="16sp" />
+        <TextView
+            android:id="@+id/tv_forget_psw"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"
+            android:layout_below="@+id/line_one"
+            android:layout_toRightOf="@+id/line_two"
+            android:gravity="center"
+            android:text="忘记密码"
+            android:textColor="@color/c_32b053"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+
 
 
 </RelativeLayout>

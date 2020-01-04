@@ -10,8 +10,11 @@ import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -422,10 +425,15 @@ public class WithdrawActivity extends AppActivity {
         //解决圆角shape背景无效问题
         Window window = dialog.getWindow();
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //设置宽高
+        //相关配置
         WindowManager.LayoutParams lp = window.getAttributes();
-        lp.height = DensityUtil.dip2px(activity, 180);
-        lp.width = DensityUtil.dip2px(activity, 260);
+        window.setGravity(Gravity.CENTER);
+        WindowManager manager = window.getWindowManager();
+        DisplayMetrics metrics = new DisplayMetrics();
+        manager.getDefaultDisplay().getMetrics(metrics);
+        //设置宽高，高度自适应，宽度屏幕0.8
+        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        lp.width = (int) (metrics.widthPixels*0.8);
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
     }

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -335,10 +336,14 @@ public class BillDetailListActivity extends AppActivity {
         //解决圆角shape背景无效问题
         Window window = selectTypeDialog.getWindow();
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        window.setGravity(Gravity.BOTTOM);
-        //设置宽高
+        //相关配置
         WindowManager.LayoutParams lp = window.getAttributes();
-        lp.height = DensityUtil.dip2px(activity, 195);
+        window.setGravity(Gravity.BOTTOM);
+        WindowManager manager = window.getWindowManager();
+        DisplayMetrics metrics = new DisplayMetrics();
+        manager.getDefaultDisplay().getMetrics(metrics);
+        //设置宽高，高度自适应，宽度填满屏幕
+        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
         lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
         selectTypeDialog.getWindow().setAttributes(lp);
         selectTypeDialog.setContentView(dialogView);

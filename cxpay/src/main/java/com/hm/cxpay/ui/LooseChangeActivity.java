@@ -7,8 +7,11 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
@@ -361,10 +364,15 @@ public class LooseChangeActivity extends BasePayActivity {
         //解决圆角shape背景无效问题
         Window window = dialog.getWindow();
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //设置宽高
+        //相关配置
         WindowManager.LayoutParams lp = window.getAttributes();
-        lp.height = DensityUtil.dip2px(activity, 136);
-        lp.width = DensityUtil.dip2px(activity, 277);
+        window.setGravity(Gravity.CENTER);
+        WindowManager manager = window.getWindowManager();
+        DisplayMetrics metrics = new DisplayMetrics();
+        manager.getDefaultDisplay().getMetrics(metrics);
+        //设置宽高，高度自适应，宽度屏幕0.8
+        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        lp.width = (int) (metrics.widthPixels*0.8);
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
     }
@@ -403,10 +411,15 @@ public class LooseChangeActivity extends BasePayActivity {
         //解决圆角shape背景无效问题
         Window window = dialog.getWindow();
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //设置宽高
+        //相关配置
         WindowManager.LayoutParams lp = window.getAttributes();
-        lp.height = DensityUtil.dip2px(activity, 155);
-        lp.width = DensityUtil.dip2px(activity, 277);
+        window.setGravity(Gravity.CENTER);
+        WindowManager manager = window.getWindowManager();
+        DisplayMetrics metrics = new DisplayMetrics();
+        manager.getDefaultDisplay().getMetrics(metrics);
+        //设置宽高，高度自适应，宽度屏幕0.8
+        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        lp.width = (int) (metrics.widthPixels*0.8);
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
     }
@@ -443,10 +456,15 @@ public class LooseChangeActivity extends BasePayActivity {
         //解决圆角shape背景无效问题
         Window window = dialog.getWindow();
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //设置宽高
+        //相关配置
         WindowManager.LayoutParams lp = window.getAttributes();
-        lp.height = DensityUtil.dip2px(activity, 136);
-        lp.width = DensityUtil.dip2px(activity, 277);
+        window.setGravity(Gravity.CENTER);
+        WindowManager manager = window.getWindowManager();
+        DisplayMetrics metrics = new DisplayMetrics();
+        manager.getDefaultDisplay().getMetrics(metrics);
+        //设置宽高，高度自适应，宽度屏幕0.8
+        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        lp.width = (int) (metrics.widthPixels*0.8);
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
     }
