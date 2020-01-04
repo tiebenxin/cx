@@ -1250,22 +1250,6 @@ public class SocketData {
         return note;
     }
 
-//    public static MsgNotice createMsgNoticeOfRb(String msgId, Long uid, String gid) {
-//        MsgNotice note = new MsgNotice();
-//        note.setMsgid(msgId);
-//        if (uid != null && uid.longValue() == UserAction.getMyId().longValue()) {
-//            note.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
-//            note.setNote("你领取了自己的<font color='#cc5944'>零钱红包</font>");
-//        } else {
-//            note.setMsgType(ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE);
-//            String name = msgDao.getUsername4Show(gid, uid);
-//            String rname = "<font color='#276baa' id='" + uid + "'>" + name + "</font>";
-//            note.setNote("你领取了\"" + rname + "的零钱红包" + "<div id= '" + gid + "'></div>");
-//        }
-//
-//        return note;
-//    }
-
     public static MsgNotice createMsgNoticeOfRb(String msgId, Long uid, String gid, String rid) {
         MsgNotice note = new MsgNotice();
         note.setMsgid(msgId);
@@ -1275,7 +1259,7 @@ public class SocketData {
         } else {
             note.setMsgType(ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE);
             String name = msgDao.getUsername4Show(gid, uid);
-            String user = "<user id='" + uid + "'>" + name + "</user>";
+            String user = "<user id='" + uid + "' gid=>" + name + "</user>";
             note.setNote("你领取了\"" + user + "\"的" + "<envelope id=" + rid + ">零钱红包</envelope>");
         }
 

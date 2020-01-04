@@ -1115,6 +1115,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                         if (groupInfo != null && groupInfo.getUsers() != null){
                             totalSize = groupInfo.getUsers().size();
                         }
+                    }else {
+                        totalSize = groupInfo.getUsers().size();
                     }
                     Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivity.this, toGid, totalSize);
                     startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
