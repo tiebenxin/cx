@@ -1726,6 +1726,7 @@ public class SocketData {
             if (msgAllBean.getVideoMessage() != null && !TextUtils.isEmpty(videoLocalUrl)) {
                 msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
             }
+            msgAllBean.setTimestamp(ackMessage.getTimestamp());
             DaoUtil.update(msgAllBean);
             return true;
         }
