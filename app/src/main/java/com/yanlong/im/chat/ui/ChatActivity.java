@@ -718,7 +718,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
             //红包通知 不滚动到底部
             if (msgAllbean.getMsgNotice() != null && (msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE
-                    || msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF)) {
+                    || msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
+                    || msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE
+                    || msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF)) {
                 return;
             }
             scrollListView(true);
