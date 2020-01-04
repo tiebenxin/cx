@@ -258,36 +258,40 @@ public class MsgMainFragment extends Fragment {
     }
 
     private void resetNetWorkView(@CoreEnum.ENetStatus int status) {
-        LogUtil.getLog().i(MsgMainFragment.class.getSimpleName(), "resetNetWorkView--status=" + status);
-        if (mAdapter == null || mAdapter.viewNetwork == null) {
-            return;
-        }
-        switch (status) {
-            case CoreEnum.ENetStatus.ERROR_ON_NET:
+        try {
+            LogUtil.getLog().i(MsgMainFragment.class.getSimpleName(), "resetNetWorkView--status=" + status);
+            if (mAdapter == null || mAdapter.viewNetwork == null) {
+                return;
+            }
+            switch (status) {
+                case CoreEnum.ENetStatus.ERROR_ON_NET:
 //                viewNetwork.setVisibility(View.VISIBLE);
-                if (mAdapter.viewNetwork.getVisibility() == View.GONE) {
-                    mAdapter.viewNetwork.postDelayed(showRunnable, 15 * 1000);
-                }
-                break;
-            case CoreEnum.ENetStatus.SUCCESS_ON_NET:
-                if (NetUtil.isNetworkConnected()) {//无网络链接，无效指令
+                    if (mAdapter.viewNetwork.getVisibility() == View.GONE) {
+                        mAdapter.viewNetwork.postDelayed(showRunnable, 15 * 1000);
+                    }
+                    break;
+                case CoreEnum.ENetStatus.SUCCESS_ON_NET:
+                    if (NetUtil.isNetworkConnected()) {//无网络链接，无效指令
+                        mAdapter.viewNetwork.setVisibility(View.GONE);
+                    }
+                    removeHandler();
+                    break;
+                case CoreEnum.ENetStatus.ERROR_ON_SERVER:
+                    if (mAdapter.viewNetwork.getVisibility() == View.GONE) {
+                        mAdapter.viewNetwork.postDelayed(showRunnable, 10 * 1000);
+                    }
+                    break;
+                case CoreEnum.ENetStatus.SUCCESS_ON_SERVER:
                     mAdapter.viewNetwork.setVisibility(View.GONE);
-                }
-                removeHandler();
-                break;
-            case CoreEnum.ENetStatus.ERROR_ON_SERVER:
-                if (mAdapter.viewNetwork.getVisibility() == View.GONE) {
-                    mAdapter.viewNetwork.postDelayed(showRunnable, 10 * 1000);
-                }
-                break;
-            case CoreEnum.ENetStatus.SUCCESS_ON_SERVER:
-                mAdapter.viewNetwork.setVisibility(View.GONE);
-                removeHandler();
-                break;
-            default:
-                mAdapter.viewNetwork.setVisibility(View.GONE);
-                removeHandler();
-                break;
+                    removeHandler();
+                    break;
+                default:
+                    mAdapter.viewNetwork.setVisibility(View.GONE);
+                    removeHandler();
+                    break;
+
+            }
+        }catch (NullPointerException e){
 
         }
     }

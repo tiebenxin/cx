@@ -13,10 +13,10 @@
 # and specify the fully qualified class name to the JavaScript interface
 # class:
 
--libraryjars libs/armeabi-v7a/libLanSongdisplay.so
--libraryjars libs/armeabi-v7a/libLanSongffmpeg.so
--libraryjars libs/armeabi-v7a/libLanSongplayer.so
--libraryjars libs/armeabi-v7a/libyuv.so
--libraryjars libs/armeabi-v7a/libyuv-sample.so
+#-libraryjars libs/armeabi-v7a/libLanSongdisplay.so
+#-libraryjars libs/armeabi-v7a/libLanSongffmpeg.so
+#-libraryjars libs/armeabi-v7a/libLanSongplayer.so
+#-libraryjars libs/armeabi-v7a/libyuv.so
+#-libraryjars libs/armeabi-v7a/libyuv-sample.so
 
--libraryjars libs/lansongcommon_hx.jar
+#-libraryjars libs/lansongcommon_hx.jar

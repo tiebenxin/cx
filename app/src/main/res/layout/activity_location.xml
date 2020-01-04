@@ -1,28 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<net.cb.cb.library.view.HeadView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/headView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:headview_title="位置">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <com.baidu.mapapi.map.MapView
+            android:id="@+id/mapview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clickable="true" />
+
+        <com.yanlong.im.view.MaxHeightRecyclerView
+            android:id="@+id/recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="LinearLayoutManager"
+            app:maxHeight="200dp" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:orientation="vertical">
+
+        <net.cb.cb.library.view.ActionbarView
+            android:id="@+id/actionbar_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:id="@+id/view_search"
+            style="@style/app_layout_list2_item_search"
+            android:layout_margin="5dp"
+            android:background="@drawable/shape_search_bg">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="6dp"
+                android:src="@mipmap/ic_msg_search" />
+
+            <TextView
+                android:id="@+id/search_tv"
+                style="@style/app_edt1"
+                android:background="@color/transparent"
+                android:gravity="center_vertical"
+                android:hint="搜索"
+                android:imeOptions="actionSearch" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/search_ll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparent_33"
+        android:orientation="vertical"
+        android:visibility="gone">
+
         <RelativeLayout
-            android:id="@+id/search_ll"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:background="@color/white">
 
+            <TextView
+                android:id="@+id/cancel_tv"
+                style="@style/app_txt_blue_600"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_margin="15dp"
+                android:text="取消" />
+
             <LinearLayout
-                android:id="@+id/view_search"
                 style="@style/app_layout_list2_item_search"
-                android:layout_marginLeft="5dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginRight="5dp"
+                android:layout_centerVertical="true"
+                android:layout_margin="5dp"
+                android:layout_toLeftOf="@+id/cancel_tv"
                 android:background="@drawable/shape_search_bg">
 
                 <ImageView
@@ -35,27 +99,22 @@
                     android:id="@+id/edt_search"
                     style="@style/app_edt1"
                     android:background="@color/transparent"
-                    android:hint="搜索"
+                    android:hint="搜索地点"
                     android:imeOptions="actionSearch" />
 
             </LinearLayout>
         </RelativeLayout>
 
-        <com.baidu.mapapi.map.MapView
-            android:id="@+id/mapview"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:clickable="true"/>
-
         <com.yanlong.im.view.MaxHeightRecyclerView
-            android:id="@+id/recyclerview"
+            android:id="@+id/recyclerview2"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:maxHeight="200dp"
+            android:layout_height="match_parent"
             app:layoutManager="LinearLayoutManager" />
 
     </LinearLayout>
-</net.cb.cb.library.view.HeadView>
+
+
+</RelativeLayout>
+
 
 
