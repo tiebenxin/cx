@@ -3,10 +3,15 @@ package com.yanlong.im.utils.update;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -32,6 +37,7 @@ public class UpdateAppDialog {
     private ProgressBar mProgressNum;
     private Button btnInstall;
     private TextView tvUpdatePercent;//进度条上方百分比图标
+    private int lastProgressValue = 0;
 
     //自动寻找控件
     private void findViews(View rootview) {
@@ -116,7 +122,7 @@ public class UpdateAppDialog {
 
     public void updateStop(){
         mProgressNum.setVisibility(View.GONE);
-//        tvUpdatePercent.setVisibility(View.GONE);
+        tvUpdatePercent.setVisibility(View.GONE);
         btnUpdate.setClickable(true);
     }
 
@@ -138,17 +144,26 @@ public class UpdateAppDialog {
     public void updateProgress(int progress){
         mProgressNum.setProgress(progress);
         tvUpdatePercent.setText(progress+"%");
-        setPos();
+        //加限制条件，避免进度条偶现性错乱抖动
+        if(progress > lastProgressValue){
+            lastProgressValue = progress;
+            setPos();
+        }
     }
 
 
     public void show() {
         alertDialog.show();
-        WindowManager.LayoutParams p = alertDialog.getWindow().getAttributes();
-        p.width = DensityUtil.dip2px(context, 230);
-        p.height = DensityUtil.dip2px(context, 363);
-        alertDialog.getWindow().setAttributes(p);
         alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        WindowManager.LayoutParams lp = alertDialog.getWindow().getAttributes();
+        alertDialog.getWindow().setGravity(Gravity.CENTER);
+        WindowManager manager = alertDialog.getWindow().getWindowManager();
+        DisplayMetrics metrics = new DisplayMetrics();
+        manager.getDefaultDisplay().getMetrics(metrics);
+        //设置宽高，高度自适应，宽度屏幕0.65
+        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        lp.width = (int) (metrics.widthPixels*0.65);
+        alertDialog.getWindow().setAttributes(lp);
     }
 
 
