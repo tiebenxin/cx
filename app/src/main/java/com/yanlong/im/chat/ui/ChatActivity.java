@@ -310,7 +310,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     private boolean isSendingHypertext = false;
     private int textPosition;
     private int contactIntimately;
-    private String master;
+    private String master="";
     private TextView tv_ban;
     private String draft;
     private int isFirst;
@@ -858,11 +858,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                     editChat.getText().clear();
                     return;
                 }
-//                if (text.startsWith("@000")) {
-//                    int count = Integer.parseInt(text.split("_")[1]);
-//                    taskTestSend(count);
-//                    return;
-//                }
 
 //                try {
 //                    if (text.startsWith("@000_")) { //文字测试
@@ -2458,8 +2453,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void locationSendEvent(LocationSendEvent event) {
-        LocationMessage message = SocketData.createLocationMessage(SocketData.getUUID(), event.message.getLatitude(),
-                event.message.getLongitude(), event.message.getAddress(), event.message.getAddressDescribe());
+        LocationMessage message = SocketData.createLocationMessage(SocketData.getUUID(), event.message);
 
 //        LogUtil.getLog().e("====location=message=="+GsonUtils.optObject(message));
         sendMessage(message, ChatEnum.EMessageType.LOCATION);
@@ -5287,10 +5281,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         //解决圆角shape背景无效问题
         Window window = dialog.getWindow();
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //设置宽高
+        //相关配置
         WindowManager.LayoutParams lp = window.getAttributes();
-        lp.height = DensityUtil.dip2px(context, 139);
-        lp.width = DensityUtil.dip2px(context, 277);
+        window.setGravity(Gravity.CENTER);
+        WindowManager manager = window.getWindowManager();
+        DisplayMetrics metrics = new DisplayMetrics();
+        manager.getDefaultDisplay().getMetrics(metrics);
+        //设置宽高，高度自适应，宽度屏幕0.8
+        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        lp.width = (int) (metrics.widthPixels*0.8);
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
     }

@@ -69,14 +69,14 @@ public class LocationActivity extends AppActivity {
     private List<LocationMessage> locationList;
     private LocationPoiAdapter locationPoiAdapter;
 
-    private Boolean isLook=true;
+    private Boolean isShow=true;
     private String city="长沙市";//默认城市
     private int latitude=28136296;//默认定位
     private int longitude=112953042;//默认定位
 
 
 
-    public static void openActivity(Activity activity,Boolean isLook ,int latitude,int longitude) {
+    public static void openActivity(Activity activity,Boolean isShow ,int latitude,int longitude) {
         if (!LocationPersimmions.checkPermissions(activity)) {
             return;
         }
@@ -85,7 +85,7 @@ public class LocationActivity extends AppActivity {
             return;
         }
         Intent intent=new Intent(activity, LocationActivity.class);
-        intent.putExtra("isLook",isLook);
+        intent.putExtra("isShow",isShow);
         intent.putExtra("latitude",latitude);
         intent.putExtra("longitude",longitude);
         activity.startActivity(intent);
@@ -141,12 +141,15 @@ public class LocationActivity extends AppActivity {
         recyclerview.setAdapter(locationPoiAdapter);
         locationPoiAdapter.setListener(new BaseListener() {
             @Override
-            public void onSuccess(int intOne, int intTwo, String strOne, String strTwo) {
-                super.onSuccess(intOne, intTwo, strOne, strTwo);
-                if(intOne==-1||intTwo==-1){
-                    getPoi(true,city,strOne);
-                }else {
-                    setLocationBitmap(intOne/LocationUtils.beishu, intTwo/LocationUtils.beishu);
+            public void onSuccess(Object object) {
+                super.onSuccess(object);
+                if(object!=null){
+                    LocationMessage locationMessage=(LocationMessage) object;
+                    if(locationMessage.getLatitude()==-1||locationMessage.getLongitude()==-1){
+                        getPoi(true,city,locationMessage.getAddress());
+                    }else {
+                        setLocationBitmap(locationMessage.getLatitude()/LocationUtils.beishu, locationMessage.getLongitude()/LocationUtils.beishu);
+                    }
                 }
             }
         });
@@ -157,7 +160,7 @@ public class LocationActivity extends AppActivity {
     private void initEvent() {
         actionbar.getBtnLeft().setVisibility(View.GONE);
         actionbar.setTxtLeft("取消");
-        isLook=getIntent().getBooleanExtra("isLook",true);
+        isShow=getIntent().getBooleanExtra("isShow",true);
         latitude=getIntent().getIntExtra("latitude",28136296);
         longitude=getIntent().getIntExtra("longitude",112953042);
 
@@ -190,7 +193,7 @@ public class LocationActivity extends AppActivity {
         //百度地图参数
         mBaiduMap = mapview.getMap();
         mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
-        mBaiduMap.setMapStatus(MapStatusUpdateFactory.zoomTo(19));
+        mBaiduMap.setMapStatus(MapStatusUpdateFactory.zoomTo(18));
 
         locService = ((MyAppLication) getApplication()).locationService;
         LocationClientOption mOption = locService.getDefaultLocationClientOption();
@@ -203,7 +206,7 @@ public class LocationActivity extends AppActivity {
         listener = new BDAbstractLocationListener() {
             @Override
             public void onReceiveLocation(BDLocation bdLocation) {
-                LogUtil.getLog().e("====location=" + GsonUtils.optObject(bdLocation));
+                LogUtil.getLog().e("=location====" + GsonUtils.optObject(bdLocation));
 
                 try {
                     if (bdLocation != null&&bdLocation.getPoiList()!=null) {
@@ -216,6 +219,7 @@ public class LocationActivity extends AppActivity {
                             if(i==0){
                                 locationMessage.setLatitude((int)(bdLocation.getLatitude()*LocationUtils.beishu));
                                 locationMessage.setLongitude((int)(bdLocation.getLongitude()*LocationUtils.beishu));
+                                locationMessage.setImg(LocationUtils.getLocationUrl2(bdLocation.getLatitude(), bdLocation.getLongitude()));
                             }
                             locationMessage.setAddress(bdLocation.getPoiList().get(i).getName());
                             locationMessage.setAddressDescribe(bdLocation.getPoiList().get(i).getAddr());
@@ -236,7 +240,7 @@ public class LocationActivity extends AppActivity {
         };
         locService.registerListener(listener);
 
-        if(isLook){
+        if(isShow){
             search_ll.setVisibility(View.GONE);
         }else {
             actionbar.setTxtRight("发送");
@@ -294,7 +298,7 @@ public class LocationActivity extends AppActivity {
     //搜索
     private void search() {
         String key = edtSearch.getText().toString();
-        LogUtil.getLog().e("===location=key=" + key);
+        LogUtil.getLog().e("=location===key=" + key);
         if (!StringUtil.isNotNull(key)) {
             return;
         }
@@ -310,7 +314,7 @@ public class LocationActivity extends AppActivity {
         OnGetSuggestionResultListener listener2 = new OnGetSuggestionResultListener() {
             @Override
             public void onGetSuggestionResult(SuggestionResult suggestionResult) {
-                LogUtil.getLog().e("=location=建议搜索==suggestionResult=" + GsonUtils.optObject(suggestionResult));
+                LogUtil.getLog().e("=location===建议搜索==suggestionResult=" + GsonUtils.optObject(suggestionResult));
                 //处理sug检索结果
                 if (suggestionResult != null && "NO_ERROR".equals(suggestionResult.error.name())
                         && suggestionResult.getAllSuggestions() != null&&suggestionResult.getAllSuggestions().size()>0) {
@@ -322,6 +326,7 @@ public class LocationActivity extends AppActivity {
                             LocationMessage locationMessage=new LocationMessage();
                             locationMessage.setLatitude((int)(sug.pt.latitude*LocationUtils.beishu));
                             locationMessage.setLongitude((int)(sug.pt.longitude*LocationUtils.beishu));
+                            locationMessage.setImg(LocationUtils.getLocationUrl2(sug.pt.latitude,sug.pt.longitude));
                             locationMessage.setAddress(sug.getKey());
                             locationMessage.setAddressDescribe(sug.getCity()+sug.getDistrict()+sug.getAddress());
                             locationList.add(locationMessage);
@@ -361,18 +366,19 @@ public class LocationActivity extends AppActivity {
             // 这个方法是将坐标转化为具体地址
             @Override
             public void onGetReverseGeoCodeResult(ReverseGeoCodeResult arg0) {
-                LogUtil.getLog().e("===location=地理编码搜索=arg0=" + GsonUtils.optObject(arg0));
+                LogUtil.getLog().e("=location===地理编码搜索=arg0=" + GsonUtils.optObject(arg0));
             }
 
             // 将具体的地址转化为坐标
             @Override
             public void onGetGeoCodeResult(GeoCodeResult arg1) {
-                LogUtil.getLog().e("===location=地理编码搜索=arg1=" + GsonUtils.optObject(arg1));
+                LogUtil.getLog().e("=location===地理编码搜索=arg1=" + GsonUtils.optObject(arg1));
                 if (arg1 != null && "NO_ERROR".equals(arg1.error.name()) && arg1.getLocation() != null) {
                     for (int i = 0; i < locationList.size(); i++) {
                         if(address.equals(locationList.get(i).getAddress())){
                             locationList.get(i).setLatitude((int)(arg1.getLocation().latitude*LocationUtils.beishu));
                             locationList.get(i).setLongitude((int)(arg1.getLocation().longitude*LocationUtils.beishu));
+                            locationList.get(i).setImg(LocationUtils.getLocationUrl2(arg1.getLocation().latitude, arg1.getLocation().longitude));
                             break;
                         }
                     }

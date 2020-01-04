@@ -17,6 +17,6 @@ public  class BaseListener {
     public void onSuccess(String str){}
     public void onSuccess(int intOne){}
 
-    public void onSuccess(int intOne,int intTwo,String strOne,String strTwo){}
+    public void onSuccess(Object object){}
 
 }

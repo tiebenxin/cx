@@ -227,7 +227,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
             notifyRefreshMsg(gid, uid);
         }else if (msgAllBean.getLocationMessage() != null) {
             LocationMessage location = msgAllBean.getLocationMessage();
-            LocationMessage locationMessage = SocketData.createLocationMessage(SocketData.getUUID(), location.getLatitude(), location.getLongitude(), location.getAddress(), location.getAddressDescribe());
+            LocationMessage locationMessage = SocketData.createLocationMessage(SocketData.getUUID(), location);
             MsgAllBean allBean = SocketData.createMessageBean(uid, gid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), locationMessage);
             if (allBean != null) {
                 SocketData.sendAndSaveMessage(allBean);
