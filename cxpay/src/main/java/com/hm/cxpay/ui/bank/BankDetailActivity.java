@@ -192,12 +192,12 @@ public class BankDetailActivity extends BasePayActivity {
                 httpCheckPayword(payword,pswView);
             }
         });
+        //展示界面
+        checkPaywordDialog.show();
         //强制唤起软键盘
         showSoftKeyword(pswView);
         //解决dialog里edittext不响应键盘的问题
         checkPaywordDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-        //展示界面
-        checkPaywordDialog.show();
         //解决圆角shape背景无效问题
         Window window = checkPaywordDialog.getWindow();
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
