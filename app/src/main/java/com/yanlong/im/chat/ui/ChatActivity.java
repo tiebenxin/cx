@@ -1524,7 +1524,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
     //消息发送
     private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType) {
-        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getSysTime(), message);
+        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
         if (msgAllBean != null) {
             if (!filterMessage(message)) {
                 SocketData.sendAndSaveMessage(msgAllBean, false);
@@ -1538,7 +1538,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
     //消息发送，canSend--是否需要发送
     private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType, boolean canSend) {
-        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getSysTime(), message);
+        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
         if (msgAllBean != null) {
             SocketData.sendAndSaveMessage(msgAllBean, canSend);
             showSendObj(msgAllBean);
