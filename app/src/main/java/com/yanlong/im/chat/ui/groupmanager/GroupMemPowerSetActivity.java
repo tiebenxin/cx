@@ -153,7 +153,7 @@ public class GroupMemPowerSetActivity extends BaseBindActivity<ActivityGroupMemP
             @Override
             public void onResponse(Call<ReturnBean<SingleMeberInfoBean>> call, Response<ReturnBean<SingleMeberInfoBean>> response) {
                 super.onResponse(call, response);
-                if (response != null && response.body().isOk()) {
+                if (response != null && response.body() != null && response.body().isOk()) {
                     SingleMeberInfoBean singleMeberInfoBean = response.body().getData();
                     mSelectPostion = singleMeberInfoBean.getShutUpDuration();
                     boolean value = singleMeberInfoBean.isCantOpenUpRedEnv();

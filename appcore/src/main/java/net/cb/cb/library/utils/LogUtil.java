@@ -143,7 +143,7 @@ public class LogUtil {
                     String moment = momentFormat.format(curDate);
                     StringBuffer sb = new StringBuffer();
                     sb.append(moment + "  " + value + "\n");
-                    File file = new File(FileConfig.PATH_LOG + "log_" + day+".txt");
+                    File file = new File(FileConfig.PATH_LOG + "log" + day+".txt");
                     if (!file.exists()) {
                         file.createNewFile();
                     }
