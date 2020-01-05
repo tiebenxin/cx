@@ -166,9 +166,9 @@ public class UpdateManage {
                                     // 下载完成
                                     downloadListener.complete(String.valueOf(file.getAbsoluteFile()));
                                 } catch (Exception e) {
-                                    e.printStackTrace();
+                                     e.printStackTrace();
                                     //监听断网导致的超时
-                                    if (e.getMessage().contains("Connection timed out")) {
+                                    if (e.getMessage().contains("Connection timed out") ||e.getMessage().contains("connection abort")) {
                                         handler.sendEmptyMessage(OVERTIME);
                                     } else {
                                         downloadListener.loadfail(e.getMessage());
@@ -394,7 +394,7 @@ public class UpdateManage {
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                     //监听断网导致的超时
-                                                    if (e.getMessage().contains("Connection timed out")) {
+                                                    if (e.getMessage().contains("Connection timed out") ||e.getMessage().contains("connection abort")) {
                                                         handler.sendEmptyMessage(OVERTIME);
                                                         return;
                                                     } else {
@@ -508,7 +508,7 @@ public class UpdateManage {
                         } catch (Exception e) {
                             e.printStackTrace();
                             //监听断网导致的超时
-                            if (e.getMessage().contains("Connection timed out")) {
+                            if (e.getMessage().contains("Connection timed out") ||e.getMessage().contains("connection abort")) {
                                 handler.sendEmptyMessage(OVERTIME);
                             } else {
                                 downloadListener.loadfail(e.getMessage());

@@ -35,6 +35,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.BindPhoneNumActivity;
 import com.hm.cxpay.ui.LooseChangeActivity;
 import com.jrmf360.walletlib.JrmfWalletClient;
+import com.yanlong.im.BuildConfig;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
@@ -142,6 +143,12 @@ public class MyFragment extends Fragment {
 
     //自动生成的控件事件
     private void initEvent() {
+        //TODO 零钱显示开关，release不显示/debug显示，功能开放后删除这里
+        if(BuildConfig.BUILD_TYPE.equals("debug")){
+            viewMoney.setVisibility(View.VISIBLE);
+        }else {
+            viewMoney.setVisibility(View.GONE);
+        }
         viewHead.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

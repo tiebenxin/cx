@@ -434,15 +434,14 @@ public class RechargeActivity extends AppActivity {
 
                 }
             });
+            //展示界面
+            dialogTwo.show();
             //强制唤起软键盘
             showSoftKeyword(pswView);
             //解决dialog里edittext不响应键盘的问题
             dialogTwo.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-
-            //展示界面
-            dialogOne.show();
             //解决圆角shape背景无效问题
-            Window window = dialogOne.getWindow();
+            Window window = dialogTwo.getWindow();
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             //相关配置
             WindowManager.LayoutParams lp = window.getAttributes();
@@ -453,8 +452,8 @@ public class RechargeActivity extends AppActivity {
             //设置宽高，高度自适应，宽度屏幕0.8
             lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             lp.width = (int) (metrics.widthPixels*0.8);
-            dialogOne.getWindow().setAttributes(lp);
-            dialogOne.setContentView(dialogView);
+            dialogTwo.getWindow().setAttributes(lp);
+            dialogTwo.setContentView(dialogView);
         }
     }
 

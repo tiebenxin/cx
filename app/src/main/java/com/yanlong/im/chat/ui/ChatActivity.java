@@ -542,9 +542,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                                     return;
                                 }
                             }
-                            taskRefreshMessage(false);
-//                            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "taskRefreshMessage");
                         }
+                        taskRefreshMessage(false);
+
                     }
                     if (isSendingHypertext) {
                         if (sendTexts != null && sendTexts.size() > 0 && textPosition != sendTexts.size() - 1) {
