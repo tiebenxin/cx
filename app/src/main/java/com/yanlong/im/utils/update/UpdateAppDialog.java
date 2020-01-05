@@ -83,6 +83,7 @@ public class UpdateAppDialog {
             @Override
             public void onClick(View v) {
                 event.onInstall();
+                dismiss();
             }
         });
 
@@ -123,7 +124,10 @@ public class UpdateAppDialog {
     public void updateStop(){
         mProgressNum.setVisibility(View.GONE);
         tvUpdatePercent.setVisibility(View.GONE);
+        btnUpdate.setVisibility(View.VISIBLE);
         btnUpdate.setClickable(true);
+        btnUpdate.setText("重新下载");
+
     }
 
 
