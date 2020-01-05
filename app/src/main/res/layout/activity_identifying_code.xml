@@ -84,6 +84,7 @@
             android:background="@null"
             style="@style/app_txt_title_2"
             android:inputType="number"
+            android:maxLength="8"
             app:layout_constraintTop_toTopOf="@id/tv_identifying_code_title"
             app:layout_constraintLeft_toLeftOf="@id/et_phone_content"
             android:textColorHint="@color/gray_300"

@@ -97,7 +97,6 @@ public class ChatInfoActivity extends AppActivity {
     }
 
 
-
     //自动寻找控件
     private void findViews() {
         headView = findViewById(R.id.headView);
@@ -146,9 +145,11 @@ public class ChatInfoActivity extends AppActivity {
         ckTop.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                fUserInfo.setIstop(isChecked ? 1 : 0);
-                taskSaveInfo();
-                taskUpSwitch(null, fUserInfo.getIstop());
+                if (fUserInfo != null) {
+                    fUserInfo.setIstop(isChecked ? 1 : 0);
+                    taskSaveInfo();
+                    taskUpSwitch(null, fUserInfo.getIstop());
+                }
             }
         });
 
@@ -156,9 +157,11 @@ public class ChatInfoActivity extends AppActivity {
         ckDisturb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                fUserInfo.setDisturb(isChecked ? 1 : 0);
-                taskSaveInfo();
-                taskUpSwitch(fUserInfo.getDisturb(), null);
+                if (fUserInfo != null) {
+                    fUserInfo.setDisturb(isChecked ? 1 : 0);
+                    taskSaveInfo();
+                    taskUpSwitch(fUserInfo.getDisturb(), null);
+                }
             }
         });
 
@@ -166,9 +169,11 @@ public class ChatInfoActivity extends AppActivity {
         ckSetRead.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                fUserInfo.setMyRead(isChecked ? 1 : 0);
-                taskSaveInfo();
-                taskFriendsSetRead(fuid, isChecked ? 1 : 0);
+                if (fUserInfo != null) {
+                    fUserInfo.setMyRead(isChecked ? 1 : 0);
+                    taskSaveInfo();
+                    taskFriendsSetRead(fuid, isChecked ? 1 : 0);
+                }
             }
         });
 
@@ -245,9 +250,9 @@ public class ChatInfoActivity extends AppActivity {
         @Override
         public int getItemCount() {
             // return listDataTop == null ? 0 : listDataTop.size();
-            if(UserUtil.isSystemUser(fuid)){
+            if (UserUtil.isSystemUser(fuid)) {
                 return 1;
-            }else{
+            } else {
                 return 2;
             }
         }
@@ -430,7 +435,7 @@ public class ChatInfoActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void closeActivityEvent(CloseActivityEvent event) {
-        if(event.type.contains("ChatInfoActivity")){
+        if (event.type.contains("ChatInfoActivity")) {
             finish();
         }
     }
