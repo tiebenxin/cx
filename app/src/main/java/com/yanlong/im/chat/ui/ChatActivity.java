@@ -1361,7 +1361,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                     ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
                     return;
                 }
-                LocationActivity.openActivity(ChatActivity.this, false, 28136296, 112953042);
+                LocationActivity.openActivity(ChatActivity.this, false, null);
             }
         });
 
@@ -3366,8 +3366,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                     holder.viewChatItem.setDataLocation(msgbean.getLocationMessage(), new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            LocationActivity.openActivity(ChatActivity.this, true,
-                                    msgbean.getLocationMessage().getLatitude(), msgbean.getLocationMessage().getLongitude());
+                            LocationActivity.openActivity(ChatActivity.this, true, msgbean.getLocationMessage());
                         }
                     });
                     break;

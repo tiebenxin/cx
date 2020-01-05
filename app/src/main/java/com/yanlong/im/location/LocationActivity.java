@@ -2,12 +2,14 @@ package com.yanlong.im.location;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.baidu.location.BDAbstractLocationListener;
@@ -33,13 +35,17 @@ import com.baidu.mapapi.search.sug.SuggestionSearchOption;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.LocationMessage;
+import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.dialog.MapDialog;
 import com.yanlong.im.listener.BaseListener;
+import com.yanlong.im.utils.DataUtils;
 import com.yanlong.im.view.MaxHeightRecyclerView;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.ClearEditText;
@@ -58,6 +64,12 @@ public class LocationActivity extends AppActivity {
     private MapView mapview;
     private TextView search_tv;
     private LinearLayout view_search;
+
+    private LinearLayout addr_ll;
+    private TextView addr_tv;
+    private TextView addr_desc_tv;
+    private ImageView go_out_iv;
+    private ImageView curr_location_iv;
 
     private LinearLayout search_ll;
     private ClearEditText edtSearch;
@@ -79,10 +91,12 @@ public class LocationActivity extends AppActivity {
     private String city="长沙市";//默认城市
     private int latitude=28136296;//默认定位
     private int longitude=112953042;//默认定位
+    private String addr="";//
+    private String addrDesc="";//
 
 
 
-    public static void openActivity(Activity activity,Boolean isShow ,int latitude,int longitude) {
+    public static void openActivity(Activity activity, Boolean isShow , LocationMessage bean) {
         if (!LocationPersimmions.checkPermissions(activity)) {
             return;
         }
@@ -92,8 +106,12 @@ public class LocationActivity extends AppActivity {
         }
         Intent intent=new Intent(activity, LocationActivity.class);
         intent.putExtra("isShow",isShow);
-        intent.putExtra("latitude",latitude);
-        intent.putExtra("longitude",longitude);
+        if(bean!=null){
+            intent.putExtra("latitude",bean.getLatitude());
+            intent.putExtra("longitude",bean.getLongitude());
+            intent.putExtra("addr",bean.getAddress());
+            intent.putExtra("addrDesc",bean.getAddressDescribe());
+        }
         activity.startActivity(intent);
     }
 
@@ -145,8 +163,14 @@ public class LocationActivity extends AppActivity {
         search_ll = findViewById(R.id.search_ll);
         search_ll.setVisibility(View.GONE);
         edtSearch = findViewById(R.id.edt_search);
-//        search_rl = findViewById(R.id.search_rl);
         cancel_tv = findViewById(R.id.cancel_tv);
+
+        addr_ll = findViewById(R.id.addr_ll);
+        addr_ll.setVisibility(View.GONE);
+        addr_tv = findViewById(R.id.addr_tv);
+        addr_desc_tv = findViewById(R.id.addr_desc_tv);
+        go_out_iv = findViewById(R.id.go_out_iv);
+        curr_location_iv = findViewById(R.id.curr_location_iv);
 
         recyclerview = findViewById(R.id.recyclerview);
         recyclerview.setVisibility(View.GONE);
@@ -209,6 +233,8 @@ public class LocationActivity extends AppActivity {
         isShow=getIntent().getBooleanExtra("isShow",true);
         latitude=getIntent().getIntExtra("latitude",28136296);
         longitude=getIntent().getIntExtra("longitude",112953042);
+        addr=getIntent().getStringExtra("addr");
+        addrDesc=getIntent().getStringExtra("addrDesc");
 
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -240,6 +266,7 @@ public class LocationActivity extends AppActivity {
         mBaiduMap = mapview.getMap();
         mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
         mBaiduMap.setMapStatus(MapStatusUpdateFactory.zoomTo(18));
+        mBaiduMap.setMyLocationEnabled(true);
 
         locService = ((MyAppLication) getApplication()).locationService;
         LocationClientOption mOption = locService.getDefaultLocationClientOption();
@@ -288,7 +315,12 @@ public class LocationActivity extends AppActivity {
 
         if(isShow){
             view_search.setVisibility(View.GONE);
+            addr_ll.setVisibility(View.VISIBLE);
+            addr_tv.setText(addr);
+            addr_desc_tv.setText(addrDesc);
+            curr_location_iv.setVisibility(View.GONE);
         }else {
+            addr_ll.setVisibility(View.GONE);
             actionbar.setTxtRight("发送");
             locService.start();
         }
@@ -349,6 +381,57 @@ public class LocationActivity extends AppActivity {
             @Override
             public void afterTextChanged(Editable s) {
 
+            }
+        });
+
+        curr_location_iv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ViewUtils.isFastDoubleClick()){
+                    return;
+                }
+                locService.start();
+            }
+        });
+
+        go_out_iv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MapDialog mapDialog=new MapDialog(LocationActivity.this,new BaseListener(){
+                    @Override
+                    public void onSuccess(String str) {
+                        super.onSuccess(str);
+                        try {
+                            if("baidu".equals(str)){
+                                if(!DataUtils.isInstallApk(LocationActivity.this,"com.baidu.BaiduMap")){
+                                    ToastUtil.show("请先安装百度地图");
+                                    return;
+                                }
+
+                                Uri uri = Uri.parse("baidumap://map/direction?destination="
+                                        + "latlng:"+latitude/LocationUtils.beishu+","+ longitude/LocationUtils.beishu+"|name:"+addr+"&mode=driving");
+                                startActivity(new Intent(Intent.ACTION_VIEW, uri));
+                            }else if("gaode".equals(str)){
+                                if(!DataUtils.isInstallApk(LocationActivity.this,"com.autonavi.minimap")){
+                                    ToastUtil.show("请先安装高德地图");
+                                    return;
+                                }
+                                //直接导航
+//                                Uri uri = Uri.parse("androidamap://navi?sourceApplication=appname"
+//                                        + "&poiname="+addr +"&lat=" + latitude/LocationUtils.beishu + "&lon=" + longitude/LocationUtils.beishu + "&dev=0&style=2");
+
+                                //规划路线
+                                Uri uri = Uri.parse("amapuri://route/plan/?did=BGVIS2" +
+                                        "&dlat=" + latitude/LocationUtils.beishu + "&dlon=" + longitude/LocationUtils.beishu + "&dname=" + addr + "&dev=0&t=0");
+
+                                startActivity(new Intent(Intent.ACTION_VIEW, uri)); // 启动调用
+                            }
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                mapDialog.show();
             }
         });
     }

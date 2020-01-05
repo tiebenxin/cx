@@ -1,7 +1,12 @@
 package com.yanlong.im.utils;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
+
+import java.util.List;
 
 /**
  * author : zgd
@@ -33,4 +38,19 @@ public class DataUtils {
         }
         return data;
     }
+
+    //判断手机中是否安装指定包名的软件
+    public static boolean isInstallApk(Context context, String packageName) {
+        List<PackageInfo> packages = context.getPackageManager().getInstalledPackages(0);
+        for (int i = 0; i < packages.size(); i++) {
+            PackageInfo packageInfo = packages.get(i);
+            if (packageInfo.packageName.equals(packageName)) {
+                return true;
+            } else {
+                continue;
+            }
+        }
+        return false;
+    }
+
 }
