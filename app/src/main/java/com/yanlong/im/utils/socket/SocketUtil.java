@@ -49,7 +49,7 @@ public class SocketUtil {
         public void onACK(MsgBean.AckMessage bean) {
             SocketData.setPreServerAckTime(bean.getTimestamp());
             if (bean.getRejectType() == MsgBean.RejectType.ACCEPTED) {//接收到发送的消息了
-                LogUtil.getLog().d(TAG, ">>>>>保存[发送]的消息到数据库 ");
+                LogUtil.getLog().d(TAG, ">>>>>保存[发送]的消息到数据库 ackTime=" + bean.getTimestamp());
                 boolean result = SocketData.updateMsgSendStatusByAck(bean);
                 if (!result) {
                     SocketData.msgSave4Me(bean);
@@ -70,7 +70,7 @@ public class SocketUtil {
                     if (msg != null) {
                         DaoUtil.update(msg);
                     }
-                }  else if (bean.getRejectType() == MsgBean.RejectType.WORDS_NOT_ALLOWED) {
+                } else if (bean.getRejectType() == MsgBean.RejectType.WORDS_NOT_ALLOWED) {
                     MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, ChatEnum.ENoticeType.FORBIDDEN_WORDS_SINGE);
                     //收到直接存表
                     if (msg != null) {
@@ -79,7 +79,7 @@ public class SocketUtil {
                     EventFactory.ToastEvent toastEvent = new EventFactory.ToastEvent();
                     toastEvent.value = bean.getDesc();
                     EventBus.getDefault().post(toastEvent);
-                }else if (bean.getRejectType() == MsgBean.RejectType.RATE_LIMIT) {//服务端有限流，测试代码自动发送消息时会引起此问题
+                } else if (bean.getRejectType() == MsgBean.RejectType.RATE_LIMIT) {//服务端有限流，测试代码自动发送消息时会引起此问题
                     LogUtil.getLog().d(TAG, "消息发送失败--服务端限流--requestId=" + bean.getRequestId());
 //                    System.out.println("Socket--消息发送失败--服务端限流---requestId=" + bean.getRequestId());
                 }
@@ -99,13 +99,13 @@ public class SocketUtil {
 //            LogUtil.getLog().d(TAG, ">>>>>保存[收到]的消息到数据库 " + bean.getToUid());
             //在线离线消息不需要发送回执, 索引越界？？？？？
             int count = bean.getWrapMsgCount();
-            LogUtil.writeLog("--收到请求--requestId=" + bean.getRequestId()+" 条数："+count);
+            LogUtil.writeLog("--收到请求--requestId=" + bean.getRequestId() + " 条数：" + count);
             if (count > 0 && bean.getWrapMsg(0).getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
 //                LogUtil.getLog().d(TAG, ">>>>>发送回执: " + bean.getRequestId());
                 if (count == 1) {//单条消息直接回执，多条消息待消息存成功后再回执
-                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null), null,bean.getRequestId());
+                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null), null, bean.getRequestId());
                     System.out.println(TAG + "--发送回执1--requestId=" + bean.getRequestId());
-                    LogUtil.writeLog("--发送回执1--requestId=" + bean.getRequestId()+" msgType:"+bean.getWrapMsg(0).getMsgType());
+                    LogUtil.writeLog("--发送回执1--requestId=" + bean.getRequestId() + " msgType:" + bean.getWrapMsg(0).getMsgType());
                 }
             }
             MessageManager.getInstance().onReceive(bean);
@@ -241,6 +241,7 @@ public class SocketUtil {
 
     /**
      * 停止
+     *
      * @param isClearSendList 是否清除缓存队列中的数据
      */
     public void stop(boolean isClearSendList) {
@@ -249,7 +250,7 @@ public class SocketUtil {
 
         setRunState(0);
         //结束发送列队
-        if(isClearSendList){
+        if (isClearSendList) {
             SendList.endList();
         }
 
@@ -306,7 +307,6 @@ public class SocketUtil {
         }
         heartbeatStart=true;*/
 
-        LogUtil.getLog().d(TAG, ">>>心跳线程启动---------------");
         new Thread(new Runnable() {
             //限制版本控制
             private long indexVer = threadVer;
@@ -317,11 +317,12 @@ public class SocketUtil {
                     while (isRun() && indexVer == threadVer) {
                         // while (heartbeatStart){
                         if (System.currentTimeMillis() - heartbeatTime > heartbeatStep * 1.5) {//心跳超时
+                            LogUtil.getLog().d(TAG, ">>>心跳超时---------------stop");
                             //重启
                             stop(true);
-
                         } else {
-                            sendData(SocketPact.getPakage(SocketPact.DataType.PROTOBUF_HEARTBEAT, null), null,"");
+                            LogUtil.getLog().d(TAG, ">>>发送心跳---------------");
+                            sendData(SocketPact.getPakage(SocketPact.DataType.PROTOBUF_HEARTBEAT, null), null, "");
 
                         }
 
@@ -445,11 +446,12 @@ public class SocketUtil {
 
     /**
      * 发送原始字节,无事务处理,用来做心跳,鉴权之类的
+     *
      * @param data
      * @param msgTag
      * @param requetId 回执发送失败，需要重新发送，发送没报异常则清除队列不在重发
      */
-    public void sendData(final byte[] data, final MsgBean.UniversalMessage.Builder msgTag,String requetId) {
+    public void sendData(final byte[] data, final MsgBean.UniversalMessage.Builder msgTag, String requetId) {
         if (!isRun())
             return;
         if (data == null)
@@ -458,7 +460,7 @@ public class SocketUtil {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                int state=0;
+                int state = 0;
                 try {
                     ByteBuffer writeBuf = ByteBuffer.allocate(data.length);
                     writeBuf.put(data);
@@ -469,8 +471,8 @@ public class SocketUtil {
                     writeBuf.clear();
                     LogUtil.getLog().i(TAG, ">>>发送状态:" + state);
                     // TODO 回执上传成功，需要清除回执缓存队列，不在重发
-                    if(msgTag==null){
-                        if(!TextUtils.isEmpty(requetId)){
+                    if (msgTag == null) {
+                        if (!TextUtils.isEmpty(requetId)) {
                             SendList.removeSendListJust(requetId);
                         }
                     }
@@ -479,9 +481,9 @@ public class SocketUtil {
                     CrashReport.setUserSceneTag(MyAppLication.getInstance().getApplicationContext(), BUGLY_TAG_SEND_DATA); // 上报后的Crash会显示该标签
                     CrashReport.postCatchedException(e.fillInStackTrace());  // bugly会将这个throwable上报
                     LogUtil.getLog().e(TAG, ">>>发送失败" + SocketPact.bytesToHex(data));
-                    LogUtil.writeLog(">>>发送失败" + SocketPact.bytesToHex(data)+" Exception:"+e.getMessage()+">>>发送状态:" + state);
+                    LogUtil.writeLog(">>>发送失败" + SocketPact.bytesToHex(data) + " Exception:" + e.getMessage() + ">>>发送状态:" + state);
                     // 上传异常数据
-                    CrashReport.putUserData(MyAppLication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_2, " Exception:"+e.getMessage()+">>>发送状态:" + state);
+                    CrashReport.putUserData(MyAppLication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_2, " Exception:" + e.getMessage() + ">>>发送状态:" + state);
                     //取消发送队列,返回失败
                     if (msgTag != null) {
                         SendList.removeSendList(msgTag.getRequestId());
@@ -504,7 +506,7 @@ public class SocketUtil {
 //        LogUtil.getLog().e("=sendData4Msg=msg=="+msg);
         //添加到消息队中监听
         SendList.addSendList(msg.getRequestId(), msg);
-        sendData(SocketPact.getPakage(SocketPact.DataType.PROTOBUF_MSG, msg.build().toByteArray()), msg,msg.getRequestId());
+        sendData(SocketPact.getPakage(SocketPact.DataType.PROTOBUF_MSG, msg.build().toByteArray()), msg, msg.getRequestId());
     }
 
 
@@ -565,7 +567,7 @@ public class SocketUtil {
                 LogUtil.getLog().d(TAG, "\n>>>>链接成功:线程ver" + threadVer);
                 receive();
                 //发送认证请求
-                sendData(SocketData.msg4Auth(), null,"");
+                sendData(SocketData.msg4Auth(), null, "");
             }
 
 
@@ -645,7 +647,7 @@ public class SocketUtil {
                 } catch (Exception e) {
                     e.printStackTrace();
                     LogUtil.getLog().e(TAG, "==getClass==" + e.getClass() + "===>>>接收异常run:===" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
-                    LogUtil.writeLog("===>>>接收异常run:==="+ e.getMessage()+ "===getLocalizedMessage=" + e.getLocalizedMessage());
+                    LogUtil.writeLog("===>>>接收异常run:===" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
                     //java.io.EOFException: Read error
                     if (e != null && e.getMessage() != null && e.getMessage().contains("EOFException")) {
                         EventLoginOut4Conflict eventLoginOut4Conflict = new EventLoginOut4Conflict();
@@ -730,7 +732,7 @@ public class SocketUtil {
                         // 上报后的Crash会显示该标签
                         CrashReport.setUserSceneTag(MainApplication.getInstance().getApplicationContext(), BUGLY_TAG_LOGIN);
                         // 上传异常数据
-                        CrashReport.putUserData(MainApplication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_3, "鉴权失败退出登录" );
+                        CrashReport.putUserData(MainApplication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_3, "鉴权失败退出登录");
                         //6.20 鉴权失败退出登录
                         EventBus.getDefault().post(new EventLoginOut());
                     } else {

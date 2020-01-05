@@ -154,11 +154,11 @@ public class MessageManager {
         }
     }
 
-    //如果当前未初始化服务器时间，以接收到的消息作为服务器时间
+    //接收到的单条消息作为服务器时间
     private void checkServerTimeInit(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
-        if (SocketData.getPreServerAckTime() <= 0) {
+//        if (SocketData.getPreServerAckTime() <= 0) {
             SocketData.setPreServerAckTime(wrapMessage.getTimestamp());
-        }
+//        }
     }
 
     /*
@@ -1222,6 +1222,7 @@ public class MessageManager {
         if (message == null) {
             return;
         }
+        LogUtil.getLog().d(TAG, ">>>在线状态改变---uid=" + msg.getFromUid() + "--onlineType=" + message.getActiveTypeValue());
         fetchTimeDiff(message.getTimestamp());
         if (message.getActiveTypeValue() == 1) {
             SocketData.setPreServerAckTime(message.getTimestamp());
