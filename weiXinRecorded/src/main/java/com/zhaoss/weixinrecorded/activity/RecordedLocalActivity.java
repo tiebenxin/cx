@@ -18,15 +18,12 @@ import android.widget.Toast;
 
 import com.lansosdk.videoeditor.LanSoEditor;
 import com.lansosdk.videoeditor.LanSongFileUtil;
-import com.lansosdk.videoeditor.VideoEditor;
-import com.lansosdk.videoeditor.onVideoEditorProgressListener;
 import com.libyuv.LibyuvUtil;
 import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.util.CameraHelp;
 import com.zhaoss.weixinrecorded.util.MyVideoEditor;
 import com.zhaoss.weixinrecorded.util.RecordUtil;
 import com.zhaoss.weixinrecorded.util.RxJavaUtil;
-import com.zhaoss.weixinrecorded.util.Utils;
 import com.zhaoss.weixinrecorded.view.LineProgressView;
 import com.zhaoss.weixinrecorded.view.RecordView;
 
@@ -35,10 +32,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static android.hardware.Camera.getNumberOfCameras;
 
 
 public class RecordedLocalActivity extends BaseActivity  {
@@ -56,6 +50,8 @@ public class RecordedLocalActivity extends BaseActivity  {
 
     public static final float MAX_VIDEO_TIME = 18f*1000;  //最大录制时间
     public static final float MIN_VIDEO_TIME = 1f*1000;  //最小录制时间
+
+    public static String DEFAULT_DIR = LanSongFileUtil.PATH_BASE + "video/";
 
     private SurfaceView surfaceView;
     private RecordView recordView;
@@ -458,7 +454,7 @@ public class RecordedLocalActivity extends BaseActivity  {
             path = getSDPath();
             if (path != null) {
 //                File dir = new File(path + "/recordtest");
-                File dir = new File("/sdcard/WeiXinRecorded/"+System.currentTimeMillis()+"/");
+                File dir = new File(DEFAULT_DIR+System.currentTimeMillis()+"/");
                 if (!dir.exists()) {
                     dir.mkdir();
                 }

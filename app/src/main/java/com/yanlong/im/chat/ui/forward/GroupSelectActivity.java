@@ -169,7 +169,8 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
         }else if (msgAllBean.getVideoMessage() != null) {
             imageUrl=msgAllBean.getVideoMessage().getBg_url();
         }else if (msgAllBean.getLocationMessage() != null) {
-            imageUrl= LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(),msgAllBean.getLocationMessage().getLongitude());
+//            imageUrl= LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(),msgAllBean.getLocationMessage().getLongitude());
+            txt="[位置]"+msgAllBean.getLocationMessage().getAddress();
         }
 
         alertForward.init(GroupSelectActivity.this,msgAllBean.getMsg_type(), avatar, nick, txt, imageUrl, "发送", gid, new AlertForward.Event() {

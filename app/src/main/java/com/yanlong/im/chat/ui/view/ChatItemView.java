@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -205,6 +206,8 @@ public class ChatItemView extends LinearLayout {
     private ImageView location_image_you_iv, location_image_me_iv;
     private TextView location_name_you_tv, location_desc_you_tv, location_name_me_tv, location_desc_me_tv;
     private LinearLayout viewOtChild;
+    private TextView tvNew;
+    private CheckBox ckSelect;
 
 
     public ChatItemView(Context context, AttributeSet attrs) {
@@ -355,6 +358,11 @@ public class ChatItemView extends LinearLayout {
         location_desc_you_tv = rootView.findViewById(R.id.location_desc_you_tv);
         location_name_me_tv = rootView.findViewById(R.id.location_name_me_tv);
         location_desc_me_tv = rootView.findViewById(R.id.location_desc_me_tv);
+
+        //新消息提醒
+        tvNew = rootView.findViewById(R.id.tv_new);
+        //选择按钮
+        ckSelect = rootView.findViewById(R.id.ck_select);
     }
 
     public void setOnLongClickListener(OnLongClickListener onLongClick) {
@@ -439,6 +447,8 @@ public class ChatItemView extends LinearLayout {
         //位置
         location_you_ll.setVisibility(GONE);
         location_me_ll.setVisibility(GONE);
+        //新消息提醒
+        tvNew.setVisibility(GONE);
 
 
         switch (type) {
@@ -1109,7 +1119,7 @@ public class ChatItemView extends LinearLayout {
 
                 lp.width = w;
                 lp.height = h;
-                LogUtil.getLog().e(ChatItemView.class.getSimpleName(), "w=" + w + "--h=" + h);
+//                LogUtil.getLog().e(ChatItemView.class.getSimpleName(), "w=" + w + "--h=" + h);
 
             } else {
                 lp.width = width;
@@ -1257,10 +1267,10 @@ public class ChatItemView extends LinearLayout {
         location_desc_me_tv.setText(locationMessage.getAddressDescribe());
 
         //百度地图参数
-        if(StringUtil.isNotNull(locationMessage.getImg())){
+        if (StringUtil.isNotNull(locationMessage.getImg())) {
             Glide.with(this).load(locationMessage.getImg()).apply(GlideOptionsUtil.imageOptions()).into(location_image_you_iv);
             Glide.with(this).load(locationMessage.getImg()).apply(GlideOptionsUtil.imageOptions()).into(location_image_me_iv);
-        }else {
+        } else {
             String baiduImageUrl = LocationUtils.getLocationUrl(locationMessage.getLatitude(), locationMessage.getLongitude());
             Glide.with(this).load(baiduImageUrl).apply(GlideOptionsUtil.imageOptions()).into(location_image_you_iv);
             Glide.with(this).load(baiduImageUrl).apply(GlideOptionsUtil.imageOptions()).into(location_image_me_iv);
@@ -1371,6 +1381,15 @@ public class ChatItemView extends LinearLayout {
 
     public interface EventBalance {
         void onClick(long tradeId, int detailType);
+    }
+
+    public void showNew(boolean f) {
+//        LogUtil.getLog().i(ChatItemView.class.getSimpleName(), f ? "显示new" : "隐藏new");
+        tvNew.setVisibility(f ? VISIBLE : GONE);
+    }
+
+    public void isSelectedShow(boolean b) {
+        ckSelect.setVisibility(b ? VISIBLE : GONE);
     }
 
 

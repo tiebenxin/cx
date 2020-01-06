@@ -890,10 +890,16 @@ public class MainActivity extends AppActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                //查询所有阅后即焚消息加入定时器
-                List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
-                if (list != null) {
-                    timeUtils.addMsgAllBeans(list);
+                try {
+                    Thread.sleep(1000);//子线程延时 等待myapplication初始化完成
+
+                    //查询所有阅后即焚消息加入定时器
+                    List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
+                    if (list != null) {
+                        timeUtils.addMsgAllBeans(list);
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
             }
         }).start();

@@ -70,7 +70,7 @@ public class SocketUtil {
                     if (msg != null) {
                         DaoUtil.update(msg);
                     }
-                } else if (bean.getRejectType() == MsgBean.RejectType.WORDS_NOT_ALLOWED) {
+                }  else if (bean.getRejectType() == MsgBean.RejectType.WORDS_NOT_ALLOWED) {
                     MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, ChatEnum.ENoticeType.FORBIDDEN_WORDS_SINGE);
                     //收到直接存表
                     if (msg != null) {
@@ -316,7 +316,7 @@ public class SocketUtil {
                 try {
                     while (isRun() && indexVer == threadVer) {
                         // while (heartbeatStart){
-                        if (System.currentTimeMillis() - heartbeatTime > heartbeatStep * 1.5) {//心跳超时
+                        if (System.currentTimeMillis() - heartbeatTime > heartbeatStep * 3.5) {//心跳超时
                             LogUtil.getLog().d(TAG, ">>>心跳超时---------------stop");
                             //重启
                             stop(true);

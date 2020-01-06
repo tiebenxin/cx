@@ -243,8 +243,6 @@ public class GroupSelectUserActivity extends AppActivity {
                     }
                     listData.addAll(tempData);
 
-                    adapter.setList(listData);
-                    mtListView.notifyDataSetChange();
                     for (int i = 0; i < listData.size(); i++) {
                         viewType.putTag(listData.get(i).getTag(), i);
                     }
@@ -255,6 +253,8 @@ public class GroupSelectUserActivity extends AppActivity {
                         showAtAll(response.body().getData());
                         listData.addAll(0, adminData);
                     }
+                    adapter.setList(listData);
+                    mtListView.notifyDataSetChange();
                 }
             }
         });
@@ -464,10 +464,10 @@ public class GroupSelectUserActivity extends AppActivity {
                     } else {
                         hd.txtAdmin.setText("群主、管理员");
                     }
-                    if(isAdmin(bean.getUid())){
+                    if (isAdmin(bean.getUid())) {
                         hd.txtLable.setText("群主");
                         hd.txtLable.setBackgroundResource(R.drawable.shape_circle_head_yellow);
-                    }else{
+                    } else {
                         hd.txtLable.setText("管理员");
                         hd.txtLable.setBackgroundResource(R.drawable.shape_circle_head_blue);
                     }
@@ -492,7 +492,8 @@ public class GroupSelectUserActivity extends AppActivity {
             hd.viewLine.setVisibility(View.VISIBLE);
             if (position > 0) {
                 UserInfo lastbean = mFilterList.get(position - 1);
-                if (lastbean.getTag().equals(bean.getTag())&&!(isAdmin(bean.getUid())||isAdministrators(bean.getUid()))) {
+                if (lastbean.getTag().equals(bean.getTag()) && !(isAdmin(bean.getUid()) || isAdministrators(bean.getUid()))
+                        && !(isAdmin(lastbean.getUid()) || isAdministrators(lastbean.getUid()))) {
                     hd.viewType.setVisibility(View.GONE);
                 }
             }
@@ -500,7 +501,7 @@ public class GroupSelectUserActivity extends AppActivity {
                 hd.viewLine.setVisibility(View.GONE);
             } else {
                 UserInfo lastbean = mFilterList.get(position + 1);
-                if (!lastbean.getTag().equals(bean.getTag())&&!(isAdmin(bean.getUid())||isAdministrators(bean.getUid()))) {
+                if (!lastbean.getTag().equals(bean.getTag()) && !(isAdmin(bean.getUid()) || isAdministrators(bean.getUid()))) {
                     hd.viewLine.setVisibility(View.GONE);
                 }
             }

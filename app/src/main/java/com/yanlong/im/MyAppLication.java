@@ -2,15 +2,11 @@ package com.yanlong.im;
 
 
 import android.app.ActivityManager;
-
 import android.content.Context;
 import android.text.TextUtils;
-
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
-
-
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.controll.AVChatSoundPlayer;
 import com.example.nim_lib.ui.VideoActivity;
@@ -103,19 +99,6 @@ public class MyAppLication extends MainApplication {
         //初始化日志
         LogUtil.getLog().init(AppConfig.DEBUG);
         LSLog.TAG = "a===LanSongSDK=";
-//        建议统一使用LogUtil.getLog().d标注频繁日志(如 socket，视频播放，通话，每秒都会有日志)
-//        建议统一使用LogUtil.getLog().e标注一般日志(如 打印个人信息，打印某个参数等)
-//        现在各种格式都有
-//        LogUtil
-//        Log.e()
-//        LSLog
-//        system.out等
-//        app日志结构LogUtil.getLog
-//        appcore日志结构LogUtil.getLog
-//        nim_lib日志结构LogUtil.getLog
-//        picture_library日志结构LogManager.getLogger和Log.
-//        ucrop日志结构Log.
-//        weiXinRecorded日志结构LSLog
 
         //初始化数据库
         Realm.init(getApplicationContext());
