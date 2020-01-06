@@ -288,10 +288,10 @@ public class SocketData {
 //                    .setTimestamp(getSysTime())
                     .build();
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, true);
-
+            if (msgAllBean == null) {
+                return;
+            }
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
-            //时间戳
-//            msgAllBean.setTimestamp(bean.getTimestamp());
             msgAllBean.setTimestamp(msg.getWrapMsg(0).getTimestamp());
             msgAllBean.setSend_state(ChatEnum.ESendStatus.ERROR);
             msgAllBean.setSend_data(msg.build().toByteArray());
