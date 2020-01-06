@@ -245,7 +245,7 @@ public class ActionbarView extends LinearLayout {
 
 
     }
-    //普通界面->离线加载条
+    //单聊界面->离线加载条
     public ImageView getLoadBar() {
         if(ivGroupLoadBar.getVisibility() == VISIBLE){
             ivGroupLoadBar.setVisibility(GONE);
@@ -253,7 +253,7 @@ public class ActionbarView extends LinearLayout {
         return ivLoadBar;
     }
 
-    //聊天界面->离线加载条
+    //群聊界面->离线加载条
     public ImageView getGroupLoadBar() {
         if(ivLoadBar.getVisibility() == VISIBLE){
             ivLoadBar.setVisibility(GONE);
