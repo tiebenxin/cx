@@ -77,6 +77,7 @@ import com.hm.cxpay.utils.UIUtils;
 import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.chat.MsgTagHandler;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
+import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
 import com.hm.cxpay.bean.EnvelopeDetailBean;
@@ -244,6 +245,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     private final int RELINQUISH_TIME = 5;// 5分钟内显示重新编辑
     private final String REST_EDIT = "重新编辑";
     private final String IS_VIP = "1";// (0:普通|1:vip)
+    public final static int MIN_UNREAD_COUNT = 15;
+
 
     //返回需要刷新的 8.19 取消自动刷新
     // public static final int REQ_REFRESH = 7779;
@@ -298,10 +301,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     public static final int REQUEST_RED_ENVELOPE = 1 << 2;
 //    public static final int REQUEST_TRANSFER = 1 << 3;
 
-    private MessageAdapter messageAdapter;
     private int lastOffset = -1;
     private int lastPosition = -1;
-    private boolean isNewAdapter = false;
     private boolean isSoftShow;
     private Map<Integer, View> viewMap = new HashMap<>();
     private boolean needRefresh;
@@ -309,7 +310,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     private boolean isSendingHypertext = false;
     private int textPosition;
     private int contactIntimately;
-    private String master="";
+    private String master = "";
     private TextView tv_ban;
     private String draft;
     private int isFirst;
@@ -338,6 +339,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     private ReadDestroyUtil util = new ReadDestroyUtil();
     private int survivaltime;
     private DestroyTimeView destroyTimeView;
+    private ControllerNewMessage viewNewMessage;
+    private int unreadCount;
+    private RecyclerViewAdapter mAdapter;
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -362,6 +366,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         initSurvivaltime4Uid();
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -373,6 +378,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         }
         //刷新群资料
         taskSessionInfo();
+
         clickAble = true;
         //更新阅后即焚状态
         initSurvivaltimeState();
@@ -415,7 +421,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
-        LogUtil.getLog().e(TAG, "onDestroy");
+//        LogUtil.getLog().e(TAG, "onDestroy");
         super.onDestroy();
 
     }
@@ -427,17 +433,31 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         if (!msgDao.isMsgLockExist(toGid, toUId)) {
             msgDao.insertOrUpdateMessage(SocketData.createMessageLock(toGid, toUId));
         }
-        Log.i(TAG, "onStart");
+//        Log.i(TAG, "onStart");
         initData();
 
     }
 
     private void initData() {
+        //9.17 进去后就清理会话的阅读数量,初始化unreadCount
+        taskCleanRead(true);
+        initViewNewMsg();
         if (!isLoadHistory) {
             taskRefreshMessage(false);
         }
         initUnreadCount();
         initPopupWindow();
+    }
+
+    private void initViewNewMsg() {
+        if (unreadCount >= MIN_UNREAD_COUNT) {
+            viewNewMessage.setVisible(true);
+            viewNewMessage.setCount(unreadCount);
+            mAdapter.setUnreadCount(unreadCount);
+        } else {
+            viewNewMessage.setVisible(false);
+            mAdapter.setUnreadCount(0);
+        }
     }
 
     /**
@@ -499,6 +519,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         tv_ban = findViewById(R.id.tv_ban);
         viewFaceView = findViewById(R.id.chat_view_faceview);
         location_ll = findViewById(R.id.location_ll);
+        viewNewMessage = new ControllerNewMessage(findViewById(R.id.viewNewMessage));
         setChatImageBackground();
     }
 
@@ -1365,12 +1386,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
             }
         });
 
-
-        if (!isNewAdapter) {
-            mtListView.init(new RecyclerViewAdapter());
-        } else {
-            initAdapter();//messageAdapter
-        }
+        mAdapter = new RecyclerViewAdapter();
+        mtListView.init(mAdapter);
         mtListView.getLoadView().setStateNormal();
         mtListView.setEvent(new MultiListView.Event() {
 
@@ -1441,7 +1458,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                             lastOffset = topView.getBottom();
                         }
                         saveScrollPosition();
-                        LogUtil.getLog().d("a=", TAG + "当前滑动位置：lastPosition=" + lastPosition);
+//                        LogUtil.getLog().d("a=", TAG + "当前滑动位置：lastPosition=" + lastPosition);
                     }
                 }
             }
@@ -1507,8 +1524,25 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
             }
         });
 
-        //9.17 进去后就清理会话的阅读数量
-        taskCleanRead(true);
+        viewNewMessage.setClickListener(() -> {
+            if (msgListData == null) {
+                return;
+            }
+            int position = msgListData.size() - unreadCount;
+            if (position >= 0) {
+                scrollChatToPosition(position);
+            } else {
+                scrollChatToPosition(0);
+            }
+            viewNewMessage.setVisible(false);
+            unreadCount = 0;
+        });
+
+
+    }
+
+    private void scrollChatToPosition(int position) {
+        mtListView.getListView().scrollToPosition(position);
     }
 
     //消息发送
@@ -1792,14 +1826,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     private void clearScrollPosition() {
         SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
         sp.clear();
-    }
-
-
-    private void initAdapter() {
-        messageAdapter = new MessageAdapter(this, this, isGroup());
-        FactoryChatCell factoryChatCell = new FactoryChatCell(this, messageAdapter, this);
-        messageAdapter.setCellFactory(factoryChatCell);
-        mtListView.init(messageAdapter);
     }
 
     /***
@@ -2500,11 +2526,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
         int position = msgListData.indexOf(msgAllbean);
         if (position >= 0 && position < msgListData.size()) {
-            if (!isNewAdapter) {
-                msgListData.set(position, msgAllbean);
-            } else {
-                messageAdapter.updateItemAndRefresh(msgAllbean);
-            }
+            msgListData.set(position, msgAllbean);
             LogUtil.getLog().i(TAG, "replaceListDataAndNotify: 只刷新" + position);
             mtListView.getListView().getAdapter().notifyItemChanged(position, position);
 //            LogUtil.getLog().i("replaceListDataAndNotify", "position=" + position);
@@ -2522,11 +2544,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
         int position = msgListData.indexOf(msgAllbean);
         if (position >= 0 && position < msgListData.size()) {
-            if (!isNewAdapter) {
-                msgListData.set(position, msgAllbean);
-            } else {
-                messageAdapter.updateItemAndRefresh(msgAllbean);
-            }
+            msgListData.set(position, msgAllbean);
             LogUtil.getLog().i(TAG, "replaceListDataAndNotify: 只刷新" + position);
             mtListView.getListView().getAdapter().notifyItemChanged(position, position);
         }
@@ -2786,6 +2804,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
+        int unread = 0;
+
+        void setUnreadCount(int count) {
+            unread = count;
+        }
 
         //自动寻找ViewHold
         @Override
@@ -2966,9 +2989,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
             if (msgbean.isMe()) {
                 holder.viewChatItem.setOnHead(null);
-
             } else {
-
                 final String finalNikeName = nikeName;
                 holder.viewChatItem.setOnHead(new View.OnClickListener() {
                     @Override
@@ -2993,6 +3014,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                 });
             }
             holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time, isGroup());
+            if (unread >= MIN_UNREAD_COUNT) {
+                if (position == getItemCount() - unread) {
+                    holder.viewChatItem.showNew(true);
+                } else {
+                    holder.viewChatItem.showNew(false);
+                }
+            } else {
+                holder.viewChatItem.showNew(false);
+            }
             //发送状态处理
             if (ChatEnum.EMessageType.MSG_VIDEO == msgbean.getMsg_type() || ChatEnum.EMessageType.IMAGE == msgbean.getMsg_type() ||
                     Constants.CX_HELPER_UID.equals(toUId)) {
@@ -4113,9 +4143,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     }
 
     private void notifyData() {
-        if (isNewAdapter) {
-            messageAdapter.bindData(msgListData);
-        }
         mtListView.notifyDataSetChange();
     }
 
@@ -4258,7 +4285,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
         dismissPop();
         long time = -1L;
-        int length = 0;
+        int length = unreadCount;
         if (msgListData != null && msgListData.size() > 0) {
             length = msgListData.size();
             MsgAllBean bean = msgListData.get(length - 1);
@@ -4266,12 +4293,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                 time = bean.getTimestamp();
             }
         }
-//        preTotalSize = length;
         final long finalTime = time;
-        if (length < 20) {
-            length += 20;
-        }
+//        if (length < 20) {
+        length += 20;
+//        }
         final int finalLength = length;
+        LogUtil.getLog().i(TAG, "加载数据--length=" + length + "  unreadCount=" + unreadCount);
         Observable.just(0)
                 .map(new Function<Integer, List<MsgAllBean>>() {
                     @Override
@@ -4280,10 +4307,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                         if (finalTime > 0) {
                             list = msgAction.getMsg4User(toGid, toUId, null, finalLength);
                         } else {
-                            list = msgAction.getMsg4User(toGid, toUId, null, 20);
+                            list = msgAction.getMsg4User(toGid, toUId, null, finalLength);
                         }
-
-
                         taskMkName(list);
                         return list;
                     }
@@ -4442,6 +4467,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         Session session = StringUtil.isNotNull(toGid) ? DaoUtil.findOne(Session.class, "gid", toGid) :
                 DaoUtil.findOne(Session.class, "from_uid", toUId);
         if (session != null && session.getUnread_count() > 0) {
+            if (isFirst) {
+                unreadCount = session.getUnread_count();
+            }
             dao.sessionReadClean(session);
             if (isFirst) {
                 MessageManager.getInstance().setMessageChange(true);
@@ -4556,7 +4584,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                     if (isGroup()) {
                         Group group = msgDao.getGroup4Id(toGid);
                         int totalSize = 0;
-                        if (group != null && group.getUsers() != null){
+                        if (group != null && group.getUsers() != null) {
                             totalSize = group.getUsers().size();
                         }
                         JrmfRpClient.sendGroupEnvelopeForResult(ChatActivity.this, "" + toGid, "" + UserAction.getMyId(), token,
@@ -4829,16 +4857,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         if (lastPosition >= 0) {
             int targetHeight = ScreenUtils.getScreenHeight(this) / 2;//屏幕一般高度
             int size = msgListData.size();
-//            int onCreate = size - 1;
             int height = 0;
             for (int i = lastPosition; i < size - 1; i++) {
-//                View view = mtListView.getLayoutManager().findViewByPosition(i);//获取不到不可见item
-                View view;
-                if (isNewAdapter) {
-                    view = messageAdapter.getItemViewByPosition(i);
-                } else {
-                    view = getViewByPosition(i);
-                }
+                View view = getViewByPosition(i);
                 if (view == null) {
                     break;
                 }
@@ -4851,7 +4872,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                     //当滑动距离高于屏幕高度的一般，终止当前循环
                     break;
                 }
-//                LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "isCanScrollBottom -- lastPosition=" + lastPosition + "--height=" + height);
             }
             if (height + lastOffset <= targetHeight) {
                 return true;
@@ -4875,12 +4895,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         textPosition = position;
         ChatMessage message = SocketData.createChatMessage(SocketData.getUUID(), list.get(position));
         sendMessage(message, ChatEnum.EMessageType.TEXT);
-
-//        MsgAllBean msgAllbean;
-//        msgAllbean = SocketData.send4Chat(toUId, toGid, list.get(position));
-//        showSendObj(msgAllbean);
-//        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE,
-//                toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
     }
 
     private void fixSendTime(String msgId) {
@@ -5248,7 +5262,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         manager.getDefaultDisplay().getMetrics(metrics);
         //设置宽高，高度自适应，宽度屏幕0.8
         lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels*0.8);
+        lp.width = (int) (metrics.widthPixels * 0.8);
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
     }
