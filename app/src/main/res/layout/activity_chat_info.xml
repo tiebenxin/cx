@@ -155,7 +155,20 @@
                 android:text="如果设置该选项,该聊天里面发送和接受消息将在阅读后指定时间内消失" />
         </LinearLayout>
 
+        <LinearLayout
+            style="@style/app_layout_list2_item"
+            android:layout_marginTop="10dp">
 
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:layout_weight="1"
+                android:text="截屏通知" />
+
+            <CheckBox
+                android:id="@+id/cb_screenshot_notice"
+                style="@style/app_check" />
+        </LinearLayout>
 
 
 
