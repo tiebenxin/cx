@@ -24,7 +24,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityMsgForwardBinding;
-import com.yanlong.im.location.LocationUtils;
+
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.socket.SocketData;
 
@@ -267,7 +267,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         }else if (msgAllBean.getVideoMessage() != null) {
             imageUrl=msgAllBean.getVideoMessage().getBg_url();
         }else if (msgAllBean.getLocationMessage() != null) {
-            imageUrl= LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(),msgAllBean.getLocationMessage().getLongitude());
+//            imageUrl= LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(),msgAllBean.getLocationMessage().getLongitude());
+            txt="[位置]"+msgAllBean.getLocationMessage().getAddress();
         }
 
         alertForward.init(MsgForwardActivity.this,msgAllBean.getMsg_type(), mIcon, mName, txt, imageUrl, btm, toGid, new AlertForward.Event() {
