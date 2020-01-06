@@ -66,6 +66,56 @@ public class FriendMainFragment extends Fragment {
     private PySortView viewType;
     private ActionbarView actionbar;
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        //taskListData();重新从书库刷新数据,还是只是刷新页面重新显示在线时间
+        mtListView.notifyDataSetChange();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+/*            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);*/
+        }
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        rootView = inflater.inflate(R.layout.fgm_msg_friend, null);
+        ViewGroup.LayoutParams layparm = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        rootView.setLayoutParams(layparm);
+        findViews(rootView);
+
+        return rootView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        initEvent();
+        initData();
+    }
+
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -126,54 +176,6 @@ public class FriendMainFragment extends Fragment {
         return fragment;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        //taskListData();重新从书库刷新数据,还是只是刷新页面重新显示在线时间
-        mtListView.notifyDataSetChange();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-/*            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);*/
-        }
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fgm_msg_friend, null);
-        ViewGroup.LayoutParams layparm = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        rootView.setLayoutParams(layparm);
-        findViews(rootView);
-
-        return rootView;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        initEvent();
-        initData();
-    }
-
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
-    }
     /*
    private MainActivity getActivityMe() {
         return (MainActivity) getActivity();
@@ -224,6 +226,15 @@ public class FriendMainFragment extends Fragment {
                     }
                 });
                 hd.sbApply.setNum(taskGetApplyNum(), false);
+            } else if (holder instanceof RCViewBtnHolder) {
+
+                final RCViewBtnHolder hd = (RCViewBtnHolder) holder;
+                if(listData!=null){
+                    hd.friend_numb_tv.setText("共"+(listData.size()-2)+"位联系人");
+                }else {
+                    hd.friend_numb_tv.setText("共0位联系人");
+                }
+
             } else if (holder instanceof RCViewHolder) {
 
                 final UserInfo bean = listData.get(position);
@@ -235,7 +246,7 @@ public class FriendMainFragment extends Fragment {
                         .apply(GlideOptionsUtil.headImageOptions()).into(hd.imgHead);
 
                 hd.txtName.setText(bean.getName4Show());
-                hd.viewLine.setVisibility(View.VISIBLE);
+                hd.viewLine.setVisibility(View.GONE);
                 if (bean.isSystemUser()) {
                     hd.txtName.setTextColor(getResources().getColor(R.color.blue_title));
                     hd.txtTime.setVisibility(View.GONE);
@@ -294,8 +305,15 @@ public class FriendMainFragment extends Fragment {
 
         @Override
         public int getItemViewType(int position) {
-
-            return position == 0 ? 0 : 1;
+            int type=0;
+            if(position==0){
+                type=0;
+            }else if(position==listData.size()-1){
+                type=1;
+            }else {
+                type=2;
+            }
+            return type;
         }
 
         //自动寻找ViewHold
@@ -303,6 +321,9 @@ public class FriendMainFragment extends Fragment {
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup view, int i) {
             if (i == 0) {
                 RCViewFuncHolder holder = new RCViewFuncHolder(getLayoutInflater().inflate(R.layout.item_msg_friend_fun, view, false));
+                return holder;
+            }if (i == 1) {
+                RCViewBtnHolder holder = new RCViewBtnHolder(getLayoutInflater().inflate(R.layout.item_msg_btn, view, false));
                 return holder;
             } else {
                 RCViewHolder holder = new RCViewHolder(getLayoutInflater().inflate(R.layout.item_msg_friend, view, false));
@@ -355,6 +376,17 @@ public class FriendMainFragment extends Fragment {
                 sbApply = convertView.findViewById(R.id.sb_apply);
             }
         }
+
+        //自动生成ViewHold
+        public class RCViewBtnHolder extends RecyclerView.ViewHolder {
+            private TextView friend_numb_tv;
+
+            //自动寻找ViewHold
+            public RCViewBtnHolder(View convertView) {
+                super(convertView);
+                friend_numb_tv = convertView.findViewById(R.id.friend_numb_tv);
+            }
+        }
     }
 
     private UserDao userDao = new UserDao();
@@ -387,9 +419,16 @@ public class FriendMainFragment extends Fragment {
                             }
                             listData.addAll(tempData);
 
+                            //头部
                             UserInfo topBean = new UserInfo();
                             topBean.setTag("↑");
                             listData.add(0, topBean);
+
+                            //尾部
+                            UserInfo btnBean = new UserInfo();
+                            btnBean.setTag("#");
+                            listData.add(btnBean);
+
                             viewType.clearAllTag();
                             for (int i = 1; i < listData.size(); i++) {
                                 viewType.putTag(listData.get(i).getTag(), i);
