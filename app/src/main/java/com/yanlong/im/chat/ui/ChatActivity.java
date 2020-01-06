@@ -4293,7 +4293,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
         dismissPop();
         long time = -1L;
-        int length = unreadCount;
+        int length = 0;
         if (msgListData != null && msgListData.size() > 0) {
             length = msgListData.size();
             MsgAllBean bean = msgListData.get(length - 1);
@@ -4302,11 +4302,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
             }
         }
         final long finalTime = time;
-//        if (length < 20) {
-        length += 20;
-//        }
+        if (length < 20) {
+            length += 20;
+        }
         final int finalLength = length;
-        LogUtil.getLog().i(TAG, "加载数据--length=" + length + "  unreadCount=" + unreadCount);
         Observable.just(0)
                 .map(new Function<Integer, List<MsgAllBean>>() {
                     @Override
@@ -4315,7 +4314,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                         if (finalTime > 0) {
                             list = msgAction.getMsg4User(toGid, toUId, null, finalLength);
                         } else {
-                            list = msgAction.getMsg4User(toGid, toUId, null, finalLength);
+                            list = msgAction.getMsg4User(toGid, toUId, null, unreadCount + 20);
                         }
                         taskMkName(list);
                         return list;
