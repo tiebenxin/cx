@@ -3396,7 +3396,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                     holder.viewChatItem.setDataLocation(msgbean.getLocationMessage(), new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            LocationActivity.openActivity(ChatActivity.this, true, msgbean.getLocationMessage());
+                            LocationActivity.openActivity(ChatActivity.this, true, msgbean);
                         }
                     });
                     break;

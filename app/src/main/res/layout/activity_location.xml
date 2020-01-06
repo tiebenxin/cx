@@ -22,13 +22,13 @@
 
             <ImageView
                 android:id="@+id/curr_location_iv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentBottom="true"
-                android:layout_marginRight="15dp"
                 android:layout_marginBottom="100dp"
-                android:src="@mipmap/location_my" />
+                android:layout_marginRight="2dp"
+                android:src="@mipmap/location_my2" />
 
         </RelativeLayout>
 
@@ -47,12 +47,15 @@
             android:layout_height="wrap_content"
             android:background="@color/white"
             android:orientation="horizontal"
-            android:padding="15dp">
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:paddingLeft="15dp">
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
+                android:layout_marginRight="15dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -69,11 +72,12 @@
 
 
             <ImageView
-                android:id="@+id/go_out_iv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/navigation_iv"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginRight="2dp"
                 android:layout_gravity="center_vertical"
-                android:src="@mipmap/location_navigation2" />
+                android:src="@mipmap/location_navigation" />
 
         </LinearLayout>
 
