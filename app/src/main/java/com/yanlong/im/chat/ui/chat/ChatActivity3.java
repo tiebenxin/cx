@@ -20,6 +20,7 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.IMsgContent;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.VoiceMessage;
@@ -43,7 +44,9 @@ import com.yanlong.im.utils.audio.IAdioTouch;
 import com.yanlong.im.utils.audio.IAudioRecord;
 import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.BaseMvpActivity;
+import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
@@ -99,7 +102,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         initEvent();
         intAdapter();
         initUIAndListener();
-        survivalTime = new UserDao().getReadDestroy(uid,gid);
+        survivalTime = new UserDao().getReadDestroy(uid, gid);
     }
 
     private void initEvent() {
@@ -224,7 +227,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             public void onClick(View v) {
                 //test 8.21测试发送
                 // if(AppConfig.DEBUG){
-                presenter.doSendText(ui.edtChat, isGroup,survivalTime);
+                presenter.doSendText(ui.edtChat, isGroup, survivalTime);
             }
         });
         ui.edtChat.addTextChangedListener(new TextWatcher() {
@@ -853,10 +856,10 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             UserInfo info = mChatModel.getUserInfo();
             title = info.getName4Show();
             if (info.getLastonline() > 0) {
-                if(NetUtil.isNetworkConnected()){
-                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true),true);
-                }else {
-                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true),false);
+                if (NetUtil.isNetworkConnected()) {
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true), true);
+                } else {
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true), false);
                 }
             }
         }
@@ -870,13 +873,35 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             UserInfo info = mChatModel.getUserInfo();
             title = info.getName4Show();
             if (info.getLastonline() > 0) {
-                if(NetUtil.isNetworkConnected()){
-                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true),true);
-                }else {
-                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true),false);
+                if (NetUtil.isNetworkConnected()) {
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true), true);
+                } else {
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true), false);
                 }
             }
             actionbar.setTitle(title);
         }
     }
+
+    @Override
+    public void addAndShowSendMessage(MsgAllBean bean) {
+        if (bean.getMsg_type() != ChatEnum.EMessageType.MSG_CANCEL) {
+            int size = mChatModel.getListData().size();
+            mChatModel.getListData().add(bean);
+            adapter.notifyItemRangeInserted(size, 1);
+            // 处理发送失败时位置错乱问题
+            adapter.notifyItemRangeChanged(size + 1, size - 1);
+
+            //红包通知 不滚动到底部
+            if (bean.getMsgNotice() != null && (bean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE
+                    || bean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF)) {
+                return;
+            }
+            scrollListView(true);
+        } else {
+            presenter.loadAndSetData();
+        }
+    }
+
+
 }

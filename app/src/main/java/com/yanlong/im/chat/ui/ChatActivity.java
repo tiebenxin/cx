@@ -2805,9 +2805,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
         int unread = 0;
+        boolean isSelected = false;
 
         void setUnreadCount(int count) {
             unread = count;
+        }
+
+        //设置选择模式
+        void setSelected(boolean flag) {
+            isSelected = flag;
+            notifyDataSetChanged();
         }
 
         //自动寻找ViewHold
@@ -3023,6 +3030,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
             } else {
                 holder.viewChatItem.showNew(false);
             }
+            holder.viewChatItem.isSelectedShow(isSelected);
             //发送状态处理
             if (ChatEnum.EMessageType.MSG_VIDEO == msgbean.getMsg_type() || ChatEnum.EMessageType.IMAGE == msgbean.getMsg_type() ||
                     Constants.CX_HELPER_UID.equals(toUId)) {
