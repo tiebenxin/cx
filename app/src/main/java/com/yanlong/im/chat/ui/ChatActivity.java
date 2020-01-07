@@ -239,7 +239,7 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public class ChatActivity extends AppActivity implements ICellEventListener, IActionTagClickListener {
+public class ChatActivity extends AppActivity implements IActionTagClickListener {
     private static String TAG = "ChatActivity";
     public final static int MIN_TEXT = 1000;//
     private final int RELINQUISH_TIME = 5;// 5分钟内显示重新编辑
@@ -2587,7 +2587,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
             lc.setCutPath(msgl.getImage().getThumbnailShow());
             lc.setCompressPath(msgl.getImage().getPreviewShow());
             lc.setPath(msgl.getImage().getOriginShow());
-            // LogUtil.getLog().d("tag", "---showBigPic: "+msgl.getImage().getSize());
             lc.setSize(msgl.getImage().getSize());
             lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
             lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
@@ -2622,73 +2621,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
     }
 
-
-    @Override
-    public void onEvent(int type, MsgAllBean message, Object... args) {
-        if (message == null) {
-            return;
-        }
-        switch (type) {
-            case ChatEnum.ECellEventType.TXT_CLICK:
-                break;
-            case ChatEnum.ECellEventType.IMAGE_CLICK:
-                showBigPic(message.getMsg_id(), message.getImage().getThumbnailShow());
-                break;
-            case ChatEnum.ECellEventType.RED_ENVELOPE_CLICK:
-                if (args[0] != null && args[0] instanceof RedEnvelopeMessage) {
-                    RedEnvelopeMessage red = (RedEnvelopeMessage) args[0];
-                    //8.15 红包状态修改
-                    boolean invalid = red.getIsInvalid() == 0 ? false : true;
-                    if ((invalid || message.isMe()) && red.getStyle() == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
-                        taskPayRbDetail(message, red.getId());
-                    } else {
-                        taskPayRbGet(message, message.getFrom_uid(), red.getId());
-                    }
-
-                }
-                break;
-            case ChatEnum.ECellEventType.CARD_CLICK:
-                if (args[0] != null && args[0] instanceof BusinessCardMessage) {
-
-                    BusinessCardMessage cardMessage = (BusinessCardMessage) args[0];
-                    //自己的不跳转
-                    if (cardMessage.getUid().longValue() != UserAction.getMyId().longValue())
-                        startActivity(new Intent(getContext(), UserInfoActivity.class)
-                                .putExtra(UserInfoActivity.ID, cardMessage.getUid()));
-                }
-
-                break;
-
-            case ChatEnum.ECellEventType.LONG_CLICK:
-                List<OptionMenu> menus = (List<OptionMenu>) args[0];
-                View view = (View) args[1];
-                IMenuSelectListener listener = (IMenuSelectListener) args[2];
-                if (view != null && menus != null && menus.size() > 0) {
-                    showPop(view, menus, message, listener, null);
-                }
-                break;
-            case ChatEnum.ECellEventType.TRANSFER_CLICK:
-                if (args[0] != null && args[0] instanceof TransferMessage) {
-                    TransferMessage transfer = (TransferMessage) args[0];
-                    tsakTransGet(transfer.getId());
-                }
-                break;
-            case ChatEnum.ECellEventType.AVATAR_CLICK:
-                toUserInfoActivity(message);
-                break;
-            case ChatEnum.ECellEventType.RESEND_CLICK:
-                resendMessage(message);
-                break;
-            case ChatEnum.ECellEventType.AVATAR_LONG_CLICK:
-                editChat.addAtSpan("@", message.getFrom_nickname(), message.getFrom_uid());
-                break;
-            case ChatEnum.ECellEventType.VOICE_CLICK:
-//                playVoice();
-                break;
-
-        }
-
-    }
 
     /**
      * 跳转UserInfoActivity
@@ -3150,7 +3082,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                         @Override
                         public void onClick(boolean isInvalid, int reType) {
                             if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {//魔方红包
-                                if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
+                                if (isInvalid || (msgbean.isMe() && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE)) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
                                     //ToastUtil.show(getContext(), "红包详情");
                                     taskPayRbDetail(msgbean, rid);
                                 } else {
@@ -4611,10 +4543,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
      * 红包收
      */
     private void taskPayRbGet(final MsgAllBean msgbean, final Long toUId, final String rbid) {
-        //红包开记录 test
-        //  MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid);
-        //    showSendObj(msgAllbean);
-        //test over
         payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {

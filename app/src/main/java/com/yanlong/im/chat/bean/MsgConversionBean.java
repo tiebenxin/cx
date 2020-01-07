@@ -233,23 +233,40 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice rbNotice = new MsgNotice();
                 rbNotice.setMsgid(msgAllBean.getMsg_id());
-                //jyj 8.19
+                //isError true 表示是回执错误导致发送失败,发送者是自己
                 if (bean.getReceiveRedEnvelope().getReType().getNumber() == 0) {
-                    if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().longValue()) {
-                        rbNotice.setNote("你领取了自己的<font color='#cc5944'>云红包</font>");
-                        rbNotice.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF);
+                    if (isError) {
+                        rbNotice.setMsgType(ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE);
+                        String nick = msgDao.getUsername4Show(bean.getGid(), msg.getToUid());
+                        String name = "<font color='#276baa' id='" + msg.getToUid() + "'>" + nick + "</font>";
+                        rbNotice.setNote("你领取了\"" + name + "的云红包" + "<div id= '" + bean.getGid() + "'></div>");
                     } else {
-                        rbNotice.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED);
-                        rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "\"领取了你的云红包 <div id='" + bean.getGid() + "'></div>");
+
+                        if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().longValue()) {
+                            rbNotice.setNote("你领取了自己的<font color='#cc5944'>云红包</font>");
+                            rbNotice.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF);
+                        } else {
+                            rbNotice.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED);
+                            rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "\"领取了你的云红包 <div id='" + bean.getGid() + "'></div>");
+                        }
                     }
                 } else if (bean.getReceiveRedEnvelope().getReType().getNumber() == 1) {
-                    if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().longValue()) {
-                        rbNotice.setNote("你领取了自己的<font color='#cc5944'>零钱红包</font>");
-                        rbNotice.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
+                    if (isError) {
+                        rbNotice.setMsgType(ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE);
+                        String nick = msgDao.getUsername4Show(bean.getGid(), bean.getToUid());
+                        String user = "<user id='" + bean.getToUid() + "' gid= " + bean.getGid() + ">" + nick + "</user>";
+                        rbNotice.setNote("你领取了\"" + user + "\"的" + "<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
                     } else {
-                        rbNotice.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED);
-                        rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "\"领取了你的零钱红包 <div id='" + bean.getGid() + "'></div>");
+                        if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().longValue()) {
+                            rbNotice.setNote("你领取了自己的<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
+                            rbNotice.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
+                        } else {
+                            rbNotice.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED);
+                            String user = "<user id='" + bean.getFromUid() + "' gid=" + bean.getGid() + ">" + bean.getNickname() + "</user>";
+                            rbNotice.setNote("\"" + user + "\"领取了你的" + "<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
+                        }
                     }
+
                 }
 
                 msgAllBean.setMsgNotice(rbNotice);
