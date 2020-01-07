@@ -88,6 +88,10 @@ public class DaoMigration implements RealmMigration {
                 updateV17(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 17) {
+                updateV18(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -343,6 +347,14 @@ public class DaoMigration implements RealmMigration {
                 .addField("uid", int.class)
                 .addField("amount", long.class);
 
+    }
+
+    //更新截屏通知
+    private void updateV18(RealmSchema schema){
+        schema.get("UserInfo")
+                .addField("screenShot", int.class);//单聊截屏通知
+        schema.get("Group")
+                .addField("screenShot", int.class);//群聊截屏通知
     }
 
     @Override

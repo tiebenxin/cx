@@ -67,6 +67,7 @@ public class ChatInfoActivity extends AppActivity {
     private LinearLayout viewDisturb;
     private CheckBox ckDisturb;
     private LinearLayout viewLogClean;
+    private CheckBox ckScreenshot;//截屏通知
     //  private Session session;
     private UserInfo fUserInfo;
     boolean isSessionChange = false;
@@ -112,6 +113,7 @@ public class ChatInfoActivity extends AppActivity {
         tvDestroyTime = findViewById(R.id.tv_destroy_time);
         ckSetRead = findViewById(R.id.ck_set_read);
         read_destroy_ll = findViewById(R.id.read_destroy_ll);
+        ckScreenshot = findViewById(R.id.ck_screenshot);
     }
 
 
@@ -164,7 +166,6 @@ public class ChatInfoActivity extends AppActivity {
                 }
             }
         });
-
         ckSetRead.setChecked(fUserInfo.getMyRead() == 1);
         ckSetRead.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -241,6 +242,42 @@ public class ChatInfoActivity extends AppActivity {
         destroyTime = userInfo.getDestroy();
         String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
         tvDestroyTime.setText(content);
+        //1 若已经开启阅后即焚，则强制自动开启截屏通知
+        if(!content.equals("关闭")){
+            //截屏通知字段设置为打开，更新本地数据库，调接口通知后台已打开
+            ckScreenshot.setChecked(true);
+            fUserInfo.setScreenShot(1);
+            taskSaveInfo();
+            //todo zjy 调接口通知后台-已打开
+//            taskUpSwitch(fUserInfo.getScreenShot(), null);
+        }else {
+            //2 若没有开启阅后即焚，则展示原有开关状态
+            if(fUserInfo!=null){
+                ckScreenshot.setChecked(fUserInfo.getScreenShot() == 1);
+            }
+        }
+        //截屏通知切换开关
+        ckScreenshot.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                //如果阅后即焚已关闭，则正常开关；如果阅后即焚开启中，则不允许关掉
+                if (fUserInfo != null) {
+                    if(!tvDestroyTime.getText().toString().equals("关闭")){
+                        if(isChecked == false){
+                            ckScreenshot.setChecked(true);
+                            ToastUtil.show(ChatInfoActivity.this,"打开阅后即焚后，截屏通知必须同时打开");
+                        }
+                    }else {
+                        fUserInfo.setScreenShot(isChecked ? 1 : 0);
+                        //更新本地数据库状态
+                        taskSaveInfo();
+                        //todo zjy 截屏通知打开/关闭后调接口通知后台
+//                    taskUpSwitch(fUserInfo.getScreenShot(), null);
+                    }
+
+                }
+            }
+        });
     }
 
 

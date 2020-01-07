@@ -33,6 +33,7 @@ public class Group extends RealmObject {
     private Integer needVerification;//是否需要群验证
     private Integer contactIntimately;//是否需要群保护
     private Integer wordsNotAllowed;// 全员禁言
+    private int screenShot;//截屏通知(0:关闭|1:打开)
     @SerializedName("toTop")
     private Integer isTop;
 
@@ -199,6 +200,14 @@ public class Group extends RealmObject {
 
     public void setSaved(Integer saved) {
         this.saved = saved;
+    }
+
+    public int getScreenShot() {
+        return screenShot;
+    }
+
+    public void setScreenShot(int screenShot) {
+        this.screenShot = screenShot;
     }
 
     public Integer getNotNotify() {

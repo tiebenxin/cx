@@ -37,6 +37,7 @@ import com.yanlong.im.user.ui.GroupAddActivity;
 import com.yanlong.im.user.ui.ImageHeadActivity;
 import com.yanlong.im.user.ui.MyselfQRCodeActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
@@ -96,6 +97,7 @@ public class GroupInfoActivity extends AppActivity {
     private LinearLayout viewLog;
     private LinearLayout viewTop;
     private CheckBox ckTop;
+    private CheckBox ckScreenshot;//截屏通知
     private LinearLayout viewDisturb;
     private CheckBox ckDisturb;
     private LinearLayout viewGroupSave;
@@ -146,6 +148,7 @@ public class GroupInfoActivity extends AppActivity {
         ckTop = findViewById(R.id.ck_top);
         viewDisturb = findViewById(R.id.view_disturb);
         ckDisturb = findViewById(R.id.ck_disturb);
+        ckScreenshot = findViewById(R.id.ck_screenshot);
         viewGroupSave = findViewById(R.id.view_group_save);
         viewGroupManage = findViewById(R.id.view_group_manage);
         viewGroupImg = findViewById(R.id.view_group_img);
@@ -465,6 +468,49 @@ public class GroupInfoActivity extends AppActivity {
         destroyTime = ginfo.getSurvivaltime();
         String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
         tvDestroyTime.setText(content);
+        //1 若已经开启阅后即焚，则强制自动开启截屏通知
+        if(!content.equals("关闭")){
+            //截屏通知字段设置为打开，更新本地数据库，调接口通知后台已打开
+            ckScreenshot.setChecked(true);
+            ginfo.setScreenShot(1);//ginfo是从缓存里面取的
+            taskSaveInfo();
+            //todo zjy 调接口通知后台-已打开
+//            taskUpSwitch(fUserInfo.getScreenShot(), null);
+        }else {
+            //2 若没有开启阅后即焚，则展示原有开关状态
+            if(ginfo!=null){
+                ckScreenshot.setChecked(ginfo.getScreenShot() == 1);
+            }
+        }
+        //只有群管理和群主可以使用截屏通知功能
+        if(isAdmin() || isAdministrators()){
+            ckScreenshot.setClickable(true);
+        }else {
+            ckScreenshot.setClickable(false);
+            ToastUtil.show(GroupInfoActivity.this,"只有群管理和群主才可以使用该功能");
+        }
+        //截屏通知切换开关
+        ckScreenshot.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                //如果阅后即焚已关闭，则正常开关；如果阅后即焚开启中，则不允许关掉
+                if (ginfo != null) {
+                    if(!tvDestroyTime.getText().toString().equals("关闭")){
+                        if(isChecked == false){
+                            ckScreenshot.setChecked(true);
+                            ToastUtil.show(GroupInfoActivity.this,"打开阅后即焚后，截屏通知必须同时打开");
+                        }
+                    }else {
+                        ginfo.setScreenShot(isChecked ? 1 : 0);
+                        //更新本地数据库状态
+                        taskSaveInfo();
+                        //todo zjy 截屏通知打开/关闭后调接口通知后台
+//                    taskUpSwitch(fUserInfo.getScreenShot(), null);
+                    }
+
+                }
+            }
+        });
     }
 
     private List<MemberUser> listDataTop = new ArrayList<>();
@@ -1112,5 +1158,10 @@ public class GroupInfoActivity extends AppActivity {
         if (event.type.contains("GroupInfoActivity")) {
             finish();
         }
+    }
+
+    //更新配置
+    private void taskSaveInfo() {
+        DaoUtil.update(ginfo);
     }
 }
