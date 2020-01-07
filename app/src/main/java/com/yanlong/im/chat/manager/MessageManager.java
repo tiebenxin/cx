@@ -157,7 +157,7 @@ public class MessageManager {
     //接收到的单条消息作为服务器时间
     private void checkServerTimeInit(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
 //        if (SocketData.getPreServerAckTime() <= 0) {
-            SocketData.setPreServerAckTime(wrapMessage.getTimestamp());
+        SocketData.setPreServerAckTime(wrapMessage.getTimestamp());
 //        }
     }
 
@@ -1573,7 +1573,6 @@ public class MessageManager {
     }
 
     public void removeMsgTask(String requestId) {
-        System.out.println(TAG + "--MsgTask--remove--requestId=" + requestId);
         taskMaps.remove(requestId);
     }
 
@@ -1593,6 +1592,10 @@ public class MessageManager {
         event.setErrMsg(resultMessage.getErrorMsg());
         event.setResult(result.getNumber());
         EventBus.getDefault().post(event);
+    }
+
+    public void saveMessage(MsgAllBean msgAllBean) {
+        DaoUtil.update(msgAllBean);
     }
 
 

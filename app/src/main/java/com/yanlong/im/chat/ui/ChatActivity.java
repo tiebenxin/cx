@@ -126,7 +126,6 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
-import com.yanlong.im.chat.ui.cell.ICellEventListener;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.location.LocationActivity;

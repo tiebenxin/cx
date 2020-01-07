@@ -1252,7 +1252,6 @@ public class SocketData {
             String n = "<user id='" + uid + "'>" + name + "</user>";
             note.setNote("你领取了\"" + n + "\"的" + "<envelope id=\" + rid + \">零钱红包</envelope>");
         }
-
         return note;
     }
 
