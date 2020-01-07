@@ -9,6 +9,11 @@ import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.yanlong.im.MyAppLication;
 
+import static java.lang.Math.atan2;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
+
 /**
  * author : zgd
  * date   : 2019/12/1410:06
@@ -99,4 +104,21 @@ public class LocationUtils {
     }
 
 
+    //bd转gc坐标
+    public static double bdToGc(String latOrLon,double bd_lat,double bd_lon){
+        double x_pi = 3.14159265358979324 * 3000.0 / 180.0;
+        double x = bd_lon - 0.0065;
+        double y = bd_lat - 0.006;
+        double z = sqrt(x * x + y * y) - 0.00002 * sin(y * x_pi);
+        double theta = atan2(y, x) - 0.000003 * cos(x * x_pi);
+        double gc=0d;
+        if("lat".equals(latOrLon)){//获取纬度
+            double gg_lat = z * sin(theta);
+            gc=gg_lat;
+        }else if("lon".equals(latOrLon)){//获取经度
+            double gg_lon = z * cos(theta);
+            gc=gg_lon;
+        }
+        return gc;
+    }
 }
