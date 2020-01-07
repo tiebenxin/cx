@@ -674,6 +674,9 @@ public class MsgConversionBean {
                                 sb.append("已禁止在本群领取零钱红包");
                             }
                         }
+                        EventGroupChange event1 = new EventGroupChange();
+                        event1.setNeedLoad(true);
+                        EventBus.getDefault().post(event1);
                         msgNotice1.setNote(sb + "<div id='" + bean.getGid() + "'></div>");
                         msgAllBean.setMsgNotice(msgNotice1);
                     }

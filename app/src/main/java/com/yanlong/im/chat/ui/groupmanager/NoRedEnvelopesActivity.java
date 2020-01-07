@@ -19,15 +19,19 @@ import com.yanlong.im.chat.bean.NoRedEnvelopesBean;
 import com.yanlong.im.chat.ui.GroupSelectUserActivity;
 import com.yanlong.im.databinding.ActivityNoredEnvelopesBinding;
 import com.yanlong.im.databinding.ItemNoredEnvelopesBinding;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
+import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.AlertYesNo;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -177,6 +181,12 @@ public class NoRedEnvelopesActivity extends BaseBindActivity<ActivityNoredEnvelo
                         mList.addAll(list);
                     } else {
                         mList.remove(userInfo);
+                        // 移除自己更新群信息
+                        if (userInfo.getUid() != null && userInfo.getUid().intValue() == UserAction.getMyId().intValue()) {
+                            EventGroupChange event = new EventGroupChange();
+                            event.setNeedLoad(true);
+                            EventBus.getDefault().post(event);
+                        }
                     }
                     mViewAdapter.notifyDataSetChanged();
                 } else {

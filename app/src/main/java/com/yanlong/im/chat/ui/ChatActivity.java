@@ -56,6 +56,8 @@ import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.bean.CxTransferBean;
+import com.hm.cxpay.bean.EnvelopeDetailBean;
+import com.hm.cxpay.bean.GrabEnvelopeBean;
 import com.hm.cxpay.bean.TransferDetailBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.dailog.DialogDefault;
@@ -68,26 +70,20 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.bill.BillDetailActivity;
 import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.ui.redenvelope.MultiRedPacketActivity;
-import com.hm.cxpay.ui.bill.BillDetailActivity;
+import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
 import com.hm.cxpay.ui.transfer.TransferActivity;
 import com.hm.cxpay.ui.transfer.TransferDetailActivity;
 import com.hm.cxpay.utils.UIUtils;
-import com.jrmf360.tools.utils.ThreadUtil;
-import com.yanlong.im.chat.MsgTagHandler;
-import com.yanlong.im.chat.interf.IActionTagClickListener;
-import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
-import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
-import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
-import com.hm.cxpay.bean.EnvelopeDetailBean;
-import com.hm.cxpay.bean.GrabEnvelopeBean;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
 import com.jrmf360.rplib.bean.GrabRpBean;
 import com.jrmf360.rplib.bean.TransAccountBean;
 import com.jrmf360.rplib.utils.callback.GrabRpCallBack;
 import com.jrmf360.rplib.utils.callback.TransAccountCallBack;
+import com.jrmf360.tools.utils.ThreadUtil;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -99,6 +95,7 @@ import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
+import com.yanlong.im.chat.MsgTagHandler;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
@@ -123,19 +120,20 @@ import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
-import com.yanlong.im.chat.ui.cell.FactoryChatCell;
+import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
 import com.yanlong.im.chat.ui.cell.ICellEventListener;
-import com.yanlong.im.chat.ui.cell.MessageAdapter;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.location.LocationActivity;
 import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
+import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -1605,6 +1603,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         boolean check = false;
         if (groupInfo != null && groupInfo.getWordsNotAllowed() == 1 && !isAdmin() && !isAdministrators()) {
             check = true;
+        }
+        return check;
+    }
+
+    /**
+     * 检查是否能领取红包
+     * @return
+     */
+    private boolean checkCanOpenUpRedEnv() {
+        boolean check = true;
+        if (groupInfo != null && groupInfo.getCantOpenUpRedEnv() == 1) {
+            check = false;
         }
         return check;
     }
@@ -3086,7 +3096,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                     //ToastUtil.show(getContext(), "红包详情");
                                     taskPayRbDetail(msgbean, rid);
                                 } else {
-                                    taskPayRbGet(msgbean, touid, rid);
+                                    if(checkCanOpenUpRedEnv()){
+                                        taskPayRbGet(msgbean, touid, rid);
+                                    }else{
+                                        ToastUtil.show(ChatActivity.this,"你已被禁止领取红包");
+                                    }
                                 }
                             } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
                                 long tradeId = rb.getTraceId();
