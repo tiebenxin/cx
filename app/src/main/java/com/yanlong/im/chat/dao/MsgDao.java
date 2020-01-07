@@ -1861,14 +1861,24 @@ public class MsgDao {
     //查询申请列表
     public List<ApplyBean> getApplyBeanList() {
         Realm realm = DaoUtil.open();
-//        realm.beginTransaction();
+        realm.beginTransaction();
         List<ApplyBean> beans = new ArrayList<>();
 //        RealmResults<ApplyBean> res = realm.where(ApplyBean.class).notEqualTo("stat", 3).sort("time", Sort.DESCENDING).findAll();
-        RealmResults<ApplyBean> res = realm.where(ApplyBean.class).sort("stat", Sort.ASCENDING, "time", Sort.DESCENDING).findAll();
+
+        //删除错误数据
+        RealmResults<ApplyBean> resTemp=realm.where(ApplyBean.class).equalTo("uid",0).findAll();
+        if(resTemp!=null){
+            resTemp.deleteAllFromRealm();
+        }
+
+        RealmResults<ApplyBean> res = realm.where(ApplyBean.class)
+                .isNotNull("aid")
+                .sort("stat", Sort.ASCENDING, "time", Sort.DESCENDING).findAll();
+
         if (res != null) {
             beans = realm.copyFromRealm(res);
         }
-//        realm.commitTransaction();
+        realm.commitTransaction();
         realm.close();
         return beans;
     }
