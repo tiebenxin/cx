@@ -577,11 +577,15 @@ public class MsgConversionBean {
                 EventGroupChange event = new EventGroupChange();
                 event.setNeedLoad(true);
                 if (MsgBean.ChangeViceAdminsMessage.Opt.APPEND.getNumber() == bean.getChangeViceAdminsOrBuilder().getOptValue()) {// 新增
-                    for (MsgBean.GroupNoticeMessage groupNotice : bean.getChangeViceAdminsOrBuilder().getMembersList()) {
+                    for (int i=0;i<bean.getChangeViceAdminsOrBuilder().getMembersList().size();i++) {
+                        MsgBean.GroupNoticeMessage groupNotice = bean.getChangeViceAdminsOrBuilder().getMembersList().get(i);
                         if (UserAction.getMyId() != null && groupNotice.getUid() == UserAction.getMyId().longValue()) {
                             stringBuffer.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>你</font>\"");
                         } else {
-                            stringBuffer.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>" + groupNotice.getNickname() + "</font>\"、");
+                            stringBuffer.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>" + groupNotice.getNickname() + "</font>\"");
+                        }
+                        if (i != bean.getChangeViceAdminsOrBuilder().getMembersList().size() - 1) {
+                            stringBuffer.append("、");
                         }
                     }
                     stringBuffer.append("已成为管理员");
@@ -664,14 +668,19 @@ public class MsgConversionBean {
                                             + "</font>\"" + "已禁止\"<font color='#276baa' id='" + message.getUid() + "'>" + message.getNickname() + "</font>\"在本群领取零钱红包");
                                 }
                             } else {
-                                for (MsgBean.GroupNoticeMessage groupNotice : bean.getSwitchChange().getMembersList()) {
+                                sb.append("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name + "</font>\"已禁止");
+                                for (int i = 0; i < bean.getSwitchChange().getMembersList().size(); i++) {
+                                    MsgBean.GroupNoticeMessage groupNotice = bean.getSwitchChange().getMembersList().get(i);
                                     if (UserAction.getMyId() != null && groupNotice.getUid() == UserAction.getMyId().longValue()) {
                                         sb.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>你</font>\"");
                                     } else {
-                                        sb.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>" + groupNotice.getNickname() + "</font>\"、");
+                                        sb.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>" + groupNotice.getNickname() + "</font>\"");
+                                    }
+                                    if (i != bean.getSwitchChange().getMembersList().size() - 1) {
+                                        sb.append("、");
                                     }
                                 }
-                                sb.append("已禁止在本群领取零钱红包");
+                                sb.append("在本群领取零钱红包");
                             }
                         }
                         EventGroupChange event1 = new EventGroupChange();

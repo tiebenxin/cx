@@ -15,6 +15,7 @@ import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.NoRedEnvelopesBean;
 import com.yanlong.im.chat.ui.GroupSelectUserActivity;
 import com.yanlong.im.databinding.ActivityNoredEnvelopesBinding;
@@ -58,6 +59,7 @@ public class NoRedEnvelopesActivity extends BaseBindActivity<ActivityNoredEnvelo
     private String mGid;
     private MsgAction mMsgAction;
     private Gson mGosn = new Gson();
+    private Group mGroupInfo;
 
     @Override
     protected int setView() {
@@ -83,7 +85,11 @@ public class NoRedEnvelopesActivity extends BaseBindActivity<ActivityNoredEnvelo
                     if (ViewUtils.isFastDoubleClick()) {
                         return;
                     }
-                    showDialog(userInfo.getName4Show(), position);
+                    if (isAdministrators(UserAction.getMyId()) && isAdministrators(mList.get(position).getUid())) {
+                        ToastUtil.showCenter(context, "暂无权限操作");
+                    } else {
+                        showDialog(userInfo.getName4Show(), position);
+                    }
                 });
             }
         };
@@ -122,6 +128,7 @@ public class NoRedEnvelopesActivity extends BaseBindActivity<ActivityNoredEnvelo
         mGid = getIntent().getStringExtra(GroupSelectUserActivity.GID);
         mMsgAction = new MsgAction();
         getCantOpenUpRedMembers();
+        taskGroupInfo(mGid);
     }
 
     private void showDialog(String name, final int position) {
@@ -228,6 +235,42 @@ public class NoRedEnvelopesActivity extends BaseBindActivity<ActivityNoredEnvelo
                 super.onFailure(call, t);
             }
         });
+    }
+
+    /**
+     * 获取群信息
+     *
+     * @param gid
+     */
+    private void taskGroupInfo(String gid) {
+        mMsgAction.groupInfo(gid, new CallBack<ReturnBean<Group>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                if (response.body().isOk()) {
+                    mGroupInfo = response.body().getData();
+                } else {
+                    ToastUtil.show(NoRedEnvelopesActivity.this, response.body().getMsg());
+                }
+            }
+        });
+    }
+
+    /**
+     * 判断是否是管理员
+     *
+     * @return
+     */
+    private boolean isAdministrators(Long uid) {
+        boolean isManager = false;
+        if (mGroupInfo != null && mGroupInfo.getViceAdmins() != null && mGroupInfo.getViceAdmins().size() > 0) {
+            for (Long user : mGroupInfo.getViceAdmins()) {
+                if (user.equals(uid)) {
+                    isManager = true;
+                    break;
+                }
+            }
+        }
+        return isManager;
     }
 
     /**
