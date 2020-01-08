@@ -1608,6 +1608,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     /**
      * 检查是否能领取红包
+     *
      * @return
      */
     private boolean checkCanOpenUpRedEnv() {
@@ -2733,7 +2734,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     @Override
-    public void clickUser(String userId) {
+    public void clickUser(String userId, String gid) {
 
     }
 
@@ -2742,6 +2743,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     }
 
+    @Override
+    public void clickTransfer(String rid, String msgId) {
+
+    }
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
@@ -3095,10 +3100,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                     //ToastUtil.show(getContext(), "红包详情");
                                     taskPayRbDetail(msgbean, rid);
                                 } else {
-                                    if(checkCanOpenUpRedEnv()){
+                                    if (checkCanOpenUpRedEnv()) {
                                         taskPayRbGet(msgbean, touid, rid);
-                                    }else{
-                                        ToastUtil.show(ChatActivity.this,"你已被禁止领取红包");
+                                    } else {
+                                        ToastUtil.show(ChatActivity.this, "你已被禁止领取红包");
                                     }
                                 }
                             } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
