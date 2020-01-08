@@ -270,4 +270,27 @@ public class Group extends RealmObject {
     public void setMerchantEntry(String merchantEntry) {
         this.merchantEntry = merchantEntry;
     }
+
+
+
+    //判断是否是群主
+    public boolean isAdmin() {
+        if (!StringUtil.isNotNull(getMaster()))
+            return false;
+        return getMaster().equals("" + UserAction.getMyId());
+    }
+
+    //判断是否是管理员 注意群主不在管理员列表
+    public boolean isAdministrators() {
+        boolean isManager = false;
+        if (getViceAdmins() != null && getViceAdmins().size() > 0) {
+            for (Long user : getViceAdmins()) {
+                if (user.equals(UserAction.getMyId())) {
+                    isManager = true;
+                    break;
+                }
+            }
+        }
+        return isManager;
+    }
 }

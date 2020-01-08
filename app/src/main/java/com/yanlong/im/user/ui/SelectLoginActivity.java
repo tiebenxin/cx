@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
@@ -13,6 +14,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 import com.yanlong.im.R;
 
@@ -89,11 +92,15 @@ public class SelectLoginActivity extends AppActivity implements View.OnClickList
                 intent.putExtra(WebPageActivity.AGM_URL,"https://changxin.zhixun6.com/yhxy.html");
                 startActivity(intent);
             }
-        };
 
+            @Override
+            public void updateDrawState(@NonNull TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setColor(getResources().getColor( R.color.blue_600));
+                ds.setUnderlineText(false);
+            }
+        };
         style.setSpan(clickProtocol, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(this, R.color.blue_600));
-        style.setSpan(protocolColorSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         ClickableSpan clickPolicy = new ClickableSpan() {
             @Override
@@ -103,10 +110,15 @@ public class SelectLoginActivity extends AppActivity implements View.OnClickList
                 startActivity(intent);
 
             }
+
+            @Override
+            public void updateDrawState(@NonNull TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setColor(getResources().getColor( R.color.blue_600));
+                ds.setUnderlineText(false);
+            }
         };
         style.setSpan(clickPolicy, 9, 16, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        ForegroundColorSpan policyColorSpan = new ForegroundColorSpan(ContextCompat.getColor(this, R.color.blue_600));
-        style.setSpan(policyColorSpan, 9, 16, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         mTvMattersNeedAttention.setText(style);
         mTvMattersNeedAttention.setMovementMethod(LinkMovementMethod.getInstance());
