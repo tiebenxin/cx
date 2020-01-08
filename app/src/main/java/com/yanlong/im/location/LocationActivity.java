@@ -294,7 +294,7 @@ public class LocationActivity extends AppActivity {
             public void onReceiveLocation(BDLocation bdLocation) {
 
                 try {
-                    LogUtil.getLog().e("=location====" + GsonUtils.optObject(bdLocation));
+//                    LogUtil.getLog().e("=location====" + GsonUtils.optObject(bdLocation));
                     if (bdLocation != null && bdLocation.getPoiList() != null) {
                         city = bdLocation.getCity();
 
