@@ -292,9 +292,9 @@ public class LocationActivity extends AppActivity {
         listener = new BDAbstractLocationListener() {
             @Override
             public void onReceiveLocation(BDLocation bdLocation) {
-                LogUtil.getLog().e("=location====" + GsonUtils.optObject(bdLocation));
 
                 try {
+                    LogUtil.getLog().e("=location====" + GsonUtils.optObject(bdLocation));
                     if (bdLocation != null && bdLocation.getPoiList() != null) {
                         city = bdLocation.getCity();
 

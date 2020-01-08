@@ -65,6 +65,9 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_myself_info);
+        if(!EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().register(this);
+        }
         initView();
         initEvent();
         initData();
@@ -77,8 +80,8 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         EventBus.getDefault().unregister(this);
+        super.onDestroy();
     }
 
     private void initView() {
@@ -96,8 +99,6 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
         mTvIdentity = findViewById(R.id.tv_identity);
         mHeadView = findViewById(R.id.headView);
         mIvProductNumber = findViewById(R.id.iv_product_number);
-
-        EventBus.getDefault().register(this);
     }
 
 
