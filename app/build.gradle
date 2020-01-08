@@ -26,8 +26,8 @@ android {
         applicationId "com.yanlong.im"
         minSdkVersion 22
         targetSdkVersion 28
-        versionCode 144
-        versionName "1.1.34"
+        versionCode 200
+        versionName "1.2.0"
         //  versionName "0.9.0_${releaseTime()}"
         
         //---------------------------------------
@@ -124,7 +124,7 @@ android {
         }
         release {
             // 开启调试
-            debuggable true
+            debuggable false
             //混淆
             minifyEnabled true
             //Zipalign优化
