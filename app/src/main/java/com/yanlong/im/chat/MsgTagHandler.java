@@ -13,6 +13,7 @@ import android.view.View;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
+import com.yanlong.im.user.action.UserAction;
 
 import org.xml.sax.XMLReader;
 
@@ -167,8 +168,12 @@ public class MsgTagHandler implements TagHandler {
         public void onClick(View widget) {
             // TODO Auto-generated method stub
             if (tag.equalsIgnoreCase(USER)) {
-                if (actionListener != null && !TextUtils.isEmpty(id)) {
-                    actionListener.clickUser(id,gid);
+                if (UserAction.getMyId() != null && id.equals(UserAction.getMyId())) {//自己不需要点击
+
+                } else {
+                    if (actionListener != null && !TextUtils.isEmpty(id)) {
+                        actionListener.clickUser(id, gid);
+                    }
                 }
             } else if (tag.equalsIgnoreCase(ENVELOPE)) {
                 if (actionListener != null && !TextUtils.isEmpty(id)) {
@@ -184,14 +189,18 @@ public class MsgTagHandler implements TagHandler {
         @Override
         public void updateDrawState(TextPaint ds) {
             super.updateDrawState(ds);
-            ds.setColor(ContextCompat.getColor(mContext, R.color.msg_tag_color));
-//            if (tag.equalsIgnoreCase(USER)) {
-//                ds.setColor(ContextCompat.getColor(mContext, R.color.msg_tag_color));
-//            } else if (tag.equalsIgnoreCase(ENVELOPE)) {
-//                ds.setColor(ContextCompat.getColor(mContext, R.color.msg_tag_color));
-//            }else {
-//                ds.setColor(ContextCompat.getColor(mContext, R.color.msg_tag_color));
-//            }
+//            ds.setColor(ContextCompat.getColor(mContext, R.color.msg_tag_color));
+            if (tag.equalsIgnoreCase(USER)) {
+                if (UserAction.getMyId() != null && id.equals(UserAction.getMyId())) {
+                    ds.setColor(ContextCompat.getColor(mContext, R.color.gray_500));
+                } else {
+                    ds.setColor(ContextCompat.getColor(mContext, R.color.msg_tag_color));
+                }
+            } else if (tag.equalsIgnoreCase(ENVELOPE)) {
+                ds.setColor(ContextCompat.getColor(mContext, R.color.msg_tag_color));
+            } else {
+                ds.setColor(ContextCompat.getColor(mContext, R.color.msg_tag_color));
+            }
             ds.setUnderlineText(false);//不需要下划线
         }
 

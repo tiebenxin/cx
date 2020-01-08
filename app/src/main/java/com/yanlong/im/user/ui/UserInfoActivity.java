@@ -401,10 +401,10 @@ public class UserInfoActivity extends AppActivity {
 
         if (joinTypeShow != 0) {
             taskGroupInfo(gid);
-        }
-
-        if (contactIntimately == 1) {
-            mBtnAdd.setVisibility(View.GONE);
+        } else {
+            if (contactIntimately == 1) {
+                mBtnAdd.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -513,7 +513,7 @@ public class UserInfoActivity extends AppActivity {
     private void setGroupData(Group group) {
         //9.2 开启保护就隐藏加好友
         if (group.getContactIntimately() != null) {
-            if (group.getContactIntimately() == 1 && !group.getMaster().equals(id + "")) {
+            if (group.getContactIntimately() == 1 && !group.getMaster().equals("" + UserAction.getMyId())) {
                 mBtnAdd.setVisibility(View.GONE);
             }
         }

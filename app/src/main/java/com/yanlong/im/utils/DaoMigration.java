@@ -88,6 +88,10 @@ public class DaoMigration implements RealmMigration {
                 updateV17(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 17) {
+                updateV18(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -343,6 +347,12 @@ public class DaoMigration implements RealmMigration {
                 .addField("uid", int.class)
                 .addField("amount", long.class);
 
+    }
+
+    // 添加是否能领取零钱红包
+    private void updateV18(RealmSchema schema) {
+        schema.get("Group")
+                .addField("cantOpenUpRedEnv", int.class);
     }
 
     @Override

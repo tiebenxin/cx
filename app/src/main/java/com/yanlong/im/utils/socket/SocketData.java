@@ -1250,6 +1250,7 @@ public class SocketData {
         return note;
     }
 
+
     public static MsgNotice createMsgNoticeOfRb(String msgId, Long uid, String gid, String rid) {
         MsgNotice note = new MsgNotice();
         note.setMsgid(msgId);
@@ -1262,7 +1263,6 @@ public class SocketData {
             String user = "<user id='" + uid + "' gid= " + gid + ">" + name + "</user>";
             note.setNote("你领取了\"" + user + "\"的" + "<envelope id=" + rid + ">零钱红包</envelope>");
         }
-
         return note;
     }
 
