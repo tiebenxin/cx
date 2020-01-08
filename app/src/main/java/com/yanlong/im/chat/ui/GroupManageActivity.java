@@ -50,10 +50,12 @@ public class GroupManageActivity extends BaseBindActivity<ActivityGroupManageBin
 
     public static final String AGM_GID = "AGM_GID";
     public static final String IS_ADMIN = "is_admin";
+    public static final String ADMIN_NUMBER = "admin_number";
     private MsgAction msgAction;
 
     private String mGid;
     private Group mGinfo;
+    private int mGroupNumber = 0;// 群人数
     private boolean mIsAdmin = false;// 是否是群主
     private boolean mIsSendRequest = false;// 是否发送请求
 
@@ -67,6 +69,10 @@ public class GroupManageActivity extends BaseBindActivity<ActivityGroupManageBin
         msgAction = new MsgAction();
         mGid = getIntent().getStringExtra(AGM_GID);
         mIsAdmin = getIntent().getBooleanExtra(IS_ADMIN, false);
+        mGroupNumber = getIntent().getIntExtra(GroupManageActivity.ADMIN_NUMBER, 0);
+        if (mGroupNumber != 0) {
+            bindingView.txtManagerNumber.setText(mGroupNumber + "人");
+        }
         if (!mIsAdmin) {
             bindingView.layoutSetupManager.setVisibility(View.GONE);
             bindingView.layoutBottom.setVisibility(View.GONE);
@@ -97,7 +103,7 @@ public class GroupManageActivity extends BaseBindActivity<ActivityGroupManageBin
         bindingView.ckGroupVerif.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(mIsSendRequest){
+                if (mIsSendRequest) {
                     bindingView.ckGroupVerif.setEnabled(false);
                     taskSetState(mGid, null, null, null, isChecked ? 1 : 0);
                 }
@@ -107,7 +113,7 @@ public class GroupManageActivity extends BaseBindActivity<ActivityGroupManageBin
         bindingView.ckGroupIntimately.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(mIsSendRequest) {
+                if (mIsSendRequest) {
                     bindingView.ckGroupIntimately.setEnabled(false);
                     taskSetIntimatelyState(mGid, isChecked ? 1 : 0);
                 }
@@ -116,7 +122,7 @@ public class GroupManageActivity extends BaseBindActivity<ActivityGroupManageBin
         bindingView.ckForbiddenWords.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(mIsSendRequest) {
+                if (mIsSendRequest) {
                     bindingView.ckForbiddenWords.setEnabled(false);
                     setAllForbiddenWords(mGid, isChecked ? 1 : 0);
                 }
@@ -152,27 +158,32 @@ public class GroupManageActivity extends BaseBindActivity<ActivityGroupManageBin
                     bindingView.ckGroupVerif.setChecked(mGinfo.getNeedVerification() == 1);
                     bindingView.ckGroupIntimately.setChecked(mGinfo.getContactIntimately() == 1);
                     bindingView.ckForbiddenWords.setChecked(mGinfo.getWordsNotAllowed() == 1);
+                    if (mGinfo != null && mGinfo.getViceAdmins().size() != 0) {
+                        bindingView.txtManagerNumber.setText(mGinfo.getViceAdmins().size() + "人");
+                    } else {
+                        bindingView.txtManagerNumber.setText("");
+                    }
                 }
-                if(!isFinishing()){
+                if (!isFinishing()) {
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             mIsSendRequest = true;
                         }
-                    },300);
+                    }, 300);
                 }
             }
 
             @Override
             public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
                 super.onFailure(call, t);
-                if(!isFinishing()){
+                if (!isFinishing()) {
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             mIsSendRequest = true;
                         }
-                    },300);
+                    }, 300);
                 }
             }
         });
@@ -247,6 +258,7 @@ public class GroupManageActivity extends BaseBindActivity<ActivityGroupManageBin
 
     /**
      * 全员禁言
+     *
      * @param gid
      * @param i
      */
@@ -255,9 +267,9 @@ public class GroupManageActivity extends BaseBindActivity<ActivityGroupManageBin
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 bindingView.ckForbiddenWords.setEnabled(true);
-                if (response.body() == null){
+                if (response.body() == null) {
                     ToastUtil.show(getContext(), "全员禁言开启失败");
-                }else if (!TextUtils.isEmpty(response.body().getMsg())) {
+                } else if (!TextUtils.isEmpty(response.body().getMsg())) {
                     ToastUtil.show(getContext(), response.body().getMsg());
                 }
             }

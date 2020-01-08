@@ -32,6 +32,7 @@ import com.yanlong.im.utils.UserUtil;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
@@ -63,6 +64,8 @@ public class GroupSelectUserActivity extends AppActivity {
     private final int TYPE_1 = 1;// @用戶
     private final int TYPE_2 = 2;// 添加管理员
     private final int TYPE_3 = 3;// 禁止领取零钱红包
+    private final int MAX_ADMIN_NUMBER = 19;// 最大管理员人员
+    private int mSelectAdminNumber = 0;// 选择管理员人数
     private HeadView headView;
     private ActionbarView actionbar;
     private UserInfo mUserBean;
@@ -510,6 +513,13 @@ public class GroupSelectUserActivity extends AppActivity {
             hd.layoutRoot.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (mType == TYPE_2 && mAdmins != null && !bean.isChecked()) {
+                        if ((mAdmins.size() + mSelectAdminNumber + 1) > MAX_ADMIN_NUMBER) {
+                            bean.setChecked(false);
+                            ToastUtil.showCenter(GroupSelectUserActivity.this, "群管理员最多可设置19个");
+                            return;
+                        }
+                    }
                     hd.ckSelect.setChecked(!hd.ckSelect.isChecked());
                     mUserBean = bean;
                     onItemClick(bean);
@@ -518,6 +528,13 @@ public class GroupSelectUserActivity extends AppActivity {
             hd.ckSelect.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (mType == TYPE_2 && mAdmins != null && !bean.isChecked()) {
+                        if ((mAdmins.size() + mSelectAdminNumber + 1) > MAX_ADMIN_NUMBER) {
+                            hd.ckSelect.setChecked(false);
+                            ToastUtil.showCenter(GroupSelectUserActivity.this, "群管理员最多可设置19个");
+                            return;
+                        }
+                    }
                     mUserBean = bean;
                     onItemClick(bean);
                 }
@@ -537,14 +554,14 @@ public class GroupSelectUserActivity extends AppActivity {
                 actionbar.getTxtRight().setVisibility(bean.isChecked() ? View.VISIBLE : View.GONE);
             } else if (mType == TYPE_2 || mType == TYPE_3) {// 添加管理员/禁止领取零钱红包
                 bean.setChecked(!bean.isChecked());
-                boolean isCheck = false;
+                mSelectAdminNumber = 0;
                 for (UserInfo info : mFilterList) {
                     if (info.isChecked()) {
-                        isCheck = true;
-                        break;
+                        mSelectAdminNumber++;
                     }
                 }
-                actionbar.getTxtRight().setVisibility(isCheck ? View.VISIBLE : View.GONE);
+                mtListView.notifyDataSetChange();
+                actionbar.getTxtRight().setVisibility(mSelectAdminNumber > 0 ? View.VISIBLE : View.GONE);
             } else {// @用户
                 Intent intent = new Intent();
                 intent.putExtra(UID, bean.getUid() + "");
