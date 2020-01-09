@@ -3294,6 +3294,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (msgbean.getMsgCancel() != null) {
                         holder.viewChatItem.setReadDestroy(msgbean.getMsgCancel().getNote());
                     }
+                    break;
                 case ChatEnum.EMessageType.BALANCE_ASSISTANT:
                     holder.viewChatItem.setBalanceMsg(msgbean.getBalanceAssistantMessage(), new ChatItemView.EventBalance() {
                         @Override
