@@ -226,6 +226,21 @@ public class GroupSelectUserActivity extends AppActivity {
                     if (mType == TYPE_2 || mType == TYPE_3) {
                         filterUser(listData);
                     }
+                    if (mType == TYPE_3) {
+                        // 管理员不能设置同级别的用户、也不能設置群主
+                        if (mGinfo != null && !mGinfo.getMaster().equals(UserAction.getMyId() + "")) {
+                            for (Long uid : mGinfo.getViceAdmins()) {
+                                for (int i = listData.size() - 1; i >= 0; i--) {
+                                    UserInfo userInfo = listData.get(i);
+                                    if((mGinfo != null && mGinfo.getMaster().equals(userInfo.getUid() + ""))){// 移除群主
+                                        listData.remove(i);
+                                    }else if (userInfo.getUid() != null && userInfo.getUid().equals(uid)) {// 移除管理員
+                                        listData.remove(i);
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     // 升序
                     Collections.sort(listData, new Comparator<UserInfo>() {
