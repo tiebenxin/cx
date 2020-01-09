@@ -17,8 +17,11 @@ import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.ForbiddenWordsView;
 
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +47,7 @@ public class GroupMemPowerSetActivity extends BaseBindActivity<ActivityGroupMemP
     private UserAction mUserAction;
     private List<Long> mList;
     private boolean mIsFirst = true;
+    private SingleMeberInfoBean singleMeberInfoBean;
 
     @Override
     protected int setView() {
@@ -85,12 +89,29 @@ public class GroupMemPowerSetActivity extends BaseBindActivity<ActivityGroupMemP
     protected void loadData() {
         mGid = getIntent().getStringExtra(Preferences.TOGID);
         mUid = getIntent().getLongExtra(Preferences.TOUID, 0);
+        String value = getIntent().getStringExtra(Preferences.DATA);
+        if (!TextUtils.isEmpty(value)) {
+            singleMeberInfoBean = new Gson().fromJson(value, SingleMeberInfoBean.class);
+            mSelectPostion = singleMeberInfoBean.getShutUpDuration();
+            bindingView.ckBanMoney.setChecked(singleMeberInfoBean.isCantOpenUpRedEnv());
+            bindingView.txtTime.setText(getSurvivaltime(mSelectPostion));
+
+            if (!isFinishing()) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mIsFirst = false;
+                    }
+                }, 300);
+            }
+        } else {
+            getSingleMemberInfo();
+        }
         mList = new ArrayList<>();
         mList.add(mUid);
         mUidJson = new Gson().toJson(mList);
         mMsgAction = new MsgAction();
         mUserAction = new UserAction();
-        getSingleMemberInfo();
     }
 
     /**
@@ -107,6 +128,8 @@ public class GroupMemPowerSetActivity extends BaseBindActivity<ActivityGroupMemP
                 if (response.body() == null || response.body().isOk()) {
                     mSelectPostion = duration;
                     bindingView.txtTime.setText(content);
+                    EventBus.getDefault().post(new EventFactory.UpdateUserInfoEvent());
+
                 } else if (!TextUtils.isEmpty(response.body().getMsg())) {
                     ToastUtil.show(GroupMemPowerSetActivity.this, response.body().getMsg());
                 }
@@ -129,6 +152,7 @@ public class GroupMemPowerSetActivity extends BaseBindActivity<ActivityGroupMemP
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
+                EventBus.getDefault().post(new EventFactory.UpdateUserInfoEvent());
                 if (response.body() == null || !response.body().isOk()) {
                     if (isAdd) {
                         ToastUtil.show(GroupMemPowerSetActivity.this, "禁止领取零钱红包失败");
@@ -154,7 +178,7 @@ public class GroupMemPowerSetActivity extends BaseBindActivity<ActivityGroupMemP
             public void onResponse(Call<ReturnBean<SingleMeberInfoBean>> call, Response<ReturnBean<SingleMeberInfoBean>> response) {
                 super.onResponse(call, response);
                 if (response != null && response.body() != null && response.body().isOk()) {
-                    SingleMeberInfoBean singleMeberInfoBean = response.body().getData();
+                    singleMeberInfoBean = response.body().getData();
                     mSelectPostion = singleMeberInfoBean.getShutUpDuration();
                     boolean value = singleMeberInfoBean.isCantOpenUpRedEnv();
                     bindingView.ckBanMoney.setChecked(value);

@@ -15,7 +15,7 @@
 
                 <!--禁止领取零钱红包-->
                 <LinearLayout
-                    android:visibility="gone"
+                    android:visibility="visible"
                     style="@style/app_layout_list2_item">
 
                     <TextView

@@ -39,6 +39,7 @@ import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.TimeToString;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -52,6 +53,7 @@ import java.util.UUID;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -158,8 +160,6 @@ public class MsgDao {
         return true;
         //return DaoUtil.findOne(Group.class, "gid", gid);
     }
-
-
 
 
     /**
@@ -1861,14 +1861,24 @@ public class MsgDao {
     //查询申请列表
     public List<ApplyBean> getApplyBeanList() {
         Realm realm = DaoUtil.open();
-//        realm.beginTransaction();
+        realm.beginTransaction();
         List<ApplyBean> beans = new ArrayList<>();
 //        RealmResults<ApplyBean> res = realm.where(ApplyBean.class).notEqualTo("stat", 3).sort("time", Sort.DESCENDING).findAll();
-        RealmResults<ApplyBean> res = realm.where(ApplyBean.class).sort("stat", Sort.ASCENDING, "time", Sort.DESCENDING).findAll();
+
+        //删除错误数据
+        RealmResults<ApplyBean> resTemp=realm.where(ApplyBean.class).equalTo("uid",0).findAll();
+        if(resTemp!=null){
+            resTemp.deleteAllFromRealm();
+        }
+
+        RealmResults<ApplyBean> res = realm.where(ApplyBean.class)
+                .isNotNull("aid")
+                .sort("stat", Sort.ASCENDING, "time", Sort.DESCENDING).findAll();
+
         if (res != null) {
             beans = realm.copyFromRealm(res);
         }
-//        realm.commitTransaction();
+        realm.commitTransaction();
         realm.close();
         return beans;
     }
@@ -2702,7 +2712,6 @@ public class MsgDao {
     }
 
 
-
     /***
      * 获取除当前会话的未读消息数量
      * @param gid
@@ -3374,6 +3383,50 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
+    }
+
+    //查询群聊中未领取的有效红包,红包状态是未领取，且非普通红包
+    public List<MsgAllBean> selectValidEnvelopeMsg(String gid) {
+        Realm realm = DaoUtil.open();
+        long time = SocketData.getFixTime();
+        if (time <= 0) {
+            time = System.currentTimeMillis();
+        }
+        long diff = TimeToString.DAY;
+        try {
+            List<MsgAllBean> msgAllBeans = new ArrayList<>();
+            RealmResults<RedEnvelopeMessage> envelopeList = realm.where(RedEnvelopeMessage.class)
+                    .beginGroup().equalTo("envelopStatus", 0).endGroup()
+                    .and()
+                    .beginGroup().equalTo("style", 1).endGroup()
+                    .findAll();
+
+            RealmResults<MsgAllBean> realmResults = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", gid).endGroup()
+                    .and()
+                    .beginGroup().isNotNull("red_envelope").endGroup()
+                    .and()
+                    .beginGroup().greaterThan("timestamp", time - diff).endGroup()
+                    .sort("timestamp")
+                    .findAll();
+            if (realmResults != null && envelopeList != null) {
+                int len = realmResults.size();
+                for (int i = 0; i < len; i++) {
+                    MsgAllBean msgAllBean = realmResults.get(i);
+                    RedEnvelopeMessage redEnvelopeMessage = envelopeList.where().equalTo("msgid", msgAllBean.getMsg_id()).findFirst();
+                    if (redEnvelopeMessage != null) {
+                        MsgAllBean bean = realm.copyFromRealm(msgAllBean);
+                        msgAllBeans.add(bean);
+                    }
+
+                }
+            }
+            return msgAllBeans;
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return null;
     }
 
 

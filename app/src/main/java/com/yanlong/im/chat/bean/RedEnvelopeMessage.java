@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.bean;
 
+import androidx.annotation.Nullable;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -108,5 +110,18 @@ public class RedEnvelopeMessage extends RealmObject implements IMsgContent {
 
     public void setSign(String sign) {
         this.sign = sign;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof MsgAllBean) {
+            if (((RedEnvelopeMessage) obj).msgid.equals(this.msgid)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

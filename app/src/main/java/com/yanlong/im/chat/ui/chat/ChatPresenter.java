@@ -12,8 +12,10 @@ import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
+import com.yanlong.im.chat.bean.IMsgContent;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -21,6 +23,7 @@ import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.pay.action.PayAction;
@@ -36,6 +39,7 @@ import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.BasePresenter;
 import net.cb.cb.library.base.DBOptionObserver;
 import net.cb.cb.library.bean.EventExitChat;
@@ -44,6 +48,7 @@ import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.DownloadUtil;
@@ -98,7 +103,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
     }
 
     /*
-     * showSendObj
+     * 整个刷新数据
      * */
     public void loadAndSetData() {
         if (needRefresh) {
@@ -414,10 +419,8 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
             isSendingHypertext = false;
         }
         textPosition = position;
-        SocketData.send4Chat(model.getUid(), model.getGid(), list.get(position));
-        loadAndSetData();
-//        MsgAllBean msgAllbean = SocketData.send4Chat(model.getUid(), model.getGid(), list.get(position));
-//        showSendObj(msgAllbean);
+        ChatMessage message = SocketData.createChatMessage(SocketData.getUUID(), list.get(position));
+        sendMessage(message, ChatEnum.EMessageType.TEXT);
     }
 
     private void taskTestSend(final int count) {
@@ -827,5 +830,39 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
 //                LogUtil.getLog().i("AudioPlayManager", "onComplete--" + bean.getVoiceMessage().getUrl());
             }
         });
+    }
+
+
+    //消息发送
+    private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType) {
+        MsgAllBean msgAllBean = SocketData.createMessageBean(model.getUid(), model.getGid(), msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+        if (msgAllBean != null) {
+            if (!filterMessage(message)) {
+                SocketData.sendAndSaveMessage(msgAllBean, false);
+            } else {
+                SocketData.sendAndSaveMessage(msgAllBean);
+            }
+            getView().addAndShowSendMessage(msgAllBean);
+            MessageManager.getInstance().notifyRefreshMsg(model.isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, model.getUid(), model.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
+        }
+    }
+
+    //消息发送，canSend--是否需要发送
+
+    private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType, boolean canSend) {
+        MsgAllBean msgAllBean = SocketData.createMessageBean(model.getUid(), model.getGid(), msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+        if (msgAllBean != null) {
+            SocketData.sendAndSaveMessage(msgAllBean, canSend);
+            getView().addAndShowSendMessage(msgAllBean);
+            MessageManager.getInstance().notifyRefreshMsg(model.isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, model.getUid(), model.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
+        }
+    }
+
+    private boolean filterMessage(IMsgContent message) {
+        boolean isSend = true;
+        if (Constants.CX_HELPER_UID.equals(model.getUid()) || Constants.CX_BALANCE_UID.equals(model.getUid())) {//常信小助手不需要发送到后台
+            isSend = false;
+        }
+        return isSend;
     }
 }

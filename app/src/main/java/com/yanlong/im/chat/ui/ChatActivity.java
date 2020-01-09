@@ -56,6 +56,8 @@ import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.bean.CxTransferBean;
+import com.hm.cxpay.bean.EnvelopeDetailBean;
+import com.hm.cxpay.bean.GrabEnvelopeBean;
 import com.hm.cxpay.bean.TransferDetailBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.dailog.DialogDefault;
@@ -68,26 +70,20 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.bill.BillDetailActivity;
 import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.ui.redenvelope.MultiRedPacketActivity;
-import com.hm.cxpay.ui.bill.BillDetailActivity;
+import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
 import com.hm.cxpay.ui.transfer.TransferActivity;
 import com.hm.cxpay.ui.transfer.TransferDetailActivity;
 import com.hm.cxpay.utils.UIUtils;
-import com.jrmf360.tools.utils.ThreadUtil;
-import com.yanlong.im.chat.MsgTagHandler;
-import com.yanlong.im.chat.interf.IActionTagClickListener;
-import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
-import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
-import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
-import com.hm.cxpay.bean.EnvelopeDetailBean;
-import com.hm.cxpay.bean.GrabEnvelopeBean;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
 import com.jrmf360.rplib.bean.GrabRpBean;
 import com.jrmf360.rplib.bean.TransAccountBean;
 import com.jrmf360.rplib.utils.callback.GrabRpCallBack;
 import com.jrmf360.rplib.utils.callback.TransAccountCallBack;
+import com.jrmf360.tools.utils.ThreadUtil;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -99,6 +95,7 @@ import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
+import com.yanlong.im.chat.MsgTagHandler;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
@@ -123,19 +120,19 @@ import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
-import com.yanlong.im.chat.ui.cell.FactoryChatCell;
-import com.yanlong.im.chat.ui.cell.ICellEventListener;
-import com.yanlong.im.chat.ui.cell.MessageAdapter;
+import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.location.LocationActivity;
 import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
+import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -239,7 +236,7 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public class ChatActivity extends AppActivity implements ICellEventListener, IActionTagClickListener {
+public class ChatActivity extends AppActivity implements IActionTagClickListener {
     private static String TAG = "ChatActivity";
     public final static int MIN_TEXT = 1000;//
     private final int RELINQUISH_TIME = 5;// 5分钟内显示重新编辑
@@ -862,10 +859,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-                if (checkForbiddenWords()) {
-                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-                    return;
-                }
 
                 if (!checkNetConnectStatus()) {
                     return;
@@ -1055,10 +1048,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
             @Override
             public void onClick(View v) {
-                if (checkForbiddenWords()) {
-                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-                    return;
-                }
                 permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
                     @Override
                     public void onSuccess() {
@@ -1093,10 +1082,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         viewPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (checkForbiddenWords()) {
-                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-                    return;
-                }
+
                 PictureSelector.create(ChatActivity.this)
 //                        .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                         .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
@@ -1149,10 +1135,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         viewTransfer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (checkForbiddenWords()) {
-                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-                    return;
-                }
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
@@ -1185,10 +1167,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         viewAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (checkForbiddenWords()) {
-                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-                    return;
-                }
+
                 AlertTouch alertTouch = new AlertTouch();
                 alertTouch.init(ChatActivity.this, "请输入戳一下消息", "确定", R.mipmap.ic_chat_actionme, new AlertTouch.Event() {
                     @Override
@@ -1221,10 +1200,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-                if (checkForbiddenWords()) {
-                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-                    return;
-                }
+
                 startActivityForResult(new Intent(getContext(), SelectUserActivity.class), SelectUserActivity.RET_CODE_SELECTUSR);
             }
         });
@@ -1233,10 +1209,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         btnVoice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (checkForbiddenWords()) {
-                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-                    return;
-                }
+
                 //申请权限 7.2
                 permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
                     @Override
@@ -1378,10 +1351,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         location_ll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (checkForbiddenWords()) {
-                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-                    return;
-                }
                 LocationActivity.openActivity(ChatActivity.this, false, null);
             }
         });
@@ -1597,14 +1566,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     }
 
     /**
-     * 检查是否群禁言
+     * 检查是否能领取红包
      *
      * @return
      */
-    private boolean checkForbiddenWords() {
-        boolean check = false;
-        if (groupInfo != null && groupInfo.getWordsNotAllowed() == 1 && !isAdmin() && !isAdministrators()) {
-            check = true;
+    private boolean checkCanOpenUpRedEnv() {
+        boolean check = true;
+        if (groupInfo != null && groupInfo.getCantOpenUpRedEnv() == 1) {
+            check = false;
         }
         return check;
     }
@@ -2587,7 +2556,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
             lc.setCutPath(msgl.getImage().getThumbnailShow());
             lc.setCompressPath(msgl.getImage().getPreviewShow());
             lc.setPath(msgl.getImage().getOriginShow());
-            // LogUtil.getLog().d("tag", "---showBigPic: "+msgl.getImage().getSize());
             lc.setSize(msgl.getImage().getSize());
             lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
             lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
@@ -2622,73 +2590,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
     }
 
-
-    @Override
-    public void onEvent(int type, MsgAllBean message, Object... args) {
-        if (message == null) {
-            return;
-        }
-        switch (type) {
-            case ChatEnum.ECellEventType.TXT_CLICK:
-                break;
-            case ChatEnum.ECellEventType.IMAGE_CLICK:
-                showBigPic(message.getMsg_id(), message.getImage().getThumbnailShow());
-                break;
-            case ChatEnum.ECellEventType.RED_ENVELOPE_CLICK:
-                if (args[0] != null && args[0] instanceof RedEnvelopeMessage) {
-                    RedEnvelopeMessage red = (RedEnvelopeMessage) args[0];
-                    //8.15 红包状态修改
-                    boolean invalid = red.getIsInvalid() == 0 ? false : true;
-                    if ((invalid || message.isMe()) && red.getStyle() == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
-                        taskPayRbDetail(message, red.getId());
-                    } else {
-                        taskPayRbGet(message, message.getFrom_uid(), red.getId());
-                    }
-
-                }
-                break;
-            case ChatEnum.ECellEventType.CARD_CLICK:
-                if (args[0] != null && args[0] instanceof BusinessCardMessage) {
-
-                    BusinessCardMessage cardMessage = (BusinessCardMessage) args[0];
-                    //自己的不跳转
-                    if (cardMessage.getUid().longValue() != UserAction.getMyId().longValue())
-                        startActivity(new Intent(getContext(), UserInfoActivity.class)
-                                .putExtra(UserInfoActivity.ID, cardMessage.getUid()));
-                }
-
-                break;
-
-            case ChatEnum.ECellEventType.LONG_CLICK:
-                List<OptionMenu> menus = (List<OptionMenu>) args[0];
-                View view = (View) args[1];
-                IMenuSelectListener listener = (IMenuSelectListener) args[2];
-                if (view != null && menus != null && menus.size() > 0) {
-                    showPop(view, menus, message, listener, null);
-                }
-                break;
-            case ChatEnum.ECellEventType.TRANSFER_CLICK:
-                if (args[0] != null && args[0] instanceof TransferMessage) {
-                    TransferMessage transfer = (TransferMessage) args[0];
-                    tsakTransGet(transfer.getId());
-                }
-                break;
-            case ChatEnum.ECellEventType.AVATAR_CLICK:
-                toUserInfoActivity(message);
-                break;
-            case ChatEnum.ECellEventType.RESEND_CLICK:
-                resendMessage(message);
-                break;
-            case ChatEnum.ECellEventType.AVATAR_LONG_CLICK:
-                editChat.addAtSpan("@", message.getFrom_nickname(), message.getFrom_uid());
-                break;
-            case ChatEnum.ECellEventType.VOICE_CLICK:
-//                playVoice();
-                break;
-
-        }
-
-    }
 
     /**
      * 跳转UserInfoActivity
@@ -2792,7 +2693,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
     }
 
     @Override
-    public void clickUser(String userId) {
+    public void clickUser(String userId, String gid) {
 
     }
 
@@ -2801,13 +2702,24 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
     }
 
+    @Override
+    public void clickTransfer(String rid, String msgId) {
+
+    }
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
         int unread = 0;
+        boolean isSelected = false;
 
         void setUnreadCount(int count) {
             unread = count;
+        }
+
+        //设置选择模式
+        void setSelected(boolean flag) {
+            isSelected = flag;
+            notifyDataSetChanged();
         }
 
         //自动寻找ViewHold
@@ -3023,6 +2935,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
             } else {
                 holder.viewChatItem.showNew(false);
             }
+            holder.viewChatItem.isSelectedShow(isSelected);
             //发送状态处理
             if (ChatEnum.EMessageType.MSG_VIDEO == msgbean.getMsg_type() || ChatEnum.EMessageType.IMAGE == msgbean.getMsg_type() ||
                     Constants.CX_HELPER_UID.equals(toUId)) {
@@ -3142,11 +3055,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                         @Override
                         public void onClick(boolean isInvalid, int reType) {
                             if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {//魔方红包
-                                if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
+                                if (isInvalid || (msgbean.isMe() && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE)) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
                                     //ToastUtil.show(getContext(), "红包详情");
                                     taskPayRbDetail(msgbean, rid);
                                 } else {
-                                    taskPayRbGet(msgbean, touid, rid);
+                                    if (checkCanOpenUpRedEnv()) {
+                                        taskPayRbGet(msgbean, touid, rid);
+                                    } else {
+                                        ToastUtil.show(ChatActivity.this, "你已被禁止领取红包");
+                                    }
                                 }
                             } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
                                 long tradeId = rb.getTraceId();
@@ -4011,10 +3928,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
      * @param msgbean
      */
     private void onRetransmission(final MsgAllBean msgbean) {
-        if (checkForbiddenWords()) {
-            ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-            return;
-        }
+
         startActivity(new Intent(getContext(), MsgForwardActivity.class)
                 .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean)));
     }
@@ -4261,7 +4175,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
         if (TextUtils.isEmpty(toGid)) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
             if (bean != null) {
-                LogUtil.getLog().e("===sendRead==msg=====" + bean.getMsg_id() + "===msgid=" + msgid + "==bean.getRead()=" + bean.getRead() + "==bean.getTimestamp()=" + bean.getTimestamp());
+//                LogUtil.getLog().e("===sendRead==msg=====" + bean.getMsg_id() + "===msgid=" + msgid + "==bean.getRead()=" + bean.getRead() + "==bean.getTimestamp()=" + bean.getTimestamp());
                 if (bean.getRead() == 0) {
 //                if ((TextUtils.isEmpty(msgid) || !msgid.equals(bean.getMsg_id())) && bean.getRead() == 0) {
                     msgid = bean.getMsg_id();
@@ -4285,7 +4199,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
 
         dismissPop();
         long time = -1L;
-        int length = unreadCount;
+        int length = 0;
         if (msgListData != null && msgListData.size() > 0) {
             length = msgListData.size();
             MsgAllBean bean = msgListData.get(length - 1);
@@ -4294,11 +4208,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
             }
         }
         final long finalTime = time;
-//        if (length < 20) {
-        length += 20;
-//        }
+        if (length < 20) {
+            length += 20;
+        }
         final int finalLength = length;
-        LogUtil.getLog().i(TAG, "加载数据--length=" + length + "  unreadCount=" + unreadCount);
         Observable.just(0)
                 .map(new Function<Integer, List<MsgAllBean>>() {
                     @Override
@@ -4307,7 +4220,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                         if (finalTime > 0) {
                             list = msgAction.getMsg4User(toGid, toUId, null, finalLength);
                         } else {
-                            list = msgAction.getMsg4User(toGid, toUId, null, finalLength);
+                            list = msgAction.getMsg4User(toGid, toUId, null, unreadCount + 20);
                         }
                         taskMkName(list);
                         return list;
@@ -4604,10 +4517,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
      * 红包收
      */
     private void taskPayRbGet(final MsgAllBean msgbean, final Long toUId, final String rbid) {
-        //红包开记录 test
-        //  MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid);
-        //    showSendObj(msgAllbean);
-        //test over
         payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {

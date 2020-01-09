@@ -292,9 +292,9 @@ public class LocationActivity extends AppActivity {
         listener = new BDAbstractLocationListener() {
             @Override
             public void onReceiveLocation(BDLocation bdLocation) {
-                LogUtil.getLog().e("=location====" + GsonUtils.optObject(bdLocation));
 
                 try {
+//                    LogUtil.getLog().e("=location====" + GsonUtils.optObject(bdLocation));
                     if (bdLocation != null && bdLocation.getPoiList() != null) {
                         city = bdLocation.getCity();
 
@@ -440,8 +440,10 @@ public class LocationActivity extends AppActivity {
 //                                        + "&poiname="+addr +"&lat=" + latitude/LocationUtils.beishu + "&lon=" + longitude/LocationUtils.beishu + "&dev=0&style=2");
 
                                 //规划路线
-                                Uri uri = Uri.parse("amapuri://route/plan/?did=BGVIS2" +
-                                        "&dlat=" + latitude / LocationUtils.beishu + "&dlon=" + longitude / LocationUtils.beishu + "&dname=" + addr + "&dev=0&t=0");
+                                Uri uri = Uri.parse("amapuri://route/plan/?did=BGVIS2"
+                                        + "&dlat=" + LocationUtils.bdToGc("lat",latitude / LocationUtils.beishu,longitude / LocationUtils.beishu)
+                                        + "&dlon=" + LocationUtils.bdToGc("lon",latitude / LocationUtils.beishu,longitude / LocationUtils.beishu)
+                                        + "&dname=" + addr + "&dev=0&t=0");
 
                                 startActivity(new Intent(Intent.ACTION_VIEW, uri)); // 启动调用
                             }

@@ -75,7 +75,7 @@ public class EventFactory extends BaseEvent {
      */
     public static class CloseMinimizeEvent extends BaseEvent {
 
-        public boolean isClose=true;
+        public boolean isClose = true;
     }
 
     /**
@@ -97,7 +97,7 @@ public class EventFactory extends BaseEvent {
      * 语音最小化
      */
     public static class ShowVoiceMinimizeEvent extends BaseEvent {
-        public boolean isStartRunThread=true;
+        public boolean isStartRunThread = true;
     }
 
     /**
@@ -117,6 +117,11 @@ public class EventFactory extends BaseEvent {
      */
     public static class ToastEvent extends BaseEvent {
         public String value;
+    }
+    /**
+     * 更新用户信息
+     */
+    public static class UpdateUserInfoEvent extends BaseEvent {
     }
 
     /**

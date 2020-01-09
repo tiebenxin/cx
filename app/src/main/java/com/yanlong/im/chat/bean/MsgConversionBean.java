@@ -233,23 +233,40 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice rbNotice = new MsgNotice();
                 rbNotice.setMsgid(msgAllBean.getMsg_id());
-                //jyj 8.19
+                //isError true 表示是回执错误导致发送失败,发送者是自己
                 if (bean.getReceiveRedEnvelope().getReType().getNumber() == 0) {
-                    if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().longValue()) {
-                        rbNotice.setNote("你领取了自己的<font color='#cc5944'>云红包</font>");
-                        rbNotice.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF);
+                    if (isError) {
+                        rbNotice.setMsgType(ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE);
+                        String nick = msgDao.getUsername4Show(bean.getGid(), msg.getToUid());
+                        String name = "<font color='#276baa' id='" + msg.getToUid() + "'>" + nick + "</font>";
+                        rbNotice.setNote("你领取了\"" + name + "的云红包" + "<div id= '" + bean.getGid() + "'></div>");
                     } else {
-                        rbNotice.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED);
-                        rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "\"领取了你的云红包 <div id='" + bean.getGid() + "'></div>");
+
+                        if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().longValue()) {
+                            rbNotice.setNote("你领取了自己的<font color='#cc5944'>云红包</font>");
+                            rbNotice.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF);
+                        } else {
+                            rbNotice.setMsgType(ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED);
+                            rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "\"领取了你的云红包 <div id='" + bean.getGid() + "'></div>");
+                        }
                     }
                 } else if (bean.getReceiveRedEnvelope().getReType().getNumber() == 1) {
-                    if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().longValue()) {
-                        rbNotice.setNote("你领取了自己的<font color='#cc5944'>零钱红包</font>");
-                        rbNotice.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
+                    if (isError) {
+                        rbNotice.setMsgType(ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE);
+                        String nick = msgDao.getUsername4Show(bean.getGid(), bean.getToUid());
+                        String user = "<user id='" + bean.getToUid() + "' gid= " + bean.getGid() + ">" + nick + "</user>";
+                        rbNotice.setNote("你领取了\"" + user + "\"的" + "<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
                     } else {
-                        rbNotice.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED);
-                        rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "\"领取了你的零钱红包 <div id='" + bean.getGid() + "'></div>");
+                        if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().longValue()) {
+                            rbNotice.setNote("你领取了自己的<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
+                            rbNotice.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
+                        } else {
+                            rbNotice.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED);
+                            String user = "<user id='" + bean.getFromUid() + "' gid=" + bean.getGid() + ">" + bean.getNickname() + "</user>";
+                            rbNotice.setNote("\"" + user + "\"领取了你的" + "<envelope id=" + bean.getReceiveRedEnvelope().getId() + ">零钱红包</envelope>");
+                        }
                     }
+
                 }
 
                 msgAllBean.setMsgNotice(rbNotice);
@@ -560,11 +577,15 @@ public class MsgConversionBean {
                 EventGroupChange event = new EventGroupChange();
                 event.setNeedLoad(true);
                 if (MsgBean.ChangeViceAdminsMessage.Opt.APPEND.getNumber() == bean.getChangeViceAdminsOrBuilder().getOptValue()) {// 新增
-                    for (MsgBean.GroupNoticeMessage groupNotice : bean.getChangeViceAdminsOrBuilder().getMembersList()) {
+                    for (int i=0;i<bean.getChangeViceAdminsOrBuilder().getMembersList().size();i++) {
+                        MsgBean.GroupNoticeMessage groupNotice = bean.getChangeViceAdminsOrBuilder().getMembersList().get(i);
                         if (UserAction.getMyId() != null && groupNotice.getUid() == UserAction.getMyId().longValue()) {
                             stringBuffer.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>你</font>\"");
                         } else {
-                            stringBuffer.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>" + groupNotice.getNickname() + "</font>\"、");
+                            stringBuffer.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>" + groupNotice.getNickname() + "</font>\"");
+                        }
+                        if (i != bean.getChangeViceAdminsOrBuilder().getMembersList().size() - 1) {
+                            stringBuffer.append("、");
                         }
                     }
                     stringBuffer.append("已成为管理员");
@@ -647,16 +668,24 @@ public class MsgConversionBean {
                                             + "</font>\"" + "已禁止\"<font color='#276baa' id='" + message.getUid() + "'>" + message.getNickname() + "</font>\"在本群领取零钱红包");
                                 }
                             } else {
-                                for (MsgBean.GroupNoticeMessage groupNotice : bean.getSwitchChange().getMembersList()) {
+                                sb.append("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name + "</font>\"已禁止");
+                                for (int i = 0; i < bean.getSwitchChange().getMembersList().size(); i++) {
+                                    MsgBean.GroupNoticeMessage groupNotice = bean.getSwitchChange().getMembersList().get(i);
                                     if (UserAction.getMyId() != null && groupNotice.getUid() == UserAction.getMyId().longValue()) {
                                         sb.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>你</font>\"");
                                     } else {
-                                        sb.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>" + groupNotice.getNickname() + "</font>\"、");
+                                        sb.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>" + groupNotice.getNickname() + "</font>\"");
+                                    }
+                                    if (i != bean.getSwitchChange().getMembersList().size() - 1) {
+                                        sb.append("、");
                                     }
                                 }
-                                sb.append("已禁止在本群领取零钱红包");
+                                sb.append("在本群领取零钱红包");
                             }
                         }
+                        EventGroupChange event1 = new EventGroupChange();
+                        event1.setNeedLoad(true);
+                        EventBus.getDefault().post(event1);
                         msgNotice1.setNote(sb + "<div id='" + bean.getGid() + "'></div>");
                         msgAllBean.setMsgNotice(msgNotice1);
                     }

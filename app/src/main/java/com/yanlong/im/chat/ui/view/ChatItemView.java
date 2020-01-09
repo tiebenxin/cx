@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -205,6 +206,7 @@ public class ChatItemView extends LinearLayout {
     private TextView location_name_you_tv, location_desc_you_tv, location_name_me_tv, location_desc_me_tv;
     private LinearLayout viewOtChild;
     private TextView tvNew;
+    private CheckBox ckSelect;
 
 
     public ChatItemView(Context context, AttributeSet attrs) {
@@ -358,6 +360,8 @@ public class ChatItemView extends LinearLayout {
 
         //新消息提醒
         tvNew = rootView.findViewById(R.id.tv_new);
+        //选择按钮
+        ckSelect = rootView.findViewById(R.id.ck_select);
     }
 
     public void setOnLongClickListener(OnLongClickListener onLongClick) {
@@ -1375,6 +1379,10 @@ public class ChatItemView extends LinearLayout {
     public void showNew(boolean f) {
 //        LogUtil.getLog().i(ChatItemView.class.getSimpleName(), f ? "显示new" : "隐藏new");
         tvNew.setVisibility(f ? VISIBLE : GONE);
+    }
+
+    public void isSelectedShow(boolean b) {
+        ckSelect.setVisibility(b ? VISIBLE : GONE);
     }
 
 

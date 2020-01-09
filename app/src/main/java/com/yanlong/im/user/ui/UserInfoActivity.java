@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.nim_lib.config.Preferences;
+import com.google.gson.Gson;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
@@ -20,6 +21,7 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.ChatActivity;
@@ -37,6 +39,7 @@ import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.RefreshApplyEvent;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -48,6 +51,8 @@ import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,6 +101,7 @@ public class UserInfoActivity extends AppActivity {
     private LinearLayout mViewPower;
     private Button mBtnAdd;
     private Button btnMsg;
+    private TextView txtPower;
 
     private int type; //0.已经是好友 1.不是好友添加好友 2.黑名单 3.自己
     private int isApply;//是否是好友申请 0 不是 1.是
@@ -121,6 +127,7 @@ public class UserInfoActivity extends AppActivity {
     private int contactIntimately;
     private UserInfo userInfoLocal;
     private Group group;
+    private SingleMeberInfoBean singleMeberInfoBean;// 单个群成员信息
 
     @ChatEnum.EFromType
     private int from;
@@ -130,6 +137,9 @@ public class UserInfoActivity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_userinfo);
+        if(!EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().register(this);
+        }
         initView();
         initData();
         initEvent();
@@ -164,6 +174,7 @@ public class UserInfoActivity extends AppActivity {
         mviewSettingLabel = findViewById(R.id.view_setting_label);
         mViewLabel = findViewById(R.id.view_label);
         mViewPower = findViewById(R.id.view_power);
+        txtPower = findViewById(R.id.txt_power);
     }
 
     //自动生成的控件事件
@@ -286,6 +297,9 @@ public class UserInfoActivity extends AppActivity {
             Bundle bundle = new Bundle();
             bundle.putString(Preferences.TOGID, gid);
             bundle.putLong(Preferences.TOUID, id);
+            if (singleMeberInfoBean != null) {
+                bundle.putString(Preferences.DATA, new Gson().toJson(singleMeberInfoBean));
+            }
             IntentUtil.gotoActivity(this, GroupMemPowerSetActivity.class, bundle);
         });
 
@@ -345,6 +359,7 @@ public class UserInfoActivity extends AppActivity {
         mIsAdmin = intent.getBooleanExtra(IS_ADMINS, false);
         taskFindExist();
         taskUserInfo(id);
+        getSingleMemberInfo();
     }
 
     @Override
@@ -401,10 +416,10 @@ public class UserInfoActivity extends AppActivity {
 
         if (joinTypeShow != 0) {
             taskGroupInfo(gid);
-        }
-
-        if (contactIntimately == 1) {
-            mBtnAdd.setVisibility(View.GONE);
+        } else {
+            if (contactIntimately == 1) {
+                mBtnAdd.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -513,7 +528,7 @@ public class UserInfoActivity extends AppActivity {
     private void setGroupData(Group group) {
         //9.2 开启保护就隐藏加好友
         if (group.getContactIntimately() != null) {
-            if (group.getContactIntimately() == 1 && !group.getMaster().equals(id + "")) {
+            if (group.getContactIntimately() == 1 && !group.getMaster().equals("" + UserAction.getMyId())) {
                 mBtnAdd.setVisibility(View.GONE);
             }
         }
@@ -554,21 +569,24 @@ public class UserInfoActivity extends AppActivity {
         }
     }
 
+    /**
+     * 检查是否有权限设置功能
+     */
     private void checkPower() {
 
-//        if (group != null) {
-//            if (isAdmin()) {
-//                mViewSettingPower.setVisibility(View.VISIBLE);
-//                // mviewSettingLabel.setVisibility(View.VISIBLE);
-//            } else {
-//                if (isAdministrators(UserAction.getMyId())) {// 同级别不允许设置权限
-//                    if (!isAdministrators(id) && !group.getMaster().equals(id + "")) {
-//                        mViewSettingPower.setVisibility(View.VISIBLE);
-//                        // mviewSettingLabel.setVisibility(View.VISIBLE);
-//                    }
-//                }
-//            }
-//        }
+        if (group != null) {
+            if (isAdmin()) {
+                mViewSettingPower.setVisibility(View.VISIBLE);
+                // mviewSettingLabel.setVisibility(View.VISIBLE);
+            } else {
+                if (isAdministrators(UserAction.getMyId())) {// 同级别不允许设置权限
+                    if (!isAdministrators(id) && !group.getMaster().equals(id + "")) {
+                        mViewSettingPower.setVisibility(View.VISIBLE);
+                        // mviewSettingLabel.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+        }
     }
 
     private boolean isAdmin() {
@@ -710,6 +728,11 @@ public class UserInfoActivity extends AppActivity {
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefresh(EventFactory.UpdateUserInfoEvent event) {
+        getSingleMemberInfo();
+    }
+
 
     private void taskFriendAgree(final Long uid, String contactName) {
         userAction.friendAgree(uid, contactName, new CallBack<ReturnBean>() {
@@ -726,6 +749,44 @@ public class UserInfoActivity extends AppActivity {
                 }
             }
         });
+    }
+
+    /**
+     * 获取单个群成员信息
+     */
+    private void getSingleMemberInfo() {
+        userAction.getSingleMemberInfo(gid, Integer.parseInt(id + ""), new CallBack<ReturnBean<SingleMeberInfoBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<SingleMeberInfoBean>> call, Response<ReturnBean<SingleMeberInfoBean>> response) {
+                super.onResponse(call, response);
+                if (response != null && response.body() != null && response.body().isOk()) {
+                    singleMeberInfoBean = response.body().getData();
+                    updateUserInfo();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<SingleMeberInfoBean>> call, Throwable t) {
+                super.onFailure(call, t);
+            }
+        });
+    }
+
+    private void updateUserInfo(){
+        boolean value = singleMeberInfoBean.isCantOpenUpRedEnv();
+        String time = GroupMemPowerSetActivity.getSurvivaltime(singleMeberInfoBean.getShutUpDuration());
+        StringBuffer stringBuffer = new StringBuffer();
+        if (value) {
+            stringBuffer.append("禁领红包");
+        }
+        if (!time.equals("无")) {
+            if (TextUtils.isEmpty(stringBuffer)) {
+                stringBuffer.append("禁言" + time);
+            } else {
+                stringBuffer.append(",禁言" + time);
+            }
+        }
+        txtPower.setText(stringBuffer.toString());
     }
 
 

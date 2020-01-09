@@ -229,11 +229,9 @@ public class UserDao {
         List<UserInfo> res = null;
         Realm realm = DaoUtil.open();
         try {
-            realm.beginTransaction();
             RealmResults<UserInfo> ls = realm.where(UserInfo.class)
                     .beginGroup().equalTo("uType", 2).or().equalTo("uType", 4).endGroup().sort("tag", Sort.ASCENDING).findAll();
             res = realm.copyFromRealm(ls);
-            realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -252,12 +250,10 @@ public class UserDao {
         UserInfo res = null;
         Realm realm = DaoUtil.open();
         try {
-            realm.beginTransaction();
             UserInfo ls = realm.where(UserInfo.class).equalTo("uType", 2).equalTo("uid", userId).findFirst();
             if (ls != null) {
                 res = realm.copyFromRealm(ls);
             }
-            realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();

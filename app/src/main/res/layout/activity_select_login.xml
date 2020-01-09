@@ -6,48 +6,69 @@
     android:gravity="center_horizontal"
     android:background="@mipmap/bg_select_login">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:src="@mipmap/ic_launcher"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
 
 
-    <Button
-        android:id="@+id/btn_register"
-        android:layout_width="200dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="50dp"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        android:text="注册"
-        android:background="@drawable/bg_btn_select_register"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="100dp"
+            android:src="@mipmap/ic_launcher"/>
 
-    <Button
-        android:id="@+id/btn_login"
-        android:layout_width="200dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="50dp"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        android:text="登录"
-        android:background="@drawable/bg_btn_select_login"/>
+
+        <Button
+            android:id="@+id/btn_register"
+            android:layout_width="200dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="100dp"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:text="注册"
+            android:background="@drawable/bg_btn_select_register"/>
+
+        <Button
+            android:id="@+id/btn_login"
+            android:layout_width="200dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="50dp"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:text="登录"
+            android:background="@drawable/bg_btn_select_login"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="100dp"
+            android:visibility="gone"
+            android:text="其他登录方式"/>
+
+
+        <ImageView
+            android:id="@+id/iv_wechat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:src="@mipmap/ic_weixin_login"
+            android:visibility="gone"/>
+
+    </LinearLayout>
+
 
     <TextView
+        android:id="@+id/tv_matters_need_attention"
+        style="@style/app_txt_content_1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:visibility="gone"
-        android:text="其他登录方式"/>
-
-
-    <ImageView
-        android:id="@+id/iv_wechat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:src="@mipmap/ic_weixin_login"
-        android:visibility="gone"/>
+        android:layout_marginBottom="90dp"
+        android:singleLine="false"
+        android:layout_gravity="center"
+        android:text="《用户使用协议》 《隐私权政策》"/>
 
 
 </LinearLayout>

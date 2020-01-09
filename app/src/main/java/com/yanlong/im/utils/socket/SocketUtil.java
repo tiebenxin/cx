@@ -316,7 +316,7 @@ public class SocketUtil {
                 try {
                     while (isRun() && indexVer == threadVer) {
                         // while (heartbeatStart){
-                        if (System.currentTimeMillis() - heartbeatTime > heartbeatStep * 1.5) {//心跳超时
+                        if (System.currentTimeMillis() - heartbeatTime > heartbeatStep * 3.5) {//心跳超时
                             //重启
                             stop(true);
 

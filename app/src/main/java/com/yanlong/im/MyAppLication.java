@@ -4,6 +4,7 @@ package com.yanlong.im;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.text.TextUtils;
+
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
@@ -27,6 +28,7 @@ import com.yanlong.im.utils.MyDiskCacheController;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.MyException;
 import com.yanlong.im.view.face.FaceView;
+
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.MainApplication;
 import net.cb.cb.library.bean.EventRunState;
@@ -37,12 +39,16 @@ import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.UpLoadUtils;
 import net.cb.cb.library.utils.VersionUtil;
+
 import org.greenrobot.eventbus.EventBus;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+
 import cn.jpush.android.api.JPushInterface;
 import io.realm.Realm;
+
 public class MyAppLication extends MainApplication {
 
     private static final String TAG = "MyAppLication";
@@ -68,11 +74,13 @@ public class MyAppLication extends MainApplication {
             case "debug"://测试服
                 AppConfig.DEBUG = true;
                 //---------------------------
+//                AppConfig.SOCKET_IP = "beta.zhixun6.com";
                 AppConfig.SOCKET_IP = "yanlong.1616d.top";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
                 AppConfig.UP_PATH = "test-environment";
 
+//                AppConfig.SOCKET_IP = "beta.zhixun6.com";
 //                AppConfig.SOCKET_IP = "im-app.zhixun6.com";
 //                AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
 //                AppConfig.SOCKET_PORT = 19991;
@@ -90,7 +98,7 @@ public class MyAppLication extends MainApplication {
                 AppConfig.DEBUG = false; // false true
                 //---------------------------
                 AppConfig.SOCKET_IP = "im-app.zhixun6.com";
-//                AppConfig.SOCKET_IP = "transfer.zhixun6.com";
+//                AppConfig.SOCKET_IP = "beta.zhixun6.com";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
                 AppConfig.UP_PATH = "product-environment";
@@ -128,7 +136,7 @@ public class MyAppLication extends MainApplication {
         SDKOptions options = new SDKOptions();
         // TODO 初始化SDK时配置SDKOptions - disableAwake为true来禁止后台进程唤醒UI进程, 设置了以后，程序最小化后通知栏将不会显示语音的通知
         // 避免Fatal Exception: android.app.RemoteServiceException: Context.startForegroundService() did not then call Service.startForeground()
-        options.disableAwake= true;
+        options.disableAwake = true;
         NIMClient.init(this, getLoginInfo(), options);
         LogUtil.getLog().d(TAG, "NIMClient.init()");
         // 以下逻辑只在主进程初始化时执行
@@ -313,7 +321,7 @@ public class MyAppLication extends MainApplication {
     }
 
     //初始化定位sdk，建议在Application中创建
-    private void initLocation(){
+    private void initLocation() {
         SDKInitializer.initialize(getApplicationContext());
         SDKInitializer.setCoordType(CoordType.BD09LL);
         locationService = new LocationService(getApplicationContext());
