@@ -208,9 +208,9 @@ public class UpdateManage {
             });
             //强制升级不显示取消按钮
             if(isEnforcement){
-                dialog.notShowCancle(false);
+                dialog.showCancle(false);
             }else {
-                dialog.notShowCancle(true);
+                dialog.showCancle(true);
             }
             dialog.show();
         }

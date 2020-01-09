@@ -31,6 +31,7 @@ public class UpdateAppDialog {
 
     private Context context;
     private TextView txtAlertMsg;
+    private TextView tvFinishNotice;//下载完成文字提示
     private TextView tvVersionNumber;
     private Button btnCl;
     private Button btnUpdate;
@@ -48,6 +49,7 @@ public class UpdateAppDialog {
         btnInstall = rootview.findViewById(R.id.btn_install);
         tvVersionNumber = rootview.findViewById(R.id.tv_version_number);
         tvUpdatePercent = rootview.findViewById(R.id.tv_update_percent);
+        tvFinishNotice = rootview.findViewById(R.id.tv_finish_notice);
     }
 
 
@@ -112,6 +114,8 @@ public class UpdateAppDialog {
 
 
     public void updateStart(){
+        txtAlertMsg.setVisibility(View.VISIBLE);
+        tvFinishNotice.setVisibility(View.GONE);
         mProgressNum.setVisibility(View.VISIBLE);
         tvUpdatePercent.setVisibility(View.VISIBLE);
         btnUpdate.setVisibility(View.GONE);
@@ -132,12 +136,11 @@ public class UpdateAppDialog {
 
 
     public void downloadComplete(){
-        btnCl.setVisibility(View.VISIBLE);
         btnCl.setText("取消");
         btnCl.setBackgroundResource(R.color.white);
         btnCl.setTextColor(context.getResources().getColor(R.color.c_969696));
-        txtAlertMsg.setText("下载完成，是否安装?");
-        txtAlertMsg.setVisibility(View.VISIBLE);
+        txtAlertMsg.setVisibility(View.GONE);
+        tvFinishNotice.setVisibility(View.VISIBLE);
         mProgressNum.setVisibility(View.GONE);
         tvUpdatePercent.setVisibility(View.GONE);
         btnUpdate.setVisibility(View.GONE);
@@ -156,7 +159,8 @@ public class UpdateAppDialog {
         }
     }
 
-    public void notShowCancle(boolean show){
+    //是否显示取消按钮 (强制更新不显示)
+    public void showCancle(boolean show){
         if(show){
             btnCl.setVisibility(View.VISIBLE);
         }else {
