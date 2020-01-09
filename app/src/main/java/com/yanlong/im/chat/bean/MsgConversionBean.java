@@ -662,6 +662,9 @@ public class MsgConversionBean {
                     }
                 }
                 break;
+//            case SNAPSHOT_SCREEN:// 截频通知消息
+//                break;
+
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;
         }
