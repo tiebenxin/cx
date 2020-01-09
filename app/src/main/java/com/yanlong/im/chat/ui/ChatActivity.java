@@ -6,6 +6,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -194,6 +196,7 @@ import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.RunUtils;
+import net.cb.cb.library.utils.ScreenShotListenManager;
 import net.cb.cb.library.utils.ScreenUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
@@ -340,6 +343,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private int unreadCount;
     private RecyclerViewAdapter mAdapter;
 
+    private ScreenShotListenManager screenShotListenManager;//截屏监听相关
+    private boolean isScreenShotListen;//是否监听截屏
+
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -383,6 +389,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (AppConfig.isOnline()) {
             checkHasEnvelopeSendFailed();
         }
+        isScreenShotListen = true;
     }
 
     @Override
@@ -408,6 +415,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             MessageManager.getInstance().setMessageChange(true);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
         }
+        isScreenShotListen = false;
     }
 
     @Override
@@ -420,6 +428,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         EventBus.getDefault().unregister(this);
 //        LogUtil.getLog().e(TAG, "onDestroy");
         super.onDestroy();
+        // 注销监听
+        screenShotListenManager.stopListen();
+        isScreenShotListen = false;
 
     }
 
@@ -1505,7 +1516,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             viewNewMessage.setVisible(false);
             unreadCount = 0;
         });
-
+        registerScreenShotListener();
 
     }
 
@@ -5391,6 +5402,39 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             lastMsg = msgListData.get(len - 1);
         }
         MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, lastMsg);
+    }
+
+    /**
+     * 注册截屏监听
+     */
+    private void registerScreenShotListener() {
+        screenShotListenManager = ScreenShotListenManager.newInstance(ChatActivity.this);
+        screenShotListenManager.setListener(
+                new ScreenShotListenManager.OnScreenShotListener() {
+                    public void onShot(String imagePath) {
+                        if (isScreenShotListen) {
+                            ToastUtil.show(ChatActivity.this,"已监听到截屏");
+                        }
+                    }
+                }
+        );
+
+        if (Build.VERSION.SDK_INT > 22) {
+            List<String> permissionList = new ArrayList<>();
+            // 检查权限
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            } else {
+                // 开始截图监听
+                screenShotListenManager.startListen();
+            }
+            if (permissionList != null && (permissionList.size() != 0)) {
+                ActivityCompat.requestPermissions(this, permissionList.toArray(new String[permissionList.size()]), 0);
+            }
+        } else {
+            // 开始截图监听
+            screenShotListenManager.startListen();
+        }
     }
 
 
