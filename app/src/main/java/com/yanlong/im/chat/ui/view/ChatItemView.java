@@ -493,6 +493,9 @@ public class ChatItemView extends LinearLayout {
                 viewMe.setVisibility(GONE);
                 viewOt.setVisibility(GONE);
                 break;
+            case ChatEnum.EMessageType.SNAPSHOT_SCREEN:
+                asd
+                break;
             case ChatEnum.EMessageType.MSG_VIDEO:
                 viewMe4.setVisibility(VISIBLE);
                 viewOt4.setVisibility(VISIBLE);
