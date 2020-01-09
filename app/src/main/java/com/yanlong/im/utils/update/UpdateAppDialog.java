@@ -132,6 +132,7 @@ public class UpdateAppDialog {
 
 
     public void downloadComplete(){
+        btnCl.setVisibility(View.VISIBLE);
         btnCl.setText("取消");
         btnCl.setBackgroundResource(R.color.white);
         btnCl.setTextColor(context.getResources().getColor(R.color.c_969696));
@@ -153,6 +154,15 @@ public class UpdateAppDialog {
             lastProgressValue = progress;
             setPos();
         }
+    }
+
+    public void notShowCancle(boolean show){
+        if(show){
+            btnCl.setVisibility(View.VISIBLE);
+        }else {
+            btnCl.setVisibility(View.GONE);
+        }
+
     }
 
 
