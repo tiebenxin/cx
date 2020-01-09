@@ -2,15 +2,12 @@ package com.yanlong.im;
 
 
 import android.app.ActivityManager;
-
 import android.content.Context;
 import android.text.TextUtils;
 
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
-
-
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.controll.AVChatSoundPlayer;
 import com.example.nim_lib.ui.VideoActivity;
@@ -31,6 +28,7 @@ import com.yanlong.im.utils.MyDiskCacheController;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.MyException;
 import com.yanlong.im.view.face.FaceView;
+
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.MainApplication;
 import net.cb.cb.library.bean.EventRunState;
@@ -41,12 +39,16 @@ import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.UpLoadUtils;
 import net.cb.cb.library.utils.VersionUtil;
+
 import org.greenrobot.eventbus.EventBus;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+
 import cn.jpush.android.api.JPushInterface;
 import io.realm.Realm;
+
 public class MyAppLication extends MainApplication {
 
     private static final String TAG = "MyAppLication";
@@ -72,11 +74,13 @@ public class MyAppLication extends MainApplication {
             case "debug"://测试服
                 AppConfig.DEBUG = true;
                 //---------------------------
+//                AppConfig.SOCKET_IP = "beta.zhixun6.com";
                 AppConfig.SOCKET_IP = "yanlong.1616d.top";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
                 AppConfig.UP_PATH = "test-environment";
 
+//                AppConfig.SOCKET_IP = "beta.zhixun6.com";
 //                AppConfig.SOCKET_IP = "im-app.zhixun6.com";
 //                AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
 //                AppConfig.SOCKET_PORT = 19991;
@@ -85,7 +89,7 @@ public class MyAppLication extends MainApplication {
             case "pre": //预发布服  美国 usa-test.1616d.top    香港 hk-test.1616d.top
                 AppConfig.DEBUG = false;
                 //---------------------------
-                AppConfig.SOCKET_IP = "hk-test.1616d.top";
+                AppConfig.SOCKET_IP = "beta.zhixun6.com";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
                 AppConfig.UP_PATH = "development";
@@ -94,7 +98,7 @@ public class MyAppLication extends MainApplication {
                 AppConfig.DEBUG = false; // false true
                 //---------------------------
                 AppConfig.SOCKET_IP = "im-app.zhixun6.com";
-//                AppConfig.SOCKET_IP = "transfer.zhixun6.com";
+//                AppConfig.SOCKET_IP = "beta.zhixun6.com";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
                 AppConfig.UP_PATH = "product-environment";
@@ -103,19 +107,6 @@ public class MyAppLication extends MainApplication {
         //初始化日志
         LogUtil.getLog().init(AppConfig.DEBUG);
         LSLog.TAG = "a===LanSongSDK=";
-//        建议统一使用LogUtil.getLog().d标注频繁日志(如 socket，视频播放，通话，每秒都会有日志)
-//        建议统一使用LogUtil.getLog().e标注一般日志(如 打印个人信息，打印某个参数等)
-//        现在各种格式都有
-//        LogUtil
-//        Log.e()
-//        LSLog
-//        system.out等
-//        app日志结构LogUtil.getLog
-//        appcore日志结构LogUtil.getLog
-//        nim_lib日志结构LogUtil.getLog
-//        picture_library日志结构LogManager.getLogger和Log.
-//        ucrop日志结构Log.
-//        weiXinRecorded日志结构LSLog
 
         //初始化数据库
         Realm.init(getApplicationContext());
@@ -145,7 +136,7 @@ public class MyAppLication extends MainApplication {
         SDKOptions options = new SDKOptions();
         // TODO 初始化SDK时配置SDKOptions - disableAwake为true来禁止后台进程唤醒UI进程, 设置了以后，程序最小化后通知栏将不会显示语音的通知
         // 避免Fatal Exception: android.app.RemoteServiceException: Context.startForegroundService() did not then call Service.startForeground()
-        options.disableAwake= true;
+        options.disableAwake = true;
         NIMClient.init(this, getLoginInfo(), options);
         LogUtil.getLog().d(TAG, "NIMClient.init()");
         // 以下逻辑只在主进程初始化时执行
@@ -330,7 +321,7 @@ public class MyAppLication extends MainApplication {
     }
 
     //初始化定位sdk，建议在Application中创建
-    private void initLocation(){
+    private void initLocation() {
         SDKInitializer.initialize(getApplicationContext());
         SDKInitializer.setCoordType(CoordType.BD09LL);
         locationService = new LocationService(getApplicationContext());

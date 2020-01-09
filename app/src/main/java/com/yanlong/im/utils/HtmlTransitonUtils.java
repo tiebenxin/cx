@@ -76,10 +76,10 @@ public class HtmlTransitonUtils {
                     setType12(context, style, bean);
                     break;
                 case ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED: // xxx领取了你的云红包
-                    setTypeEnvelopSend(context, style, bean,1);
+                    setTypeEnvelopSend(context, style, bean, 1);
                     break;
                 case ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE: // 你领取的xxx的云红包
-                    setTypeEnvelopeReceived(context, style, bean,1);
+                    setTypeEnvelopeReceived(context, style, bean, 1);
                     break;
                 case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_ADD://群管理变更通知
                     setType13(context, style, bean);
@@ -128,7 +128,7 @@ public class HtmlTransitonUtils {
                 ClickableSpan clickProtocol = new ClickableSpan() {
                     @Override
                     public void onClick(View widget) {
-                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
+                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), false);
                     }
 
                     @Override
@@ -155,7 +155,7 @@ public class HtmlTransitonUtils {
                 ClickableSpan clickProtocol = new ClickableSpan() {
                     @Override
                     public void onClick(View widget) {
-                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
+                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), false);
                     }
 
                     @Override
@@ -187,7 +187,7 @@ public class HtmlTransitonUtils {
                 ClickableSpan clickProtocol = new ClickableSpan() {
                     @Override
                     public void onClick(View widget) {
-                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
+                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), false);
                     }
 
                     @Override
@@ -216,7 +216,7 @@ public class HtmlTransitonUtils {
                 ClickableSpan clickProtocol = new ClickableSpan() {
                     @Override
                     public void onClick(View widget) {
-                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
+                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), false);
                     }
 
                     @Override
@@ -244,7 +244,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), false);
                 }
 
                 @Override
@@ -272,7 +272,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), false);
                 }
 
                 @Override
@@ -301,7 +301,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), false);
                 }
 
                 @Override
@@ -330,7 +330,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), false);
                 }
 
                 @Override
@@ -362,7 +362,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), false);
                 }
 
                 @Override
@@ -438,7 +438,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), false);
                 }
 
                 @Override
@@ -495,26 +495,29 @@ public class HtmlTransitonUtils {
             HtmlBeanList bean = list.get(i);
             final String content = "\"" + bean.getName() + "\"";
             builder.append(content);
-            if (list.size() > 1) {
+            if (list.size() > 1 && i != list.size() - 1) {
                 builder.append("、");
             }
             if ("你".equals(bean.getName())) {
                 continue;
             }
-            int state;
+            int state = builder.toString().length() - content.length();
             int end;
             if (list.size() == 1) {
-                state = builder.toString().length() - content.length() + 1;
+                state = state + 1;
                 end = builder.toString().length() - 1;
             } else {
-                state = builder.toString().length() - content.length();
-                end = builder.toString().length() - 2;
+                if (i == list.size() - 1) {
+                    end = builder.toString().length() - 1;
+                } else {
+                    end = builder.toString().length() - 2;
+                }
             }
 
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),true);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), true);
                 }
 
                 @Override
@@ -544,7 +547,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),true);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), true);
                 }
 
                 @Override
@@ -574,7 +577,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),true);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), true);
                 }
 
                 @Override
@@ -626,7 +629,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),true);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), true);
                 }
 
                 @Override
@@ -667,7 +670,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),true);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), true);
                 }
 
                 @Override
@@ -707,7 +710,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),true);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), true);
                 }
 
                 @Override
@@ -725,93 +728,59 @@ public class HtmlTransitonUtils {
 
     private void setType19(Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
         List<HtmlBeanList> list = htmlBean.getList();
-        if (list.size() == 2) {
-            for (int i = 0; i < list.size(); i++) {
-                HtmlBeanList bean = list.get(i);
-                final String content = "\"" + bean.getName() + "\"";
-                builder.append(content);
-                if ("你".equals(bean.getName())) {
-                    continue;
-                }
-                int state;
-                int end;
-                if (i == 0) {
-                    builder.append("已禁止");
-                    state = 1;
-                    end = builder.toString().length() - 4;
-                } else {
-                    state = builder.toString().length() - content.length();
-                    end = builder.toString().length() - 1;
-                }
-
-                ClickableSpan clickProtocol = new ClickableSpan() {
-                    @Override
-                    public void onClick(View widget) {
-                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),true);
-                    }
-
-                    @Override
-                    public void updateDrawState(TextPaint ds) {
-                        ds.setUnderlineText(false);
-                    }
-
-                };
-                builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
-                builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        for (int i = 0; i < list.size(); i++) {
+            HtmlBeanList bean = list.get(i);
+            final String content = "\"" + bean.getName() + "\"";
+            builder.append(content);
+            if (i > 0 && i != list.size() - 1) {
+                builder.append("、");
             }
-            builder.append("在本群领取零钱红包");
-        } else {
-            for (int i = 0; i < list.size(); i++) {
-                HtmlBeanList bean = list.get(i);
-                final String content = "\"" + bean.getName() + "\"";
-                builder.append(content);
-
-                if (list.size() > 1) {
-                    builder.append("、");
-                }
-                if ("你".equals(bean.getName())) {
-                    continue;
-                }
-                int state;
-                int end;
-                if (list.size() == 1) {
-                    state = builder.toString().length() - content.length() + 1;
+            if ("你".equals(bean.getName())) {
+                continue;
+            }
+            int state;
+            int end;
+            if (i == 0) {
+                builder.append("已禁止");
+                state = 1;
+                end = builder.toString().length() - 4;
+            } else {
+                state = builder.toString().length() - content.length();
+                if (i == list.size() - 1) {
                     end = builder.toString().length() - 1;
                 } else {
-                    state = builder.toString().length() - content.length();
                     end = builder.toString().length() - 2;
                 }
-
-                ClickableSpan clickProtocol = new ClickableSpan() {
-                    @Override
-                    public void onClick(View widget) {
-                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),true);
-                    }
-
-                    @Override
-                    public void updateDrawState(TextPaint ds) {
-                        ds.setUnderlineText(false);
-                    }
-
-                };
-                builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
-                builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
-            builder.append("已禁止在本群领取零钱红包");
+
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), true);
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+
+            };
+            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
+        builder.append("在本群领取零钱红包");
     }
 
-    private void goToUserInfoActivity(Context context, Long id, String gid,boolean isGroup) {
-        if(ViewUtils.isFastDoubleClick()){
+    private void goToUserInfoActivity(Context context, Long id, String gid, boolean isGroup) {
+        if (ViewUtils.isFastDoubleClick()) {
             return;
         }
         context.startActivity(new Intent(context, UserInfoActivity.class)
                 .putExtra(UserInfoActivity.ID, id)
                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
                 .putExtra(UserInfoActivity.GID, gid)
-                .putExtra(UserInfoActivity.IS_GROUP,isGroup));
+                .putExtra(UserInfoActivity.IS_GROUP, isGroup));
     }
 
 
@@ -875,7 +844,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), false);
                 }
 
                 @Override
@@ -906,7 +875,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(),false);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), false);
                 }
 
                 @Override

@@ -3,6 +3,7 @@ package com.lansosdk.videoeditor;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -34,8 +35,10 @@ public class LanSongFileUtil {
     public static final String TAG = LSLog.TAG;
     private static final Object mLock = new Object();
 
+    /** 应用根目录 */
+    public static final String PATH_BASE = Environment.getExternalStorageDirectory().getAbsolutePath() + "/changxin/";
     //可以修改这个路径;
-    public static  String DEFAULT_DIR = "/sdcard/WeiXinRecorded/";
+    public static  String DEFAULT_DIR = PATH_BASE + "video/";
     protected static String mTmpFileSubFix="";  //后缀,
     protected static String mTmpFilePreFix="";  //前缀;
 

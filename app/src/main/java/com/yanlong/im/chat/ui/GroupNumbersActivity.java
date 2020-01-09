@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -321,7 +322,6 @@ public class GroupNumbersActivity extends AppActivity {
         MsgDao dao = new MsgDao();
         List<MemberUser> list = new ArrayList<>();
         List<Long> listLong = new ArrayList<>();
-//        Group group= dao.getGroup4Id(gid);
         List<MemberUser> mem = dao.getGroup4Id(gid).getUsers();
         CallBack<ReturnBean> callback = new CallBack<ReturnBean>() {
             @Override
@@ -342,6 +342,15 @@ public class GroupNumbersActivity extends AppActivity {
                 if (response.body().isOk()) {
                     if (type != TYPE_DEL) {
                         dao.removeGroupMember(gid, listLong);
+                    }
+                    if (type == TYPE_ADD) {
+                        Group group= dao.getGroup4Id(gid);
+                        if(group!=null){
+                            if(!group.isAdmin()&&!group.isAdministrators()||group.isAdministrators()&&"1".equals(group.getContactIntimately()+"")){
+                                //弹窗情况
+                                ToastUtil.show("邀请成功,等待群主验证");
+                            }
+                        }
                     }
                     MessageManager.getInstance().notifyGroupChange(true);
 

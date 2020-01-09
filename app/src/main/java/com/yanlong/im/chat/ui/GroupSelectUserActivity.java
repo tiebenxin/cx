@@ -32,6 +32,7 @@ import com.yanlong.im.utils.UserUtil;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
@@ -63,6 +64,8 @@ public class GroupSelectUserActivity extends AppActivity {
     private final int TYPE_1 = 1;// @用戶
     private final int TYPE_2 = 2;// 添加管理员
     private final int TYPE_3 = 3;// 禁止领取零钱红包
+    private final int MAX_ADMIN_NUMBER = 19;// 最大管理员人员
+    private int mSelectAdminNumber = 0;// 选择管理员人数
     private HeadView headView;
     private ActionbarView actionbar;
     private UserInfo mUserBean;
@@ -223,6 +226,21 @@ public class GroupSelectUserActivity extends AppActivity {
                     if (mType == TYPE_2 || mType == TYPE_3) {
                         filterUser(listData);
                     }
+                    if (mType == TYPE_3) {
+                        // 管理员不能设置同级别的用户、也不能設置群主
+                        if (mGinfo != null && !mGinfo.getMaster().equals(UserAction.getMyId() + "")) {
+                            for (Long uid : mGinfo.getViceAdmins()) {
+                                for (int i = listData.size() - 1; i >= 0; i--) {
+                                    UserInfo userInfo = listData.get(i);
+                                    if((mGinfo != null && mGinfo.getMaster().equals(userInfo.getUid() + ""))){// 移除群主
+                                        listData.remove(i);
+                                    }else if (userInfo.getUid() != null && userInfo.getUid().equals(uid)) {// 移除管理員
+                                        listData.remove(i);
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     // 升序
                     Collections.sort(listData, new Comparator<UserInfo>() {
@@ -243,8 +261,6 @@ public class GroupSelectUserActivity extends AppActivity {
                     }
                     listData.addAll(tempData);
 
-                    adapter.setList(listData);
-                    mtListView.notifyDataSetChange();
                     for (int i = 0; i < listData.size(); i++) {
                         viewType.putTag(listData.get(i).getTag(), i);
                     }
@@ -255,6 +271,8 @@ public class GroupSelectUserActivity extends AppActivity {
                         showAtAll(response.body().getData());
                         listData.addAll(0, adminData);
                     }
+                    adapter.setList(listData);
+                    mtListView.notifyDataSetChange();
                 }
             }
         });
@@ -464,10 +482,10 @@ public class GroupSelectUserActivity extends AppActivity {
                     } else {
                         hd.txtAdmin.setText("群主、管理员");
                     }
-                    if(isAdmin(bean.getUid())){
+                    if (isAdmin(bean.getUid())) {
                         hd.txtLable.setText("群主");
                         hd.txtLable.setBackgroundResource(R.drawable.shape_circle_head_yellow);
-                    }else{
+                    } else {
                         hd.txtLable.setText("管理员");
                         hd.txtLable.setBackgroundResource(R.drawable.shape_circle_head_blue);
                     }
@@ -492,7 +510,8 @@ public class GroupSelectUserActivity extends AppActivity {
             hd.viewLine.setVisibility(View.VISIBLE);
             if (position > 0) {
                 UserInfo lastbean = mFilterList.get(position - 1);
-                if (lastbean.getTag().equals(bean.getTag())&&!(isAdmin(bean.getUid())||isAdministrators(bean.getUid()))) {
+                if (lastbean.getTag().equals(bean.getTag()) && !(isAdmin(bean.getUid()) || isAdministrators(bean.getUid()))
+                        && !(isAdmin(lastbean.getUid()) || isAdministrators(lastbean.getUid()))) {
                     hd.viewType.setVisibility(View.GONE);
                 }
             }
@@ -500,7 +519,7 @@ public class GroupSelectUserActivity extends AppActivity {
                 hd.viewLine.setVisibility(View.GONE);
             } else {
                 UserInfo lastbean = mFilterList.get(position + 1);
-                if (!lastbean.getTag().equals(bean.getTag())&&!(isAdmin(bean.getUid())||isAdministrators(bean.getUid()))) {
+                if (!lastbean.getTag().equals(bean.getTag()) && !(isAdmin(bean.getUid()) || isAdministrators(bean.getUid()))) {
                     hd.viewLine.setVisibility(View.GONE);
                 }
             }
@@ -509,6 +528,13 @@ public class GroupSelectUserActivity extends AppActivity {
             hd.layoutRoot.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (mType == TYPE_2 && mAdmins != null && !bean.isChecked()) {
+                        if ((mAdmins.size() + mSelectAdminNumber + 1) > MAX_ADMIN_NUMBER) {
+                            bean.setChecked(false);
+                            ToastUtil.showCenter(GroupSelectUserActivity.this, "群管理员最多可设置19个");
+                            return;
+                        }
+                    }
                     hd.ckSelect.setChecked(!hd.ckSelect.isChecked());
                     mUserBean = bean;
                     onItemClick(bean);
@@ -517,6 +543,13 @@ public class GroupSelectUserActivity extends AppActivity {
             hd.ckSelect.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (mType == TYPE_2 && mAdmins != null && !bean.isChecked()) {
+                        if ((mAdmins.size() + mSelectAdminNumber + 1) > MAX_ADMIN_NUMBER) {
+                            hd.ckSelect.setChecked(false);
+                            ToastUtil.showCenter(GroupSelectUserActivity.this, "群管理员最多可设置19个");
+                            return;
+                        }
+                    }
                     mUserBean = bean;
                     onItemClick(bean);
                 }
@@ -536,14 +569,14 @@ public class GroupSelectUserActivity extends AppActivity {
                 actionbar.getTxtRight().setVisibility(bean.isChecked() ? View.VISIBLE : View.GONE);
             } else if (mType == TYPE_2 || mType == TYPE_3) {// 添加管理员/禁止领取零钱红包
                 bean.setChecked(!bean.isChecked());
-                boolean isCheck = false;
+                mSelectAdminNumber = 0;
                 for (UserInfo info : mFilterList) {
                     if (info.isChecked()) {
-                        isCheck = true;
-                        break;
+                        mSelectAdminNumber++;
                     }
                 }
-                actionbar.getTxtRight().setVisibility(isCheck ? View.VISIBLE : View.GONE);
+                mtListView.notifyDataSetChange();
+                actionbar.getTxtRight().setVisibility(mSelectAdminNumber > 0 ? View.VISIBLE : View.GONE);
             } else {// @用户
                 Intent intent = new Intent();
                 intent.putExtra(UID, bean.getUid() + "");

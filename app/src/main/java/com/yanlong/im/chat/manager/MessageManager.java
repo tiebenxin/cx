@@ -154,11 +154,11 @@ public class MessageManager {
         }
     }
 
-    //如果当前未初始化服务器时间，以接收到的消息作为服务器时间
+    //接收到的单条消息作为服务器时间
     private void checkServerTimeInit(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
-        if (SocketData.getPreServerAckTime() <= 0) {
-            SocketData.setPreServerAckTime(wrapMessage.getTimestamp());
-        }
+//        if (SocketData.getPreServerAckTime() <= 0) {
+        SocketData.setPreServerAckTime(wrapMessage.getTimestamp());
+//        }
     }
 
     /*
@@ -630,53 +630,6 @@ public class MessageManager {
             }
         }
     }
-
-//    /*
-//     * 保存消息
-//     * @param msgAllBean 消息
-//     * @isList 是否是批量消息
-//     * */
-//    private boolean saveMessage(MsgAllBean msgAllBean, boolean isList) {
-//        msgAllBean.setRead(false);//设置未读
-//        msgAllBean.setTo_uid(msgAllBean.getTo_uid());
-//        boolean result = false;
-//        //收到直接存表
-//        DaoUtil.update(msgAllBean);
-//        if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid())) {
-//            if (!loadGids.contains(msgAllBean.getGid())) {
-//                loadGids.add(msgAllBean.getGid());
-//                loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
-//                LogUtil.getLog().d("a=", TAG + "--需要加载群信息");
-//            } else {
-//                updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
-//                if (isList) {
-//                    setMessageChange(true);
-//                }
-//                result = true;
-//            }
-//        } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !userDao.isUserExist(msgAllBean.getFrom_uid())) {
-//            if (!loadUids.contains(msgAllBean.getFrom_uid())) {
-//                loadUids.add(msgAllBean.getFrom_uid());
-//                loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
-//                LogUtil.getLog().d("a=", TAG + "--需要加载用户信息");
-//
-//            } else {
-//                LogUtil.getLog().d("a=", TAG + "--异步加载用户信息更新未读数");
-//                updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
-//                if (isList) {
-//                    setMessageChange(true);
-//                }
-//                result = true;
-//            }
-//        } else {
-//            updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
-//            if (isList) {
-//                setMessageChange(true);
-//            }
-//            result = true;
-//        }
-//        return result;
-//    }
 
     /*
      * 保存消息
@@ -1620,7 +1573,6 @@ public class MessageManager {
     }
 
     public void removeMsgTask(String requestId) {
-        System.out.println(TAG + "--MsgTask--remove--requestId=" + requestId);
         taskMaps.remove(requestId);
     }
 
@@ -1640,6 +1592,10 @@ public class MessageManager {
         event.setErrMsg(resultMessage.getErrorMsg());
         event.setResult(result.getNumber());
         EventBus.getDefault().post(event);
+    }
+
+    public void saveMessage(MsgAllBean msgAllBean) {
+        DaoUtil.update(msgAllBean);
     }
 
 

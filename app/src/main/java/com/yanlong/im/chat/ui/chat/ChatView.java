@@ -41,4 +41,6 @@ public interface ChatView extends IView {
 
     void updateOnlineStatus();
 
+    void addAndShowSendMessage(MsgAllBean bean);
+
 }

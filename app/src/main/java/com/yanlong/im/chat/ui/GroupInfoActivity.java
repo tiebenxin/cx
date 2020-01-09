@@ -288,6 +288,9 @@ public class GroupInfoActivity extends AppActivity {
                 Bundle bundle = new Bundle();
                 bundle.putString(GroupManageActivity.AGM_GID, gid);
                 bundle.putBoolean(GroupManageActivity.IS_ADMIN, isAdmin());
+                if(ginfo!=null){
+                    bundle.putInt(GroupManageActivity.ADMIN_NUMBER, ginfo.getViceAdmins().size());
+                }
                 IntentUtil.gotoActivityForResult(GroupInfoActivity.this, GroupManageActivity.class, bundle, GROUP_MANAGER);
             }
         });
