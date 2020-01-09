@@ -34,6 +34,7 @@ public class Group extends RealmObject {
     private Integer contactIntimately;//是否需要群保护
     private Integer wordsNotAllowed;// 全员禁言
     private int screenShot;//截屏通知(0:关闭|1:打开)
+    private int cantOpenUpRedEnv;// 是否能领取零钱红包
     @SerializedName("toTop")
     private Integer isTop;
 
@@ -102,6 +103,14 @@ public class Group extends RealmObject {
             wordsNotAllowed = 0;
         }
         return wordsNotAllowed;
+    }
+
+    public int getCantOpenUpRedEnv() {
+        return cantOpenUpRedEnv;
+    }
+
+    public void setCantOpenUpRedEnv(int cantOpenUpRedEnv) {
+        this.cantOpenUpRedEnv = cantOpenUpRedEnv;
     }
 
     public void setWordsNotAllowed(Integer wordsNotAllowed) {
@@ -269,5 +278,28 @@ public class Group extends RealmObject {
 
     public void setMerchantEntry(String merchantEntry) {
         this.merchantEntry = merchantEntry;
+    }
+
+
+
+    //判断是否是群主
+    public boolean isAdmin() {
+        if (!StringUtil.isNotNull(getMaster()))
+            return false;
+        return getMaster().equals("" + UserAction.getMyId());
+    }
+
+    //判断是否是管理员 注意群主不在管理员列表
+    public boolean isAdministrators() {
+        boolean isManager = false;
+        if (getViceAdmins() != null && getViceAdmins().size() > 0) {
+            for (Long user : getViceAdmins()) {
+                if (user.equals(UserAction.getMyId())) {
+                    isManager = true;
+                    break;
+                }
+            }
+        }
+        return isManager;
     }
 }

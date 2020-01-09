@@ -133,9 +133,9 @@ public class StringUtil {
      */
     public static String getChannelName(Context context) {
         if (context == null) {
-            return "default_android";
+            return "";
         }
-        String resultData = "default_android";
+        String resultData = "";
         try {
             PackageManager packageManager = context.getPackageManager();
             if (packageManager != null) {
@@ -149,7 +149,10 @@ public class StringUtil {
                 }
             }
         } catch (PackageManager.NameNotFoundException e) {
-            return "default_android";
+            return "";
+        }
+        if(TextUtils.isEmpty(resultData)){
+            resultData = "";
         }
         return resultData;
     }

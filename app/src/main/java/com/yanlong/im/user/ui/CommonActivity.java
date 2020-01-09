@@ -29,6 +29,7 @@ import com.yanlong.im.utils.update.UpdateManage;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.event.EventFactory;
+import net.cb.cb.library.utils.FileConfig;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -247,6 +248,11 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
                 File file = new File(LanSongFileUtil.DEFAULT_DIR);
                 if (file.exists()) {
                     LanSongFileUtil.deleteDir(file);
+                }
+                // 清空本地图片缓存
+                File fileCache = new File(FileConfig.PATH_CACHE);
+                if (fileCache.exists()) {
+                    LanSongFileUtil.deleteDir(fileCache);
                 }
             }
         });

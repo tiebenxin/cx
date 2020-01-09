@@ -22,7 +22,6 @@
                 <LinearLayout
                     android:id="@+id/layout_setup_manager"
                     android:layout_marginBottom="@dimen/app_margin_item_top"
-                    android:visibility="gone"
                     style="@style/app_layout_list2_item">
 
                     <TextView
@@ -45,7 +44,6 @@
                 <!--全员禁言-->
                 <LinearLayout
                     android:id="@+id/layout_forbidden_words"
-                    android:visibility="gone"
                     style="@style/app_layout_list2_item">
 
                     <TextView
@@ -61,14 +59,13 @@
                 <TextView
                     style="@style/app_txt_content_2"
                     android:paddingLeft="@dimen/app_margin_main"
-                    android:visibility="gone"
                     android:paddingRight="@dimen/app_margin_main"
                     android:layout_marginBottom="5dp"
                     android:text="开启后，仅群主和管理员可发言。进入群成员资料页面，可对单个成员禁言" />
                 <!--禁止领取零钱红包-->
                 <LinearLayout
                     android:id="@+id/layout_ban_redenvelopes"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     style="@style/app_layout_list2_item">
 
                     <TextView
@@ -119,7 +116,6 @@
                 <!--退群成员列表-->
                 <LinearLayout
                     android:id="@+id/layout_exit_group_user"
-                    android:visibility="gone"
                     style="@style/app_layout_list2_item">
 
                     <TextView
@@ -138,90 +134,90 @@
                     android:layout_width="match_parent"
                     android:orientation="vertical"
                     android:layout_height="wrap_content">
-                        <!--是否开启群成员保护-->
-                        <LinearLayout
-                            android:id="@+id/view_group_intimately"
-                            style="@style/app_layout_list2_item"
-                            android:layout_marginTop="@dimen/app_margin_item_top">
+                    <!--是否开启群成员保护-->
+                    <LinearLayout
+                        android:id="@+id/view_group_intimately"
+                        style="@style/app_layout_list2_item"
+                        android:layout_marginTop="@dimen/app_margin_item_top">
 
-                            <TextView
-                                style="@style/app_txt_title_2"
-                                android:layout_marginRight="@dimen/app_margin_item"
-                                android:layout_weight="1"
-                                android:text="群成员保护模式" />
-
-                            <CheckBox
-                                android:id="@+id/ck_group_intimately"
-                                style="@style/app_check" />
-                        </LinearLayout>
                         <TextView
-                            style="@style/app_txt_content_2"
-                            android:paddingLeft="@dimen/app_margin_main"
-                            android:paddingRight="@dimen/app_margin_main"
-                            android:layout_marginBottom="5dp"
-                            android:text="开启后，群成员不能通过群添加好友" />
-                        <!--是否开启群认证-->
-                        <LinearLayout
-                            android:id="@+id/view_group_verif"
-                            style="@style/app_layout_list2_item">
+                            style="@style/app_txt_title_2"
+                            android:layout_marginRight="@dimen/app_margin_item"
+                            android:layout_weight="1"
+                            android:text="群成员保护模式" />
 
-                            <TextView
-                                style="@style/app_txt_title_2"
-                                android:layout_marginRight="@dimen/app_margin_item"
-                                android:layout_weight="1"
-                                android:text="是否开启群认证" />
+                        <CheckBox
+                            android:id="@+id/ck_group_intimately"
+                            style="@style/app_check" />
+                    </LinearLayout>
+                    <TextView
+                        style="@style/app_txt_content_2"
+                        android:paddingLeft="@dimen/app_margin_main"
+                        android:paddingRight="@dimen/app_margin_main"
+                        android:layout_marginBottom="5dp"
+                        android:text="开启后，群成员不能通过群添加好友" />
+                    <!--是否开启群认证-->
+                    <LinearLayout
+                        android:id="@+id/view_group_verif"
+                        style="@style/app_layout_list2_item">
 
-                            <CheckBox
-                                android:id="@+id/ck_group_verif"
-                                style="@style/app_check" />
-                        </LinearLayout>
                         <TextView
-                            style="@style/app_txt_content_2"
-                            android:paddingLeft="@dimen/app_margin_main"
-                            android:paddingRight="@dimen/app_margin_main"
-                            android:layout_marginBottom="5dp"
-                            android:text="开启后，需要管理员同意才能加入群聊" />
-                        <!--群助手-->
-                        <LinearLayout
-                            android:id="@+id/view_group_robot"
-                            style="@style/app_layout_list2_item">
+                            style="@style/app_txt_title_2"
+                            android:layout_marginRight="@dimen/app_margin_item"
+                            android:layout_weight="1"
+                            android:text="是否开启群认证" />
 
-                            <TextView
-                                style="@style/app_txt_title_2"
-                                android:layout_marginRight="@dimen/app_margin_item"
+                        <CheckBox
+                            android:id="@+id/ck_group_verif"
+                            style="@style/app_check" />
+                    </LinearLayout>
+                    <TextView
+                        style="@style/app_txt_content_2"
+                        android:paddingLeft="@dimen/app_margin_main"
+                        android:paddingRight="@dimen/app_margin_main"
+                        android:layout_marginBottom="5dp"
+                        android:text="开启后，需要管理员同意才能加入群聊" />
+                    <!--群助手-->
+                    <LinearLayout
+                        android:id="@+id/view_group_robot"
+                        style="@style/app_layout_list2_item">
 
-                                android:text="群助手" />
+                        <TextView
+                            style="@style/app_txt_title_2"
+                            android:layout_marginRight="@dimen/app_margin_item"
 
-                            <TextView
-                                android:layout_weight="1"
-                                android:gravity="right"
-                                android:id="@+id/txt_group_robot"
-                                style="@style/app_txt_title_4"
-                                android:layout_marginRight="@dimen/app_margin_item"
-                                android:text="未配置" />
+                            android:text="群助手" />
 
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:src="@mipmap/ic_btn_goto" />
-                        </LinearLayout>
-                        <!--群主管理权转让-->
-                        <LinearLayout
-                            android:layout_marginTop="@dimen/app_margin_item_top"
-                            android:id="@+id/view_group_transfer"
-                            style="@style/app_layout_list2_item">
+                        <TextView
+                            android:layout_weight="1"
+                            android:gravity="right"
+                            android:id="@+id/txt_group_robot"
+                            style="@style/app_txt_title_4"
+                            android:layout_marginRight="@dimen/app_margin_item"
+                            android:text="未配置" />
 
-                            <TextView
-                                style="@style/app_txt_title_2"
-                                android:layout_marginRight="@dimen/app_margin_item"
-                                android:layout_weight="1"
-                                android:text="群主管理权转让" />
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@mipmap/ic_btn_goto" />
+                    </LinearLayout>
+                    <!--群主管理权转让-->
+                    <LinearLayout
+                        android:layout_marginTop="@dimen/app_margin_item_top"
+                        android:id="@+id/view_group_transfer"
+                        style="@style/app_layout_list2_item">
 
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:src="@mipmap/ic_btn_goto" />
-                        </LinearLayout>
+                        <TextView
+                            style="@style/app_txt_title_2"
+                            android:layout_marginRight="@dimen/app_margin_item"
+                            android:layout_weight="1"
+                            android:text="群主管理权转让" />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@mipmap/ic_btn_goto" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>

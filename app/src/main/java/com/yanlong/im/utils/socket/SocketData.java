@@ -280,7 +280,7 @@ public class SocketData {
     public static void msgSave4MeFail(MsgBean.AckMessage bean) {
         //普通消息
         MsgBean.UniversalMessage.Builder msg = SendList.findMsgById(bean.getRequestId());
-        if (msg != null) {
+        if (msg != null && msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
             //存库处理
             MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
                     .setMsgId(bean.getMsgIdList().get(0))
@@ -288,10 +288,10 @@ public class SocketData {
 //                    .setTimestamp(getSysTime())
                     .build();
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, true);
-
+            if (msgAllBean == null) {
+                return;
+            }
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
-            //时间戳
-//            msgAllBean.setTimestamp(bean.getTimestamp());
             msgAllBean.setTimestamp(msg.getWrapMsg(0).getTimestamp());
             msgAllBean.setSend_state(ChatEnum.ESendStatus.ERROR);
             msgAllBean.setSend_data(msg.build().toByteArray());
@@ -1239,21 +1239,6 @@ public class SocketData {
         return note;
     }
 
-//    public static MsgNotice createMsgNoticeOfRb(String msgId, Long uid, String gid) {
-//        MsgNotice note = new MsgNotice();
-//        note.setMsgid(msgId);
-//        if (uid != null && uid.longValue() == UserAction.getMyId().longValue()) {
-//            note.setMsgType(ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF);
-//            note.setNote("你领取了自己的<font color='#cc5944'>零钱红包</font>");
-//        } else {
-//            note.setMsgType(ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE);
-//            String name = msgDao.getUsername4Show(gid, uid);
-//            String rname = "<font color='#276baa' id='" + uid + "'>" + name + "</font>";
-//            note.setNote("你领取了\"" + rname + "的零钱红包" + "<div id= '" + gid + "'></div>");
-//        }
-//
-//        return note;
-//    }
 
     public static MsgNotice createMsgNoticeOfRb(String msgId, Long uid, String gid, String rid) {
         MsgNotice note = new MsgNotice();
@@ -1267,7 +1252,6 @@ public class SocketData {
             String n = "<user id='" + uid + "'>" + name + "</user>";
             note.setNote("你领取了\"" + n + "\"的" + "<envelope id=\" + rid + \">零钱红包</envelope>");
         }
-
         return note;
     }
 

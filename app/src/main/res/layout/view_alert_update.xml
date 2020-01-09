@@ -52,6 +52,19 @@
                 android:lineSpacingExtra="2dp"
                 android:text=""
                 android:background="@color/transparent"/>
+            <TextView
+                android:id="@+id/tv_finish_notice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:textColor="@color/black_3e"
+                android:textSize="15sp"
+                android:lineSpacingExtra="2dp"
+                android:gravity="center"
+                android:visibility="gone"
+                android:text="已下载完成，是否安装?"
+                android:background="@color/transparent"/>
         </LinearLayout>
     </ScrollView>
 

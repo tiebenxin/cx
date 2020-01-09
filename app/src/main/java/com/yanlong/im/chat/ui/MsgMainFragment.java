@@ -56,6 +56,7 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventNetStatus;
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -624,7 +625,7 @@ public class MsgMainFragment extends Fragment {
             if (viewHolder instanceof RCViewHolder) {
                 RCViewHolder holder = (RCViewHolder) viewHolder;
                 final Session bean = listData.get(position - 1);
-//                Log.i("1212", "Session:" + new Gson().toJson(bean));
+//                LogUtil.getLog().e("=session==="+ GsonUtils.optObject(bean));
                 String icon = bean.getAvatar();
                 String title = bean.getName();
                 MsgAllBean msginfo = bean.getMessage();

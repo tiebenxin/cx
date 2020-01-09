@@ -66,6 +66,7 @@
 -keep public class * extends android.app.backup.BackupAgentHelper
 -keep public class * extends android.preference.Preference
 -keep public class com.android.vending.licensing.ILicensingService
+-keep public class FileConfig
 -keepnames class * implements java.io.Serializable
 #-keepnames class * implements android.os.Parcelable
 

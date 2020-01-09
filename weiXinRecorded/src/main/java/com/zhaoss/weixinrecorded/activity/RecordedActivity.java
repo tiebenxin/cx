@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -56,7 +55,8 @@ public class RecordedActivity extends BaseActivity {
     public static final String INTENT_PATH_HEIGHT = "intent_height";
     public static final String INTENT_PATH_TIME = "intent_time";
     public static final String INTENT_DATA_TYPE = "result_data_type";
-    public static String DEFAULT_DIR = "/sdcard/WeiXinRecorded/";
+
+    public static String DEFAULT_DIR = LanSongFileUtil.PATH_BASE + "video/";
 
     public static final int RESULT_TYPE_VIDEO = 1;
     public static final int RESULT_TYPE_PHOTO = 2;

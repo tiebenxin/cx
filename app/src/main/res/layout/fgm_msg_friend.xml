@@ -6,11 +6,11 @@
     android:orientation="vertical">
 
     <net.cb.cb.library.view.ActionbarView
+        android:id="@+id/action_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:actionbar_rightIcon="@mipmap/ic_msg_friend_add"
         app:actionbar_showIconLeft="false"
-        android:id="@+id/action_bar"
         app:actionbar_txtTitle="通讯录" />
 
     <LinearLayout style="@style/app_layout_list3">
@@ -20,15 +20,14 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:background="@color/white"
-            android:clickable="true"
-            >
+            android:clickable="true">
+
             <LinearLayout
-                android:layout_marginTop="8dp"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:background="@drawable/shape_search_bg"
                 style="@style/app_layout_list2_item_search"
-                >
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginRight="5dp"
+                android:background="@drawable/shape_search_bg">
 
                 <ImageView
                     android:layout_width="15dp"
@@ -37,22 +36,23 @@
                     android:layout_marginRight="6dp"
                     android:background="@mipmap/ic_msg_search" />
 
-                                <TextView
-                                android:gravity="center_vertical"
-                                android:id="@+id/edt_search"
-                                style="@style/app_edt1"
-                                android:enabled="false"
-                                android:layout_marginRight="@dimen/app_margin_main"
-                                android:hint="当前通讯录搜索" />
+                <TextView
+                    android:id="@+id/edt_search"
+                    style="@style/app_edt1"
+                    android:layout_marginRight="@dimen/app_margin_main"
+                    android:enabled="false"
+                    android:gravity="center_vertical"
+                    android:hint="当前通讯录搜索" />
 
 
             </LinearLayout>
+
         </RelativeLayout>
 
 
     </LinearLayout>
 
-    <View style="@style/app_line"/>
+    <View style="@style/app_line" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -65,9 +65,9 @@
             android:layout_height="wrap_content" />
 
         <net.cb.cb.library.view.PySortView
-            android:layout_gravity="right|center"
             android:id="@+id/view_type"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center" />
     </FrameLayout>
 </LinearLayout>
