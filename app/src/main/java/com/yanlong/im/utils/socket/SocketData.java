@@ -1767,7 +1767,7 @@ public class SocketData {
         return message;
     }
 
-    public static MsgNotice createMsgNoticeOfSnapshot(String msgId, String gid) {
+    public static MsgNotice createMsgNoticeOfSnapshot(String msgId) {
         MsgNotice note = new MsgNotice();
         note.setMsgid(msgId);
         note.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN);

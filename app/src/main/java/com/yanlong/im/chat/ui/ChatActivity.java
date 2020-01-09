@@ -5414,7 +5414,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 new ScreenShotListenManager.OnScreenShotListener() {
                     public void onShot(String imagePath) {
                         if (isScreenShotListen) {
-                            ToastUtil.show(ChatActivity.this,"已监听到截屏");
+                            SocketData.sendSnapshotMsg(toUId, toGid);
+                            MsgNotice notice = SocketData.createMsgNoticeOfSnapshot(SocketData.getUUID());
+                            sendMessage(notice, ChatEnum.EMessageType.NOTICE, false);
                         }
                     }
                 }
