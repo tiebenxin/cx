@@ -292,7 +292,7 @@ public class MsgMainFragment extends Fragment {
                     break;
 
             }
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
 
         }
     }
@@ -355,8 +355,26 @@ public class MsgMainFragment extends Fragment {
             } else if (refreshTag == CoreEnum.ESessionRefreshTag.DELETE) {
                 LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "-- 刷新Session-DELETE");
                 taskDelSession(event.getUid(), event.getGid());
+            } else if (refreshTag == CoreEnum.ESessionRefreshTag.BLACK) {
+                LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "-- 刷新Session-BLACK");
+                int index = getSessionPosition(event.getGid(), event.getUid());
+                if (index >= 0) {
+                    mtListView.getListView().getAdapter().notifyItemRemoved(index + 1);//删除刷新
+                } else {
+                    taskListData();
+                }
             }
         }
+    }
+
+    private int getSessionPosition(String gid, Long uid) {
+        int index = -1;
+        Session session = msgDao.sessionGet(gid, uid);
+        if (session != null && listData != null) {
+            index = listData.indexOf(session);
+        }
+        return index;
+
     }
 
     /*

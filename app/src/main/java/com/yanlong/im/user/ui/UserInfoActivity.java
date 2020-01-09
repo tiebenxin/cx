@@ -137,7 +137,7 @@ public class UserInfoActivity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_userinfo);
-        if(!EventBus.getDefault().isRegistered(this)){
+        if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
         initView();
@@ -643,7 +643,7 @@ public class UserInfoActivity extends AppActivity {
                 new MsgDao().sessionDel(id, "");
                 ToastUtil.show(context, response.body().getMsg());
                 notifyRefreshRoster(id, CoreEnum.ERosterAction.BLACK);
-                MessageManager.getInstance().notifyRefreshMsg();
+                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.BLACK, null);
             }
         });
     }
@@ -659,8 +659,10 @@ public class UserInfoActivity extends AppActivity {
                 type = 0;
                 tvBlack.setText("加入黑名单");
                 userDao.updateUserUtype(id, 2);
+                new MsgDao().sessionCreate("", id);
                 ToastUtil.show(context, response.body().getMsg());
                 notifyRefreshRoster(uid, CoreEnum.ERosterAction.BLACK);
+                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
             }
         });
     }
@@ -772,7 +774,7 @@ public class UserInfoActivity extends AppActivity {
         });
     }
 
-    private void updateUserInfo(){
+    private void updateUserInfo() {
         boolean value = singleMeberInfoBean.isCantOpenUpRedEnv();
         String time = GroupMemPowerSetActivity.getSurvivaltime(singleMeberInfoBean.getShutUpDuration());
         StringBuffer stringBuffer = new StringBuffer();
