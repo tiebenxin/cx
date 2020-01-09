@@ -3318,14 +3318,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     });
                     break;
-//                case ChatEnum.EMessageType.SNAPSHOT_SCREEN:
-//                    //TODO 操作类型：开启 关闭 截屏
-//                    int actType = 0;
-//                    if (nikeName == null) {
-//                        nikeName = "";
-//                    }
-//                    holder.viewChatItem.showScreenshot(msgbean.isMe(), nikeName, actType);
-//                    break;
             }
 
             holder.viewChatItem.setOnErr(new View.OnClickListener() {

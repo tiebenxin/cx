@@ -208,7 +208,6 @@ public class ChatItemView extends LinearLayout {
     private TextView tvNew;
     private CheckBox ckSelect;
 
-
     public ChatItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mContext = context;

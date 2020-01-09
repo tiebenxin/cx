@@ -107,35 +107,6 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/layout_screenshot"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:orientation="horizontal"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/tv_screenshot_username"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/app_txt_content_1"
-            android:textColor="@color/c_3972a1"
-            android:text="管理员"/>
-
-        <TextView
-            android:id="@+id/tv_screenshot_action"
-            style="@style/app_txt_content_1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="@color/gray_500"
-            android:text="开启了截屏通知" />
-
-    </LinearLayout>
-
-
-
-    <LinearLayout
         android:id="@+id/view_lock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

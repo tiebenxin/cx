@@ -367,6 +367,8 @@ public class DaoMigration implements RealmMigration {
                 .addField("screenShot", int.class);//群聊截屏通知
     }
 
+
+
     @Override
     public boolean equals(@Nullable Object obj) {
         return obj instanceof DaoMigration;
