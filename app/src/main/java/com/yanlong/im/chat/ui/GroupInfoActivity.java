@@ -487,7 +487,7 @@ public class GroupInfoActivity extends AppActivity {
             ckScreenshot.setClickable(true);
         }else {
             ckScreenshot.setClickable(false);
-            ToastUtil.show(GroupInfoActivity.this,"只有群管理和群主才可以使用该功能");
+            ToastUtil.show(GroupInfoActivity.this,"只有群管理和群主才可以使用截屏通知功能");
         }
         //截屏通知切换开关
         ckScreenshot.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

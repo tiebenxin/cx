@@ -186,6 +186,8 @@ public class ChatEnum {
         int LOCATION = 14; //位置消息
         int BALANCE_ASSISTANT = 15; //零钱助手消息
         int CHANGE_SURVIVAL_TIME = 113;//阅后即焚
+        int SNAPSHOT_SCREEN = 16;//截屏通知
+
         int READ = 120;//已读消息
 
         int LOCK = 100; //端到端加密提示消息,本地自定义消息
