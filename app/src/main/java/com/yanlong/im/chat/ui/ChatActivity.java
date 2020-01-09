@@ -4431,7 +4431,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (isGroup() && !MessageManager.getInstance().isGroupValid(groupInfo)) {//无效群，不存草稿
             return false;
         }
-        String df = editChat.getText().toString();
+        String df = editChat.getText().toString().trim();
         boolean hasChange = false;
         if (!TextUtils.isEmpty(draft)) {
 //            if (TextUtils.isEmpty(df) || !draft.equals(df)) {
