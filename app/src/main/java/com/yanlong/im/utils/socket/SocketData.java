@@ -493,6 +493,9 @@ public class SocketData {
             case SNAPSHOT_LOCATION://位置
                 wmsg.setSnapshotLocation((MsgBean.SnapshotLocationMessage) value);
                 break;
+            case SNAPSHOT_SCREEN://截屏
+                wmsg.setSnapshotScreen((MsgBean.SnapshotScreenMessage) value);
+                break;
             case UNRECOGNIZED:
                 break;
 
@@ -1764,5 +1767,20 @@ public class SocketData {
         return message;
     }
 
+    public static MsgNotice createMsgNoticeOfSnapshot(String msgId, String gid) {
+        MsgNotice note = new MsgNotice();
+        note.setMsgid(msgId);
+        note.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN);
+        note.setNote("你截取了当前聊天信息");
+        return note;
+    }
+
+    //发送截屏通知消息
+    public static void sendSnapshotMsg(Long toId, String toGid) {
+        MsgBean.SnapshotScreenMessage contentMsg = MsgBean.SnapshotScreenMessage.newBuilder().build();
+        MsgBean.UniversalMessage.Builder msg = toMsgBuilder("", SocketData.getUUID(), toId, toGid, SocketData.getFixTime(), MsgBean.MessageType.SNAPSHOT_SCREEN, contentMsg);
+        //立即发送
+        SocketUtil.getSocketUtil().sendData4Msg(msg);
+    }
 
 }

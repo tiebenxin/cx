@@ -577,7 +577,7 @@ public class MsgConversionBean {
                 EventGroupChange event = new EventGroupChange();
                 event.setNeedLoad(true);
                 if (MsgBean.ChangeViceAdminsMessage.Opt.APPEND.getNumber() == bean.getChangeViceAdminsOrBuilder().getOptValue()) {// 新增
-                    for (int i=0;i<bean.getChangeViceAdminsOrBuilder().getMembersList().size();i++) {
+                    for (int i = 0; i < bean.getChangeViceAdminsOrBuilder().getMembersList().size(); i++) {
                         MsgBean.GroupNoticeMessage groupNotice = bean.getChangeViceAdminsOrBuilder().getMembersList().get(i);
                         if (UserAction.getMyId() != null && groupNotice.getUid() == UserAction.getMyId().longValue()) {
                             stringBuffer.append("\"<font color='#276baa' id='" + groupNotice.getUid() + "'>你</font>\"");
@@ -691,8 +691,21 @@ public class MsgConversionBean {
                     }
                 }
                 break;
-//            case SNAPSHOT_SCREEN:// 截频通知消息
-//                break;
+            case SNAPSHOT_SCREEN:// 截频通知消息
+                if (bean.getSnapshotScreen() != null) {
+                    msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
+                    MsgNotice screenNotice = new MsgNotice();
+                    screenNotice.setMsgid(msgAllBean.getMsg_id());
+                    screenNotice.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN);
+                    if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().longValue()) {
+                        screenNotice.setNote("你截屏了当前聊天信息");
+                    } else {
+                        screenNotice.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN);
+                        String ssName = "<user id='" + bean.getFromUid() + "' gid=" + bean.getGid() + ">" + bean.getNickname() + "</user>";
+                        screenNotice.setNote("\"" + ssName + "\"已截屏当前聊天信息");
+                    }
+                }
+                break;
 
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;

@@ -2973,7 +2973,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 || notice.getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR) {
                             holder.viewChatItem.setData0(notice.getNote());
                         } else {
-                            if (notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE) {
+                            if (notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE
+                                    || notice.getMsgType() == ChatEnum.ENoticeType.SNAPSHOT_SCREEN) {
                                 holder.viewChatItem.setNoticeString(Html.fromHtml(notice.getNote(), null,
                                         new MsgTagHandler(AppConfig.getContext(), true, msgid, ChatActivity.this)));
                             } else {
@@ -3317,14 +3318,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     });
                     break;
-                case ChatEnum.EMessageType.SNAPSHOT_SCREEN:
-                    //TODO 操作类型：开启 关闭 截屏
-                    int actType = 0;
-                    if(nikeName==null){
-                        nikeName = "";
-                    }
-                    holder.viewChatItem.showScreenshot(msgbean.isMe(),nikeName,actType);
-                    break;
+//                case ChatEnum.EMessageType.SNAPSHOT_SCREEN:
+//                    //TODO 操作类型：开启 关闭 截屏
+//                    int actType = 0;
+//                    if (nikeName == null) {
+//                        nikeName = "";
+//                    }
+//                    holder.viewChatItem.showScreenshot(msgbean.isMe(), nikeName, actType);
+//                    break;
             }
 
             holder.viewChatItem.setOnErr(new View.OnClickListener() {
