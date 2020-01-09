@@ -205,6 +205,11 @@ public class ChatItemView extends LinearLayout {
     private TextView location_name_you_tv, location_desc_you_tv, location_name_me_tv, location_desc_me_tv;
     private LinearLayout viewOtChild;
 
+    //截屏通知
+    private LinearLayout layoutScreenshot;
+    private TextView tvScreenshotUsername;//谁操作截屏通知
+    private TextView tvScreenshotAction;//截屏通知动作
+
 
     public ChatItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -354,6 +359,11 @@ public class ChatItemView extends LinearLayout {
         location_desc_you_tv = rootView.findViewById(R.id.location_desc_you_tv);
         location_name_me_tv = rootView.findViewById(R.id.location_name_me_tv);
         location_desc_me_tv = rootView.findViewById(R.id.location_desc_me_tv);
+
+        //截屏通知
+        layoutScreenshot = rootView.findViewById(R.id.layout_screenshot);
+        tvScreenshotUsername = rootView.findViewById(R.id.tv_screenshot_username);
+        tvScreenshotAction = rootView.findViewById(R.id.tv_screenshot_action);
     }
 
     public void setOnLongClickListener(OnLongClickListener onLongClick) {
@@ -423,6 +433,7 @@ public class ChatItemView extends LinearLayout {
 //        viewOtSurvivalTime.setVisibility(GONE);
 //        viewMeSurvivalTime.setVisibility(GONE);
         viewReadDestroy.setVisibility(GONE);
+        layoutScreenshot.setVisibility(GONE);
         img_me_4_play.setVisibility(View.GONE);
         img_me_4_time.setVisibility(View.GONE);
         img_ot_4_time.setVisibility(View.GONE);
@@ -493,9 +504,6 @@ public class ChatItemView extends LinearLayout {
                 viewMe.setVisibility(GONE);
                 viewOt.setVisibility(GONE);
                 break;
-            case ChatEnum.EMessageType.SNAPSHOT_SCREEN:
-                asd
-                break;
             case ChatEnum.EMessageType.MSG_VIDEO:
                 viewMe4.setVisibility(VISIBLE);
                 viewOt4.setVisibility(VISIBLE);
@@ -515,6 +523,11 @@ public class ChatItemView extends LinearLayout {
             case ChatEnum.EMessageType.BALANCE_ASSISTANT:
                 setNoAvatarUI(isMe);
                 viewOtBalance.setVisibility(VISIBLE);
+                break;
+            case ChatEnum.EMessageType.SNAPSHOT_SCREEN:
+                layoutScreenshot.setVisibility(VISIBLE);
+                viewMe.setVisibility(GONE);
+                viewOt.setVisibility(GONE);
                 break;
         }
 
@@ -1278,6 +1291,35 @@ public class ChatItemView extends LinearLayout {
 //            imgReadDestroy.setImageResource(R.mipmap.icon_read_destroy_seting);
 //        }
     }
+
+
+    /**
+     * 截屏通知显示
+     * @param isMe 操作者是否为我
+     * @param userName 操作者名称
+     * @param actType 操作类型  开启0 /关闭1 /截屏2
+     */
+    public void showScreenshot(boolean isMe, String userName, int actType){
+        if(isMe){
+            if(actType==0){
+                tvScreenshotAction.setText("你开启了截屏通知");
+            }else if(actType==1){
+                tvScreenshotAction.setText("你关闭了截屏通知");
+            }else {
+                tvScreenshotAction.setText("你截屏了当前聊天信息");
+            }
+        }else {
+            tvScreenshotUsername.setText(userName);
+            if(actType==0){
+                tvScreenshotAction.setText("开启了截屏通知");
+            }else if(actType==1){
+                tvScreenshotAction.setText("关闭了截屏通知");
+            }else {
+                tvScreenshotAction.setText("截屏了当前聊天信息");
+            }
+        }
+    }
+
 
 
     private int netState;

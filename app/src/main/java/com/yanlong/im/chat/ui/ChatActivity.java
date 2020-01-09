@@ -820,8 +820,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1));
                     } else {
                         startActivity(new Intent(getContext(), ChatInfoActivity.class)
-                                .putExtra(ChatInfoActivity.AGM_FUID, toUId)
-                        );
+                                .putExtra(ChatInfoActivity.AGM_FUID, toUId));
                     }
 
                 }
@@ -3370,6 +3369,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener, IAc
                                     msgbean.getLocationMessage().getLatitude(), msgbean.getLocationMessage().getLongitude());
                         }
                     });
+                    break;
+                case ChatEnum.EMessageType.SNAPSHOT_SCREEN:
+                    //TODO 操作类型：开启 关闭 截屏
+                    int actType = 0;
+                    if(nikeName==null){
+                        nikeName = "";
+                    }
+                    holder.viewChatItem.showScreenshot(msgbean.isMe(),nikeName,actType);
                     break;
             }
 

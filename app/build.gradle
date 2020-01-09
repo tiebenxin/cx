@@ -26,8 +26,8 @@ android {
         applicationId "com.yanlong.im"
         minSdkVersion 22
         targetSdkVersion 28
-        versionCode 141
-        versionName "1.1.31"
+        versionCode 200
+        versionName "1.2.0"
         //  versionName "0.9.0_${releaseTime()}"
         
         //---------------------------------------
@@ -124,13 +124,13 @@ android {
         }
         release {
             // 开启调试
-            debuggable false
+            debuggable true
             //混淆
-            minifyEnabled true
+            minifyEnabled false
             //Zipalign优化
-            zipAlignEnabled true
+            zipAlignEnabled false
             // 移除无用的resource文件
-            shrinkResources true
+            shrinkResources false
             // 加载默认混淆配置文件
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             manifestPlaceholders = [UMENG_PUSH_KEY      : "581fc0021f2"
