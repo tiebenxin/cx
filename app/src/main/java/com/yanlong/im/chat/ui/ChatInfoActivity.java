@@ -238,9 +238,11 @@ public class ChatInfoActivity extends AppActivity {
     private void initData() {
         readDestroyUtil = new ReadDestroyUtil();
         UserInfo userInfo = userDao.findUserInfo(fuid);
-        destroyTime = userInfo.getDestroy();
-        String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
-        tvDestroyTime.setText(content);
+        if(userInfo!=null){
+            destroyTime = userInfo.getDestroy();
+            String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
+            tvDestroyTime.setText(content);
+        }
     }
 
 
