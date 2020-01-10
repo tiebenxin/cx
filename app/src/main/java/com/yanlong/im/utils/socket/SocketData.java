@@ -506,11 +506,12 @@ public class SocketData {
     }
 
     /***
-     * 忽略存库的消息
+     * 忽略不存库的消息，如抢红包消息，发起视频消息，截屏通知消息
      * @return false 需要忽略
      */
     private static boolean msgSendSave4filter(MsgBean.UniversalMessage.WrapMessage.Builder wmsg) {
-        if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER || wmsg.getMsgType() == MsgBean.MessageType.P2P_AU_VIDEO_DIAL) {
+        if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER || wmsg.getMsgType() == MsgBean.MessageType.P2P_AU_VIDEO_DIAL
+                || wmsg.getMsgType() == MsgBean.MessageType.SNAPSHOT_SCREEN) {
             return false;
         }
         return true;
