@@ -704,6 +704,7 @@ public class MsgConversionBean {
                         String ssName = "<user id='" + bean.getFromUid() + "' gid=" + bean.getGid() + ">" + bean.getNickname() + "</user>";
                         screenNotice.setNote("\"" + ssName + "\"已截屏当前聊天信息");
                     }
+                    msgAllBean.setMsgNotice(screenNotice);
                 }
                 break;
 
