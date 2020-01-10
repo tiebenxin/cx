@@ -871,10 +871,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-                if (checkForbiddenWords()) {
-                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-                    return;
-                }
 
                 if (!checkNetConnectStatus()) {
                     return;
@@ -1064,10 +1060,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void onClick(View v) {
-                if (checkForbiddenWords()) {
-                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-                    return;
-                }
                 permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
                     @Override
                     public void onSuccess() {
@@ -1102,10 +1094,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         viewPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (checkForbiddenWords()) {
-                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-                    return;
-                }
+
                 PictureSelector.create(ChatActivity.this)
 //                        .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                         .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
@@ -1167,10 +1156,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         viewTransfer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (checkForbiddenWords()) {
-                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-                    return;
-                }
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
@@ -1203,10 +1188,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         viewAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (checkForbiddenWords()) {
-                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-                    return;
-                }
+
                 AlertTouch alertTouch = new AlertTouch();
                 alertTouch.init(ChatActivity.this, "请输入戳一下消息", "确定", R.mipmap.ic_chat_actionme, new AlertTouch.Event() {
                     @Override
@@ -1239,10 +1221,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-                if (checkForbiddenWords()) {
-                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-                    return;
-                }
+
                 startActivityForResult(new Intent(getContext(), SelectUserActivity.class), SelectUserActivity.RET_CODE_SELECTUSR);
             }
         });
@@ -1251,10 +1230,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         btnVoice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (checkForbiddenWords()) {
-                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-                    return;
-                }
+
                 //申请权限 7.2
                 permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
                     @Override
@@ -1396,10 +1372,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         location_ll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (checkForbiddenWords()) {
-                    ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-                    return;
-                }
                 LocationActivity.openActivity(ChatActivity.this, false, null);
             }
         });
@@ -1612,19 +1584,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             finish();
         }
         return super.onKeyDown(keyCode, event);
-    }
-
-    /**
-     * 检查是否群禁言
-     *
-     * @return
-     */
-    private boolean checkForbiddenWords() {
-        boolean check = false;
-        if (groupInfo != null && groupInfo.getWordsNotAllowed() == 1 && !isAdmin() && !isAdministrators()) {
-            check = true;
-        }
-        return check;
     }
 
     /**
@@ -3370,6 +3329,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (msgbean.getMsgCancel() != null) {
                         holder.viewChatItem.setReadDestroy(msgbean.getMsgCancel().getNote());
                     }
+                    break;
                 case ChatEnum.EMessageType.BALANCE_ASSISTANT:
                     holder.viewChatItem.setBalanceMsg(msgbean.getBalanceAssistantMessage(), new ChatItemView.EventBalance() {
                         @Override
@@ -4011,10 +3971,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * @param msgbean
      */
     private void onRetransmission(final MsgAllBean msgbean) {
-        if (checkForbiddenWords()) {
-            ToastUtil.showCenter(ChatActivity.this, getString(R.string.group_main_forbidden_words));
-            return;
-        }
+
         startActivity(new Intent(getContext(), MsgForwardActivity.class)
                 .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean)));
     }
@@ -4261,7 +4218,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (TextUtils.isEmpty(toGid)) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
             if (bean != null) {
-                LogUtil.getLog().e("===sendRead==msg=====" + bean.getMsg_id() + "===msgid=" + msgid + "==bean.getRead()=" + bean.getRead() + "==bean.getTimestamp()=" + bean.getTimestamp());
+//                LogUtil.getLog().e("===sendRead==msg=====" + bean.getMsg_id() + "===msgid=" + msgid + "==bean.getRead()=" + bean.getRead() + "==bean.getTimestamp()=" + bean.getTimestamp());
                 if (bean.getRead() == 0) {
 //                if ((TextUtils.isEmpty(msgid) || !msgid.equals(bean.getMsg_id())) && bean.getRead() == 0) {
                     msgid = bean.getMsg_id();

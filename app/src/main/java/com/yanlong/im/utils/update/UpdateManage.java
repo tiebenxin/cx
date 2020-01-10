@@ -206,6 +206,12 @@ public class UpdateManage {
                     installAppUtil.install(activity, installAppUtil.getApkPath());
                 }
             });
+            //强制升级不显示取消按钮
+            if(isEnforcement){
+                dialog.showCancle(false);
+            }else {
+                dialog.showCancle(true);
+            }
             dialog.show();
         }
     }

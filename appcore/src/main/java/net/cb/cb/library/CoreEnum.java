@@ -60,12 +60,13 @@ public class CoreEnum {
     /*
      *session刷新类型
      * */
-    @IntDef({ESessionRefreshTag.SINGLE, ESessionRefreshTag.ALL, ESessionRefreshTag.DELETE})
+    @IntDef({ESessionRefreshTag.SINGLE, ESessionRefreshTag.ALL, ESessionRefreshTag.DELETE, ESessionRefreshTag.BLACK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ESessionRefreshTag {
         int SINGLE = 0; // 单刷
         int ALL = 1; //全刷
-        int DELETE = 2; //删除
+        int DELETE = 2; //删除，删除里面消息
+        int BLACK = 3; //黑名单，不删里面消息
     }
 
     /*
