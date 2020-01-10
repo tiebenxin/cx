@@ -73,7 +73,7 @@
             <TextView
                 style="@style/app_txt_content_1"
                 android:layout_marginTop="2dp"
-                android:text="红包" />
+                android:text="零钱红包" />
         </LinearLayout>
 
         <LinearLayout
