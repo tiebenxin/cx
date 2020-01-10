@@ -143,7 +143,7 @@ public class ChatInfoActivity extends AppActivity {
         topListView.setLayoutManager(linearLayoutManager);
         topListView.setAdapter(new RecyclerViewTopAdapter());
 
-        ckTop.setChecked(fUserInfo.getIstop() == 1);
+        ckTop.setChecked(fUserInfo != null && fUserInfo.getIstop() == 1);
         ckTop.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -155,7 +155,7 @@ public class ChatInfoActivity extends AppActivity {
             }
         });
 
-        ckDisturb.setChecked(fUserInfo.getDisturb() == 1);
+        ckDisturb.setChecked(fUserInfo != null && fUserInfo.getDisturb() == 1);
         ckDisturb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -166,7 +166,8 @@ public class ChatInfoActivity extends AppActivity {
                 }
             }
         });
-        ckSetRead.setChecked(fUserInfo.getMyRead() == 1);
+
+        ckSetRead.setChecked(fUserInfo != null && fUserInfo.getMyRead() == 1);
         ckSetRead.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
