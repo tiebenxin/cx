@@ -839,13 +839,13 @@ public class UserAction {
                     @Override
                     public void onFailed(int code) {
                         LogUtil.getLog().d("MainActivity", "网易云登录onFailed:" + code);
-                        LogUtil.writeLog(">>>>>>>>>网易云登录onFailed>>>>>>>>>>>> code:"+code);
+                        LogUtil.writeLog(">>>>>>>>>网易云登录onFailed>>>>>>>>>>>> code:" + code);
                     }
 
                     @Override
                     public void onException(Throwable exception) {
                         LogUtil.getLog().d("MainActivity", "网易云登录exception:" + exception.getMessage());
-                        LogUtil.writeLog(">>>>>>>>>网易云登录exception>>>>>>>>>>>> exception:"+exception.getMessage());
+                        LogUtil.writeLog(">>>>>>>>>网易云登录exception>>>>>>>>>>>> exception:" + exception.getMessage());
                     }
                     // 可以在此保存LoginInfo到本地，下次启动APP做自动登录用
                 };
@@ -870,6 +870,13 @@ public class UserAction {
      */
     public void getSingleMemberInfo(String gid, int uid, Callback<ReturnBean<SingleMeberInfoBean>> callback) {
         NetUtil.getNet().exec(server.getSingleMemberInfo(gid, uid), callback);
+    }
+
+    /**
+     * 获取用户信息
+     */
+    public void getUserInfoById(Long userId, final CallBack<ReturnBean<UserInfo>> callBack) {
+        NetUtil.getNet().exec(server.getUserInfo(userId), callBack);
     }
 
 }
