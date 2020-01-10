@@ -1,7 +1,6 @@
 package com.hm.cxpay.net;
 
 import com.hm.cxpay.BuildConfig;
-import com.hm.cxpay.net.converter.MGsonConverterFactory;
 import com.hm.cxpay.rx.PayHostUtils;
 import com.hm.cxpay.rx.interceptor.CommonInterceptor;
 
