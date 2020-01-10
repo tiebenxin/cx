@@ -1,8 +1,10 @@
 package com.yanlong.im.chat.ui.forward;
 
 
+import android.Manifest;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,6 +15,10 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 
+import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.config.PictureMimeType;
+import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ChatMessage;
@@ -26,12 +32,17 @@ import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityMsgForwardBinding;
 
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.ui.FeedbackActivity;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.utils.CheckPermission2Util;
+import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.GsonUtils;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.UriUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -45,8 +56,12 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.annotations.NonNull;
+
 /***
  * 消息转换
+ *
+ * 备注：相册图片分享到常信，收到分享的图片后复用此界面
  */
 
 public class MsgForwardActivity extends AppActivity implements IForwardListener {
@@ -70,6 +85,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     public static int maxNumb = 9;
     public static String searchKey = null;
 
+    private CheckPermission2Util permission2Util = new CheckPermission2Util();
+    private String oneShareImgPath = "";//单图分享路径
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +96,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         EventBus.getDefault().register(this);
 
         findViews();
+//        getSysImgShare(); TODO 【发送相册到常信，还未出文档，已能接收到相册传过来的图片path，后续放开】
         initEvent();
         showFragment(currentPager);
 
@@ -519,4 +538,39 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         actionbar.setTxtRight("完成(" + event.type + ")");
     }
 
+    //获取系统相册分享的图片(暂时仅支持单张图片分享)
+    private void getSysImgShare() {
+        //TODO 担心有权限问题，加一层保险起见
+        permission2Util.requestPermissions(MsgForwardActivity.this, new CheckPermission2Util.Event() {
+            @Override
+            public void onSuccess() {
+                Intent intent = getIntent();
+                Bundle extras = intent.getExtras();
+                String action = intent.getAction();
+                if (Intent.ACTION_SEND.equals(action)) {
+                    if (extras.containsKey(Intent.EXTRA_STREAM)) {
+                        try {
+                            Uri uri = (Uri) extras.getParcelable(Intent.EXTRA_STREAM);
+                            oneShareImgPath = FileUtils.getFilePathByUri(MsgForwardActivity.this, uri);
+//                            ToastUtil.show("拿到了图片路径");
+                        } catch (Exception e) {
+                            LogUtil.getLog().e(e.toString());
+                        }
+
+                    }
+                }
+            }
+
+            @Override
+            public void onFail() {
+                ToastUtil.show("需要同意访问权限");
+            }
+        }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        permission2Util.onRequestPermissionsResult();
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
 }
