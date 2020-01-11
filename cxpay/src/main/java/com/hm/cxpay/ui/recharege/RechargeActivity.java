@@ -78,6 +78,7 @@ public class RechargeActivity extends AppActivity {
     private ImageView ivBankIconTwo;//已有银行卡切换->显示银行卡头像
     private TextView tvNotice;//低于10元顶部提示
     private TextView tvQuestion;//常见问题
+    private PswView pswView;//密码输入框
 
     public static final int SELECT_BANKCARD = 99;
     private BankBean selectBankcard;//选中的银行卡
@@ -98,6 +99,10 @@ public class RechargeActivity extends AppActivity {
     protected void onResume() {
         super.onResume();
         getBankList();
+        if(dialogTwo!=null && dialogTwo.isShowing()){
+            //强制唤起软键盘
+            showSoftKeyword(pswView);
+        }
     }
 
 
@@ -145,7 +150,7 @@ public class RechargeActivity extends AppActivity {
             public void onClick(View v) {
                 //1 充值金额不能为空
                 if (!TextUtils.isEmpty(etRecharge.getText().toString())) {
-                    //2 最低充值1元
+                    //2 最低充值10元
                     if (Integer.valueOf(etRecharge.getText().toString()) >= 10) {
                         //3-1 已经添加过银行卡
                         if (ifAddBankcard) {
@@ -387,7 +392,7 @@ public class RechargeActivity extends AppActivity {
             tvBankNameTwo = dialogView.findViewById(R.id.tv_bank_name);
             ivBankIconTwo = dialogView.findViewById(R.id.iv_bank_icon);
             LinearLayout layoutChangeBankcard = dialogView.findViewById(R.id.layout_change_bankcard);
-            final PswView pswView = dialogView.findViewById(R.id.psw_view);
+            pswView = dialogView.findViewById(R.id.psw_view);
             //充值金额
             tvRechargeValue.setText("¥" + etRecharge.getText().toString());
             builder = new StringBuilder();
