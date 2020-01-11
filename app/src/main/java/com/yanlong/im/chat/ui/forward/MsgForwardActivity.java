@@ -15,10 +15,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 
-import com.luck.picture.lib.PictureSelector;
-import com.luck.picture.lib.config.PictureConfig;
-import com.luck.picture.lib.config.PictureMimeType;
-import com.yanlong.im.MainActivity;
+import com.example.nim_lib.config.Preferences;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ChatMessage;
@@ -32,7 +29,6 @@ import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityMsgForwardBinding;
 
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.ui.FeedbackActivity;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
@@ -42,7 +38,6 @@ import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.utils.UriUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -93,21 +88,15 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_msg_forward);
-        EventBus.getDefault().register(this);
-
+        if(!EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().register(this);
+        }
         findViews();
 //        getSysImgShare(); TODO 【发送相册到常信，还未出文档，已能接收到相册传过来的图片path，后续放开】
         initEvent();
         showFragment(currentPager);
 
     }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
-    }
-
 
     //自动寻找控件
     private void findViews() {
@@ -241,6 +230,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     }
                     Intent intent = new Intent(MsgForwardActivity.this, GroupSelectActivity.class);
                     intent.putExtra(AGM_JSON, json);
+                    intent.putExtra(Preferences.DATA,moreSessionBeanList.size());
                     startActivityForResult(intent, 0);
 
                 }
@@ -472,7 +462,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     }
 
     public void doSendSuccess() {
-        ToastUtil.show(this, "转发成功");
+        ToastUtil.show(this, getResources().getString(R.string.forward_success));
         finish();
     }
 

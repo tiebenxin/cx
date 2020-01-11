@@ -240,21 +240,23 @@ public class ChatInfoActivity extends AppActivity {
     private void initData() {
         readDestroyUtil = new ReadDestroyUtil();
         UserInfo userInfo = userDao.findUserInfo(fuid);
-        destroyTime = userInfo.getDestroy();
-        String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
-        tvDestroyTime.setText(content);
-        //1 若已经开启阅后即焚，则强制自动开启截屏通知
-        if(!content.equals("关闭")){
-            //截屏通知字段设置为打开，更新本地数据库，调接口通知后台已打开
-            ckScreenshot.setChecked(true);
-            fUserInfo.setScreenShot(1);
-            taskSaveInfo();
-            //todo zjy 调接口通知后台-已打开
+        if(userInfo!=null){
+            destroyTime = userInfo.getDestroy();
+            String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
+            tvDestroyTime.setText(content);
+            //1 若已经开启阅后即焚，则强制自动开启截屏通知
+            if(!content.equals("关闭")){
+                //截屏通知字段设置为打开，更新本地数据库，调接口通知后台已打开
+                ckScreenshot.setChecked(true);
+                fUserInfo.setScreenShot(1);
+                taskSaveInfo();
+                //todo zjy 调接口通知后台-已打开
 //            taskUpSwitch(fUserInfo.getScreenShot(), null);
-        }else {
-            //2 若没有开启阅后即焚，则展示原有开关状态
-            if(fUserInfo!=null){
-                ckScreenshot.setChecked(fUserInfo.getScreenShot() == 1);
+            }else {
+                //2 若没有开启阅后即焚，则展示原有开关状态
+                if(fUserInfo!=null){
+                    ckScreenshot.setChecked(fUserInfo.getScreenShot() == 1);
+                }
             }
         }
         //截屏通知切换开关

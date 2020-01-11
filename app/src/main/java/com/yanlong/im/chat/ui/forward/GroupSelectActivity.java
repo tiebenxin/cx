@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.nim_lib.config.Preferences;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
@@ -25,7 +26,6 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityGroupSaveBinding;
-import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
@@ -41,6 +41,10 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -68,14 +72,19 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
     private MsgAllBean msgAllBean;
     private MsgDao msgDao = new MsgDao();
     private MsgAllBean sendMesage;
-
+     private int mCount =0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_group_save);
+        if(!EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().register(this);
+        }
+
         String json = getIntent().getStringExtra(AGM_JSON);
         msgAllBean = GsonUtils.getObject(json, MsgAllBean.class);
+        mCount = getIntent().getIntExtra(Preferences.DATA,0);
         findViews();
         initEvent();
         initData();
@@ -100,11 +109,16 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 
             }
         });
-
+        actionbar.getTxtRight().setOnClickListener(o->{
+            finish();
+        });
         ui.mtListView.getLoadView().setStateNormal();
     }
 
     private void initData() {
+        if(!MsgForwardActivity.isSingleSelected){
+            actionbar.setTxtRight("完成(" + mCount + ")");
+        }
         groupInfoBeans = new ArrayList<>();
         ui.mtListView.init(new RecyclerViewAdapter());
 //        taskMySaved();
@@ -183,7 +197,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
             public void onYes(String content) {
                 send(content,uid,gid);
 
-                ToastUtil.show(GroupSelectActivity.this, "转发成功");
+                ToastUtil.show(GroupSelectActivity.this, getResources().getString(net.cb.cb.library.R.string.forward_success));
                 finish();
             }
         });
@@ -209,7 +223,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 //                    sendMesage = SocketData.send4Image(toUid, toGid, imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), new Long(imagesrc.getWidth()).intValue(), new Long(imagesrc.getHeight()).intValue(), new Long(imagesrc.getSize()).intValue());
 //                    msgDao.ImgReadStatSet(imagesrc.getOrigin(), imagesrc.isReadOrigin());
             sendLeaveMessage(content, uid, gid);
-            ToastUtil.show(GroupSelectActivity.this, "转发成功");
+            ToastUtil.show(GroupSelectActivity.this, getResources().getString(net.cb.cb.library.R.string.forward_success));
             setResult(RESULT_OK);
             notifyRefreshMsg(gid, uid);
         }else if (msgAllBean.getAtMessage() != null) {
@@ -223,7 +237,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                 sendMesage = allBean;
             }
             sendLeaveMessage(content, uid, gid);
-            ToastUtil.show(GroupSelectActivity.this, "转发成功");
+            ToastUtil.show(GroupSelectActivity.this, getResources().getString(net.cb.cb.library.R.string.forward_success));
             setResult(RESULT_OK);
             notifyRefreshMsg(gid, uid);
         }else if (msgAllBean.getLocationMessage() != null) {
@@ -426,6 +440,11 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                 sendMesage = messageBean;
             }
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void posting(SelectNumbEvent event) {
+        actionbar.setTxtRight("完成(" + event.type + ")");
     }
 
 }

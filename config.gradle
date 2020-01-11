@@ -50,5 +50,6 @@ ext {
     rxandroidVersion = '2.0.1'
     percentSupportExtendsVersion = '1.1.1'
     supportLibraryVersion = '25.3.1'
+    googleGson = '2.8.4'
 
 }
