@@ -201,11 +201,7 @@ public class LooseChangeActivity extends BasePayActivity {
                 layoutAuthRealName.setEnabled(false);
                 //1 已经绑定手机
                 if (userBean != null && userBean.getPhoneBindStat() == 1) {
-                    //TODO 还有一个认证信息展示界面未出
-//                    ToastUtil.show(activity,"您已绑定手机号(暂时允许进入)");
-//                    IntentUtil.gotoActivity(activity, BindPhoneNumActivity.class);
                     IntentUtil.gotoActivity(activity, IdentificationInfoActivity.class);
-
                 } else {
                     //2 没有绑定手机
                     showBindPhoneNumDialog();
