@@ -269,11 +269,13 @@ public class WithdrawActivity extends AppActivity {
                         } else {
                             ToastUtil.show(context, baseResponse.getMessage());
                         }
+                        dismissLoadingDialog();
                     }
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
                         ToastUtil.show(context, baseResponse.getMessage());
+                        dismissLoadingDialog();
                     }
                 });
 
@@ -390,6 +392,7 @@ public class WithdrawActivity extends AppActivity {
                 break;
             case WITHDRAW:
                 if (resultCode == RESULT_OK) {
+                    showLoadingDialog();
                     if (data.getStringExtra("payword") != null) {
                         httpWithdraw(data.getStringExtra("payword"), selectBankcard.getId());
                     }
