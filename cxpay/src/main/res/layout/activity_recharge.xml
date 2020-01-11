@@ -51,7 +51,7 @@
                     android:background="@null"
                     android:ellipsize="end"
                     android:gravity="right|center_vertical"
-                    android:hint="单笔最低充值10元，最高500元"
+                    android:hint="最低10元，最高500元"
                     android:inputType="number"
                     android:maxLines="1"
                     android:paddingRight="18dp"
