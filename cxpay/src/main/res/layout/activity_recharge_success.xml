@@ -49,8 +49,7 @@
             android:layout_marginTop="40dp"
             android:layout_marginRight="50dp"
             android:lineSpacingExtra="3dp"
-            android:text="完成支付后，资金将在1小时内到账。充值结果会通过“零钱小助手”通知你，如未到账，请及时联系客
-服或者点击我—帮助—问题反馈填写留言给我们。"
+            android:text="完成支付后，资金将在1小时内到账。充值结果会通过“零钱小助手”通知你，如未到账，请及时联系客服或者点击我—帮助—问题反馈填写留言给我们。"
             android:textColor="@color/c_000000"
             android:textSize="12sp" />
 
