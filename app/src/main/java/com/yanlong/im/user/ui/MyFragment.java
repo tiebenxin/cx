@@ -458,18 +458,63 @@ public class MyFragment extends Fragment {
     private void checkUserStatus(UserBean userBean) {
         //1 已实名认证
         if (userBean.getRealNameStat() == 1) {
-            //1-1 是否完成绑定手机号流程
+            //1-1 已完成绑定手机号
             if (userBean.getPhoneBindStat() == 1) {
                 startActivity(new Intent(getActivity(), LooseChangeActivity.class));
             } else {
-                ToastUtil.show(context, "请继续完成绑定手机号的流程");
-                startActivity(new Intent(getActivity(), BindPhoneNumActivity.class));
+                //1-2 未完成绑定手机号
+                showBindPhoneNumDialog();
             }
         } else {
             //2 未实名认证->分三步走流程(1 同意->2 实名认证->3 绑定手机号)
             showIdentifyDialog();
         }
 
+    }
+
+    /**
+     * 是否绑定手机号弹框
+     */
+    private void showBindPhoneNumDialog() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        final AlertDialog dialog = dialogBuilder.create();
+        //获取界面
+        View dialogView = LayoutInflater.from(context).inflate(com.hm.cxpay.R.layout.dialog_bind_phonenum, null);
+        //初始化控件
+        TextView tvBind = dialogView.findViewById(com.hm.cxpay.R.id.tv_bind);
+        TextView tvExit = dialogView.findViewById(com.hm.cxpay.R.id.tv_exit);
+        //去绑定
+        tvBind.setOnClickListener(new android.view.View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                startActivity(new Intent(context, BindPhoneNumActivity.class));
+
+            }
+        });
+        //取消
+        tvExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        //展示界面
+        dialog.show();
+        //解决圆角shape背景无效问题
+        Window window = dialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        //相关配置
+        WindowManager.LayoutParams lp = window.getAttributes();
+        window.setGravity(Gravity.CENTER);
+        WindowManager manager = window.getWindowManager();
+        DisplayMetrics metrics = new DisplayMetrics();
+        manager.getDefaultDisplay().getMetrics(metrics);
+        //设置宽高，高度自适应，宽度屏幕0.8
+        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        lp.width = (int) (metrics.widthPixels * 0.8);
+        dialog.getWindow().setAttributes(lp);
+        dialog.setContentView(dialogView);
     }
 
 }

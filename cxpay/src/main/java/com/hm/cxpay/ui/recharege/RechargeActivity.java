@@ -420,7 +420,9 @@ public class RechargeActivity extends AppActivity {
             pswView.setOnPasswordChangedListener(new PswView.onPasswordChangedListener() {
                 @Override
                 public void setPasswordChanged(String payword) {
+                    showLoadingDialog();
                     httpRecharge(payword, selectBankcard.getId());
+
                     if (dialogTwo != null) {
                         dialogTwo.dismiss();
                     }
@@ -507,11 +509,13 @@ public class RechargeActivity extends AppActivity {
                                 ToastUtil.showLong(context, baseResponse.getMessage());
                             }
                         }
+                        dismissLoadingDialog();
                     }
 
                     @Override
                     public void onHandleError(BaseResponse<CommonBean> baseResponse) {
                         ToastUtil.showLong(context, baseResponse.getMessage());
+                        dismissLoadingDialog();
                     }
                 });
 
