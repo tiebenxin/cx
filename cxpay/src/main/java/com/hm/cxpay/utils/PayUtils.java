@@ -6,6 +6,8 @@ import android.util.Base64;
 import com.google.common.io.BaseEncoding;
 import com.hm.cxpay.global.PayEnvironment;
 
+import net.cb.cb.library.utils.LogUtil;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
@@ -40,6 +42,7 @@ public class PayUtils {
      * secretKey : 密钥
      */
     public static String getSignature(String signatureReqStr, String secretKey) {
+        LogUtil.getLog().i("支付签名", signatureReqStr);
         if (TextUtils.isEmpty(secretKey)) {
             return "";
         }

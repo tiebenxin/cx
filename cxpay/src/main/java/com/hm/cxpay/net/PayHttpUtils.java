@@ -63,43 +63,54 @@ public class PayHttpUtils {
 
     /**
      * 新增认证签名
+     *
      * @return
      */
     private Map<String, String> getAuthMap() {
-        String rand = PayUtils.getRandomNumber()+"";//随机数
-        String ts = System.currentTimeMillis()+"";//时间戳
+        String rand = PayUtils.getRandomNumber() + "";//随机数
+        String ts = System.currentTimeMillis() + "";//时间戳
         String uid = "";//uid
-        String key = "";//密钥
-        if(PayEnvironment.getInstance().getUser()!=null){
-            if(PayEnvironment.getInstance().getUser().getUid()!=0){
-                uid = PayEnvironment.getInstance().getUser().getUid()+"" ;
+        if (PayEnvironment.getInstance().getUserId() > 0) {
+            uid = PayEnvironment.getInstance().getUserId() + "";
+        }
+        if (TextUtils.isEmpty(uid)) {
+            if (PayEnvironment.getInstance().getUser() != null) {
+                if (PayEnvironment.getInstance().getUser().getUid() != 0) {
+                    uid = PayEnvironment.getInstance().getUser().getUid() + "";
+                }
             }
         }
-        if(!TextUtils.isEmpty(PayEnvironment.getInstance().getBankSign())){
+
+        String key = "";//密钥
+        if (!TextUtils.isEmpty(PayEnvironment.getInstance().getBankSign())) {
             key = PayEnvironment.getInstance().getBankSign();
         }
         Map<String, String> authMap = new HashMap<>();
         authMap.put("rand", rand);
         authMap.put("ts", ts);
-        authMap.put("sign", PayUtils.getSignature(rand+"."+ts+"."+uid,key));
+        authMap.put("sign", PayUtils.getSignature(rand + "." + ts + "." + uid, key));
         return authMap;
     }
 
     /**
      * 新增认证签名 - 获取用户信息接口专用
+     *
      * @return
      */
     private Map<String, String> getUserInfoAuthMap(long uid) {
-        String rand = PayUtils.getRandomNumber()+"";//随机数
-        String ts = System.currentTimeMillis()+"";//时间戳
+        String rand = PayUtils.getRandomNumber() + "";//随机数
+        String ts = System.currentTimeMillis() + "";//时间戳
         String key = "";//密钥
-        if(!TextUtils.isEmpty(PayEnvironment.getInstance().getBankSign())){
+        if (!TextUtils.isEmpty(PayEnvironment.getInstance().getBankSign())) {
             key = PayEnvironment.getInstance().getBankSign();
+        }
+        if (uid <= 0) {
+            uid = PayEnvironment.getInstance().getUserId();
         }
         Map<String, String> authMap = new HashMap<>();
         authMap.put("rand", rand);
         authMap.put("ts", ts);
-        authMap.put("sign", PayUtils.getSignature(rand+"."+ts+"."+uid,key));
+        authMap.put("sign", PayUtils.getSignature(rand + "." + ts + "." + uid, key));
         return authMap;
     }
 
@@ -110,14 +121,14 @@ public class PayHttpUtils {
         map.put("idNumber", idNum);
         map.put("realName", realName);
         map.put("idType", 1 + "");
-        return HttpChannel.getInstance().getPayService().authUserInfo(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().authUserInfo(getRequestBody(map), getAuthMap());
     }
 
     //银行卡检测
     public Observable<BaseResponse<BankInfo>> checkBankCard(String bankCardNo) {
         Map<String, String> map = new HashMap<>();
         map.put("bankCardNo", bankCardNo);
-        return HttpChannel.getInstance().getPayService().checkBankCard(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().checkBankCard(getRequestBody(map), getAuthMap());
     }
 
 
@@ -126,7 +137,7 @@ public class PayHttpUtils {
         Map<String, String> map = new HashMap<>();
         map.put("bankCardNo", bankCardNo);
         map.put("phone", phone);
-        return HttpChannel.getInstance().getPayService().applyBindBankCard(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().applyBindBankCard(getRequestBody(map), getAuthMap());
     }
 
 
@@ -146,7 +157,7 @@ public class PayHttpUtils {
         map.put("tranceNum", tranceNum);
         map.put("transDate", transDate);
         map.put("verificationCode", verificationCode);
-        return HttpChannel.getInstance().getPayService().bindBank(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().bindBank(getRequestBody(map), getAuthMap());
     }
 
     //获取用户信息
@@ -158,7 +169,7 @@ public class PayHttpUtils {
     public Observable<BaseResponse> setPayword(String pwd) {
         Map<String, String> map = new HashMap<>();
         map.put("pwd", MD5.md5(pwd));
-        return HttpChannel.getInstance().getPayService().setPayword(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().setPayword(getRequestBody(map), getAuthMap());
     }
 
     //修改支付密码
@@ -171,21 +182,21 @@ public class PayHttpUtils {
             map.put("token", token);
         }
         map.put("newPwd", MD5.md5(newPayword));
-        return HttpChannel.getInstance().getPayService().modifyPayword(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().modifyPayword(getRequestBody(map), getAuthMap());
     }
 
     //检查支付密码
     public Observable<BaseResponse> checkPayword(String pwd) {
         Map<String, String> map = new HashMap<>();
         map.put("pwd", MD5.md5(pwd));
-        return HttpChannel.getInstance().getPayService().checkPayword(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().checkPayword(getRequestBody(map), getAuthMap());
     }
 
     //解绑银行卡
     public Observable<BaseResponse> deleteBankcard(String bankCardId) {
         Map<String, String> map = new HashMap<>();
         map.put("bankCardId", bankCardId);
-        return HttpChannel.getInstance().getPayService().deleteBankcard(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().deleteBankcard(getRequestBody(map), getAuthMap());
     }
 
     //充值
@@ -195,7 +206,7 @@ public class PayHttpUtils {
         map.put("bankCardId", bankCardId + "");
         map.put("payPwd", MD5.md5(payPwd));
         map.put("actionId", UIUtils.getUUID());
-        return HttpChannel.getInstance().getPayService().toRecharge(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().toRecharge(getRequestBody(map), getAuthMap());
     }
 
     //提现
@@ -205,7 +216,7 @@ public class PayHttpUtils {
         map.put("bankCardId", bankCardId + "");
         map.put("payPwd", MD5.md5(payPwd));
         map.put("actionId", UIUtils.getUUID());
-        return HttpChannel.getInstance().getPayService().toWithdraw(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().toWithdraw(getRequestBody(map), getAuthMap());
     }
 
     //获取系统费率
@@ -219,7 +230,7 @@ public class PayHttpUtils {
         if (!TextUtils.isEmpty(phoneNum)) {
             map.put("phone", phoneNum);
         }
-        return HttpChannel.getInstance().getPayService().getCode(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().getCode(getRequestBody(map), getAuthMap());
     }
 
     //绑定手机-获取当前用户IM手机号
@@ -234,7 +245,7 @@ public class PayHttpUtils {
             map.put("phone", phone);
         }
         map.put("verificationCode", verificationCode);
-        return HttpChannel.getInstance().getPayService().bindPhoneNum(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().bindPhoneNum(getRequestBody(map), getAuthMap());
     }
 
     //获取账单明细
@@ -247,7 +258,7 @@ public class PayHttpUtils {
         if (!TextUtils.isEmpty(id)) {
             map.put("id", id);
         }
-        return HttpChannel.getInstance().getPayService().getBillDetailsList(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().getBillDetailsList(getRequestBody(map), getAuthMap());
     }
 
     //获取零钱明细
@@ -256,7 +267,7 @@ public class PayHttpUtils {
         map.put("pageNum", pageNum + "");
         map.put("pageSize", 20 + "");
         map.put("startTime", startTime + "");
-        return HttpChannel.getInstance().getPayService().getChangeDetailsList(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().getChangeDetailsList(getRequestBody(map), getAuthMap());
     }
 
     //验证实名信息-忘记密码辅助验证第一步 (第二步为检查银行卡)
@@ -265,7 +276,7 @@ public class PayHttpUtils {
         map.put("idNumber", idNumber);
         map.put("idType", "1");
         map.put("realName", realName);
-        return HttpChannel.getInstance().getPayService().checkRealNameInfo(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().checkRealNameInfo(getRequestBody(map), getAuthMap());
     }
 
     //绑定银行卡-忘记密码辅助验证第三步
@@ -275,7 +286,7 @@ public class PayHttpUtils {
         map.put("bankName", bankName);
         map.put("phone", phone);
         map.put("token", token);
-        return HttpChannel.getInstance().getPayService().bindBankCard(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().bindBankCard(getRequestBody(map), getAuthMap());
     }
 
     //验证短信验证码-忘记密码辅助验证第四步
@@ -283,7 +294,7 @@ public class PayHttpUtils {
         Map<String, String> map = new HashMap<>();
         map.put("token", token);
         map.put("verificationCode", verificationCode);
-        return HttpChannel.getInstance().getPayService().checkCode(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().checkCode(getRequestBody(map), getAuthMap());
     }
 
     //获取红包明细  type—— 7：收到红包； 2 —— 发出红包
@@ -293,7 +304,7 @@ public class PayHttpUtils {
         map.put("pageSize", 20 + "");
         map.put("startTime", startTime + "");
         map.put("type", type + "");
-        return HttpChannel.getInstance().getPayService().getRedEnvelopeDetails(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().getRedEnvelopeDetails(getRequestBody(map), getAuthMap());
     }
 
     /**
@@ -313,7 +324,7 @@ public class PayHttpUtils {
         map.put("note", note);
         map.put("type", type + "");
         map.put("toUid", uid + "");
-        return HttpChannel.getInstance().getPayService().sendRedEnvelope(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().sendRedEnvelope(getRequestBody(map), getAuthMap());
     }
 
     /**
@@ -333,7 +344,7 @@ public class PayHttpUtils {
         map.put("note", note);
         map.put("type", type + "");
         map.put("toGid", gid);
-        return HttpChannel.getInstance().getPayService().sendRedEnvelope(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().sendRedEnvelope(getRequestBody(map), getAuthMap());
     }
 
     /**
@@ -344,7 +355,7 @@ public class PayHttpUtils {
     public Observable<BaseResponse<GrabEnvelopeBean>> grabRedEnvelope(long rid) {
         Map<String, String> map = new HashMap<>();
         map.put("rid", rid + "");
-        return HttpChannel.getInstance().getPayService().grabRedEnvelope(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().grabRedEnvelope(getRequestBody(map), getAuthMap());
     }
 
     /**
@@ -358,7 +369,7 @@ public class PayHttpUtils {
         if (!TextUtils.isEmpty(token)) {
             map.put("accessToken", token);
         }
-        return HttpChannel.getInstance().getPayService().openRedEnvelope(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().openRedEnvelope(getRequestBody(map), getAuthMap());
     }
 
     /**
@@ -376,7 +387,7 @@ public class PayHttpUtils {
         if (fromType == 1) {
             map.put("src", 1 + "");
         }
-        return HttpChannel.getInstance().getPayService().getEnvelopeDetail(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().getEnvelopeDetail(getRequestBody(map), getAuthMap());
     }
 
 
@@ -397,7 +408,7 @@ public class PayHttpUtils {
         if (bankCardId > 0) {
             map.put("bankCardId", bankCardId + "");
         }
-        return HttpChannel.getInstance().getPayService().sendTransfer(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().sendTransfer(getRequestBody(map), getAuthMap());
     }
 
 
@@ -409,7 +420,7 @@ public class PayHttpUtils {
     public Observable<BaseResponse<TransferDetailBean>> getTransferDetail(String tradeId) {
         Map<String, String> map = new HashMap<>();
         map.put("tradeId", tradeId);
-        return HttpChannel.getInstance().getPayService().getTransferDetail(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().getTransferDetail(getRequestBody(map), getAuthMap());
     }
 
     /**
@@ -422,7 +433,7 @@ public class PayHttpUtils {
         map.put("actionId", actionId);
         map.put("tradeId", tradeId);
         map.put("fromUid", fromUid + "");
-        return HttpChannel.getInstance().getPayService().receiveTransfer(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().receiveTransfer(getRequestBody(map), getAuthMap());
     }
 
     /**
@@ -435,7 +446,7 @@ public class PayHttpUtils {
         map.put("actionId", actionId);
         map.put("tradeId", tradeId);
         map.put("fromUid", fromUid + "");
-        return HttpChannel.getInstance().getPayService().returnTransfer(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().returnTransfer(getRequestBody(map), getAuthMap());
     }
 
 

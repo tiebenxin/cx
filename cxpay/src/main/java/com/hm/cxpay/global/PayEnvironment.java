@@ -30,6 +30,7 @@ public class PayEnvironment {
     private String phone;//用户手机号
     private String nick;//用户昵称
     private String bankSign;//银行签名
+    private long userId=0;
 
     public static PayEnvironment getInstance() {
         if (INSTANCE == null) {
@@ -117,6 +118,7 @@ public class PayEnvironment {
         phone = null;
         nick = null;
         bankSign = null;
+        userId = 0;
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.BANK_SIGN).clear();
     }
 
@@ -135,4 +137,11 @@ public class PayEnvironment {
         EventBus.getDefault().post(new NoticeReceiveEvent(rid));
     }
 
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
 }

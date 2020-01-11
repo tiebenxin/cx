@@ -177,7 +177,7 @@ public class MainActivity extends AppActivity {
                         if (!isFinishing()) {
                             if (NIMClient.getStatus() != StatusCode.LOGINED) {
                                 LogUtil.getLog().i(MainActivity.class.getName(), "网易云登录失败，重新登录了:" + NIMClient.getStatus());
-                                LogUtil.writeLog(">>>>>>>>>网易云登录失败，重新登录了 状态是: "+NIMClient.getStatus());
+                                LogUtil.writeLog(">>>>>>>>>网易云登录失败，重新登录了 状态是: " + NIMClient.getStatus());
                                 NIMClient.getService(AuthService.class).logout();// 需要先登出网易登录，在重新登录
                                 UserAction userAction = new UserAction();
                                 SpUtil spUtil = SpUtil.getSpUtil();
@@ -474,7 +474,7 @@ public class MainActivity extends AppActivity {
         //taskClearNotification();
         checkNotificationOK();
         checkPayEnvironmentInit();
-        if (AppConfig.isOnline()){
+        if (AppConfig.isOnline()) {
             checkHasEnvelopeSendFailed();
         }
     }
@@ -486,6 +486,9 @@ public class MainActivity extends AppActivity {
         if (info != null) {
             PayEnvironment.getInstance().setPhone(info.getPhone());
             PayEnvironment.getInstance().setNick(info.getName());
+            if (info.getUid() != null) {
+                PayEnvironment.getInstance().setUserId(info.getUid().longValue());
+            }
             UserBean bean = PayEnvironment.getInstance().getUser();
             if (bean == null || (bean != null && bean.getUid() != info.getUid().intValue())) {
                 httpGetUserInfo(info.getUid());
@@ -898,7 +901,7 @@ public class MainActivity extends AppActivity {
                     if (list != null) {
                         timeUtils.addMsgAllBeans(list);
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
