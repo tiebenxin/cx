@@ -13,11 +13,13 @@ public class PayHostUtils {
     private static final String HOST_TEST = "192.168.10.229";//http路径
     private static final String HTTP = "http://";
     private static final String HTTPS = "https://";
-    private static final String HOST = "yanlong.1616d.top";//https 路径
+    //    private static final String HOST = "yanlong.1616d.top";//https 路径
+    private static final String HOST = "test.zhixun6.com";//https 路径
+
 
     //外网正式服  https
     public static String getHttpsUrl() {
-        return HTTPS + HOST + PORT_19991;
+        return HTTPS + HOST + PORT_9898;
     }
 
 }
