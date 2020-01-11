@@ -153,7 +153,7 @@ public class PayEnvironment {
         this.localTime = localTime;
     }
 
-    //获取当前的服务器时间
+    //获取当前的服务器时间,单位：s
     public long getFixTime() {
         long result = 0;
         if (serverTime > 0 && localTime > 0) {
@@ -162,6 +162,7 @@ public class PayEnvironment {
         if (result <= 0) {
             result = System.currentTimeMillis();
         }
+        result = result / 1000;
         return result;
     }
 }
