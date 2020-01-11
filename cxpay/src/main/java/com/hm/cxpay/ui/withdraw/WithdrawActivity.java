@@ -273,7 +273,6 @@ public class WithdrawActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });
@@ -325,7 +324,6 @@ public class WithdrawActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(activity, baseResponse.getMessage());
                     }
                 });
@@ -358,7 +356,6 @@ public class WithdrawActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse<CommonBean> baseResponse) {
-                        super.onHandleError(baseResponse);
                         showFailDialog();
                     }
                 });

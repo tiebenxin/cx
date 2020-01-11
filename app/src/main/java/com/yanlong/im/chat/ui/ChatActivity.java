@@ -70,6 +70,7 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.BindPhoneNumActivity;
 import com.hm.cxpay.ui.bill.BillDetailActivity;
 import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.ui.redenvelope.MultiRedPacketActivity;
@@ -1120,19 +1121,22 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (user.getRealNameStat() != 1) {//未认证
                         showIdentifyDialog();
                         return;
-                    } else if (user.getPayPwdStat() != 1) {//未设置支付密码
+                    } else if (user.getPhoneBindStat() != 1) {//未绑定手机
+                        showBindPhoneDialog();
+                        return;
+                    }else if (user.getPayPwdStat() != 1) {//未设置支付密码
                         showSettingPswDialog();
                         return;
                     }
                 }
                 if (isGroup()) {
                     int totalSize = 1;
-                    if (groupInfo == null){
+                    if (groupInfo == null) {
                         groupInfo = msgDao.getGroup4Id(toGid);
-                        if (groupInfo != null && groupInfo.getUsers() != null){
+                        if (groupInfo != null && groupInfo.getUsers() != null) {
                             totalSize = groupInfo.getUsers().size();
                         }
-                    }else {
+                    } else {
                         totalSize = groupInfo.getUsers().size();
                     }
                     Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivity.this, toGid, totalSize);
@@ -1165,7 +1169,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (user.getRealNameStat() != 1) {//未认证
                         showIdentifyDialog();
                         return;
-                    } else if (user.getPayPwdStat() != 1) {//未设置支付密码
+                    } else if (user.getPhoneBindStat() != 1) {//未绑定手机
+                        showBindPhoneDialog();
+                        return;
+                    }else if (user.getPayPwdStat() != 1) {//未设置支付密码
                         showSettingPswDialog();
                         return;
                     }
@@ -2723,7 +2730,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     @Override
-    public void clickUser(String userId,String gid) {
+    public void clickUser(String userId, String gid) {
         long user = StringUtil.getLong(userId);
         if (user > 0) {
             toUserInfoActivity(user);
@@ -5035,7 +5042,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         if (baseResponse.getCode() == -21000) {
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -5125,7 +5131,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                         @Override
                         public void onHandleError(BaseResponse baseResponse) {
-                            super.onHandleError(baseResponse);
                             if (baseResponse.getCode() == -21000) {
                             } else {
                                 ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -5160,7 +5165,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         if (baseResponse.getCode() == -21000) {
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -5186,50 +5190,59 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 实名认证提示弹框
      */
     private void showIdentifyDialog() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setCancelable(false);//取消点击外部消失弹窗
-        final AlertDialog dialog = dialogBuilder.create();
-        View dialogView = LayoutInflater.from(this).inflate(com.hm.cxpay.R.layout.dialog_identify, null);
-        TextView tvCancel = dialogView.findViewById(com.hm.cxpay.R.id.tv_cancel);
-        TextView tvIdentify = dialogView.findViewById(com.hm.cxpay.R.id.tv_identify);
-        //取消
-        tvCancel.setOnClickListener(new android.view.View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
-        //去认证(需要先同意协议)
-        tvIdentify.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(context, ServiceAgreementActivity.class));
-                dialog.dismiss();
-            }
-        });
-        //展示界面
-        dialog.show();
-        //解决圆角shape背景无效问题
-        Window window = dialog.getWindow();
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //相关配置
-        WindowManager.LayoutParams lp = window.getAttributes();
-        window.setGravity(Gravity.CENTER);
-        WindowManager manager = window.getWindowManager();
-        DisplayMetrics metrics = new DisplayMetrics();
-        manager.getDefaultDisplay().getMetrics(metrics);
-        //设置宽高，高度自适应，宽度屏幕0.8
-        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels * 0.8);
-        dialog.getWindow().setAttributes(lp);
-        dialog.setContentView(dialogView);
+        DialogDefault dialogIdentify = new DialogDefault(this, R.style.MyDialogTheme);
+        dialogIdentify
+                .setTitleAndSure(true, true)
+                .setTitle("温馨提示")
+                .setContent("根据国家法律法规要求，你需要进行身份认证后，才能继续使用该功能。", true)
+                .setLeft("取消")
+                .setRight("去认证")
+                .setListener(new DialogDefault.IDialogListener() {
+                    @Override
+                    public void onSure() {
+                        startActivity(new Intent(context, ServiceAgreementActivity.class));
+
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+                });
+        dialogIdentify.show();
+    }
+
+    /**
+     * 实名认证提示弹框
+     */
+    private void showBindPhoneDialog() {
+        DialogDefault dialogIdentify = new DialogDefault(this, R.style.MyDialogTheme);
+        dialogIdentify
+                .setTitleAndSure(false, true)
+                .setTitle("温馨提示")
+                .setContent("发红包之前，必须完成手机认证", true)
+                .setLeft("取消")
+                .setRight("去认证")
+                .setListener(new DialogDefault.IDialogListener() {
+                    @Override
+                    public void onSure() {
+                        startActivity(new Intent(ChatActivity.this, BindPhoneNumActivity.class));
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+                });
+        dialogIdentify.show();
     }
 
     public void showSettingPswDialog() {
         DialogDefault dialogSettingPayPsw = new DialogDefault(this, R.style.MyDialogTheme);
         dialogSettingPayPsw
-                .setTitleAndSure(true, false)
+                .setTitleAndSure(false, false)
                 .setTitle("温馨提示")
+                .setContent("您还没有设置支付密码，请设置支付密码后在进行操作", true)
                 .setLeft("设置支付密码")
                 .setRight("取消")
                 .setListener(new DialogDefault.IDialogListener() {
@@ -5277,7 +5290,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                     @Override
                     public void onHandleError(BaseResponse<TransferDetailBean> baseResponse) {
-                        super.onHandleError(baseResponse);
                         dismissLoadingDialog();
                         ToastUtil.show(context, baseResponse.getMessage());
                     }

@@ -101,7 +101,6 @@ public class CheckPaywordActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         if (baseResponse.getCode() == (-21000)) {
                             showErrorDialog();
                         }else {

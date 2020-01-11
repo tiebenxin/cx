@@ -447,7 +447,6 @@ public class MyFragment extends Fragment {
 
                     @Override
                     public void onHandleError(BaseResponse<UserBean> baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });

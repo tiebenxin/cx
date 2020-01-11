@@ -280,7 +280,6 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
 
                         @Override
                         public void onHandleError(BaseResponse baseResponse) {
-                            super.onHandleError(baseResponse);
                             if (baseResponse.getCode() == -21000) {
                             } else {
                                 ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -315,7 +314,6 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         if (baseResponse.getCode() == -21000) {
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -347,7 +345,6 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         if (baseResponse.getCode() == -21000) {
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());

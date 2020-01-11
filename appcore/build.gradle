@@ -163,4 +163,6 @@ dependencies {
     // oppo
     api 'cn.jiguang.sdk.plugin:vivo:3.3.8'
     //vivo
-}
+
+    //guava
+    api("com.google.guava:guava:28.2-android")}

@@ -230,7 +230,6 @@ public class BankDetailActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         if (baseResponse.getCode() == (-21000)) {
                             ToastUtil.show(context, "支付密码校验失败！");
                         }else {
@@ -260,7 +259,6 @@ public class BankDetailActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });

@@ -107,7 +107,6 @@ public class BankSettingActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                     }
                 });
     }

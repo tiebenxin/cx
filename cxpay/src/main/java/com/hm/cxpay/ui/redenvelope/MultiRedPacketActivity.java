@@ -375,7 +375,6 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         payFailed();
                         if (baseResponse.getCode() == -21000) {
                             showPswErrorDialog();

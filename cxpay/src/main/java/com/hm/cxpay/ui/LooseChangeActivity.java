@@ -66,7 +66,7 @@ public class LooseChangeActivity extends BasePayActivity {
     private Activity activity;
 
     private int myCardListSize = 0;//我的银行卡个数 (判断是否添加过银行卡)
-//    private ControllerPaySetting viewAccountInfo;
+    private UserBean userBean;
 
 
     @Override
@@ -85,17 +85,6 @@ public class LooseChangeActivity extends BasePayActivity {
         httpGetUserInfo();
     }
 
-//    private void showAuthView(UserBean user) {
-//        if (user == null) {
-//            return;
-//        }
-//        if (user.getIsVerify() == 1) {//已经认证，隐藏
-//            viewAccountInfo.setVisible(false);
-//        } else {
-//            viewAccountInfo.setVisible(true);
-//        }
-//    }
-
 
     @Override
     protected void onPause() {
@@ -109,7 +98,6 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutChangeDetails.setEnabled(true);
         layoutAuthRealName.setEnabled(true);
         viewMyRedEnvelope.setEnabled(true);
-//        viewAccountInfo.setEnabled(true);
         viewMyCard.setEnabled(true);
         viewSettingOfPsw.setEnabled(true);
 
@@ -145,15 +133,19 @@ public class LooseChangeActivity extends BasePayActivity {
                 startActivity(new Intent(activity, BillDetailListActivity.class));
             }
         });
-        //显示余额
-        tvBalance.setText("¥ " + UIUtils.getYuan(Long.valueOf(PayEnvironment.getInstance().getUser().getBalance())));
+        userBean = PayEnvironment.getInstance().getUser();
+        if (userBean != null) {
+            //显示余额
+            tvBalance.setText("¥ " + UIUtils.getYuan(Long.valueOf(userBean.getBalance())));
+        }
+
         //充值
         layoutRecharge.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 layoutRecharge.setEnabled(false);
                 // 1 已设置支付密码 -> 允许跳转
-                if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
+                if (userBean != null && userBean.getPayPwdStat() == 1) {
                     startActivity(new Intent(activity, RechargeActivity.class));
                 } else {
                     //2 未设置支付密码 -> 需要先设置
@@ -166,7 +158,7 @@ public class LooseChangeActivity extends BasePayActivity {
             @Override
             public void onClick(View view) {
                 //1 已设置支付密码 -> 允许跳转
-                if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
+                if (userBean != null && userBean.getPayPwdStat() == 1) {
                     //2 是否添加过银行卡
                     if (myCardListSize > 0) {
                         startActivity(new Intent(activity, WithdrawActivity.class));
@@ -197,19 +189,9 @@ public class LooseChangeActivity extends BasePayActivity {
             public void onClick() {
                 viewMyRedEnvelope.setEnabled(false);
                 ARouter.getInstance().build("/app/redEnvelopeDetailsActivity").navigation();
-//                ARouter.getInstance().build("/app/redpacketRecordActivity").navigation();
             }
         });
-        //账户信息
-//        viewAccountInfo = new ControllerPaySetting(findViewById(R.id.viewAccountInfo));
-//        viewAccountInfo.init(R.mipmap.ic_account_info, R.string.account_info, "");
-//        viewAccountInfo.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
-//            @Override
-//            public void onClick() {
-//                viewAccountInfo.setEnabled(false);
-//                IntentUtil.gotoActivity(activity, IdentificationInfoActivity.class);
-//            }
-//        });
+
         //实名认证
         layoutAuthRealName = new ControllerPaySetting(findViewById(R.id.layout_auth_realname));
         layoutAuthRealName.init(R.mipmap.ic_auth_realname, R.string.auth_realname, "");
@@ -218,7 +200,7 @@ public class LooseChangeActivity extends BasePayActivity {
             public void onClick() {
                 layoutAuthRealName.setEnabled(false);
                 //1 已经绑定手机
-                if (PayEnvironment.getInstance().getUser().getPhoneBindStat() == 1) {
+                if (userBean != null && userBean.getPhoneBindStat() == 1) {
                     //TODO 还有一个认证信息展示界面未出
 //                    ToastUtil.show(activity,"您已绑定手机号(暂时允许进入)");
 //                    IntentUtil.gotoActivity(activity, BindPhoneNumActivity.class);
@@ -239,7 +221,7 @@ public class LooseChangeActivity extends BasePayActivity {
             public void onClick() {
                 viewMyCard.setEnabled(false);
                 //已设置支付密码 -> 允许跳转
-                if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
+                if (userBean != null && userBean.getPayPwdStat() == 1) {
                     startActivity(new Intent(activity, BankSettingActivity.class));
                 } else {
                     //未设置支付密码 -> 需要先设置
@@ -255,7 +237,7 @@ public class LooseChangeActivity extends BasePayActivity {
             public void onClick() {
                 // 1 已设置支付密码 -> 允许跳转
                 viewSettingOfPsw.setEnabled(false);
-                if (PayEnvironment.getInstance().getUser().getPayPwdStat() == 1) {
+                if (userBean != null && userBean.getPayPwdStat() == 1) {
                     IntentUtil.gotoActivity(activity, ManagePaywordActivity.class);
                 } else {
                     //2 未设置支付密码 -> 需要先设置
@@ -269,7 +251,10 @@ public class LooseChangeActivity extends BasePayActivity {
      * 请求->获取用户信息
      */
     private void httpGetUserInfo() {
-        PayHttpUtils.getInstance().getUserInfo(PayEnvironment.getInstance().getUser().getUid())
+        if (userBean == null) {
+            return;
+        }
+        PayHttpUtils.getInstance().getUserInfo(userBean.getUid())
                 .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<UserBean>>() {
@@ -284,7 +269,6 @@ public class LooseChangeActivity extends BasePayActivity {
                             }
                             PayEnvironment.getInstance().setUser(userBean);
                             //刷新最新余额
-//                            PayEnvironment.getInstance().getUser().setBalance(userBean.getBalance());
                             tvBalance.setText("¥ " + UIUtils.getYuan(Long.valueOf(userBean.getBalance())));
                         } else {
                             ToastUtil.show(context, baseResponse.getMessage());
@@ -294,7 +278,6 @@ public class LooseChangeActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse<UserBean> baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });
@@ -323,7 +306,6 @@ public class LooseChangeActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(activity, baseResponse.getMessage());
                     }
                 });
@@ -372,7 +354,7 @@ public class LooseChangeActivity extends BasePayActivity {
         manager.getDefaultDisplay().getMetrics(metrics);
         //设置宽高，高度自适应，宽度屏幕0.8
         lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels*0.8);
+        lp.width = (int) (metrics.widthPixels * 0.8);
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
     }
@@ -419,7 +401,7 @@ public class LooseChangeActivity extends BasePayActivity {
         manager.getDefaultDisplay().getMetrics(metrics);
         //设置宽高，高度自适应，宽度屏幕0.8
         lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels*0.8);
+        lp.width = (int) (metrics.widthPixels * 0.8);
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
     }
@@ -464,7 +446,7 @@ public class LooseChangeActivity extends BasePayActivity {
         manager.getDefaultDisplay().getMetrics(metrics);
         //设置宽高，高度自适应，宽度屏幕0.8
         lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels*0.8);
+        lp.width = (int) (metrics.widthPixels * 0.8);
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
     }

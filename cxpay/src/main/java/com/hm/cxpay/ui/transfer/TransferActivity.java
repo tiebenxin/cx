@@ -220,7 +220,6 @@ public class TransferActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         payFailed();
                         if (baseResponse.getCode() == -21000) {//密码错误
                             showPswErrorDialog();

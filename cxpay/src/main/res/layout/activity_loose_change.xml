@@ -4,7 +4,7 @@
     android:id="@+id/headView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:headview_title="零钱">
+    app:headview_title="零钱红包">
 
     <LinearLayout
         android:layout_width="match_parent"

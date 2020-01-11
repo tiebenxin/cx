@@ -996,7 +996,6 @@ public class MainActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                     }
                 });
     }
@@ -1021,7 +1020,6 @@ public class MainActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse<UserBean> baseResponse) {
-                        super.onHandleError(baseResponse);
                     }
                 });
     }

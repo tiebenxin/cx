@@ -248,7 +248,6 @@ public class TransferDetailActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse<TransferDetailBean> baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });
@@ -289,7 +288,6 @@ public class TransferDetailActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse<TransferResultBean> baseResponse) {
-                        super.onHandleError(baseResponse);
                         dismissLoadingDialog();
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
@@ -335,7 +333,6 @@ public class TransferDetailActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse<TransferResultBean> baseResponse) {
-                        super.onHandleError(baseResponse);
                         dismissLoadingDialog();
                         ToastUtil.show(context, baseResponse.getMessage());
                     }

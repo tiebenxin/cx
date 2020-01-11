@@ -346,7 +346,6 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         if (baseResponse.getCode() == -21000) {
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());

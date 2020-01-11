@@ -102,7 +102,6 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse<UserBean> baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });

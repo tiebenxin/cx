@@ -120,7 +120,6 @@ public class BindBankActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         ui.tvNext.setEnabled(true);
                         ToastUtil.show(BindBankActivity.this, baseResponse.getMessage());
                     }

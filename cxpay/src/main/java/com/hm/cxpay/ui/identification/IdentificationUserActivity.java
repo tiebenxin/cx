@@ -95,7 +95,6 @@ public class IdentificationUserActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         ui.tvNext.setEnabled(true);
                         ToastUtil.show(IdentificationUserActivity.this, baseResponse.getMessage());
                     }
