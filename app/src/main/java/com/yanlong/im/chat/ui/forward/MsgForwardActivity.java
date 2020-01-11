@@ -13,6 +13,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 
+import com.example.nim_lib.config.Preferences;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ChatMessage;
@@ -75,20 +76,14 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_msg_forward);
-        EventBus.getDefault().register(this);
-
+        if(!EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().register(this);
+        }
         findViews();
         initEvent();
         showFragment(currentPager);
 
     }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
-    }
-
 
     //自动寻找控件
     private void findViews() {
@@ -222,6 +217,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     }
                     Intent intent = new Intent(MsgForwardActivity.this, GroupSelectActivity.class);
                     intent.putExtra(AGM_JSON, json);
+                    intent.putExtra(Preferences.DATA,moreSessionBeanList.size());
                     startActivityForResult(intent, 0);
 
                 }
@@ -453,7 +449,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     }
 
     public void doSendSuccess() {
-        ToastUtil.show(this, "转发成功");
+        ToastUtil.show(this, getResources().getString(R.string.forward_success));
         finish();
     }
 

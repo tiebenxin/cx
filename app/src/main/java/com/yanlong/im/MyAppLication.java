@@ -120,7 +120,9 @@ public class MyAppLication extends MainApplication {
         LogcatHelper.getInstance(this).start();
 //        initException();
         initUploadUtils();
-        initBugly();
+        if("release".equals(BuildConfig.BUILD_TYPE)){
+            initBugly();
+        }
         initCache();
         // 初始化表情
         FaceView.initFaceMap();
