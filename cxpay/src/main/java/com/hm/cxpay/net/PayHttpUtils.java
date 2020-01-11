@@ -1,25 +1,24 @@
 package com.hm.cxpay.net;
 
 import android.text.TextUtils;
-import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.hm.cxpay.bean.BillBean;
-import com.hm.cxpay.bean.CommonBean;
-import com.hm.cxpay.bean.TransferDetailBean;
-import com.hm.cxpay.bean.TransferResultBean;
-import com.hm.cxpay.bean.UserBean;
-import com.hm.cxpay.global.PayEnvironment;
-import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.BankInfo;
+import com.hm.cxpay.bean.BillBean;
 import com.hm.cxpay.bean.BindBankInfo;
+import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.bean.EnvelopeDetailBean;
 import com.hm.cxpay.bean.GrabEnvelopeBean;
 import com.hm.cxpay.bean.OpenEnvelopeBean;
 import com.hm.cxpay.bean.RedDetailsBean;
 import com.hm.cxpay.bean.SendResultBean;
+import com.hm.cxpay.bean.TransferDetailBean;
+import com.hm.cxpay.bean.TransferResultBean;
+import com.hm.cxpay.bean.UserBean;
+import com.hm.cxpay.global.PayEnvironment;
+import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.utils.PayUtils;
 import com.hm.cxpay.utils.UIUtils;
 
@@ -68,7 +67,7 @@ public class PayHttpUtils {
      */
     private Map<String, String> getAuthMap() {
         String rand = PayUtils.getRandomNumber() + "";//随机数
-        String ts = System.currentTimeMillis() + "";//时间戳
+        String ts = PayEnvironment.getInstance().getFixTime() + "";//时间戳
         String uid = "";//uid
         if (PayEnvironment.getInstance().getUserId() > 0) {
             uid = PayEnvironment.getInstance().getUserId() + "";
@@ -99,7 +98,7 @@ public class PayHttpUtils {
      */
     private Map<String, String> getUserInfoAuthMap(long uid) {
         String rand = PayUtils.getRandomNumber() + "";//随机数
-        String ts = System.currentTimeMillis() + "";//时间戳
+        String ts = PayEnvironment.getInstance().getFixTime() + "";//时间戳
         String key = "";//密钥
         if (!TextUtils.isEmpty(PayEnvironment.getInstance().getBankSign())) {
             key = PayEnvironment.getInstance().getBankSign();

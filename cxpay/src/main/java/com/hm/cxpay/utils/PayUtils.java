@@ -32,8 +32,7 @@ public class PayUtils {
      * @return
      */
     public static int getRandomNumber() {
-        Random rd = new Random();
-        return rd.nextInt(100);
+        return (int) ((Math.random() * 9 + 1) * 100000);
     }
 
     /**

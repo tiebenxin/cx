@@ -3,6 +3,7 @@ package com.yanlong.im.utils.socket;
 import android.accounts.NetworkErrorException;
 import android.text.TextUtils;
 
+import com.hm.cxpay.global.PayEnvironment;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
@@ -70,7 +71,7 @@ public class SocketUtil {
                     if (msg != null) {
                         DaoUtil.update(msg);
                     }
-                }  else if (bean.getRejectType() == MsgBean.RejectType.WORDS_NOT_ALLOWED) {
+                } else if (bean.getRejectType() == MsgBean.RejectType.WORDS_NOT_ALLOWED) {
                     MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, ChatEnum.ENoticeType.FORBIDDEN_WORDS_SINGE);
                     //收到直接存表
                     if (msg != null) {
@@ -737,9 +738,9 @@ public class SocketUtil {
                         EventBus.getDefault().post(new EventLoginOut());
                     } else {
                         setRunState(2);
-
                         //开始心跳
                         heartbeatTime = System.currentTimeMillis();
+                        PayEnvironment.getInstance().initTime(ruthmsg.getTimestamp(), heartbeatTime);
                         heartbeatThread();
                         //开始启动消息重发队列
                         sendListThread();

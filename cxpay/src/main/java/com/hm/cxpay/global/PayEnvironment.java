@@ -30,7 +30,9 @@ public class PayEnvironment {
     private String phone;//用户手机号
     private String nick;//用户昵称
     private String bankSign;//银行签名
-    private long userId=0;
+    private long userId = 0;
+    private long serverTime;//初始服务器时间
+    private long localTime;//初始本地时间
 
     public static PayEnvironment getInstance() {
         if (INSTANCE == null) {
@@ -143,5 +145,23 @@ public class PayEnvironment {
 
     public void setUserId(long userId) {
         this.userId = userId;
+    }
+
+    //tcp认证的时候，初始化服务器时间，及本地时间
+    public void initTime(long serverTime, long localTime) {
+        this.serverTime = serverTime;
+        this.localTime = localTime;
+    }
+
+    //获取当前的服务器时间
+    public long getFixTime() {
+        long result = 0;
+        if (serverTime > 0 && localTime > 0) {
+            result = serverTime + (System.currentTimeMillis() - localTime);
+        }
+        if (result <= 0) {
+            result = System.currentTimeMillis();
+        }
+        return result;
     }
 }
