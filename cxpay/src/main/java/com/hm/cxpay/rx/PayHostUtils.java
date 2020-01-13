@@ -17,8 +17,8 @@ public class PayHostUtils {
 
     //外网正式服  https
     public static String getHttpsUrl() {
-        return HTTPS + HOST_TEST + PORT_9898;
-//        return HTTPS + HOST + PORT_19991;
+//        return HTTPS + HOST_TEST + PORT_9898;
+        return HTTPS + HOST + PORT_19991;
     }
 
 }
