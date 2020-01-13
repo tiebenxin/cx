@@ -6,7 +6,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RadioButton;
@@ -22,11 +21,9 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.view.face.adapter.ViewPagerAdapter;
 import com.yanlong.im.view.face.bean.FaceBean;
 
-import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
 
-import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -345,7 +342,7 @@ public class FaceView extends RelativeLayout {
             list_Views.add(view);
         }
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 4; i++) {
             if (i == 0) {
                 type_emoji = FaceView.FaceType.FACE_ANIMO_TAB;
             }
