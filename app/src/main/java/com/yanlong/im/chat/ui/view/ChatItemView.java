@@ -59,6 +59,7 @@ import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.ui.RoundTransform;
 import com.yanlong.im.location.LocationUtils;
+import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PatternUtil;
@@ -68,9 +69,11 @@ import com.yanlong.im.view.CountDownView;
 import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.WebPageActivity;
 
 import java.util.List;
@@ -1276,14 +1279,48 @@ public class ChatItemView extends LinearLayout {
     private Context mContext;
 
 
-    public void setReadDestroy(String content) {
-        txtReadDestroy.setText(content);
+    public void setReadDestroy(MsgAllBean bean) {
+        if(bean==null||bean.getMsgCancel()==null||bean.getMsgCancel().getNote()==null){
+            return;
+        }
 
-//        if (type == 0) {
-//            imgReadDestroy.setImageResource(R.mipmap.icon_read_destroy_cancel);
-//        } else {
-//            imgReadDestroy.setImageResource(R.mipmap.icon_read_destroy_seting);
-//        }
+        String str=bean.getMsgCancel().getNote();
+        txtReadDestroy.setText(str);
+        if(!str.contains("\"")){
+            return;
+        }
+        int start=str.indexOf("\"");
+        int end=str.lastIndexOf("\"");
+        if(start==end){
+            return;
+        }
+        start+=1;
+        SpannableStringBuilder strSpan = new SpannableStringBuilder();
+        strSpan.append(str);
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                getContext().startActivity(new Intent(getContext(), UserInfoActivity.class)
+                        .putExtra(UserInfoActivity.ID, bean.getFrom_uid())
+                        .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
+                        .putExtra(UserInfoActivity.GID, bean.getGid())
+                        .putExtra(UserInfoActivity.IS_GROUP, true));
+            }
+
+            @Override
+            public void updateDrawState(@NonNull TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setColor(getResources().getColor( R.color.blue_600));
+                ds.setUnderlineText(false);
+            }
+        };
+        strSpan.setSpan(clickableSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        txtReadDestroy.setText(strSpan);
+        txtReadDestroy.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
 

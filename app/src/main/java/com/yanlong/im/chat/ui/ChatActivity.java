@@ -1345,6 +1345,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         ToastUtil.show(context, "只有群主才能修改该选项");
                         return;
                     }
+//                    if(!groupInfo.isAdmin()&&!groupInfo.isAdministrators()){
+//                        ToastUtil.show(context, "只有群主和管理员才能修改该选项");
+//                        return;
+//                    }
                 }
                 destroyTimeView = new DestroyTimeView(ChatActivity.this);
                 destroyTimeView.initView();
@@ -3440,7 +3444,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
                     LogUtil.getLog().d("CHANGE_SURVIVAL_TIME", msgbean.getMsg_id() + "------" + msgbean.getChangeSurvivalTimeMessage().getSurvival_time());
                     if (msgbean.getMsgCancel() != null) {
-                        holder.viewChatItem.setReadDestroy(msgbean.getMsgCancel().getNote());
+//                        holder.viewChatItem.setReadDestroy(msgbean.getMsgCancel().getNote());
+                        holder.viewChatItem.setReadDestroy(msgbean);
                     }
                     break;
                 case ChatEnum.EMessageType.BALANCE_ASSISTANT:
@@ -5032,6 +5037,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     ChatActivity.this.survivaltime = survivalTime;
                     userDao.updateGroupReadDestroy(gid, survivalTime);
                     msgDao.noteMsgAddSurvivaltime(groupInfo.getUsers().get(0).getUid(), gid);
+                }else {
+                    ToastUtil.show(response.body().getMsg());
                 }
             }
         });
