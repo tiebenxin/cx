@@ -32,6 +32,7 @@ import com.hm.cxpay.utils.DateUtils;
 import com.hm.cxpay.utils.UIUtils;
 import com.hm.cxpay.widget.CircleImageView;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.PopupSelectView;
@@ -197,7 +198,11 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
         }
         //设置金额
         if (envelopeDetailBean.getType() == PayEnum.ERedEnvelopeType.NORMAL) {
-            ui.tvMoney.setText(UIUtils.getYuan(envelopeDetailBean.getAmt()));
+            if (envelopeDetailBean.getChatType() == CoreEnum.EChatType.GROUP) {
+                findSelf();
+            } else {
+                ui.tvMoney.setText(UIUtils.getYuan(envelopeDetailBean.getAmt()));
+            }
         } else {
             findSelf();
         }
@@ -207,13 +212,13 @@ public class SingleRedPacketDetailsActivity extends BasePayActivity {
     //找到自己抢红包记录
     private void findSelf() {
         if (list != null && list.size() > 0) {
-            UserBean userBean = PayEnvironment.getInstance().getUser();
+            long uid = PayEnvironment.getInstance().getUserId();
             EnvelopeReceiverBean selfReceiver = null;
             int len = list.size();
             for (int i = 0; i < len; i++) {
                 EnvelopeReceiverBean bean = list.get(i);
-                if (bean.getImUserInfo() != null && userBean != null) {
-                    if (bean.getImUserInfo().getUid() == userBean.getUid()) {
+                if (bean.getImUserInfo() != null) {
+                    if (bean.getImUserInfo().getUid() == uid) {
                         selfReceiver = bean;
                     }
                 }
