@@ -5,6 +5,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -13,6 +14,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -31,6 +33,7 @@ import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.util.DimenUtils;
 import com.zhaoss.weixinrecorded.util.Utils;
 import com.zhaoss.weixinrecorded.view.CutView;
+import com.zhaoss.weixinrecorded.view.MosaicView;
 import com.zhaoss.weixinrecorded.view.TouchView;
 
 import java.io.File;
@@ -38,24 +41,26 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class ImageShowActivity  extends BaseActivity {
-    private ImageView activity_img_show_img,iv_show_next,iv_show_delete;
+public class ImageShowActivity extends BaseActivity {
+    private ImageView activity_img_show_img, iv_show_next, iv_show_delete;
     private String path;
-    private RelativeLayout activity_show_rl_big,rl_pen,rl_back,rl_edit_text,rl_text,rl_text_cut;
+    private RelativeLayout activity_show_rl_big, rl_pen, rl_back, rl_edit_text, rl_text, rl_text_cut, rl_mosaic;
     private LinearLayout ll_color;
-    private TextView tv_finish_video,tv_finish,tv_close,tv_tag,tv_hint_delete;
+    private TextView tv_finish_video, tv_finish, tv_close, tv_tag, tv_hint_delete;
     private com.zhaoss.weixinrecorded.view.MyPaintView mypaintview;
     private EditText et_tag;
     private CutView activity_img_show_cut;
     private TextureView textureView_cut;
+    private MosaicView mosaicView;
 
     private int windowWidth;
     private int windowHeight;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_img_show);
-        path=(String) getIntent().getExtras().get("imgpath");
+        path = (String) getIntent().getExtras().get("imgpath");
         windowWidth = Utils.getWindowWidth(mContext);
         windowHeight = Utils.getWindowHeight(mContext);
         initView();
@@ -82,10 +87,12 @@ public class ImageShowActivity  extends BaseActivity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
             }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
             }
+
             @Override
             public void afterTextChanged(Editable s) {
                 tv_tag.setText(s.toString());
@@ -94,7 +101,7 @@ public class ImageShowActivity  extends BaseActivity {
         tv_finish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (null!=et_tag.getText()&&et_tag.getText().toString().length()>0){
+                if (null != et_tag.getText() && et_tag.getText().toString().length() > 0) {
                     addTextToWindow();
                 }
                 rl_edit_text.setVisibility(View.GONE);
@@ -112,8 +119,8 @@ public class ImageShowActivity  extends BaseActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                Bitmap bitmap= loadBitmapFromView(activity_show_rl_big);
-                String savePath= saveImage(bitmap,100);
+                Bitmap bitmap = loadBitmapFromView(activity_show_rl_big);
+                String savePath = saveImage(bitmap, 100);
                 intent.putExtra("showResult", true);
                 intent.putExtra("showPath", savePath);
                 setResult(RESULT_OK, intent);
@@ -139,9 +146,9 @@ public class ImageShowActivity  extends BaseActivity {
         rl_pen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ll_color.getVisibility()==View.VISIBLE){
+                if (ll_color.getVisibility() == View.VISIBLE) {
                     ll_color.setVisibility(View.INVISIBLE);
-                }else{
+                } else {
                     ll_color.setVisibility(View.VISIBLE);
                     mypaintview.setPenColor(getResources().getColor(colors[0]));
                     mypaintview.setVisibility(View.VISIBLE);
@@ -152,8 +159,8 @@ public class ImageShowActivity  extends BaseActivity {
         rl_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (null!=mypaintview){
-                    if (mypaintview.canUndo()){
+                if (null != mypaintview) {
+                    if (mypaintview.canUndo()) {
                         mypaintview.undo();
                     }
                 }
@@ -172,9 +179,9 @@ public class ImageShowActivity  extends BaseActivity {
             @Override
             public void onClick(View v) {
                 ll_color.setVisibility(View.INVISIBLE);
-                if (activity_img_show_cut.getVisibility()==View.VISIBLE){
+                if (activity_img_show_cut.getVisibility() == View.VISIBLE) {
                     activity_img_show_cut.setVisibility(View.GONE);
-                }else{
+                } else {
                     activity_img_show_cut.setVisibility(View.VISIBLE);
                 }
             }
@@ -182,14 +189,17 @@ public class ImageShowActivity  extends BaseActivity {
         textureView_cut.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                activity_img_show_cut.setMargin(textureView_cut.getLeft(), textureView_cut.getTop(), textureView_cut.getRight()-textureView_cut.getWidth(), textureView_cut.getBottom()-textureView_cut.getHeight());
+                activity_img_show_cut.setMargin(textureView_cut.getLeft(), textureView_cut.getTop(), textureView_cut.getRight() - textureView_cut.getWidth(), textureView_cut.getBottom() - textureView_cut.getHeight());
             }
+        });
+        rl_mosaic.setOnClickListener(o -> {
+            mosaicView.setVisibility(mosaicView.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
         });
     }
 
-
     private InputMethodManager manager;
     boolean isFirstShowEditText;
+
     /**
      * 弹出键盘
      */
@@ -214,12 +224,13 @@ public class ImageShowActivity  extends BaseActivity {
     /**
      * 收起键盘
      */
-    public void hiddenPopSoft(){
+    public void hiddenPopSoft() {
         manager.hideSoftInputFromWindow(et_tag.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
 
     private int dp100;
+
     private void addTextToWindow() {
         dp100 = (int) getResources().getDimension(R.dimen.dp100);
         TouchView touchView = new TouchView(getApplicationContext());
@@ -286,18 +297,16 @@ public class ImageShowActivity  extends BaseActivity {
     }
 
 
-
     private void initView() {
         manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
-
-        activity_img_show_img=findViewById(R.id.activity_img_show_img);
+        activity_img_show_img = findViewById(R.id.activity_img_show_img);
 //        iv_show_next=findViewById(R.id.iv_show_next);
-        iv_show_delete=findViewById(R.id.iv_show_delete);
-        activity_show_rl_big=findViewById(R.id.activity_show_rl_big);
-        rl_pen=findViewById(R.id.rl_pen);
-        ll_color=findViewById(R.id.ll_color);
-        mypaintview=findViewById(R.id.activity_show_mypaintview);
+        iv_show_delete = findViewById(R.id.iv_show_delete);
+        activity_show_rl_big = findViewById(R.id.activity_show_rl_big);
+        rl_pen = findViewById(R.id.rl_pen);
+        ll_color = findViewById(R.id.ll_color);
+        mypaintview = findViewById(R.id.activity_show_mypaintview);
         rl_back = findViewById(R.id.rl_back);
         tv_finish_video = findViewById(R.id.tv_finish_video);
         rl_edit_text = findViewById(R.id.rl_edit_text);
@@ -310,37 +319,45 @@ public class ImageShowActivity  extends BaseActivity {
         activity_img_show_cut = findViewById(R.id.activity_img_show_cut);
         rl_text_cut = findViewById(R.id.rl_text_cut);
         textureView_cut = findViewById(R.id.textureView_cut);
+
+        rl_mosaic = findViewById(R.id.rl_mosaic);
+        mosaicView = findViewById(R.id.view_mosaic_view);
+
+        if(!TextUtils.isEmpty(path)){
+            mosaicView.setImageBitmap(BitmapFactory.decodeFile(path));
+        }
     }
+
     private Bitmap loadBitmapFromView(View v) {
-        if (activity_img_show_cut.getVisibility()==View.VISIBLE){
+        if (activity_img_show_cut.getVisibility() == View.VISIBLE) {
             int w = v.getWidth();
             int h = v.getHeight();
             Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             float[] cutArr = activity_img_show_cut.getCutArr();
 //            Bitmap cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0],(int)cutArr[1],activity_img_show_cut.getRectWidth(),activity_img_show_cut.getRectHeight());
 //            Bitmap cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0],activity_img_show_cut.getRectHeight()-(int)cutArr[1],(int)cutArr[2]-(int)cutArr[0],activity_img_show_cut.getRectHeight()-((int)cutArr[3]-(int)cutArr[1]));
-            Log.e("TAG",cutArr[0]+"-----"+cutArr[1]+"-----"+cutArr[2]+"-----"+cutArr[3]+"-----");
+            Log.e("TAG", cutArr[0] + "-----" + cutArr[1] + "-----" + cutArr[2] + "-----" + cutArr[3] + "-----");
             Canvas c = new Canvas(bmp);
             c.drawColor(Color.WHITE);
 //            /** 如果不设置canvas画布为白色，则生成透明 */
-            v.layout(0, 0,w, h);
+            v.layout(0, 0, w, h);
             v.draw(c);
-            int px= (int)DimenUtils.dp2px(60);
-            Bitmap cutBitmap=null;
+            int px = (int) DimenUtils.dp2px(60);
+            Bitmap cutBitmap = null;
 
-            if ((30+cutArr[2])>=bmp.getWidth()||(px+cutArr[3])>bmp.getHeight()){
+            if ((30 + cutArr[2]) >= bmp.getWidth() || (px + cutArr[3]) > bmp.getHeight()) {
 //                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-((int)cutArr[0]+30),(int)cutArr[3]-(int)cutArr[1]);
-                if ((30+cutArr[2])>=bmp.getWidth()&&(px+cutArr[3])>bmp.getHeight()){
-                    cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-((int)cutArr[0]+30),(int)cutArr[3]-((int)cutArr[1]+px));
-                }else{
-                    if ((30+cutArr[2])>=bmp.getWidth()){
-                        cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-((int)cutArr[0]+30),(int)cutArr[3]-(int)cutArr[1]);
-                    }else{
-                        cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],(int)cutArr[3]-((int)cutArr[1]+px));
+                if ((30 + cutArr[2]) >= bmp.getWidth() && (px + cutArr[3]) > bmp.getHeight()) {
+                    cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - ((int) cutArr[0] + 30), (int) cutArr[3] - ((int) cutArr[1] + px));
+                } else {
+                    if ((30 + cutArr[2]) >= bmp.getWidth()) {
+                        cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - ((int) cutArr[0] + 30), (int) cutArr[3] - (int) cutArr[1]);
+                    } else {
+                        cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - (int) cutArr[0], (int) cutArr[3] - ((int) cutArr[1] + px));
                     }
                 }
-            }else{
-                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],(int)cutArr[3]-(int)cutArr[1]);
+            } else {
+                cutBitmap = Bitmap.createBitmap(bmp, (int) cutArr[0] + 30, (int) cutArr[1] + px, (int) cutArr[2] - (int) cutArr[0], (int) cutArr[3] - (int) cutArr[1]);
             }
 //            if ((px+cutArr[3])>bmp.getHeight()){
 //                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],activity_img_show_cut.getRectHeight()-px);
@@ -360,7 +377,7 @@ public class ImageShowActivity  extends BaseActivity {
 //            }
             return cutBitmap;
 
-        }else{
+        } else {
             int w = v.getWidth();
             int h = v.getHeight();
             Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
@@ -376,8 +393,7 @@ public class ImageShowActivity  extends BaseActivity {
     }
 
 
-
-    private String editVideo(){
+    private String editVideo() {
 
         //得到裁剪后的margin值
         float[] cutArr = activity_img_show_cut.getCutArr();
@@ -386,20 +402,18 @@ public class ImageShowActivity  extends BaseActivity {
         float right = cutArr[2];
         float bottom = cutArr[3];
         int cutWidth = activity_img_show_cut.getRectWidth();
-        int cutHeight= activity_img_show_cut.getRectHeight();
+        int cutHeight = activity_img_show_cut.getRectHeight();
 
         //计算宽高缩放比
-        float leftPro = left/cutWidth;
-        float topPro = top/cutHeight;
-        float rightPro = right/cutWidth;
-        float bottomPro = bottom/cutHeight;
+        float leftPro = left / cutWidth;
+        float topPro = top / cutHeight;
+        float rightPro = right / cutWidth;
+        float bottomPro = bottom / cutHeight;
 
 
 //        return  myVideoEditor.executeCropVideoFrame(path, cropWidth, cropHeight, x, y);
-        return  "";
+        return "";
     }
-
-
 
 
     private static String saveImage(Bitmap bmp, int quality) {
@@ -433,9 +447,11 @@ public class ImageShowActivity  extends BaseActivity {
         }
         return null;
     }
+
     private int[] drawableBg = new int[]{R.drawable.color1, R.drawable.color2, R.drawable.color3, R.drawable.color4, R.drawable.color5};
     private int[] colors = new int[]{R.color.color1, R.color.color2, R.color.color3, R.color.color4, R.color.color5};
-    private int currentColorPosition=0;
+    private int currentColorPosition = 0;
+
     private void initColors() {
 
         int dp20 = (int) getResources().getDimension(R.dimen.dp20);
@@ -485,7 +501,7 @@ public class ImageShowActivity  extends BaseActivity {
         }
     }
 
-    public void showSoftInputFromWindow(EditText editText){
+    public void showSoftInputFromWindow(EditText editText) {
         editText.setFocusable(true);
         editText.setFocusableInTouchMode(true);
         editText.requestFocus();
@@ -496,11 +512,11 @@ public class ImageShowActivity  extends BaseActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        switch (keyCode){
+        switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                if (rl_edit_text.getVisibility()==View.VISIBLE){
+                if (rl_edit_text.getVisibility() == View.VISIBLE) {
                     rl_edit_text.setVisibility(View.GONE);
-                }else{
+                } else {
                     finish();
                 }
                 break;

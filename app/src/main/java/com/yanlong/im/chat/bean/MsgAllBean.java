@@ -72,6 +72,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private BalanceAssistantMessage balanceAssistantMessage;
     private LocationMessage locationMessage;
     private TransferNoticeMessage transferNoticeMessage;
+    private ShippedExpressionMessage shippedExpressionMessage;
 
 
     public long getServerTime() {
@@ -170,6 +171,14 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
     public void setLocationMessage(LocationMessage locationMessage) {
         this.locationMessage = locationMessage;
+    }
+
+    public ShippedExpressionMessage getShippedExpressionMessage() {
+        return shippedExpressionMessage;
+    }
+
+    public void setShippedExpressionMessage(ShippedExpressionMessage shippedExpressionMessage) {
+        this.shippedExpressionMessage = shippedExpressionMessage;
     }
 
     public boolean isRead() {

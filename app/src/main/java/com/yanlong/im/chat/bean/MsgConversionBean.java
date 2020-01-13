@@ -637,10 +637,10 @@ public class MsgConversionBean {
                         if (switchValue == 0) {
                             if (UserAction.getMyId() != null && uid == UserAction.getMyId().longValue()) {
                                 sb.append("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name
-                                        + "</font>\"" + "解除了\"<font color='#276baa' id='" + message.getUid() + "'>你</font>\"禁言");
+                                        + "</font>\"" + "解除了\"<font color='#276baa' id='" + message.getUid() + "'>你</font>\"的禁言");
                             } else {
                                 sb.append("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name
-                                        + "</font>\"" + "解除了\"<font color='#276baa' id='" + message.getUid() + "'>" + message.getNickname() + "</font>\"禁言");
+                                        + "</font>\"" + "解除了\"<font color='#276baa' id='" + message.getUid() + "'>" + message.getNickname() + "</font>\"的禁言");
                             }
                         } else {
                             if (UserAction.getMyId() != null && uid == UserAction.getMyId().longValue()) {
@@ -705,6 +705,13 @@ public class MsgConversionBean {
                         msgAllBean.setMsgNotice(msgNotice1);
                     }
                 }
+                break;
+            case SHIPPED_EXPRESSION: // 动画表情
+                ShippedExpressionMessage message = new ShippedExpressionMessage();
+                message.setMsgid(msgAllBean.getMsg_id());
+                message.setId(bean.getShippedExpression().getId());
+                msgAllBean.setShippedExpressionMessage(message);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.SHIPPED_EXPRESSION);
                 break;
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;

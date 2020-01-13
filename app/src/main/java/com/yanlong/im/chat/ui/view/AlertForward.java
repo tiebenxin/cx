@@ -2,6 +2,8 @@ package com.yanlong.im.chat.ui.view;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,12 +20,15 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.forward.ForwardListAdapter;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.ExpressionUtil;
+import com.yanlong.im.utils.PatternUtil;
+import com.yanlong.im.view.face.FaceView;
 import com.yanlong.im.wight.avatar.MultiImageView;
 
 import net.cb.cb.library.utils.DensityUtil;
@@ -31,6 +36,8 @@ import net.cb.cb.library.utils.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /***
  * 对话框
@@ -85,7 +92,7 @@ public class AlertForward {
 
 
     //自动生成的控件事件
-    private void initEvent(int msgType,String head, String name, String txt, String imgurl, String btnText, String gid) {
+    private void initEvent(int msgType, String head, String name, String txt, String imgurl, String btnText, String gid) {
 
         //imgHead.setImageURI(Uri.parse(head));
         if (MsgForwardActivity.isSingleSelected) {
@@ -122,13 +129,18 @@ public class AlertForward {
         }
 
         if (StringUtil.isNotNull(imgurl)) {
-            Glide.with(context).load(imgurl).into(ivImage);
-
             ivImage.setVisibility(View.VISIBLE);
+            if (msgType == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+                if (FaceView.map_FaceEmoji != null && FaceView.map_FaceEmoji.get(imgurl) != null) {
+                    Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), Integer.parseInt(FaceView.map_FaceEmoji.get(imgurl).toString()));
+                    ivImage.setImageBitmap(bitmap);
+                }
+            } else {
+                Glide.with(context).load(imgurl).into(ivImage);
+            }
         } else {
             ivImage.setVisibility(View.GONE);
         }
-
 
         btnOk.setText(btnText);
         btnCl.setOnClickListener(new View.OnClickListener() {
@@ -145,7 +157,6 @@ public class AlertForward {
             }
         });
 
-
     }
 
 
@@ -153,7 +164,7 @@ public class AlertForward {
         alertDialog.dismiss();
     }
 
-    public void init(Activity activity, int msgType,String head, String name, String txt, String imgurl, String btnText, String gid, Event e) {
+    public void init(Activity activity, int msgType, String head, String name, String txt, String imgurl, String btnText, String gid, Event e) {
         event = e;
         this.context = activity;
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -161,7 +172,7 @@ public class AlertForward {
         View rootView = View.inflate(context, R.layout.view_alert_forward, null);
         alertDialog.setView(rootView);
         findViews(rootView);
-        initEvent(msgType,head, name, txt, imgurl, btnText, gid);
+        initEvent(msgType, head, name, txt, imgurl, btnText, gid);
     }
 
 
