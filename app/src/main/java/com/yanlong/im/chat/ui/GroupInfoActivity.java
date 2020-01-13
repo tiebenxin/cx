@@ -363,6 +363,15 @@ public class GroupInfoActivity extends AppActivity {
                             destroyTime = survivaltime;
                             tvDestroyTime.setText(content);
                             changeSurvivalTime(gid, survivaltime);
+                            //只要阅后即焚不关闭，则强制打开截屏通知
+                            if(!content.equals("关闭")){
+                                //截屏通知字段设置为打开，更新本地数据库，调接口通知后台打开
+                                ckScreenshot.setChecked(true);
+                                ginfo.setScreenShot(1);
+                                taskSaveInfo();
+                                //todo zjy 调接口通知后台打开
+//            taskUpSwitch(fUserInfo.getScreenShot(), null);
+                            }
                         }
                     }
                 });
