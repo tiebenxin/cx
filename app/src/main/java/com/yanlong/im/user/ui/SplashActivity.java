@@ -7,19 +7,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
+
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.utils.ApkUtils;
+
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.LogUtil;
@@ -27,8 +27,9 @@ import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.view.AppActivity;
-import java.util.ArrayList;
+
 import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -37,9 +38,9 @@ public class SplashActivity extends AppActivity {
     private static final String TAG = "SplashActivity";
     private UserAction userAction = new UserAction();
     private final static long TIME = 200; //启动页时间
-    private ConstraintLayout mLayoutGuidance;
-    private ViewPager mViewPager;
-    private ImageView mBtnStart;
+//    private ConstraintLayout mLayoutGuidance;
+//    private ViewPager mViewPager;
+//    private ImageView mBtnStart;
     //    private ImageView mIvStart;
     private ViewPagerAdapter adapter;
     private int images[] = {R.mipmap.bg_index1, R.mipmap.bg_index2, R.mipmap.bg_index3};
@@ -93,43 +94,43 @@ public class SplashActivity extends AppActivity {
 
     private void initView() {
         phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
-        mLayoutGuidance = findViewById(R.id.layout_guidance);
-        mViewPager = findViewById(R.id.view_pager);
-        mBtnStart = findViewById(R.id.btn_start);
+//        mLayoutGuidance = findViewById(R.id.layout_guidance);
+//        mViewPager = findViewById(R.id.view_pager);
+//        mBtnStart = findViewById(R.id.btn_start);
 //        mIvStart = findViewById(R.id.iv_start);
     }
 
-    private void initViewPager() {
-        imgList = new ArrayList<>();
-        for (int i = 0; i < images.length; i++) {
-            ImageView imageView = new ImageView(SplashActivity.this);
-            imageView.setImageResource(images[i]);
-            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-            imgList.add(imageView);
-        }
-        adapter = new ViewPagerAdapter();
-        mViewPager.setAdapter(adapter);
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int i, float v, int i1) {
-
-            }
-
-            @Override
-            public void onPageSelected(int i) {
-                if (i == (images.length - 1)) {
-                    mBtnStart.setVisibility(View.VISIBLE);
-                } else {
-                    mBtnStart.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int i) {
-
-            }
-        });
-    }
+//    private void initViewPager() {
+//        imgList = new ArrayList<>();
+//        for (int i = 0; i < images.length; i++) {
+//            ImageView imageView = new ImageView(SplashActivity.this);
+//            imageView.setImageResource(images[i]);
+//            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+//            imgList.add(imageView);
+//        }
+//        adapter = new ViewPagerAdapter();
+//        mViewPager.setAdapter(adapter);
+//        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+//            @Override
+//            public void onPageScrolled(int i, float v, int i1) {
+//
+//            }
+//
+//            @Override
+//            public void onPageSelected(int i) {
+//                if (i == (images.length - 1)) {
+//                    mBtnStart.setVisibility(View.VISIBLE);
+//                } else {
+//                    mBtnStart.setVisibility(View.GONE);
+//                }
+//            }
+//
+//            @Override
+//            public void onPageScrollStateChanged(int i) {
+//
+//            }
+//        });
+//    }
 
 
     private void startTimer() {
@@ -151,12 +152,12 @@ public class SplashActivity extends AppActivity {
 
 
     private void initEvent() {
-        mBtnStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goActivity(true);
-            }
-        });
+//        mBtnStart.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                goActivity(true);
+//            }
+//        });
     }
 
 
