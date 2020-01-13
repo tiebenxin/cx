@@ -137,6 +137,16 @@
                         layout="@layout/part_chat_func"
                         android:paddingLeft="@dimen/app_margin_main"
                         android:paddingRight="@dimen/app_margin_main" />
+
+                    <!--  拓展功能-->
+                    <com.yanlong.im.view.function.ChatExtendMenuView
+                        android:id="@+id/view_extend_menu"
+                        android:layout_width="match_parent"
+                        android:layout_height="240dp"
+                        android:paddingLeft="@dimen/app_margin_main"
+                        android:paddingRight="@dimen/app_margin_main"
+                        android:visibility="gone" />
+
                     <!-- 表情-->
                     <com.yanlong.im.view.face.FaceView
                         android:id="@+id/chat_view_faceview"
