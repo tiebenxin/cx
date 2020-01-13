@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
@@ -43,6 +44,7 @@ public class BlacklistActivity extends AppActivity {
     private UserAction userAction = new UserAction();
     private HeadView mHeadView;
     private MultiListView mMtListView;
+    private UserDao userDao = new UserDao();
 
 
     @Override
@@ -112,12 +114,18 @@ public class BlacklistActivity extends AppActivity {
                 }
                 ToastUtil.show(context, response.body().getMsg());
                 if (response.body().isOk()) {
-                    updateUserStatus(uid);
                     blacklist.remove(postion);
-                    MessageManager.getInstance().notifyRefreshFriend(true, uid, CoreEnum.ERosterAction.BLACK);
                     mMtListView.notifyDataSetChange();
-                    new MsgDao().sessionCreate("", uid);
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
+
+                    if (userDao.isUserExist(uid)) {
+                        updateUserStatus(uid);
+                        MessageManager.getInstance().notifyRefreshFriend(true, uid, CoreEnum.ERosterAction.BLACK);
+                        new MsgDao().sessionCreate("", uid);
+                        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
+                    } else {
+                        getUserInfo(uid);
+                    }
+
                 }
             }
         });
@@ -177,6 +185,28 @@ public class BlacklistActivity extends AppActivity {
             }
         }
 
+    }
+
+    public void getUserInfo(Long uid) {
+        if (uid == null) {
+            return;
+        }
+        userAction.getUserInfoById(uid, new CallBack<ReturnBean<UserInfo>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+                if (response.body() == null || response.body().getData() == null) {
+                    return;
+                }
+                final UserInfo info = response.body().getData();
+                if (info != null) {
+                    info.setuType(ChatEnum.EUserType.FRIEND);
+                    userDao.updateUserinfo(info);
+                    MessageManager.getInstance().notifyRefreshFriend(true, uid, CoreEnum.ERosterAction.BLACK);
+                    new MsgDao().sessionCreate("", uid);
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
+                }
+            }
+        });
     }
 
 

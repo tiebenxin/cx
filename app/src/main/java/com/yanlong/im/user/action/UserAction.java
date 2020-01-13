@@ -874,4 +874,11 @@ public class UserAction {
         NetUtil.getNet().exec(server.getSingleMemberInfo(gid, uid), callback);
     }
 
+    /**
+     * 获取用户信息
+     */
+    public void getUserInfoById(Long userId, final CallBack<ReturnBean<UserInfo>> callBack) {
+        NetUtil.getNet().exec(server.getUserInfo(userId), callBack);
+    }
+
 }

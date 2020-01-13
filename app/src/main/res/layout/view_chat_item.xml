@@ -92,7 +92,6 @@
             style="@style/app_txt_content_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:textColor="@color/gray_500"
             tool:text="谈天说地取消了阅后即焚" />
 

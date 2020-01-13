@@ -18,4 +18,5 @@
 
     <string name="group_main_forbidden_words">该群已禁止发言</string>
     <string name="group_you_forbidden_words">你已被群主禁言</string>
+    <string name="forward_success">转发成功</string>
 </resources>

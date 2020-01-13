@@ -296,7 +296,9 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         if (msg_type == ChatEnum.EMessageType.NOTICE) {
             //公告:
             //8.9 过滤拉人通知里面的颜色标签
-            str = "" + StringUtil.delHTMLTag(getMsgNotice().getNote());
+            if(getMsgNotice()!=null){
+                str = "" + StringUtil.delHTMLTag(getMsgNotice().getNote());
+            }
         } else if (msg_type == ChatEnum.EMessageType.TEXT) {//普通消息
             str = getChat().getMsg();
         } else if (msg_type == ChatEnum.EMessageType.STAMP) {
