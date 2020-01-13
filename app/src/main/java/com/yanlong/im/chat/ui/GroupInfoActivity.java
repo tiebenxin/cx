@@ -489,32 +489,43 @@ public class GroupInfoActivity extends AppActivity {
                 ckScreenshot.setChecked(ginfo.getScreenShot() == 1);
             }
         }
-        //只有群管理和群主可以使用截屏通知功能
-        if(isAdmin() || isAdministrators()){
-            ckScreenshot.setClickable(true);
-        }else {
-            ckScreenshot.setClickable(false);
-            ToastUtil.show(GroupInfoActivity.this,"只有群管理和群主才可以使用截屏通知功能");
-        }
-        //截屏通知切换开关
-        ckScreenshot.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                //如果阅后即焚已关闭，则正常开关；如果阅后即焚开启中，则不允许关掉
-                if (ginfo != null) {
-                    if(!tvDestroyTime.getText().toString().equals("关闭")){
-                        if(isChecked == false){
-                            ckScreenshot.setChecked(true);
-                            ToastUtil.show(GroupInfoActivity.this,"打开阅后即焚后，截屏通知必须同时打开");
-                        }
-                    }else {
-                        ginfo.setScreenShot(isChecked ? 1 : 0);
-                        //更新本地数据库状态
-                        taskSaveInfo();
-                        //todo zjy 截屏通知打开/关闭后调接口通知后台
-//                    taskUpSwitch(fUserInfo.getScreenShot(), null);
-                    }
 
+        //截屏通知切换开关
+        ckScreenshot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //只有群管理和群主可以使用截屏通知功能
+                if(isAdmin() || isAdministrators()){
+                    if (ginfo != null) {
+                        //如果阅后即焚开启中，则不允许关掉
+                        if(!tvDestroyTime.getText().toString().equals("关闭")){
+                            if(ckScreenshot.isChecked() == true){
+                                ckScreenshot.setChecked(true);
+                            }else {
+                                ckScreenshot.setChecked(true);
+                                ToastUtil.show(GroupInfoActivity.this,"打开阅后即焚后，截屏通知必须同时打开");
+                            }
+                        }else { //如果阅后即焚已关闭，则正常开关
+                            if(ckScreenshot.isChecked() == true){
+                                ckScreenshot.setChecked(true);
+                                ginfo.setScreenShot(1);
+                            }else {
+                                ckScreenshot.setChecked(false);
+                                ginfo.setScreenShot(0);
+                            }
+                            //更新本地数据库状态
+                            taskSaveInfo();
+                            //todo zjy 截屏通知打开/关闭后调接口通知后台
+//                    taskUpSwitch(fUserInfo.getScreenShot(), null);
+                        }
+                    }
+                }else {
+                    if(ckScreenshot.isChecked() == true){
+                        ckScreenshot.setChecked(false);
+                    }else {
+                        ckScreenshot.setChecked(true);
+                    }
+                    ToastUtil.show(GroupInfoActivity.this,"只有群管理和群主才可以使用截屏通知功能");
                 }
             }
         });
