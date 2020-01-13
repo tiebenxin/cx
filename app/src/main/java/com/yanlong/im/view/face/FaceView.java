@@ -1,9 +1,12 @@
 package com.yanlong.im.view.face;
 
 import android.content.Context;
+import android.support.annotation.IntDef;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RadioButton;
@@ -11,13 +14,24 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.RelativeLayout;
 
+import com.example.nim_lib.config.Preferences;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.R;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.view.face.adapter.ViewPagerAdapter;
 import com.yanlong.im.view.face.bean.FaceBean;
 
+import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.SpUtil;
+
 import java.io.File;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @version V1.0
@@ -71,33 +85,10 @@ public class FaceView extends RelativeLayout {
      */
     private FaceViewPager.FaceLongClickListener faceLongClickListener;
     /**
-     * 切换表情视图
-     */
-    private final int face_emoji_tab = 0;
-    /**
-     * 切换动态表情视图
-     */
-    private final int face_animo_tab = 1;
-    /**
-     * 切换自定义表情视图
-     */
-    private final int face_custom_tab = 2;
-    /**
-     * 切换自定义表情视图
-     */
-    private final int FACE_PIG = 3;
-    /**
      * 默认选择位置
      */
     private int mCheckPostion = 0;
-    /**
-     * 切换自定义表情视图
-     */
-    private final int FACE_MAMMON = 4;
-    /**
-     * 切换自定义表情视图
-     */
-    private final int FACE_PANDA = 5;
+    private int mEmojiCheckPostion = 0;
     /**
      * 页数
      */
@@ -107,7 +98,11 @@ public class FaceView extends RelativeLayout {
      */
     private int pagerSize = 20;
     /**
-     * 表情组
+     * 经常使用保留大小
+     */
+    private final int OFTEN_USE_MAX = 20;
+    /**
+     * emoji表情组
      */
     public static String face_emoji = "emoji";
     /**
@@ -118,6 +113,25 @@ public class FaceView extends RelativeLayout {
      * 自定义表情组
      */
     public static String face_custom = "custom";
+    /**
+     * 当前选中页
+     */
+    private static FaceViewPager mCurViewPager;
+
+    /**
+     * 表情类型
+     */
+    @IntDef({FaceView.FaceType.FACE_EMOJI_TAB, FaceView.FaceType.FACE_ANIMO_TAB, FaceView.FaceType.FACE_CUSTOM_TAB, FaceView.FaceType.FACE_PIG,
+            FaceView.FaceType.FACE_MAMMON, FaceView.FaceType.FACE_PANDA})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface FaceType {
+        int FACE_EMOJI_TAB = 0;// 通用emoji表情
+        int FACE_ANIMO_TAB = 1;// 经常使用的emoji表情
+        int FACE_CUSTOM_TAB = 2;// 收藏的表情
+        int FACE_PIG = 3;// 大图 猪
+        int FACE_MAMMON = 4;// 大图 财神
+        int FACE_PANDA = 5;// 大图 熊猫
+    }
 
     /**
      * emoji表情ID列表
@@ -163,43 +177,42 @@ public class FaceView extends RelativeLayout {
     /**
      * 动态表情名称
      */
-    private static String[] animo_emojiNames = {"[animation_emoti_000]", "[animation_emoti_001]", "[animation_emoti_002]", "[animation_emoti_003]",
-            "[animation_emoti_004]", "[animation_emoti_005]", "[animation_emoti_006]","[animation_emoti_007]",};
+    private static String[] animo_emojiNames = {"animation_emoti_000.png", "animation_emoti_001.png", "animation_emoti_002.png", "animation_emoti_003.png",
+            "animation_emoti_004.png", "animation_emoti_005.png", "animation_emoti_006.png", "animation_emoti_007.png",};
     /**
      * 动态表情ID列表
      */
     private static int[] animo_mamonIds = {R.mipmap.animation_mamon_000, R.mipmap.animation_mamon_001, R.mipmap.animation_mamon_002,
-            R.mipmap.animation_mamon_003, R.mipmap.animation_mamon_004, R.mipmap.animation_mamon_005, R.mipmap.animation_mamon_006,R.mipmap.animation_mamon_007,};
+            R.mipmap.animation_mamon_003, R.mipmap.animation_mamon_004, R.mipmap.animation_mamon_005, R.mipmap.animation_mamon_006, R.mipmap.animation_mamon_007,};
     /**
      * 动态表情名称
      */
-    private static String[] animo_mamonNames = {"[animation_mamon_000]", "[animation_mamon_001]", "[animation_mamon_002]", "[animation_mamon_003]",
-            "[animation_mamon_004]", "[animation_mamon_005]", "[animation_mamon_006]", "[animation_mamon_007]",};
+    private static String[] animo_mamonNames = {"animation_mamon_000.png", "animation_mamon_001.png", "animation_mamon_002.png", "animation_mamon_003.png",
+            "animation_mamon_004.png", "animation_mamon_005.png", "animation_mamon_006.png", "animation_mamon_007.png",};
 
     /**
      * 动态表情ID列表
      */
     private static int[] animo_pandaIds = {R.mipmap.animation_panda_000, R.mipmap.animation_panda_001, R.mipmap.animation_panda_002,
-            R.mipmap.animation_panda_003, R.mipmap.animation_panda_004, R.mipmap.animation_panda_005, R.mipmap.animation_panda_006,R.mipmap.animation_panda_007,};
+            R.mipmap.animation_panda_003, R.mipmap.animation_panda_004, R.mipmap.animation_panda_005, R.mipmap.animation_panda_006, R.mipmap.animation_panda_007,};
     /**
      * 动态表情名称
      */
-    private static String[] animo_pandaNames = {"[animation_panda_000]", "[animation_panda_001]", "[animation_panda_002]", "[animation_panda_003]",
-            "[animation_panda_004]", "[animation_panda_005]", "[animation_panda_006]","[animation_panda_007]",};
+    private static String[] animo_pandaNames = {"animation_panda_000.png", "animation_panda_001.png", "animation_panda_002.png", "animation_panda_003.png",
+            "animation_panda_004.png", "animation_panda_005.png", "animation_panda_006.png", "animation_panda_007.png",};
 
-    /**
-     * 自定义表情
-     */
-    private static File[] custom_files;
-    /**
-     * 所有表情列表
-     */
-    private ArrayList<FaceBean> list_AllBeans;
     /**
      * 当前页表情列表
      */
     private ArrayList<FaceBean> list_CurrentBeans = new ArrayList<FaceBean>();
-
+    public static ArrayList<FaceBean> oftenUseBeans = new ArrayList<>();// 经常使用emoji表情列表
+    public static ArrayList<FaceBean> tempBeans = new ArrayList<>();
+    public static ArrayList<FaceBean> emojiUseBeans = new ArrayList<>();// emoji表情列表
+    public static ArrayList<FaceBean> collectFaceBeans = new ArrayList<>();// 收藏表情列表
+    public static ArrayList<FaceBean> pigFaceBeans = new ArrayList<>();// 猪表情列表
+    public static ArrayList<FaceBean> mamonFaceBeans = new ArrayList<>();// 财神表情列表
+    public static ArrayList<FaceBean> pandaFaceBeans = new ArrayList<>();// 熊猫表情列表
+    public static String mUid = "";// 记录当前登录用户uid,切换账号是需要重新获取收藏表情
     /**
      * emoji 表情键值对，key表情名称，value表情对应的图片资源Id
      */
@@ -240,7 +253,7 @@ public class FaceView extends RelativeLayout {
         mViewPager = view_Parent.findViewById(R.id.view_face_viewpager);
         mRadioGroup = findViewById(R.id.view_face_radiogroup);
         select_RadioGroup = findViewById(R.id.view_face_select);
-        initFaceList(face_emoji_tab);
+        initFaceList(FaceView.FaceType.FACE_EMOJI_TAB);
         widgetListener();
     }
 
@@ -256,18 +269,44 @@ public class FaceView extends RelativeLayout {
      */
     public static void initFaceMap() {
         map_FaceEmoji = new HashMap<String, Object>();
+        emojiUseBeans.clear();
+        pigFaceBeans.clear();
+        mamonFaceBeans.clear();
+        pandaFaceBeans.clear();
+        collectFaceBeans.clear();
         for (int i = 0; i < face_EmojiIds.length; i++) {
             map_FaceEmoji.put(face_EmojiNames[i], face_EmojiIds[i]);
+            addFace(emojiUseBeans, face_emoji, face_EmojiIds[i], face_EmojiNames[i]);
         }
         for (int i = 0; i < animo_emojiIds.length; i++) {
             map_FaceEmoji.put(animo_emojiNames[i], animo_emojiIds[i]);
+            addFace(pigFaceBeans, face_animo, animo_emojiIds[i], animo_emojiNames[i]);
         }
         for (int i = 0; i < animo_mamonIds.length; i++) {
             map_FaceEmoji.put(animo_mamonNames[i], animo_mamonIds[i]);
+            addFace(mamonFaceBeans, face_animo, animo_mamonIds[i], animo_mamonNames[i]);
         }
         for (int i = 0; i < animo_pandaIds.length; i++) {
             map_FaceEmoji.put(animo_pandaNames[i], animo_pandaIds[i]);
+            addFace(pandaFaceBeans, face_animo, animo_pandaIds[i], animo_pandaNames[i]);
         }
+//        getFaceData(false);
+    }
+
+    /**
+     * 添加表情
+     *
+     * @param faceBeans
+     * @param group
+     * @param resId
+     * @param name
+     */
+    private static void addFace(ArrayList<FaceBean> faceBeans, String group, int resId, String name) {
+        FaceBean bean = new FaceBean();
+        bean.setGroup(group);
+        bean.setResId(resId);
+        bean.setName(name);
+        faceBeans.add(bean);
     }
 
     /**
@@ -281,94 +320,10 @@ public class FaceView extends RelativeLayout {
      * @updateInfo (此处输入修改内容, 若无修改可不写.)
      */
     public void initFaceList(int type_emoji) {
-        // 表情类型
-//		 int faceType = FaceAdapter.FACE_TYPE_ANIMO;
-        // LogUtil.outThrowable("初始化表情列表");
-        list_AllBeans = new ArrayList<FaceBean>();
-        list_AllBeans.clear();
-        switch (type_emoji) {
-            case face_emoji_tab:
-                pagerSize = 20;
-                for (int i = 0; i < face_EmojiIds.length; i++) {
-                    FaceBean bean = new FaceBean();
-                    bean.setGroup(face_emoji);
-                    bean.setResId(face_EmojiIds[i]);
-                    bean.setName(face_EmojiNames[i]);
-                    list_AllBeans.add(bean);
-                }
-                mRadioGroup.setVisibility(VISIBLE);
-                break;
-            case FACE_PIG:
-                pagerSize = 8;
-                for (int i = 0; i < animo_emojiIds.length; i++) {
-                    FaceBean bean = new FaceBean();
-                    bean.setGroup(face_animo);
-                    bean.setResId(animo_emojiIds[i]);
-                    bean.setName(animo_emojiNames[i]);
-                    list_AllBeans.add(bean);
-                }
-                mRadioGroup.setVisibility(GONE);
-                break;
-            case FACE_MAMMON:
-                pagerSize = 8;
-                for (int i = 0; i < animo_mamonIds.length; i++) {
-                    FaceBean bean = new FaceBean();
-                    bean.setGroup(face_animo);
-                    bean.setResId(animo_mamonIds[i]);
-                    bean.setName(animo_mamonNames[i]);
-                    list_AllBeans.add(bean);
-                }
-                mRadioGroup.setVisibility(GONE);
-                break;
-            case FACE_PANDA:
-                pagerSize = 8;
-                for (int i = 0; i < animo_pandaIds.length; i++) {
-                    FaceBean bean = new FaceBean();
-                    bean.setGroup(face_animo);
-                    bean.setResId(animo_pandaIds[i]);
-                    bean.setName(animo_pandaNames[i]);
-                    list_AllBeans.add(bean);
-                }
-                mRadioGroup.setVisibility(GONE);
-                break;
-            case face_custom_tab:
-//			pagerSize = 8;
-//			File file = new File(FileConfig.PATH_USER_FAVORITES);
-//			custom_files = file.listFiles();
-//			if (custom_files != null && custom_files.length > 0) {
-//				for (int i = 0; i < custom_files.length; i++) {
-//					if (custom_files[i].getName().equals(".nomedia")) {
-//						continue;
-//					}
-//					FaceBean bean = new FaceBean();
-//					bean.setGroup(face_custom);
-//					bean.setResId(i);
-//					bean.setPath(custom_files[i].getAbsolutePath());
-//					list_AllBeans.add(bean);
-//				}
-//			} else {
-////				LogUtil.out("没有自定义");
-//
-//			}
-//			 faceType = FaceAdapter.FACE_TYPE_CUSTOM;
-                break;
 
-            default:
-                break;
-        }
-
-//		LogUtil.out("list size =>" + list_AllBeans.size());
-        // list_AllBeans = new ArrayList<FaceBean>();
-
-        // 如果表情列表为空，直接返回
-        if (list_AllBeans.size() <= 0) {
-            mViewPager.removeAllViews();
-            mRadioGroup.removeAllViews();
-            return;
-        }
-
+        mRadioGroup.setVisibility(VISIBLE);
         // 计算表情页数
-        pagerCount = list_AllBeans.size() % pagerSize == 0 ? list_AllBeans.size() / pagerSize : list_AllBeans.size() / pagerSize + 1;
+        pagerCount = emojiUseBeans.size() % pagerSize == 0 ? emojiUseBeans.size() / pagerSize : emojiUseBeans.size() / pagerSize + 1;
 
         // 设置圆点和分页列表
         mRadioGroup.removeAllViews();
@@ -390,6 +345,27 @@ public class FaceView extends RelativeLayout {
             list_Views.add(view);
         }
 
+        for (int i = 0; i < 5; i++) {
+            if (i == 0) {
+                type_emoji = FaceView.FaceType.FACE_ANIMO_TAB;
+            }
+//            else if (i == 1) {
+//                type_emoji = FaceView.FaceType.FACE_CUSTOM_TAB;
+//            }
+            else if (i == 1) {
+                type_emoji = FaceView.FaceType.FACE_PIG;
+            } else if (i == 2) {
+                type_emoji = FaceView.FaceType.FACE_MAMMON;
+            } else if (i == 3) {
+                type_emoji = FaceView.FaceType.FACE_PANDA;
+            }
+            FaceViewPager view = new FaceViewPager(context, type_emoji);
+            view.setOnItemClikListener(faceClickListener);
+            view.setOnItemLongClickListener(faceLongClickListener);
+            view.setOnDeleteListener(mOnDeleteListener);
+            list_Views.add(view);
+        }
+
         // 设置分页列表
         adapter = new ViewPagerAdapter(list_Views);
         mViewPager.setAdapter(adapter);
@@ -397,16 +373,16 @@ public class FaceView extends RelativeLayout {
         mViewPager.setOffscreenPageLimit(1);
 
         // 设置当前显示列表
-        if (list_AllBeans.size() > pagerSize) {
+        if (emojiUseBeans.size() > pagerSize) {
             list_CurrentBeans.clear();
-            list_CurrentBeans.addAll(list_AllBeans.subList(0, pagerSize));
+            list_CurrentBeans.addAll(emojiUseBeans.subList(0, pagerSize));
         } else {
             list_CurrentBeans.clear();
-            list_CurrentBeans.addAll(list_AllBeans.subList(0, list_AllBeans.size()));
+            list_CurrentBeans.addAll(emojiUseBeans.subList(0, emojiUseBeans.size()));
         }
         mRadioGroup.check(0);
-        ((FaceViewPager) list_Views.get(0)).setFaceList(list_CurrentBeans);
-
+        mCurViewPager = ((FaceViewPager) list_Views.get(0));
+        mCurViewPager.setFaceList(list_CurrentBeans);
     }
 
     /**
@@ -445,24 +421,56 @@ public class FaceView extends RelativeLayout {
 
             @Override
             public void onPageSelected(int position) {
-                mCheckPostion = position;
-                mRadioGroup.check(position);
-                int currentItem = mViewPager.getCurrentItem();
-                FaceViewPager view = (FaceViewPager) list_Views.get(currentItem);
-                if (view.list_FaceBeans.size() > 0) {// 当前页的表情列表不为空，即是表情列表已经加载过，无需重新加载
+                if (mCheckPostion == position) {
                     return;
                 }
-                list_CurrentBeans.clear();
-                if ((currentItem * pagerSize + pagerSize) >= list_AllBeans.size() && list_AllBeans.size() >= (currentItem * pagerSize)) {
-                    list_CurrentBeans.addAll(list_AllBeans.subList(currentItem * pagerSize, list_AllBeans.size()));
-                } else {
-                    if (list_AllBeans.size() >= (currentItem * pagerSize + pagerSize)) {
-                        list_CurrentBeans.clear();
-                        list_CurrentBeans.addAll(list_AllBeans.subList(currentItem * pagerSize, currentItem * pagerSize + pagerSize));
+                mCheckPostion = position;
+                int currentItem = mViewPager.getCurrentItem();
+                mCurViewPager = (FaceViewPager) list_Views.get(currentItem);
+                if (position > 4) {
+                    switch (position) {
+                        case 5:
+                            mRadioGroup.setVisibility(INVISIBLE);
+                            select_RadioGroup.check(R.id.animo_emoji);
+                            mCurViewPager.setFaceList(oftenUseBeans);
+                            break;
+//                        case 6:
+//                            mRadioGroup.setVisibility(GONE);
+//                            select_RadioGroup.check(R.id.custom_emoji);
+//                            mCurViewPager.setFaceList(collectFaceBeans);
+//                            break;
+                        case 6:
+                            mRadioGroup.setVisibility(GONE);
+                            select_RadioGroup.check(R.id.cb_face_pig);
+                            mCurViewPager.setFaceList(pigFaceBeans);
+                            break;
+                        case 7:
+                            mRadioGroup.setVisibility(GONE);
+                            select_RadioGroup.check(R.id.cb_face_mammon);
+                            mCurViewPager.setFaceList(mamonFaceBeans);
+                            break;
+                        case 8:
+                            mRadioGroup.setVisibility(GONE);
+                            select_RadioGroup.check(R.id.cb_face_panda);
+                            mCurViewPager.setFaceList(pandaFaceBeans);
+                            break;
                     }
+                } else {
+                    mEmojiCheckPostion = position;
+                    select_RadioGroup.check(R.id.face_emoji);
+                    mRadioGroup.setVisibility(VISIBLE);
+                    mRadioGroup.check(position);
+                    list_CurrentBeans.clear();
+                    if ((currentItem * pagerSize + pagerSize) >= emojiUseBeans.size() && emojiUseBeans.size() >= (currentItem * pagerSize)) {
+                        list_CurrentBeans.addAll(emojiUseBeans.subList(currentItem * pagerSize, emojiUseBeans.size()));
+                    } else {
+                        if (emojiUseBeans.size() >= (currentItem * pagerSize + pagerSize)) {
+                            list_CurrentBeans.clear();
+                            list_CurrentBeans.addAll(emojiUseBeans.subList(currentItem * pagerSize, currentItem * pagerSize + pagerSize));
+                        }
+                    }
+                    mCurViewPager.setFaceList(list_CurrentBeans);
                 }
-                view.setFaceList(list_CurrentBeans);
-
             }
 
             @Override
@@ -484,31 +492,28 @@ public class FaceView extends RelativeLayout {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch (checkedId) {
                     case R.id.face_emoji:
-                        initFaceList(face_emoji_tab);
+                        mViewPager.setCurrentItem(mEmojiCheckPostion);
                         break;
                     case R.id.animo_emoji:
-                        initFaceList(face_animo_tab);
+                        mViewPager.setCurrentItem(5);
                         break;
                     case R.id.custom_emoji:
-                        initFaceList(face_custom_tab);
+//                        mViewPager.setCurrentItem(6);
                         break;
                     case R.id.cb_face_pig:// 猪
-                        initFaceList(FACE_PIG);
+                        mViewPager.setCurrentItem(6);
                         break;
                     case R.id.cb_face_mammon:// 财神
-                        initFaceList(FACE_MAMMON);
+                        mViewPager.setCurrentItem(7);
                         break;
                     case R.id.cb_face_panda:// 熊猫
-                        initFaceList(FACE_PANDA);
+                        mViewPager.setCurrentItem(8);
                         break;
                     default:
                         break;
                 }
-
             }
         });
-//         select_RadioGroup.check(R.id.face_emoji);
-
     }
 
     /**
@@ -530,6 +535,94 @@ public class FaceView extends RelativeLayout {
         for (int i = 0; i < list_Views.size(); i++) {
             FaceViewPager view = (FaceViewPager) list_Views.get(i);
             view.setOnItemClikListener(this.faceClickListener);
+        }
+    }
+
+    /**
+     * 添加到最近使用表情视图
+     *
+     * @param faceBean
+     */
+    public void addOftenUseFace(FaceBean faceBean) {
+        if (oftenUseBeans != null && faceBean != null && face_emoji.equals(faceBean.getGroup())) {
+            for (FaceBean bean : oftenUseBeans) {
+                if (bean.getResId() == faceBean.getResId()) {
+                    oftenUseBeans.remove(bean);
+                    break;
+                }
+            }
+            oftenUseBeans.add(0, faceBean);
+            if (oftenUseBeans.size() >= OFTEN_USE_MAX) {
+                tempBeans.clear();
+                tempBeans.addAll(oftenUseBeans.subList(0, OFTEN_USE_MAX));
+                oftenUseBeans.clear();
+                oftenUseBeans.addAll(tempBeans);
+            }
+        }
+    }
+
+    /**
+     * 保存经常使用表情
+     */
+    public void saveOftenUseFace() {
+        SpUtil spUtil = SpUtil.getSpUtil();
+        if (oftenUseBeans != null && oftenUseBeans.size() > 0) {
+            String value = new Gson().toJson(oftenUseBeans);
+            if (UserAction.getMyId().intValue() != -1) {
+                spUtil.putSPValue(UserAction.getMyId().intValue() + "", value);
+            } else {
+                Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
+                spUtil.putSPValue(uid + "", value);
+            }
+        }
+    }
+
+    /**
+     * 获取经常使用表情列表
+     */
+    public void getOftenUseFace() {
+        SpUtil spUtil = SpUtil.getSpUtil();
+        String result = "";
+        if (UserAction.getMyId().intValue() != -1) {
+            result = spUtil.getSPValue(UserAction.getMyId().intValue() + "", "");
+        } else {
+            Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
+            result = spUtil.getSPValue(uid + "", "");
+        }
+
+        oftenUseBeans = new Gson().fromJson(result, new TypeToken<List<FaceBean>>() {
+        }.getType());
+        if (oftenUseBeans == null) {
+            oftenUseBeans = new ArrayList<>();
+        }
+    }
+
+    /**
+     * 获取收藏表情
+     *
+     * @param update 是否刷新收藏表情
+     */
+    public static void getFaceData(boolean update) {
+        collectFaceBeans.clear();
+        SpUtil spUtil = SpUtil.getSpUtil();
+        String value = "";
+        if (UserAction.getMyId().intValue() != -1) {
+            value = spUtil.getSPValue(UserAction.getMyId().intValue() + Preferences.FACE_DATA, "");
+        } else {
+            Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
+            value = spUtil.getSPValue(uid + Preferences.FACE_DATA, "");
+        }
+        addFace(collectFaceBeans, face_custom, R.mipmap.img_add_face, "add");
+        if (!TextUtils.isEmpty(value)) {
+            List<FaceBean> list = new Gson().fromJson(value, new TypeToken<List<FaceBean>>() {
+            }.getType());
+            if (list.size() > 0) {// 去掉第一个加号
+                list.remove(0);
+            }
+            collectFaceBeans.addAll(list);
+        }
+        if (update) {
+            mCurViewPager.setFaceList(collectFaceBeans);
         }
     }
 
@@ -564,7 +657,7 @@ public class FaceView extends RelativeLayout {
      * @updateInfo (此处输入修改内容, 若无修改可不写.)
      */
     public void updateView() {
-        initFaceList(face_custom_tab);
+        initFaceList(FaceView.FaceType.FACE_CUSTOM_TAB);
     }
 
     /**

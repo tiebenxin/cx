@@ -1,9 +1,13 @@
 package net.cb.cb.library.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import net.cb.cb.library.AppConfig;
@@ -107,7 +111,6 @@ public class ToastUtil {
 
     }
 
-
     public static void show(String txt) {
         if (txt != null && txt.length() > 0 && AppConfig.APP_CONTEXT != null) {
             if (toast != null) {
@@ -121,5 +124,23 @@ public class ToastUtil {
             }
         }
 
+    }
+
+    public static void showToast(Context context, String txt) {
+        if (toast != null)
+            toast.cancel();
+        try {
+            toast = Toast.makeText(context, txt, Toast.LENGTH_SHORT);
+
+            View inflate = ((Activity)context).getLayoutInflater().inflate(R.layout.view_custom_toast, null);
+            TextView toast_msg = inflate.findViewById(R.id.txt_msg);
+            toast_msg.setText(txt);
+            toast.setView(inflate);
+
+        } catch (Resources.NotFoundException e) {
+            e.printStackTrace();
+        }
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
     }
 }

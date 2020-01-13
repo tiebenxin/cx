@@ -215,6 +215,7 @@ public class MessageManager {
             case ASSISTANT://小助手消息
             case BALANCE_ASSISTANT://零钱助手消息
             case CHANGE_VICE_ADMINS:// 管理员变更通知
+            case SHIPPED_EXPRESSION:// 动画表情
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }

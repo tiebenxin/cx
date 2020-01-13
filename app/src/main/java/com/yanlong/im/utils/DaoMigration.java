@@ -92,6 +92,10 @@ public class DaoMigration implements RealmMigration {
                 updateV18(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 18) {
+                updateV19(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -349,10 +353,26 @@ public class DaoMigration implements RealmMigration {
 
     }
 
-    // 添加是否能领取零钱红包
+    /**
+     * 添加是否能领取零钱红包
+     * @param schema
+     */
     private void updateV18(RealmSchema schema) {
         schema.get("Group")
                 .addField("cantOpenUpRedEnv", int.class);
+    }
+
+    /**
+     * 添加动画表情
+     * @param schema
+     */
+    private void updateV19(RealmSchema schema) {
+        schema.create("ShippedExpressionMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("id", String.class);
+        schema.get("MsgAllBean")
+                .addRealmObjectField("shippedExpressionMessage", schema.get("ShippedExpressionMessage"));
+
     }
 
     @Override
