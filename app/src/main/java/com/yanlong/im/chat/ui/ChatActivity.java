@@ -1644,7 +1644,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 list.add(createItemMode("群助手", R.mipmap.ic_chat_robot, ChatEnum.EFunctionId.GROUP_ASSISTANT));
             }
         }
-//        list.add(createItemMode("文件", R.mipmap.ic_chat_robot, ChatEnum.EFunctionId.FILE));
+//        list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
         return list;
     }
 
