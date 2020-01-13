@@ -25,10 +25,22 @@ import net.cb.cb.library.base.AbstractRecyclerAdapter;
 public class AdapterBankList extends AbstractRecyclerAdapter<BankBean> {
 
     private Context context;
+    private DeleteClickListener listener;
+    private int type;//  0 不显示移除(切换银行卡) 1 显示移除(我的银行卡)
 
-    public AdapterBankList(Context c) {
+    public AdapterBankList(Context c, int type) {
         super(c);
         context = c;
+        this.type = type;
+    }
+
+    public void setDeleteClickListener(DeleteClickListener listener){
+        this.listener = listener;
+    }
+
+    public void removeView(int position){
+        mBeanList.remove(position);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -41,7 +53,7 @@ public class AdapterBankList extends AbstractRecyclerAdapter<BankBean> {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
         if (viewHolder instanceof BankViewHolder) {
             BankViewHolder holder = (BankViewHolder) viewHolder;
-            holder.bindData(mBeanList.get(i));
+            holder.bindData(mBeanList.get(i),i);
         }
     }
 
@@ -56,6 +68,7 @@ public class AdapterBankList extends AbstractRecyclerAdapter<BankBean> {
         private final TextView tvBankName;
         private final TextView tvBankNum;
         private final View rootView;
+        private final TextView tvDeleteBankcard;
         private RequestOptions options = new RequestOptions()
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
 
@@ -65,11 +78,10 @@ public class AdapterBankList extends AbstractRecyclerAdapter<BankBean> {
             ivIcon = v.findViewById(R.id.iv_icon);
             tvBankName = v.findViewById(R.id.tv_bank_name);
             tvBankNum = v.findViewById(R.id.tv_bank_num);
-
-
+            tvDeleteBankcard = v.findViewById(R.id.tv_delete_bankcard);
         }
 
-        private void bindData(final BankBean bank) {
+        private void bindData(final BankBean bank, final int position) {
             if(!TextUtils.isEmpty(bank.getLogo())){
                 Glide.with(context).load(bank.getLogo())
                         .apply(options).into(ivIcon);
@@ -91,6 +103,23 @@ public class AdapterBankList extends AbstractRecyclerAdapter<BankBean> {
                     }
                 }
             });
+            if(type!=0){
+                tvDeleteBankcard.setVisibility(View.VISIBLE);
+                tvDeleteBankcard.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(bank!=null){
+                            listener.onDeleteClick(bank.getId()+"",position);
+                        }
+                    }
+                });
+            }
         }
     }
+
+    public interface DeleteClickListener{
+        void onDeleteClick(String bankcardId,int position);
+    }
+
+
 }

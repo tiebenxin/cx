@@ -50,10 +50,26 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:text="银行卡号"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:textColor="@color/white"
                 android:textSize="18sp" />
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_delete_bankcard"
+            android:layout_width="49dp"
+            android:layout_height="23dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="5dp"
+            android:gravity="center"
+            android:layout_gravity="center_vertical"
+            android:textSize="13sp"
+            android:textColor="@color/white"
+            android:background="@drawable/shape_5radius_stoke_ffffff"
+            android:visibility="gone"
+            android:text="解绑"/>
 
     </LinearLayout>
 
