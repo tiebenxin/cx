@@ -1285,7 +1285,7 @@ public class ChatItemView extends LinearLayout {
         }
 
         String str=bean.getMsgCancel().getNote();
-//        String str=strTemp;
+        txtReadDestroy.setText(str);
         if(!str.contains("\"")){
             return;
         }
