@@ -31,6 +31,7 @@ import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.FileConfig;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
@@ -244,16 +245,22 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
                 msgAction.msgDelAll();
                 MessageManager.getInstance().setMessageChange(true);
                 MessageManager.getInstance().notifyRefreshMsg();
-                // 清空本地小视频
-                File file = new File(LanSongFileUtil.DEFAULT_DIR);
-                if (file.exists()) {
-                    LanSongFileUtil.deleteDir(file);
-                }
-                // 清空本地图片缓存
-                File fileCache = new File(FileConfig.PATH_CACHE);
-                if (fileCache.exists()) {
-                    LanSongFileUtil.deleteDir(fileCache);
-                }
+                ToastUtil.show(CommonActivity.this,"清除成功");
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // 清空本地小视频
+                        File file = new File(LanSongFileUtil.DEFAULT_DIR);
+                        if (file.exists()) {
+                            LanSongFileUtil.deleteDir(file);
+                        }
+                        // 清空本地图片缓存
+                        File fileCache = new File(FileConfig.PATH_CACHE);
+                        if (fileCache.exists()) {
+                            LanSongFileUtil.deleteDir(fileCache);
+                        }
+                    }
+                }).start();
             }
         });
         alertYesNo.show();
