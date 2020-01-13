@@ -38,6 +38,8 @@ public abstract class FGObserver<T> extends BaseObserver<T> {
             }
         } else if (response instanceof ResponseBody) {
             onHandleSuccess(response);
+        }else if (response instanceof Exception){
+            onHandleError(response);
         }
     }
 
