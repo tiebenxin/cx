@@ -2414,7 +2414,8 @@ public class MsgDao {
         msgAllBean.setChangeSurvivalTimeMessage(changeSurvivalTimeMessage);
         msgAllBean.setMsg_type(ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME);
         msgAllBean.setMsgCancel(survivaMsgCel);
-        msgAllBean.setTimestamp(new Date().getTime());
+//        msgAllBean.setTimestamp(new Date().getTime());
+        msgAllBean.setTimestamp(SocketData.getFixTime());
         realm.insertOrUpdate(msgAllBean);
 
         realm.commitTransaction();
@@ -3177,7 +3178,7 @@ public class MsgDao {
     }
 
     /**
-     * 动态获取用户群昵称
+     * 动态获取用户群昵称   能查到群备注
      *
      * @param gid
      * @param uid
@@ -3244,7 +3245,7 @@ public class MsgDao {
     }
 
     /**
-     * 动态获取用户群昵称
+     * 动态获取用户群昵称 不能查到群备注
      *
      * @param gid
      * @param uid
