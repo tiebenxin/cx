@@ -712,7 +712,7 @@ public class LocationActivity extends AppActivity {
         mPoiSearch.setOnGetPoiSearchResultListener(new OnGetPoiSearchResultListener() {
             @Override
             public void onGetPoiResult(PoiResult poiResult) {
-                LogUtil.getLog().e(key + "=location===搜索周边=poiResult=" + GsonUtils.optObject(poiResult));
+//                LogUtil.getLog().e(key + "=location===搜索周边=poiResult=" + GsonUtils.optObject(poiResult));
                 if (poiResult != null && "NO_ERROR".equals(poiResult.error.name()) && poiResult.getAllPoi() != null) {
                     List<PoiInfo> poiInfoList = poiResult.getAllPoi();
                     for (int i = 0; i < poiInfoList.size(); i++) {
@@ -740,7 +740,7 @@ public class LocationActivity extends AppActivity {
                 for (int i = 0; i < locationList.size(); i++) {
                     LatLng locationOrangleTemp = new LatLng(locationList.get(i).getLatitude()/LocationUtils.beishu, locationList.get(i).getLongitude()/LocationUtils.beishu);
                     double distanceTeamp = DistanceUtil.getDistance(locationOrangle, locationOrangleTemp);
-                    LogUtil.getLog().e("===distanceTeamp+"+distanceTeamp);
+//                    LogUtil.getLog().e("===distanceTeamp+"+distanceTeamp);
                     if(i==0){
                         distance=distanceTeamp;
                     }else {
@@ -750,7 +750,7 @@ public class LocationActivity extends AppActivity {
                         }
                     }
                 }
-                LogUtil.getLog().e("===distance="+distance);
+//                LogUtil.getLog().e("===distance="+distance);
                 locationPoiAdapter.position=position;
                 recyclerview.getAdapter().notifyDataSetChanged();
                 recyclerview.scrollToPosition(position);
