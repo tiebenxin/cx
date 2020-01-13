@@ -2,6 +2,7 @@ package net.cb.cb.library.utils;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.Handler;
 import android.view.Gravity;
 import android.widget.Toast;
 
@@ -20,6 +21,12 @@ public class ToastUtil {
         try {
             if (context.getResources().getString(R.string.forward_success).equals(txt)) {// 用于处理转发多条，有禁言的时候，只弹出转发成功提示
                 isShow = false;
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        isShow = true;
+                    }
+                }, 1000);
             } else {
                 isShow = true;
             }
@@ -56,6 +63,8 @@ public class ToastUtil {
                 }
                 toast.show();
             }
+        } else {
+            isShow = true;
         }
     }
 

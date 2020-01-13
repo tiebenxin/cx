@@ -700,7 +700,7 @@ public class MsgConversionBean {
                     if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().longValue()) {
                         screenNotice.setNote("你截屏了当前聊天信息");
                     } else {
-                        screenNotice.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN);
+//                        screenNotice.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN);
                         String ssName = "<user id='" + bean.getFromUid() + "' gid=" + bean.getGid() + ">" + bean.getNickname() + "</user>";
                         screenNotice.setNote("\"" + ssName + "\"已截屏当前聊天信息");
                     }
