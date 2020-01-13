@@ -164,6 +164,8 @@ import com.yanlong.im.view.CustomerEditText;
 import com.yanlong.im.view.face.FaceView;
 import com.yanlong.im.view.face.FaceViewPager;
 import com.yanlong.im.view.face.bean.FaceBean;
+import com.yanlong.im.view.function.ChatExtendMenuView;
+import com.yanlong.im.view.function.FunctionItemModel;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 
@@ -342,6 +344,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private ControllerNewMessage viewNewMessage;
     private int unreadCount;
     private RecyclerViewAdapter mAdapter;
+    private ChatExtendMenuView viewExtendFunction;
+    private Group groupInfo;
 
     private ScreenShotListenManager screenShotListenManager;//截屏监听相关
     private boolean isScreenShotListen;//是否监听截屏
@@ -529,6 +533,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         location_ll = findViewById(R.id.location_ll);
         viewNewMessage = new ControllerNewMessage(findViewById(R.id.viewNewMessage));
         setChatImageBackground();
+        viewExtendFunction = findViewById(R.id.view_extend_menu);
     }
 
 
@@ -1058,52 +1063,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void onClick(View v) {
-                permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
-                    @Override
-                    public void onSuccess() {
-                        // 判断是否正在音视频通话
-                        if (AVChatProfile.getInstance().isCallIng() || AVChatProfile.getInstance().isCallEstablished()) {
-                            if (AVChatProfile.getInstance().isChatType() == AVChatType.VIDEO.getValue()) {
-                                ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_video));
-                            } else {
-                                ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_voice));
-                            }
-                        } else {
-                            if (!checkNetConnectStatus()) {
-                                return;
-                            }
-                            if (ViewUtils.isFastDoubleClick()) {
-                                return;
-                            }
-                            Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
-                            startActivityForResult(intent, VIDEO_RP);
-                        }
-                    }
-
-                    @Override
-                    public void onFail() {
-
-                    }
-                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
-
+                toCamera();
             }
         });
         // 相册
         viewPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                PictureSelector.create(ChatActivity.this)
-//                        .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
-                        .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
-                        .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
-                        .previewImage(false)// 是否可预览图片 true or false
-                        .isCamera(false)// 是否显示拍照按钮 ture or false
-                        .maxVideoSelectNum(1)
-                        .compress(true)// 是否压缩 true or false
-                        .isGif(true)
-                        .selectArtworkMaster(true)
-                        .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
+                toGallery();
             }
         });
         //系统红包
@@ -1113,23 +1080,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-                UserBean user = PayEnvironment.getInstance().getUser();
-                if (user != null) {
-                    if (user.getRealNameStat() != 1) {//未认证
-                        showIdentifyDialog();
-                        return;
-                    } else if (user.getPayPwdStat() != 1) {//未设置支付密码
-                        showSettingPswDialog();
-                        return;
-                    }
-                }
-                if (isGroup()) {
-                    Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivity.this, toGid, groupInfo.getUsers().size());
-                    startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
-                } else {
-                    Intent intentMulti = SingleRedPacketActivity.newIntent(ChatActivity.this, toUId);
-                    startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
-                }
+                toSystemEnvelope();
             }
         });
         //支付宝红包，魔方红包
@@ -1149,27 +1100,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     return;
                 }
 
-                UserBean user = PayEnvironment.getInstance().getUser();
-                if (user != null) {
-                    if (user.getRealNameStat() != 1) {//未认证
-                        showIdentifyDialog();
-                        return;
-                    } else if (user.getPayPwdStat() != 1) {//未设置支付密码
-                        showSettingPswDialog();
-                        return;
-                    }
-                }
-                if (mFinfo == null) {
-                    mFinfo = userDao.findUserInfo(toUId);
-                }
-                String name = "";
-                String avatar = "";
-                if (mFinfo != null) {
-                    name = mFinfo.getName();
-                    avatar = mFinfo.getHead();
-                }
-                Intent intent = TransferActivity.newIntent(ChatActivity.this, toUId, name, avatar);
-                startActivity(intent);
+                toTransfer();
             }
         });
 
@@ -1178,29 +1109,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onClick(View v) {
 
-                AlertTouch alertTouch = new AlertTouch();
-                alertTouch.init(ChatActivity.this, "请输入戳一下消息", "确定", R.mipmap.ic_chat_actionme, new AlertTouch.Event() {
-                    @Override
-                    public void onON() {
-
-                    }
-
-                    @Override
-                    public void onYes(String content) {
-                        if (!TextUtils.isEmpty(content)) {
-                            //发送戳一戳消息
-//                            MsgAllBean msgAllbean = SocketData.send4action(toUId, toGid, content);
-//                            showSendObj(msgAllbean);
-//                            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
-                            StampMessage message = SocketData.createStampMessage(SocketData.getUUID(), content);
-                            sendMessage(message, ChatEnum.EMessageType.STAMP);
-                        } else {
-                            ToastUtil.show(getContext(), "留言不能为空");
-                        }
-                    }
-                });
-                alertTouch.show();
-                alertTouch.setEdHintOrSize(null, 15);
+                toStamp();
             }
         });
         //名片
@@ -1211,7 +1120,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     return;
                 }
 
-                startActivityForResult(new Intent(getContext(), SelectUserActivity.class), SelectUserActivity.RET_CODE_SELECTUSR);
+                toCard();
             }
         });
 
@@ -1219,22 +1128,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         btnVoice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                //申请权限 7.2
-                permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
-                    @Override
-                    public void onSuccess() {
-                        if (!checkNetConnectStatus()) {
-                            return;
-                        }
-                        startVoice(null);
-                    }
-
-                    @Override
-                    public void onFail() {
-
-                    }
-                }, new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
+                toVoice();
 
             }
         });
@@ -1301,13 +1195,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onClick(View v) {
                 //  ToastUtil.show(getContext(),"群助手");
-                if (groupInfo == null)
-                    return;
-
-                startActivity(new Intent(getContext(), GroupRobotActivity.class)
-                        .putExtra(GroupRobotActivity.AGM_GID, toGid)
-                        .putExtra(GroupRobotActivity.AGM_RID, groupInfo.getRobotid())
-                );
+                toGroupRobot();
             }
         });
         //短视频
@@ -1337,23 +1225,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     return;
                 }
 
-                hideBt();
-                DialogHelper.getInstance().createSelectDialog(ChatActivity.this, new ICustomerItemClick() {
-                    @Override
-                    public void onClickItemVideo() {// 视频
-                        gotoVideoActivity(AVChatType.VIDEO.getValue());
-                    }
-
-                    @Override
-                    public void onClickItemVoice() {// 语音
-                        gotoVideoActivity(AVChatType.AUDIO.getValue());
-                    }
-
-                    @Override
-                    public void onClickItemCancle() {
-
-                    }
-                });
+                toVideoCall();
             }
         });
 
@@ -1361,7 +1233,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         location_ll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LocationActivity.openActivity(ChatActivity.this, false, null);
+                toLocation();
             }
         });
 
@@ -1483,6 +1355,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         ToastUtil.show(context, "只有群主才能修改该选项");
                         return;
                     }
+//                    if(!groupInfo.isAdmin()&&!groupInfo.isAdministrators()){
+//                        ToastUtil.show(context, "只有群主和管理员才能修改该选项");
+//                        return;
+//                    }
                 }
                 destroyTimeView = new DestroyTimeView(ChatActivity.this);
                 destroyTimeView.initView();
@@ -1517,7 +1393,277 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             unreadCount = 0;
         });
         registerScreenShotListener();
+        initExtendFunctionView();
 
+
+    }
+
+    private void toLocation() {
+        LocationActivity.openActivity(ChatActivity.this, false, null);
+    }
+
+    private void toVideoCall() {
+        hideBt();
+        DialogHelper.getInstance().createSelectDialog(ChatActivity.this, new ICustomerItemClick() {
+            @Override
+            public void onClickItemVideo() {// 视频
+                gotoVideoActivity(AVChatType.VIDEO.getValue());
+            }
+
+            @Override
+            public void onClickItemVoice() {// 语音
+                gotoVideoActivity(AVChatType.AUDIO.getValue());
+            }
+
+            @Override
+            public void onClickItemCancle() {
+
+            }
+        });
+    }
+
+    private void toGroupRobot() {
+        if (groupInfo == null)
+            return;
+
+        startActivity(new Intent(getContext(), GroupRobotActivity.class)
+                .putExtra(GroupRobotActivity.AGM_GID, toGid)
+                .putExtra(GroupRobotActivity.AGM_RID, groupInfo.getRobotid())
+        );
+    }
+
+    private void toVoice() {
+        //申请权限 7.2
+        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
+            @Override
+            public void onSuccess() {
+                if (!checkNetConnectStatus()) {
+                    return;
+                }
+                startVoice(null);
+            }
+
+            @Override
+            public void onFail() {
+
+            }
+        }, new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
+    }
+
+    private void toCard() {
+        startActivityForResult(new Intent(getContext(), SelectUserActivity.class), SelectUserActivity.RET_CODE_SELECTUSR);
+    }
+
+    private void toStamp() {
+        AlertTouch alertTouch = new AlertTouch();
+        alertTouch.init(ChatActivity.this, "请输入戳一下消息", "确定", R.mipmap.ic_chat_actionme, new AlertTouch.Event() {
+            @Override
+            public void onON() {
+
+            }
+
+            @Override
+            public void onYes(String content) {
+                if (!TextUtils.isEmpty(content)) {
+                    //发送戳一戳消息
+//                            MsgAllBean msgAllbean = SocketData.send4action(toUId, toGid, content);
+//                            showSendObj(msgAllbean);
+//                            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+                    StampMessage message = SocketData.createStampMessage(SocketData.getUUID(), content);
+                    sendMessage(message, ChatEnum.EMessageType.STAMP);
+                } else {
+                    ToastUtil.show(getContext(), "留言不能为空");
+                }
+            }
+        });
+        alertTouch.show();
+        alertTouch.setEdHintOrSize(null, 15);
+    }
+
+    private void toTransfer() {
+        UserBean user = PayEnvironment.getInstance().getUser();
+        if (user != null) {
+            if (user.getRealNameStat() != 1) {//未认证
+                showIdentifyDialog();
+                return;
+            } else if (user.getPayPwdStat() != 1) {//未设置支付密码
+                showSettingPswDialog();
+                return;
+            }
+        }
+        if (mFinfo == null) {
+            mFinfo = userDao.findUserInfo(toUId);
+        }
+        String name = "";
+        String avatar = "";
+        if (mFinfo != null) {
+            name = mFinfo.getName();
+            avatar = mFinfo.getHead();
+        }
+        Intent intent = TransferActivity.newIntent(ChatActivity.this, toUId, name, avatar);
+        startActivity(intent);
+    }
+
+    private void toSystemEnvelope() {
+
+        UserBean user = PayEnvironment.getInstance().getUser();
+        if (user != null) {
+            if (user.getRealNameStat() != 1) {//未认证
+                showIdentifyDialog();
+                return;
+            } else if (user.getPayPwdStat() != 1) {//未设置支付密码
+                showSettingPswDialog();
+                return;
+            }
+        }
+        if (isGroup()) {
+            Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivity.this, toGid, groupInfo.getUsers().size());
+            startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
+        } else {
+            Intent intentMulti = SingleRedPacketActivity.newIntent(ChatActivity.this, toUId);
+            startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
+        }
+    }
+
+    private void toGallery() {
+        PictureSelector.create(ChatActivity.this)
+//                        .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
+                .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
+                .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
+                .previewImage(false)// 是否可预览图片 true or false
+                .isCamera(false)// 是否显示拍照按钮 ture or false
+                .maxVideoSelectNum(1)
+                .compress(true)// 是否压缩 true or false
+                .isGif(true)
+                .selectArtworkMaster(true)
+                .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
+    }
+
+    private void toCamera() {
+        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
+            @Override
+            public void onSuccess() {
+                // 判断是否正在音视频通话
+                if (AVChatProfile.getInstance().isCallIng() || AVChatProfile.getInstance().isCallEstablished()) {
+                    if (AVChatProfile.getInstance().isChatType() == AVChatType.VIDEO.getValue()) {
+                        ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_video));
+                    } else {
+                        ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_voice));
+                    }
+                } else {
+                    if (!checkNetConnectStatus()) {
+                        return;
+                    }
+                    if (ViewUtils.isFastDoubleClick()) {
+                        return;
+                    }
+                    Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+                    startActivityForResult(intent, VIDEO_RP);
+                }
+            }
+
+            @Override
+            public void onFail() {
+
+            }
+        }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
+    }
+
+    //初始化拓展功能栏
+    private void initExtendFunctionView() {
+        viewExtendFunction.setListener(new ChatExtendMenuView.OnFunctionListener() {
+            @Override
+            public void onClick(int id) {
+                switch (id) {
+                    case ChatEnum.EFunctionId.GALLERY:
+                        toGallery();
+                        break;
+                    case ChatEnum.EFunctionId.TAKE_PHOTO:
+                        toCamera();
+                        break;
+                    case ChatEnum.EFunctionId.ENVELOPE_SYS:
+                        toSystemEnvelope();
+                        break;
+                    case ChatEnum.EFunctionId.TRANSFER:
+                        toTransfer();
+                        break;
+                    case ChatEnum.EFunctionId.VIDEO_CALL:
+                        toVideoCall();
+                        break;
+                    case ChatEnum.EFunctionId.ENVELOPE_MF:
+                        taskPayRb();
+                        break;
+                    case ChatEnum.EFunctionId.LOCATION:
+                        toLocation();
+                        break;
+                    case ChatEnum.EFunctionId.STAMP:
+                        toStamp();
+                        break;
+                    case ChatEnum.EFunctionId.CARD:
+                        toCard();
+                        break;
+                    case ChatEnum.EFunctionId.GROUP_ASSISTANT:
+                        toGroupRobot();
+                        break;
+                    case ChatEnum.EFunctionId.FILE:
+                        break;
+                }
+            }
+        });
+        viewExtendFunction.bindDate(getItemModels());
+    }
+
+    public List<FunctionItemModel> getItemModels() {
+        boolean isGroup = isGroup();
+        boolean isVip = false;
+        boolean isSystemUser = false;
+        if (!isGroup) {
+            UserInfo userInfo = UserAction.getMyInfo();
+            if (userInfo != null && IS_VIP.equals(userInfo.getVip())) {
+                isVip = true;
+            }
+            if (UserUtil.isSystemUser(toUId)) {
+                isSystemUser = true;
+            }
+        }
+        List<FunctionItemModel> list = new ArrayList<>();
+        list.add(createItemMode("相册", R.mipmap.ic_chat_pic, ChatEnum.EFunctionId.GALLERY));
+        list.add(createItemMode("拍摄", R.mipmap.ic_chat_pt, ChatEnum.EFunctionId.TAKE_PHOTO));
+        if (!isSystemUser) {
+            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
+        }
+        if (!isGroup && !isSystemUser) {
+            list.add(createItemMode("零钱转账", R.mipmap.ic_chat_transfer, ChatEnum.EFunctionId.TRANSFER));
+        }
+        if (!isGroup && isVip) {
+            list.add(createItemMode("视频通话", R.mipmap.ic_chat_video, ChatEnum.EFunctionId.VIDEO_CALL));
+        }
+        if (!isSystemUser) {
+            list.add(createItemMode("云红包", R.mipmap.ic_chat_rb_zfb, ChatEnum.EFunctionId.ENVELOPE_MF));
+        }
+        list.add(createItemMode("位置", R.mipmap.location_six, ChatEnum.EFunctionId.LOCATION));
+        if (!isGroup && !isSystemUser) {
+            list.add(createItemMode("戳一下", R.mipmap.ic_chat_action, ChatEnum.EFunctionId.STAMP));
+        }
+        if (!isSystemUser) {
+            list.add(createItemMode("名片", R.mipmap.ic_chat_newfrd, ChatEnum.EFunctionId.CARD));
+        }
+        if (isGroup) {
+            //本人群主
+            if (UserAction.getMyId() != null && groupInfo.getMaster().equals(UserAction.getMyId().toString())) {
+                list.add(createItemMode("群助手", R.mipmap.ic_chat_robot, ChatEnum.EFunctionId.GROUP_ASSISTANT));
+            }
+        }
+//        list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
+        return list;
+    }
+
+    public FunctionItemModel createItemMode(String name, int drawableId, @ChatEnum.EFunctionId int functionId) {
+        FunctionItemModel model = new FunctionItemModel();
+        model.setName(name);
+        model.setDrawableId(drawableId);
+        model.setId(functionId);
+        return model;
     }
 
     private void scrollChatToPosition(int position) {
@@ -1859,7 +2005,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 switch (type) {
                     case ChatEnum.EShowType.FUNCTION://功能面板
                         //第二种解决方案
-                        viewFunc.setVisibility(View.VISIBLE);
+                        showViewFunction(true);
                         break;
                     case ChatEnum.EShowType.EMOJI://emoji面板
                         viewFaceView.setVisibility(View.VISIBLE);
@@ -1872,6 +2018,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 showEndMsg();
             }
         }, 50);
+    }
+
+    public void showViewFunction(boolean isShow) {
+//        viewFunc.setVisibility(isShow ? View.VISIBLE : GONE);
+        viewExtendFunction.setVisibility(isShow ? View.VISIBLE : GONE);
+
     }
 
     private void showEndMsg() {
@@ -1939,7 +2091,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 隐藏底部所有面板
      */
     private void hideBt() {
-        viewFunc.setVisibility(View.GONE);
+        showViewFunction(false);
         viewFaceView.setVisibility(View.GONE);
     }
 
@@ -1951,7 +2103,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         clearScrollPosition();
         super.onBackPressed();
         if (viewFunc.getVisibility() == View.VISIBLE) {
-            viewFunc.setVisibility(View.GONE);
+            showViewFunction(false);
             return;
         }
         if (viewFaceView.getVisibility() == View.VISIBLE) {
@@ -3303,7 +3455,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
                     LogUtil.getLog().d("CHANGE_SURVIVAL_TIME", msgbean.getMsg_id() + "------" + msgbean.getChangeSurvivalTimeMessage().getSurvival_time());
                     if (msgbean.getMsgCancel() != null) {
-                        holder.viewChatItem.setReadDestroy(msgbean.getMsgCancel().getNote());
+//                        holder.viewChatItem.setReadDestroy(msgbean.getMsgCancel().getNote());
+                        holder.viewChatItem.setReadDestroy(msgbean);
                     }
                     break;
                 case ChatEnum.EMessageType.BALANCE_ASSISTANT:
@@ -4670,7 +4823,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     }
 
-    private Group groupInfo;
 
     //获取群资料
     private MemberUser getGroupInfo(long uid) {
@@ -4708,7 +4860,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     groupInfo.setUsers(new RealmList<MemberUser>());
                 }
 
-                if (groupInfo.getMaster().equals(UserAction.getMyId().toString())) {//本人群主
+                if (UserAction.getMyId() != null && groupInfo.getMaster().equals(UserAction.getMyId().toString())) {//本人群主
                     viewChatRobot.setVisibility(View.VISIBLE);
                 } else {
                     viewFunc.removeView(viewChatRobot);
@@ -4896,6 +5048,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     ChatActivity.this.survivaltime = survivalTime;
                     userDao.updateGroupReadDestroy(gid, survivalTime);
                     msgDao.noteMsgAddSurvivaltime(groupInfo.getUsers().get(0).getUid(), gid);
+                }else {
+                    ToastUtil.show(response.body().getMsg());
                 }
             }
         });

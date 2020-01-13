@@ -494,24 +494,39 @@ public class MsgConversionBean {
                 break;
             case CHANGE_SURVIVAL_TIME:
                 String survivaNotice = "";
+                String formName="";
+//                if (TextUtils.isEmpty(bean.getGid())) {
+////                    formName = "\"" + bean.getNickname() + "\"" ;
+//                    formName = "\"<font color='#276baa' id='"+ bean.getFromUid() + "'>"+bean.getNickname()+"</font>\"";
+//                } else {
+//                    formName= msgDao.getGroupMemberName(bean.getGid(),bean.getFromUid(),null,null);//能查到群备注
+//                    formName = "\"<font color='#276baa' id='"+ bean.getFromUid() + "'>"+formName+"</font>\"";
+//                }
+                if (TextUtils.isEmpty(bean.getGid())) {
+                    formName = "\"" + bean.getNickname() + "\"" ;
+                } else {
+                    formName= msgDao.getGroupMemberName(bean.getGid(),bean.getFromUid(),null,null);//能查到群备注
+                    formName = "\""+formName+"\"";
+                }
+
                 if (bean.getChangeSurvivalTime().getSurvivalTime() == -1) {
                     if (TextUtils.isEmpty(bean.getGid())) {
-                        survivaNotice = "\"" + bean.getNickname() + "\"" + "设置了退出即焚";
+                        survivaNotice = formName + "设置了退出即焚";
                     } else {
-                        survivaNotice = "\"群主\"设置了退出即焚";
+                        survivaNotice = formName+"设置了退出即焚";
                     }
                 } else if (bean.getChangeSurvivalTime().getSurvivalTime() == 0) {
                     if (TextUtils.isEmpty(bean.getGid())) {
-                        survivaNotice = "\"" + bean.getNickname() + "\"" + "取消了阅后即焚";
+                        survivaNotice = formName + "取消了阅后即焚";
                     } else {
-                        survivaNotice = "\"群主\"取消了阅后即焚";
+                        survivaNotice = formName+"取消了阅后即焚";
                     }
                 } else {
                     if (TextUtils.isEmpty(bean.getGid())) {
-                        survivaNotice = "\"" + bean.getNickname() + "\"" + "设置了消息" +
+                        survivaNotice = formName + "设置了消息" +
                                 new ReadDestroyUtil().getDestroyTimeContent(bean.getChangeSurvivalTime().getSurvivalTime()) + "后消失";
                     } else {
-                        survivaNotice = "\"群主\"设置了消息" +
+                        survivaNotice = formName+"设置了消息" +
                                 new ReadDestroyUtil().getDestroyTimeContent(bean.getChangeSurvivalTime().getSurvivalTime()) + "后消失";
                     }
                 }
@@ -622,10 +637,10 @@ public class MsgConversionBean {
                         if (switchValue == 0) {
                             if (UserAction.getMyId() != null && uid == UserAction.getMyId().longValue()) {
                                 sb.append("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name
-                                        + "</font>\"" + "解除了\"<font color='#276baa' id='" + message.getUid() + "'>你</font>\"禁言");
+                                        + "</font>\"" + "解除了\"<font color='#276baa' id='" + message.getUid() + "'>你</font>\"的禁言");
                             } else {
                                 sb.append("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name
-                                        + "</font>\"" + "解除了\"<font color='#276baa' id='" + message.getUid() + "'>" + message.getNickname() + "</font>\"禁言");
+                                        + "</font>\"" + "解除了\"<font color='#276baa' id='" + message.getUid() + "'>" + message.getNickname() + "</font>\"的禁言");
                             }
                         } else {
                             if (UserAction.getMyId() != null && uid == UserAction.getMyId().longValue()) {

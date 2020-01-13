@@ -683,7 +683,7 @@ public class HtmlTransitonUtils {
             ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
             builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-        builder.append("禁言");
+        builder.append("的禁言");
     }
 
     private void setType18(Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {

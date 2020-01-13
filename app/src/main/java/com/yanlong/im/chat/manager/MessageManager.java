@@ -502,6 +502,7 @@ public class MessageManager {
                         EventBus.getDefault().post(new EventIsShowRead());
                         break;
                     case 1: //vip
+                        userInfo = UserAction.getMyInfo();
                         userInfo.setVip(wrapMessage.getSwitchChange().getSwitchValue() + "");
                         userDao.updateUserinfo(userInfo);
                         // 刷新用户信息

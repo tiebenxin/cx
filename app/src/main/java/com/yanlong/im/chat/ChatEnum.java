@@ -342,18 +342,20 @@ public class ChatEnum {
      *聊天拓展功能id
      * */
     @IntDef({EFunctionId.GALLERY, EFunctionId.TAKE_PHOTO, EFunctionId.ENVELOPE_SYS, EFunctionId.ENVELOPE_MF, EFunctionId.STAMP, EFunctionId.TRANSFER,
-            EFunctionId.CARD, EFunctionId.VIDEO_CALL, EFunctionId.LOCATION, EFunctionId.FILE})
+            EFunctionId.CARD, EFunctionId.VIDEO_CALL, EFunctionId.LOCATION, EFunctionId.GROUP_ASSISTANT, EFunctionId.FILE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EFunctionId {
         int GALLERY = 1; // 相册
         int TAKE_PHOTO = 2; // 拍摄
         int ENVELOPE_SYS = 3; // 零钱红包
-        int ENVELOPE_MF = 4; // 魔方红包
-        int STAMP = 5; //戳一戳
-        int TRANSFER = 6;//转账
-        int CARD = 7;//名片
-        int VIDEO_CALL = 8;//视频通话
-        int LOCATION = 9;//位置
-        int FILE = 10;//文件
+        int TRANSFER = 4;//转账
+        int VIDEO_CALL = 5;//视频通话
+        int ENVELOPE_MF = 6; // 魔方红包
+        int LOCATION = 7;//位置
+        int STAMP = 8; //戳一戳
+        int CARD = 9;//名片
+        int GROUP_ASSISTANT = 10;//群助手
+        int FILE = 11;//文件
+
     }
 }
