@@ -247,17 +247,17 @@ public class LooseChangeActivity extends BasePayActivity {
      * 请求->获取用户信息
      */
     private void httpGetUserInfo() {
-        if (userBean == null) {
+        long uid = PayEnvironment.getInstance().getUserId();
+        if (uid <= 0) {
             return;
         }
-        PayHttpUtils.getInstance().getUserInfo(userBean.getUid())
+        PayHttpUtils.getInstance().getUserInfo(uid)
                 .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<UserBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<UserBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
-                            UserBean userBean = null;
                             if (baseResponse.getData() != null) {
                                 userBean = baseResponse.getData();
                             } else {
