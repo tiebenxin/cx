@@ -279,6 +279,8 @@ public class ChatEnum {
         int RECEIVE_SYS_ENVELOPE = 21;//你领取了xx的零钱红包
         int SYS_ENVELOPE_RECEIVED = 22;//xx领取你的零钱红包
         int SNAPSHOT_SCREEN = 23;//截屏通知
+        int SNAPSHOT_SCREEN_OPEN = 24;//截屏通知 开
+        int SNAPSHOT_SCREEN_CLOSE = 25;//截屏通知 关
     }
 
     /*

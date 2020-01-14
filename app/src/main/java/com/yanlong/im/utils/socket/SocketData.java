@@ -1776,6 +1776,19 @@ public class SocketData {
         return note;
     }
 
+    public static MsgNotice createMsgOpenOrCloseSnapshot(String msgId,int isOpen) {
+        MsgNotice note = new MsgNotice();
+        note.setMsgid(msgId);
+        if(isOpen==1){
+            note.setNote("你开启了截屏通知");
+            note.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN_OPEN);
+        }else {
+            note.setNote("你关闭了截屏通知");
+            note.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN_CLOSE);
+        }
+        return note;
+    }
+
     //发送截屏通知消息
     public static void sendSnapshotMsg(Long toId, String toGid) {
         MsgBean.SnapshotScreenMessage contentMsg = MsgBean.SnapshotScreenMessage.newBuilder().build();

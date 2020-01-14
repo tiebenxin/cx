@@ -150,4 +150,8 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> toggleWordsNotAllowed(@Field("@uidList") String uidJson,@Field("gid") String gid,@Field("duration") int duration);
 
+    @POST("/??")
+    @FormUrlEncoded
+    Call<ReturnBean> setScreenSwitch(@Field("friend") long friendId, @Field("survivalTime") int isOpen);
+
 }

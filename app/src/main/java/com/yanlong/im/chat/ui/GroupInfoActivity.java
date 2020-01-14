@@ -363,14 +363,16 @@ public class GroupInfoActivity extends AppActivity {
                             destroyTime = survivaltime;
                             tvDestroyTime.setText(content);
                             changeSurvivalTime(gid, survivaltime);
-                            //只要阅后即焚不关闭，则强制打开截屏通知
+                            //只要阅后即焚不关闭，且截屏通知未开启，则强制打开截屏通知
                             if(!content.equals("关闭")){
-                                //截屏通知字段设置为打开，更新本地数据库，调接口通知后台打开
-                                ckScreenshot.setChecked(true);
-                                ginfo.setScreenShot(1);
-                                taskSaveInfo();
-                                //todo zjy 调接口通知后台打开
+                                if(ckScreenshot.isChecked()==false){
+                                    //截屏通知字段设置为打开，更新本地数据库，调接口通知后台打开
+                                    ckScreenshot.setChecked(true);
+                                    ginfo.setScreenShot(1);
+                                    taskSaveInfo();
+                                    //todo zjy 调接口通知后台打开
 //            taskUpSwitch(fUserInfo.getScreenShot(), null);
+                                }
                             }
                         }
                     }
@@ -484,14 +486,16 @@ public class GroupInfoActivity extends AppActivity {
         destroyTime = ginfo.getSurvivaltime();
         String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
         tvDestroyTime.setText(content);
-        //1 若已经开启阅后即焚，则强制自动开启截屏通知
+        //1 若已经开启阅后即焚，且截屏通知未开启，则强制自动开启截屏通知
         if(!content.equals("关闭")){
-            //截屏通知字段设置为打开，更新本地数据库，调接口通知后台已打开
-            ckScreenshot.setChecked(true);
-            ginfo.setScreenShot(1);//ginfo是从缓存里面取的
-            taskSaveInfo();
-            //todo zjy 调接口通知后台-已打开
+            if(ckScreenshot.isChecked()==false){
+                //截屏通知字段设置为打开，更新本地数据库，调接口通知后台已打开
+                ckScreenshot.setChecked(true);
+                ginfo.setScreenShot(1);//ginfo是从缓存里面取的
+                taskSaveInfo();
+                //todo zjy 调接口通知后台-已打开
 //            taskUpSwitch(fUserInfo.getScreenShot(), null);
+            }
         }else {
             //2 若没有开启阅后即焚，则展示原有开关状态
             if(ginfo!=null){
