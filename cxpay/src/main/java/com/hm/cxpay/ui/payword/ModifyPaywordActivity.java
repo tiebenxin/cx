@@ -18,6 +18,7 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.recharege.RechargeActivity;
 
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.ToastUtil;
@@ -257,10 +258,12 @@ public class ModifyPaywordActivity extends AppActivity {
                     @Override
                     public void onHandleSuccess(BaseResponse baseResponse) {
                         ToastUtil.show(context, "新支付密码设置成功!");
-                        if(from==CheckPaywordActivity.FROM_CHECK_PAY_WORD){
+                        if(from==1){
                             go(CheckPaywordActivity.class);//返回密码校验
-                        }else if(from==ManagePaywordActivity.FROM_MANAGE_PAY_WORD){
+                        }else if(from==2){
                             go(ManagePaywordActivity.class);//返回密码管理
+                        }else if(from==3){
+                            go(RechargeActivity.class);//返回充值界面
                         }else {
                             finish();
                         }

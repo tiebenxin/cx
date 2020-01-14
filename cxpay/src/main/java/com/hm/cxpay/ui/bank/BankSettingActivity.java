@@ -21,11 +21,14 @@ import android.widget.TextView;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.BankBean;
+import com.hm.cxpay.dailog.DialogErrorPassword;
 import com.hm.cxpay.databinding.ActivityBankSettingBinding;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.payword.ForgetPswStepOneActivity;
+import com.hm.cxpay.ui.redenvelope.MultiRedPacketActivity;
 import com.hm.cxpay.widget.PswView;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
@@ -50,6 +53,8 @@ public class BankSettingActivity extends BasePayActivity {
     private AlertDialog checkPaywordDialog;
     private String bankcardId = "";//银行卡id
     private int deletePosition = 0;//删除项
+    private DialogErrorPassword dialogErrorPassword;
+    private PswView pswView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +113,15 @@ public class BankSettingActivity extends BasePayActivity {
         });
 
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (dialogErrorPassword != null) {
+            dialogErrorPassword.dismiss();
+            dialogErrorPassword = null;
+        }
+        super.onDestroy();
     }
 
     private void getBankList() {
@@ -243,7 +257,7 @@ public class BankSettingActivity extends BasePayActivity {
         View dialogView = LayoutInflater.from(BankSettingActivity.this).inflate(R.layout.dialog_check_payword, null);
         //初始化控件
         ImageView ivClose = dialogView.findViewById(R.id.iv_close);
-        final PswView pswView = dialogView.findViewById(R.id.psw_view);
+        pswView = dialogView.findViewById(R.id.psw_view);
         //显示和点击事件
         //关闭弹框
         ivClose.setOnClickListener(new android.view.View.OnClickListener() {
@@ -297,10 +311,12 @@ public class BankSettingActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        if (baseResponse.getCode() == (-21000)) {
-                            ToastUtil.show(BankSettingActivity.this, "支付密码校验失败！");
-                        }else {
-                            ToastUtil.show(BankSettingActivity.this, baseResponse.getMessage());
+                        if (baseResponse.getCode() == -21000) {
+                            showPswErrorDialog(true, baseResponse.getMessage());
+                        } else if (baseResponse.getCode() == -21001) {
+                            showPswErrorDialog(false, baseResponse.getMessage());
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
                         }
                         pswView.clear();
                     }
@@ -329,6 +345,27 @@ public class BankSettingActivity extends BasePayActivity {
                         ToastUtil.show(BankSettingActivity.this, baseResponse.getMessage());
                     }
                 });
+    }
+
+    //显示密码错误弹窗
+    private void showPswErrorDialog(boolean canRetry, String msg) {
+        dialogErrorPassword = new DialogErrorPassword(this, R.style.MyDialogTheme);
+        dialogErrorPassword.setCanceledOnTouchOutside(false);
+        dialogErrorPassword.setCanRetry(canRetry);
+        dialogErrorPassword.setContent(msg);
+        dialogErrorPassword.setListener(new DialogErrorPassword.IErrorPasswordListener() {
+            @Override
+            public void onForget() {
+                startActivity(new Intent(BankSettingActivity.this, ForgetPswStepOneActivity.class).putExtra("from", 4));
+            }
+
+            @Override
+            public void onTry() {
+                //强制唤起软键盘
+                showSoftKeyword(pswView);
+            }
+        });
+        dialogErrorPassword.show();
     }
 
 }

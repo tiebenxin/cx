@@ -1,6 +1,7 @@
 package com.hm.cxpay.ui.bank;
 
 import android.content.Context;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -21,11 +22,13 @@ import com.bumptech.glide.Glide;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.BankBean;
+import com.hm.cxpay.dailog.DialogErrorPassword;
 import com.hm.cxpay.databinding.ActivityBankDetailBinding;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.payword.ForgetPswStepOneActivity;
 import com.hm.cxpay.widget.PswView;
 
 import net.cb.cb.library.utils.DensityUtil;
@@ -44,6 +47,8 @@ public class BankDetailActivity extends BasePayActivity {
 
     private long bankcardId = 0l;//银行卡id
     private AlertDialog checkPaywordDialog;
+    private DialogErrorPassword dialogErrorPassword;
+    private PswView pswView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +125,14 @@ public class BankDetailActivity extends BasePayActivity {
         dialog.setContentView(dialogView);
     }
 
+    @Override
+    protected void onDestroy() {
+        if (dialogErrorPassword != null) {
+            dialogErrorPassword.dismiss();
+            dialogErrorPassword = null;
+        }
+        super.onDestroy();
+    }
 
     /**
      * 提示弹框->是否确认删除
@@ -176,7 +189,7 @@ public class BankDetailActivity extends BasePayActivity {
         View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_check_payword, null);
         //初始化控件
         ImageView ivClose = dialogView.findViewById(R.id.iv_close);
-        final PswView pswView = dialogView.findViewById(R.id.psw_view);
+        pswView = dialogView.findViewById(R.id.psw_view);
         //显示和点击事件
         //关闭弹框
         ivClose.setOnClickListener(new android.view.View.OnClickListener() {
@@ -230,10 +243,12 @@ public class BankDetailActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        if (baseResponse.getCode() == (-21000)) {
-                            ToastUtil.show(context, "支付密码校验失败！");
-                        }else {
-                            ToastUtil.show(context, baseResponse.getMessage());
+                        if (baseResponse.getCode() == -21000) {
+                            showPswErrorDialog(true, baseResponse.getMessage());
+                        } else if (baseResponse.getCode() == -21001) {
+                            showPswErrorDialog(false, baseResponse.getMessage());
+                        } else {
+                            ToastUtil.show(getContext(), baseResponse.getMessage());
                         }
                         pswView.clear();
                     }
@@ -264,6 +279,26 @@ public class BankDetailActivity extends BasePayActivity {
                 });
     }
 
+    //显示密码错误弹窗
+    private void showPswErrorDialog(boolean canRetry, String msg) {
+        dialogErrorPassword = new DialogErrorPassword(this, R.style.MyDialogTheme);
+        dialogErrorPassword.setCanceledOnTouchOutside(false);
+        dialogErrorPassword.setCanRetry(canRetry);
+        dialogErrorPassword.setContent(msg);
+        dialogErrorPassword.setListener(new DialogErrorPassword.IErrorPasswordListener() {
+            @Override
+            public void onForget() {
+                startActivity(new Intent(activity, ForgetPswStepOneActivity.class).putExtra("from", 5));
+            }
+
+            @Override
+            public void onTry() {
+                //强制唤起软键盘
+                showSoftKeyword(pswView);
+            }
+        });
+        dialogErrorPassword.show();
+    }
 
 
 

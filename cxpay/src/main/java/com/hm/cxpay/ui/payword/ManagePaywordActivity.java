@@ -26,8 +26,6 @@ public class ManagePaywordActivity extends AppActivity {
     private LinearLayout layoutFindbackPayword;//找回支付密码
     private Activity activity;
 
-    public static final int FROM_MANAGE_PAY_WORD = 2;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +63,7 @@ public class ManagePaywordActivity extends AppActivity {
         layoutFindbackPayword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(activity,ForgetPswStepOneActivity.class).putExtra("from",FROM_MANAGE_PAY_WORD));
+                startActivity(new Intent(activity,ForgetPswStepOneActivity.class).putExtra("from",2));
             }
         });
 

@@ -376,7 +376,7 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                     public void onHandleError(BaseResponse baseResponse) {
                         payFailed();
                         if (baseResponse.getCode() == -21000) {
-                            showPswErrorDialog(false, baseResponse.getMessage());
+                            showPswErrorDialog(true, baseResponse.getMessage());
                         } else if (baseResponse.getCode() == -21001) {
                             showPswErrorDialog(false, baseResponse.getMessage());
                         } else if (baseResponse.getCode() == 40014) {//余额不足

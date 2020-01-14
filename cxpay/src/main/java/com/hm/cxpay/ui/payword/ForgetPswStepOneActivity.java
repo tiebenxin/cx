@@ -37,7 +37,7 @@ public class ForgetPswStepOneActivity extends AppActivity {
 
     private Activity activity;
     private String token;//得到认证需要的token
-    private int from;//从哪里跳转过来的 (1 密码校验 2 密码管理)
+    private int from;//从哪里跳转过来的 (1 密码校验/提现 2 密码管理 3 充值 4 我的银行卡(移除银行卡) 5 银行卡详情(移除银行卡))
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

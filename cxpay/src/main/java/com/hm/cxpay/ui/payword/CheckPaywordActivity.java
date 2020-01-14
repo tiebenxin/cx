@@ -16,10 +16,12 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.dailog.DialogErrorPassword;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.redenvelope.MultiRedPacketActivity;
 import com.hm.cxpay.widget.PswView;
 
 import net.cb.cb.library.utils.DensityUtil;
@@ -40,8 +42,7 @@ public class CheckPaywordActivity extends AppActivity {
     private ActionbarView actionbar;
     private PswView pswView;
     private Activity activity;
-
-    public static final int FROM_CHECK_PAY_WORD = 1;
+    private DialogErrorPassword dialogErrorPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,57 +102,44 @@ public class CheckPaywordActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        if (baseResponse.getCode() == (-21000)) {
-                            showErrorDialog();
-                        }else {
+                        if (baseResponse.getCode() == -21000) {
+                            showPswErrorDialog(true, baseResponse.getMessage());
+                        } else if (baseResponse.getCode() == -21001) {
+                            showPswErrorDialog(false, baseResponse.getMessage());
+                        } else {
                             ToastUtil.show(context, baseResponse.getMessage());
                         }
                     }
                 });
     }
 
-    /**
-     * 支付密码错误弹框
-     */
-    private void showErrorDialog(){
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
-        dialogBuilder.setCancelable(false);
-        final AlertDialog dialog = dialogBuilder.create();
-        //获取界面
-        View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_payword_error, null);
-        //初始化控件
-        TextView tvTryAgain = dialogView.findViewById(R.id.tv_try_again);
-        TextView tvForgetPsw = dialogView.findViewById(R.id.tv_forget_psw);
-        //重试
-        tvTryAgain.setOnClickListener(new android.view.View.OnClickListener() {
+    //显示密码错误弹窗
+    private void showPswErrorDialog(boolean canRetry, String msg) {
+        dialogErrorPassword = new DialogErrorPassword(this, R.style.MyDialogTheme);
+        dialogErrorPassword.setCanceledOnTouchOutside(false);
+        dialogErrorPassword.setCanRetry(canRetry);
+        dialogErrorPassword.setContent(msg);
+        dialogErrorPassword.setListener(new DialogErrorPassword.IErrorPasswordListener() {
             @Override
-            public void onClick(View view) {
-                dialog.dismiss();
+            public void onForget() {
+                startActivity(new Intent(activity, ForgetPswStepOneActivity.class).putExtra("from", 1));
+            }
+
+            @Override
+            public void onTry() {
                 pswView.setText("");
+                showSoftKeyword(pswView);
             }
         });
-        //忘记密码
-        tvForgetPsw.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(activity,ForgetPswStepOneActivity.class).putExtra("from",FROM_CHECK_PAY_WORD));
-            }
-        });
-        //展示界面
-        dialog.show();
-        //解决圆角shape背景无效问题
-        Window window = dialog.getWindow();
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //相关配置
-        WindowManager.LayoutParams lp = window.getAttributes();
-        window.setGravity(Gravity.CENTER);
-        WindowManager manager = window.getWindowManager();
-        DisplayMetrics metrics = new DisplayMetrics();
-        manager.getDefaultDisplay().getMetrics(metrics);
-        //设置宽高，高度自适应，宽度屏幕0.7
-        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels*0.7);
-        dialog.getWindow().setAttributes(lp);
-        dialog.setContentView(dialogView);
+        dialogErrorPassword.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (dialogErrorPassword != null) {
+            dialogErrorPassword.dismiss();
+            dialogErrorPassword = null;
+        }
+        super.onDestroy();
     }
 }
