@@ -728,11 +728,4 @@ public class MsgAction {
     public void toggleWordsNotAllowed(String uidJson,String gid,int duration, Callback<ReturnBean> callback) {
         NetUtil.getNet().exec(server.toggleWordsNotAllowed(uidJson,gid,duration), callback);
     }
-
-    /**
-     * 设置截屏通知开关 单聊
-     */
-    public void setScreenSwitch(long friendId, int isOpen, Callback<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.setScreenSwitch(friendId, isOpen), callback);
-    }
 }

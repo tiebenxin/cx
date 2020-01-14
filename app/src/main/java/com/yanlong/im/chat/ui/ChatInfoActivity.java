@@ -14,11 +14,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
-import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.chat.bean.IMsgContent;
-import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -32,14 +28,12 @@ import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.UserUtil;
-import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.CloseActivityEvent;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.EventRefreshChat;
-import net.cb.cb.library.bean.EventSendMsgScreenOpen;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
@@ -233,7 +227,7 @@ public class ChatInfoActivity extends AppActivity {
                                     ckScreenshot.setChecked(true);//选中
                                     fUserInfo.setScreenShot(1);//截屏通知字段设置为打开
                                     taskSaveInfo();//更新本地数据库
-                                    httpSetScreenSwitch(fuid,1);//调接口通知后台
+//                                    httpSetScreenSwitch(fuid,1);//调接口通知后台
                                 }
                             }
                         }
@@ -265,7 +259,7 @@ public class ChatInfoActivity extends AppActivity {
                     ckScreenshot.setChecked(true);//选中
                     fUserInfo.setScreenShot(1);//截屏通知字段设置为打开
                     taskSaveInfo();//更新本地数据库
-                    httpSetScreenSwitch(fuid,1);//调接口通知后台
+//                    httpSetScreenSwitch(fuid,1);//调接口通知后台
                 }
             }else {
                 //2 若没有开启阅后即焚，则展示原有开关状态
@@ -296,7 +290,7 @@ public class ChatInfoActivity extends AppActivity {
                             fUserInfo.setScreenShot(0);//截屏通知字段设置为关闭
                         }
                         taskSaveInfo();//更新本地数据库
-                        httpSetScreenSwitch(fuid,isChecked ? 1:0);//调接口通知后台
+//                        httpSetScreenSwitch(fuid,isChecked ? 1:0);//调接口通知后台
                     }
                 }
             }
@@ -479,29 +473,6 @@ public class ChatInfoActivity extends AppActivity {
                     return;
                 }
                 EventBus.getDefault().post(new EventIsShowRead());
-            }
-        });
-    }
-
-    /**
-     * 请求-> 截屏通知设置开关 单聊
-     * @param friendId 对方id
-     * @param isOpen 1开启 0关闭
-     */
-    private void httpSetScreenSwitch(long friendId, int isOpen) {
-        msgAction.setScreenSwitch(friendId, isOpen, new CallBack<ReturnBean>() {
-            @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                super.onResponse(call, response);
-                if (response.body() == null) {
-                    return;
-                }
-                if (response.body().isOk()) {
-                    //本地发通知消息
-                    EventSendMsgScreenOpen event = new EventSendMsgScreenOpen();
-                    event.setIsOpen(isOpen);
-                    EventBus.getDefault().post(event);
-                }
             }
         });
     }

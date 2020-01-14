@@ -180,7 +180,6 @@ import net.cb.cb.library.bean.EventFindHistory;
 import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.EventRefreshChat;
-import net.cb.cb.library.bean.EventSendMsgScreenOpen;
 import net.cb.cb.library.bean.EventSwitchDisturb;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
@@ -2239,13 +2238,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 viewFaceView.getOftenUseFace();
             }
         }).start();
-    }
-
-    //截屏通知开关-本地发通知给自己
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventSendMsgScreenOpen(EventSendMsgScreenOpen event) {
-        MsgNotice notice = SocketData.createMsgOpenOrCloseSnapshot(SocketData.getUUID(),event.getIsOpen()==1? 1:0);
-        sendMessage(notice, ChatEnum.EMessageType.NOTICE, false);
     }
 
     //单聊获取已读阅后即焚消息
