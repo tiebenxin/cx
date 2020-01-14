@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -19,20 +20,33 @@ import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.model.inner.GeoPoint;
+import com.baidu.mapapi.search.core.PoiInfo;
 import com.baidu.mapapi.search.geocode.GeoCodeOption;
 import com.baidu.mapapi.search.geocode.GeoCodeResult;
 import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
+import com.baidu.mapapi.search.poi.OnGetPoiSearchResultListener;
+import com.baidu.mapapi.search.poi.PoiDetailResult;
+import com.baidu.mapapi.search.poi.PoiDetailSearchResult;
+import com.baidu.mapapi.search.poi.PoiIndoorResult;
+import com.baidu.mapapi.search.poi.PoiNearbySearchOption;
+import com.baidu.mapapi.search.poi.PoiResult;
+import com.baidu.mapapi.search.poi.PoiSearch;
+import com.baidu.mapapi.search.poi.PoiSortType;
 import com.baidu.mapapi.search.sug.OnGetSuggestionResultListener;
 import com.baidu.mapapi.search.sug.SuggestionResult;
 import com.baidu.mapapi.search.sug.SuggestionSearch;
 import com.baidu.mapapi.search.sug.SuggestionSearchOption;
+import com.baidu.mapapi.utils.DistanceUtil;
 import com.google.gson.Gson;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
@@ -85,13 +99,15 @@ public class LocationActivity extends AppActivity {
     private LocationService locService;
     private BDAbstractLocationListener listener;
 
-    private MaxHeightRecyclerView recyclerview;
+    private RecyclerView recyclerview;
     private List<LocationMessage> locationList;
     private LocationPoiAdapter locationPoiAdapter;
 
-    private MaxHeightRecyclerView recyclerview2;
-    private List<LocationMessage> locationList2;
-    private LocationPoiAdapter locationPoiAdapter2;
+    private MaxHeightRecyclerView recyclerviewSearch;
+    private List<LocationMessage> locationListSearch;
+    private LocationPoiAdapter locationPoiAdapterSearch;
+
+    private ImageView center_location_iv;
 
     private Boolean isShow = true;
     private String city = "长沙市";//默认城市
@@ -100,6 +116,8 @@ public class LocationActivity extends AppActivity {
     private String addr = "";//
     private String addrDesc = "";//
     private MsgAllBean msgAllBean;
+    private Boolean dragging = false;// 拖拽中 Dragging  draggableing
+    private float zoom = 18.0f;
 
 
     public static void openActivity(Activity activity, Boolean isShow, MsgAllBean bean) {
@@ -190,17 +208,17 @@ public class LocationActivity extends AppActivity {
                     if (locationMessage.getLatitude() == -1 || locationMessage.getLongitude() == -1) {
                         getPoi(true, city, locationMessage.getAddress());
                     } else {
-                        setLocationBitmap(false,locationMessage.getLatitude() / LocationUtils.beishu, locationMessage.getLongitude() / LocationUtils.beishu);
+                        setLocationBitmap(false, locationMessage.getLatitude() / LocationUtils.beishu, locationMessage.getLongitude() / LocationUtils.beishu);
                     }
                 }
             }
         });
 
-        locationList2 = new ArrayList<>();
-        recyclerview2 = findViewById(R.id.recyclerview2);
-        locationPoiAdapter2 = new LocationPoiAdapter(context, locationList2);
-        recyclerview2.setAdapter(locationPoiAdapter2);
-        locationPoiAdapter2.setListener(new BaseListener() {
+        locationListSearch = new ArrayList<>();
+        recyclerviewSearch = findViewById(R.id.recyclerview_search);
+        locationPoiAdapterSearch = new LocationPoiAdapter(context, locationListSearch);
+        recyclerviewSearch.setAdapter(locationPoiAdapterSearch);
+        locationPoiAdapterSearch.setListener(new BaseListener() {
             @Override
             public void onSuccess(Object object) {
                 super.onSuccess(object);
@@ -216,16 +234,19 @@ public class LocationActivity extends AppActivity {
                         search_ll.setVisibility(View.GONE);
 
                         locationList.clear();
-                        locationList.addAll(locationList2);
-                        locationPoiAdapter.position = locationPoiAdapter2.position;
+                        locationList.addAll(locationListSearch);
+                        locationPoiAdapter.position = locationPoiAdapterSearch.position;
                         recyclerview.getAdapter().notifyDataSetChanged();
                         recyclerview.scrollToPosition(locationPoiAdapter.position);
 
-                        setLocationBitmap(false,locationMessage.getLatitude() / LocationUtils.beishu, locationMessage.getLongitude() / LocationUtils.beishu);
+                        setLocationBitmap(false, locationMessage.getLatitude() / LocationUtils.beishu, locationMessage.getLongitude() / LocationUtils.beishu);
                     }
                 }
             }
         });
+
+        center_location_iv = findViewById(R.id.center_location_iv);
+        center_location_iv.setVisibility(View.GONE);
     }
 
 
@@ -274,12 +295,48 @@ public class LocationActivity extends AppActivity {
             }
         });
 
-
         //百度地图参数
         mBaiduMap = mapview.getMap();
         mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
-        mBaiduMap.setMapStatus(MapStatusUpdateFactory.zoomTo(18));
+        mBaiduMap.setMapStatus(MapStatusUpdateFactory.zoomTo(18f));
         mBaiduMap.setMyLocationEnabled(true);
+        mBaiduMap.setOnMapStatusChangeListener(new BaiduMap.OnMapStatusChangeListener() {
+            @Override
+            public void onMapStatusChangeStart(MapStatus mapStatus) {
+                dragging = true;
+                if (mapStatus != null) {
+//                    if(!isShow&&zoom==mapStatus.zoom){
+//                        center_location_iv.setVisibility(View.VISIBLE);
+//                    }
+                    zoom = mapStatus.zoom;
+                }
+            }
+
+            @Override
+            public void onMapStatusChangeStart(MapStatus mapStatus, int i) {
+            }
+
+            @Override
+            public void onMapStatusChange(MapStatus mapStatus) {
+            }
+
+            @Override
+            public void onMapStatusChangeFinish(MapStatus mapStatus) {
+//                LogUtil.getLog().e("=location===onMapStatusChangeFinish==="+GsonUtils.optObject(mapStatus));
+                if (mapStatus != null) {
+                    if (zoom == mapStatus.zoom) {
+                        if (!isShow && dragging && mapStatus != null && mapStatus.target != null) {
+//                            fanSearch(mapStatus.target.latitude, mapStatus.target.longitude);
+                            searchNeayBy(mapStatus.target.latitude, mapStatus.target.longitude);
+                        }
+                    }else {
+                        //缩放地图 不做改变
+                    }
+                }
+                dragging = false;
+//                center_location_iv.setVisibility(View.GONE);
+            }
+        });
 
         locService = ((MyAppLication) getApplication()).locationService;
         LocationClientOption mOption = locService.getDefaultLocationClientOption();
@@ -287,7 +344,7 @@ public class LocationActivity extends AppActivity {
         mOption.setCoorType("bd09ll");
         locService.setLocationOption(mOption);
 
-        setLocationBitmap(false,latitude / LocationUtils.beishu, longitude / LocationUtils.beishu);//设置默认定位
+        setLocationBitmap(false, latitude / LocationUtils.beishu, longitude / LocationUtils.beishu);//设置默认定位
 
         listener = new BDAbstractLocationListener() {
             @Override
@@ -298,9 +355,9 @@ public class LocationActivity extends AppActivity {
                     if (bdLocation != null && bdLocation.getPoiList() != null) {
                         city = bdLocation.getCity();
 
-                        if(isShow){
-                            setLocationBitmap(true,bdLocation.getLatitude(), bdLocation.getLongitude());
-                        }else {
+                        if (isShow) {
+                            setLocationBitmap(true, bdLocation.getLatitude(), bdLocation.getLongitude());
+                        } else {
                             locationList.clear();
                             locationPoiAdapter.position = 0;
                             for (int i = 0; i < bdLocation.getPoiList().size(); i++) {
@@ -318,7 +375,7 @@ public class LocationActivity extends AppActivity {
                             }
                             recyclerview.getAdapter().notifyDataSetChanged();
                             recyclerview.setVisibility(View.VISIBLE);
-                            setLocationBitmap(false,bdLocation.getLatitude(), bdLocation.getLongitude());
+                            setLocationBitmap(false, bdLocation.getLatitude(), bdLocation.getLongitude());
                         }
 
                         locService.stop();//定位成功后停止点位
@@ -391,9 +448,9 @@ public class LocationActivity extends AppActivity {
                 if (edtSearch.getText().toString().length() == 0) {
                     //搜索关键字为0的时候，重新显示全部消息
 //                    locService.start();
-                    locationList2.clear();
-                    locationPoiAdapter2.position = 0;
-                    recyclerview2.getAdapter().notifyDataSetChanged();
+                    locationListSearch.clear();
+                    locationPoiAdapterSearch.position = 0;
+                    recyclerviewSearch.getAdapter().notifyDataSetChanged();
                 }
             }
 
@@ -441,8 +498,8 @@ public class LocationActivity extends AppActivity {
 
                                 //规划路线
                                 Uri uri = Uri.parse("amapuri://route/plan/?did=BGVIS2"
-                                        + "&dlat=" + LocationUtils.bdToGc("lat",latitude / LocationUtils.beishu,longitude / LocationUtils.beishu)
-                                        + "&dlon=" + LocationUtils.bdToGc("lon",latitude / LocationUtils.beishu,longitude / LocationUtils.beishu)
+                                        + "&dlat=" + LocationUtils.bdToGc("lat", latitude / LocationUtils.beishu, longitude / LocationUtils.beishu)
+                                        + "&dlon=" + LocationUtils.bdToGc("lon", latitude / LocationUtils.beishu, longitude / LocationUtils.beishu)
                                         + "&dname=" + addr + "&dev=0&t=0");
 
                                 startActivity(new Intent(Intent.ACTION_VIEW, uri)); // 启动调用
@@ -458,14 +515,14 @@ public class LocationActivity extends AppActivity {
     }
 
 
-    private void setLocationBitmap(Boolean isLocationMe,double latitude, double longitude) {
+    private void setLocationBitmap(Boolean isMyLocation, double latitude, double longitude) {
         LogUtil.getLog().e("===location====" + latitude + "====" + longitude);
         LatLng point = new LatLng(latitude, longitude);
         // 构建Marker图标
-        BitmapDescriptor bitmap=null;
-        if(isLocationMe){
+        BitmapDescriptor bitmap = null;
+        if (isMyLocation) {
             bitmap = BitmapDescriptorFactory.fromResource(R.mipmap.location_circle_big); // 非推算结果
-        }else {
+        } else {
             mBaiduMap.clear();
             bitmap = BitmapDescriptorFactory.fromResource(R.mipmap.location_two); // 非推算结果
         }
@@ -488,9 +545,9 @@ public class LocationActivity extends AppActivity {
 
         InputUtil.hideKeyboard(edtSearch);
 
-        locationList2.clear();
-        locationPoiAdapter2.position = 0;
-        recyclerview2.getAdapter().notifyDataSetChanged();
+        locationListSearch.clear();
+        locationPoiAdapterSearch.position = 0;
+        recyclerviewSearch.getAdapter().notifyDataSetChanged();
 
         //建议搜索
         SuggestionSearch mSuggestionSearch = SuggestionSearch.newInstance();
@@ -513,7 +570,7 @@ public class LocationActivity extends AppActivity {
                             locationMessage.setImg(LocationUtils.getLocationUrl2(sug.pt.latitude, sug.pt.longitude));
                             locationMessage.setAddress(sug.getKey());
                             locationMessage.setAddressDescribe(sug.getCity() + sug.getDistrict() + sug.getAddress());
-                            locationList2.add(locationMessage);
+                            locationListSearch.add(locationMessage);
 
 //                            if(!hasSetBitmap){
 //                                setLocationBitmap(sug.pt.latitude,sug.pt.longitude);
@@ -522,7 +579,7 @@ public class LocationActivity extends AppActivity {
                         }
                     }
 
-                    recyclerview2.getAdapter().notifyDataSetChanged();
+                    recyclerviewSearch.getAdapter().notifyDataSetChanged();
 //                    recyclerview2.setVisibility(View.VISIBLE);
 
                 }
@@ -568,7 +625,7 @@ public class LocationActivity extends AppActivity {
                     }
 
                     if (isAddBitmap) {
-                        setLocationBitmap(false,arg1.getLocation().latitude, arg1.getLocation().longitude);
+                        setLocationBitmap(false, arg1.getLocation().latitude, arg1.getLocation().longitude);
                     }
                 }
             }
@@ -579,4 +636,144 @@ public class LocationActivity extends AppActivity {
                 .address(address));
     }
 
+    //根据经纬度获取位置信息
+    private void fanSearch(double latitude, double longitude) {
+        LogUtil.getLog().e("===location===反Geo搜索=latitude=" + latitude + "==longitude=" + longitude);
+        // 搜索模块 初始化搜索模块，注册事件监听
+        GeoCoder mSearch = GeoCoder.newInstance();
+        mSearch.setOnGetGeoCodeResultListener(new OnGetGeoCoderResultListener() {
+            @Override
+            public void onGetGeoCodeResult(GeoCodeResult geoCodeResult) {
+            }
+
+            @Override
+            public void onGetReverseGeoCodeResult(ReverseGeoCodeResult reverseGeoCodeResult) {
+                //反搜索
+//                LogUtil.getLog().e("===location===反Geo搜索=onGetReverseGeoCodeResult=" + GsonUtils.optObject(reverseGeoCodeResult));
+                if (reverseGeoCodeResult != null && "NO_ERROR".equals(reverseGeoCodeResult.error.name())) {
+                    locationList.clear();
+                    locationPoiAdapter.position = 0;
+                    recyclerview.getAdapter().notifyDataSetChanged();
+
+                    setLocationBitmap(false, latitude, longitude);
+                    LocationMessage locationMessage = new LocationMessage();
+                    locationMessage.setLatitude((int) (latitude * LocationUtils.beishu));
+                    locationMessage.setLongitude((int) (longitude * LocationUtils.beishu));
+                    locationMessage.setImg(LocationUtils.getLocationUrl2(latitude, longitude));
+                    locationMessage.setAddress(reverseGeoCodeResult.getBusinessCircle());
+                    locationMessage.setAddressDescribe(reverseGeoCodeResult.getAddress());
+                    locationList.add(locationMessage);
+
+                    if (reverseGeoCodeResult.getPoiList() != null) {
+                        for (int i = 0; i < reverseGeoCodeResult.getPoiList().size(); i++) {
+                            if (reverseGeoCodeResult.getPoiList().get(i).getLocation() != null) {
+                                PoiInfo poiInfo = reverseGeoCodeResult.getPoiList().get(i);
+                                LocationMessage locationMessageTemp = new LocationMessage();
+                                locationMessageTemp.setLatitude((int) (poiInfo.getLocation().latitude * LocationUtils.beishu));
+                                locationMessageTemp.setLongitude((int) (poiInfo.getLocation().longitude * LocationUtils.beishu));
+                                locationMessageTemp.setImg(LocationUtils.getLocationUrl2(poiInfo.getLocation().latitude, poiInfo.getLocation().longitude));
+                                locationMessageTemp.setAddress(poiInfo.getName());
+                                locationMessageTemp.setAddressDescribe(poiInfo.getAddress());
+                                locationList.add(locationMessageTemp);
+                            }
+                        }
+                    }
+                    recyclerview.getAdapter().notifyDataSetChanged();
+                }
+            }
+        });
+
+        // 反Geo搜索
+        ReverseGeoCodeOption reverseGeoCodeOption = new ReverseGeoCodeOption();
+        reverseGeoCodeOption.location(new LatLng(latitude, longitude));
+        reverseGeoCodeOption.radius(1000);
+        reverseGeoCodeOption.pageSize(10);
+        mSearch.reverseGeoCode(reverseGeoCodeOption);
+    }
+
+
+    //拖拽
+    private void searchNeayBy(double latitude, double longitude) {
+        locationList.clear();
+        locationPoiAdapter.position = 0;
+        setLocationBitmap(false, latitude, longitude);
+//        recyclerview.getAdapter().notifyDataSetChanged();
+        //"写字楼、住宅、餐厅、公交、学校"
+        searchNeayBy("写字楼", latitude, longitude);
+        searchNeayBy("住宅", latitude, longitude);
+        searchNeayBy("餐厅", latitude, longitude);
+        searchNeayBy("学校", latitude, longitude);
+//        searchNeayBy("公交", latitude, longitude);
+    }
+
+    //搜索周边地理位置
+    private void searchNeayBy(String key, double latitude, double longitude) {
+        PoiSearch mPoiSearch = PoiSearch.newInstance();
+        mPoiSearch.setOnGetPoiSearchResultListener(new OnGetPoiSearchResultListener() {
+            @Override
+            public void onGetPoiResult(PoiResult poiResult) {
+//                LogUtil.getLog().e(key + "=location===搜索周边=poiResult=" + GsonUtils.optObject(poiResult));
+                if (poiResult != null && "NO_ERROR".equals(poiResult.error.name()) && poiResult.getAllPoi() != null) {
+                    List<PoiInfo> poiInfoList = poiResult.getAllPoi();
+                    for (int i = 0; i < poiInfoList.size(); i++) {
+                        if (poiResult.getAllPoi().get(i).getLocation() != null) {
+                            LocationMessage locationMessage = new LocationMessage();
+                            locationMessage.setLatitude((int) (poiResult.getAllPoi().get(i).getLocation().latitude * LocationUtils.beishu));
+                            locationMessage.setLongitude((int) (poiResult.getAllPoi().get(i).getLocation().longitude * LocationUtils.beishu));
+                            locationMessage.setImg(LocationUtils.getLocationUrl2(poiResult.getAllPoi().get(i).getLocation().latitude
+                                    , poiResult.getAllPoi().get(i).getLocation().longitude));
+                            locationMessage.setAddress(poiResult.getAllPoi().get(i).getName());
+                            locationMessage.setAddressDescribe(poiResult.getAllPoi().get(i).getAddress());
+                            locationList.add(locationMessage);
+                        }
+                    }
+
+                }
+
+//                if (locationList.size() > 0) {
+//                    setLocationBitmap(false, locationList.get(0).getLatitude() / LocationUtils.beishu
+//                            , locationList.get(0).getLongitude() / LocationUtils.beishu);
+//                }
+                LatLng locationOrangle = new LatLng(latitude, longitude);
+                double distance=0;
+                int position=0;
+                for (int i = 0; i < locationList.size(); i++) {
+                    LatLng locationOrangleTemp = new LatLng(locationList.get(i).getLatitude()/LocationUtils.beishu, locationList.get(i).getLongitude()/LocationUtils.beishu);
+                    double distanceTeamp = DistanceUtil.getDistance(locationOrangle, locationOrangleTemp);
+//                    LogUtil.getLog().e("===distanceTeamp+"+distanceTeamp);
+                    if(i==0){
+                        distance=distanceTeamp;
+                    }else {
+                        if(distanceTeamp-distance<0){
+                            distance=distanceTeamp;
+                            position=i;
+                        }
+                    }
+                }
+//                LogUtil.getLog().e("===distance="+distance);
+                locationPoiAdapter.position=position;
+                recyclerview.getAdapter().notifyDataSetChanged();
+                recyclerview.scrollToPosition(position);
+            }
+
+            @Override
+            public void onGetPoiDetailResult(PoiDetailResult poiDetailResult) {
+            }
+
+            @Override
+            public void onGetPoiDetailResult(PoiDetailSearchResult poiDetailSearchResult) {
+            }
+
+            @Override
+            public void onGetPoiIndoorResult(PoiIndoorResult poiIndoorResult) {
+            }
+        });
+
+        PoiNearbySearchOption option = new PoiNearbySearchOption();
+        option.keyword(key);
+        option.location(new LatLng(latitude, longitude));
+        option.radius(1000);
+        option.pageCapacity(3);
+        mPoiSearch.searchNearby(option);
+    }
 }

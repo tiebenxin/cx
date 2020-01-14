@@ -18,7 +18,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:orientation="horizontal"
-        android:paddingBottom="35dp" >
+        android:paddingBottom="48dp" >
 
         <TextView
             android:layout_width="0dp"

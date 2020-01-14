@@ -96,6 +96,10 @@ public class DaoMigration implements RealmMigration {
                 updateV19(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 19) {
+                updateV20(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -353,21 +357,35 @@ public class DaoMigration implements RealmMigration {
 
     }
 
-    // 添加是否能领取零钱红包
+    /**
+     * 添加是否能领取零钱红包
+     * @param schema
+     */
     private void updateV18(RealmSchema schema) {
         schema.get("Group")
                 .addField("cantOpenUpRedEnv", int.class);
     }
 
+    /**
+     * 添加动画表情
+     * @param schema
+     */
+    private void updateV19(RealmSchema schema) {
+        schema.create("ShippedExpressionMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("id", String.class);
+        schema.get("MsgAllBean")
+                .addRealmObjectField("shippedExpressionMessage", schema.get("ShippedExpressionMessage"));
+
+    }
+
     //更新截屏通知
-    private void updateV19(RealmSchema schema){
+    private void updateV20(RealmSchema schema){
         schema.get("UserInfo")
                 .addField("screenShot", int.class);//单聊截屏通知
         schema.get("Group")
                 .addField("screenShot", int.class);//群聊截屏通知
     }
-
-
 
     @Override
     public boolean equals(@Nullable Object obj) {

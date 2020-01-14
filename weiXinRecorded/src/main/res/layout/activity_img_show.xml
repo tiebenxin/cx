@@ -7,17 +7,23 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
-        android:id="@+id/activity_img_show_img"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitXY"/>
+            <ImageView
+                android:id="@+id/activity_img_show_img"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"/>
 
-    <com.zhaoss.weixinrecorded.view.MyPaintView
-        android:id="@+id/activity_show_mypaintview"
-        android:layout_width="match_parent"
-        android:visibility="gone"
-        android:layout_height="match_parent"/>
+            <com.zhaoss.weixinrecorded.view.MyPaintView
+                android:id="@+id/activity_show_mypaintview"
+                android:layout_width="match_parent"
+                android:visibility="gone"
+                android:layout_height="match_parent"/>
+
+            <com.zhaoss.weixinrecorded.view.MosaicView
+                android:id="@+id/view_mosaic_view"
+                android:layout_width="match_parent"
+                android:visibility="gone"
+                android:layout_height="match_parent"/>
     </RelativeLayout>
 
     <RelativeLayout
@@ -67,19 +73,20 @@
                 android:layout_centerInParent="true"
                 android:src="@mipmap/activity_video_edit_pan" />
         </RelativeLayout>
+
         <RelativeLayout
-            android:id="@+id/rl_icon"
+            android:id="@+id/rl_mosaic"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:visibility="gone"
             android:layout_height="50dp">
             <ImageView
-                android:id="@+id/iv_icon"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_centerInParent="true"
                 android:src="@mipmap/activity_video_edit_face" />
         </RelativeLayout>
+
         <RelativeLayout
             android:id="@+id/rl_text"
             android:layout_width="0dp"
@@ -92,7 +99,7 @@
                 android:src="@mipmap/activity_video_edit_text" />
         </RelativeLayout>
 
-            <RelativeLayout
+        <RelativeLayout
                 android:id="@+id/rl_text_cut"
                 android:layout_width="0dp"
                 android:layout_weight="1"
@@ -105,6 +112,7 @@
             </RelativeLayout>
 
         </LinearLayout>
+
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="50dp"

@@ -1,5 +1,7 @@
 package com.yanlong.im.view.face.bean;
 
+import net.cb.cb.library.base.BaseBean;
+
 /**
  * 表情属性
  * 
@@ -11,7 +13,7 @@ package com.yanlong.im.view.face.bean;
  *             All rights reserved.
  * 
  */
-public class FaceBean {
+public class FaceBean extends BaseBean {
 
 	/** 表情资源Id */
 	private int resId;
@@ -24,6 +26,11 @@ public class FaceBean {
 
 	/** 表情所属分组 */
 	private String group;
+
+	/** 表情网络存储路径*/
+	private String serverPath;
+	// 是否选中
+	private boolean isCheck;
 
 	public int getResId() {
 		return resId;
@@ -41,7 +48,6 @@ public class FaceBean {
 		this.name = name;
 	}
 
-
 	public String getPath() {
 		return path;
 	}
@@ -52,6 +58,22 @@ public class FaceBean {
 
 	public String getGroup() {
 		return group;
+	}
+
+	public String getServerPath() {
+		return serverPath;
+	}
+
+	public void setServerPath(String serverPath) {
+		this.serverPath = serverPath;
+	}
+
+	public boolean isCheck() {
+		return isCheck;
+	}
+
+	public void setCheck(boolean check) {
+		isCheck = check;
 	}
 
 	public void setGroup(String group) {

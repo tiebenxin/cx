@@ -19,6 +19,7 @@ import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
+import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
@@ -493,6 +494,9 @@ public class SocketData {
             case SNAPSHOT_LOCATION://位置
                 wmsg.setSnapshotLocation((MsgBean.SnapshotLocationMessage) value);
                 break;
+            case SHIPPED_EXPRESSION:
+                wmsg.setShippedExpression((MsgBean.ShippedExpressionMessage) value);
+                break;
             case SNAPSHOT_SCREEN://截屏
                 wmsg.setSnapshotScreen((MsgBean.SnapshotScreenMessage) value);
                 break;
@@ -506,7 +510,7 @@ public class SocketData {
     }
 
     /***
-     * 忽略不存库的消息，如抢红包消息，发起视频消息，截屏通知消息
+     * 忽略存库的消息
      * @return false 需要忽略
      */
     private static boolean msgSendSave4filter(MsgBean.UniversalMessage.WrapMessage.Builder wmsg) {
@@ -1190,6 +1194,13 @@ public class SocketData {
                 value = locationBuilder.build();
                 type = MsgBean.MessageType.SNAPSHOT_LOCATION;
                 break;
+            case ChatEnum.EMessageType.SHIPPED_EXPRESSION:// 大表情
+                ShippedExpressionMessage seMessage = bean.getShippedExpressionMessage();
+                MsgBean.ShippedExpressionMessage.Builder semBuilder = MsgBean.ShippedExpressionMessage.newBuilder();
+                semBuilder.setId(seMessage.getId());
+                value = semBuilder.build();
+                type = MsgBean.MessageType.SHIPPED_EXPRESSION;
+                break;
         }
 
         if (needSave) {
@@ -1447,8 +1458,14 @@ public class SocketData {
                 } else {
                     return null;
                 }
-//                LogUtil.getLog().e("===location==LocationMessage="+ GsonUtils.optObject(msg));
                 break;
+            case ChatEnum.EMessageType.SHIPPED_EXPRESSION:
+                if (obj instanceof ShippedExpressionMessage) {
+                    msg.setShippedExpressionMessage((ShippedExpressionMessage) obj);
+                } else {
+                    return null;
+                }
+                  break;
 
         }
 

@@ -706,6 +706,13 @@ public class MsgConversionBean {
                     }
                 }
                 break;
+            case SHIPPED_EXPRESSION: // 动画表情
+                ShippedExpressionMessage message = new ShippedExpressionMessage();
+                message.setMsgid(msgAllBean.getMsg_id());
+                message.setId(bean.getShippedExpression().getId());
+                msgAllBean.setShippedExpressionMessage(message);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.SHIPPED_EXPRESSION);
+                break;
             case SNAPSHOT_SCREEN:// 截频通知消息
                 if (bean.getSnapshotScreen() != null) {
                     msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
