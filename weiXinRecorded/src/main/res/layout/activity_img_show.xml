@@ -3,27 +3,21 @@
     android:layout_width="match_parent" android:layout_height="match_parent">
 
     <RelativeLayout
-        android:id="@+id/activity_show_rl_big"
+        android:id="@+id/show_rl_big"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-            <ImageView
-                android:id="@+id/activity_img_show_img"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="fitXY"/>
+        <ImageView
+            android:id="@+id/img_show"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"/>
 
-            <com.zhaoss.weixinrecorded.view.MyPaintView
-                android:id="@+id/activity_show_mypaintview"
-                android:layout_width="match_parent"
-                android:visibility="gone"
-                android:layout_height="match_parent"/>
-
-            <com.zhaoss.weixinrecorded.view.MosaicView
-                android:id="@+id/view_mosaic_view"
-                android:layout_width="match_parent"
-                android:visibility="gone"
-                android:layout_height="match_parent"/>
+        <com.zhaoss.weixinrecorded.view.MosaicPaintView
+            android:id="@+id/mpv_view"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="match_parent"/>
     </RelativeLayout>
 
     <RelativeLayout
@@ -61,45 +55,45 @@
             android:layout_height="50dp"
             android:layout_weight="5"
             >
-        <RelativeLayout
-            android:id="@+id/rl_pen"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="50dp">
-            <ImageView
-                android:id="@+id/iv_pen"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_centerInParent="true"
-                android:src="@mipmap/activity_video_edit_pan" />
-        </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/rl_pen"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp">
+                <ImageView
+                    android:id="@+id/iv_pen"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/activity_video_edit_pan" />
+            </RelativeLayout>
 
-        <RelativeLayout
-            android:id="@+id/rl_mosaic"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:visibility="gone"
-            android:layout_height="50dp">
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_centerInParent="true"
-                android:src="@mipmap/activity_video_edit_face" />
-        </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/rl_mosaic"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:visibility="gone"
+                android:layout_height="50dp">
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/activity_video_edit_face" />
+            </RelativeLayout>
 
-        <RelativeLayout
-            android:id="@+id/rl_text"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="50dp">
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_centerInParent="true"
-                android:src="@mipmap/activity_video_edit_text" />
-        </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/rl_text"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp">
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/activity_video_edit_text" />
+            </RelativeLayout>
 
-        <RelativeLayout
+            <RelativeLayout
                 android:id="@+id/rl_text_cut"
                 android:layout_width="0dp"
                 android:layout_weight="1"
@@ -123,7 +117,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-              >
+                >
 
                 <ImageView
                     android:id="@+id/iv_show_delete"
@@ -135,62 +129,62 @@
                     android:clickable="true"
                     android:visibility="gone"
                     android:background="@mipmap/video_cancle"/>
-                    <TextView
-                        android:id="@+id/tv_finish_video"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerHorizontal="true"
-                        android:paddingLeft="13dp"
-                        android:paddingRight="13dp"
-                        android:paddingTop="5dp"
-                        android:paddingBottom="5dp"
-                        android:textSize="17sp"
-                        android:textColor="#fff"
-                        android:background="@drawable/yuanjiao"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginRight="20dp"
-                        android:text="完成"/>
+                <TextView
+                    android:id="@+id/tv_finish_video"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:paddingLeft="13dp"
+                    android:paddingRight="13dp"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:textSize="17sp"
+                    android:textColor="#fff"
+                    android:background="@drawable/yuanjiao"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="20dp"
+                    android:text="完成"/>
             </RelativeLayout>
 
 
-<!--            <RelativeLayout-->
-<!--                android:id="@+id/rl_speed"-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_weight="1"-->
-<!--                android:visibility="invisible"-->
-<!--                android:layout_height="50dp">-->
-<!--                <ImageView-->
-<!--                    android:id="@+id/iv_speed"-->
-<!--                    android:layout_width="20dp"-->
-<!--                    android:layout_height="20dp"-->
-<!--                    android:layout_centerInParent="true"-->
-<!--                    android:src="@mipmap/speed" />-->
-<!--            </RelativeLayout>-->
-<!--            <RelativeLayout-->
-<!--                android:id="@+id/rl_cut_size"-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_weight="1"-->
-<!--                android:visibility="invisible"-->
-<!--                android:layout_height="50dp">-->
-<!--                <ImageView-->
-<!--                    android:layout_width="20dp"-->
-<!--                    android:layout_height="20dp"-->
-<!--                    android:layout_centerInParent="true"-->
-<!--                    android:src="@mipmap/cut_size" />-->
-<!--            </RelativeLayout>-->
-<!--            <RelativeLayout-->
-<!--                android:id="@+id/rl_cut_time"-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_weight="1"-->
-<!--                android:visibility="invisible"-->
-<!--                android:layout_height="50dp">-->
-<!--                <ImageView-->
-<!--                    android:layout_width="20dp"-->
-<!--                    android:layout_height="20dp"-->
-<!--                    android:layout_centerInParent="true"-->
-<!--                    android:src="@mipmap/cut_time" />-->
-<!--            </RelativeLayout>-->
+            <!--            <RelativeLayout-->
+            <!--                android:id="@+id/rl_speed"-->
+            <!--                android:layout_width="0dp"-->
+            <!--                android:layout_weight="1"-->
+            <!--                android:visibility="invisible"-->
+            <!--                android:layout_height="50dp">-->
+            <!--                <ImageView-->
+            <!--                    android:id="@+id/iv_speed"-->
+            <!--                    android:layout_width="20dp"-->
+            <!--                    android:layout_height="20dp"-->
+            <!--                    android:layout_centerInParent="true"-->
+            <!--                    android:src="@mipmap/speed" />-->
+            <!--            </RelativeLayout>-->
+            <!--            <RelativeLayout-->
+            <!--                android:id="@+id/rl_cut_size"-->
+            <!--                android:layout_width="0dp"-->
+            <!--                android:layout_weight="1"-->
+            <!--                android:visibility="invisible"-->
+            <!--                android:layout_height="50dp">-->
+            <!--                <ImageView-->
+            <!--                    android:layout_width="20dp"-->
+            <!--                    android:layout_height="20dp"-->
+            <!--                    android:layout_centerInParent="true"-->
+            <!--                    android:src="@mipmap/cut_size" />-->
+            <!--            </RelativeLayout>-->
+            <!--            <RelativeLayout-->
+            <!--                android:id="@+id/rl_cut_time"-->
+            <!--                android:layout_width="0dp"-->
+            <!--                android:layout_weight="1"-->
+            <!--                android:visibility="invisible"-->
+            <!--                android:layout_height="50dp">-->
+            <!--                <ImageView-->
+            <!--                    android:layout_width="20dp"-->
+            <!--                    android:layout_height="20dp"-->
+            <!--                    android:layout_centerInParent="true"-->
+            <!--                    android:src="@mipmap/cut_time" />-->
+            <!--            </RelativeLayout>-->
         </RelativeLayout>
 
     </LinearLayout>
