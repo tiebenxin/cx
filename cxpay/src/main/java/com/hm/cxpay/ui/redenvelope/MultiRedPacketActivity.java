@@ -24,7 +24,6 @@ import com.hm.cxpay.dailog.DialogInputPayPassword;
 import com.hm.cxpay.dailog.DialogSelectPayStyle;
 import com.hm.cxpay.databinding.ActivityMultiRedPacketBinding;
 import com.hm.cxpay.eventbus.PayResultEvent;
-import com.hm.cxpay.global.PayConstants;
 import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
@@ -34,7 +33,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.ui.bank.BankSettingActivity;
 import com.hm.cxpay.ui.bank.BindBankActivity;
-import com.hm.cxpay.ui.transfer.TransferActivity;
+import com.hm.cxpay.ui.payword.ForgetPswStepOneActivity;
 import com.hm.cxpay.utils.BankUtils;
 import com.hm.cxpay.utils.UIUtils;
 
@@ -377,7 +376,9 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
                     public void onHandleError(BaseResponse baseResponse) {
                         payFailed();
                         if (baseResponse.getCode() == -21000) {
-                            showPswErrorDialog();
+                            showPswErrorDialog(false, baseResponse.getMessage());
+                        } else if (baseResponse.getCode() == -21001) {
+                            showPswErrorDialog(false, baseResponse.getMessage());
                         } else if (baseResponse.getCode() == 40014) {//余额不足
                             showBalanceOfBankNoEnough();
                         } else {
@@ -464,12 +465,15 @@ public class MultiRedPacketActivity extends BaseSendRedEnvelopeActivity implemen
     }
 
     //显示密码错误弹窗
-    private void showPswErrorDialog() {
+    private void showPswErrorDialog(boolean canRetry, String msg) {
         dialogErrorPassword = new DialogErrorPassword(this, R.style.MyDialogTheme);
         dialogErrorPassword.setCanceledOnTouchOutside(false);
+        dialogErrorPassword.setCanRetry(canRetry);
+        dialogErrorPassword.setContent(msg);
         dialogErrorPassword.setListener(new DialogErrorPassword.IErrorPasswordListener() {
             @Override
             public void onForget() {
+                startActivity(new Intent(MultiRedPacketActivity.this, ForgetPswStepOneActivity.class).putExtra("from", 1));
             }
 
             @Override

@@ -16,7 +16,7 @@ import net.cb.cb.library.base.BaseDialog;
 public class DialogErrorPassword extends BaseDialog {
 
     private TextView tvTryAgain;
-    private TextView tvForget;
+    private TextView tvForget, tvTitle;
     private IErrorPasswordListener listener;
 
     public DialogErrorPassword(Context context, int theme) {
@@ -30,6 +30,7 @@ public class DialogErrorPassword extends BaseDialog {
         setContentView(R.layout.dialog_payword_error);
         tvTryAgain = findViewById(R.id.tv_try_again);
         tvForget = findViewById(R.id.tv_forget_psw);
+        tvTitle = findViewById(R.id.tv_title);
         tvForget.setOnClickListener(this);
         tvTryAgain.setOnClickListener(this);
 
@@ -49,6 +50,14 @@ public class DialogErrorPassword extends BaseDialog {
                 dismiss();
             }
         }
+    }
+
+    public void setCanRetry(boolean canRetry) {
+        tvTryAgain.setVisibility(canRetry ? View.VISIBLE : View.GONE);
+    }
+
+    public void setContent(String s) {
+        tvTitle.setText(s);
     }
 
     public void setListener(IErrorPasswordListener l) {
