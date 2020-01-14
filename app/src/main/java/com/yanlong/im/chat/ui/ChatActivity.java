@@ -3234,12 +3234,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     holder.viewChatItem.showBigFace(msgbean.getShippedExpressionMessage().getId(), menus, new ChatItemView.EventPic() {
                         @Override
                         public void onClick(String uri) {
-                            if(ViewUtils.isFastDoubleClick()){
+                            if (ViewUtils.isFastDoubleClick()) {
                                 return;
                             }
                             Bundle bundle = new Bundle();
-                            bundle.putString(Preferences.DATA,uri);
-                            IntentUtil.gotoActivity(ChatActivity.this, ShowBigFaceActivity.class,bundle);
+                            bundle.putString(Preferences.DATA, uri);
+                            IntentUtil.gotoActivity(ChatActivity.this, ShowBigFaceActivity.class, bundle);
                         }
                     });
                     break;
@@ -4427,8 +4427,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
         final long finalTime = time;
-        if (length < 20) {
-            length += 20;
+        if (length < 80) {
+            length += 80;
         }
         final int finalLength = length;
         Observable.just(0)
@@ -5102,7 +5102,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     ChatActivity.this.survivaltime = survivalTime;
                     userDao.updateGroupReadDestroy(gid, survivalTime);
                     msgDao.noteMsgAddSurvivaltime(groupInfo.getUsers().get(0).getUid(), gid);
-                }else {
+                } else {
                     ToastUtil.show(response.body().getMsg());
                 }
             }
