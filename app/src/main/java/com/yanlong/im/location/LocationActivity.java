@@ -26,6 +26,7 @@ import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.model.inner.GeoPoint;
 import com.baidu.mapapi.search.core.PoiInfo;
 import com.baidu.mapapi.search.geocode.GeoCodeOption;
 import com.baidu.mapapi.search.geocode.GeoCodeResult;
@@ -45,6 +46,7 @@ import com.baidu.mapapi.search.sug.OnGetSuggestionResultListener;
 import com.baidu.mapapi.search.sug.SuggestionResult;
 import com.baidu.mapapi.search.sug.SuggestionSearch;
 import com.baidu.mapapi.search.sug.SuggestionSearchOption;
+import com.baidu.mapapi.utils.DistanceUtil;
 import com.google.gson.Gson;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
@@ -694,13 +696,14 @@ public class LocationActivity extends AppActivity {
     private void searchNeayBy(double latitude, double longitude) {
         locationList.clear();
         locationPoiAdapter.position = 0;
+        setLocationBitmap(false, latitude, longitude);
 //        recyclerview.getAdapter().notifyDataSetChanged();
         //"写字楼、住宅、餐厅、公交、学校"
         searchNeayBy("写字楼", latitude, longitude);
         searchNeayBy("住宅", latitude, longitude);
         searchNeayBy("餐厅", latitude, longitude);
         searchNeayBy("学校", latitude, longitude);
-        searchNeayBy("公交", latitude, longitude);
+//        searchNeayBy("公交", latitude, longitude);
     }
 
     //搜索周边地理位置
@@ -709,7 +712,7 @@ public class LocationActivity extends AppActivity {
         mPoiSearch.setOnGetPoiSearchResultListener(new OnGetPoiSearchResultListener() {
             @Override
             public void onGetPoiResult(PoiResult poiResult) {
-                LogUtil.getLog().e(key + "=location===搜索周边=poiResult=" + GsonUtils.optObject(poiResult));
+//                LogUtil.getLog().e(key + "=location===搜索周边=poiResult=" + GsonUtils.optObject(poiResult));
                 if (poiResult != null && "NO_ERROR".equals(poiResult.error.name()) && poiResult.getAllPoi() != null) {
                     List<PoiInfo> poiInfoList = poiResult.getAllPoi();
                     for (int i = 0; i < poiInfoList.size(); i++) {
@@ -727,11 +730,30 @@ public class LocationActivity extends AppActivity {
 
                 }
 
-                if (locationList.size() > 0) {
-                    setLocationBitmap(false, locationList.get(0).getLatitude() / LocationUtils.beishu
-                            , locationList.get(0).getLongitude() / LocationUtils.beishu);
+//                if (locationList.size() > 0) {
+//                    setLocationBitmap(false, locationList.get(0).getLatitude() / LocationUtils.beishu
+//                            , locationList.get(0).getLongitude() / LocationUtils.beishu);
+//                }
+                LatLng locationOrangle = new LatLng(latitude, longitude);
+                double distance=0;
+                int position=0;
+                for (int i = 0; i < locationList.size(); i++) {
+                    LatLng locationOrangleTemp = new LatLng(locationList.get(i).getLatitude()/LocationUtils.beishu, locationList.get(i).getLongitude()/LocationUtils.beishu);
+                    double distanceTeamp = DistanceUtil.getDistance(locationOrangle, locationOrangleTemp);
+//                    LogUtil.getLog().e("===distanceTeamp+"+distanceTeamp);
+                    if(i==0){
+                        distance=distanceTeamp;
+                    }else {
+                        if(distanceTeamp-distance<0){
+                            distance=distanceTeamp;
+                            position=i;
+                        }
+                    }
                 }
+//                LogUtil.getLog().e("===distance="+distance);
+                locationPoiAdapter.position=position;
                 recyclerview.getAdapter().notifyDataSetChanged();
+                recyclerview.scrollToPosition(position);
             }
 
             @Override
@@ -751,7 +773,7 @@ public class LocationActivity extends AppActivity {
         option.keyword(key);
         option.location(new LatLng(latitude, longitude));
         option.radius(1000);
-        option.pageCapacity(2);
+        option.pageCapacity(3);
         mPoiSearch.searchNearby(option);
     }
 }

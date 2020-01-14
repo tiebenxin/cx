@@ -342,26 +342,23 @@ public class FaceView extends RelativeLayout {
             list_Views.add(view);
         }
 
-        for (int i = 0; i < 4; i++) {
-            if (i == 0) {
-                type_emoji = FaceView.FaceType.FACE_ANIMO_TAB;
-            }
-//            else if (i == 1) {
-//                type_emoji = FaceView.FaceType.FACE_CUSTOM_TAB;
+//        for (int i = 0; i < 4; i++) {
+//            if (i == 0) {
+//                type_emoji = FaceView.FaceType.FACE_ANIMO_TAB;
 //            }
-            else if (i == 1) {
-                type_emoji = FaceView.FaceType.FACE_PIG;
-            } else if (i == 2) {
-                type_emoji = FaceView.FaceType.FACE_MAMMON;
-            } else if (i == 3) {
-                type_emoji = FaceView.FaceType.FACE_PANDA;
-            }
-            FaceViewPager view = new FaceViewPager(context, type_emoji);
-            view.setOnItemClikListener(faceClickListener);
-            view.setOnItemLongClickListener(faceLongClickListener);
-            view.setOnDeleteListener(mOnDeleteListener);
-            list_Views.add(view);
-        }
+//            else if (i == 1) {
+//                type_emoji = FaceView.FaceType.FACE_PIG;
+//            } else if (i == 2) {
+//                type_emoji = FaceView.FaceType.FACE_MAMMON;
+//            } else if (i == 3) {
+//                type_emoji = FaceView.FaceType.FACE_PANDA;
+//            }
+//            FaceViewPager view = new FaceViewPager(context, type_emoji);
+//            view.setOnItemClikListener(faceClickListener);
+//            view.setOnItemLongClickListener(faceLongClickListener);
+//            view.setOnDeleteListener(mOnDeleteListener);
+//            list_Views.add(view);
+//        }
 
         // 设置分页列表
         adapter = new ViewPagerAdapter(list_Views);

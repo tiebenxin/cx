@@ -53,7 +53,6 @@ import java.util.UUID;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmList;
-import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.Sort;
 

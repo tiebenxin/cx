@@ -1622,6 +1622,14 @@ public class SocketData {
         return message;
     }
 
+    // 动画表情消息
+    public static ShippedExpressionMessage createFaceMessage(String msgId, String id) {
+        ShippedExpressionMessage message = new ShippedExpressionMessage();
+        message.setMsgid(msgId);
+        message.setId(id);
+        return message;
+    }
+
     //名片消息
     public static BusinessCardMessage createCardMessage(String msgId, String avatar, String nick, String info, long uid) {
         BusinessCardMessage message = new BusinessCardMessage();
