@@ -28,6 +28,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -940,7 +941,7 @@ public class GroupInfoActivity extends AppActivity {
                     if (response.body().isOk()) {
                         //刷新最新群信息
                         taskGetInfoNetwork(false);
-                        MsgNotice notice = SocketData.createMsgNoticeOfSnapshotSwitch(SocketData.getUUID());
+                        MsgNotice notice = SocketData.createMsgNoticeOfSnapshotSwitch(SocketData.getUUID(), screeshotNotification);
                         MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
                         if (bean != null) {
                             SocketData.saveMessage(bean);
@@ -1168,6 +1169,17 @@ public class GroupInfoActivity extends AppActivity {
             taskGetInfoNetwork(true);
         } else {
             taskGetInfo();
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventSwitchSnapshot(EventSwitchSnapshot event) {
+        String gid = event.getGid();
+        if (ginfo != null && !TextUtils.isEmpty(gid)) {
+            if (gid.equals(ginfo.getGid())) {
+                ginfo.setScreenshotNotification(event.getFlag());
+                ckScreenshot.setChecked(ginfo.getScreenshotNotification() == 1);
+            }
         }
     }
 

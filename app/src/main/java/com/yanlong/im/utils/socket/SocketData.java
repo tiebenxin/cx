@@ -1801,11 +1801,15 @@ public class SocketData {
         return note;
     }
 
-    public static MsgNotice createMsgNoticeOfSnapshotSwitch(String msgId) {
+    public static MsgNotice createMsgNoticeOfSnapshotSwitch(String msgId, int flag) {
         MsgNotice note = new MsgNotice();
         note.setMsgid(msgId);
         note.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN);
-        note.setNote("你开启了截屏通知");
+        if (flag == 1) {
+            note.setNote("你开启了截屏通知");
+        } else {
+            note.setNote("你关闭了截屏通知");
+        }
         return note;
     }
 

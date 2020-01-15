@@ -399,8 +399,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (AppConfig.isOnline()) {
             checkHasEnvelopeSendFailed();
         }
-        isScreenShotListen = true;
+        isScreenShotListen = checkSnapshotPower();
     }
+
 
     @Override
     protected void onPause() {
@@ -507,6 +508,20 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         viewFunc.removeView(ll_part_chat_video);
         viewFunc.removeView(viewRb);
         viewFunc.removeView(viewTransfer);
+    }
+
+    //检测是否有截屏权限
+    private boolean checkSnapshotPower() {
+        if (isGroup()) {
+            if (groupInfo != null) {
+                return groupInfo.getScreenshotNotification() == 1;
+            }
+        } else {
+            if (mFinfo != null) {
+                return mFinfo.getScreenshotNotification() == 1;
+            }
+        }
+        return false;
     }
 
     //自动寻找控件

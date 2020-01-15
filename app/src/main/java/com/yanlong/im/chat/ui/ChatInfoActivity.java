@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -21,6 +22,7 @@ import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -245,12 +247,12 @@ public class ChatInfoActivity extends AppActivity {
     private void initData() {
         readDestroyUtil = new ReadDestroyUtil();
         UserInfo userInfo = userDao.findUserInfo(fuid);
-        if(userInfo!=null){
+        if (userInfo != null) {
             destroyTime = userInfo.getDestroy();
             String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
             tvDestroyTime.setText(content);
             //显示截屏通知切换开关状态
-            if(fUserInfo!=null){
+            if (fUserInfo != null) {
                 ckScreenshot.setChecked(fUserInfo.getScreenshotNotification() == 1);
             }
 
@@ -270,13 +272,8 @@ public class ChatInfoActivity extends AppActivity {
                         ckScreenshot.setChecked(false);//取消选中
                         fUserInfo.setScreenshotNotification(0);//截屏通知字段设置为关闭
                     }
-                    MsgNotice notice = SocketData.createMsgNoticeOfSnapshotSwitch(SocketData.getUUID());
-                    MsgAllBean bean = SocketData.createMessageBean(fuid, "", ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
-                    if (bean != null) {
-                        SocketData.saveMessage(bean);
-                    }
                     taskSaveInfo();//更新本地数据库
-                    httpSingleScreenShotSwitch(fuid+"",isChecked ? 1:0);//调接口通知后台
+                    httpSingleScreenShotSwitch(fuid + "", isChecked ? 1 : 0);//调接口通知后台
 
                 }
             }
@@ -480,19 +477,32 @@ public class ChatInfoActivity extends AppActivity {
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventSwitchSnapshot(EventSwitchSnapshot event) {
+        long uid = event.getUid();
+        if (fUserInfo != null && fUserInfo.getUid() != null && uid > 0) {
+            if (uid == fUserInfo.getUid().longValue()) {
+                fUserInfo.setScreenshotNotification(event.getFlag());
+                ckScreenshot.setChecked(fUserInfo.getScreenshotNotification() == 1);
+            }
+        }
+    }
+
 
     //单聊-截屏通知开关
     private void httpSingleScreenShotSwitch(String friendId, int screenshot) {
         msgAction.singleScreenShotSwitch(friendId, screenshot, new Callback<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if (response.body() == null){
+                if (response.body() == null) {
                     return;
-                }else {
+                } else {
                     if (response.body().isOk()) {
-                        //刷新最新对方用户信息
-//                        taskGetInfoNetwork(false);
-                    }
+                        MsgNotice notice = SocketData.createMsgNoticeOfSnapshotSwitch(SocketData.getUUID(),screenshot);
+                        MsgAllBean bean = SocketData.createMessageBean(fuid, "", ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
+                        if (bean != null) {
+                            SocketData.saveMessage(bean);
+                        }                    }
                 }
                 ToastUtil.show(getContext(), response.body().getMsg());
             }
