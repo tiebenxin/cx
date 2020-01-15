@@ -726,6 +726,27 @@ public class MsgConversionBean {
                         msgNotice1.setNote(sb + "<div id='" + bean.getGid() + "'></div>");
                         msgAllBean.setMsgNotice(msgNotice1);
                     }
+                } else if (switchType == MsgBean.SwitchChangeMessage.SwitchType.SCREENSHOT.getNumber()) {
+                    msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
+                    MsgNotice screenNotice = new MsgNotice();
+                    screenNotice.setMsgid(msgAllBean.getMsg_id());
+                    screenNotice.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN);
+                    name = new MsgDao().getUsername4Show(bean.getGid(), bean.getFromUid());
+                    if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().longValue()) {
+                        if (switchValue == 1) {
+                            screenNotice.setNote("你开启了截屏通知");
+                        } else {
+                            screenNotice.setNote("你关闭了截屏通知");
+                        }
+                    } else {
+                        String ssName = "<user id='" + bean.getFromUid() + "' gid=" + bean.getGid() + ">" + name + "</user>";
+                        if (switchValue == 1) {
+                            screenNotice.setNote("\"" + ssName + "\"开启了截屏通知");
+                        } else {
+                            screenNotice.setNote("\"" + ssName + "\"关闭了截屏通知");
+                        }
+                    }
+                    msgAllBean.setMsgNotice(screenNotice);
                 }
                 break;
             case SHIPPED_EXPRESSION: // 动画表情

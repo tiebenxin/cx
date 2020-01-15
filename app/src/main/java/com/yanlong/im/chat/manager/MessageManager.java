@@ -529,6 +529,12 @@ public class MessageManager {
                             result = saveMessageNew(bean, isList);
                         }
                         break;
+                    case 5: // 截屏通知开关
+                        if (bean != null) {
+                            result = saveMessageNew(bean, isList);
+                        }
+                        userDao.updateUserSnapshot(wrapMessage.getFromUid(),switchValue);
+                        break;
                 }
                 break;
 
