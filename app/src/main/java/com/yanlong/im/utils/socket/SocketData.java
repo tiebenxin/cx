@@ -19,6 +19,7 @@ import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
+import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.TransferNoticeMessage;
@@ -493,6 +494,9 @@ public class SocketData {
                 break;
             case SNAPSHOT_LOCATION://位置
                 wmsg.setSnapshotLocation((MsgBean.SnapshotLocationMessage) value);
+                break;
+            case SHIPPED_EXPRESSION:
+                wmsg.setShippedExpression((MsgBean.ShippedExpressionMessage) value);
                 break;
             case UNRECOGNIZED:
                 break;
@@ -1187,6 +1191,13 @@ public class SocketData {
                 value = locationBuilder.build();
                 type = MsgBean.MessageType.SNAPSHOT_LOCATION;
                 break;
+            case ChatEnum.EMessageType.SHIPPED_EXPRESSION:// 大表情
+                ShippedExpressionMessage seMessage = bean.getShippedExpressionMessage();
+                MsgBean.ShippedExpressionMessage.Builder semBuilder = MsgBean.ShippedExpressionMessage.newBuilder();
+                semBuilder.setId(seMessage.getId());
+                value = semBuilder.build();
+                type = MsgBean.MessageType.SHIPPED_EXPRESSION;
+                break;
             case ChatEnum.EMessageType.TRANSFER_NOTICE://转发提醒
                 TransferNoticeMessage noticeMessage = bean.getTransferNoticeMessage();
                 long tradeId = StringUtil.getLong(noticeMessage.getRid());
@@ -1454,8 +1465,14 @@ public class SocketData {
                 } else {
                     return null;
                 }
-//                LogUtil.getLog().e("===location==LocationMessage="+ GsonUtils.optObject(msg));
                 break;
+            case ChatEnum.EMessageType.SHIPPED_EXPRESSION:
+                if (obj instanceof ShippedExpressionMessage) {
+                    msg.setShippedExpressionMessage((ShippedExpressionMessage) obj);
+                } else {
+                    return null;
+                }
+                  break;
             case ChatEnum.EMessageType.TRANSFER_NOTICE:
                 if (obj instanceof TransferNoticeMessage) {
                     msg.setTransferNoticeMessage((TransferNoticeMessage) obj);
@@ -1620,6 +1637,14 @@ public class SocketData {
         StampMessage message = new StampMessage();
         message.setMsgid(msgId);
         message.setComment(content);
+        return message;
+    }
+
+    // 动画表情消息
+    public static ShippedExpressionMessage createFaceMessage(String msgId, String id) {
+        ShippedExpressionMessage message = new ShippedExpressionMessage();
+        message.setMsgid(msgId);
+        message.setId(id);
         return message;
     }
 

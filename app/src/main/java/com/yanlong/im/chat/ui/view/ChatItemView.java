@@ -67,6 +67,7 @@ import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.view.CountDownView;
+import com.yanlong.im.view.face.AddFaceActivity;
 import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.utils.DensityUtil;
@@ -616,29 +617,56 @@ public class ChatItemView extends LinearLayout {
         } else {
             spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, msg);
         }
-        if (spannableString != null && spannableString.length() == PatternUtil.FACE_CUSTOMER_LENGTH) {// 自定义表情
-            Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
-            Matcher matcher = patten.matcher(spannableString);
-            if (matcher.matches()) {
-                if (FaceView.map_FaceEmoji != null && FaceView.map_FaceEmoji.get(msg) != null) {
-                    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), Integer.parseInt(FaceView.map_FaceEmoji.get(msg).toString()));
-                    if (bitmap != null) {
-                        viewMeCustomerFace.setVisibility(VISIBLE);
-                        viewOtCustomerFace.setVisibility(VISIBLE);
-                        viewMe1.setVisibility(GONE);
-                        viewOt1.setVisibility(GONE);
-                        imgMeCustomerFace.setImageBitmap(bitmap);
-                        imgOtCustomerFace.setImageBitmap(bitmap);
-                    }
+        showCommonMessage(spannableString, menus);
+    }
+
+    /**
+     * 显示動漫表情
+     *
+     * @param msg
+     * @param eventPic
+     */
+    public void showBigFace(String msg, List<OptionMenu> menus, final EventPic eventPic) {
+        if (FaceView.map_FaceEmoji != null && FaceView.map_FaceEmoji.get(msg) != null) {
+            viewMeCustomerFace.setVisibility(VISIBLE);
+            viewOtCustomerFace.setVisibility(VISIBLE);
+            viewMe1.setVisibility(GONE);
+            viewOt1.setVisibility(GONE);
+
+            Glide.with(this).load(Integer.parseInt(FaceView.map_FaceEmoji.get(msg).toString())).listener(new RequestListener() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                    return false;
                 }
-                menus.add(new OptionMenu("转发"));
-                menus.add(new OptionMenu("删除"));
-            } else {// 普通消息
-                showCommonMessage(spannableString, menus);
-            }
-        } else {// 普通消息
-            showCommonMessage(spannableString, menus);
+
+                @Override
+                public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                    return false;
+                }
+            }).apply(options).into(imgMeCustomerFace);
+
+            Glide.with(this).load(Integer.parseInt(FaceView.map_FaceEmoji.get(msg).toString())).listener(new RequestListener() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                    return false;
+                }
+
+                @Override
+                public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                    return false;
+                }
+            }).apply(options).into(imgOtCustomerFace);
+
+            viewMeTouch.setOnClickListener(o -> {
+                eventPic.onClick(FaceView.map_FaceEmoji.get(msg).toString());
+            });
+            viewOtTouch.setOnClickListener(o -> {
+                eventPic.onClick(FaceView.map_FaceEmoji.get(msg).toString());
+            });
         }
+
+        menus.add(new OptionMenu("转发"));
+        menus.add(new OptionMenu("删除"));
     }
 
     /**
@@ -1141,8 +1169,33 @@ public class ChatItemView extends LinearLayout {
                         public void run() {
                             // 处理Bulgy#29303 java.lang.IllegalArgumentException You cannot start a load for a destroyed activity
                             if (getContext() != null && !((Activity) getContext()).isFinishing()) {
-                                Glide.with(getContext()).asBitmap().load(options).into(imgOt4);
-                                Glide.with(getContext()).asBitmap().load(options).into(imgMe4);
+//                                Glide.with(getContext()).asBitmap().load(options).into(imgOt4);
+//                                Glide.with(getContext()).asBitmap().load(options).into(imgMe4);
+                                // 处理个别gif图片加载不出问题
+                                Glide.with(getContext()).load(image.getThumbnailShow()).listener(new RequestListener() {
+                                    @Override
+                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                                        return false;
+                                    }
+
+                                    @Override
+                                    public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                                        return false;
+                                    }
+                                }).apply(options).into(imgOt4);
+
+                                Glide.with(getContext()).load(image.getThumbnailShow()).listener(new RequestListener() {
+                                    @Override
+                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                                        return false;
+                                    }
+
+                                    @Override
+                                    public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                                        return false;
+                                    }
+                                }).apply(options).into(imgMe4);
+
                             }
                         }
                     });
@@ -1156,7 +1209,6 @@ public class ChatItemView extends LinearLayout {
 
                     return false;
                 }
-
 
             };
 
@@ -1287,21 +1339,21 @@ public class ChatItemView extends LinearLayout {
 
 
     public void setReadDestroy(MsgAllBean bean) {
-        if(bean==null||bean.getMsgCancel()==null||bean.getMsgCancel().getNote()==null){
+        if (bean == null || bean.getMsgCancel() == null || bean.getMsgCancel().getNote() == null) {
             return;
         }
 
-        String str=bean.getMsgCancel().getNote();
+        String str = bean.getMsgCancel().getNote();
         txtReadDestroy.setText(str);
-        if(!str.contains("\"")){
+        if (!str.contains("\"")) {
             return;
         }
-        int start=str.indexOf("\"");
-        int end=str.lastIndexOf("\"");
-        if(start==end){
+        int start = str.indexOf("\"");
+        int end = str.lastIndexOf("\"");
+        if (start == end) {
             return;
         }
-        start+=1;
+        start += 1;
         SpannableStringBuilder strSpan = new SpannableStringBuilder();
         strSpan.append(str);
         ClickableSpan clickableSpan = new ClickableSpan() {
@@ -1320,7 +1372,7 @@ public class ChatItemView extends LinearLayout {
             @Override
             public void updateDrawState(@NonNull TextPaint ds) {
                 super.updateDrawState(ds);
-                ds.setColor(getResources().getColor( R.color.blue_600));
+                ds.setColor(getResources().getColor(R.color.blue_600));
                 ds.setUnderlineText(false);
             }
         };

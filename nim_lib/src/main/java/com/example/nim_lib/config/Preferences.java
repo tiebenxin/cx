@@ -35,4 +35,9 @@ public class Preferences {
     public static final String TITLE = "title";
     public static final String HEAD_SCULPTURE = "head_sculpture";
     public static final String DATA = "data";
+    public static final String FACE_DATA = "face_data";
+
+    public static final String FACE_PATH = "face_path";
+    public static final String FACE_NAME = "face_name";
+    public static final String FACE_SERVER_PATH = "face_server_path";
 }

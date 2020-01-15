@@ -53,7 +53,6 @@ import java.util.UUID;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmList;
-import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -287,7 +286,7 @@ public class MsgDao {
                         .beginGroup().equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
                         .lessThan("timestamp", time)
                         .sort("timestamp", Sort.DESCENDING)
-                        .limit(20)
+                        .limit(80)
                         .findAll();
             }
             beans = realm.copyFromRealm(list);
@@ -379,7 +378,7 @@ public class MsgDao {
                         .equalTo("gid", gid)
                         .lessThan("timestamp", time)
                         .sort("timestamp", Sort.DESCENDING)
-                        .limit(20)
+                        .limit(80)
                         .findAll();
             }
 

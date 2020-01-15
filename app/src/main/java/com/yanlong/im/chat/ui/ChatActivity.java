@@ -87,13 +87,18 @@ import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
 import com.hm.cxpay.bean.EnvelopeDetailBean;
 import com.hm.cxpay.bean.GrabEnvelopeBean;
+
+import com.jrmf360.tools.utils.ThreadUtil;
+import com.yanlong.im.chat.MsgTagHandler;
+import com.yanlong.im.chat.bean.ShippedExpressionMessage;
+import com.yanlong.im.chat.interf.IActionTagClickListener;
+import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
 import com.jrmf360.rplib.bean.GrabRpBean;
 import com.jrmf360.rplib.bean.TransAccountBean;
 import com.jrmf360.rplib.utils.callback.GrabRpCallBack;
 import com.jrmf360.rplib.utils.callback.TransAccountCallBack;
-import com.jrmf360.tools.utils.ThreadUtil;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -105,7 +110,6 @@ import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
-import com.yanlong.im.chat.MsgTagHandler;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
@@ -130,7 +134,6 @@ import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
@@ -142,7 +145,6 @@ import com.yanlong.im.location.LocationActivity;
 import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
-import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -169,8 +171,10 @@ import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.view.CustomerEditText;
+import com.yanlong.im.view.face.AddFaceActivity;
 import com.yanlong.im.view.face.FaceView;
 import com.yanlong.im.view.face.FaceViewPager;
+import com.yanlong.im.view.face.ShowBigFaceActivity;
 import com.yanlong.im.view.face.bean.FaceBean;
 import com.yanlong.im.view.function.ChatExtendMenuView;
 import com.yanlong.im.view.function.FunctionItemModel;
@@ -206,7 +210,6 @@ import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.RunUtils;
-import net.cb.cb.library.utils.ScreenUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.StringUtil;
@@ -353,6 +356,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private RecyclerViewAdapter mAdapter;
     private ChatExtendMenuView viewExtendFunction;
     private Group groupInfo;
+    private int currentScrollPosition;
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -375,6 +379,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         initEvent();
         checkUserPower();
         initSurvivaltime4Uid();
+        getOftenUseFace();
     }
 
 
@@ -404,7 +409,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         super.onPause();
         //取消激活会话
         MessageManager.getInstance().setSessionNull();
-
+        saveOftenUseFace();
     }
 
     @Override
@@ -770,11 +775,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * @updateAuthor liujingguo
      * @updateInfo 增加参数 group 表情资源所属组
      */
-    protected void addFace(FaceBean bean) {
+    protected void sendFace(FaceBean bean) {
         if (FaceView.face_animo.equals(bean.getGroup())) {
             isSendingHypertext = false;
-            ChatMessage message = SocketData.createChatMessage(SocketData.getUUID(), bean.getName());
-            sendMessage(message, ChatEnum.EMessageType.TEXT);
+
+            ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(), bean.getName());
+            sendMessage(message, ChatEnum.EMessageType.SHIPPED_EXPRESSION);
+
         } else if (FaceView.face_emoji.equals(bean.getGroup())) {
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), bean.getResId());
             bitmap = Bitmap.createScaledBitmap(bitmap, ExpressionUtil.dip2px(this, ExpressionUtil.DEFAULT_SIZE),
@@ -786,10 +793,28 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             // 插入到光标后位置
             editChat.getText().insert(editChat.getSelectionStart(), spannableString);
         } else if (FaceView.face_custom.equals(bean.getGroup())) {
-            // file_type = MessageType.TYPE_ISIMAGE;
-//            saveChat(bean.getPath(), MessageType.TYPE_ISIMAGE, TApplication.SEND_ING, "");
-//            upLoadFile(bean.getPath(), 1, 3);
-//            saveImage(bean.getPath());
+            if ("add".equals(bean.getName())) {
+                if (!ViewUtils.isFastDoubleClick()) {
+                    hideBt();
+                    btnEmj.setImageLevel(0);
+                    IntentUtil.gotoActivity(this, AddFaceActivity.class);
+                }
+            } else {
+                if (!checkNetConnectStatus()) {
+                    return;
+                }
+                final String imgMsgId = SocketData.getUUID();
+                ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, bean.getPath(), true);
+                MsgAllBean msgAllBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
+                msgListData.add(msgAllBean);
+                // 不等于常信小助手
+                if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                    final ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(bean.getPath());
+                    SocketData.send4Image(imgMsgId, toUId, toGid, bean.getServerPath(), true, img, -1);
+                }
+                notifyData2Bottom(true);
+                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
+            }
         }
     }
 
@@ -1038,7 +1063,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void OnItemClick(FaceBean bean) {
-                addFace(bean);
+                sendFace(bean);
+                viewFaceView.addOftenUseFace(bean);
             }
         });
         // 删除表情按钮
@@ -1672,6 +1698,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private void scrollChatToPosition(int position) {
         mtListView.getListView().scrollToPosition(position);
+        currentScrollPosition = position;
+//        System.out.println(TAG + "--scrollChatToPosition--totalSize =" + msgListData.size() + "--currentScrollPosition=" + currentScrollPosition);
+    }
+
+    private void scrollChatToPositionWithOffset(int position, int offset) {
+        ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).scrollToPositionWithOffset(position, offset);
+        currentScrollPosition = position;
+//        System.out.println(TAG + "--scrollChatToPositionWithOffset--totalSize =" + msgListData.size() + "--currentScrollPosition=" + currentScrollPosition);
     }
 
     //消息发送
@@ -2050,15 +2084,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (isLoadHistory) {
             isLoadHistory = false;
         }
-//        LogUtil.getLog().d("a=", TAG + "scrollListView");
         if (msgListData != null) {
             int length = msgListData.size();//刷新后当前size
             if (isMustBottom) {
-                mtListView.getListView().scrollToPosition(length);
+                scrollChatToPosition(length);
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
                     if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
-                        mtListView.getListView().scrollToPosition(length);
+                        scrollChatToPosition(length);
                     }
                 } else {
                     SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
@@ -2078,13 +2111,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                     if (lastPosition >= 0 && lastPosition < length) {
                         if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
-                            mtListView.getListView().scrollToPosition(length);
+                            scrollChatToPosition(length);
                         } else {
-
-                            mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
+                            scrollChatToPositionWithOffset(lastPosition, lastOffset);
                         }
                     } else {
-                        mtListView.getListView().scrollToPosition(length);
+                        if (currentScrollPosition > 0) {
+                            scrollChatToPosition(currentScrollPosition);
+                        } else {
+                            scrollChatToPosition(length);
+                        }
                     }
                 }
             }
@@ -2166,6 +2202,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
+    public void faceUpdateEvent(EventFactory.FaceUpdateEvent event) {
+        viewFaceView.getFaceData(true);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventCheckVoice(ActivityForwordEvent event) {
         PictureSelector.create(ChatActivity.this)
                 .openCamera(PictureMimeType.ofImage())
@@ -2192,6 +2233,25 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
             }
         }
+    }
+
+    /**
+     * 保存经常使用表情
+     */
+    private void saveOftenUseFace() {
+        viewFaceView.saveOftenUseFace();
+    }
+
+    /**
+     * 获取经常使用表情列表
+     */
+    private void getOftenUseFace() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                viewFaceView.getOftenUseFace();
+            }
+        }).start();
     }
 
     //单聊获取已读阅后即焚消息
@@ -3205,6 +3265,19 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 case ChatEnum.EMessageType.TEXT:
                     holder.viewChatItem.setData1(msgbean.getChat().getMsg(), menus, font_size);
                     break;
+                case ChatEnum.EMessageType.SHIPPED_EXPRESSION:// 动漫表情
+                    holder.viewChatItem.showBigFace(msgbean.getShippedExpressionMessage().getId(), menus, new ChatItemView.EventPic() {
+                        @Override
+                        public void onClick(String uri) {
+                            if (ViewUtils.isFastDoubleClick()) {
+                                return;
+                            }
+                            Bundle bundle = new Bundle();
+                            bundle.putString(Preferences.DATA, uri);
+                            IntentUtil.gotoActivity(ChatActivity.this, ShowBigFaceActivity.class, bundle);
+                        }
+                    });
+                    break;
                 case ChatEnum.EMessageType.STAMP:
 
                     menus.add(new OptionMenu("删除"));
@@ -3308,7 +3381,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                     Integer pg = null;
                     pg = UpLoadService.getProgress(msgbean.getMsg_id());
-
 
                     holder.viewChatItem.setData4(msgbean.getImage(), msgbean.getImage().getThumbnailShow(), new ChatItemView.EventPic() {
                         @Override
@@ -4385,7 +4457,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (needRefresh) {
             needRefresh = false;
         }
-
+        if (mAdapter != null) {
+            mAdapter.setUnreadCount(unreadCount);
+        }
         dismissPop();
         long time = -1L;
         int length = 0;
@@ -4397,8 +4471,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
         final long finalTime = time;
-        if (length < 20) {
-            length += 20;
+        if (length < 80) {
+            length += 80;
         }
         final int finalLength = length;
         Observable.just(0)
@@ -4420,8 +4494,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 .subscribe(new Consumer<List<MsgAllBean>>() {
                     @Override
                     public void accept(List<MsgAllBean> list) throws Exception {
+                        fixLastPosition(msgListData, list);
                         msgListData = list;
-//                        onBusPicture();
                         int len = list.size();
                         if (len == 0 && lastPosition > len - 1) {//历史数据被清除了
                             lastPosition = 0;
@@ -4429,13 +4503,24 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             clearScrollPosition();
                         }
                         notifyData2Bottom(isScrollBottom);
-//                        notifyData();
-
                         //单聊发送已读消息
                         sendRead();
                     }
                 });
 
+    }
+
+    private void fixLastPosition(List<MsgAllBean> msgListData, List<MsgAllBean> list) {
+        if (currentScrollPosition > 0) {
+            if (msgListData != null && list != null) {
+                int len1 = msgListData.size();
+                int len2 = list.size();
+                if (len1 < len2) {
+                    int diff = len2 - len1;
+                    currentScrollPosition += diff;
+                }
+            }
+        }
     }
 
     private void dismissPop() {
@@ -4444,21 +4529,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
-    /**
-     * TODO 当本次有本地发送图片时，用本地图片路径展示，是为了解决发图片之后，在发内容第一次会闪一下重新加载问题，
-     * TODO 问题原因是第一次加载本地路径，图片上传成功后加载的是服务器路径
-     */
-//    private void onBusPicture() {
-//        if (mTempImgPath != null && mTempImgPath.size() > 0 && msgListData != null) {
-//            for (MsgAllBean bean : msgListData) {
-//                for (String key : mTempImgPath.keySet()) {
-//                    if (bean.getMsg_id().equals(key)) {
-//                        bean.getImage().setLocalimg(mTempImgPath.get(key));
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     /***
      * 查询历史
@@ -4491,11 +4561,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
         addItem = msgListData.size() - addItem;
         taskMkName(msgListData);
-//        onBusPicture();
         notifyData();
-//        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "size=" + msgListData.size());
-
-        ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).scrollToPositionWithOffset(addItem, DensityUtil.dip2px(context, 20f));
+        scrollChatToPositionWithOffset(addItem, DensityUtil.dip2px(context, 20f));
 
 
     }
@@ -4957,28 +5024,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
 
         if (lastPosition >= 0) {
-            int targetHeight = ScreenUtils.getScreenHeight(this) / 2;//屏幕一般高度
-            int size = msgListData.size();
-            int height = 0;
-            for (int i = lastPosition; i < size - 1; i++) {
-                View view = getViewByPosition(i);
-                if (view == null) {
-                    break;
+            if (mtListView != null) {
+                int size = msgListData.size();
+                if (lastPosition >= size - 3) {
+                    return true;
                 }
-                int w = View.MeasureSpec.makeMeasureSpec(ScreenUtils.getScreenWidth(this), View.MeasureSpec.EXACTLY);
-                int h = View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.UNSPECIFIED);
-                view.measure(w, h);
-                if (height + lastOffset < targetHeight) {
-                    height += view.getMeasuredHeight();
-                } else {
-                    //当滑动距离高于屏幕高度的一般，终止当前循环
-                    break;
-                }
-            }
-            if (height + lastOffset <= targetHeight) {
-                return true;
             }
         }
+
         return false;
     }
 
@@ -5077,7 +5130,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     ChatActivity.this.survivaltime = survivalTime;
                     userDao.updateGroupReadDestroy(gid, survivalTime);
                     msgDao.noteMsgAddSurvivaltime(groupInfo.getUsers().get(0).getUid(), gid);
-                }else {
+                } else {
                     ToastUtil.show(response.body().getMsg());
                 }
             }

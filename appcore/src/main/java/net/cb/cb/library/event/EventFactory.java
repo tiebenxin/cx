@@ -125,6 +125,13 @@ public class EventFactory extends BaseEvent {
     }
 
     /**
+     * 表情更新
+     */
+    public static class FaceUpdateEvent extends BaseEvent {
+
+    }
+
+    /**
      * 网络监听
      */
     public static class EventNetStatus {

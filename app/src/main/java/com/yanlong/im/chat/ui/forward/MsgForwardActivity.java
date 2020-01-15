@@ -20,12 +20,14 @@ import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityMsgForwardBinding;
 
+import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.socket.SocketData;
 
@@ -270,6 +272,12 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         } else if (msgAllBean.getLocationMessage() != null) {
 //            imageUrl= LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(),msgAllBean.getLocationMessage().getLongitude());
             txt = "[位置]" + msgAllBean.getLocationMessage().getAddress();
+        } else if (msgAllBean.getShippedExpressionMessage() != null) {
+            imageUrl = msgAllBean.getShippedExpressionMessage().getId();
+        } else if (msgAllBean.getVideoMessage() != null) {
+            imageUrl = msgAllBean.getVideoMessage().getBg_url();
+        } else if (msgAllBean.getLocationMessage() != null) {
+            imageUrl = LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(), msgAllBean.getLocationMessage().getLongitude());
         }
 
         alertForward.init(MsgForwardActivity.this, msgAllBean.getMsg_type(), mIcon, mName, txt, imageUrl, btm, toGid, new AlertForward.Event() {
@@ -318,7 +326,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 }
                 isSingleSelected = true;
             }
-        } else if (msgAllBean.getImage() != null) {
+        }else if (msgAllBean.getImage() != null) {
             if (isSingleSelected) {
                 ImageMessage imagesrc = msgAllBean.getImage();
                 if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
@@ -423,7 +431,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     MoreSessionBean bean = moreSessionBeanList.get(i);
 
                     LocationMessage locationMessage = SocketData.createLocationMessage(SocketData.getUUID(), msgAllBean.getLocationMessage());
-                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), locationMessage);
+                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL,
+                            SocketData.getFixTime(), locationMessage);
                     if (allBean != null) {
                         SocketData.sendAndSaveMessage(allBean);
                         sendMesage = allBean;
@@ -433,10 +442,35 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 }
                 isSingleSelected = true;
             }
+        }else if(msgAllBean.getShippedExpressionMessage()!=null){
 
+            if (isSingleSelected) {
+                ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(),msgAllBean.getShippedExpressionMessage().getId());
+                MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.SHIPPED_EXPRESSION, ChatEnum.ESendStatus.SENDING,
+                        SocketData.getFixTime(), message);
+                if (allBean != null) {
+                    SocketData.sendAndSaveMessage(allBean);
+                    sendMesage = allBean;
+                }
+                sendLeaveMessage(content, toUid, toGid);
+                notifyRefreshMsg(toGid, toUid);
+            } else {
+                for (int i = 0; i < moreSessionBeanList.size(); i++) {
+                    MoreSessionBean bean = moreSessionBeanList.get(i);
+                    ShippedExpressionMessage chatMessage = SocketData.createFaceMessage(SocketData.getUUID(), msgAllBean.getShippedExpressionMessage().getId());
+                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), ChatEnum.EMessageType.SHIPPED_EXPRESSION,
+                            ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
+                    if (allBean != null) {
+                        SocketData.sendAndSaveMessage(allBean);
+                        sendMesage = allBean;
+                    }
+                    sendLeaveMessage(content, bean.getUid(), bean.getGid());
+                    notifyRefreshMsg(bean.getGid(), bean.getUid());
+                }
+                isSingleSelected = true;
+            }
         }
     }
-
 
     /*
      * 发送留言消息

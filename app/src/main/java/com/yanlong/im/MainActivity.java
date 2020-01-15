@@ -380,24 +380,29 @@ public class MainActivity extends AppActivity {
 
     //检测通讯录问题
     private void checkRosters() {
-        //延时操作，等待数据库初始化
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = getIntent();
-                boolean isFromLogin = intent.getBooleanExtra(IS_LOGIN, false);
-                if (isFromLogin) {//从登陆页面过来，从网络获取最新数据
-                    taskLoadFriends();
-//                    taskLoadSavedGroups();
-                } else {
-                    UserDao userDao = new UserDao();
-                    boolean hasInit = userDao.isRosterInit();
-                    if (!hasInit) {//未初始化，初始化本地通讯录
+//        //延时操作，等待数据库初始化
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+                try {
+                    Intent intent = getIntent();
+                    boolean isFromLogin = intent.getBooleanExtra(IS_LOGIN, false);
+                    if (isFromLogin) {//从登陆页面过来，从网络获取最新数据
                         taskLoadFriends();
+//                    taskLoadSavedGroups();
+                    } else {
+                        UserDao userDao = new UserDao();
+                        boolean hasInit = userDao.isRosterInit();
+                        if (!hasInit) {//未初始化，初始化本地通讯录
+                            taskLoadFriends();
+                        }
                     }
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
-            }
-        }, 1000);
+
+//            }
+//        }, 1000);
 
     }
 
@@ -898,9 +903,9 @@ public class MainActivity extends AppActivity {
 
     private void getSurvivalTimeData() {
         //延时操作，等待数据库初始化
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
                 try {
                     //子线程延时 等待myapplication初始化完成
                     //查询所有阅后即焚消息加入定时器
@@ -911,8 +916,8 @@ public class MainActivity extends AppActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
-        }, 1000);
+//            }
+//        }, 1000);
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)

@@ -462,6 +462,7 @@
         <activity
             android:name=".wxapi.WXEntryActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
         <activity
@@ -530,6 +531,19 @@
         <activity
             android:name=".chat.ui.groupmanager.SetupGroupMemberLableActivity"
             android:screenOrientation="portrait" />
+        <!--添加表情-->
+        <activity
+            android:name=".view.face.AddFaceActivity"
+            android:screenOrientation="portrait" />
+        <!--预览表情-->
+        <activity
+            android:name=".view.face.FacePreviewActivity"
+            android:screenOrientation="portrait" />
+        <!--预览大表情-->
+        <activity
+            android:name=".view.face.ShowBigFaceActivity"
+            android:screenOrientation="portrait" />
+
         <activity
             android:name=".user.ui.FeedbackShowImageActivity"
             android:launchMode="singleTask"

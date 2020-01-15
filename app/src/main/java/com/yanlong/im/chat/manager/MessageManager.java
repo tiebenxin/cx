@@ -215,6 +215,7 @@ public class MessageManager {
             case ASSISTANT://小助手消息
             case BALANCE_ASSISTANT://零钱助手消息
             case CHANGE_VICE_ADMINS:// 管理员变更通知
+            case SHIPPED_EXPRESSION:// 动画表情
             case TRANS_NOTIFY:// 管理员变更通知
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
@@ -478,16 +479,12 @@ public class MessageManager {
                 LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getRead().getTimestamp());
                 break;
             case SWITCH_CHANGE: //开关变更
-
+                // TODO　处理老版本不兼容问题
                 if (wrapMessage.getSwitchChange().getSwitchType() == MsgBean.SwitchChangeMessage.SwitchType.UNRECOGNIZED) {
                     return true;
                 }
                 LogUtil.getLog().d(TAG, "开关变更:" + wrapMessage.getSwitchChange().getSwitchType());
 
-                // TODO　处理老版本不兼容问题
-                if (wrapMessage.getSwitchChange().getSwitchType() == MsgBean.SwitchChangeMessage.SwitchType.UNRECOGNIZED) {
-                    return true;
-                }
                 int switchType = wrapMessage.getSwitchChange().getSwitchType().getNumber();
                 int switchValue = wrapMessage.getSwitchChange().getSwitchValue();
                 long uid = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
@@ -502,6 +499,7 @@ public class MessageManager {
                         EventBus.getDefault().post(new EventIsShowRead());
                         break;
                     case 1: //vip
+                        userInfo = UserAction.getMyInfo();
                         userInfo.setVip(wrapMessage.getSwitchChange().getSwitchValue() + "");
                         userDao.updateUserinfo(userInfo);
                         // 刷新用户信息

@@ -20,4 +20,7 @@ public class FileConfig {
 
     /** 应用图片缓存 */
     public static final String PATH_CACHE = PATH_BASE + "cache/";
+
+    /** 应用表情图片缓存 */
+    public static final String PATH_FACE_CACHE = PATH_CACHE + "face_image/";
 }

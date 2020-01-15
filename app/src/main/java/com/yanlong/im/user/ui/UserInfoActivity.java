@@ -46,6 +46,7 @@ import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
@@ -323,6 +324,36 @@ public class UserInfoActivity extends AppActivity {
             });
         }
 
+        //回复
+//        mTvRemark.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                AlertTouch alertTouch = new AlertTouch();
+//                alertTouch.init(UserInfoActivity.this, "回复", "确定", 0, new AlertTouch.Event() {
+//                    @Override
+//                    public void onON() {
+//
+//                    }
+//
+//                    @Override
+//                    public void onYes(String content) {
+//                        if (!TextUtils.isEmpty(content)) {
+//                            //发送戳一戳消息
+////                            MsgAllBean msgAllbean = SocketData.send4action(toUId, toGid, content);
+////                            showSendObj(msgAllbean);
+////                            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+////                            StampMessage message = SocketData.createStampMessage(SocketData.getUUID(), content);
+////                            sendMessage(message, ChatEnum.EMessageType.STAMP);
+//                            ToastUtil.show(getContext(), content);
+//                        } else {
+//                            ToastUtil.show(getContext(), "留言不能为空");
+//                        }
+//                    }
+//                });
+//                alertTouch.setEdHintOrSize(null, 30);
+//                alertTouch.show();
+//            }
+//        });
     }
 
     private void toSendVerifyActivity() {

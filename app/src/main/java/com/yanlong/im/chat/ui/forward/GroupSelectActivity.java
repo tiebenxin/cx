@@ -21,6 +21,7 @@ import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -189,6 +190,8 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
         } else if (msgAllBean.getLocationMessage() != null) {
 //            imageUrl= LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(),msgAllBean.getLocationMessage().getLongitude());
             txt = "[位置]" + msgAllBean.getLocationMessage().getAddress();
+        } else if (msgAllBean.getShippedExpressionMessage() != null) {
+            imageUrl = msgAllBean.getShippedExpressionMessage().getId();
         }
 
         alertForward.init(GroupSelectActivity.this, msgAllBean.getMsg_type(), avatar, nick, txt, imageUrl, "发送", gid, new AlertForward.Event() {
@@ -248,6 +251,16 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
             LocationMessage location = msgAllBean.getLocationMessage();
             LocationMessage locationMessage = SocketData.createLocationMessage(SocketData.getUUID(), location);
             MsgAllBean allBean = SocketData.createMessageBean(uid, gid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), locationMessage);
+            if (allBean != null) {
+                SocketData.sendAndSaveMessage(allBean);
+                sendMesage = allBean;
+            }
+            sendLeaveMessage(content, uid, gid);
+            notifyRefreshMsg(gid, uid);
+        }else if(msgAllBean.getShippedExpressionMessage()!=null){
+            ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(),msgAllBean.getShippedExpressionMessage().getId());
+            MsgAllBean allBean = SocketData.createMessageBean(uid, gid, ChatEnum.EMessageType.SHIPPED_EXPRESSION, ChatEnum.ESendStatus.SENDING,
+                    SocketData.getFixTime(), message);
             if (allBean != null) {
                 SocketData.sendAndSaveMessage(allBean);
                 sendMesage = allBean;

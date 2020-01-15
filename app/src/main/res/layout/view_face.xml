@@ -21,7 +21,17 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="25dp"
+            android:layout_marginBottom="10dp"
+            android:padding="5dp" />
+
+        <RadioGroup
+            android:id="@+id/view_mammon_radiogroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dp"
+            android:visibility="gone"
             android:padding="5dp" />
 
         <RadioGroup
@@ -29,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="45dp"
             android:background="@color/white"
-            android:visibility="gone"
+            android:visibility="visible"
             android:orientation="horizontal" >
 
             <com.yanlong.im.view.CustomRadioButton
@@ -48,7 +58,7 @@
                 android:layout_height="match_parent"
                 android:button="@null"
                 android:gravity="center"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:background="@drawable/rb_face_selector"
                 android:drawableStart="@mipmap/img_chat_time" />
 
