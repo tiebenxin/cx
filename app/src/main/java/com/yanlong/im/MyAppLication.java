@@ -18,8 +18,6 @@ import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.util.NIMUtil;
 import com.tencent.bugly.crashreport.CrashReport;
-import com.tencent.mm.opensdk.openapi.IWXAPI;
-import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import com.umeng.commonsdk.UMConfigure;
 import com.umeng.socialize.PlatformConfig;
 import com.xiaomi.mipush.sdk.MiPushClient;
@@ -128,9 +126,8 @@ public class MyAppLication extends MainApplication {
         initCache();
         // 初始化表情
         FaceView.initFaceMap();
-        initLocation();//初始化定位
+//        initLocation();//初始化定位
         initARouter();//初始化路由
-        initWeChatShare();
     }
 
     /**
@@ -331,12 +328,6 @@ public class MyAppLication extends MainApplication {
         SDKInitializer.setCoordType(CoordType.BD09LL);
         locationService = new LocationService(getApplicationContext());
 //        mVibrator =(Vibrator)getApplicationContext().getSystemService(Service.VIBRATOR_SERVICE);
-    }
-
-    //初始化微信分享api
-    private void initWeChatShare(){
-        IWXAPI mWxApi = WXAPIFactory.createWXAPI(this, "wxdfd2898507cc4f94", true);
-        mWxApi.registerApp("wxdfd2898507cc4f94");
     }
 
 }

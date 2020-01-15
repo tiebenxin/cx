@@ -286,7 +286,7 @@ public class MsgDao {
                         .beginGroup().equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
                         .lessThan("timestamp", time)
                         .sort("timestamp", Sort.DESCENDING)
-                        .limit(20)
+                        .limit(80)
                         .findAll();
             }
             beans = realm.copyFromRealm(list);
@@ -378,7 +378,7 @@ public class MsgDao {
                         .equalTo("gid", gid)
                         .lessThan("timestamp", time)
                         .sort("timestamp", Sort.DESCENDING)
-                        .limit(20)
+                        .limit(80)
                         .findAll();
             }
 

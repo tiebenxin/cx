@@ -122,17 +122,22 @@ public class ChatExtendMenuView extends LinearLayout {
     }
 
     private void initDots() {
-        for (int i = 0; i < pagerCount; i++) {
-            RadioButton radioButton = new RadioButton(getContext());
-            radioButton.setId(i);
-            radioButton.setButtonDrawable(R.drawable.radio_dot_selector);
-            radioButton.setEnabled(false);
-            RadioGroup.LayoutParams radioParams = new RadioGroup.LayoutParams(20, 20);
-            radioParams.leftMargin = 10;
-            radioButton.setLayoutParams(radioParams);
-            rgDots.addView(radioButton);
+        if (pagerCount > 1) {
+            rgDots.setVisibility(VISIBLE);
+            for (int i = 0; i < pagerCount; i++) {
+                RadioButton radioButton = new RadioButton(getContext());
+                radioButton.setId(i);
+                radioButton.setButtonDrawable(R.drawable.radio_dot_selector);
+                radioButton.setEnabled(false);
+                RadioGroup.LayoutParams radioParams = new RadioGroup.LayoutParams(20, 20);
+                radioParams.leftMargin = 10;
+                radioButton.setLayoutParams(radioParams);
+                rgDots.addView(radioButton);
+            }
+            rgDots.check(0);
+        } else {
+            rgDots.setVisibility(GONE);
         }
-        rgDots.check(0);
     }
 
     public interface OnFunctionListener {
