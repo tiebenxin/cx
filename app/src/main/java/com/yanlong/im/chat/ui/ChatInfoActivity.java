@@ -221,15 +221,6 @@ public class ChatInfoActivity extends AppActivity {
                             destroyTime = survivaltime;
                             tvDestroyTime.setText(content);
                             taskSurvivalTime(fuid, survivaltime);
-                            //只要阅后即焚不关闭，且截屏通知未开启，则强制打开截屏通知
-                            if(!content.equals("关闭")){
-                                if(ckScreenshot.isChecked()==false){
-                                    ckScreenshot.setChecked(true);//选中
-                                    fUserInfo.setScreenShot(1);//截屏通知字段设置为打开
-                                    taskSaveInfo();//更新本地数据库
-//                                    httpSetScreenSwitch(fuid,1);//调接口通知后台
-                                }
-                            }
                         }
                     }
                 });
@@ -253,20 +244,11 @@ public class ChatInfoActivity extends AppActivity {
             destroyTime = userInfo.getDestroy();
             String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
             tvDestroyTime.setText(content);
-            //1 若已经开启阅后即焚，且截屏通知未开启，则强制自动开启截屏通知
-            if(!content.equals("关闭")){
-                if(ckScreenshot.isChecked()==false){
-                    ckScreenshot.setChecked(true);//选中
-                    fUserInfo.setScreenShot(1);//截屏通知字段设置为打开
-                    taskSaveInfo();//更新本地数据库
-//                    httpSetScreenSwitch(fuid,1);//调接口通知后台
-                }
-            }else {
-                //2 若没有开启阅后即焚，则展示原有开关状态
-                if(fUserInfo!=null){
-                    ckScreenshot.setChecked(fUserInfo.getScreenShot() == 1);
-                }
+            //显示截屏通知切换开关状态
+            if(fUserInfo!=null){
+                ckScreenshot.setChecked(fUserInfo.getScreenshotNotification() == 1);
             }
+
         }
         //截屏通知切换开关
         ckScreenshot.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -274,24 +256,18 @@ public class ChatInfoActivity extends AppActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 //如果阅后即焚已关闭，则正常开关；如果阅后即焚开启中，则不允许关掉
                 if (fUserInfo != null) {
-                    if(!tvDestroyTime.getText().toString().equals("关闭")){
-                        if(isChecked == false){
-                            ckScreenshot.setChecked(true);
-                            ToastUtil.show(ChatInfoActivity.this,"打开阅后即焚后，截屏通知必须同时打开");
-                        }
-                    }else {
-                        //开
-                        if(isChecked){
-                            ckScreenshot.setChecked(true);//选中
-                            fUserInfo.setScreenShot(1);//截屏通知字段设置为打开
-                        }else {
-                            //关
-                            ckScreenshot.setChecked(false);//取消选中
-                            fUserInfo.setScreenShot(0);//截屏通知字段设置为关闭
-                        }
-                        taskSaveInfo();//更新本地数据库
-//                        httpSetScreenSwitch(fuid,isChecked ? 1:0);//调接口通知后台
+                    //开
+                    if (isChecked) {
+                        ckScreenshot.setChecked(true);//选中
+                        fUserInfo.setScreenshotNotification(1);//截屏通知字段设置为打开
+                    } else {
+                        //关
+                        ckScreenshot.setChecked(false);//取消选中
+                        fUserInfo.setScreenshotNotification(0);//截屏通知字段设置为关闭
                     }
+                    taskSaveInfo();//更新本地数据库
+//                        httpSetScreenSwitch(fuid,isChecked ? 1:0);//调接口通知后台
+
                 }
             }
         });
@@ -493,4 +469,5 @@ public class ChatInfoActivity extends AppActivity {
             finish();
         }
     }
+
 }

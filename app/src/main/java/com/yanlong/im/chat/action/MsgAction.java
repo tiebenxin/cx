@@ -417,6 +417,17 @@ public class MsgAction {
         NetUtil.getNet().exec(server.groupSwitchIntimately(gid, intimately), callback);
     }
 
+
+    /**
+     * 截屏通知开关
+     * @param gid
+     * @param screeshotNotification
+     * @param callback
+     */
+    public void groupScreenShotSwitch(final String gid, int screeshotNotification, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.setScreenShotSwitch(gid, screeshotNotification), callback);
+    }
+
     /**
      * 全员禁言
      * @param gid

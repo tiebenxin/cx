@@ -46,7 +46,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private Integer displaydetail;//显示详情(0:关闭|1:打开)
     private Integer stat; //好友状态(0:正常|1:待同意|2:黑名单|9:系统用户，如小助手)
     private Integer authStat; //身份验证状态(0:未认证|1:已认证未上传证件照|2:已认证已上传证件照)
-    private int screenShot;//截屏通知(0:关闭|1:打开)
+    private int screenshotNotification;//截屏通知(0:关闭|1:打开)
     private int masterRead;//已读总开关(0:关闭|1:打开)
     private int myRead;//我对100101是否开了已读(0:否|1:是)
     private int friendRead;//100101对我是否开了已读(0:否|1:是)
@@ -209,12 +209,12 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
         this.sayHi = sayHi;
     }
 
-    public int getScreenShot() {
-        return screenShot;
+    public int getScreenshotNotification() {
+        return screenshotNotification;
     }
 
-    public void setScreenShot(int screenShot) {
-        this.screenShot = screenShot;
+    public void setScreenshotNotification(int screenshotNotification) {
+        this.screenshotNotification = screenshotNotification;
     }
 
     public Integer getAuthStat() {

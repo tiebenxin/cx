@@ -379,12 +379,12 @@ public class DaoMigration implements RealmMigration {
 
     }
 
-    //更新截屏通知
+    //更新截屏通知开关
     private void updateV20(RealmSchema schema){
         schema.get("UserInfo")
-                .addField("screenShot", int.class);//单聊截屏通知
+                .addField("screenshotNotification", int.class);//单聊截屏通知
         schema.get("Group")
-                .addField("screenShot", int.class);//群聊截屏通知
+                .addField("screenshotNotification", int.class);//群聊截屏通知
     }
 
     @Override

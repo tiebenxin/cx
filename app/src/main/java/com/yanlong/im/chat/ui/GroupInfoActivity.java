@@ -70,6 +70,7 @@ import java.util.List;
 
 import io.realm.RealmList;
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
@@ -363,17 +364,6 @@ public class GroupInfoActivity extends AppActivity {
                             destroyTime = survivaltime;
                             tvDestroyTime.setText(content);
                             changeSurvivalTime(gid, survivaltime);
-                            //只要阅后即焚不关闭，且截屏通知未开启，则强制打开截屏通知
-                            if(!content.equals("关闭")){
-                                if(ckScreenshot.isChecked()==false){
-                                    //截屏通知字段设置为打开，更新本地数据库，调接口通知后台打开
-                                    ckScreenshot.setChecked(true);
-                                    ginfo.setScreenShot(1);
-                                    taskSaveInfo();
-                                    //todo zjy 调接口通知后台打开
-//            taskUpSwitch(fUserInfo.getScreenShot(), null);
-                                }
-                            }
                         }
                     }
                 });
@@ -442,7 +432,6 @@ public class GroupInfoActivity extends AppActivity {
         ckGroupSave.setChecked(ginfo.getSaved() == 1);
         ckTop.setChecked(ginfo.getIsTop() == 1);
 
-
         ckTop.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -486,23 +475,8 @@ public class GroupInfoActivity extends AppActivity {
         destroyTime = ginfo.getSurvivaltime();
         String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
         tvDestroyTime.setText(content);
-        //1 若已经开启阅后即焚，且截屏通知未开启，则强制自动开启截屏通知
-        if(!content.equals("关闭")){
-            if(ckScreenshot.isChecked()==false){
-                //截屏通知字段设置为打开，更新本地数据库，调接口通知后台已打开
-                ckScreenshot.setChecked(true);
-                ginfo.setScreenShot(1);//ginfo是从缓存里面取的
-                taskSaveInfo();
-                //todo zjy 调接口通知后台-已打开
-//            taskUpSwitch(fUserInfo.getScreenShot(), null);
-            }
-        }else {
-            //2 若没有开启阅后即焚，则展示原有开关状态
-            if(ginfo!=null){
-                ckScreenshot.setChecked(ginfo.getScreenShot() == 1);
-            }
-        }
-
+        //显示截屏通知开关状态
+        ckScreenshot.setChecked(ginfo.getScreenshotNotification() == 1);
         //截屏通知切换开关
         ckScreenshot.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -510,29 +484,21 @@ public class GroupInfoActivity extends AppActivity {
                 //只有群管理和群主可以使用截屏通知功能
                 if(isAdmin() || isAdministrators()){
                     if (ginfo != null) {
-                        //如果阅后即焚开启中，则不允许关掉
-                        if(!tvDestroyTime.getText().toString().equals("关闭")){
                             if(ckScreenshot.isChecked() == true){
                                 ckScreenshot.setChecked(true);
-                            }else {
-                                ckScreenshot.setChecked(true);
-                                ToastUtil.show(GroupInfoActivity.this,"打开阅后即焚后，截屏通知必须同时打开");
-                            }
-                        }else { //如果阅后即焚已关闭，则正常开关
-                            if(ckScreenshot.isChecked() == true){
-                                ckScreenshot.setChecked(true);
-                                ginfo.setScreenShot(1);
+                                ginfo.setScreenshotNotification(1);
                             }else {
                                 ckScreenshot.setChecked(false);
-                                ginfo.setScreenShot(0);
+                                ginfo.setScreenshotNotification(0);
                             }
                             //更新本地数据库状态
                             taskSaveInfo();
-                            //todo zjy 截屏通知打开/关闭后调接口通知后台
-//                    taskUpSwitch(fUserInfo.getScreenShot(), null);
-                        }
+                            //调接口通知后台
+                            httpScreenShotSwitch(gid, ckScreenshot.isChecked() ? 1 : 0);
+
                     }
                 }else {
+                    //使其打开按钮无效
                     if(ckScreenshot.isChecked() == true){
                         ckScreenshot.setChecked(false);
                     }else {
@@ -958,6 +924,29 @@ public class GroupInfoActivity extends AppActivity {
                     msgDao.setSavedGroup(gid, saved);
                     //  taskGetInfoNetwork();
                 }
+            }
+        });
+    }
+
+    //截屏通知开关
+    private void httpScreenShotSwitch(String gid, int screeshotNotification) {
+        msgAction.groupScreenShotSwitch(gid, screeshotNotification, new Callback<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null){
+                    return;
+                }else {
+                    if (response.body().isOk()) {
+                        //刷新最新群信息
+                        taskGetInfoNetwork(false);
+                    }
+                }
+                ToastUtil.show(getContext(), response.body().getMsg());
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+
             }
         });
     }

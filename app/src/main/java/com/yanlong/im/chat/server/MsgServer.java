@@ -58,6 +58,10 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> setAllForbiddenWords(@Field("gid") String gid, @Field("wordsNotAllowed") Integer wordsNotAllowed);
 
+    @POST("/group/change-group-switch")
+    @FormUrlEncoded
+    Call<ReturnBean> setScreenShotSwitch(@Field("gid") String gid, @Field("screenshotNotification") Integer screeshotNotification);
+
     @POST("group/get-my-saved")
     Call<ReturnBean<List<Group>>> getMySaved();
 
