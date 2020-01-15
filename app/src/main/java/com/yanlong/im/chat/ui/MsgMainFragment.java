@@ -44,7 +44,6 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendAddAcitvity;
 import com.yanlong.im.user.ui.HelpActivity;
 import com.yanlong.im.utils.ExpressionUtil;
-import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
@@ -56,7 +55,6 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventNetStatus;
 import net.cb.cb.library.utils.DensityUtil;
-import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -74,8 +72,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -702,7 +698,7 @@ public class MsgMainFragment extends Fragment {
                         //阅后即焚不通知 不显示谁发的 肯定是群主修改的
                         // info=info;
                     } else if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {//草稿除外
-                        if ((ChatEnum.EMessageType.AT + "").equals(msginfo.getMsg_type() + "")
+                        if (msginfo != null && (ChatEnum.EMessageType.AT + "").equals(msginfo.getMsg_type() + "")
                                 && StringUtil.isNotNull(info) && info.startsWith("@所有人")) {
                             info = info.replace("@所有人", "");
                         }
@@ -729,10 +725,7 @@ public class MsgMainFragment extends Fragment {
                             break;
                         case 1:
                             if (StringUtil.isNotNull(bean.getAtMessage())) {
-                                if (msginfo == null || msginfo.getMsg_type() == null) {
-                                    return;
-                                }
-                                if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
+                                if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
                                     SpannableString style = new SpannableString("[有人@我]" + info);
                                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                     style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -753,7 +746,7 @@ public class MsgMainFragment extends Fragment {
                                 showMessage(holder.txtInfo, bean.getDraft(), style);
                             } else {
                                 // 判断是否是动画表情
-                                if (msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+                                if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
                                     holder.txtInfo.setText(msginfo.getFrom_nickname() + ":" + TYPE_FACE);
                                 } else {
                                     showMessage(holder.txtInfo, info, null);
