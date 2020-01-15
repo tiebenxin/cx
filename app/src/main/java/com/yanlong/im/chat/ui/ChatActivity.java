@@ -778,10 +778,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (FaceView.face_animo.equals(bean.getGroup())) {
             isSendingHypertext = false;
 
-            ShippedExpressionMessage message = new ShippedExpressionMessage();
-            message.setMsgid(SocketData.getUUID());
-            message.setId(bean.getName());
-
+            ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(),bean.getName());
             sendMessage(message, ChatEnum.EMessageType.SHIPPED_EXPRESSION);
 
         } else if (FaceView.face_emoji.equals(bean.getGroup())) {

@@ -800,14 +800,11 @@ public class MsgDao {
             realm.where(VideoMessage.class).findAll().deleteAllFromRealm();
 
             //清理角标
-//            RealmResults<Session> sessions = realm.where(Session.class).findAll();
-//            for (Session session : sessions) {
-//                session.setUnread_count(0);
-//                realm.insertOrUpdate(session);
-//            }
-            //
-            // TODO　修复清除记录消息界面闪退问题
-            realm.where(Session.class).findAll().deleteAllFromRealm();
+            RealmResults<Session> sessions = realm.where(Session.class).findAll();
+            for (Session session : sessions) {
+                session.setUnread_count(0);
+                realm.insertOrUpdate(session);
+            }
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
