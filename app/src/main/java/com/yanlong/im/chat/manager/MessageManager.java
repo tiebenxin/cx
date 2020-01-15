@@ -478,16 +478,12 @@ public class MessageManager {
                 LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getRead().getTimestamp());
                 break;
             case SWITCH_CHANGE: //开关变更
-
+                // TODO　处理老版本不兼容问题
                 if (wrapMessage.getSwitchChange().getSwitchType() == MsgBean.SwitchChangeMessage.SwitchType.UNRECOGNIZED) {
                     return true;
                 }
                 LogUtil.getLog().d(TAG, "开关变更:" + wrapMessage.getSwitchChange().getSwitchType());
 
-                // TODO　处理老版本不兼容问题
-                if (wrapMessage.getSwitchChange().getSwitchType() == MsgBean.SwitchChangeMessage.SwitchType.UNRECOGNIZED) {
-                    return true;
-                }
                 int switchType = wrapMessage.getSwitchChange().getSwitchType().getNumber();
                 int switchValue = wrapMessage.getSwitchChange().getSwitchValue();
                 long uid = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
