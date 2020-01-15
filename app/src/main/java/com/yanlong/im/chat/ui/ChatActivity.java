@@ -1331,13 +1331,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (layoutManager != null) {
                         //获取可视的第一个view
                         lastPosition = layoutManager.findLastVisibleItemPosition();
+                        int first = layoutManager.findFirstCompletelyVisibleItemPosition();
+                        checkScrollFirst(first);
                         View topView = layoutManager.getChildAt(lastPosition);
                         if (topView != null) {
                             //获取与该view的底部的偏移量
                             lastOffset = topView.getBottom();
                         }
+                        if (currentScrollPosition > 0) {
+                            currentScrollPosition = -1;
+                        }
                         saveScrollPosition();
-//                        LogUtil.getLog().d("a=", TAG + "当前滑动位置：lastPosition=" + lastPosition);
+                        LogUtil.getLog().d("a=", TAG + "当前滑动位置：size = " + msgListData.size() + "--lastPosition=" + lastPosition + "--firstPosition=" + first);
                     }
                 }
             }
@@ -1420,6 +1425,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         initExtendFunctionView();
 
 
+    }
+
+    private void checkScrollFirst(int first) {
+        if (unreadCount > 0 && msgListData != null) {
+            int size = msgListData.size();
+            if (first == size - unreadCount) {
+                viewNewMessage.setVisible(false);
+            }
+        }
     }
 
     private void toLocation() {
@@ -1699,12 +1713,23 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void scrollChatToPosition(int position) {
         mtListView.getListView().scrollToPosition(position);
         currentScrollPosition = position;
-//        System.out.println(TAG + "--scrollChatToPosition--totalSize =" + msgListData.size() + "--currentScrollPosition=" + currentScrollPosition);
+
+        View topView = mtListView.getLayoutManager().getChildAt(currentScrollPosition);
+        if (topView != null) {
+            //获取与该view的底部的偏移量
+            lastOffset = topView.getBottom();
+        }
+//        System.out.println(TAG + "--scrollChatToPosition--totalSize =" + msgListData.size() + "--currentScrollPosition=" + currentScrollPosition + "--lastOffset=" + lastOffset);
     }
 
     private void scrollChatToPositionWithOffset(int position, int offset) {
         ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).scrollToPositionWithOffset(position, offset);
         currentScrollPosition = position;
+        View topView = mtListView.getLayoutManager().getChildAt(currentScrollPosition);
+        if (topView != null) {
+            //获取与该view的底部的偏移量
+            lastOffset = topView.getBottom();
+        }
 //        System.out.println(TAG + "--scrollChatToPositionWithOffset--totalSize =" + msgListData.size() + "--currentScrollPosition=" + currentScrollPosition);
     }
 
@@ -2117,7 +2142,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     } else {
                         if (currentScrollPosition > 0) {
-                            scrollChatToPosition(currentScrollPosition);
+                            scrollChatToPositionWithOffset(currentScrollPosition, lastPosition);
                         } else {
                             scrollChatToPosition(length);
                         }
@@ -4483,7 +4508,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (finalTime > 0) {
                             list = msgAction.getMsg4User(toGid, toUId, null, finalLength);
                         } else {
-                            list = msgAction.getMsg4User(toGid, toUId, null, unreadCount + 20);
+                            if (unreadCount < 80) {
+                                list = msgAction.getMsg4User(toGid, toUId, null, unreadCount + 80);
+                            } else {
+                                list = msgAction.getMsg4User(toGid, toUId, null, unreadCount + 20);
+                            }
                         }
                         taskMkName(list);
                         return list;
