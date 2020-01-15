@@ -941,10 +941,11 @@ public class GroupInfoActivity extends AppActivity {
                         //刷新最新群信息
                         taskGetInfoNetwork(false);
                         MsgNotice notice = SocketData.createMsgNoticeOfSnapshotSwitch(SocketData.getUUID());
-                        MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, -1L, notice);
+                        MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
                         if (bean != null) {
                             SocketData.saveMessage(bean);
-                        }                    }
+                        }
+                    }
                 }
                 ToastUtil.show(getContext(), response.body().getMsg());
             }

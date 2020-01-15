@@ -14,7 +14,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -28,6 +31,7 @@ import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.UserUtil;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.CloseActivityEvent;
@@ -265,6 +269,11 @@ public class ChatInfoActivity extends AppActivity {
                         //关
                         ckScreenshot.setChecked(false);//取消选中
                         fUserInfo.setScreenshotNotification(0);//截屏通知字段设置为关闭
+                    }
+                    MsgNotice notice = SocketData.createMsgNoticeOfSnapshotSwitch(SocketData.getUUID());
+                    MsgAllBean bean = SocketData.createMessageBean(fuid, "", ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
+                    if (bean != null) {
+                        SocketData.saveMessage(bean);
                     }
                     taskSaveInfo();//更新本地数据库
                     httpSingleScreenShotSwitch(fuid+"",isChecked ? 1:0);//调接口通知后台
