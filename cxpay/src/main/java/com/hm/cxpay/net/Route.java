@@ -10,7 +10,8 @@ public class Route {
     public static final String SUPPORT_BANK_URL = "https://changxin.zhixun6.com/bank.html";
 
     //零钱的用户协议
-    public static final String USER_AGREEMENT_OF_PAY = "http://baidu.com";
+//    public static final String USER_AGREEMENT_OF_PAY = "http://baidu.com";
+    public static final String USER_AGREEMENT_OF_PAY = "https://changxin.zhixun6.com/yhxy.html";
 
     //实名认证
     public static final String URL_USER_AUTH = "/bank/user/real_name_auth";
