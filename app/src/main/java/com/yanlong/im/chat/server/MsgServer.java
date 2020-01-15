@@ -27,11 +27,11 @@ public interface MsgServer {
 
     @POST("/group/remove-members")
     @FormUrlEncoded
-    Call<ReturnBean> groupRemove(@Field("gid") String gid, @Field("@members") String membersJson);
+    Call<ReturnBean<GroupJoinBean>> groupRemove(@Field("gid") String gid, @Field("@members") String membersJson);
 
     @POST("/group/append-members")
     @FormUrlEncoded
-    Call<ReturnBean> groupAdd(@Field("gid") String gid, @Field("@members") String membersJson, @Field("nickname") String nickname);
+    Call<ReturnBean<GroupJoinBean>> groupAdd(@Field("gid") String gid, @Field("@members") String membersJson, @Field("nickname") String nickname);
 
     @POST("/group/quit")
     @FormUrlEncoded

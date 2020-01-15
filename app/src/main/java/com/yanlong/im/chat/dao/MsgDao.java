@@ -286,7 +286,7 @@ public class MsgDao {
                         .beginGroup().equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
                         .lessThan("timestamp", time)
                         .sort("timestamp", Sort.DESCENDING)
-                        .limit(20)
+                        .limit(80)
                         .findAll();
             }
             beans = realm.copyFromRealm(list);
@@ -378,7 +378,7 @@ public class MsgDao {
                         .equalTo("gid", gid)
                         .lessThan("timestamp", time)
                         .sort("timestamp", Sort.DESCENDING)
-                        .limit(20)
+                        .limit(80)
                         .findAll();
             }
 
@@ -800,14 +800,11 @@ public class MsgDao {
             realm.where(VideoMessage.class).findAll().deleteAllFromRealm();
 
             //清理角标
-//            RealmResults<Session> sessions = realm.where(Session.class).findAll();
-//            for (Session session : sessions) {
-//                session.setUnread_count(0);
-//                realm.insertOrUpdate(session);
-//            }
-            //
-            // TODO　修复清除记录消息界面闪退问题
-            realm.where(Session.class).findAll().deleteAllFromRealm();
+            RealmResults<Session> sessions = realm.where(Session.class).findAll();
+            for (Session session : sessions) {
+                session.setUnread_count(0);
+                realm.insertOrUpdate(session);
+            }
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
@@ -3430,6 +3427,22 @@ public class MsgDao {
             DaoUtil.reportException(e);
         }
         return null;
+    }
+
+    public void updateGroupSnapshot(String gid,int value){
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            Group group = realm.where(Group.class).equalTo("gid",gid).findFirst();
+            if (group != null){
+                group.setScreenshotNotification(value);
+            }
+            realm.commitTransaction();
+        }catch (Exception e){
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+
     }
 
 

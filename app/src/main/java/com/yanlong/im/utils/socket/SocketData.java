@@ -497,8 +497,8 @@ public class SocketData {
             case SHIPPED_EXPRESSION:
                 wmsg.setShippedExpression((MsgBean.ShippedExpressionMessage) value);
                 break;
-            case SNAPSHOT_SCREEN://截屏
-                wmsg.setSnapshotScreen((MsgBean.SnapshotScreenMessage) value);
+            case TAKE_SCREENSHOT://截屏
+                wmsg.setTakeScrennshot((MsgBean.TakeScreenshotMessage) value);
                 break;
             case UNRECOGNIZED:
                 break;
@@ -515,7 +515,7 @@ public class SocketData {
      */
     private static boolean msgSendSave4filter(MsgBean.UniversalMessage.WrapMessage.Builder wmsg) {
         if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER || wmsg.getMsgType() == MsgBean.MessageType.P2P_AU_VIDEO_DIAL
-                || wmsg.getMsgType() == MsgBean.MessageType.SNAPSHOT_SCREEN) {
+                || wmsg.getMsgType() == MsgBean.MessageType.TAKE_SCREENSHOT) {
             return false;
         }
         return true;
@@ -1465,7 +1465,7 @@ public class SocketData {
                 } else {
                     return null;
                 }
-                  break;
+                break;
 
         }
 
@@ -1623,6 +1623,14 @@ public class SocketData {
         StampMessage message = new StampMessage();
         message.setMsgid(msgId);
         message.setComment(content);
+        return message;
+    }
+
+    // 动画表情消息
+    public static ShippedExpressionMessage createFaceMessage(String msgId, String id) {
+        ShippedExpressionMessage message = new ShippedExpressionMessage();
+        message.setMsgid(msgId);
+        message.setId(id);
         return message;
     }
 
@@ -1793,10 +1801,19 @@ public class SocketData {
         return note;
     }
 
+    public static MsgNotice createMsgNoticeOfSnapshotSwitch(String msgId) {
+        MsgNotice note = new MsgNotice();
+        note.setMsgid(msgId);
+        note.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN);
+        note.setNote("你开启了截屏通知");
+        return note;
+    }
+
+
     //发送截屏通知消息
     public static void sendSnapshotMsg(Long toId, String toGid) {
-        MsgBean.SnapshotScreenMessage contentMsg = MsgBean.SnapshotScreenMessage.newBuilder().build();
-        MsgBean.UniversalMessage.Builder msg = toMsgBuilder("", SocketData.getUUID(), toId, toGid, SocketData.getFixTime(), MsgBean.MessageType.SNAPSHOT_SCREEN, contentMsg);
+        MsgBean.TakeScreenshotMessage contentMsg = MsgBean.TakeScreenshotMessage.newBuilder().build();
+        MsgBean.UniversalMessage.Builder msg = toMsgBuilder("", SocketData.getUUID(), toId, toGid, SocketData.getFixTime(), MsgBean.MessageType.TAKE_SCREENSHOT, contentMsg);
         //立即发送
         SocketUtil.getSocketUtil().sendData4Msg(msg);
     }

@@ -16,31 +16,6 @@
 #   public *;
 #}
 #友盟混淆
-#-dontwarn com.umeng.**
-#-dontwarn com.taobao.**
-#-dontwarn anet.channel.**
-#-dontwarn anetwork.channel.**
-#-dontwarn org.android.**
-#-dontwarn org.apache.thrift.**
-#-dontwarn com.xiaomi.**
-#-dontwarn com.huawei.**
-#-dontwarn com.meizu.**
-#-keepattributes *Annotation*
-#-keep class com.taobao.** {*;}
-#-keep class org.android.** {*;}
-#-keep class anet.channel.** {*;}
-#-keep class com.umeng.** {*;}
-#-keep class com.xiaomi.** {*;}
-#-keep class com.huawei.** {*;}
-#-keep class com.meizu.** {*;}
-#-keep class org.apache.thrift.** {*;}
-#-keep class com.alibaba.sdk.android.**{*;}
-#-keep class com.ut.**{*;}
-#-keep class com.ta.**{*;}
-#-keep public class **.R$*{
-#   public static final int *;
-#}
-#
 #-dontshrink
 #-dontoptimize
 #-dontwarn com.google.android.maps.**
@@ -55,12 +30,16 @@
 #-keepattributes Exceptions,InnerClasses,Signature
 #-keepattributes *Annotation*
 #-keepattributes SourceFile,LineNumberTable
+#
 #-keep public interface com.facebook.**
 #-keep public interface com.tencent.**
 #-keep public interface com.umeng.socialize.**
 #-keep public interface com.umeng.socialize.sensor.**
 #-keep public interface com.umeng.scrshot.**
+#
 #-keep public class com.umeng.socialize.* {*;}
+#
+#
 #-keep class com.facebook.**
 #-keep class com.facebook.** { *; }
 #-keep class com.umeng.scrshot.**
@@ -89,8 +68,9 @@
 #-keep class com.tencent.mm.sdk.** {
 #   *;
 #}
-#-dontwarn twitter4j.**
-#-keep class twitter4j.** { *; }
+#
+#-keep class com.twitter.** { *; }
+#
 #-keep class com.tencent.** {*;}
 #-dontwarn com.tencent.**
 #-keep class com.kakao.** {*;}
@@ -105,6 +85,7 @@
 #    public static **[] values();
 #    public static ** valueOf(java.lang.String);
 #}
+#
 #-keep class com.tencent.open.TDialog$*
 #-keep class com.tencent.open.TDialog$* {*;}
 #-keep class com.tencent.open.PKDialog
@@ -117,11 +98,28 @@
 #-keep class  com.alipay.share.sdk.** {
 #   *;
 #}
+#
 #-keepnames class * implements android.os.Parcelable {
 #    public static final ** CREATOR;
 #}
+#
 #-keep class com.linkedin.** { *; }
 #-keep class com.android.dingtalk.share.ddsharemodule.** { *; }
 #-keepattributes Signature
+#友盟
 
 -libraryjars libs/pinyin4j-2.5.0.jar
+
+
+#微信分享
+-keep class com.tencent.mm.opensdk.** {
+    *;
+}
+
+-keep class com.tencent.wxop.** {
+    *;
+}
+
+-keep class com.tencent.mm.sdk.** {
+    *;
+}

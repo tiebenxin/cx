@@ -25,6 +25,7 @@ import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -289,7 +290,7 @@ public class GroupInfoActivity extends AppActivity {
                 Bundle bundle = new Bundle();
                 bundle.putString(GroupManageActivity.AGM_GID, gid);
                 bundle.putBoolean(GroupManageActivity.IS_ADMIN, isAdmin());
-                if(ginfo!=null){
+                if (ginfo != null) {
                     bundle.putInt(GroupManageActivity.ADMIN_NUMBER, ginfo.getViceAdmins().size());
                 }
                 IntentUtil.gotoActivityForResult(GroupInfoActivity.this, GroupManageActivity.class, bundle, GROUP_MANAGER);
@@ -482,29 +483,29 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 //只有群管理和群主可以使用截屏通知功能
-                if(isAdmin() || isAdministrators()){
+                if (isAdmin() || isAdministrators()) {
                     if (ginfo != null) {
-                            if(ckScreenshot.isChecked() == true){
-                                ckScreenshot.setChecked(true);
-                                ginfo.setScreenshotNotification(1);
-                            }else {
-                                ckScreenshot.setChecked(false);
-                                ginfo.setScreenshotNotification(0);
-                            }
-                            //更新本地数据库状态
-                            taskSaveInfo();
-                            //调接口通知后台
-                            httpScreenShotSwitch(gid, ckScreenshot.isChecked() ? 1 : 0);
+                        if (ckScreenshot.isChecked() == true) {
+                            ckScreenshot.setChecked(true);
+                            ginfo.setScreenshotNotification(1);
+                        } else {
+                            ckScreenshot.setChecked(false);
+                            ginfo.setScreenshotNotification(0);
+                        }
+                        //更新本地数据库状态
+                        taskSaveInfo();
+                        //调接口通知后台
+                        httpScreenShotSwitch(gid, ckScreenshot.isChecked() ? 1 : 0);
 
                     }
-                }else {
+                } else {
                     //使其打开按钮无效
-                    if(ckScreenshot.isChecked() == true){
+                    if (ckScreenshot.isChecked() == true) {
                         ckScreenshot.setChecked(false);
-                    }else {
+                    } else {
                         ckScreenshot.setChecked(true);
                     }
-                    ToastUtil.show(GroupInfoActivity.this,"只有群管理和群主才可以使用截屏通知功能");
+                    ToastUtil.show(GroupInfoActivity.this, "只有群管理和群主才可以使用截屏通知功能");
                 }
             }
         });
@@ -933,13 +934,17 @@ public class GroupInfoActivity extends AppActivity {
         msgAction.groupScreenShotSwitch(gid, screeshotNotification, new Callback<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if (response.body() == null){
+                if (response.body() == null) {
                     return;
-                }else {
+                } else {
                     if (response.body().isOk()) {
                         //刷新最新群信息
                         taskGetInfoNetwork(false);
-                    }
+                        MsgNotice notice = SocketData.createMsgNoticeOfSnapshotSwitch(SocketData.getUUID());
+                        MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, -1L, notice);
+                        if (bean != null) {
+                            SocketData.saveMessage(bean);
+                        }                    }
                 }
                 ToastUtil.show(getContext(), response.body().getMsg());
             }

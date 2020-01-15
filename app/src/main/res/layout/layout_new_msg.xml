@@ -1,24 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_marginTop="15dp"
     android:id="@+id/messages_count"
-    android:background="@drawable/shape_new_message"
-    android:orientation="horizontal"
-    android:visibility="gone"
+    android:layout_width="wrap_content"
+    android:layout_height="30dp"
     android:layout_alignParentRight="true"
+    android:layout_marginTop="@dimen/dimen_30"
+    android:background="@drawable/shape_new_message"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
     android:padding="4dp"
-    android:layout_height="40dp">
+    android:visibility="visible">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="3dp"
+        android:gravity="center_vertical"
+        android:src="@mipmap/ic_up" />
 
     <TextView
         android:id="@+id/tv_count"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:gravity="center"
         android:paddingLeft="5dp"
         android:paddingRight="10dp"
-        android:gravity="center"
-        android:text="8条未读消息"
-        android:textSize="12sp"
-        android:textColor="@color/blue"/>
+        android:text="0条未读消息"
+        android:textColor="#517da2"
+        android:textSize="11sp" />
 
 </LinearLayout>

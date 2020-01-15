@@ -17,6 +17,7 @@ import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -323,9 +324,9 @@ public class GroupNumbersActivity extends AppActivity {
         List<MemberUser> list = new ArrayList<>();
         List<Long> listLong = new ArrayList<>();
         List<MemberUser> mem = dao.getGroup4Id(gid).getUsers();
-        CallBack<ReturnBean> callback = new CallBack<ReturnBean>() {
+        CallBack<ReturnBean<GroupJoinBean>> callback = new CallBack<ReturnBean<GroupJoinBean>>() {
             @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+            public void onResponse(Call<ReturnBean<GroupJoinBean>> call, Response<ReturnBean<GroupJoinBean>> response) {
                 try {
                     Thread.sleep(1000);
                     alert.dismiss();
@@ -343,13 +344,18 @@ public class GroupNumbersActivity extends AppActivity {
                     if (type != TYPE_DEL) {
                         dao.removeGroupMember(gid, listLong);
                     }
-                    if (type == TYPE_ADD) {
-                        Group group= dao.getGroup4Id(gid);
-                        if(group!=null){
-                            if(!group.isAdmin()&&!group.isAdministrators()||group.isAdministrators()&&"1".equals(group.getContactIntimately()+"")){
-                                //弹窗情况
-                                ToastUtil.show("邀请成功,等待群主验证");
-                            }
+                    if (type == TYPE_ADD&&response.body().getData()!=null) {
+//                        Group group= dao.getGroup4Id(gid);
+//                        if(group!=null){
+//                            if(!group.isAdmin()&&!group.isAdministrators()||group.isAdministrators()&&"1".equals(group.getContactIntimately()+"")){
+//                                //提示情况
+//                                ToastUtil.show("邀请成功,等待群主验证");
+//                            }
+//                        }
+
+                        if (response.body().getData().isPending()) {
+                            //提示情况
+                            ToastUtil.show("邀请成功,等待群主验证");
                         }
                     }
                     MessageManager.getInstance().notifyGroupChange(true);
@@ -360,7 +366,7 @@ public class GroupNumbersActivity extends AppActivity {
             }
 
             @Override
-            public void onFailure(Call<ReturnBean> call, Throwable t) {
+            public void onFailure(Call<ReturnBean<GroupJoinBean>> call, Throwable t) {
                 super.onFailure(call, t);
                 alert.dismiss();
             }

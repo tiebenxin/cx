@@ -216,7 +216,7 @@ public class MessageManager {
             case BALANCE_ASSISTANT://零钱助手消息
             case CHANGE_VICE_ADMINS:// 管理员变更通知
             case SHIPPED_EXPRESSION:// 动画表情
-            case SNAPSHOT_SCREEN:// 截屏通知
+            case TAKE_SCREENSHOT:// 截屏通知
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }
@@ -379,6 +379,13 @@ public class MessageManager {
                         if (bean != null) {
                             result = saveMessageNew(bean, isList);
                         }
+                        break;
+                    case SCREENSHOT_NOTIFICATION:
+                        // 更新群截屏状态
+                        if (bean != null) {
+                            result = saveMessageNew(bean, isList);
+                        }
+                        msgDao.updateGroupSnapshot(wrapMessage.getGid(), wrapMessage.getChangeGroupMeta().getScreenshotNotification() ? 1 : 0);
                         break;
                 }
                 break;

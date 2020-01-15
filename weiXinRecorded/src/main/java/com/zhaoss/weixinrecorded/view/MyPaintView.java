@@ -42,7 +42,6 @@ public class MyPaintView extends View {
         init();
     }
 
-
     private Paint mPaint;
     private Path mPath;
     private float mLastX;
@@ -71,8 +70,6 @@ public class MyPaintView extends View {
     }
 
     private Mode mMode = Mode.DRAW;
-
-
 
     public interface Callback {
         void onUndoRedoStatusChanged();
@@ -313,14 +310,5 @@ public class MyPaintView extends View {
         }
         return true;
     }
-
-
-
-
-
-
-
-
-
 
 }

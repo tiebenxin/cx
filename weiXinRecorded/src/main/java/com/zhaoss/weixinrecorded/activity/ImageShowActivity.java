@@ -5,7 +5,6 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -33,7 +32,7 @@ import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.util.DimenUtils;
 import com.zhaoss.weixinrecorded.util.Utils;
 import com.zhaoss.weixinrecorded.view.CutView;
-import com.zhaoss.weixinrecorded.view.MosaicView;
+import com.zhaoss.weixinrecorded.view.MosaicPaintView;
 import com.zhaoss.weixinrecorded.view.TouchView;
 
 import java.io.File;
@@ -42,16 +41,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class ImageShowActivity extends BaseActivity {
-    private ImageView activity_img_show_img, iv_show_next, iv_show_delete;
+    private ImageView imgShowImg, iv_show_next, iv_show_delete;
     private String path;
-    private RelativeLayout activity_show_rl_big, rl_pen, rl_back, rl_edit_text, rl_text, rl_text_cut, rl_mosaic;
+    private RelativeLayout show_rl_big, rl_pen, rl_back, rl_edit_text, rl_text, rl_text_cut, rl_mosaic;
     private LinearLayout ll_color;
     private TextView tv_finish_video, tv_finish, tv_close, tv_tag, tv_hint_delete;
-    private com.zhaoss.weixinrecorded.view.MyPaintView mypaintview;
+    private MosaicPaintView mpvView;
     private EditText et_tag;
     private CutView activity_img_show_cut;
     private TextureView textureView_cut;
-    private MosaicView mosaicView;
+//    private MosaicView mosaicView;
 
     private int windowWidth;
     private int windowHeight;
@@ -65,7 +64,7 @@ public class ImageShowActivity extends BaseActivity {
         windowHeight = Utils.getWindowHeight(mContext);
         initView();
         initEvent();
-        activity_img_show_img.setImageURI(Uri.parse(path));
+        imgShowImg.setImageURI(Uri.parse(path));
     }
 
     private void initEvent() {
@@ -74,7 +73,7 @@ public class ImageShowActivity extends BaseActivity {
 //            @Override
 //            public void onClick(View v) {
 //                Intent intent = new Intent();
-//                Bitmap bitmap= loadBitmapFromView(activity_show_rl_big);
+//                Bitmap bitmap= loadBitmapFromView(show_rl_big);
 //                String savePath= saveImage(bitmap,100);
 //                intent.putExtra("showResult", true);
 //                intent.putExtra("showPath", savePath);
@@ -119,7 +118,7 @@ public class ImageShowActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                Bitmap bitmap = loadBitmapFromView(activity_show_rl_big);
+                Bitmap bitmap = loadBitmapFromView(show_rl_big);
                 String savePath = saveImage(bitmap, 100);
                 intent.putExtra("showResult", true);
                 intent.putExtra("showPath", savePath);
@@ -146,22 +145,22 @@ public class ImageShowActivity extends BaseActivity {
         rl_pen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mpvView.setEtypeMode(MosaicPaintView.EtypeMode.TUYA);
                 if (ll_color.getVisibility() == View.VISIBLE) {
                     ll_color.setVisibility(View.INVISIBLE);
                 } else {
                     ll_color.setVisibility(View.VISIBLE);
-                    mypaintview.setPenColor(getResources().getColor(colors[0]));
-                    mypaintview.setVisibility(View.VISIBLE);
+                    mpvView.setPenColor(getResources().getColor(colors[0]));
+                    mpvView.setVisibility(View.VISIBLE);
                 }
-
             }
         });
         rl_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (null != mypaintview) {
-                    if (mypaintview.canUndo()) {
-                        mypaintview.undo();
+                if (null != mpvView) {
+                    if (mpvView.canUndo()) {
+                        mpvView.undo();
                     }
                 }
             }
@@ -193,7 +192,17 @@ public class ImageShowActivity extends BaseActivity {
             }
         });
         rl_mosaic.setOnClickListener(o -> {
-            mosaicView.setVisibility(mosaicView.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+            mpvView.setVisibility(View.VISIBLE);
+            mpvView.setEtypeMode(MosaicPaintView.EtypeMode.GRID);
+
+            if (!TextUtils.isEmpty(path)) {
+
+                imgShowImg.setDrawingCacheEnabled(true);
+                Bitmap bitmap = Bitmap.createBitmap(imgShowImg.getDrawingCache());
+                imgShowImg.setDrawingCacheEnabled(false);
+
+                mpvView.setSrcPath(bitmap, path);
+            }
         });
     }
 
@@ -202,8 +211,8 @@ public class ImageShowActivity extends BaseActivity {
 
     /**
      * 弹出键盘
-     */
-    public void popupEditText() {
+                */
+        public void popupEditText() {
 //
 //        isFirstShowEditText = true;
 //        et_tag.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -271,12 +280,12 @@ public class ImageShowActivity extends BaseActivity {
                 tv_hint_delete.setVisibility(View.GONE);
 //                changeMode(true);
                 if (view.isOutLimits()) {
-                    activity_show_rl_big.removeView(view);
+                    show_rl_big.removeView(view);
                 }
             }
         });
 
-        activity_show_rl_big.addView(touchView);
+        show_rl_big.addView(touchView);
 
         et_tag.setText("");
         tv_tag.setText("");
@@ -300,13 +309,13 @@ public class ImageShowActivity extends BaseActivity {
     private void initView() {
         manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
-        activity_img_show_img = findViewById(R.id.activity_img_show_img);
+        imgShowImg = findViewById(R.id.img_show);
 //        iv_show_next=findViewById(R.id.iv_show_next);
         iv_show_delete = findViewById(R.id.iv_show_delete);
-        activity_show_rl_big = findViewById(R.id.activity_show_rl_big);
+        show_rl_big = findViewById(R.id.show_rl_big);
         rl_pen = findViewById(R.id.rl_pen);
         ll_color = findViewById(R.id.ll_color);
-        mypaintview = findViewById(R.id.activity_show_mypaintview);
+        mpvView = findViewById(R.id.mpv_view);
         rl_back = findViewById(R.id.rl_back);
         tv_finish_video = findViewById(R.id.tv_finish_video);
         rl_edit_text = findViewById(R.id.rl_edit_text);
@@ -321,11 +330,7 @@ public class ImageShowActivity extends BaseActivity {
         textureView_cut = findViewById(R.id.textureView_cut);
 
         rl_mosaic = findViewById(R.id.rl_mosaic);
-        mosaicView = findViewById(R.id.view_mosaic_view);
-
-        if(!TextUtils.isEmpty(path)){
-            mosaicView.setImageBitmap(BitmapFactory.decodeFile(path));
-        }
+//        mosaicView = findViewById(R.id.view_mosaic_view);
     }
 
     private Bitmap loadBitmapFromView(View v) {
@@ -490,10 +495,9 @@ public class ImageShowActivity extends BaseActivity {
                         ViewGroup childView = (ViewGroup) parent.getChildAt(currentColorPosition);
                         childView.getChildAt(1).setVisibility(View.GONE);
 //                        tv_video.setNewPaintColor(getResources().getColor(colors[position]));
-                        mypaintview.setPenColor(getResources().getColor(colors[position]));
+                        mpvView.setPenColor(getResources().getColor(colors[position]));
                         currentColorPosition = position;
                     }
-//                    mypaintview.setVisibility(View.VISIBLE);
                 }
             });
 

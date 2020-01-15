@@ -670,7 +670,7 @@ public class MsgMainFragment extends Fragment {
                             showMessage(holder.txtInfo, bean.getDraft(), style);
                         } else {
                             // 判断是否是动画表情
-                            if (msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
                                 holder.txtInfo.setText(TYPE_FACE);
                             } else {
                                 showMessage(holder.txtInfo, info, null);
@@ -754,8 +754,8 @@ public class MsgMainFragment extends Fragment {
                             } else {
                                 // 判断是否是动画表情
                                 if (msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
-                                    holder.txtInfo.setText(msginfo.getFrom_nickname()+":"+TYPE_FACE);
-                                }else{
+                                    holder.txtInfo.setText(msginfo.getFrom_nickname() + ":" + TYPE_FACE);
+                                } else {
                                     showMessage(holder.txtInfo, info, null);
                                 }
                             }
@@ -768,9 +768,9 @@ public class MsgMainFragment extends Fragment {
                             break;
                         default:
                             // 判断是否是动画表情
-                            if (msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
-                                holder.txtInfo.setText(msginfo.getFrom_nickname()+":"+TYPE_FACE);
-                            }else{
+                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+                                holder.txtInfo.setText(msginfo.getFrom_nickname() + ":" + TYPE_FACE);
+                            } else {
                                 showMessage(holder.txtInfo, info, null);
                             }
                             break;

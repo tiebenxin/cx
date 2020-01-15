@@ -346,9 +346,6 @@ public class FaceView extends RelativeLayout {
 //            if (i == 0) {
 //                type_emoji = FaceView.FaceType.FACE_ANIMO_TAB;
 //            }
-////            else if (i == 1) {
-////                type_emoji = FaceView.FaceType.FACE_CUSTOM_TAB;
-////            }
 //            else if (i == 1) {
 //                type_emoji = FaceView.FaceType.FACE_PIG;
 //            } else if (i == 2) {

@@ -140,7 +140,6 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     }
 
 
-
     public P2PAuVideoMessage getP2PAuVideoMessage() {
         return p2PAuVideoMessage;
     }
@@ -279,13 +278,15 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         return DaoUtil.findOne(Group.class, "gid", gid);
     }
 
-
     public void setGid(String gid) {
         this.gid = gid;
     }
 
     @ChatEnum.EMessageType
     public Integer getMsg_type() {
+        if (msg_type == null) {
+            msg_type = ChatEnum.EMessageType.UNRECOGNIZED;
+        }
         return this.msg_type;
     }
 
@@ -306,7 +307,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         if (msg_type == ChatEnum.EMessageType.NOTICE) {
             //公告:
             //8.9 过滤拉人通知里面的颜色标签
-            if(getMsgNotice()!=null){
+            if (getMsgNotice() != null) {
                 str = "" + StringUtil.delHTMLTag(getMsgNotice().getNote());
             }
         } else if (msg_type == ChatEnum.EMessageType.TEXT) {//普通消息
