@@ -48,6 +48,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
@@ -266,7 +267,7 @@ public class ChatInfoActivity extends AppActivity {
                         fUserInfo.setScreenshotNotification(0);//截屏通知字段设置为关闭
                     }
                     taskSaveInfo();//更新本地数据库
-//                        httpSetScreenSwitch(fuid,isChecked ? 1:0);//调接口通知后台
+                    httpSingleScreenShotSwitch(fuid+"",isChecked ? 1:0);//调接口通知后台
 
                 }
             }
@@ -468,6 +469,30 @@ public class ChatInfoActivity extends AppActivity {
         if (event.type.contains("ChatInfoActivity")) {
             finish();
         }
+    }
+
+
+    //单聊-截屏通知开关
+    private void httpSingleScreenShotSwitch(String friendId, int screenshot) {
+        msgAction.singleScreenShotSwitch(friendId, screenshot, new Callback<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null){
+                    return;
+                }else {
+                    if (response.body().isOk()) {
+                        //刷新最新对方用户信息
+//                        taskGetInfoNetwork(false);
+                    }
+                }
+                ToastUtil.show(getContext(), response.body().getMsg());
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+
+            }
+        });
     }
 
 }
