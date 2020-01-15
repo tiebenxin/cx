@@ -90,12 +90,24 @@ public class FaceAdapter extends BaseAdapter {
 					public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
 						return false;
 					}
-				}).into(holder.image_big);
+				}).apply(GlideOptionsUtil.defImageOptions()).into(holder.image_big);
             }
 		} else if (bean.getGroup().equals(FaceView.face_animo)) {
 			holder.image_thum.setVisibility(View.GONE);
 			holder.image_big.setVisibility(View.VISIBLE);
-			holder.image_big.setImageResource(list_FaceBeans.get(position).getResId());
+
+			Glide.with(context).load(list_FaceBeans.get(position).getResId()).listener(new RequestListener() {
+				@Override
+				public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+					return false;
+				}
+
+				@Override
+				public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+					return false;
+				}
+			}).apply(GlideOptionsUtil.defImageOptions()).into(holder.image_big);
+
 		} else {
 			holder.image_thum.setVisibility(View.VISIBLE);
 			holder.image_big.setVisibility(View.GONE);

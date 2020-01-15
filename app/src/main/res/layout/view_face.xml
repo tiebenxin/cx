@@ -25,11 +25,21 @@
             android:padding="5dp" />
 
         <RadioGroup
+            android:id="@+id/view_mammon_radiogroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dp"
+            android:visibility="gone"
+            android:padding="5dp" />
+
+        <RadioGroup
             android:id="@+id/view_face_select"
             android:layout_width="match_parent"
             android:layout_height="45dp"
             android:background="@color/white"
-            android:visibility="gone"
+            android:visibility="visible"
             android:orientation="horizontal" >
 
             <com.yanlong.im.view.CustomRadioButton

@@ -66,6 +66,10 @@ public class FaceView extends RelativeLayout {
      */
     private RadioGroup mRadioGroup;
     /**
+     * 财神分页显示圆点
+     */
+    private RadioGroup mRadioGroupMammon;
+    /**
      * 显示选择表情类型
      */
     private RadioGroup select_RadioGroup;
@@ -86,14 +90,20 @@ public class FaceView extends RelativeLayout {
      */
     private int mCheckPostion = 0;
     private int mEmojiCheckPostion = 0;
+    private int mMammonCheckPostion = 0;
     /**
      * 页数
      */
     private int pagerCount = -1;
+    private int pagerCountMommon = -1;
     /**
      * 页大小
      */
     private int pagerSize = 20;
+    /**
+     * 页大小
+     */
+    private int pagerSizeMax = 8;
     /**
      * 经常使用保留大小
      */
@@ -179,13 +189,21 @@ public class FaceView extends RelativeLayout {
     /**
      * 动态表情ID列表
      */
-    private static int[] animo_mamonIds = {R.mipmap.animation_mamon_000, R.mipmap.animation_mamon_001, R.mipmap.animation_mamon_002,
-            R.mipmap.animation_mamon_003, R.mipmap.animation_mamon_004, R.mipmap.animation_mamon_005, R.mipmap.animation_mamon_006, R.mipmap.animation_mamon_007,};
+    private static int[] animo_mammonIds = {R.mipmap.animation_mammon_000, R.mipmap.animation_mammon_001, R.mipmap.animation_mammon_002,
+            R.mipmap.animation_mammon_003, R.mipmap.animation_mammon_004, R.mipmap.animation_mammon_005, R.mipmap.animation_mammon_006,
+            R.mipmap.animation_mammon_007, R.mipmap.animation_mammon_008, R.mipmap.animation_mammon_009, R.mipmap.animation_mammon_010,
+            R.mipmap.animation_mammon_011, R.mipmap.animation_mammon_012, R.mipmap.animation_mammon_013, R.mipmap.animation_mammon_014,
+            R.mipmap.animation_mammon_015, R.mipmap.animation_mammon_016, R.mipmap.animation_mammon_017, R.mipmap.animation_mammon_018,
+            R.mipmap.animation_mammon_019, R.mipmap.animation_mammon_020, R.mipmap.animation_mammon_021, R.mipmap.animation_mammon_022,
+            R.mipmap.animation_mammon_023};
     /**
      * 动态表情名称
      */
-    private static String[] animo_mamonNames = {"animation_mamon_000.png", "animation_mamon_001.png", "animation_mamon_002.png", "animation_mamon_003.png",
-            "animation_mamon_004.png", "animation_mamon_005.png", "animation_mamon_006.png", "animation_mamon_007.png",};
+    private static String[] animo_mamonNames = {"animation_mammon_000.png", "animation_mammon_001.png", "animation_mammon_002.png", "animation_mammon_003.png",
+            "animation_mammon_004.png", "animation_mammon_005.png", "animation_mammon_006.png", "animation_mammon_007.png", "animation_mammon_008.gif"
+            , "animation_mammon_009.gif", "animation_mammon_010.gif", "animation_mammon_011.gif", "animation_mammon_012.gif", "animation_mammon_013.gif"
+            , "animation_mammon_014.gif", "animation_mammon_015.gif", "animation_mammon_016.gif", "animation_mammon_017.gif", "animation_mammon_018.gif"
+            , "animation_mammon_019.gif", "animation_mammon_020.gif", "animation_mammon_021.gif", "animation_mammon_022.gif", "animation_mammon_023.gif"};
 
     /**
      * 动态表情ID列表
@@ -249,6 +267,7 @@ public class FaceView extends RelativeLayout {
 
         mViewPager = view_Parent.findViewById(R.id.view_face_viewpager);
         mRadioGroup = findViewById(R.id.view_face_radiogroup);
+        mRadioGroupMammon = findViewById(R.id.view_mammon_radiogroup);
         select_RadioGroup = findViewById(R.id.view_face_select);
         initFaceList(FaceView.FaceType.FACE_EMOJI_TAB);
         widgetListener();
@@ -279,9 +298,9 @@ public class FaceView extends RelativeLayout {
             map_FaceEmoji.put(animo_emojiNames[i], animo_emojiIds[i]);
             addFace(pigFaceBeans, face_animo, animo_emojiIds[i], animo_emojiNames[i]);
         }
-        for (int i = 0; i < animo_mamonIds.length; i++) {
-            map_FaceEmoji.put(animo_mamonNames[i], animo_mamonIds[i]);
-            addFace(mamonFaceBeans, face_animo, animo_mamonIds[i], animo_mamonNames[i]);
+        for (int i = 0; i < animo_mammonIds.length; i++) {
+            map_FaceEmoji.put(animo_mamonNames[i], animo_mammonIds[i]);
+            addFace(mamonFaceBeans, face_animo, animo_mammonIds[i], animo_mamonNames[i]);
         }
         for (int i = 0; i < animo_pandaIds.length; i++) {
             map_FaceEmoji.put(animo_pandaNames[i], animo_pandaIds[i]);
@@ -321,44 +340,31 @@ public class FaceView extends RelativeLayout {
         mRadioGroup.setVisibility(VISIBLE);
         // 计算表情页数
         pagerCount = emojiUseBeans.size() % pagerSize == 0 ? emojiUseBeans.size() / pagerSize : emojiUseBeans.size() / pagerSize + 1;
+        pagerCountMommon = mamonFaceBeans.size() % pagerSizeMax == 0 ? mamonFaceBeans.size() / pagerSizeMax : mamonFaceBeans.size() / pagerSizeMax + 1;
 
         // 设置圆点和分页列表
         mRadioGroup.removeAllViews();
+        mRadioGroupMammon.removeAllViews();
         list_Views = new ArrayList<View>();
         for (int i = 0; i < pagerCount; i++) {
-            RadioButton radioButton = new RadioButton(context);
-            radioButton.setId(i);
-            radioButton.setButtonDrawable(R.drawable.radio_dot_selector);
-            radioButton.setEnabled(false);
-            RadioGroup.LayoutParams radioParams = new RadioGroup.LayoutParams(20, 20);
-            radioParams.leftMargin = 10;
-            radioButton.setLayoutParams(radioParams);
-            mRadioGroup.addView(radioButton);
-
-            FaceViewPager view = new FaceViewPager(context, type_emoji);
-            view.setOnItemClikListener(faceClickListener);
-            view.setOnItemLongClickListener(faceLongClickListener);
-            view.setOnDeleteListener(mOnDeleteListener);
-            list_Views.add(view);
+            addDotView(i, mRadioGroup);
+            addViewPager(type_emoji);
         }
 
-//        for (int i = 0; i < 4; i++) {
-//            if (i == 0) {
-//                type_emoji = FaceView.FaceType.FACE_ANIMO_TAB;
-//            }
-//            else if (i == 1) {
-//                type_emoji = FaceView.FaceType.FACE_PIG;
-//            } else if (i == 2) {
-//                type_emoji = FaceView.FaceType.FACE_MAMMON;
-//            } else if (i == 3) {
-//                type_emoji = FaceView.FaceType.FACE_PANDA;
-//            }
-//            FaceViewPager view = new FaceViewPager(context, type_emoji);
-//            view.setOnItemClikListener(faceClickListener);
-//            view.setOnItemLongClickListener(faceLongClickListener);
-//            view.setOnDeleteListener(mOnDeleteListener);
-//            list_Views.add(view);
-//        }
+        for (int i = 0; i < 4; i++) {
+            if (i == 0) {
+                addViewPager(FaceView.FaceType.FACE_ANIMO_TAB);
+            } else if (i == 1) {
+                addViewPager(FaceView.FaceType.FACE_PIG);
+            } else if (i == 2) {
+                for (int j = 0; j < pagerCountMommon; j++) {
+                    addDotView(j, mRadioGroupMammon);
+                    addViewPager(FaceView.FaceType.FACE_MAMMON);
+                }
+            } else if (i == 3) {
+                addViewPager(FaceView.FaceType.FACE_PANDA);
+            }
+        }
 
         // 设置分页列表
         adapter = new ViewPagerAdapter(list_Views);
@@ -377,6 +383,25 @@ public class FaceView extends RelativeLayout {
         mRadioGroup.check(0);
         mCurViewPager = ((FaceViewPager) list_Views.get(0));
         mCurViewPager.setFaceList(list_CurrentBeans);
+    }
+
+    private void addDotView(int i, RadioGroup radioGroup) {
+        RadioButton radioButton = new RadioButton(context);
+        radioButton.setId(i);
+        radioButton.setButtonDrawable(R.drawable.radio_dot_selector);
+        radioButton.setEnabled(false);
+        RadioGroup.LayoutParams radioParams = new RadioGroup.LayoutParams(20, 20);
+        radioParams.leftMargin = 10;
+        radioButton.setLayoutParams(radioParams);
+        radioGroup.addView(radioButton);
+    }
+
+    private void addViewPager(int typeEmoji) {
+        FaceViewPager view = new FaceViewPager(context, typeEmoji);
+        view.setOnItemClikListener(faceClickListener);
+        view.setOnItemLongClickListener(faceLongClickListener);
+        view.setOnDeleteListener(mOnDeleteListener);
+        list_Views.add(view);
     }
 
     /**
@@ -424,6 +449,7 @@ public class FaceView extends RelativeLayout {
                 if (position > 4) {
                     switch (position) {
                         case 5:
+                            mRadioGroupMammon.setVisibility(GONE);
                             mRadioGroup.setVisibility(INVISIBLE);
                             select_RadioGroup.check(R.id.animo_emoji);
                             mCurViewPager.setFaceList(oftenUseBeans);
@@ -434,16 +460,33 @@ public class FaceView extends RelativeLayout {
 //                            mCurViewPager.setFaceList(collectFaceBeans);
 //                            break;
                         case 6:
+                            mRadioGroupMammon.setVisibility(GONE);
                             mRadioGroup.setVisibility(GONE);
                             select_RadioGroup.check(R.id.cb_face_pig);
                             mCurViewPager.setFaceList(pigFaceBeans);
                             break;
                         case 7:
-                            mRadioGroup.setVisibility(GONE);
-                            select_RadioGroup.check(R.id.cb_face_mammon);
-                            mCurViewPager.setFaceList(mamonFaceBeans);
-                            break;
                         case 8:
+                        case 9:
+                            mMammonCheckPostion = position - 7;
+                            currentItem -= 7;
+                            select_RadioGroup.check(R.id.cb_face_mammon);
+                            mRadioGroupMammon.setVisibility(VISIBLE);
+                            mRadioGroup.setVisibility(GONE);
+                            mRadioGroupMammon.check(mMammonCheckPostion);
+                            list_CurrentBeans.clear();
+                            if ((currentItem * pagerSizeMax + pagerSizeMax) >= mamonFaceBeans.size() && mamonFaceBeans.size() >= (currentItem * pagerSizeMax)) {
+                                list_CurrentBeans.addAll(mamonFaceBeans.subList(currentItem * pagerSizeMax, mamonFaceBeans.size()));
+                            } else {
+                                if (mamonFaceBeans.size() >= (currentItem * pagerSizeMax + pagerSizeMax)) {
+                                    list_CurrentBeans.clear();
+                                    list_CurrentBeans.addAll(mamonFaceBeans.subList(currentItem * pagerSizeMax, currentItem * pagerSizeMax + pagerSizeMax));
+                                }
+                            }
+                            mCurViewPager.setFaceList(list_CurrentBeans);
+                            break;
+                        case 10:
+                            mRadioGroupMammon.setVisibility(GONE);
                             mRadioGroup.setVisibility(GONE);
                             select_RadioGroup.check(R.id.cb_face_panda);
                             mCurViewPager.setFaceList(pandaFaceBeans);
@@ -453,6 +496,7 @@ public class FaceView extends RelativeLayout {
                     mEmojiCheckPostion = position;
                     select_RadioGroup.check(R.id.face_emoji);
                     mRadioGroup.setVisibility(VISIBLE);
+                    mRadioGroupMammon.setVisibility(GONE);
                     mRadioGroup.check(position);
                     list_CurrentBeans.clear();
                     if ((currentItem * pagerSize + pagerSize) >= emojiUseBeans.size() && emojiUseBeans.size() >= (currentItem * pagerSize)) {
@@ -498,10 +542,10 @@ public class FaceView extends RelativeLayout {
                         mViewPager.setCurrentItem(6);
                         break;
                     case R.id.cb_face_mammon:// 财神
-                        mViewPager.setCurrentItem(7);
+                        mViewPager.setCurrentItem(mMammonCheckPostion + 7);
                         break;
                     case R.id.cb_face_panda:// 熊猫
-                        mViewPager.setCurrentItem(8);
+                        mViewPager.setCurrentItem(10);
                         break;
                     default:
                         break;

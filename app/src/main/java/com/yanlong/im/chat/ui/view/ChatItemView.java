@@ -615,31 +615,51 @@ public class ChatItemView extends LinearLayout {
 
     /**
      * 显示動漫表情
+     *
      * @param msg
      * @param eventPic
      */
-    public void showBigFace(String msg,List<OptionMenu> menus,final EventPic eventPic){
+    public void showBigFace(String msg, List<OptionMenu> menus, final EventPic eventPic) {
         if (FaceView.map_FaceEmoji != null && FaceView.map_FaceEmoji.get(msg) != null) {
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), Integer.parseInt(FaceView.map_FaceEmoji.get(msg).toString()));
-            if (bitmap != null) {
-                viewMeCustomerFace.setVisibility(VISIBLE);
-                viewOtCustomerFace.setVisibility(VISIBLE);
-                viewMe1.setVisibility(GONE);
-                viewOt1.setVisibility(GONE);
-                imgMeCustomerFace.setImageBitmap(bitmap);
-                imgOtCustomerFace.setImageBitmap(bitmap);
+            viewMeCustomerFace.setVisibility(VISIBLE);
+            viewOtCustomerFace.setVisibility(VISIBLE);
+            viewMe1.setVisibility(GONE);
+            viewOt1.setVisibility(GONE);
 
-                viewMeTouch.setOnClickListener(o->{
-                    eventPic.onClick(FaceView.map_FaceEmoji.get(msg).toString());
-                });
-                viewOtTouch.setOnClickListener(o->{
-                    eventPic.onClick(FaceView.map_FaceEmoji.get(msg).toString());
-                });
-            }
+            Glide.with(this).load(Integer.parseInt(FaceView.map_FaceEmoji.get(msg).toString())).listener(new RequestListener() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                    return false;
+                }
 
-            menus.add(new OptionMenu("转发"));
-            menus.add(new OptionMenu("删除"));
+                @Override
+                public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                    return false;
+                }
+            }).apply(options).into(imgMeCustomerFace);
+
+            Glide.with(this).load(Integer.parseInt(FaceView.map_FaceEmoji.get(msg).toString())).listener(new RequestListener() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                    return false;
+                }
+
+                @Override
+                public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                    return false;
+                }
+            }).apply(options).into(imgOtCustomerFace);
+
+            viewMeTouch.setOnClickListener(o -> {
+                eventPic.onClick(FaceView.map_FaceEmoji.get(msg).toString());
+            });
+            viewOtTouch.setOnClickListener(o -> {
+                eventPic.onClick(FaceView.map_FaceEmoji.get(msg).toString());
+            });
         }
+
+        menus.add(new OptionMenu("转发"));
+        menus.add(new OptionMenu("删除"));
     }
 
     /**
@@ -1312,21 +1332,21 @@ public class ChatItemView extends LinearLayout {
 
 
     public void setReadDestroy(MsgAllBean bean) {
-        if(bean==null||bean.getMsgCancel()==null||bean.getMsgCancel().getNote()==null){
+        if (bean == null || bean.getMsgCancel() == null || bean.getMsgCancel().getNote() == null) {
             return;
         }
 
-        String str=bean.getMsgCancel().getNote();
+        String str = bean.getMsgCancel().getNote();
         txtReadDestroy.setText(str);
-        if(!str.contains("\"")){
+        if (!str.contains("\"")) {
             return;
         }
-        int start=str.indexOf("\"");
-        int end=str.lastIndexOf("\"");
-        if(start==end){
+        int start = str.indexOf("\"");
+        int end = str.lastIndexOf("\"");
+        if (start == end) {
             return;
         }
-        start+=1;
+        start += 1;
         SpannableStringBuilder strSpan = new SpannableStringBuilder();
         strSpan.append(str);
         ClickableSpan clickableSpan = new ClickableSpan() {
@@ -1345,7 +1365,7 @@ public class ChatItemView extends LinearLayout {
             @Override
             public void updateDrawState(@NonNull TextPaint ds) {
                 super.updateDrawState(ds);
-                ds.setColor(getResources().getColor( R.color.blue_600));
+                ds.setColor(getResources().getColor(R.color.blue_600));
                 ds.setUnderlineText(false);
             }
         };
