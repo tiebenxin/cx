@@ -96,7 +96,7 @@ public class MsgAction {
         });
     }
 
-    public void groupRemove(final String id, List<UserInfo> members, final CallBack<ReturnBean> callback) {
+    public void groupRemove(final String id, List<UserInfo> members, final CallBack<ReturnBean<GroupJoinBean>> callback) {
         List<Long> ulist = new ArrayList<>();
         String rname = "";
         for (UserInfo userInfo : members) {
@@ -104,9 +104,9 @@ public class MsgAction {
             rname += "<font id='" + userInfo.getUid() + "'>" + userInfo.getName() + "</font>";
         }
         final String finalRname = rname;
-        NetUtil.getNet().exec(server.groupRemove(id, gson.toJson(ulist)), new Callback<ReturnBean>() {
+        NetUtil.getNet().exec(server.groupRemove(id, gson.toJson(ulist)), new Callback<ReturnBean<GroupJoinBean>>() {
             @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+            public void onResponse(Call<ReturnBean<GroupJoinBean>> call, Response<ReturnBean<GroupJoinBean>> response) {
                 callback.onResponse(call, response);
                 if (response.body() == null) {
                     return;
@@ -122,7 +122,7 @@ public class MsgAction {
             }
 
             @Override
-            public void onFailure(Call<ReturnBean> call, Throwable t) {
+            public void onFailure(Call<ReturnBean<GroupJoinBean>> call, Throwable t) {
                 callback.onFailure(call, t);
             }
         });
@@ -143,7 +143,7 @@ public class MsgAction {
 
     }
 
-    public void groupAdd(String id, List<UserInfo> members, String nickname, CallBack<ReturnBean> callback) {
+    public void groupAdd(String id, List<UserInfo> members, String nickname, CallBack<ReturnBean<GroupJoinBean>> callback) {
         List<GroupUserInfo> groupUserInfos = new ArrayList<>();
         for (int i = 0; i < members.size(); i++) {
             GroupUserInfo groupUserInfo = new GroupUserInfo();
