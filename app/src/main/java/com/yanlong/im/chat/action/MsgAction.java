@@ -419,13 +419,23 @@ public class MsgAction {
 
 
     /**
-     * 截屏通知开关
+     * 截屏通知开关-群聊
      * @param gid
      * @param screeshotNotification
      * @param callback
      */
     public void groupScreenShotSwitch(final String gid, int screeshotNotification, Callback<ReturnBean> callback) {
         NetUtil.getNet().exec(server.setScreenShotSwitch(gid, screeshotNotification), callback);
+    }
+
+    /**
+     * 截屏通知开关-私聊
+     * @param friendId
+     * @param screenshot
+     * @param callback
+     */
+    public void singleScreenShotSwitch(final String friendId, int screenshot, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.setSingleScreenShotSwitch(friendId, screenshot), callback);
     }
 
     /**
