@@ -176,13 +176,6 @@ public class FriendMainFragment extends Fragment {
         return fragment;
     }
 
-    /*
-   private MainActivity getActivityMe() {
-        return (MainActivity) getActivity();
-    }
-
-    */
-
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -246,7 +239,7 @@ public class FriendMainFragment extends Fragment {
                         .apply(GlideOptionsUtil.headImageOptions()).into(hd.imgHead);
 
                 hd.txtName.setText(bean.getName4Show());
-                hd.viewLine.setVisibility(View.GONE);
+                hd.viewLine.setVisibility(View.VISIBLE);
                 if (bean.isSystemUser()) {
                     hd.txtName.setTextColor(getResources().getColor(R.color.blue_title));
                     hd.txtTime.setVisibility(View.GONE);
@@ -264,14 +257,13 @@ public class FriendMainFragment extends Fragment {
                     }
                 }
 
-
                 UserInfo lastBean = listData.get(position - 1);
                 if (lastBean != null && lastBean.getTag().equals(bean.getTag()) && position != 1) {
                     hd.viewType.setVisibility(View.GONE);
                 } else {
                     hd.viewType.setVisibility(View.VISIBLE);
                 }
-                if (position == getItemCount() - 1) {
+                if (position == getItemCount() - 2) {
                     hd.viewLine.setVisibility(View.GONE);
                 } else {
                     UserInfo lastbean = listData.get(position + 1);
@@ -289,13 +281,9 @@ public class FriendMainFragment extends Fragment {
                             startActivity(new Intent(getContext(), UserInfoActivity.class)
                                     .putExtra(UserInfoActivity.ID, bean.getUid()));
                         }
-
-
                     }
                 });
             }
-
-
         }
 
         @Override
@@ -329,9 +317,7 @@ public class FriendMainFragment extends Fragment {
                 RCViewHolder holder = new RCViewHolder(getLayoutInflater().inflate(R.layout.item_msg_friend, view, false));
                 return holder;
             }
-
         }
-
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
