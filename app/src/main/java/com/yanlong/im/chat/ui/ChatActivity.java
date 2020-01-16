@@ -1527,7 +1527,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else if (user.getPhoneBindStat() != 1) {//未绑定手机
                 showBindPhoneDialog();
                 return;
-            }else if (user.getPayPwdStat() != 1) {//未设置支付密码
+            } else if (user.getPayPwdStat() != 1) {//未设置支付密码
                 showSettingPswDialog();
                 return;
             }
@@ -1555,7 +1555,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else if (user.getPhoneBindStat() != 1) {//未绑定手机
                 showBindPhoneDialog();
                 return;
-            }else if (user.getPayPwdStat() != 1) {//未设置支付密码
+            } else if (user.getPayPwdStat() != 1) {//未设置支付密码
                 showSettingPswDialog();
                 return;
             }
@@ -3344,6 +3344,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                     }
                                 }
                             } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
+                                UserBean userBean = PayEnvironment.getInstance().getUser();
+                                if (userBean != null && userBean.getRealNameStat() != 1) {//未认证
+                                    showIdentifyDialog();
+                                    return;
+                                }
                                 long tradeId = rb.getTraceId();
                                 if (tradeId == 0 && !TextUtils.isEmpty(rid)) {
                                     try {
@@ -3507,6 +3512,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     holder.viewChatItem.setData6(ts.getOpType(), titleTs, infoTs, typeTs, R.color.transparent, tranType, new ChatItemView.EventRP() {
                         @Override
                         public void onClick(boolean isInvalid, int tranType) {
+                            UserBean userBean = PayEnvironment.getInstance().getUser();
+                            if (userBean != null && userBean.getRealNameStat() != 1) {//未认证
+                                showIdentifyDialog();
+                                return;
+                            }
                             showLoadingDialog();
                             httpGetTransferDetail(ts.getId(), ts.getOpType(), msgbean);
                         }
