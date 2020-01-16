@@ -870,6 +870,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         taskSessionInfo();
         if (!TextUtils.isEmpty(toGid)) {
             taskGroupInfo();
+        }else {
+//            sd
         }
         actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         if (isGroup()) {
