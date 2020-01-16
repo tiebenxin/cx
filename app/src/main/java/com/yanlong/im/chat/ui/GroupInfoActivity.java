@@ -226,7 +226,7 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(GroupInfoActivity.this, CommonSetingActivity.class);
-                intent.putExtra(CommonSetingActivity.TITLE, "我在本群的信息");
+                intent.putExtra(CommonSetingActivity.TITLE, "我在本群的昵称");
                 intent.putExtra(CommonSetingActivity.REMMARK, "设置我在这个群里面的昵称");
                 intent.putExtra(CommonSetingActivity.HINT, "群昵称");
                 intent.putExtra(CommonSetingActivity.SIZE, 16);
