@@ -337,29 +337,21 @@ public class GroupNumbersActivity extends AppActivity {
                     isClickble = 0;
                     return;
                 }
-                isClickble = 0;
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     if (type != TYPE_DEL) {
                         dao.removeGroupMember(gid, listLong);
                     }
                     if (type == TYPE_ADD && response.body().getData() != null) {
-//                        Group group= dao.getGroup4Id(gid);
-//                        if(group!=null){
-//                            if(!group.isAdmin()&&!group.isAdministrators()||group.isAdministrators()&&"1".equals(group.getContactIntimately()+"")){
-//                                //提示情况
-//                                ToastUtil.show("邀请成功,等待群主验证");
-//                            }
-//                        }
-
                         if (response.body().getData().isPending()) {
                             //提示情况
                             ToastUtil.show("邀请成功,等待群主验证");
                         }
                     }
                     MessageManager.getInstance().notifyGroupChange(true);
-
                     finish();
+                } else {
+                    isClickble = 0;
                 }
 
             }
