@@ -143,7 +143,6 @@ public class GroupNumbersActivity extends AppActivity {
     }
 
 
-
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
 
@@ -338,13 +337,13 @@ public class GroupNumbersActivity extends AppActivity {
                     isClickble = 0;
                     return;
                 }
-
+                isClickble = 0;
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     if (type != TYPE_DEL) {
                         dao.removeGroupMember(gid, listLong);
                     }
-                    if (type == TYPE_ADD&&response.body().getData()!=null) {
+                    if (type == TYPE_ADD && response.body().getData() != null) {
 //                        Group group= dao.getGroup4Id(gid);
 //                        if(group!=null){
 //                            if(!group.isAdmin()&&!group.isAdministrators()||group.isAdministrators()&&"1".equals(group.getContactIntimately()+"")){
@@ -368,6 +367,7 @@ public class GroupNumbersActivity extends AppActivity {
             @Override
             public void onFailure(Call<ReturnBean<GroupJoinBean>> call, Throwable t) {
                 super.onFailure(call, t);
+                isClickble = 0;
                 alert.dismiss();
             }
         };
