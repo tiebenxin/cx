@@ -443,9 +443,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 //        LogUtil.getLog().e(TAG, "onDestroy");
         super.onDestroy();
         // 注销监听
-        screenShotListenManager.stopListen();
-        isScreenShotListen = false;
-
+        if(screenShotListenManager!=null){
+            screenShotListenManager.stopListen();
+            isScreenShotListen = false;
+        }
     }
 
 
