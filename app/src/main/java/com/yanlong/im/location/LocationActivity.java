@@ -317,7 +317,7 @@ public class LocationActivity extends AppActivity {
 
             @Override
             public void onMapStatusChangeFinish(MapStatus mapStatus) {
-                LogUtil.getLog().e("=location===onMapStatusChangeFinish==="+GsonUtils.optObject(mapStatus));
+//                LogUtil.getLog().e("=location===onMapStatusChangeFinish==="+GsonUtils.optObject(mapStatus));
                 if (mapStatus != null) {
                     if (zoom == mapStatus.zoom) {
                         if (!isShow && dragging && mapStatus.target != null) {
@@ -699,7 +699,8 @@ public class LocationActivity extends AppActivity {
         searchNeayBy("住宅", latitude, longitude);
         searchNeayBy("餐厅", latitude, longitude);
         searchNeayBy("学校", latitude, longitude);
-//        searchNeayBy("公交", latitude, longitude);
+        searchNeayBy("公交", latitude, longitude);
+        searchNeayBy("地铁", latitude, longitude);
     }
 
     //搜索周边地理位置
