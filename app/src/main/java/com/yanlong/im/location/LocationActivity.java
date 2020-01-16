@@ -13,7 +13,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClientOption;
@@ -26,7 +25,6 @@ import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.model.inner.GeoPoint;
 import com.baidu.mapapi.search.core.PoiInfo;
 import com.baidu.mapapi.search.geocode.GeoCodeOption;
 import com.baidu.mapapi.search.geocode.GeoCodeResult;
@@ -41,13 +39,11 @@ import com.baidu.mapapi.search.poi.PoiIndoorResult;
 import com.baidu.mapapi.search.poi.PoiNearbySearchOption;
 import com.baidu.mapapi.search.poi.PoiResult;
 import com.baidu.mapapi.search.poi.PoiSearch;
-import com.baidu.mapapi.search.poi.PoiSortType;
 import com.baidu.mapapi.search.sug.OnGetSuggestionResultListener;
 import com.baidu.mapapi.search.sug.SuggestionResult;
 import com.baidu.mapapi.search.sug.SuggestionSearch;
 import com.baidu.mapapi.search.sug.SuggestionSearchOption;
 import com.baidu.mapapi.utils.DistanceUtil;
-import com.google.gson.Gson;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.LocationMessage;
@@ -57,7 +53,6 @@ import com.yanlong.im.dialog.MapDialog;
 import com.yanlong.im.listener.BaseListener;
 import com.yanlong.im.utils.DataUtils;
 import com.yanlong.im.view.MaxHeightRecyclerView;
-
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -67,10 +62,10 @@ import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.ClearEditText;
-
 import org.greenrobot.eventbus.EventBus;
-
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -117,7 +112,7 @@ public class LocationActivity extends AppActivity {
     private String addrDesc = "";//
     private MsgAllBean msgAllBean;
     private Boolean dragging = false;// 拖拽中 Dragging  draggableing
-    private float zoom = 18.0f;
+    private float zoom = 18.0f;//缩放稳定判断
 
 
     public static void openActivity(Activity activity, Boolean isShow, MsgAllBean bean) {
@@ -305,9 +300,9 @@ public class LocationActivity extends AppActivity {
             public void onMapStatusChangeStart(MapStatus mapStatus) {
                 dragging = true;
                 if (mapStatus != null) {
-//                    if(!isShow&&zoom==mapStatus.zoom){
-//                        center_location_iv.setVisibility(View.VISIBLE);
-//                    }
+                    if(!isShow&&zoom==mapStatus.zoom){
+                        center_location_iv.setVisibility(View.VISIBLE);
+                    }
                     zoom = mapStatus.zoom;
                 }
             }
@@ -322,19 +317,20 @@ public class LocationActivity extends AppActivity {
 
             @Override
             public void onMapStatusChangeFinish(MapStatus mapStatus) {
-//                LogUtil.getLog().e("=location===onMapStatusChangeFinish==="+GsonUtils.optObject(mapStatus));
+                LogUtil.getLog().e("=location===onMapStatusChangeFinish==="+GsonUtils.optObject(mapStatus));
                 if (mapStatus != null) {
                     if (zoom == mapStatus.zoom) {
-                        if (!isShow && dragging && mapStatus != null && mapStatus.target != null) {
+                        if (!isShow && dragging && mapStatus.target != null) {
 //                            fanSearch(mapStatus.target.latitude, mapStatus.target.longitude);
                             searchNeayBy(mapStatus.target.latitude, mapStatus.target.longitude);
                         }
                     }else {
                         //缩放地图 不做改变
                     }
+//                    zoom = mapStatus.zoom;
                 }
                 dragging = false;
-//                center_location_iv.setVisibility(View.GONE);
+                center_location_iv.setVisibility(View.GONE);
             }
         });
 
@@ -649,7 +645,7 @@ public class LocationActivity extends AppActivity {
             @Override
             public void onGetReverseGeoCodeResult(ReverseGeoCodeResult reverseGeoCodeResult) {
                 //反搜索
-//                LogUtil.getLog().e("===location===反Geo搜索=onGetReverseGeoCodeResult=" + GsonUtils.optObject(reverseGeoCodeResult));
+                LogUtil.getLog().e("===location===反Geo搜索=onGetReverseGeoCodeResult=" + GsonUtils.optObject(reverseGeoCodeResult));
                 if (reverseGeoCodeResult != null && "NO_ERROR".equals(reverseGeoCodeResult.error.name())) {
                     locationList.clear();
                     locationPoiAdapter.position = 0;
@@ -713,6 +709,7 @@ public class LocationActivity extends AppActivity {
             @Override
             public void onGetPoiResult(PoiResult poiResult) {
 //                LogUtil.getLog().e(key + "=location===搜索周边=poiResult=" + GsonUtils.optObject(poiResult));
+                LatLng locationOrangle = new LatLng(latitude, longitude);
                 if (poiResult != null && "NO_ERROR".equals(poiResult.error.name()) && poiResult.getAllPoi() != null) {
                     List<PoiInfo> poiInfoList = poiResult.getAllPoi();
                     for (int i = 0; i < poiInfoList.size(); i++) {
@@ -724,36 +721,23 @@ public class LocationActivity extends AppActivity {
                                     , poiResult.getAllPoi().get(i).getLocation().longitude));
                             locationMessage.setAddress(poiResult.getAllPoi().get(i).getName());
                             locationMessage.setAddressDescribe(poiResult.getAllPoi().get(i).getAddress());
+
+                            LatLng locationOrangleTemp = new LatLng(poiResult.getAllPoi().get(i).getLocation().latitude, poiResult.getAllPoi().get(i).getLocation().longitude);
+                            locationMessage.setDistance(DistanceUtil.getDistance(locationOrangle, locationOrangleTemp));
+
                             locationList.add(locationMessage);
                         }
                     }
 
                 }
 
-//                if (locationList.size() > 0) {
-//                    setLocationBitmap(false, locationList.get(0).getLatitude() / LocationUtils.beishu
-//                            , locationList.get(0).getLongitude() / LocationUtils.beishu);
-//                }
-                LatLng locationOrangle = new LatLng(latitude, longitude);
-                double distance=0;
-                int position=0;
-                for (int i = 0; i < locationList.size(); i++) {
-                    LatLng locationOrangleTemp = new LatLng(locationList.get(i).getLatitude()/LocationUtils.beishu, locationList.get(i).getLongitude()/LocationUtils.beishu);
-                    double distanceTeamp = DistanceUtil.getDistance(locationOrangle, locationOrangleTemp);
-//                    LogUtil.getLog().e("===distanceTeamp+"+distanceTeamp);
-                    if(i==0){
-                        distance=distanceTeamp;
-                    }else {
-                        if(distanceTeamp-distance<0){
-                            distance=distanceTeamp;
-                            position=i;
-                        }
+                Collections.sort(locationList, new Comparator<LocationMessage>() {
+                    @Override
+                    public int compare(LocationMessage o1, LocationMessage o2) {
+                        return (int)(o1.getDistance()-o2.getDistance());
                     }
-                }
-//                LogUtil.getLog().e("===distance="+distance);
-                locationPoiAdapter.position=position;
+                });
                 recyclerview.getAdapter().notifyDataSetChanged();
-                recyclerview.scrollToPosition(position);
             }
 
             @Override

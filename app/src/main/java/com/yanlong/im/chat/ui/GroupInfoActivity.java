@@ -379,12 +379,6 @@ public class GroupInfoActivity extends AppActivity {
 
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void setingReadDestroy(ReadDestroyBean bean) {
-
-    }
-
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -1118,6 +1112,14 @@ public class GroupInfoActivity extends AppActivity {
     public void closeActivityEvent(CloseActivityEvent event) {
         if (event.type.contains("GroupInfoActivity")) {
             finish();
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void setingReadDestroy(ReadDestroyBean bean) {
+        if (bean.gid.equals(gid)) {
+            destroyTime = bean.survivaltime;
+            tvDestroyTime.setText(new ReadDestroyUtil().getDestroyTimeContent(bean.survivaltime));
         }
     }
 }
