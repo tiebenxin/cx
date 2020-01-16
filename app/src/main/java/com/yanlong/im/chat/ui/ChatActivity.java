@@ -2248,7 +2248,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventSnapshot(EventSwitchSnapshot event) {
         if (isGroup()) {
-            if (toGid.equals(event.getGid())) {
+            if (toGid!=null && toGid.equals(event.getGid())) {
                 if (groupInfo != null) {
                     groupInfo.setScreenshotNotification(event.getFlag());
                 }
