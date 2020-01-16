@@ -45,6 +45,8 @@ public class MsgConversionBean {
             return null;
         }
         MsgDao msgDao = new MsgDao();
+        UserInfo userInfo;
+        String name = "";
         //手动处理转换
         MsgAllBean msgAllBean = new MsgAllBean();
         if (isError) {
@@ -112,7 +114,7 @@ public class MsgConversionBean {
         }
 
         //这里需要处理用户信息
-        UserInfo userInfo = DaoUtil.findOne(UserInfo.class, "uid", bean.getFromUid());
+        userInfo = DaoUtil.findOne(UserInfo.class, "uid", bean.getFromUid());
         if (userInfo != null) {//更新用户信息
             //msgAllBean.setFrom_user(userInfo);
         } else {
@@ -238,7 +240,7 @@ public class MsgConversionBean {
                     if (isError) {
                         rbNotice.setMsgType(ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE);
                         String nick = msgDao.getUsername4Show(bean.getGid(), msg.getToUid());
-                        String name = "<font color='#276baa' id='" + msg.getToUid() + "'>" + nick + "</font>";
+                        name = "<font color='#276baa' id='" + msg.getToUid() + "'>" + nick + "</font>";
                         rbNotice.setNote("你领取了\"" + name + "的云红包" + "<div id= '" + bean.getGid() + "'></div>");
                     } else {
 
@@ -291,7 +293,7 @@ public class MsgConversionBean {
                         names += "\"<font value ='1'> 你、</font>\"、";
 
                     } else {
-                        String name = bean.getAcceptBeGroup().getNoticeMessage(i).getNickname();
+                        name = bean.getAcceptBeGroup().getNoticeMessage(i).getNickname();
                         Long uid = bean.getAcceptBeGroup().getNoticeMessage(i).getUid();
 
                         MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(bean.getGid(), uid);
@@ -384,10 +386,10 @@ public class MsgConversionBean {
                 MsgNotice goutNotice = new MsgNotice();
                 goutNotice.setMsgid(msgAllBean.getMsg_id());
                 goutNotice.setMsgType(6);
-                String name = bean.getNickname();
-                UserInfo user = new UserDao().findUserInfo(bean.getFromUid());
-                if (user != null && !TextUtils.isEmpty(user.getMkName())) {
-                    name = user.getMkName();
+                name = bean.getNickname();
+                userInfo = new UserDao().findUserInfo(bean.getFromUid());
+                if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
+                    name = userInfo.getMkName();
                 }
                 if (TextUtils.isEmpty(name)) {
                     name = new MsgDao().getUsername4Show(gid, bean.getFromUid());
@@ -440,6 +442,10 @@ public class MsgConversionBean {
                         MsgNotice screenNotice = new MsgNotice();
                         screenNotice.setMsgid(msgAllBean.getMsg_id());
                         screenNotice.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN);
+                        name = new MsgDao().getUsername4Show(bean.getGid(), bean.getFromUid());
+                        if (TextUtils.isEmpty(name)) {
+                            name = bean.getNickname();
+                        }
                         if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().longValue()) {
                             if (snap) {
                                 screenNotice.setNote("你开启了截屏通知");
@@ -447,7 +453,7 @@ public class MsgConversionBean {
                                 screenNotice.setNote("你关闭了截屏通知");
                             }
                         } else {
-                            String ssName = "<user id='" + bean.getFromUid() + "' gid=" + bean.getGid() + ">" + bean.getNickname() + "</user>";
+                            String ssName = "<user id='" + bean.getFromUid() + "' gid=" + bean.getGid() + ">" + name + "</user>";
                             if (snap) {
                                 screenNotice.setNote("\"" + ssName + "\"开启了截屏通知");
                             } else {
@@ -732,6 +738,9 @@ public class MsgConversionBean {
                     screenNotice.setMsgid(msgAllBean.getMsg_id());
                     screenNotice.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN);
                     name = new MsgDao().getUsername4Show(bean.getGid(), bean.getFromUid());
+                    if (TextUtils.isEmpty(name)) {
+                        name = bean.getNickname();
+                    }
                     if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().longValue()) {
                         if (switchValue == 1) {
                             screenNotice.setNote("你开启了截屏通知");
@@ -765,7 +774,20 @@ public class MsgConversionBean {
                     if (UserAction.getMyId() != null && bean.getFromUid() == UserAction.getMyId().longValue()) {
                         screenNotice.setNote("你截屏了当前聊天信息");
                     } else {
-                        String ssName = "<user id='" + bean.getFromUid() + "' gid=" + bean.getGid() + ">" + bean.getNickname() + "</user>";
+                        if (!TextUtils.isEmpty(bean.getGid())) {
+                            name = new MsgDao().getUsername4Show(bean.getGid(), bean.getFromUid());
+                        } else {
+                            if (userInfo == null) {
+                                userInfo = new UserDao().findUserInfo(bean.getFromUid());
+                                if (!TextUtils.isEmpty(userInfo.getMkName())) {
+                                    name = userInfo.getMkName();
+                                }
+                            }
+                        }
+                        if (TextUtils.isEmpty(name)) {
+                            name = bean.getNickname();
+                        }
+                        String ssName = "<user id='" + bean.getFromUid() + "' gid=" + bean.getGid() + ">" + name + "</user>";
                         screenNotice.setNote("\"" + ssName + "\"已截屏当前聊天信息");
                     }
                     msgAllBean.setMsgNotice(screenNotice);
