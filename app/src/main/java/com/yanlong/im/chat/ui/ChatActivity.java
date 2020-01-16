@@ -5636,7 +5636,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         screenShotListenManager.setListener(
                 new ScreenShotListenManager.OnScreenShotListener() {
                     public void onShot(String imagePath) {
-                        if (isScreenShotListen) {
+                        if (checkSnapshotPower()) {
                             SocketData.sendSnapshotMsg(toUId, toGid);
                             MsgNotice notice = SocketData.createMsgNoticeOfSnapshot(SocketData.getUUID());
                             sendMessage(notice, ChatEnum.EMessageType.NOTICE, false);
