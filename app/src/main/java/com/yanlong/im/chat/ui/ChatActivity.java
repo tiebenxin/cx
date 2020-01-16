@@ -4797,7 +4797,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             }
                         }
                     };
-                    if (ChatActivity.this == null || ChatActivity.this.isDestroyed() || ChatActivity.this.isFinishing()){
+                    if (!isActivityValid()) {
                         return;
                     }
                     if (isGroup()) {
@@ -4865,7 +4865,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {
-                    if (ChatActivity.this == null || ChatActivity.this.isDestroyed() || ChatActivity.this.isFinishing()){
+                    if (!isActivityValid()) {
                         return;
                     }
                     SignatureBean sign = response.body().getData();

@@ -36,9 +36,8 @@ public class AppActivity extends AppCompatActivity {
     public Context context;
     public LayoutInflater inflater;
     public AlertWait alert;
-    public Boolean isFirstRequestPermissionsResult=true;//第一次请求权限返回
+    public Boolean isFirstRequestPermissionsResult = true;//第一次请求权限返回
     DialogLoadingProgress payWaitDialog;
-
 
 
     @Override
@@ -49,7 +48,7 @@ public class AppActivity extends AppCompatActivity {
         alert = new AlertWait(this);
         super.onCreate(savedInstanceState);
         //友盟Push后台进行日活统计及多维度推送的必调用方法
-        if(savedInstanceState!=null){
+        if (savedInstanceState != null) {
             // 处理APP在后台，关闭某个权限后需要重启APP
             EventBus.getDefault().register(this);
             EventBus.getDefault().post(new EventFactory.RestartAppEvent());
@@ -73,7 +72,7 @@ public class AppActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         alert.dismiss4distory();
-        if(EventBus.getDefault().isRegistered(this)){
+        if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
     }
@@ -142,8 +141,8 @@ public class AppActivity extends AppCompatActivity {
 
     /**
      * 新增->强制弹出软键盘
-     * @param view
-     * 备注：延迟任务解决之前无法弹出问题
+     *
+     * @param view 备注：延迟任务解决之前无法弹出问题
      */
     public void showSoftKeyword(final View view) {
         if (view == null) {
@@ -174,11 +173,11 @@ public class AppActivity extends AppCompatActivity {
                     }
                 }
 //                ToastUtil.show(this,"请打开定位权限");
-                LogUtil.getLog().e("=申请定位权限返回=location=hasPermission=s="+hasPermissions);
+                LogUtil.getLog().e("=申请定位权限返回=location=hasPermission=s=" + hasPermissions);
 
-                if(!hasPermissions && !isFirstRequestPermissionsResult){
-                    AlertYesNo alertYesNo=new AlertYesNo();
-                    alertYesNo.init(this, "提示",  "您拒绝了定位权限，打开定位权限吗？", "确定", "取消", new AlertYesNo.Event() {
+                if (!hasPermissions && !isFirstRequestPermissionsResult) {
+                    AlertYesNo alertYesNo = new AlertYesNo();
+                    alertYesNo.init(this, "提示", "您拒绝了定位权限，打开定位权限吗？", "确定", "取消", new AlertYesNo.Event() {
                         @Override
                         public void onON() {
                         }
@@ -193,7 +192,7 @@ public class AppActivity extends AppCompatActivity {
                     });
                     alertYesNo.show();
                 }
-                isFirstRequestPermissionsResult=false;
+                isFirstRequestPermissionsResult = false;
                 break;
             }
         }
@@ -210,5 +209,13 @@ public class AppActivity extends AppCompatActivity {
         if (payWaitDialog != null) {
             payWaitDialog.dismiss();
         }
+    }
+
+    //activity 是否有效
+    public boolean isActivityValid() {
+        if (this == null || this.isDestroyed() || this.isFinishing()) {
+            return false;
+        }
+        return true;
     }
 }
