@@ -117,7 +117,7 @@ public class CommonSetingActivity extends AppActivity {
                 String content = mEdContent.getText().toString();
                 //群昵称可以设置空字符串(取默认名)、用户名设置和备注不可以用空字符串
                 if(!TextUtils.isEmpty(mHeadView.getActionbar().getTitle())){
-                    if(!mHeadView.getActionbar().getTitle().equals("我在本群的信息")){
+                    if(!mHeadView.getActionbar().getTitle().equals("我在本群的昵称")){
                         if (!TextUtils.isEmpty(content) && TextUtils.isEmpty(content.trim())) {
                             ToastUtil.show(CommonSetingActivity.this, "不能用空字符");
                             return;

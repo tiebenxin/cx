@@ -151,7 +151,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerInParent="true"
-                    android:src="@mipmap/activity_video_edit_pan" />
+                    android:src="@mipmap/img_video_edit_pan" />
             </RelativeLayout>
             <RelativeLayout
                 android:id="@+id/rl_icon"
@@ -163,7 +163,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerInParent="true"
-                    android:src="@mipmap/activity_video_edit_face" />
+                    android:src="@mipmap/img_video_edit_face" />
             </RelativeLayout>
             <RelativeLayout
                 android:id="@+id/rl_text"
@@ -174,7 +174,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerInParent="true"
-                    android:src="@mipmap/activity_video_edit_text" />
+                    android:src="@mipmap/img_video_edit_text" />
             </RelativeLayout>
             <RelativeLayout
                 android:visibility="gone"
@@ -198,7 +198,7 @@
                     android:layout_width="26dp"
                     android:layout_height="23dp"
                     android:layout_centerInParent="true"
-                    android:src="@mipmap/activity_video_edit_cut" />
+                    android:src="@mipmap/img_video_edit_cut" />
             </RelativeLayout>
             <RelativeLayout
                 android:id="@+id/rl_cut_time"

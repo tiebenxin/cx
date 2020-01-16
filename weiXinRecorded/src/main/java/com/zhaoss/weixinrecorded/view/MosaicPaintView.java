@@ -610,32 +610,16 @@ public class MosaicPaintView extends View {
 //        if (bmBaseLayer != null) {
 //            canvas.drawBitmap(bmBaseLayer, null, mImageRect, null);
 //        }
+        if (bmMosaicLayer != null) {
+            canvas.drawBitmap(bmMosaicLayer, null, mImageRect, null);
+        }
 
-        if (etypeMode == EtypeMode.GRID) {
+        if (mTouchRect != null) {
+            canvas.drawRect(mTouchRect, mPaint);
+        }
 
-            if (mBufferBitmap != null) {
-                canvas.drawBitmap(mBufferBitmap, 0, 0, null);
-            }
-
-            if (bmMosaicLayer != null) {
-                canvas.drawBitmap(bmMosaicLayer, null, mImageRect, null);
-            }
-
-            if (mTouchRect != null) {
-                canvas.drawRect(mTouchRect, mPaint);
-            }
-        } else {
-            if (bmMosaicLayer != null) {
-                canvas.drawBitmap(bmMosaicLayer, null, mImageRect, null);
-            }
-
-            if (mTouchRect != null) {
-                canvas.drawRect(mTouchRect, mPaint);
-            }
-
-            if (mBufferBitmap != null) {
-                canvas.drawBitmap(mBufferBitmap, 0, 0, null);
-            }
+        if (mBufferBitmap != null) {
+            canvas.drawBitmap(mBufferBitmap, 0, 0, null);
         }
 
     }

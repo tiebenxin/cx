@@ -800,8 +800,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(), bean.getName());
             sendMessage(message, ChatEnum.EMessageType.SHIPPED_EXPRESSION);
 
-        } else if (FaceView.face_emoji.equals(bean.getGroup())) {
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), bean.getResId());
+        } else if (FaceView.face_emoji.equals(bean.getGroup()) || FaceView.face_lately_emoji.equals(bean.getGroup())) {
+            Bitmap bitmap = null;
+            if (FaceView.map_FaceEmoji != null) {
+                bitmap = BitmapFactory.decodeResource(getResources(), Integer.parseInt(FaceView.map_FaceEmoji.get(bean.getName()).toString()));
+            } else {
+                bitmap = BitmapFactory.decodeResource(getResources(), bean.getResId());
+            }
             bitmap = Bitmap.createScaledBitmap(bitmap, ExpressionUtil.dip2px(this, ExpressionUtil.DEFAULT_SIZE),
                     ExpressionUtil.dip2px(this, ExpressionUtil.DEFAULT_SIZE), true);
             ImageSpan imageSpan = new ImageSpan(ChatActivity.this, bitmap);
@@ -1350,13 +1355,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (layoutManager != null) {
                         //获取可视的第一个view
                         lastPosition = layoutManager.findLastVisibleItemPosition();
+                        int first = layoutManager.findFirstCompletelyVisibleItemPosition();
+                        checkScrollFirst(first);
                         View topView = layoutManager.getChildAt(lastPosition);
                         if (topView != null) {
                             //获取与该view的底部的偏移量
                             lastOffset = topView.getBottom();
                         }
+                        if (currentScrollPosition > 0) {
+                            currentScrollPosition = -1;
+                        }
                         saveScrollPosition();
-//                        LogUtil.getLog().d("a=", TAG + "当前滑动位置：lastPosition=" + lastPosition);
+                        LogUtil.getLog().d("a=", TAG + "当前滑动位置：size = " + msgListData.size() + "--lastPosition=" + lastPosition + "--firstPosition=" + first);
                     }
                 }
             }
@@ -1442,6 +1452,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         initExtendFunctionView();
 
 
+    }
+
+    private void checkScrollFirst(int first) {
+        if (unreadCount > 0 && msgListData != null) {
+            int size = msgListData.size();
+            if (first == size - unreadCount) {
+                viewNewMessage.setVisible(false);
+            }
+        }
     }
 
     private void toLocation() {
@@ -1715,12 +1734,23 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void scrollChatToPosition(int position) {
         mtListView.getListView().scrollToPosition(position);
         currentScrollPosition = position;
-//        System.out.println(TAG + "--scrollChatToPosition--totalSize =" + msgListData.size() + "--currentScrollPosition=" + currentScrollPosition);
+
+        View topView = mtListView.getLayoutManager().getChildAt(currentScrollPosition);
+        if (topView != null) {
+            //获取与该view的底部的偏移量
+            lastOffset = topView.getBottom();
+        }
+//        System.out.println(TAG + "--scrollChatToPosition--totalSize =" + msgListData.size() + "--currentScrollPosition=" + currentScrollPosition + "--lastOffset=" + lastOffset);
     }
 
     private void scrollChatToPositionWithOffset(int position, int offset) {
         ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).scrollToPositionWithOffset(position, offset);
         currentScrollPosition = position;
+        View topView = mtListView.getLayoutManager().getChildAt(currentScrollPosition);
+        if (topView != null) {
+            //获取与该view的底部的偏移量
+            lastOffset = topView.getBottom();
+        }
 //        System.out.println(TAG + "--scrollChatToPositionWithOffset--totalSize =" + msgListData.size() + "--currentScrollPosition=" + currentScrollPosition);
     }
 
@@ -2133,7 +2163,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     } else {
                         if (currentScrollPosition > 0) {
-                            scrollChatToPosition(currentScrollPosition);
+                            scrollChatToPositionWithOffset(currentScrollPosition, lastPosition);
                         } else {
                             scrollChatToPosition(length);
                         }
@@ -4515,7 +4545,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (finalTime > 0) {
                             list = msgAction.getMsg4User(toGid, toUId, null, finalLength);
                         } else {
-                            list = msgAction.getMsg4User(toGid, toUId, null, unreadCount + 20);
+                            if (unreadCount < 80) {
+                                list = msgAction.getMsg4User(toGid, toUId, null, unreadCount + 80);
+                            } else {
+                                list = msgAction.getMsg4User(toGid, toUId, null, unreadCount + 20);
+                            }
                         }
                         taskMkName(list);
                         return list;

@@ -281,6 +281,7 @@ public class SocketData {
     public static void msgSave4MeFail(MsgBean.AckMessage bean) {
         //普通消息
         MsgBean.UniversalMessage.Builder msg = SendList.findMsgById(bean.getRequestId());
+        //移除重发列队
         SendList.removeSendListJust(bean.getRequestId());
         if (msg != null && msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
             //存库处理
@@ -307,11 +308,6 @@ public class SocketData {
 
             msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
             MessageManager.getInstance().setMessageChange(true);
-
-            //移除重发列队
-            SendList.removeSendListJust(bean.getRequestId());
-
-
         }
     }
 

@@ -390,7 +390,9 @@ public class UserInfoActivity extends AppActivity {
         mIsAdmin = intent.getBooleanExtra(IS_ADMINS, false);
         taskFindExist();
         taskUserInfo(id);
-        getSingleMemberInfo();
+        if (!TextUtils.isEmpty(gid)) {
+            getSingleMemberInfo();
+        }
     }
 
     @Override

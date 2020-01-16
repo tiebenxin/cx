@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +20,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
@@ -51,6 +56,7 @@ public class AlertForward {
     private MultiImageView imgHead;
     private TextView txtName;
     private ImageView ivImage;
+    private ImageView ivFaceImage;
     private TextView txtMsg;
     private EditText edContent;
     private LinearLayout viewNo;
@@ -65,6 +71,7 @@ public class AlertForward {
         imgHead = rootView.findViewById(R.id.img_head);
         txtName = rootView.findViewById(R.id.txt_name);
         ivImage = rootView.findViewById(R.id.iv_image);
+        ivFaceImage = rootView.findViewById(R.id.iv_face_image);
         txtMsg = rootView.findViewById(R.id.txt_msg);
         edContent = rootView.findViewById(R.id.ed_content);
         viewNo = rootView.findViewById(R.id.view_no);
@@ -72,7 +79,6 @@ public class AlertForward {
         btnOk = rootView.findViewById(R.id.btn_ok);
         recyclerview = rootView.findViewById(R.id.recyclerview);
     }
-
 
     //自动生成的控件事件
     private void initEvent() {
@@ -87,9 +93,7 @@ public class AlertForward {
 
             }
         });
-
     }
-
 
     //自动生成的控件事件
     private void initEvent(int msgType, String head, String name, String txt, String imgurl, String btnText, String gid) {
@@ -129,13 +133,25 @@ public class AlertForward {
         }
 
         if (StringUtil.isNotNull(imgurl)) {
-            ivImage.setVisibility(View.VISIBLE);
             if (msgType == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+                ivImage.setVisibility(View.GONE);
+                ivFaceImage.setVisibility(View.VISIBLE);
                 if (FaceView.map_FaceEmoji != null && FaceView.map_FaceEmoji.get(imgurl) != null) {
-                    Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), Integer.parseInt(FaceView.map_FaceEmoji.get(imgurl).toString()));
-                    ivImage.setImageBitmap(bitmap);
+                    Glide.with(context).load(Integer.parseInt(FaceView.map_FaceEmoji.get(imgurl).toString())).listener(new RequestListener() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                            return false;
+                        }
+                    }).into(ivFaceImage);
                 }
             } else {
+                ivImage.setVisibility(View.VISIBLE);
+                ivFaceImage.setVisibility(View.GONE);
                 Glide.with(context).load(imgurl).into(ivImage);
             }
         } else {
@@ -156,9 +172,7 @@ public class AlertForward {
                 dismiss();
             }
         });
-
     }
-
 
     public void dismiss() {
         alertDialog.dismiss();

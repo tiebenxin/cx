@@ -232,7 +232,7 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(GroupInfoActivity.this, CommonSetingActivity.class);
-                intent.putExtra(CommonSetingActivity.TITLE, "我在本群的信息");
+                intent.putExtra(CommonSetingActivity.TITLE, "我在本群的昵称");
                 intent.putExtra(CommonSetingActivity.REMMARK, "设置我在这个群里面的昵称");
                 intent.putExtra(CommonSetingActivity.HINT, "群昵称");
                 intent.putExtra(CommonSetingActivity.SIZE, 16);
@@ -384,12 +384,6 @@ public class GroupInfoActivity extends AppActivity {
         });
 
     }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void setingReadDestroy(ReadDestroyBean bean) {
-
-    }
-
 
     @Override
     protected void onResume() {
@@ -1195,6 +1189,14 @@ public class GroupInfoActivity extends AppActivity {
     public void closeActivityEvent(CloseActivityEvent event) {
         if (event.type.contains("GroupInfoActivity")) {
             finish();
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void setingReadDestroy(ReadDestroyBean bean) {
+        if (bean.gid.equals(gid)) {
+            destroyTime = bean.survivaltime;
+            tvDestroyTime.setText(new ReadDestroyUtil().getDestroyTimeContent(bean.survivaltime));
         }
     }
 
