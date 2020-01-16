@@ -204,7 +204,6 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.ScreenShotListenManager;
-import net.cb.cb.library.utils.ScreenUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.StringUtil;
@@ -401,6 +400,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             checkHasEnvelopeSendFailed();
         }
         isScreenShotListen = checkSnapshotPower();
+        if(isScreenShotListen){
+            initScreenShotListener();
+        }
     }
 
 
@@ -1435,7 +1437,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             viewNewMessage.setVisible(false);
             unreadCount = 0;
         });
-        registerScreenShotListener();
         initExtendFunctionView();
 
 
@@ -2252,9 +2253,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (groupInfo != null) {
                     groupInfo.setScreenshotNotification(event.getFlag());
                 }
-                isScreenShotListen = !isScreenShotListen;
-                if (event.getFlag() == 1 && !isScreenShotListen) {
-                    registerScreenShotListener();
+                if (event.getFlag() == 1) {
+                    isScreenShotListen = true;
+                    initScreenShotListener();
+                }else {
+                    isScreenShotListen = false;
+                    if(screenShotListenManager!=null){
+                        screenShotListenManager.stopListen();
+                    }
                 }
             }
         } else {
@@ -2262,9 +2268,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (mFinfo != null) {
                     mFinfo.setScreenshotNotification(event.getFlag());
                 }
-                isScreenShotListen = !isScreenShotListen;
-                if (event.getFlag() == 1 && !isScreenShotListen) {
-                    registerScreenShotListener();
+                if (event.getFlag() == 1) {
+                    isScreenShotListen = true;
+                    initScreenShotListener();
+                }else {
+                    isScreenShotListen = false;
+                    if(screenShotListenManager!=null){
+                        screenShotListenManager.stopListen();
+                    }
                 }
             }
         }
@@ -5658,7 +5669,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     /**
      * 注册截屏监听
      */
-    private void registerScreenShotListener() {
+    private void initScreenShotListener() {
+        if(screenShotListenManager!=null){
+            return;
+        }
         screenShotListenManager = ScreenShotListenManager.newInstance(ChatActivity.this);
         screenShotListenManager.setListener(
                 new ScreenShotListenManager.OnScreenShotListener() {
