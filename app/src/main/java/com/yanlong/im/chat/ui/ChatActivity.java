@@ -456,7 +456,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void initViewNewMsg() {
-        if (unreadCount >= MIN_UNREAD_COUNT) {
+        if (unreadCount >= MIN_UNREAD_COUNT && unreadCount < 80 * 4) {
             viewNewMessage.setVisible(true);
             viewNewMessage.setCount(unreadCount);
             mAdapter.setUnreadCount(unreadCount);
@@ -4480,8 +4480,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         } else {
                             if (unreadCount < 80) {
                                 list = msgAction.getMsg4User(toGid, toUId, null, unreadCount + 80);
-                            } else {
-                                list = msgAction.getMsg4User(toGid, toUId, null, unreadCount + 20);
+                            } else if (unreadCount > 80 * 4) {
+                                list = msgAction.getMsg4User(toGid, toUId, null, 80);
                             }
                         }
                         taskMkName(list);
@@ -4797,6 +4797,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             }
                         }
                     };
+                    if (ChatActivity.this == null || ChatActivity.this.isDestroyed() || ChatActivity.this.isFinishing()){
+                        return;
+                    }
                     if (isGroup()) {
                         UserInfo minfo = UserAction.getMyInfo();
                         JrmfRpClient.openGroupRp(ChatActivity.this, "" + minfo.getUid(), token,
@@ -4862,18 +4865,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {
+                    if (ChatActivity.this == null || ChatActivity.this.isDestroyed() || ChatActivity.this.isFinishing()){
+                        return;
+                    }
                     SignatureBean sign = response.body().getData();
                     String token = sign.getSign();
-
-
-                    // if (isGroup()) {
                     UserInfo minfo = UserAction.getMyInfo();
                     JrmfRpClient.openRpDetail(ChatActivity.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead());
-                   /* } else {
-                        ToastUtil.show(getContext(), "单人没有红包详情");
-
-                    }*/
-
                 }
             }
         });
