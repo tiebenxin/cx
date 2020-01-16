@@ -83,6 +83,7 @@ import com.hm.cxpay.utils.UIUtils;
 import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.chat.MsgTagHandler;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
+import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.jrmf360.rplib.JrmfRpClient;
@@ -2243,6 +2244,32 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventSnapshot(EventSwitchSnapshot event) {
+        if (isGroup()) {
+            if (toGid.equals(event.getGid())) {
+                if (groupInfo != null) {
+                    groupInfo.setScreenshotNotification(event.getFlag());
+                }
+                isScreenShotListen = !isScreenShotListen;
+                if (event.getFlag() == 1 && !isScreenShotListen) {
+                    registerScreenShotListener();
+                }
+            }
+        } else {
+            if (toUId != null && toUId.longValue() == event.getUid()) {
+                if (mFinfo != null) {
+                    mFinfo.setScreenshotNotification(event.getFlag());
+                }
+                isScreenShotListen = !isScreenShotListen;
+                if (event.getFlag() == 1 && !isScreenShotListen) {
+                    registerScreenShotListener();
+                }
+            }
+        }
+    }
+
 
     /**
      * 保存经常使用表情
