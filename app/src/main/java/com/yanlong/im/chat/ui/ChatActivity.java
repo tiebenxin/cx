@@ -429,7 +429,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             MessageManager.getInstance().setMessageChange(true);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
         }
-        isScreenShotListen = false;
+        // 注销监听
+        if(screenShotListenManager!=null){
+            screenShotListenManager.stopListen();
+            isScreenShotListen = false;
+        }
     }
 
     @Override
@@ -442,11 +446,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         EventBus.getDefault().unregister(this);
 //        LogUtil.getLog().e(TAG, "onDestroy");
         super.onDestroy();
-        // 注销监听
-        if(screenShotListenManager!=null){
-            screenShotListenManager.stopListen();
-            isScreenShotListen = false;
-        }
     }
 
 
@@ -5672,6 +5671,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void initScreenShotListener() {
         if(screenShotListenManager!=null){
+            screenShotListenManager.startListen();
             return;
         }
         screenShotListenManager = ScreenShotListenManager.newInstance(ChatActivity.this);
