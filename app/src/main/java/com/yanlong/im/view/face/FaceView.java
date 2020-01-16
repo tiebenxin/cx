@@ -113,6 +113,10 @@ public class FaceView extends RelativeLayout {
      */
     public static String face_emoji = "emoji";
     /**
+     * 最近使用emoji表情组
+     */
+    public static String face_lately_emoji = "lately_emoji";
+    /**
      * 动态动漫组
      */
     public static String face_animo = "animo";
@@ -584,12 +588,19 @@ public class FaceView extends RelativeLayout {
     public void addOftenUseFace(FaceBean faceBean) {
         if (oftenUseBeans != null && faceBean != null && face_emoji.equals(faceBean.getGroup())) {
             for (FaceBean bean : oftenUseBeans) {
-                if (bean.getResId() == faceBean.getResId()) {
+                if (bean.getName().equals(faceBean.getName())) {
                     oftenUseBeans.remove(bean);
                     break;
                 }
             }
-            oftenUseBeans.add(0, faceBean);
+            FaceBean bean = new FaceBean();
+            bean.setGroup(face_lately_emoji);
+            bean.setServerPath(faceBean.getServerPath());
+            bean.setPath(faceBean.getPath());
+            bean.setCheck(faceBean.isCheck());
+            bean.setName(faceBean.getName());
+            bean.setResId(faceBean.getResId());
+            oftenUseBeans.add(0, bean);
             if (oftenUseBeans.size() >= OFTEN_USE_MAX) {
                 tempBeans.clear();
                 tempBeans.addAll(oftenUseBeans.subList(0, OFTEN_USE_MAX));

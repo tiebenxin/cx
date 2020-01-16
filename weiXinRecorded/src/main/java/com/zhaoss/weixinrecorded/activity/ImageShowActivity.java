@@ -101,11 +101,11 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         binding.tvFinishVideo.setOnClickListener(this);
         binding.rlClose.setOnClickListener(this);
         binding.ivShowDelete.setOnClickListener(this);
-        binding.rlPen.setOnClickListener(this);
+        binding.rbPen.setOnClickListener(this);
         binding.rlBack.setOnClickListener(this);
-        binding.rlText.setOnClickListener(this);
-        binding.rlTextCut.setOnClickListener(this);
-        binding.rlMosaic.setOnClickListener(this);
+        binding.rbText.setOnClickListener(this);
+        binding.rbCut.setOnClickListener(this);
+        binding.rbMosaic.setOnClickListener(this);
         binding.textureViewCut.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
@@ -165,7 +165,6 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         binding.etTag.setText("");
         binding.tvTag.setText("");
     }
-
 
     private Bitmap loadBitmapFromView(View v) {
         if (binding.imgShowCut.getVisibility() == View.VISIBLE) {
@@ -327,9 +326,6 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        if(ViewUtils.isFastDoubleClick()){
-            return;
-        }
         if(v.getId() == R.id.tv_finish){// 文字输入完成
             if (null != binding.etTag.getText() && binding.etTag.getText().toString().length() > 0) {
                 addTextToWindow();
@@ -355,8 +351,9 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             intent.putExtra("showPath", "");
             setResult(RESULT_OK, intent);
             finish();
-        }else if(v.getId() == R.id.rl_pen){// 画笔
+        }else if(v.getId() == R.id.rb_pen){// 画笔
             binding.mpvView.setEtypeMode(MosaicPaintView.EtypeMode.TUYA);
+            binding.imgShowCut.setVisibility(View.GONE);
             if (binding.llColor.getVisibility() == View.VISIBLE) {
                 binding.llColor.setVisibility(View.INVISIBLE);
             } else {
@@ -370,22 +367,25 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
                     binding.mpvView.undo();
                 }
             }
-        }else if(v.getId() == R.id.rl_text){// 輸入文字
+        }else if(v.getId() == R.id.rb_text){// 輸入文字
+            binding.llColor.setVisibility(View.INVISIBLE);
+            binding.imgShowCut.setVisibility(View.GONE);
             binding.rlEditText.setVisibility(View.VISIBLE);
             showSoftInputFromWindow(binding.etTag);
             startAnim(binding.rlEditText.getY(), 0, null);
 
-        }else if(v.getId() == R.id.rl_text_cut){// 裁剪
+        }else if(v.getId() == R.id.rb_cut){// 裁剪
             binding.llColor.setVisibility(View.INVISIBLE);
             if (binding.imgShowCut.getVisibility() == View.VISIBLE) {
                 binding.imgShowCut.setVisibility(View.GONE);
             } else {
                 binding.imgShowCut.setVisibility(View.VISIBLE);
             }
-        }else if(v.getId() == R.id.rl_mosaic){// 马赛克
-            binding.mpvView.setVisibility(View.VISIBLE);
+        }else if(v.getId() == R.id.rb_mosaic){// 马赛克
             binding.mpvView.setEtypeMode(MosaicPaintView.EtypeMode.GRID);
-
+            binding.llColor.setVisibility(View.INVISIBLE);
+            binding.imgShowCut.setVisibility(View.GONE);
+            binding.mpvView.setVisibility(View.VISIBLE);
             if (!TextUtils.isEmpty(mPath)) {
                 binding.imgShow.setDrawingCacheEnabled(true);
                 Bitmap bitmap = Bitmap.createBitmap(binding.imgShow.getDrawingCache());

@@ -38,7 +38,7 @@
             <ImageView
                 android:layout_width="17dp"
                 android:layout_height="29dp"
-                android:background="@mipmap/activity_video_shine"/>
+                android:background="@mipmap/img_video_shine"/>
         </RelativeLayout>
 
         <RelativeLayout
@@ -51,7 +51,7 @@
             <ImageView
                 android:layout_width="30dp"
                 android:layout_height="24dp"
-                android:background="@mipmap/activity_video_swich"/>
+                android:background="@mipmap/img_video_swich"/>
         </RelativeLayout>
     </RelativeLayout>
 
@@ -75,7 +75,7 @@
             android:layout_centerVertical="true"
             android:scaleType="fitXY"
             android:visibility="invisible"
-            android:background="@mipmap/activity_video_back_round"/>
+            android:background="@mipmap/img_video_back_round"/>
         <ImageView
             android:id="@+id/iv_next"
             android:layout_width="48dp"
@@ -84,7 +84,7 @@
             android:layout_marginRight="39dp"
             android:layout_alignParentRight="true"
             android:visibility="invisible"
-            android:background="@mipmap/activity_video_sure"/>
+            android:background="@mipmap/img_video_sure"/>
     </RelativeLayout>
 
     <TextView
@@ -149,7 +149,7 @@
             android:layout_width="21dp"
             android:layout_height="13dp"
             android:scaleType="fitXY"
-            android:background="@mipmap/activity_video_back"/>
+            android:background="@mipmap/img_video_back"/>
     </RelativeLayout>
 
 </RelativeLayout>

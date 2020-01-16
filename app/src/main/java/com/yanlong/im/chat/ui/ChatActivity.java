@@ -770,8 +770,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(), bean.getName());
             sendMessage(message, ChatEnum.EMessageType.SHIPPED_EXPRESSION);
 
-        } else if (FaceView.face_emoji.equals(bean.getGroup())) {
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), bean.getResId());
+        } else if (FaceView.face_emoji.equals(bean.getGroup()) || FaceView.face_lately_emoji.equals(bean.getGroup())) {
+            Bitmap bitmap = null;
+            if (FaceView.map_FaceEmoji != null) {
+                bitmap = BitmapFactory.decodeResource(getResources(), Integer.parseInt(FaceView.map_FaceEmoji.get(bean.getName()).toString()));
+            } else {
+                bitmap = BitmapFactory.decodeResource(getResources(), bean.getResId());
+            }
             bitmap = Bitmap.createScaledBitmap(bitmap, ExpressionUtil.dip2px(this, ExpressionUtil.DEFAULT_SIZE),
                     ExpressionUtil.dip2px(this, ExpressionUtil.DEFAULT_SIZE), true);
             ImageSpan imageSpan = new ImageSpan(ChatActivity.this, bitmap);

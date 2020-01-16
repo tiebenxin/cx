@@ -23,114 +23,121 @@ import java.util.ArrayList;
 
 /**
  * 表情列表适配器
- * 
- * @Description TODO
+ *
  * @author CodeApe
  * @version 1.0
+ * @Description TODO
  * @date 2013-11-16
  * @Copyright: Copyright (c) 2013 Shenzhen Tentinet Technology Co., Ltd. Inc.
- *             All rights reserved.
- * 
+ * All rights reserved.
  */
 public class FaceAdapter extends BaseAdapter {
 
-	/** 上下文环境 */
-	private Context context;
-	/** 表情属性列表 */
-	private ArrayList<FaceBean> list_FaceBeans;
+    /**
+     * 上下文环境
+     */
+    private Context context;
+    /**
+     * 表情属性列表
+     */
+    private ArrayList<FaceBean> list_FaceBeans;
 
-	public FaceAdapter(Context context, ArrayList<FaceBean> list_FaceBeans) {
-		this.context = context;
-		this.list_FaceBeans = list_FaceBeans;
+    public FaceAdapter(Context context, ArrayList<FaceBean> list_FaceBeans) {
+        this.context = context;
+        this.list_FaceBeans = list_FaceBeans;
 
-	}
+    }
 
-	@Override
-	public int getCount() {
-		return list_FaceBeans.size();
-	}
+    @Override
+    public int getCount() {
+        return list_FaceBeans.size();
+    }
 
-	@Override
-	public Object getItem(int position) {
-		return list_FaceBeans.get(position);
-	}
+    @Override
+    public Object getItem(int position) {
+        return list_FaceBeans.get(position);
+    }
 
-	@Override
-	public long getItemId(int position) {
-		return position;
-	}
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
 
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		final ItemHolder holder;
-		if (null == convertView) {
-			convertView = LayoutInflater.from(context).inflate(R.layout.item_face, null);
-			holder = new ItemHolder();
-			holder.image_thum =  convertView.findViewById(R.id.item_face_image_emoji);
-			holder.image_big =  convertView.findViewById(R.id.item_face_image_big);
-			convertView.setTag(holder);
-		} else {
-			holder = (ItemHolder) convertView.getTag();
-		}
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        final ItemHolder holder;
+        if (null == convertView) {
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_face, null);
+            holder = new ItemHolder();
+            holder.image_thum = convertView.findViewById(R.id.item_face_image_emoji);
+            holder.image_big = convertView.findViewById(R.id.item_face_image_big);
+            convertView.setTag(holder);
+        } else {
+            holder = (ItemHolder) convertView.getTag();
+        }
 
-		FaceBean bean = list_FaceBeans.get(position);
-		if (bean.getGroup().equals(FaceView.face_custom)) {// 自定义表情
-			holder.image_thum.setVisibility(View.GONE);
-			holder.image_big.setVisibility(View.VISIBLE);
-            if(position==0){
-                holder.image_big.setImageResource(list_FaceBeans.get(position).getResId());
-            }else{
-				Glide.with(context).load(bean.getServerPath()).listener(new RequestListener() {
-					@Override
-					public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
-						return false;
-					}
+        FaceBean bean = list_FaceBeans.get(position);
+        if (bean.getGroup().equals(FaceView.face_custom)) {// 自定义表情
+            holder.image_thum.setVisibility(View.GONE);
+            holder.image_big.setVisibility(View.VISIBLE);
+            if (position == 0) {
+                holder.image_big.setImageResource(bean.getResId());
+            } else {
+                Glide.with(context).load(bean.getServerPath()).listener(new RequestListener() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                        return false;
+                    }
 
-					@Override
-					public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
-						return false;
-					}
-				}).apply(GlideOptionsUtil.defImageOptions()).into(holder.image_big);
+                    @Override
+                    public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                        return false;
+                    }
+                }).apply(GlideOptionsUtil.defImageOptions()).into(holder.image_big);
             }
-		} else if (bean.getGroup().equals(FaceView.face_animo)) {
-			holder.image_thum.setVisibility(View.GONE);
-			holder.image_big.setVisibility(View.VISIBLE);
+        } else if (bean.getGroup().equals(FaceView.face_animo)) {
+            holder.image_thum.setVisibility(View.GONE);
+            holder.image_big.setVisibility(View.VISIBLE);
 
-			Glide.with(context).load(list_FaceBeans.get(position).getResId()).listener(new RequestListener() {
-				@Override
-				public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
-					return false;
-				}
+            Glide.with(context).load(bean.getResId()).listener(new RequestListener() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                    return false;
+                }
 
-				@Override
-				public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
-					return false;
-				}
-			}).apply(GlideOptionsUtil.defImageOptions()).into(holder.image_big);
+                @Override
+                public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                    return false;
+                }
+            }).apply(GlideOptionsUtil.defImageOptions()).into(holder.image_big);
 
-		} else {
-			holder.image_thum.setVisibility(View.VISIBLE);
-			holder.image_big.setVisibility(View.GONE);
-			holder.image_thum.setImageResource(list_FaceBeans.get(position).getResId());
-		}
+        } else {
+            holder.image_thum.setVisibility(View.VISIBLE);
+            holder.image_big.setVisibility(View.GONE);
+            if (FaceView.map_FaceEmoji != null) {
+                holder.image_thum.setImageResource(Integer.parseInt(FaceView.map_FaceEmoji.get(bean.getName()).toString()));
+            }else{
+                // 资源ID可能会变，偶尔会出现异常图标出现在最近使用列表
+                holder.image_thum.setImageResource(bean.getResId());
+            }
+        }
 
-		return convertView;
-	}
+        return convertView;
+    }
 
-	/**
-	 * 内部容器类
-	 * 
-	 * @Description TODO
-	 * @author CodeApe
-	 * @version 1.0
-	 * @date 2013-11-23
-	 * @Copyright: Copyright (c) 2013 Shenzhen Tentinet Technology Co., Ltd.
-	 *             Inc. All rights reserved.
-	 * 
-	 */
-	private class ItemHolder {
-		private ImageView image_thum;
-		private ImageView image_big;
-	}
+    /**
+     * 内部容器类
+     *
+     * @author CodeApe
+     * @version 1.0
+     * @Description TODO
+     * @date 2013-11-23
+     * @Copyright: Copyright (c) 2013 Shenzhen Tentinet Technology Co., Ltd.
+     * Inc. All rights reserved.
+     */
+    private class ItemHolder {
+        private ImageView image_thum;
+        private ImageView image_big;
+    }
 
 }
