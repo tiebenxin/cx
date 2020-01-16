@@ -281,6 +281,7 @@ public class SocketData {
     public static void msgSave4MeFail(MsgBean.AckMessage bean) {
         //普通消息
         MsgBean.UniversalMessage.Builder msg = SendList.findMsgById(bean.getRequestId());
+        SendList.removeSendListJust(bean.getRequestId());
         if (msg != null && msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
             //存库处理
             MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
