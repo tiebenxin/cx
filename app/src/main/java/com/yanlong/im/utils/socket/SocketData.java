@@ -494,6 +494,9 @@ public class SocketData {
             case SHIPPED_EXPRESSION:
                 wmsg.setShippedExpression((MsgBean.ShippedExpressionMessage) value);
                 break;
+            case TAKE_SCREENSHOT://截屏
+                wmsg.setTakeScrennshot((MsgBean.TakeScreenshotMessage) value);
+                break;
             case UNRECOGNIZED:
                 break;
 
@@ -508,7 +511,8 @@ public class SocketData {
      * @return false 需要忽略
      */
     private static boolean msgSendSave4filter(MsgBean.UniversalMessage.WrapMessage.Builder wmsg) {
-        if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER || wmsg.getMsgType() == MsgBean.MessageType.P2P_AU_VIDEO_DIAL) {
+        if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER || wmsg.getMsgType() == MsgBean.MessageType.P2P_AU_VIDEO_DIAL
+                || wmsg.getMsgType() == MsgBean.MessageType.TAKE_SCREENSHOT) {
             return false;
         }
         return true;
@@ -1786,5 +1790,33 @@ public class SocketData {
         return message;
     }
 
+    public static MsgNotice createMsgNoticeOfSnapshot(String msgId) {
+        MsgNotice note = new MsgNotice();
+        note.setMsgid(msgId);
+        note.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN);
+        note.setNote("你截取了当前聊天信息");
+        return note;
+    }
+
+    public static MsgNotice createMsgNoticeOfSnapshotSwitch(String msgId, int flag) {
+        MsgNotice note = new MsgNotice();
+        note.setMsgid(msgId);
+        note.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN);
+        if (flag == 1) {
+            note.setNote("你开启了截屏通知");
+        } else {
+            note.setNote("你关闭了截屏通知");
+        }
+        return note;
+    }
+
+
+    //发送截屏通知消息
+    public static void sendSnapshotMsg(Long toId, String toGid) {
+        MsgBean.TakeScreenshotMessage contentMsg = MsgBean.TakeScreenshotMessage.newBuilder().build();
+        MsgBean.UniversalMessage.Builder msg = toMsgBuilder("", SocketData.getUUID(), toId, toGid, SocketData.getFixTime(), MsgBean.MessageType.TAKE_SCREENSHOT, contentMsg);
+        //立即发送
+        SocketUtil.getSocketUtil().sendData4Msg(msg);
+    }
 
 }

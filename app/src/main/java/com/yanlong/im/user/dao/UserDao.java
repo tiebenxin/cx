@@ -588,4 +588,26 @@ public class UserDao {
         return result;
     }
 
+    /**
+     * 更新好友截屏通知开关
+     *
+     * @param type 0:未开启,1:开启
+     */
+    public void updateUserSnapshot(long uid, int type) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            UserInfo user = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+            if (user != null) {
+                user.setScreenshotNotification(type);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
 }

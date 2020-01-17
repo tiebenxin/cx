@@ -17,6 +17,7 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
+import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.task.TaskDealWithMsgList;
 import com.yanlong.im.chat.ui.ChatActionActivity;
 import com.yanlong.im.user.action.UserAction;
@@ -216,6 +217,7 @@ public class MessageManager {
             case BALANCE_ASSISTANT://零钱助手消息
             case CHANGE_VICE_ADMINS:// 管理员变更通知
             case SHIPPED_EXPRESSION:// 动画表情
+            case TAKE_SCREENSHOT:// 截屏通知
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }
@@ -379,6 +381,14 @@ public class MessageManager {
                             result = saveMessageNew(bean, isList);
                         }
                         break;
+                    case SCREENSHOT_NOTIFICATION:
+                        // 更新群截屏状态
+                        if (bean != null) {
+                            result = saveMessageNew(bean, isList);
+                        }
+                        msgDao.updateGroupSnapshot(wrapMessage.getGid(), wrapMessage.getChangeGroupMeta().getScreenshotNotification() ? 1 : 0);
+                        notifySwitchSnapshot(wrapMessage.getGid(), 0, wrapMessage.getChangeGroupMeta().getScreenshotNotification() ? 1 : 0);
+                        break;
                 }
                 break;
             case DESTROY_GROUP://销毁群
@@ -518,6 +528,13 @@ public class MessageManager {
                         if (bean != null) {
                             result = saveMessageNew(bean, isList);
                         }
+                        break;
+                    case 5: // 截屏通知开关
+                        if (bean != null) {
+                            result = saveMessageNew(bean, isList);
+                        }
+                        userDao.updateUserSnapshot(wrapMessage.getFromUid(), switchValue);
+                        notifySwitchSnapshot("", wrapMessage.getFromUid(), switchValue);
                         break;
                 }
                 break;
@@ -1596,6 +1613,15 @@ public class MessageManager {
 
     public void saveMessage(MsgAllBean msgAllBean) {
         DaoUtil.update(msgAllBean);
+    }
+
+    //通知切换截屏开关
+    public void notifySwitchSnapshot(String gid, long uid, int flag) {
+        EventSwitchSnapshot event = new EventSwitchSnapshot();
+        event.setGid(gid);
+        event.setUid(uid);
+        event.setFlag(flag);
+        EventBus.getDefault().post(event);
     }
 
 

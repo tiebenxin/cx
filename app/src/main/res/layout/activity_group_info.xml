@@ -438,6 +438,36 @@
 
             </LinearLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/gray_100"
+                />
+
+            <LinearLayout
+                android:id="@+id/layout_creenshot"
+                style="@style/app_layout_list2_item">
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:layout_weight="1"
+                    android:text="截屏通知" />
+
+                <CheckBox
+                    android:id="@+id/ck_screenshot"
+                    style="@style/app_check" />
+
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="5dp"
+                android:paddingLeft="@dimen/app_margin_main"
+                android:paddingRight="@dimen/app_margin_main"
+                android:background="@color/white"
+                android:text="开启后，群成员在聊天中的截屏，所有人收到通知" />
+
             <LinearLayout style="@style/app_layout_list2">
 
                 <LinearLayout

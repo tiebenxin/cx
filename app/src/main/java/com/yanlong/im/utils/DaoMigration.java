@@ -96,6 +96,10 @@ public class DaoMigration implements RealmMigration {
                 updateV19(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 19) {
+                updateV20(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -373,6 +377,14 @@ public class DaoMigration implements RealmMigration {
         schema.get("MsgAllBean")
                 .addRealmObjectField("shippedExpressionMessage", schema.get("ShippedExpressionMessage"));
 
+    }
+
+    //更新截屏通知开关
+    private void updateV20(RealmSchema schema){
+        schema.get("UserInfo")
+                .addField("screenshotNotification", int.class);//单聊截屏通知
+        schema.get("Group")
+                .addField("screenshotNotification", int.class);//群聊截屏通知
     }
 
     @Override

@@ -58,6 +58,14 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> setAllForbiddenWords(@Field("gid") String gid, @Field("wordsNotAllowed") Integer wordsNotAllowed);
 
+    @POST("/friends/set-consist-switch")
+    @FormUrlEncoded
+    Call<ReturnBean> setSingleScreenShotSwitch(@Field("friend") String friend, @Field("screenshot") Integer screenshot);
+
+    @POST("/group/change-group-switch")
+    @FormUrlEncoded
+    Call<ReturnBean> setScreenShotSwitch(@Field("gid") String gid, @Field("screenshotNotification") Integer screeshotNotification);
+
     @POST("group/get-my-saved")
     Call<ReturnBean<List<Group>>> getMySaved();
 
@@ -149,5 +157,9 @@ public interface MsgServer {
     @POST("/group/toggle-words-not-allowed")
     @FormUrlEncoded
     Call<ReturnBean> toggleWordsNotAllowed(@Field("@uidList") String uidJson,@Field("gid") String gid,@Field("duration") int duration);
+
+    @POST("/friends/get-partial-friends")
+    @FormUrlEncoded
+    Call<ReturnBean> getUserInfo(@Field("@partialFriendsList") String uidJson);
 
 }
