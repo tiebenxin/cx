@@ -431,9 +431,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
         }
         // 注销监听
+        stopScreenShotListener();
+    }
+
+    private void stopScreenShotListener() {
         if (screenShotListenManager != null) {
             screenShotListenManager.stopListen();
             isScreenShotListen = false;
+            screenShotListenManager = null;
         }
     }
 
@@ -877,10 +882,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         taskSessionInfo();
         if (!TextUtils.isEmpty(toGid)) {
             taskGroupInfo();
-        }
-        else {
+        } else {
             //id不为0且不为客服则获取最新用户信息
-            if(toUId !=null && toUId != 100121L){
+            if (toUId != null && toUId != 100121L) {
 //                httpGetUserInfo();
             }
         }
@@ -2295,10 +2299,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     isScreenShotListen = true;
                     initScreenShotListener();
                 } else {
-                    isScreenShotListen = false;
-                    if (screenShotListenManager != null) {
-                        screenShotListenManager.stopListen();
-                    }
+                    stopScreenShotListener();
                 }
             }
         } else {
@@ -2310,10 +2311,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     isScreenShotListen = true;
                     initScreenShotListener();
                 } else {
-                    isScreenShotListen = false;
-                    if (screenShotListenManager != null) {
-                        screenShotListenManager.stopListen();
-                    }
+                    stopScreenShotListener();
                 }
             }
         }
@@ -5065,9 +5063,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     /**
      * 发请求->获取部分好友信息
      */
-    private void httpGetUserInfo(){
+    private void httpGetUserInfo() {
         String[] arrayParams = new String[1];
-        arrayParams[0] = toUId+"";
+        arrayParams[0] = toUId + "";
 //        List<String> uidList = new ArrayList<>();
 //        uidList.add(toUId+"");
         msgAction.getUserInfo(arrayParams, new Callback<ReturnBean>() {
@@ -5755,10 +5753,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         screenShotListenManager.setListener(
                 new ScreenShotListenManager.OnScreenShotListener() {
                     public void onShot(String imagePath) {
+//                        LogUtil.getLog().i(TAG, "截屏--回调了--onShot" + "GID=" + toGid + "--UID=" + toUId);
                         if (checkSnapshotPower()) {
-                            if(isGroup()){
+                            if (isGroup()) {
                                 SocketData.sendSnapshotMsg(null, toGid);
-                            }else {
+                            } else {
                                 SocketData.sendSnapshotMsg(toUId, null);
                             }
                             MsgNotice notice = SocketData.createMsgNoticeOfSnapshot(SocketData.getUUID());
