@@ -414,6 +414,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         //取消激活会话
         MessageManager.getInstance().setSessionNull();
         saveOftenUseFace();
+        // 注销监听
+        stopScreenShotListener();
     }
 
     @Override
@@ -431,11 +433,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             MessageManager.getInstance().setMessageChange(true);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
         }
-        // 注销监听
-        stopScreenShotListener();
     }
 
     private void stopScreenShotListener() {
+//        LogUtil.getLog().i(TAG, "截屏--stop");
         if (screenShotListenManager != null) {
             screenShotListenManager.stopListen();
             isScreenShotListen = false;
