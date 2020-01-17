@@ -5042,7 +5042,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
-                super.onFailure(call, t);
+//                super.onFailure(call, t);
                 groupInfo = msgDao.getGroup4Id(toGid);
                 if (groupInfo != null) {
                     contactIntimately = groupInfo.getContactIntimately();

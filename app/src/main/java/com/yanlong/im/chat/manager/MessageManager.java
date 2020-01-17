@@ -808,7 +808,7 @@ public class MessageManager {
 
             @Override
             public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
-                super.onFailure(call, t);
+//                super.onFailure(call, t);
                 if (isList) {
                     updatePendingSessionUnreadCount(gid, uid, false, false, bean.getRequest_id());
                     TaskDealWithMsgList taskMsgList = getMsgTask(bean.getRequest_id());
