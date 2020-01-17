@@ -5,6 +5,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.NoRedEnvelopesBean;
 import com.yanlong.im.chat.bean.RobotInfoBean;
+import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.bean.ReturnBean;
 
@@ -160,6 +161,6 @@ public interface MsgServer {
 
     @POST("/friends/get-partial-friends")
     @FormUrlEncoded
-    Call<ReturnBean> getUserInfo(@Field("@partialFriendsList") String uidJson);
+    Call<ReturnBean<UserInfo>> getUserInfo(@Field("@partialFriendsList") String uidJson);
 
 }

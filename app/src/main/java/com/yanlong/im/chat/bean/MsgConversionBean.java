@@ -732,7 +732,7 @@ public class MsgConversionBean {
                         msgNotice1.setNote(sb + "<div id='" + bean.getGid() + "'></div>");
                         msgAllBean.setMsgNotice(msgNotice1);
                     }
-                } else if (switchType == MsgBean.SwitchChangeMessage.SwitchType.SCREENSHOT.getNumber()) {
+                } else if (switchType == MsgBean.SwitchChangeMessage.SwitchType.SCREENSHOT.getNumber()) { //截屏开关
                     msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                     MsgNotice screenNotice = new MsgNotice();
                     screenNotice.setMsgid(msgAllBean.getMsg_id());
