@@ -400,7 +400,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             checkHasEnvelopeSendFailed();
         }
         isScreenShotListen = checkSnapshotPower();
-        if(isScreenShotListen){
+        if (isScreenShotListen) {
             initScreenShotListener();
         }
     }
@@ -430,7 +430,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
         }
         // 注销监听
-        if(screenShotListenManager!=null){
+        if (screenShotListenManager != null) {
             screenShotListenManager.stopListen();
             isScreenShotListen = false;
         }
@@ -876,7 +876,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         taskSessionInfo();
         if (!TextUtils.isEmpty(toGid)) {
             taskGroupInfo();
-        }else {
+        } else {
 //            sd
         }
         actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
@@ -2282,16 +2282,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventSnapshot(EventSwitchSnapshot event) {
         if (isGroup()) {
-            if (toGid!=null && toGid.equals(event.getGid())) {
+            if (toGid != null && toGid.equals(event.getGid())) {
                 if (groupInfo != null) {
                     groupInfo.setScreenshotNotification(event.getFlag());
                 }
                 if (event.getFlag() == 1) {
                     isScreenShotListen = true;
                     initScreenShotListener();
-                }else {
+                } else {
                     isScreenShotListen = false;
-                    if(screenShotListenManager!=null){
+                    if (screenShotListenManager != null) {
                         screenShotListenManager.stopListen();
                     }
                 }
@@ -2304,9 +2304,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (event.getFlag() == 1) {
                     isScreenShotListen = true;
                     initScreenShotListener();
-                }else {
+                } else {
                     isScreenShotListen = false;
-                    if(screenShotListenManager!=null){
+                    if (screenShotListenManager != null) {
                         screenShotListenManager.stopListen();
                     }
                 }
@@ -4581,16 +4581,22 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void fixLastPosition(List<MsgAllBean> msgListData, List<MsgAllBean> list) {
-        if (currentScrollPosition > 0) {
-            if (msgListData != null && list != null) {
-                int len1 = msgListData.size();
-                int len2 = list.size();
+        if (msgListData != null && list != null) {
+            int len1 = msgListData.size();
+            int len2 = list.size();
+            if (currentScrollPosition > 0) {
                 if (len1 < len2) {
                     int diff = len2 - len1;
                     currentScrollPosition += diff;
                 }
             }
+
+            if (lastPosition >= msgListData.size() - 3) {
+                lastPosition = len2 - 1;
+            }
         }
+
+
     }
 
     private void dismissPop() {
@@ -5708,7 +5714,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 注册截屏监听
      */
     private void initScreenShotListener() {
-        if(screenShotListenManager!=null){
+        if (screenShotListenManager != null) {
             screenShotListenManager.startListen();
             return;
         }
