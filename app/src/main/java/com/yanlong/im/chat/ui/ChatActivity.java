@@ -2920,6 +2920,25 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     /**
+     * 跳转UserInfoActivity
+     *
+     * @param message
+     */
+    private void toUserInfoActivity(long uid) {
+        String name = "";
+        if (isGroup()) {
+            name = msgDao.getGroupMemberName2(toGid, uid);
+        } else if (mFinfo != null) {
+            name = mFinfo.getName4Show();
+        }
+        startActivity(new Intent(getContext(), UserInfoActivity.class)
+                .putExtra(UserInfoActivity.ID, uid)
+                .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
+                .putExtra(UserInfoActivity.GID, toGid)
+                .putExtra(UserInfoActivity.MUC_NICK, name));
+    }
+
+    /**
      * 重新发送消息
      *
      * @param msgBean
@@ -3010,7 +3029,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     public void clickUser(String userId, String gid) {
-
+        long user = StringUtil.getLong(userId);
+        if (user > 0) {
+            toUserInfoActivity(user);
+        }
     }
 
     @Override
