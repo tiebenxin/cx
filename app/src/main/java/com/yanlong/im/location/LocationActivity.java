@@ -301,7 +301,7 @@ public class LocationActivity extends AppActivity {
                 dragging = true;
                 if (mapStatus != null) {
                     if(!isShow&&zoom==mapStatus.zoom){
-                        center_location_iv.setVisibility(View.VISIBLE);
+//                        center_location_iv.setVisibility(View.VISIBLE);
                     }
                     zoom = mapStatus.zoom;
                 }
@@ -330,7 +330,7 @@ public class LocationActivity extends AppActivity {
 //                    zoom = mapStatus.zoom;
                 }
                 dragging = false;
-                center_location_iv.setVisibility(View.GONE);
+//                center_location_iv.setVisibility(View.GONE);
             }
         });
 
@@ -340,7 +340,6 @@ public class LocationActivity extends AppActivity {
         mOption.setCoorType("bd09ll");
         locService.setLocationOption(mOption);
 
-        setLocationBitmap(false, latitude / LocationUtils.beishu, longitude / LocationUtils.beishu);//设置默认定位
 
         listener = new BDAbstractLocationListener() {
             @Override
@@ -391,7 +390,10 @@ public class LocationActivity extends AppActivity {
 //            curr_location_iv.setVisibility(View.GONE);
             actionbar.getBtnRight().setVisibility(View.VISIBLE);
             actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
+
+            setLocationBitmap(false, latitude / LocationUtils.beishu, longitude / LocationUtils.beishu);//设置默认定位
         } else {
+            center_location_iv.setVisibility(View.VISIBLE);
             addr_ll.setVisibility(View.GONE);
             actionbar.setTxtRight("发送");
             locService.start();
@@ -514,19 +516,22 @@ public class LocationActivity extends AppActivity {
     private void setLocationBitmap(Boolean isMyLocation, double latitude, double longitude) {
         LogUtil.getLog().e("===location====" + latitude + "====" + longitude);
         LatLng point = new LatLng(latitude, longitude);
-        // 构建Marker图标
-        BitmapDescriptor bitmap = null;
-        if (isMyLocation) {
-            bitmap = BitmapDescriptorFactory.fromResource(R.mipmap.location_circle_big); // 非推算结果
-        } else {
-            mBaiduMap.clear();
-            bitmap = BitmapDescriptorFactory.fromResource(R.mipmap.location_two); // 非推算结果
+
+        if(isShow){
+            // 构建Marker图标
+            BitmapDescriptor bitmap = null;
+            if (isMyLocation) {
+                bitmap = BitmapDescriptorFactory.fromResource(R.mipmap.location_circle_big); // 非推算结果
+            } else {
+                mBaiduMap.clear();
+                bitmap = BitmapDescriptorFactory.fromResource(R.mipmap.location_two); // 非推算结果
+            }
+            // 构建MarkerOption，用于在地图上添加Marker
+            OverlayOptions option = new MarkerOptions().position(point).icon(bitmap);
+            // 在地图上添加Marker，并显示
+            mBaiduMap.addOverlay(option);
         }
 
-        // 构建MarkerOption，用于在地图上添加Marker
-        OverlayOptions option = new MarkerOptions().position(point).icon(bitmap);
-        // 在地图上添加Marker，并显示
-        mBaiduMap.addOverlay(option);
         mBaiduMap.setMapStatus(MapStatusUpdateFactory.newLatLng(point));
     }
 
