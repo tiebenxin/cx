@@ -26,6 +26,10 @@ import java.util.List;
  */
 public class ScreenShotListenManager {
 
+
+    private long lastScreenTime = 0;//记录上次时间
+    private long nowTime = 0;//系统时间
+
     /**
      * 读取媒体数据库时需要读取的列
      */
@@ -237,7 +241,8 @@ public class ScreenShotListenManager {
         if (checkScreenShot(data, dateTaken, width, height)) {
             LogUtil.getLog().e("ScreenShot: path ===" + data + "; size = " + width + " * " + height
                     + "; date = " + dateTaken);
-            if (mListener != null && !checkCallback(data)) {
+            nowTime = System.currentTimeMillis();//获取系统时间
+            if (mListener != null && !checkCallback(data) && (nowTime-lastScreenTime)>500) {
                 mListener.onShot(data);
             }
         } else {

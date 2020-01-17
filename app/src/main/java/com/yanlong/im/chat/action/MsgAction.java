@@ -449,7 +449,7 @@ public class MsgAction {
      * @param uidJson
      * @param callback
      */
-    public void getUserInfo(final String uidJson, Callback<ReturnBean> callback) {
+    public void getUserInfo(final String uidJson, Callback<ReturnBean<UserInfo>> callback) {
         NetUtil.getNet().exec(server.getUserInfo(uidJson), callback);
     }
 
