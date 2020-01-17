@@ -474,8 +474,10 @@ public class MessageManager {
                 EventBus.getDefault().post(new ReadDestroyBean(survivalTime, wrapMessage.getGid(), wrapMessage.getFromUid()));
                 break;
             case READ://已读消息
-                msgDao.setUpdateRead(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), wrapMessage.getRead().getTimestamp());
-                LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getRead().getTimestamp());
+//                msgDao.setUpdateRead(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), wrapMessage.getRead().getTimestamp());
+//                LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getRead().getTimestamp());
+                msgDao.setUpdateRead(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), wrapMessage.getTimestamp());
+                LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getTimestamp());
                 break;
             case SWITCH_CHANGE: //开关变更
                 // TODO　处理老版本不兼容问题
