@@ -25,8 +25,10 @@ import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -37,6 +39,7 @@ import com.yanlong.im.user.ui.GroupAddActivity;
 import com.yanlong.im.user.ui.ImageHeadActivity;
 import com.yanlong.im.user.ui.MyselfQRCodeActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
@@ -69,6 +72,7 @@ import java.util.List;
 
 import io.realm.RealmList;
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
@@ -96,6 +100,7 @@ public class GroupInfoActivity extends AppActivity {
     private LinearLayout viewLog;
     private LinearLayout viewTop;
     private CheckBox ckTop;
+    private CheckBox ckScreenshot;//截屏通知
     private LinearLayout viewDisturb;
     private CheckBox ckDisturb;
     private LinearLayout viewGroupSave;
@@ -146,6 +151,7 @@ public class GroupInfoActivity extends AppActivity {
         ckTop = findViewById(R.id.ck_top);
         viewDisturb = findViewById(R.id.view_disturb);
         ckDisturb = findViewById(R.id.ck_disturb);
+        ckScreenshot = findViewById(R.id.ck_screenshot);
         viewGroupSave = findViewById(R.id.view_group_save);
         viewGroupManage = findViewById(R.id.view_group_manage);
         viewGroupImg = findViewById(R.id.view_group_img);
@@ -226,7 +232,7 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(GroupInfoActivity.this, CommonSetingActivity.class);
-                intent.putExtra(CommonSetingActivity.TITLE, "我在本群的信息");
+                intent.putExtra(CommonSetingActivity.TITLE, "我在本群的昵称");
                 intent.putExtra(CommonSetingActivity.REMMARK, "设置我在这个群里面的昵称");
                 intent.putExtra(CommonSetingActivity.HINT, "群昵称");
                 intent.putExtra(CommonSetingActivity.SIZE, 16);
@@ -285,7 +291,7 @@ public class GroupInfoActivity extends AppActivity {
                 Bundle bundle = new Bundle();
                 bundle.putString(GroupManageActivity.AGM_GID, gid);
                 bundle.putBoolean(GroupManageActivity.IS_ADMIN, isAdmin());
-                if(ginfo!=null){
+                if (ginfo != null) {
                     bundle.putInt(GroupManageActivity.ADMIN_NUMBER, ginfo.getViceAdmins().size());
                 }
                 IntentUtil.gotoActivityForResult(GroupInfoActivity.this, GroupManageActivity.class, bundle, GROUP_MANAGER);
@@ -379,12 +385,6 @@ public class GroupInfoActivity extends AppActivity {
 
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void setingReadDestroy(ReadDestroyBean bean) {
-
-    }
-
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -427,7 +427,6 @@ public class GroupInfoActivity extends AppActivity {
         ckDisturb.setChecked(ginfo.getNotNotify() == 1);
         ckGroupSave.setChecked(ginfo.getSaved() == 1);
         ckTop.setChecked(ginfo.getIsTop() == 1);
-
 
         ckTop.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -472,6 +471,39 @@ public class GroupInfoActivity extends AppActivity {
         destroyTime = ginfo.getSurvivaltime();
         String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
         tvDestroyTime.setText(content);
+        //显示截屏通知开关状态
+        ckScreenshot.setChecked(ginfo.getScreenshotNotification() == 1);
+        //截屏通知切换开关
+        ckScreenshot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //只有群管理和群主可以使用截屏通知功能
+                if (isAdmin() || isAdministrators()) {
+                    if (ginfo != null) {
+                        if (ckScreenshot.isChecked() == true) {
+                            ckScreenshot.setChecked(true);
+                            ginfo.setScreenshotNotification(1);
+                        } else {
+                            ckScreenshot.setChecked(false);
+                            ginfo.setScreenshotNotification(0);
+                        }
+                        //更新本地数据库状态
+                        taskSaveInfo();
+                        //调接口通知后台
+                        httpScreenShotSwitch(gid, ckScreenshot.isChecked() ? 1 : 0);
+
+                    }
+                } else {
+                    //使其打开按钮无效
+                    if (ckScreenshot.isChecked() == true) {
+                        ckScreenshot.setChecked(false);
+                    } else {
+                        ckScreenshot.setChecked(true);
+                    }
+                    ToastUtil.show(GroupInfoActivity.this, "只有群管理和群主才可以使用截屏通知功能");
+                }
+            }
+        });
     }
 
     private List<MemberUser> listDataTop = new ArrayList<>();
@@ -892,6 +924,34 @@ public class GroupInfoActivity extends AppActivity {
         });
     }
 
+    //截屏通知开关
+    private void httpScreenShotSwitch(String gid, int screeshotNotification) {
+        msgAction.groupScreenShotSwitch(gid, screeshotNotification, new Callback<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                } else {
+                    if (response.body().isOk()) {
+                        //刷新最新群信息
+                        taskGetInfoNetwork(false);
+                        MsgNotice notice = SocketData.createMsgNoticeOfSnapshotSwitch(SocketData.getUUID(), screeshotNotification);
+                        MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
+                        if (bean != null) {
+                            SocketData.saveMessage(bean);
+                        }
+                    }
+                }
+                ToastUtil.show(getContext(), response.body().getMsg());
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+
+            }
+        });
+    }
+
     private void taskSetStateGroupVerif(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
 
         msgAction.groupSwitch(gid, isTop, notNotify, saved, needVerification, new CallBack4Btn<ReturnBean>(ckGroupVerif) {
@@ -1106,6 +1166,17 @@ public class GroupInfoActivity extends AppActivity {
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventSwitchSnapshot(EventSwitchSnapshot event) {
+        String gid = event.getGid();
+        if (ginfo != null && !TextUtils.isEmpty(gid)) {
+            if (gid.equals(ginfo.getGid())) {
+                ginfo.setScreenshotNotification(event.getFlag());
+                ckScreenshot.setChecked(ginfo.getScreenshotNotification() == 1);
+            }
+        }
+    }
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -1119,5 +1190,18 @@ public class GroupInfoActivity extends AppActivity {
         if (event.type.contains("GroupInfoActivity")) {
             finish();
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void setingReadDestroy(ReadDestroyBean bean) {
+        if (bean.gid.equals(gid)) {
+            destroyTime = bean.survivaltime;
+            tvDestroyTime.setText(new ReadDestroyUtil().getDestroyTimeContent(bean.survivaltime));
+        }
+    }
+
+    //更新配置
+    private void taskSaveInfo() {
+        DaoUtil.update(ginfo);
     }
 }

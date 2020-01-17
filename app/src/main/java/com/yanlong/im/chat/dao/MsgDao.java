@@ -3429,5 +3429,21 @@ public class MsgDao {
         return null;
     }
 
+    public void updateGroupSnapshot(String gid,int value){
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            Group group = realm.where(Group.class).equalTo("gid",gid).findFirst();
+            if (group != null){
+                group.setScreenshotNotification(value);
+            }
+            realm.commitTransaction();
+        }catch (Exception e){
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+
+    }
+
 
 }

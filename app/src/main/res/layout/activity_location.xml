@@ -30,11 +30,18 @@
                 android:layout_marginRight="2dp"
                 android:src="@mipmap/location_my2" />
 
+            <View
+                android:layout_centerInParent="true"
+                android:id="@+id/center_v"
+                android:layout_width="1dp"
+                android:layout_height="1dp" />
+
             <ImageView
                 android:id="@+id/center_location_iv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
+                android:layout_above="@+id/center_v"
+                android:layout_centerHorizontal="true"
                 android:src="@mipmap/location_two" />
 
         </RelativeLayout>

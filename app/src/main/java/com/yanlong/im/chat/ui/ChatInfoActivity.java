@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -14,10 +15,14 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -28,6 +33,7 @@ import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.UserUtil;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.CloseActivityEvent;
@@ -48,6 +54,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
@@ -67,6 +74,7 @@ public class ChatInfoActivity extends AppActivity {
     private LinearLayout viewDisturb;
     private CheckBox ckDisturb;
     private LinearLayout viewLogClean;
+    private CheckBox ckScreenshot;//截屏通知
     //  private Session session;
     private UserInfo fUserInfo;
     boolean isSessionChange = false;
@@ -112,6 +120,7 @@ public class ChatInfoActivity extends AppActivity {
         tvDestroyTime = findViewById(R.id.tv_destroy_time);
         ckSetRead = findViewById(R.id.ck_set_read);
         read_destroy_ll = findViewById(R.id.read_destroy_ll);
+        ckScreenshot = findViewById(R.id.ck_screenshot);
     }
 
 
@@ -238,11 +247,37 @@ public class ChatInfoActivity extends AppActivity {
     private void initData() {
         readDestroyUtil = new ReadDestroyUtil();
         UserInfo userInfo = userDao.findUserInfo(fuid);
-        if(userInfo!=null){
+        if (userInfo != null) {
             destroyTime = userInfo.getDestroy();
             String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
             tvDestroyTime.setText(content);
+            //显示截屏通知切换开关状态
+            if (fUserInfo != null) {
+                ckScreenshot.setChecked(fUserInfo.getScreenshotNotification() == 1);
+            }
+
         }
+        //截屏通知切换开关
+        ckScreenshot.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                //如果阅后即焚已关闭，则正常开关；如果阅后即焚开启中，则不允许关掉
+                if (fUserInfo != null) {
+                    //开
+                    if (isChecked) {
+                        ckScreenshot.setChecked(true);//选中
+                        fUserInfo.setScreenshotNotification(1);//截屏通知字段设置为打开
+                    } else {
+                        //关
+                        ckScreenshot.setChecked(false);//取消选中
+                        fUserInfo.setScreenshotNotification(0);//截屏通知字段设置为关闭
+                    }
+                    taskSaveInfo();//更新本地数据库
+                    httpSingleScreenShotSwitch(fuid + "", isChecked ? 1 : 0);//调接口通知后台
+
+                }
+            }
+        });
     }
 
 
@@ -440,6 +475,43 @@ public class ChatInfoActivity extends AppActivity {
         if (event.type.contains("ChatInfoActivity")) {
             finish();
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventSwitchSnapshot(EventSwitchSnapshot event) {
+        long uid = event.getUid();
+        if (fUserInfo != null && fUserInfo.getUid() != null && uid > 0) {
+            if (uid == fUserInfo.getUid().longValue()) {
+                fUserInfo.setScreenshotNotification(event.getFlag());
+                ckScreenshot.setChecked(fUserInfo.getScreenshotNotification() == 1);
+            }
+        }
+    }
+
+
+    //单聊-截屏通知开关
+    private void httpSingleScreenShotSwitch(String friendId, int screenshot) {
+        msgAction.singleScreenShotSwitch(friendId, screenshot, new Callback<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                } else {
+                    if (response.body().isOk()) {
+                        MsgNotice notice = SocketData.createMsgNoticeOfSnapshotSwitch(SocketData.getUUID(),screenshot);
+                        MsgAllBean bean = SocketData.createMessageBean(fuid, "", ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
+                        if (bean != null) {
+                            SocketData.saveMessage(bean);
+                        }                    }
+                }
+                ToastUtil.show(getContext(), response.body().getMsg());
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+
+            }
+        });
     }
 
 }

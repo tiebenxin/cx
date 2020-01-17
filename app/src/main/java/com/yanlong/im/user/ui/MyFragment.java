@@ -144,9 +144,9 @@ public class MyFragment extends Fragment {
     //自动生成的控件事件
     private void initEvent() {
         //TODO 零钱显示开关，release不显示/debug显示，功能开放后删除这里
-        if(BuildConfig.BUILD_TYPE.equals("debug")){
+        if (BuildConfig.BUILD_TYPE.equals("debug")) {
             viewMoney.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             viewMoney.setVisibility(View.GONE);
         }
         viewHead.setOnClickListener(new View.OnClickListener() {
@@ -340,7 +340,9 @@ public class MyFragment extends Fragment {
                 if (response.body().isOk()) {
                     String token = response.body().getData().getSign();
                     UserInfo minfo = UserAction.getMyInfo();
-                    JrmfWalletClient.intentWallet(getActivity(), "" + UserAction.getMyId(), token, minfo.getName(), minfo.getHead());
+                    if (getActivity() != null && !getActivity().isFinishing()) {
+                        JrmfWalletClient.intentWallet(getActivity(), "" + UserAction.getMyId(), token, minfo.getName(), minfo.getHead());
+                    }
                 }
             }
         });
@@ -353,13 +355,17 @@ public class MyFragment extends Fragment {
                 @Override
                 public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                     if (response.body() == null) {
-                        ToastUtil.show(getActivity(), "请检查当前网络");
+                        if (getActivity() != null && !getActivity().isFinishing()) {
+                            ToastUtil.show(getActivity(), "请检查当前网络");
+                        }
                         return;
                     }
                     if (response.body().isOk()) {
                         toChatActivity();
                     } else {
-                        ToastUtil.show(getActivity(), "请检查当前网络");
+                        if (getActivity() != null && !getActivity().isFinishing()) {
+                            ToastUtil.show(getActivity(), "请检查当前网络");
+                        }
                     }
                 }
             });
@@ -370,7 +376,10 @@ public class MyFragment extends Fragment {
 
     private void toChatActivity() {
         //CX888 uid=100121
-        startActivity(new Intent(getContext(), ChatActivity.class).putExtra(ChatActivity.AGM_TOUID, Constants.CX888_UID));
+        // TODO 修复 #35206 java.lang.NullPointerException
+        if (getActivity() != null && !getActivity().isFinishing()) {
+            startActivity(new Intent(getActivity(), ChatActivity.class).putExtra(ChatActivity.AGM_TOUID, Constants.CX888_UID));
+        }
     }
 
     /**
@@ -411,7 +420,7 @@ public class MyFragment extends Fragment {
         manager.getDefaultDisplay().getMetrics(metrics);
         //设置宽高，高度自适应，宽度屏幕0.8
         lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels*0.8);
+        lp.width = (int) (metrics.widthPixels * 0.8);
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
     }
@@ -469,7 +478,6 @@ public class MyFragment extends Fragment {
             //2 未实名认证->分三步走流程(1 同意->2 实名认证->3 绑定手机号)
             showIdentifyDialog();
         }
-
     }
 
     /**

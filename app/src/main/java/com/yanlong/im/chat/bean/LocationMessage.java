@@ -2,6 +2,7 @@ package com.yanlong.im.chat.bean;
 
 
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
 /**
@@ -15,6 +16,9 @@ public class LocationMessage extends RealmObject implements IMsgContent {
     private String address;//地址
     private String addressDescribe;//地址描述
     private String img;//地图图片路径
+
+    @Ignore
+    private double distance=0d;//本地字段，与中心点的距离，两点之间的距离
 
 
     public LocationMessage() {
@@ -68,5 +72,13 @@ public class LocationMessage extends RealmObject implements IMsgContent {
 
     public void setImg(String img) {
         this.img = img;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
     }
 }

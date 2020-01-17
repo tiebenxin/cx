@@ -25,6 +25,7 @@ import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -247,7 +248,12 @@ public class MsgAction {
                     } else {
                         LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid);
                         MessageManager.getInstance().removeLoadGids(gid);
-                        callback.onFailure(call, new Throwable());
+                        if (!response.body().isOk() && StringUtil.isNotNull(response.body().getMsg())) {
+                            ToastUtil.show(response.body().getMsg());
+                            callback.onFailure(call, new Throwable());
+                        } else {
+                            callback.onFailure(call, new Throwable());
+                        }
                     }
                 }
 
@@ -255,7 +261,6 @@ public class MsgAction {
                 public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
                     super.onFailure(call, t);
                     LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid + t.getMessage());
-//                    t.printStackTrace();
                     MessageManager.getInstance().removeLoadGids(gid);
                     callback.onFailure(call, new Throwable());
                 }
@@ -417,8 +422,42 @@ public class MsgAction {
         NetUtil.getNet().exec(server.groupSwitchIntimately(gid, intimately), callback);
     }
 
+
+    /**
+     * 截屏通知开关-群聊
+     *
+     * @param gid
+     * @param screeshotNotification
+     * @param callback
+     */
+    public void groupScreenShotSwitch(final String gid, int screeshotNotification, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.setScreenShotSwitch(gid, screeshotNotification), callback);
+    }
+
+    /**
+     * 截屏通知开关-私聊
+     *
+     * @param friendId
+     * @param screenshot
+     * @param callback
+     */
+    public void singleScreenShotSwitch(final String friendId, int screenshot, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.setSingleScreenShotSwitch(friendId, screenshot), callback);
+    }
+
+    /**
+     * 获取部分好友信息
+     *
+     * @param uidJson
+     * @param callback
+     */
+    public void getUserInfo(final String uidJson, Callback<ReturnBean<UserInfo>> callback) {
+        NetUtil.getNet().exec(server.getUserInfo(uidJson), callback);
+    }
+
     /**
      * 全员禁言
+     *
      * @param gid
      * @param intimately
      * @param callback
@@ -680,52 +719,57 @@ public class MsgAction {
 
     /**
      * 增删管理员
+     *
      * @param adminsJson 管理员列表
-     * @param gid 群id
-     * @param opt -1 取消 0 不做操作 1 新增
+     * @param gid        群id
+     * @param opt        -1 取消 0 不做操作 1 新增
      * @param callback
      */
-    public void groupChangeAdmins(String adminsJson,String gid,int opt, Callback<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.groupChangeAdmins(adminsJson,gid,opt), callback);
+    public void groupChangeAdmins(String adminsJson, String gid, int opt, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.groupChangeAdmins(adminsJson, gid, opt), callback);
     }
 
     /**
      * 获取退群成员列表
-     * @param gid 群id
+     *
+     * @param gid      群id
      * @param callback
      */
-    public void exitGroupList(String gid,Callback<ReturnBean<List<ExitGroupUser>>> callback) {
+    public void exitGroupList(String gid, Callback<ReturnBean<List<ExitGroupUser>>> callback) {
         NetUtil.getNet().exec(server.exitGroupList(gid), callback);
     }
 
     /**
      * 开关群成员禁领红包
-     * @param uidJson 成员列表
-     * @param gid 群id
-     * @param ops -1 取消 0 不做操作 1 新增
+     *
+     * @param uidJson  成员列表
+     * @param gid      群id
+     * @param ops      -1 取消 0 不做操作 1 新增
      * @param callback
      */
-    public void toggleOpenUpRedEnvelope(String uidJson,String gid,int ops, Callback<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.toggleOpenUpRedEnvelope(uidJson,gid,ops), callback);
+    public void toggleOpenUpRedEnvelope(String uidJson, String gid, int ops, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.toggleOpenUpRedEnvelope(uidJson, gid, ops), callback);
     }
 
     /**
      * 获取禁领红包群成员列表
-     * @param gid 群id
+     *
+     * @param gid      群id
      * @param callback
      */
-    public void getCantOpenUpRedMembers(String gid,Callback<ReturnBean<List<NoRedEnvelopesBean>>> callback) {
+    public void getCantOpenUpRedMembers(String gid, Callback<ReturnBean<List<NoRedEnvelopesBean>>> callback) {
         NetUtil.getNet().exec(server.getCantOpenUpRedMembers(gid), callback);
     }
 
     /**
      * 开关群成员禁言
-     * @param uidJson 成员列表
-     * @param gid 群id
+     *
+     * @param uidJson  成员列表
+     * @param gid      群id
      * @param duration 禁言时间以秒为单位
      * @param callback
      */
-    public void toggleWordsNotAllowed(String uidJson,String gid,int duration, Callback<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.toggleWordsNotAllowed(uidJson,gid,duration), callback);
+    public void toggleWordsNotAllowed(String uidJson, String gid, int duration, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.toggleWordsNotAllowed(uidJson, gid, duration), callback);
     }
 }
