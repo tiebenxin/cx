@@ -340,7 +340,9 @@ public class MyFragment extends Fragment {
                 if (response.body().isOk()) {
                     String token = response.body().getData().getSign();
                     UserInfo minfo = UserAction.getMyInfo();
-                    JrmfWalletClient.intentWallet(getActivity(), "" + UserAction.getMyId(), token, minfo.getName(), minfo.getHead());
+                    if (getActivity() != null && !getActivity().isFinishing()) {
+                        JrmfWalletClient.intentWallet(getActivity(), "" + UserAction.getMyId(), token, minfo.getName(), minfo.getHead());
+                    }
                 }
             }
         });
@@ -353,13 +355,17 @@ public class MyFragment extends Fragment {
                 @Override
                 public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                     if (response.body() == null) {
-                        ToastUtil.show(getActivity(), "请检查当前网络");
+                        if (getActivity() != null && !getActivity().isFinishing()) {
+                            ToastUtil.show(getActivity(), "请检查当前网络");
+                        }
                         return;
                     }
                     if (response.body().isOk()) {
                         toChatActivity();
                     } else {
-                        ToastUtil.show(getActivity(), "请检查当前网络");
+                        if (getActivity() != null && !getActivity().isFinishing()) {
+                            ToastUtil.show(getActivity(), "请检查当前网络");
+                        }
                     }
                 }
             });
@@ -460,16 +466,18 @@ public class MyFragment extends Fragment {
         if (userBean.getRealNameStat() == 1) {
             //1-1 是否完成绑定手机号流程
             if (userBean.getPhoneBindStat() == 1) {
-                startActivity(new Intent(getActivity(), LooseChangeActivity.class));
+                if (getActivity() != null && !getActivity().isFinishing()) {
+                    startActivity(new Intent(getActivity(), LooseChangeActivity.class));
+                }
             } else {
-                ToastUtil.show(context, "请继续完成绑定手机号的流程");
-                startActivity(new Intent(getActivity(), BindPhoneNumActivity.class));
+                if (getActivity() != null && !getActivity().isFinishing()) {
+                    ToastUtil.show(context, "请继续完成绑定手机号的流程");
+                    startActivity(new Intent(getActivity(), BindPhoneNumActivity.class));
+                }
             }
         } else {
             //2 未实名认证->分三步走流程(1 同意->2 实名认证->3 绑定手机号)
             showIdentifyDialog();
         }
-
     }
-
 }

@@ -472,10 +472,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void initViewNewMsg() {
-        if (unreadCount >= MIN_UNREAD_COUNT) {
-            viewNewMessage.setVisible(true);
-            viewNewMessage.setCount(unreadCount);
-            mAdapter.setUnreadCount(unreadCount);
+        if (unreadCount >= MIN_UNREAD_COUNT && unreadCount < 80 * 4) {
+            viewNewMessage.setVisible(false);
+            //            viewNewMessage.setVisible(true);
+//            viewNewMessage.setCount(unreadCount);
+//            mAdapter.setUnreadCount(unreadCount);
         } else {
             viewNewMessage.setVisible(false);
             mAdapter.setUnreadCount(0);
@@ -1715,7 +1716,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         if (isGroup) {
             //本人群主
-            if (UserAction.getMyId() != null && groupInfo.getMaster().equals(UserAction.getMyId().toString())) {
+            if (UserAction.getMyId() != null && groupInfo != null && groupInfo.getMaster().equals(UserAction.getMyId().toString())) {
                 list.add(createItemMode("群助手", R.mipmap.ic_chat_robot, ChatEnum.EFunctionId.GROUP_ASSISTANT));
             }
         }
@@ -3236,7 +3237,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time, isGroup());
             if (unread >= MIN_UNREAD_COUNT) {
                 if (position == getItemCount() - unread) {
-                    holder.viewChatItem.showNew(true);
+//                    holder.viewChatItem.showNew(true);
+                    holder.viewChatItem.showNew(false);
                 } else {
                     holder.viewChatItem.showNew(false);
                 }
@@ -4545,11 +4547,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (finalTime > 0) {
                             list = msgAction.getMsg4User(toGid, toUId, null, finalLength);
                         } else {
-                            if (unreadCount < 80) {
-                                list = msgAction.getMsg4User(toGid, toUId, null, unreadCount + 80);
-                            } else {
-                                list = msgAction.getMsg4User(toGid, toUId, null, unreadCount + 20);
-                            }
+//                            if (unreadCount < 80) {
+//                                list = msgAction.getMsg4User(toGid, toUId, null, unreadCount + 80);
+//                            } else if (unreadCount > 80 * 4) {
+//                                list = msgAction.getMsg4User(toGid, toUId, null, 80);
+//                            }
+                            list = msgAction.getMsg4User(toGid, toUId, null, 80);
+
                         }
                         taskMkName(list);
                         return list;
@@ -4864,6 +4868,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             }
                         }
                     };
+                    if (!isActivityValid()) {
+                        return;
+                    }
                     if (isGroup()) {
                         UserInfo minfo = UserAction.getMyInfo();
                         JrmfRpClient.openGroupRp(ChatActivity.this, "" + minfo.getUid(), token,
@@ -4929,18 +4936,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {
+                    if (!isActivityValid()) {
+                        return;
+                    }
                     SignatureBean sign = response.body().getData();
                     String token = sign.getSign();
-
-
-                    // if (isGroup()) {
                     UserInfo minfo = UserAction.getMyInfo();
                     JrmfRpClient.openRpDetail(ChatActivity.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead());
-                   /* } else {
-                        ToastUtil.show(getContext(), "单人没有红包详情");
-
-                    }*/
-
                 }
             }
         });
