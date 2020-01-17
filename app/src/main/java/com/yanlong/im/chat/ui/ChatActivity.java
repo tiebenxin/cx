@@ -5757,7 +5757,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         screenShotListenManager.setListener(
                 new ScreenShotListenManager.OnScreenShotListener() {
                     public void onShot(String imagePath) {
-//                        LogUtil.getLog().i(TAG, "截屏--回调了--onShot" + "GID=" + toGid + "--UID=" + toUId);
+                        LogUtil.getLog().i(TAG, "截屏--回调了--onShot" + "GID=" + toGid + "--UID=" + toUId);
                         if (checkSnapshotPower()) {
                             if (isGroup()) {
                                 SocketData.sendSnapshotMsg(null, toGid);
