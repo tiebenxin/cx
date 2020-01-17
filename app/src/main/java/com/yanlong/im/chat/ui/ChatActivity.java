@@ -884,13 +884,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         taskSessionInfo();
         if (!TextUtils.isEmpty(toGid)) {
             taskGroupInfo();
+        } else {
+            //id不为0且不为客服则获取最新用户信息
+            if(toUId !=null && toUId != 100121L){
+                httpGetUserInfo();
+            }
         }
-//        else {
-//            //id不为0且不为客服则获取最新用户信息
-//            if(toUId !=null && toUId != 100121L){
-//                httpGetUserInfo();
-//            }
-//        }
         actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         if (isGroup()) {
             actionbar.getBtnRight().setVisibility(View.GONE);
@@ -5071,23 +5070,27 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             uidList = new ArrayList<>();
             uidList.add(toUId+"");
         }
-        msgAction.getUserInfo(new Gson().toJson(uidList), new Callback<ReturnBean<UserInfo>>() {
+        msgAction.getUserInfo(new Gson().toJson(uidList), new CallBack<ReturnBean<List<UserInfo>>>() {
             @Override
-            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+            public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
                 if (response.body() == null) {
                     return;
                 } else {
                     if (response.body().isOk() && response.body().getData() != null) {
-                        UserInfo userInfo = response.body().getData();
-                        userDao.updateUserinfo(userInfo);//本地更新对方数据
+                        List<UserInfo> userInfoList = new ArrayList<>();
+                        userInfoList.addAll(response.body().getData());
+                        if(userInfoList.get(0)!=null){
+                            userDao.updateUserinfo(userInfoList.get(0));//本地更新对方数据
+                            taskSessionInfo();
+                        }
                     }
                 }
                 ToastUtil.show(getContext(), response.body().getMsg());
             }
 
             @Override
-            public void onFailure(Call<ReturnBean<UserInfo>> call, Throwable t) {
-
+            public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
+                super.onFailure(call, t);
             }
         });
     }
