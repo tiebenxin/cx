@@ -1686,7 +1686,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         if (isGroup) {
             //本人群主
-            if (UserAction.getMyId() != null && groupInfo.getMaster().equals(UserAction.getMyId().toString())) {
+            if (UserAction.getMyId() != null && groupInfo != null && groupInfo.getMaster().equals(UserAction.getMyId().toString())) {
                 list.add(createItemMode("群助手", R.mipmap.ic_chat_robot, ChatEnum.EFunctionId.GROUP_ASSISTANT));
             }
         }
