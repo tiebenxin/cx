@@ -25,6 +25,7 @@ import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -247,7 +248,12 @@ public class MsgAction {
                     } else {
                         LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid);
                         MessageManager.getInstance().removeLoadGids(gid);
-                        callback.onFailure(call, new Throwable());
+
+                        if(!response.body().isOk()&&StringUtil.isNotNull(response.body().getMsg())){
+                            ToastUtil.show(response.body().getMsg());
+                        }else {
+                            callback.onFailure(call, new Throwable());
+                        }
                     }
                 }
 
