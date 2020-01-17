@@ -160,6 +160,6 @@ public interface MsgServer {
 
     @POST("/friends/get-partial-friends")
     @FormUrlEncoded
-    Call<ReturnBean> getUserInfo(@Field("@partialFriendsList[]") String... partialFriendsList);
+    Call<ReturnBean> getUserInfo(@Field("@partialFriendsList") String uidJson);
 
 }

@@ -440,11 +440,11 @@ public class MsgAction {
 
     /**
      * 获取部分好友信息
-     * @param uidArray
+     * @param uidJson
      * @param callback
      */
-    public void getUserInfo(final String[] uidArray, Callback<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.getUserInfo(uidArray), callback);
+    public void getUserInfo(final String uidJson, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.getUserInfo(uidJson), callback);
     }
 
     /**

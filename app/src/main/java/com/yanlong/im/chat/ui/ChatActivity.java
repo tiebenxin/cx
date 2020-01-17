@@ -253,6 +253,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private final String REST_EDIT = "重新编辑";
     private final String IS_VIP = "1";// (0:普通|1:vip)
     public final static int MIN_UNREAD_COUNT = 15;
+    private List<String> uidList;
 
 
     //返回需要刷新的 8.19 取消自动刷新
@@ -878,12 +879,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (!TextUtils.isEmpty(toGid)) {
             taskGroupInfo();
         }
-        else {
-            //id不为0且不为客服则获取最新用户信息
-            if(toUId !=null && toUId != 100121L){
+//        else {
+//            //id不为0且不为客服则获取最新用户信息
+//            if(toUId !=null && toUId != 100121L){
 //                httpGetUserInfo();
-            }
-        }
+//            }
+//        }
         actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         if (isGroup()) {
             actionbar.getBtnRight().setVisibility(View.GONE);
@@ -5060,18 +5061,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 发请求->获取部分好友信息
      */
     private void httpGetUserInfo(){
-        String[] arrayParams = new String[1];
-        arrayParams[0] = toUId+"";
-//        List<String> uidList = new ArrayList<>();
-//        uidList.add(toUId+"");
-        msgAction.getUserInfo(arrayParams, new Callback<ReturnBean>() {
+        if(uidList==null){
+            uidList = new ArrayList<>();
+            uidList.add(toUId+"");
+        }
+        msgAction.getUserInfo(new Gson().toJson(uidList), new Callback<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
                     return;
                 } else {
                     if (response.body().isOk() && response.body().getData() != null) {
-                        UserInfo userInfo;
+                        UserInfo userInfo = (UserInfo) response.body().getData();
                     }
                 }
                 ToastUtil.show(getContext(), response.body().getMsg());
