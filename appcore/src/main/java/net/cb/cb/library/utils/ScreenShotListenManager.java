@@ -244,6 +244,7 @@ public class ScreenShotListenManager {
             nowTime = System.currentTimeMillis();//获取系统时间
             if (mListener != null && !checkCallback(data) && (nowTime-lastScreenTime)>500) {
                 mListener.onShot(data);
+                lastScreenTime = nowTime;
             }
         } else {
             // 如果在观察区间媒体数据库有数据改变，又不符合截屏规则，则输出到 log 待分析
