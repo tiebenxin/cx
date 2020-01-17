@@ -5072,21 +5072,22 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             uidList = new ArrayList<>();
             uidList.add(toUId+"");
         }
-        msgAction.getUserInfo(new Gson().toJson(uidList), new Callback<ReturnBean>() {
+        msgAction.getUserInfo(new Gson().toJson(uidList), new Callback<ReturnBean<UserInfo>>() {
             @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
                 if (response.body() == null) {
                     return;
                 } else {
                     if (response.body().isOk() && response.body().getData() != null) {
-                        UserInfo userInfo = (UserInfo) response.body().getData();
+                        UserInfo userInfo = response.body().getData();
+                        userDao.updateUserinfo(userInfo);//本地更新对方数据
                     }
                 }
                 ToastUtil.show(getContext(), response.body().getMsg());
             }
 
             @Override
-            public void onFailure(Call<ReturnBean> call, Throwable t) {
+            public void onFailure(Call<ReturnBean<UserInfo>> call, Throwable t) {
 
             }
         });
@@ -5757,7 +5758,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         screenShotListenManager.setListener(
                 new ScreenShotListenManager.OnScreenShotListener() {
                     public void onShot(String imagePath) {
-//                        LogUtil.getLog().i(TAG, "截屏--回调了--onShot" + "GID=" + toGid + "--UID=" + toUId);
+                        LogUtil.getLog().i(TAG, "截屏--回调了--onShot" + "GID=" + toGid + "--UID=" + toUId);
                         if (checkSnapshotPower()) {
                             if (isGroup()) {
                                 SocketData.sendSnapshotMsg(null, toGid);
