@@ -1024,16 +1024,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 btnFunc.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if (viewFunc.getVisibility() == View.VISIBLE) {
-                            InputUtil.showKeyboard(editChat);
+                        if (viewExtendFunction.getVisibility() == View.VISIBLE) {
                             hideBt();
+                            editChat.requestFocus();
+                            InputUtil.showKeyboard(editChat);
                         } else {
                             showBtType(ChatEnum.EShowType.FUNCTION);
                         }
                     }
                 }, 100);
-
-
             }
         });
         btnEmj.setTag(0);
@@ -2430,7 +2429,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         msgListData.add(videoMsgBean);
                         // 不等于常信小助手
                         if (!Constants.CX_HELPER_UID.equals(toUId)) {
-                            UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, time, videoMessageSD);
+                            UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, time, videoMessageSD,false);
                             startService(new Intent(getContext(), UpLoadService.class));
                         }
                     } else if (dataType == RecordedActivity.RESULT_TYPE_PHOTO) {
@@ -2525,7 +2524,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 msgListData.add(imgMsgBean);
                                 // 不等于常信小助手
                                 if (!Constants.CX_HELPER_UID.equals(toUId)) {
-                                    UpLoadService.onAddVideo(this.context, imgMsgId, videofile, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, videoMessage.getDuration(), videoMessageSD);
+                                    UpLoadService.onAddVideo(this.context, imgMsgId, videofile, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid,
+                                            videoMessage.getDuration(), videoMessageSD,false);
                                     startService(new Intent(getContext(), UpLoadService.class));
                                 }
                             } else {
@@ -2911,7 +2911,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             videoMessage.setBg_url(getVideoAttBitmap(url));
                         }
                     }
-                    UpLoadService.onAddVideo(this.context, reMsg.getMsg_id(), url, videoMessage.getBg_url(), false, toUId, toGid, videoMessage.getDuration(), videoMessageSD);
+                    UpLoadService.onAddVideo(this.context, reMsg.getMsg_id(), url, videoMessage.getBg_url(), false, toUId, toGid,
+                            videoMessage.getDuration(), videoMessageSD,false);
                     startService(new Intent(getContext(), UpLoadService.class));
 
                 } else {
