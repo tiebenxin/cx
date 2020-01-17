@@ -239,6 +239,7 @@ import io.reactivex.schedulers.Schedulers;
 import io.realm.RealmList;
 import me.kareluo.ui.OptionMenu;
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
@@ -876,8 +877,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         taskSessionInfo();
         if (!TextUtils.isEmpty(toGid)) {
             taskGroupInfo();
-        } else {
-//            sd
+        }
+        else {
+            //id不为0且不为客服则获取最新用户信息
+            if(toUId !=null && toUId != 100121L){
+//                httpGetUserInfo();
+            }
         }
         actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         if (isGroup()) {
@@ -5057,6 +5062,34 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         });
     }
 
+    /**
+     * 发请求->获取部分好友信息
+     */
+    private void httpGetUserInfo(){
+        String[] arrayParams = new String[1];
+        arrayParams[0] = toUId+"";
+//        List<String> uidList = new ArrayList<>();
+//        uidList.add(toUId+"");
+        msgAction.getUserInfo(arrayParams, new Callback<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                } else {
+                    if (response.body().isOk() && response.body().getData() != null) {
+                        UserInfo userInfo;
+                    }
+                }
+                ToastUtil.show(getContext(), response.body().getMsg());
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+
+            }
+        });
+    }
+
     /*
      * 未填充屏幕
      * */
@@ -5723,7 +5756,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 new ScreenShotListenManager.OnScreenShotListener() {
                     public void onShot(String imagePath) {
                         if (checkSnapshotPower()) {
-                            SocketData.sendSnapshotMsg(toUId, toGid);
+                            if(isGroup()){
+                                SocketData.sendSnapshotMsg(null, toGid);
+                            }else {
+                                SocketData.sendSnapshotMsg(toUId, null);
+                            }
                             MsgNotice notice = SocketData.createMsgNoticeOfSnapshot(SocketData.getUUID());
                             sendMessage(notice, ChatEnum.EMessageType.NOTICE, false);
                         }

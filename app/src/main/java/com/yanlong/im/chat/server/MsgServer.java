@@ -158,4 +158,8 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> toggleWordsNotAllowed(@Field("@uidList") String uidJson,@Field("gid") String gid,@Field("duration") int duration);
 
+    @POST("/friends/get-partial-friends")
+    @FormUrlEncoded
+    Call<ReturnBean> getUserInfo(@Field("@partialFriendsList[]") String... partialFriendsList);
+
 }

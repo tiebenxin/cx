@@ -439,6 +439,15 @@ public class MsgAction {
     }
 
     /**
+     * 获取部分好友信息
+     * @param uidArray
+     * @param callback
+     */
+    public void getUserInfo(final String[] uidArray, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.getUserInfo(uidArray), callback);
+    }
+
+    /**
      * 全员禁言
      * @param gid
      * @param intimately
