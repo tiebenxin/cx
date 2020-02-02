@@ -1066,16 +1066,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 btnFunc.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if (viewFunc.getVisibility() == View.VISIBLE) {
-                            InputUtil.showKeyboard(editChat);
+                        if (viewExtendFunction.getVisibility() == View.VISIBLE) {
                             hideBt();
+                            editChat.requestFocus();
+                            InputUtil.showKeyboard(editChat);
                         } else {
                             showBtType(ChatEnum.EShowType.FUNCTION);
                         }
                     }
                 }, 100);
-
-
             }
         });
         btnEmj.setTag(0);
@@ -2501,7 +2500,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         msgListData.add(videoMsgBean);
                         // 不等于常信小助手
                         if (!Constants.CX_HELPER_UID.equals(toUId)) {
-                            UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, time, videoMessageSD);
+                            UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, time, videoMessageSD,false);
                             startService(new Intent(getContext(), UpLoadService.class));
                         }
                     } else if (dataType == RecordedActivity.RESULT_TYPE_PHOTO) {
@@ -2596,7 +2595,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 msgListData.add(imgMsgBean);
                                 // 不等于常信小助手
                                 if (!Constants.CX_HELPER_UID.equals(toUId)) {
-                                    UpLoadService.onAddVideo(this.context, imgMsgId, videofile, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, videoMessage.getDuration(), videoMessageSD);
+                                    UpLoadService.onAddVideo(this.context, imgMsgId, videofile, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid,
+                                            videoMessage.getDuration(), videoMessageSD,false);
                                     startService(new Intent(getContext(), UpLoadService.class));
                                 }
                             } else {
@@ -2919,6 +2919,25 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     /**
+     * 跳转UserInfoActivity
+     *
+     * @param message
+     */
+    private void toUserInfoActivity(long uid) {
+        String name = "";
+        if (isGroup()) {
+            name = msgDao.getGroupMemberName2(toGid, uid);
+        } else if (mFinfo != null) {
+            name = mFinfo.getName4Show();
+        }
+        startActivity(new Intent(getContext(), UserInfoActivity.class)
+                .putExtra(UserInfoActivity.ID, uid)
+                .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
+                .putExtra(UserInfoActivity.GID, toGid)
+                .putExtra(UserInfoActivity.MUC_NICK, name));
+    }
+
+    /**
      * 重新发送消息
      *
      * @param msgBean
@@ -2982,7 +3001,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             videoMessage.setBg_url(getVideoAttBitmap(url));
                         }
                     }
-                    UpLoadService.onAddVideo(this.context, reMsg.getMsg_id(), url, videoMessage.getBg_url(), false, toUId, toGid, videoMessage.getDuration(), videoMessageSD);
+                    UpLoadService.onAddVideo(this.context, reMsg.getMsg_id(), url, videoMessage.getBg_url(), false, toUId, toGid,
+                            videoMessage.getDuration(), videoMessageSD,false);
                     startService(new Intent(getContext(), UpLoadService.class));
 
                 } else {
@@ -3008,7 +3028,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     public void clickUser(String userId, String gid) {
-
+        long user = StringUtil.getLong(userId);
+        if (user > 0) {
+            toUserInfoActivity(user);
+        }
     }
 
     @Override
@@ -5040,7 +5063,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
-                super.onFailure(call, t);
+//                super.onFailure(call, t);
                 groupInfo = msgDao.getGroup4Id(toGid);
                 if (groupInfo != null) {
                     contactIntimately = groupInfo.getContactIntimately();
@@ -5760,7 +5783,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         screenShotListenManager.setListener(
                 new ScreenShotListenManager.OnScreenShotListener() {
                     public void onShot(String imagePath) {
-//                        LogUtil.getLog().i(TAG, "截屏--回调了--onShot" + "GID=" + toGid + "--UID=" + toUId);
+                        LogUtil.getLog().i(TAG, "截屏--回调了--onShot" + "GID=" + toGid + "--UID=" + toUId);
                         if (checkSnapshotPower()) {
                             if (isGroup()) {
                                 SocketData.sendSnapshotMsg(null, toGid);

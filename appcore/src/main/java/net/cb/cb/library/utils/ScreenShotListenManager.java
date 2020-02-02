@@ -53,7 +53,7 @@ public class ScreenShotListenManager {
     private static final String[] KEYWORDS = {
             "screenshot", "screen_shot", "screen-shot", "screen shot",
             "screencapture", "screen_capture", "screen-capture", "screen capture",
-            "screencap", "screen_cap", "screen-cap", "screen cap","截屏"
+            "screencap", "screen_cap", "screen-cap", "screen cap", "截屏"
     };
 
     private static Point sScreenRealSize;
@@ -157,10 +157,10 @@ public class ScreenShotListenManager {
             }
             mExternalObserver = null;
         }
-
         // 清空数据
         mStartListenTime = 0;
         sHasCallbackPaths.clear();
+        mListener = null;
     }
 
     /**

@@ -581,6 +581,7 @@ public class ChatItemView extends LinearLayout {
     public void setNoticeString(Spanned string) {
         imgBroadcast.setVisibility(GONE);
         txtBroadcast.setText(string);
+        txtBroadcast.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     public void setData0(SpannableStringBuilder stringBuilder) {
