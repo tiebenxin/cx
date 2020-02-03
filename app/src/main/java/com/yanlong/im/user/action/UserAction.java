@@ -32,6 +32,7 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.Installation;
 import net.cb.cb.library.utils.LogUtil;
@@ -471,6 +472,12 @@ public class UserAction {
 
                 if (response.body().isOk()) {
                     List<UserInfo> list = response.body().getData();
+                    //TODO zjy 模拟新增文件小助手项 id=3，展示在通讯录，暂无接口
+                    UserInfo tempUser = new UserInfo();
+                    tempUser.setName("常信文件传输助手");
+                    tempUser.setUid(Constants.CX_FILE_HELPER_UID);
+                    tempUser.setuType(ChatEnum.EUserType.ASSISTANT);
+                    list.add(tempUser);
                     //更新库
                     dao.friendMeUpdate(list);
 
