@@ -477,6 +477,8 @@ public class UserAction {
                     tempUser.setName("常信文件传输助手");
                     tempUser.setUid(Constants.CX_FILE_HELPER_UID);
                     tempUser.setuType(ChatEnum.EUserType.ASSISTANT);
+                    tempUser.setHead("http://zx-im-img.zhixun6.com/static/%E5%B8%B8%E4%BF%A1%E5%B0%8F%E5%8A%A9%E6%89%8B.png");
+                    tempUser.setStat(9);
                     list.add(tempUser);
                     //更新库
                     dao.friendMeUpdate(list);
