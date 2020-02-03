@@ -254,7 +254,8 @@ public class Session extends RealmObject implements Comparable<Session> {
         if (type != 0 || from_uid == null) {
             return false;
         }
-        if (from_uid.equals(Constants.CX888_UID) || from_uid.equals(Constants.CX999_UID) || from_uid.equals(Constants.CX_HELPER_UID) || from_uid.equals(Constants.CX_BALANCE_UID)) {
+        if (from_uid.equals(Constants.CX888_UID) || from_uid.equals(Constants.CX999_UID) || from_uid.equals(Constants.CX_HELPER_UID) || from_uid.equals(Constants.CX_BALANCE_UID)
+                || from_uid.equals(Constants.CX_FILE_HELPER_UID)) {
             return true;
         }
         return false;

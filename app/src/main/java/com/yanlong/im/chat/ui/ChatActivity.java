@@ -839,8 +839,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, bean.getPath(), true);
                 MsgAllBean msgAllBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
                 msgListData.add(msgAllBean);
-                // 不等于常信小助手
-                if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                // 不等于常信小助手、文件传输助手
+                if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
                     final ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(bean.getPath());
                     SocketData.send4Image(imgMsgId, toUId, toGid, bean.getServerPath(), true, img, -1);
                 }
@@ -1246,8 +1246,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msg);
                     }
                 });
-                // 不等于常信小助手
-                if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                // 不等于常信小助手、文件传输助手
+                if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
                     uploadVoice(file, msg);
                 }
             }
@@ -1791,7 +1791,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private boolean filterMessage(IMsgContent message) {
         boolean isSend = true;
-        if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_BALANCE_UID.equals(toUId)) {//常信小助手不需要发送到后台
+        if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_BALANCE_UID.equals(toUId)
+                || Constants.CX_FILE_HELPER_UID.equals(toUId)) {//常信小助手不需要发送到后台
             isSend = false;
         } /*else if (message instanceof RedEnvelopeMessage) {
             RedEnvelopeMessage bean = (RedEnvelopeMessage) message;
@@ -2498,8 +2499,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                         videoMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
                         msgListData.add(videoMsgBean);
-                        // 不等于常信小助手
-                        if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                        // 不等于常信小助手、文件传输助手
+                        if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
                             UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, time, videoMessageSD,false);
                             startService(new Intent(getContext(), UpLoadService.class));
                         }
@@ -2524,8 +2525,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" + */file, isArtworkMaster);
                         videoMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
                         msgListData.add(videoMsgBean);
-                        // 不等于常信小助手
-                        if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                        // 不等于常信小助手、文件传输助手
+                        if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
                             UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
                             startService(new Intent(getContext(), UpLoadService.class));
                         }
@@ -2562,8 +2563,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" +*/ file, isArtworkMaster);//TODO:使用file://路径会使得检测本地路径不存在
                             imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
                             msgListData.add(imgMsgBean);
-                            // 不等于常信小助手
-                            if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                            // 不等于常信小助手、文件传输助手
+                            if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
                                 UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
                                 startService(new Intent(getContext(), UpLoadService.class));
                             }
@@ -2593,8 +2594,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + videofile, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), videofile);
                                 imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
                                 msgListData.add(imgMsgBean);
-                                // 不等于常信小助手
-                                if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                                // 不等于常信小助手、文件传输助手
+                                if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
                                     UpLoadService.onAddVideo(this.context, imgMsgId, videofile, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid,
                                             videoMessage.getDuration(), videoMessageSD,false);
                                     startService(new Intent(getContext(), UpLoadService.class));
@@ -3276,7 +3277,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             holder.viewChatItem.isSelectedShow(isSelected);
             //发送状态处理
             if (ChatEnum.EMessageType.MSG_VIDEO == msgbean.getMsg_type() || ChatEnum.EMessageType.IMAGE == msgbean.getMsg_type() ||
-                    Constants.CX_HELPER_UID.equals(toUId)) {
+                    Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_FILE_HELPER_UID.equals(toUId)) {
                 holder.viewChatItem.setErr(msgbean.getSend_state(), false);
             } else {
                 holder.viewChatItem.setErr(msgbean.getSend_state(), true);
@@ -3506,8 +3507,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                     Integer pgVideo = null;
                     pgVideo = UpLoadService.getProgress(msgbean.getMsg_id());
-                    // 等于常信小助手
-                    if (Constants.CX_HELPER_UID.equals(toUId)) {
+                    // 等于常信小助手、文件传输助手
+                    if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_FILE_HELPER_UID.equals(toUId)) {
                         pgVideo = 100;
                     }
 
