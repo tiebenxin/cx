@@ -911,7 +911,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             .putExtra(GroupInfoActivity.AGM_GID, toGid)
                     );
                 } else {
-                    if (toUId == 1L) {
+                    if (toUId == 1L || toUId == 3L) {
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, toUId)
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1));
@@ -1682,6 +1682,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         toGroupRobot();
                         break;
                     case ChatEnum.EFunctionId.FILE:
+                        ToastUtil.show("点击文件");
                         break;
                 }
             }
@@ -1730,7 +1731,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 list.add(createItemMode("群助手", R.mipmap.ic_chat_robot, ChatEnum.EFunctionId.GROUP_ASSISTANT));
             }
         }
-//        list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
+        list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
         return list;
     }
 
