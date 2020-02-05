@@ -238,6 +238,7 @@ import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.RealmList;
 import me.kareluo.ui.OptionMenu;
+import me.rosuh.filepicker.config.FilePickerManager;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -1682,7 +1683,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         toGroupRobot();
                         break;
                     case ChatEnum.EFunctionId.FILE:
-                        ToastUtil.show("点击文件");
+                        toSelectFile();
                         break;
                 }
             }
@@ -2655,6 +2656,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         editChat.addAtSpan(null, name, Long.valueOf(uid));
                     }
                     break;
+                case FilePickerManager.REQUEST_CODE:
+                    //拿到选中的文件集合
+                    List<String> filePathList = FilePickerManager.INSTANCE.obtainData();
+                    ToastUtil.show("已经拿到文件地址");
+                    break;
+
             }
         } else if (resultCode == SelectUserActivity.RET_CODE_SELECTUSR) {//选择通讯录中的某个人
             if (!checkNetConnectStatus()) {
@@ -5815,6 +5822,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             // 开始截图监听
             screenShotListenManager.startListen();
         }
+    }
+
+    //选择文件
+    private void toSelectFile(){
+        FilePickerManager.INSTANCE
+                .from(this)
+                .forResult(FilePickerManager.REQUEST_CODE);
     }
 
 
