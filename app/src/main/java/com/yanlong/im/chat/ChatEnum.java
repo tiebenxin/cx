@@ -359,6 +359,17 @@ public class ChatEnum {
         int CARD = 9;//名片
         int GROUP_ASSISTANT = 10;//群助手
         int FILE = 11;//文件
+    }
 
+
+    /*
+     *聊天拓展功能id
+     * */
+    @IntDef({EForwardMode.DEFAULT, EForwardMode.ONE_BY_ONE,EForwardMode.MERGE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EForwardMode {
+        int DEFAULT = 0; // 默认，单条转发
+        int ONE_BY_ONE = 1; // 逐条转发
+        int MERGE = 2; // 合并
     }
 }

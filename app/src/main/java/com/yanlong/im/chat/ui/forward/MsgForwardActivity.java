@@ -2,6 +2,7 @@ package com.yanlong.im.chat.ui.forward;
 
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
@@ -16,6 +17,8 @@ import android.text.TextWatcher;
 import android.view.View;
 
 import com.example.nim_lib.config.Preferences;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ChatMessage;
@@ -63,6 +66,7 @@ import io.reactivex.annotations.NonNull;
 
 public class MsgForwardActivity extends AppActivity implements IForwardListener {
     public static final String AGM_JSON = "JSON";
+    public static final String MODE = "mode";
     private ActionbarView actionbar;
     private ActivityMsgForwardBinding ui;
     private ClearEditText edtSearch;
@@ -84,6 +88,15 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
     private String oneShareImgPath = "";//单图分享路径
+    private int model;
+    private List<MsgAllBean> msgList;
+
+    public static Intent newIntent(Context context, @ChatEnum.EForwardMode int mode, String json) {
+        Intent intent = new Intent(context, MsgForwardActivity.class);
+        intent.putExtra(MODE, mode);
+        intent.putExtra(AGM_JSON, json);
+        return intent;
+    }
 
 
     @Override
@@ -112,9 +125,15 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         searchKey = null;
         isSingleSelected = true;
         moreSessionBeanList = new ArrayList<>();
-
+        model = getIntent().getIntExtra(MODE, ChatEnum.EForwardMode.DEFAULT);
         json = getIntent().getStringExtra(AGM_JSON);
-        msgAllBean = GsonUtils.getObject(json, MsgAllBean.class);
+        if (model == ChatEnum.EForwardMode.DEFAULT || model == ChatEnum.EForwardMode.MERGE) {
+            msgAllBean = GsonUtils.getObject(json, MsgAllBean.class);
+        } else if (model == ChatEnum.EForwardMode.ONE_BY_ONE) {
+            Gson gson = new Gson();
+            msgList = gson.fromJson(json, new TypeToken<List<MsgAllBean>>() {}.getType());
+            System.out.println(msgList.size());
+        }
 
         resetRightText();
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
@@ -196,7 +215,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             actionbar.getBtnLeft().setVisibility(View.GONE);
             actionbar.setTxtLeft("取消");
 
-            if (moreSessionBeanList.size()==0) {
+            if (moreSessionBeanList.size() == 0) {
                 actionbar.setTxtRight("完成");
             } else {
                 actionbar.setTxtRight("完成(" + moreSessionBeanList.size() + ")");
@@ -339,7 +358,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 }
                 isSingleSelected = true;
             }
-        }else if (msgAllBean.getImage() != null) {
+        } else if (msgAllBean.getImage() != null) {
             if (isSingleSelected) {
                 ImageMessage imagesrc = msgAllBean.getImage();
                 if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
@@ -455,10 +474,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 }
                 isSingleSelected = true;
             }
-        }else if(msgAllBean.getShippedExpressionMessage()!=null){
+        } else if (msgAllBean.getShippedExpressionMessage() != null) {
 
             if (isSingleSelected) {
-                ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(),msgAllBean.getShippedExpressionMessage().getId());
+                ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(), msgAllBean.getShippedExpressionMessage().getId());
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.SHIPPED_EXPRESSION, ChatEnum.ESendStatus.SENDING,
                         SocketData.getFixTime(), message);
                 if (allBean != null) {

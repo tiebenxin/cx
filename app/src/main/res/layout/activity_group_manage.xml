@@ -82,7 +82,7 @@
                 <!--未领取红包列表-->
                 <LinearLayout
                     android:id="@+id/layout_no_redenvelopes"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     style="@style/app_layout_list2_item">
 
                     <TextView

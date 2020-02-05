@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_99"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_one"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:gravity="center_horizontal"
+        android:textColor="@color/black"
+        android:padding="10dp"
+        android:textSize="14sp"
+        android:text="逐条转发" />
+
+    <TextView
+        android:id="@+id/tv_merge"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:textColor="@color/black"
+        android:padding="10dp"
+        android:textSize="14sp"
+        android:gravity="center_horizontal"
+        android:text="合并转发" />
+
+    <TextView
+        android:id="@+id/tv_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="6dp"
+        android:textColor="@color/black"
+        android:padding="10dp"
+        android:textSize="14sp"
+        android:text="取消" />
+
+</LinearLayout>

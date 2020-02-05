@@ -369,24 +369,17 @@ public class ChatItemView extends LinearLayout {
     }
 
     public void setOnLongClickListener(OnLongClickListener onLongClick) {
-
-
         viewOtTouch.setOnLongClickListener(onLongClick);
         viewMeTouch.setOnLongClickListener(onLongClick);
-       /* imgMe4.setOnLongClickListener(onLongClick);
-        imgMe4.setOnLongClickListener(onLongClick);
+    }
 
-        viewMe7.setOnLongClickListener(onLongClick);*/
-
+    public void setOnClickListener(OnClickListener onClick) {
+        viewOtTouch.setOnClickListener(onClick);
+        viewMeTouch.setOnClickListener(onClick);
     }
 
     public void setHeadOnLongClickListener(OnLongClickListener onLongClick) {
-
-
-        //  imgMeHead.setOnLongClickListener(onLongClick);
         imgOtHead.setOnLongClickListener(onLongClick);
-
-
     }
 
 
@@ -684,6 +677,7 @@ public class ChatItemView extends LinearLayout {
         menus.add(new OptionMenu("复制"));
         menus.add(new OptionMenu("转发"));
         menus.add(new OptionMenu("删除"));
+        menus.add(new OptionMenu("多选"));
     }
 
     //AT消息
@@ -895,7 +889,7 @@ public class ChatItemView extends LinearLayout {
         viewMe7.init(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
     }
 
-    //普通消息
+    //常信小助手消息
     public void setDataAssistant(String msg) {
 //        msg = "http://baidu.com\n回复报告白拿的\nhttp://baidu.com\n发改委复合物号单位自己\nhttp://baidu.com";
         if (!StringUtil.isNotNull(msg)) {
@@ -1478,6 +1472,10 @@ public class ChatItemView extends LinearLayout {
 
     public void isSelectedShow(boolean b) {
         ckSelect.setVisibility(b ? VISIBLE : GONE);
+    }
+
+    public void select(boolean b) {
+        ckSelect.setChecked(b);
     }
 
 
