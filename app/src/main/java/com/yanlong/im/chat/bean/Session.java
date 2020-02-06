@@ -237,11 +237,18 @@ public class Session extends RealmObject implements Comparable<Session> {
 
     @Override
     public int compareTo(Session o) {
-        if (o.up_time != null && this.up_time != null) {
-            return (int) (o.up_time - this.up_time);//降序
-        } else if (o.up_time == null) {
+        if (o != null && o.up_time != null && this != null && this.up_time != null) {
+            //降序
+            if(o.up_time.longValue() > this.up_time.longValue()){
+                return 1;
+            }else if (o.up_time.longValue() < this.up_time.longValue()){
+                return -1;
+            }else {
+                return 0;
+            }
+        } else if (o == null || o.up_time == null) {
             return -1;
-        } else if (this.up_time == null) {
+        } else if (this == null || this.up_time == null) {
             return 1;
         } else {
             return 0;
