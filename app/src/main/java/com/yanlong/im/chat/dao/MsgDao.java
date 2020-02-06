@@ -1250,13 +1250,13 @@ public class MsgDao {
     }
 
     /***
-     * 查询会话所有未读消息
+     * 查询会话所有未读消息,最多显示99，所以只需查询100条即可
      * @return
      */
     public int sessionReadGetAll() {
         int sum = 0;
         Realm realm = DaoUtil.open();
-        List<Session> list = realm.where(Session.class).findAll();
+        List<Session> list = realm.where(Session.class).limit(100).findAll();
 
         if (list != null) {
             for (Session s : list) {
@@ -1417,23 +1417,6 @@ public class MsgDao {
     }
 
 
-    /***
-     * 获取单个会话阅读量
-     * @param gid
-     * @param from_uid
-     * @return
-     */
-    public int sessionReadGet(String gid, Long from_uid) {
-        int sum = 0;
-        Session session = StringUtil.isNotNull(gid) ? DaoUtil.findOne(Session.class, "gid", gid) :
-                DaoUtil.findOne(Session.class, "from_uid", from_uid);
-        if (session != null) {
-            sum = session.getUnread_count();
-        }
-
-
-        return sum;
-    }
 
     /***
      * 获取所有会话
