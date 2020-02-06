@@ -305,8 +305,12 @@ public class ChatInfoActivity extends AppActivity {
 
 
                     // holder.imgHead.setImageURI(Uri.parse("" + userInfo.getHead()));
-                    Glide.with(context).load(userInfo.getHead())
-                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                    if(userInfo!=null){
+                        if(!TextUtils.isEmpty(userInfo.getHead())){
+                            Glide.with(context).load(userInfo.getHead())
+                                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                        }
+                    }
 
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
