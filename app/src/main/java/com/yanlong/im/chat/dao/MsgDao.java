@@ -1901,101 +1901,6 @@ public class MsgDao {
     }
 
 
-//
-//    /**
-//     * 通讯录好友申请添加好友
-//     */
-//    public void userAcceptAdd(Long uid, String contactName) {
-//        Realm realm = DaoUtil.open();
-//        realm.beginTransaction();
-//
-//        ContactNameBean contactNameBean = realm.where(ContactNameBean.class).equalTo("uid", uid).findFirst();
-//        if (contactNameBean == null) {
-//            contactNameBean = new ContactNameBean();
-//            contactNameBean.setUid(uid);
-//            contactNameBean.setContactName(contactName);
-//        } else {
-//            contactNameBean.setContactName(contactName);
-//        }
-//
-//        realm.insertOrUpdate(contactNameBean);
-//        realm.commitTransaction();
-//        realm.close();
-//    }
-//
-//    /**
-//     * 获取contactName
-//     */
-//    public ContactNameBean getContactName(Long uid) {
-//        Realm realm = DaoUtil.open();
-//        ContactNameBean contactNameBean = realm.where(ContactNameBean.class).equalTo("uid", uid).findFirst();
-//
-//        return contactNameBean;
-//    }
-//
-//
-//    /***
-//     * 群申请
-//     * @param gid
-//     * @param fromUid
-//     * @param nickname
-//     */
-//    public void groupAcceptAdd(int joinType, long inviter, String inviterName, String gid, long fromUid, String nickname, String head) {
-//        Realm realm = DaoUtil.open();
-//        realm.beginTransaction();
-//
-//
-//        GroupAccept accept = realm.where(GroupAccept.class).equalTo("gid", gid).equalTo("uid", fromUid).findFirst();
-//        if (accept == null) {
-//            accept = new GroupAccept();
-//            accept.setAid(UUID.randomUUID().toString());
-//            accept.setGid(gid);
-//        }
-//        accept.setTime(System.currentTimeMillis());
-//
-//        Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
-//        if (group != null) {
-//            accept.setGroupName(group.getName());
-//        }
-//
-//        accept.setUid(fromUid);
-//        accept.setUname(nickname);
-//        accept.setHead(head);
-//        accept.setInviter(inviter);
-//        accept.setInviterName(inviterName);
-//        accept.setJoinType(joinType);
-//
-//        realm.insertOrUpdate(accept);
-//
-//        realm.commitTransaction();
-//        realm.close();
-//    }
-//
-//    public List<GroupAccept> groupAccept() {
-//        Realm realm = DaoUtil.open();
-//        realm.beginTransaction();
-//        List<GroupAccept> beans = new ArrayList<>();
-//        RealmResults<GroupAccept> res = realm.where(GroupAccept.class).sort("time", Sort.DESCENDING).findAll();
-//        if (res != null) {
-//            beans = realm.copyFromRealm(res);
-//        }
-//        realm.commitTransaction();
-//        realm.close();
-//        return beans;
-//    }
-//
-//
-//    /**
-//     * 移除这条群申请
-//     *
-//     * @param aid
-//     */
-//    public void groupAcceptRemove(String aid) {
-//        DaoUtil.deleteOne(GroupAccept.class, "aid", aid);
-//
-//    }
-
-
     /***
      * 修改群名
      * @param gid
@@ -2297,8 +2202,6 @@ public class MsgDao {
     public String getUsername4Show(String gid, Long uid, String uname, String groupName) {
         String name = "";
         Realm realm = DaoUtil.open();
-//        realm.beginTransaction();
-
         UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
         if (userInfo != null) {
             //1.获取本地用户昵称
@@ -2330,9 +2233,6 @@ public class MsgDao {
             }
 
         }
-
-
-//        realm.commitTransaction();
         realm.close();
 
         return name;
@@ -2357,10 +2257,7 @@ public class MsgDao {
             msgAllBean.setGid(gid);
             UserInfo userinfo = UserAction.getMyInfo();
             msgAllBean.setFrom_uid(toUid);
-
             msgAllBean.setTo_uid(userinfo.getUid());
-
-
         }
 
         int survivaltime = new UserDao().getReadDestroy(toUid, gid);
@@ -2369,12 +2266,9 @@ public class MsgDao {
         msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
         msgAllBean.setMsgNotice(note);
         msgAllBean.setTimestamp(new Date().getTime());
-
         realm.insertOrUpdate(msgAllBean);
-
         realm.commitTransaction();
         realm.close();
-
         return ret;
     }
 
@@ -2453,7 +2347,6 @@ public class MsgDao {
         MsgAllBean ret = null;
         MsgAllBean bean = null;
         Realm realm = DaoUtil.open();
-//        realm.beginTransaction();
         if (!TextUtils.isEmpty(gid)) {
             ret = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
@@ -2472,7 +2365,6 @@ public class MsgDao {
         if (ret != null) {
             bean = realm.copyFromRealm(ret);
         }
-//        realm.commitTransaction();
         realm.close();
         if (bean != null && bean.getChat() != null) {
             return true;
@@ -2524,82 +2416,12 @@ public class MsgDao {
                     MemberUser info = realm.copyFromRealm(userInfo);
                     group.setKeyUser(info);
                     ret.add(group);
-                } /*else {
-                    GropLinkInfo gropLinkInfo = realm.where(GropLinkInfo.class)
-                            .beginGroup().equalTo("gid", g.getGid()).endGroup()
-                            .and()
-                            .beginGroup().contains("membername", key).endGroup()
-                            .findFirst();
-                    if (gropLinkInfo != null) {
-                        userInfo = userInfos.where()
-                                .beginGroup().equalTo("uid", gropLinkInfo.getUid()).endGroup()
-                                .findFirst();
-                        if (userInfo != null) {
-                            Group group = realm.copyFromRealm(g);
-                            UserInfo info = realm.copyFromRealm(userInfo);
-                            info.setMembername(gropLinkInfo.getMembername());
-                            group.setKeyUser(info);
-                            ret.add(group);
-                        }
-                    }
-                }*/
+                }
             }
         }
         realm.commitTransaction();
         realm.close();
         return ret;
-
-
-    }
-
-
-    /*
-     * 获取下一个待播语音
-     * */
-    public MsgAllBean getNextVoiceMessage(Long uid, String gid, Long time, Long mid) {
-        MsgAllBean ret = null;
-        MsgAllBean bean = null;
-        Realm realm = DaoUtil.open();
-        realm.beginTransaction();
-        if (mid == null) {
-            return null;
-        }
-        // from_uid = 100804 and timestamp >1567493175111 and msg_type = 7 and isRead = false and to_uid = 101303
-        if (uid != null) {//私聊
-            ret = realm.where(MsgAllBean.class)
-                    .beginGroup().equalTo("msg_type", ChatEnum.EMessageType.VOICE).endGroup()
-                    .and()
-                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
-                    .and()
-                    .beginGroup().equalTo("to_uid", mid).endGroup()
-                    .and()
-                    .beginGroup().equalTo("from_uid", uid).endGroup()
-                    .and()
-                    .beginGroup().equalTo("isRead", false).endGroup()
-                    .and()
-                    .beginGroup().greaterThan("timestamp", time).endGroup()
-                    .sort("timestamp", Sort.DESCENDING)
-                    .findFirst();
-        } else if (!TextUtils.isEmpty(gid)) {//群聊
-            ret = realm.where(MsgAllBean.class)
-                    .beginGroup().equalTo("msg_type", ChatEnum.EMessageType.VOICE).endGroup()
-                    .and()
-                    .beginGroup().equalTo("gid", gid).endGroup()
-                    .and()
-                    .beginGroup().notEqualTo("from_uid", mid).endGroup()
-                    .and()
-                    .beginGroup().equalTo("isRead", false).endGroup()
-                    .and()
-                    .beginGroup().greaterThan("timestamp", time).endGroup()
-                    .sort("timestamp", Sort.DESCENDING)
-                    .findFirst();
-        }
-        if (ret != null) {
-            bean = realm.copyFromRealm(ret);
-        }
-        realm.commitTransaction();
-        realm.close();
-        return bean;
     }
 
     //修改播放消息状态
@@ -2692,11 +2514,6 @@ public class MsgDao {
                 int len = users.size();
                 for (int i = 0; i < len; i++) {
                     MemberUser info = users.get(i);
-//                    GropLinkInfo linkInfo = getGropLinkInfo(group.getGid(), info.getUid());
-//                    String memberName = "";
-//                    if (linkInfo != null && !TextUtils.isEmpty(linkInfo.getMembername())) {
-//                        memberName = linkInfo.getMembername();
-//                    }
                     if (i == len - 1) {
                         result += StringUtil.getUserName("", info.getMembername(), info.getName(), info.getUid());
                     } else {
@@ -2862,6 +2679,8 @@ public class MsgDao {
             g.setName(name);
             realm.insertOrUpdate(g);
         } else {//不存在
+            realm.commitTransaction();
+            realm.close();
             return false;
         }
         realm.commitTransaction();
@@ -2877,12 +2696,13 @@ public class MsgDao {
     public boolean updateGroupHead(String gid, String head) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
-
         Group g = realm.where(Group.class).equalTo("gid", gid).findFirst();
         if (g != null) {//已经存在
             g.setAvatar(head);
             realm.insertOrUpdate(g);
         } else {//不存在
+            realm.commitTransaction();
+            realm.close();
             return false;
         }
         realm.commitTransaction();
@@ -3076,6 +2896,7 @@ public class MsgDao {
                 }
             }
             realm.commitTransaction();
+            realm.close();
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
@@ -3108,6 +2929,7 @@ public class MsgDao {
             }
 
             realm.commitTransaction();
+            realm.close();
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
@@ -3129,6 +2951,7 @@ public class MsgDao {
                 }
             }
             realm.commitTransaction();
+            realm.close();
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
@@ -3149,6 +2972,7 @@ public class MsgDao {
                 }
             }
             realm.commitTransaction();
+            realm.close();
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
@@ -3169,6 +2993,7 @@ public class MsgDao {
                 }
             }
             realm.commitTransaction();
+            realm.close();
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
@@ -3235,6 +3060,7 @@ public class MsgDao {
                 }
             }
             realm.commitTransaction();
+            realm.close();
         } catch (Exception e) {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
@@ -3379,6 +3205,7 @@ public class MsgDao {
             }
             transfer.setOpType(opType);
             realm.commitTransaction();
+            realm.close();
         } catch (Exception e) {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
@@ -3421,6 +3248,7 @@ public class MsgDao {
 
                 }
             }
+            realm.close();
             return msgAllBeans;
         } catch (Exception e) {
             DaoUtil.close(realm);
@@ -3438,6 +3266,7 @@ public class MsgDao {
                 group.setScreenshotNotification(value);
             }
             realm.commitTransaction();
+            realm.close();
         }catch (Exception e){
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
