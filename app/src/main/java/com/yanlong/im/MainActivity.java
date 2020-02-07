@@ -325,24 +325,11 @@ public class MainActivity extends AppActivity {
 
 
         // 启动聊天服务
-        startService(new Intent(getContext(), ChatServer.class));
-
-        //监听应用
-  /*      AppFrontBackHelper helper = new AppFrontBackHelper();
-        helper.register(getApplication(), new AppFrontBackHelper.OnAppStatusListener() {
-            @Override
-            public void onFront() {
-                //应用切到前台处理
-                startService(new Intent(getContext(), ChatServer.class));
-            }
-
-            @Override
-            public void onBack() {
-                //应用切到后台处理
-                stopService(new Intent(getContext(), ChatServer.class));
-
-            }
-        });*/
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
+            startForegroundService(new Intent(getContext(), ChatServer.class));
+        } else {
+            startService(new Intent(getContext(), ChatServer.class));
+        }
         mBtnMinimizeVoice.setOnClickListener(new ImageMoveView.OnSingleTapListener() {
             @Override
             public void onClick() {
@@ -384,22 +371,22 @@ public class MainActivity extends AppActivity {
 //        new Handler().postDelayed(new Runnable() {
 //            @Override
 //            public void run() {
-                try {
-                    Intent intent = getIntent();
-                    boolean isFromLogin = intent.getBooleanExtra(IS_LOGIN, false);
-                    if (isFromLogin) {//从登陆页面过来，从网络获取最新数据
-                        taskLoadFriends();
+        try {
+            Intent intent = getIntent();
+            boolean isFromLogin = intent.getBooleanExtra(IS_LOGIN, false);
+            if (isFromLogin) {//从登陆页面过来，从网络获取最新数据
+                taskLoadFriends();
 //                    taskLoadSavedGroups();
-                    } else {
-                        UserDao userDao = new UserDao();
-                        boolean hasInit = userDao.isRosterInit();
-                        if (!hasInit) {//未初始化，初始化本地通讯录
-                            taskLoadFriends();
-                        }
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
+            } else {
+                UserDao userDao = new UserDao();
+                boolean hasInit = userDao.isRosterInit();
+                if (!hasInit) {//未初始化，初始化本地通讯录
+                    taskLoadFriends();
                 }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 //            }
 //        }, 1000);
