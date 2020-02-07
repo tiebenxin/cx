@@ -131,7 +131,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             msgAllBean = GsonUtils.getObject(json, MsgAllBean.class);
         } else if (model == ChatEnum.EForwardMode.ONE_BY_ONE) {
             Gson gson = new Gson();
-            msgList = gson.fromJson(json, new TypeToken<List<MsgAllBean>>() {}.getType());
+            msgList = gson.fromJson(json, new TypeToken<List<MsgAllBean>>() {
+            }.getType());
             System.out.println(msgList.size());
         }
 
@@ -320,7 +321,21 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
             @Override
             public void onYes(String content) {
-                send(content, toUid, toGid);
+                if (model == ChatEnum.EForwardMode.DEFAULT || model == ChatEnum.EForwardMode.MERGE) {
+                    if (msgAllBean != null) {
+                        send(msgAllBean, content, toUid, toGid);
+                    }
+                } else if (model == ChatEnum.EForwardMode.ONE_BY_ONE) {
+                    if (msgList != null) {
+                        int len = msgList.size();
+                        if (len > 0) {
+                            for (int i = 0; i < len; i++) {
+                                MsgAllBean msg = msgList.get(i);
+                                send(msg, content, toUid, toGid);
+                            }
+                        }
+                    }
+                }
                 doSendSuccess();
             }
         });
@@ -330,7 +345,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     }
 
     //处理逻辑
-    private void send(String content, long toUid, String toGid) {
+    private void send(MsgAllBean msgAllBean, String content, long toUid, String toGid) {
         if (msgAllBean.getChat() != null) {//转换文字
             if (isSingleSelected) {
                 ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getChat().getMsg());
@@ -340,7 +355,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     sendMesage = allBean;
                 }
 
-//                    sendMesage = SocketData.send4Chat(toUid, toGid, msgAllBean.getChat().getMsg());
                 sendLeaveMessage(content, toUid, toGid);
                 notifyRefreshMsg(toGid, toUid);
             } else {
@@ -370,15 +384,11 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     SocketData.sendAndSaveMessage(allBean);
                     sendMesage = allBean;
                 }
-
-//                    sendMesage = SocketData.send4Image(toUid, toGid, imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), new Long(imagesrc.getWidth()).intValue(), new Long(imagesrc.getHeight()).intValue(), new Long(imagesrc.getSize()).intValue());
-//                    msgDao.ImgReadStatSet(imagesrc.getOrigin(), imagesrc.isReadOrigin());
                 sendLeaveMessage(content, toUid, toGid);
                 notifyRefreshMsg(toGid, toUid);
             } else {
                 for (int i = 0; i < moreSessionBeanList.size(); i++) {
                     MoreSessionBean bean = moreSessionBeanList.get(i);
-
                     ImageMessage imagesrc = msgAllBean.getImage();
                     if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
                         imagesrc.setReadOrigin(true);
