@@ -282,36 +282,44 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     @Override
     public void onForward(final long toUid, final String toGid, String mIcon, String mName) {
-        if (msgAllBean == null) {
-            return;
-        }
-
         String btm = "发送";
         if (!isSingleSelected && moreSessionBeanList.size() > 0) {
             btm = "发送(" + moreSessionBeanList.size() + ")";
         }
-
         AlertForward alertForward = new AlertForward();
         String txt = "";
         String imageUrl = "";
-        if (msgAllBean.getChat() != null) {//转换文字
-            txt = msgAllBean.getChat().getMsg();
-        } else if (msgAllBean.getImage() != null) {
-            imageUrl = msgAllBean.getImage().getThumbnail();
-        } else if (msgAllBean.getAtMessage() != null) {
-            txt = msgAllBean.getAtMessage().getMsg();
-        } else if (msgAllBean.getVideoMessage() != null) {
-            imageUrl = msgAllBean.getVideoMessage().getBg_url();
-        } else if (msgAllBean.getLocationMessage() != null) {
+        if (model == ChatEnum.EForwardMode.DEFAULT ) {
+            if (msgAllBean == null) {
+                return;
+            }
+            if (msgAllBean.getChat() != null) {//转换文字
+                txt = msgAllBean.getChat().getMsg();
+            } else if (msgAllBean.getImage() != null) {
+                imageUrl = msgAllBean.getImage().getThumbnail();
+            } else if (msgAllBean.getAtMessage() != null) {
+                txt = msgAllBean.getAtMessage().getMsg();
+            } else if (msgAllBean.getVideoMessage() != null) {
+                imageUrl = msgAllBean.getVideoMessage().getBg_url();
+            } else if (msgAllBean.getLocationMessage() != null) {
 //            imageUrl= LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(),msgAllBean.getLocationMessage().getLongitude());
-            txt = "[位置]" + msgAllBean.getLocationMessage().getAddress();
-        } else if (msgAllBean.getShippedExpressionMessage() != null) {
-            imageUrl = msgAllBean.getShippedExpressionMessage().getId();
-        } else if (msgAllBean.getVideoMessage() != null) {
-            imageUrl = msgAllBean.getVideoMessage().getBg_url();
-        } else if (msgAllBean.getLocationMessage() != null) {
-            imageUrl = LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(), msgAllBean.getLocationMessage().getLongitude());
+                txt = "[位置]" + msgAllBean.getLocationMessage().getAddress();
+            } else if (msgAllBean.getShippedExpressionMessage() != null) {
+                imageUrl = msgAllBean.getShippedExpressionMessage().getId();
+            } else if (msgAllBean.getVideoMessage() != null) {
+                imageUrl = msgAllBean.getVideoMessage().getBg_url();
+            } else if (msgAllBean.getLocationMessage() != null) {
+                imageUrl = LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(), msgAllBean.getLocationMessage().getLongitude());
+            }
+        }else if (model == ChatEnum.EForwardMode.ONE_BY_ONE){
+            if (msgList == null){
+                return;
+            }
+            txt = "[逐条转发]共" + msgList.size() + "条消息";
+        }else if (model == ChatEnum.EForwardMode.MERGE){
+            txt = "[合并转发]";
         }
+
 
         alertForward.init(MsgForwardActivity.this, msgAllBean.getMsg_type(), mIcon, mName, txt, imageUrl, btm, toGid, new AlertForward.Event() {
             @Override
