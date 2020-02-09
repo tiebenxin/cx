@@ -404,7 +404,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
     public void setName(String name) {
 
-        this.name = name;
+        this.name = name == null ? "" : name;
 
         toTag();
 

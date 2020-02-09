@@ -549,7 +549,10 @@
         <activity
             android:name=".view.face.ShowBigFaceActivity"
             android:screenOrientation="portrait" />
-
+        <!--收藏-->
+        <activity android:name=".user.ui.CollectionActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".user.ui.FeedbackShowImageActivity"
             android:launchMode="singleTask"

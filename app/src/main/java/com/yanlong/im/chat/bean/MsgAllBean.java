@@ -390,6 +390,9 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
 
     public void setMsg_type(@ChatEnum.EMessageType Integer msg_type) {
+        if (msg_type == null) {
+            msg_type = ChatEnum.EMessageType.UNRECOGNIZED;
+        }
         this.msg_type = msg_type;
     }
 
