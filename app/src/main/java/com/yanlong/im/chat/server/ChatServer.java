@@ -1,11 +1,15 @@
 package com.yanlong.im.chat.server;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -122,6 +126,18 @@ public class ChatServer extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        //26以后需提示用户有进程
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
+            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            //数字是随便写的“40”，
+            nm.createNotificationChannel(new NotificationChannel("40", "App Service", NotificationManager.IMPORTANCE_DEFAULT));
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "40");
+
+            //其中的2，是也随便写的，正式项目也是随便写
+            startForeground(2 ,builder.build());
+        }
+
         LogUtil.getLog().d(TAG, ">>>>>网路状态监听");
         SocketUtil.getSocketUtil().addEvent(msgEvent, 0);
         //注册广播用于监听网络状态改变
