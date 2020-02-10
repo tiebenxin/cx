@@ -507,11 +507,12 @@ public class MainActivity extends AppActivity {
 
     private void startChatServer(){
         // 启动聊天服务
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(new Intent(getContext(), ChatServer.class));
-        } else {
-            startService(new Intent(getContext(), ChatServer.class));
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            startForegroundService(new Intent(getContext(), ChatServer.class));
+//        } else {
+//            startService(new Intent(getContext(), ChatServer.class));
+//        }
+        startService(new Intent(getContext(), ChatServer.class));
     }
 
 
