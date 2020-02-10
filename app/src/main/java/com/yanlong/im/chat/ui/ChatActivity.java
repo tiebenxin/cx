@@ -587,9 +587,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-
-                    fixSendTime(bean.getMsgId(0));
-
+                    // TODO #41806 java.lang.IndexOutOfBoundsException
+                    if(bean.getMsgIdList() != null && bean.getMsgIdList().size()>0){
+                        fixSendTime(bean.getMsgId(0));
+                    }
                     //群聊自己发送的消息直接加入阅后即焚队列
                     MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsgId(0));
                     if (isGroup()) {
@@ -2522,6 +2523,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         final String imgMsgId = SocketData.getUUID();
                         // 记录本次上传图片的ID跟本地路径
 //                        mTempImgPath.put(imgMsgId, "file://" + file);
+                        if(TextUtils.isEmpty(file)){
+                            ToastUtil.show("图片异常,请重新选择");
+                            return ;
+                        }
                         ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" + */file, isArtworkMaster);
                         videoMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
                         msgListData.add(videoMsgBean);
@@ -5677,7 +5682,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 showEnvelopePastDialog(envelopeInfo);
                 deleteEnvelopInfo(envelopeInfo);
             } else {
-                showSendEnvelopeDialog(envelopeInfo);
+                // TODO 处理#50702 android.view.WindowManager$BadTokenException
+                if(!isFinishing()){
+                    showSendEnvelopeDialog(envelopeInfo);
+                }
             }
         }
     }

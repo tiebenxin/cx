@@ -2,9 +2,6 @@ package com.yanlong.im.utils.socket;
 
 import android.accounts.NetworkErrorException;
 
-import com.yanlong.im.R;
-
-import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.LogUtil;
 
 import java.net.*;
@@ -12,14 +9,6 @@ import java.nio.*;
 import java.nio.channels.*;
 import javax.net.ssl.*;
 import java.io.*;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.regex.Pattern;
 
 
 
@@ -58,17 +47,10 @@ public class SSLSocketChannel2 {
         try {
 // create SSLContext
            sslContext = SSLContext.getInstance("TLS");
-
-
-
            //配置证书或者不配置
              sslContext.init(null,
                     new TrustManager[] {new EasyX509TrustManager(null)},
                     null);
-
-
-
-
             //-----------------------------------配置本地化证书
 /*           InputStream inputStream =  AppConfig.APP_CONTEXT.getResources().openRawResource(R.raw.https);
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
@@ -96,43 +78,47 @@ public class SSLSocketChannel2 {
             SSLSession session = sslEngine.getSession();
             createBuffers(session);
 // wrap
-            clientOut.clear();
-            sc.write(wrap(clientOut));
-            while (res.getHandshakeStatus() !=
-                    SSLEngineResult.HandshakeStatus.FINISHED) {
-                if (res.getHandshakeStatus() ==
-                        SSLEngineResult.HandshakeStatus.NEED_UNWRAP) {
-// unwrap
-                    sTOc.clear();
-                    int readindex=0;
-                    while (sc.read(sTOc) < 1){
-                        Thread.sleep(200);
-                        readindex++;
-                        if(readindex>100){
-                           // throw new NetworkErrorException();
-                            return 0;
+            if(clientOut != null){
+                clientOut.clear();
+                sc.write(wrap(clientOut));
+                while (res.getHandshakeStatus() !=
+                        SSLEngineResult.HandshakeStatus.FINISHED) {
+                    if (res.getHandshakeStatus() ==
+                            SSLEngineResult.HandshakeStatus.NEED_UNWRAP) {
+    // unwrap
+                        sTOc.clear();
+                        int readindex=0;
+                        while (sc.read(sTOc) < 1){
+                            Thread.sleep(200);
+                            readindex++;
+                            if(readindex>100){
+                               // throw new NetworkErrorException();
+                                return 0;
+                            }
+
                         }
 
-                    }
-
-                    sTOc.flip();
-                    unwrap(sTOc);
-                    if (res.getHandshakeStatus() != SSLEngineResult.HandshakeStatus.FINISHED) {
+                        sTOc.flip();
+                        unwrap(sTOc);
+                        if (res.getHandshakeStatus() != SSLEngineResult.HandshakeStatus.FINISHED) {
+                            clientOut.clear();
+                            sc.write(wrap(clientOut));
+                        }
+                    } else if (res.getHandshakeStatus() ==
+                            SSLEngineResult.HandshakeStatus.NEED_WRAP) {
+    // wrap
                         clientOut.clear();
                         sc.write(wrap(clientOut));
-                    }
-                } else if (res.getHandshakeStatus() ==
-                        SSLEngineResult.HandshakeStatus.NEED_WRAP) {
-// wrap
-                    clientOut.clear();
-                    sc.write(wrap(clientOut));
-                } else {Thread.sleep(1000);}
-            }
-            clientIn.clear();
-            clientIn.flip();
-            SSL = 4;
+                    } else {Thread.sleep(1000);}
+                }
+                clientIn.clear();
+                clientIn.flip();
+                SSL = 4;
 
-            LogUtil.getLog().i(TAG,"SSL established\n");
+                LogUtil.getLog().i(TAG,"SSL established\n");
+            }else{
+                return 0;
+            }
         } catch (Exception e) {
             e.printStackTrace(System.out);
             LogUtil.getLog().e(TAG,"SSL tryTLS的异常:"+e.toString());

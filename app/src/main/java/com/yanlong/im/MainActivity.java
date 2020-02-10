@@ -325,11 +325,8 @@ public class MainActivity extends AppActivity {
 
 
         // 启动聊天服务
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
-            startForegroundService(new Intent(getContext(), ChatServer.class));
-        } else {
-            startService(new Intent(getContext(), ChatServer.class));
-        }
+        startChatServer();
+
         mBtnMinimizeVoice.setOnClickListener(new ImageMoveView.OnSingleTapListener() {
             @Override
             public void onClick() {
@@ -507,6 +504,18 @@ public class MainActivity extends AppActivity {
         }
     }
 
+
+    private void startChatServer(){
+        // 启动聊天服务
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(new Intent(getContext(), ChatServer.class));
+        } else {
+            startService(new Intent(getContext(), ChatServer.class));
+        }
+    }
+
+
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefresh(EventRefreshMainMsg event) {
         taskGetMsgNum();
@@ -564,7 +573,7 @@ public class MainActivity extends AppActivity {
     public void eventRunState(EventRunState event) {
         LogUtil.getLog().i("TAG", ">>>>EventRunState:" + event.getRun());
         if (event.getRun()) {
-            startService(new Intent(getContext(), ChatServer.class));
+            startChatServer();
         } else {
             stopService(new Intent(getContext(), ChatServer.class));
         }
