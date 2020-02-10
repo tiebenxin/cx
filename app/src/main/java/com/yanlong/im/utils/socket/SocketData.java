@@ -19,6 +19,7 @@ import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
+import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
@@ -698,6 +699,29 @@ public class SocketData {
 //        return send4Base(toId, toGid, MsgBean.MessageType.SHORT_VIDEO, msg);
 //    }
 
+    /**
+     * 发送文件
+     * @param msgId
+     * @param url
+     * @param toId
+     * @param toGid
+     * @param fileName
+     * @param fileSize  文件大小
+     * @param format    文件后缀类型
+     * @param time
+     * @return
+     */
+    public static MsgAllBean sendFile(String msgId,String url, Long toId, String toGid,String fileName,Long fileSize, String format, long time) {
+        MsgBean.SendFileMessage msg;
+        msg = MsgBean.SendFileMessage.newBuilder()
+                    .setUrl(url)
+                    .setFileName(fileName)
+                    .setFormat(fileName)
+                    .setSize(fileSize.intValue())
+                    .build();
+        return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SEND_FILE, msg);
+    }
+
     /***
      * 发送视频
      * @param toId
@@ -710,34 +734,6 @@ public class SocketData {
     public static MsgAllBean sendVideo(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height, String videoLocalPath) {
         MsgBean.ShortVideoMessage msg;
         videoLocalUrl = videoLocalPath;
-//        String extTh = "/below-20k";
-//        String extPv = "/below-200k";
-//        if (url.toLowerCase().contains(".gif")) {
-//            extTh = "";
-//            extPv = "";
-//        }
-//        if (isOriginal) {
-//            msg = MsgBean.ShortVideoMessage.newBuilder().set
-//                    .setOrigin(url)
-//                    .setPreview(url + extPv)
-//                    .setThumbnail(url + extTh);
-//
-//        } else {
-//            msg = MsgBean.ShortVideoMessage.newBuilder()
-//                    .setPreview(url)
-//                    .setThumbnail(url + extTh);
-//
-//        }
-//        MsgBean.ImageMessage msgb;
-//        if (imageSize != null) {
-//            msgb = msg.setWidth((int)imageSize.getWidth())
-//                    .setHeight((int)imageSize.getHeight())
-//                    .setSize((int)size)
-//                    .build();
-//        } else {
-//            msgb = msg.build();
-//        }
-
         msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth(width).setHeight(height).build();
         return send4BaseById(msgId, toId, toGid, -1, MsgBean.MessageType.SHORT_VIDEO, msg);
     }
@@ -821,6 +817,10 @@ public class SocketData {
                 VideoMessage video = (VideoMessage) t;
                 msgAllBean.setVideoMessage(video);
                 break;
+            case ChatEnum.EMessageType.FILE:
+                SendFileMessage file = (SendFileMessage) t;
+                msgAllBean.setSendFileMessage(file);
+                break;
         }
 
         msgAllBean.setTo_uid(toId);
@@ -892,6 +892,17 @@ public class SocketData {
             videoMessage.setReadOrigin(isOriginal);
         }
         return videoMessage;
+    }
+
+    @NonNull
+    public static SendFileMessage createFileMessage(String msgId, String url,String fileName,long size,String format) {
+        SendFileMessage fileMessage = new SendFileMessage();
+        fileMessage.setMsgId(msgId);
+        fileMessage.setUrl(url);
+        fileMessage.setFile_name(fileName);
+        fileMessage.setSize(size);
+        fileMessage.setFormat(format);
+        return fileMessage;
     }
 
 

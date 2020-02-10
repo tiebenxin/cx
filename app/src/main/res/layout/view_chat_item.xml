@@ -722,6 +722,50 @@
                                 android:layout_height="wrap_content"
                                 android:visibility="gone" />
 
+                            <!-- 文件消息-->
+                            <RelativeLayout
+                                android:id="@+id/view_file_ot"
+                                android:layout_width="226dp"
+                                android:layout_height="wrap_content"
+                                android:background="@color/white"
+                                android:visibility="gone">
+                                <ImageView
+                                    android:id="@+id/iv_file_icon_ot"
+                                    style="@style/app_img_head"
+                                    android:layout_alignParentRight="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginRight="10dp"
+                                    android:layout_width="41dp"
+                                    android:layout_height="41dp" />
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginLeft="10dp"
+                                    android:layout_marginRight="10dp"
+                                    android:layout_marginTop="15dp"
+                                    android:layout_marginBottom="15dp"
+                                    android:layout_toLeftOf="@+id/iv_file_icon_ot"
+                                    android:orientation="vertical">
+                                    <TextView
+                                        android:id="@+id/tv_filename_ot"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:ellipsize="end"
+                                        android:maxLines="1"
+                                        android:text="文件名.txt"/>
+                                    <TextView
+                                        android:id="@+id/tv_filesize_ot"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="2dp"
+                                        android:text="0K"/>
+
+                                </LinearLayout>
+
+
+                            </RelativeLayout>
+
+
                         </LinearLayout>
 
                         <com.yanlong.im.view.CountDownView
@@ -1343,6 +1387,48 @@
                                         android:layout_height="wrap_content"
                                         android:layout_centerInParent="true"
                                         android:src="@mipmap/location_four" />
+
+                                </RelativeLayout>
+                                <!-- 文件消息-->
+                                <RelativeLayout
+                                    android:id="@+id/view_file_me"
+                                    android:layout_width="226dp"
+                                    android:layout_height="wrap_content"
+                                    android:background="@color/white"
+                                    android:visibility="gone">
+                                    <ImageView
+                                        android:id="@+id/iv_file_icon_me"
+                                        style="@style/app_img_head"
+                                        android:layout_alignParentRight="true"
+                                        android:layout_centerVertical="true"
+                                        android:layout_marginRight="10dp"
+                                        android:layout_width="41dp"
+                                        android:layout_height="41dp" />
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginLeft="10dp"
+                                        android:layout_marginRight="10dp"
+                                        android:layout_marginTop="15dp"
+                                        android:layout_marginBottom="15dp"
+                                        android:layout_toLeftOf="@+id/iv_file_icon_me"
+                                        android:orientation="vertical">
+                                        <TextView
+                                            android:id="@+id/tv_filename_me"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:ellipsize="end"
+                                            android:maxLines="1"
+                                            android:text="文件名.txt"/>
+                                        <TextView
+                                            android:id="@+id/tv_filesize_me"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginTop="2dp"
+                                            android:text="0K"/>
+
+                                    </LinearLayout>
+
 
                                 </RelativeLayout>
 

@@ -165,7 +165,8 @@ public class ChatEnum {
      * */
     @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CANCEL,
             UNRECOGNIZED, EMessageType.MSG_VIDEO, EMessageType.MSG_VOICE_VIDEO, EMessageType.LOCK, EMessageType.CHANGE_SURVIVAL_TIME,
-            EMessageType.READ, EMessageType.MSG_VOICE_VIDEO_NOTICE, EMessageType.LOCATION, EMessageType.BALANCE_ASSISTANT,EMessageType.SHIPPED_EXPRESSION})
+            EMessageType.READ, EMessageType.MSG_VOICE_VIDEO_NOTICE, EMessageType.LOCATION, EMessageType.BALANCE_ASSISTANT,EMessageType.SHIPPED_EXPRESSION,
+            EMessageType.FILE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMessageType {
         int UNRECOGNIZED = -1; //未识别
@@ -186,6 +187,7 @@ public class ChatEnum {
         int LOCATION = 14; //位置消息
         int BALANCE_ASSISTANT = 15; //零钱助手消息
         int SHIPPED_EXPRESSION = 16;// 大表情
+        int FILE = 17;//文件
         int CHANGE_SURVIVAL_TIME = 113;//阅后即焚
         int READ = 120;//已读消息
 

@@ -55,6 +55,7 @@ import com.yanlong.im.chat.bean.BalanceAssistantMessage;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.ui.RoundTransform;
@@ -70,6 +71,7 @@ import com.yanlong.im.view.face.AddFaceActivity;
 import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -211,6 +213,13 @@ public class ChatItemView extends LinearLayout {
     private LinearLayout viewOtChild;
     private TextView tvNew;
     private CheckBox ckSelect;
+    //文件
+    private RelativeLayout viewFileOt;
+    private RelativeLayout viewFileMe;
+    private TextView tvFileNameOt;
+    private TextView tvFileNameMe;
+    private TextView tvFileSizeOt;
+    private TextView tvFileSizeMe;
 
     public ChatItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -360,6 +369,13 @@ public class ChatItemView extends LinearLayout {
         location_desc_you_tv = rootView.findViewById(R.id.location_desc_you_tv);
         location_name_me_tv = rootView.findViewById(R.id.location_name_me_tv);
         location_desc_me_tv = rootView.findViewById(R.id.location_desc_me_tv);
+        //文件
+        viewFileOt = rootView.findViewById(R.id.view_file_ot);
+        tvFileNameOt = rootView.findViewById(R.id.tv_filename_ot);
+        tvFileSizeOt = rootView.findViewById(R.id.tv_filesize_ot);
+        viewFileMe = rootView.findViewById(R.id.view_file_me);
+        tvFileNameMe = rootView.findViewById(R.id.tv_filename_me);
+        tvFileSizeMe = rootView.findViewById(R.id.tv_filesize_me);
 
         //新消息提醒
         tvNew = rootView.findViewById(R.id.tv_new);
@@ -445,6 +461,8 @@ public class ChatItemView extends LinearLayout {
         viewMeGameShare.setVisibility(GONE);
         viewOtGameShare.setVisibility(GONE);
         viewOtBalance.setVisibility(GONE);
+        viewFileOt.setVisibility(GONE);
+        viewFileMe.setVisibility(GONE);
 
         //位置
         location_you_ll.setVisibility(GONE);
@@ -525,6 +543,10 @@ public class ChatItemView extends LinearLayout {
             case ChatEnum.EMessageType.BALANCE_ASSISTANT:
                 setNoAvatarUI(isMe);
                 viewOtBalance.setVisibility(VISIBLE);
+                break;
+            case ChatEnum.EMessageType.FILE:
+                viewFileOt.setVisibility(VISIBLE);
+                viewFileMe.setVisibility(VISIBLE);
                 break;
         }
 
@@ -1326,6 +1348,22 @@ public class ChatItemView extends LinearLayout {
 
         viewMeTouch.setOnClickListener(onk);
         viewOtTouch.setOnClickListener(onk);
+    }
+
+    //文件消息
+    public void setDataFile(SendFileMessage fileMessage, OnClickListener listener) {
+        //文件名
+        if(!TextUtils.isEmpty(fileMessage.getFile_name())){
+            tvFileNameMe.setText(fileMessage.getFile_name());
+            tvFileNameOt.setText(fileMessage.getFile_name());
+        }
+        //文件大小
+        if(fileMessage.getSize()!=0){
+            tvFileSizeMe.setText(FileUtils.getFileSizeString(fileMessage.getSize()));
+            tvFileSizeOt.setText(FileUtils.getFileSizeString(fileMessage.getSize()));
+        }
+        viewFileMe.setOnClickListener(listener);
+        viewFileOt.setOnClickListener(listener);
     }
 
     private Context mContext;

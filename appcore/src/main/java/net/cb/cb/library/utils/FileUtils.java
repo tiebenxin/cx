@@ -9,14 +9,31 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.text.TextUtils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.text.DecimalFormat;
 
 /**
- * @类名：根据Uri获取文件path路径
+ * @类名：文件操作工具类
  * @Date：2020/1/10
  * @by zjy
  * @备注：
  */
 public class FileUtils {
+
+    public static final int SIZETYPE_B = 1;//获取文件大小单位为B的double值
+    public static final int SIZETYPE_KB = 2;//获取文件大小单位为KB的double值
+    public static final int SIZETYPE_MB = 3;//获取文件大小单位为MB的double值
+    public static final int SIZETYPE_GB = 4;//获取文件大小单位为GB的double值
+
+    /**
+     * 根据Uri获取文件path路径
+     * @param context
+     * @param uri
+     * @return
+     */
     public static String getFilePathByUri(Context context, Uri uri) {
         String path = null;
         // 以 file:// 开头的
@@ -108,4 +125,129 @@ public class FileUtils {
     private static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
+
+
+    /**
+     * 获取文件名及后缀
+     */
+    public static String getFileName(String path) {
+        if(TextUtils.isEmpty(path)){
+            return "";
+        }
+        int start = path.lastIndexOf("/");
+        if (start != -1 ) {
+            return path.substring(start + 1);
+        } else {
+            return "";
+        }
+    }
+
+    /**
+     * 获取文件大小
+     * @param filePath
+     * @param sizeType
+     * @return
+     */
+    public static double getFileOrFilesSize(String filePath,int sizeType){
+        File file=new File(filePath);
+        long blockSize=0;
+        try {
+            if(file.isDirectory()){
+                blockSize = getFileSizes(file);
+            }else{
+                blockSize = getFileSize(file);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtil.getLog().e("获取文件大小","获取失败!");
+        }
+        return FormetFileSize(blockSize, sizeType);
+    }
+
+
+    /**
+     * 获取指定文件大小
+     * @param file
+     * @return
+     * @throws Exception
+     */
+    private static long getFileSize(File file) throws Exception {
+        long size = 0;
+        if (file.exists()){
+            FileInputStream fis = null;
+            fis = new FileInputStream(file);
+            size = fis.available();
+        } else{
+            file.createNewFile();
+            LogUtil.getLog().e("获取文件大小","文件不存在!");
+        }
+        return size;
+    }
+
+    /**
+     * 获取指定文件夹
+     * @param file
+     * @return
+     * @throws Exception
+     */
+    private static long getFileSizes(File file) throws Exception {
+        long size = 0;
+        File flist[] = file.listFiles();
+        for (int i = 0; i < flist.length; i++){
+            if (flist[i].isDirectory()){
+                size = size + getFileSizes(flist[i]);
+            } else{
+                size =size + getFileSize(flist[i]);
+            }
+        }
+        return size;
+    }
+
+    /**
+     * 转换文件大小,指定转换的类型
+     * @param fileS
+     * @param sizeType
+     * @return
+     */
+    private static double FormetFileSize(long fileS,int sizeType)
+    {
+        DecimalFormat df = new DecimalFormat("#.00");
+        double fileSizeLong = 0;
+        switch (sizeType) {
+            case SIZETYPE_B:
+                fileSizeLong=Double.valueOf(df.format((double) fileS));
+                break;
+            case SIZETYPE_KB:
+                fileSizeLong=Double.valueOf(df.format((double) fileS / 1024));
+                break;
+            case SIZETYPE_MB:
+                fileSizeLong=Double.valueOf(df.format((double) fileS / 1048576));
+                break;
+            case SIZETYPE_GB:
+                fileSizeLong=Double.valueOf(df.format((double) fileS / 1073741824));
+                break;
+            default:
+                break;
+        }
+        return fileSizeLong;
+    }
+
+
+    /**
+     * 文件消息显示规则处理，根据文件大小分别显示K M G
+     * @param fileSize
+     * @return
+     */
+    public static String getFileSizeString(long fileSize){
+        if(fileSize < 1024){
+            return fileSize+"";
+        }else if(fileSize > 1024 && fileSize < 1048576){
+            return FormetFileSize(fileSize,SIZETYPE_KB) +"K";
+        }else if(fileSize > 1048576 && fileSize < 1073741824){
+            return FormetFileSize(fileSize,SIZETYPE_MB) +"M";
+        }else {
+            return FormetFileSize(fileSize,SIZETYPE_GB) +"G";
+        }
+    }
+
 }

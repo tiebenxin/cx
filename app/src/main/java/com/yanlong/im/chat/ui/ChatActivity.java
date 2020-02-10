@@ -82,6 +82,7 @@ import com.hm.cxpay.utils.UIUtils;
 
 import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.chat.MsgTagHandler;
+import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
@@ -182,6 +183,7 @@ import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventSwitchDisturb;
+import net.cb.cb.library.bean.EventUpFileLoadEvent;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
@@ -246,6 +248,7 @@ import retrofit2.Response;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static net.cb.cb.library.utils.FileUtils.SIZETYPE_B;
 
 public class ChatActivity extends AppActivity implements IActionTagClickListener {
     private static String TAG = "ChatActivity";
@@ -2657,9 +2660,32 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                     break;
                 case FilePickerManager.REQUEST_CODE:
-                    //拿到选中的文件集合
+                    //断网提示
+                    if (!checkNetConnectStatus()) {
+                        return;
+                    }
+                    MsgAllBean fileMsgBean = null;
+                    //拿到选中的文件路径集合
                     List<String> filePathList = FilePickerManager.INSTANCE.obtainData();
-                    ToastUtil.show("已经拿到文件地址");
+                    for (String filePath : filePathList) {
+                        if (StringUtil.isNotNull(filePath)) {
+                            //生成随机uuid、获取文件名、文件大小
+                            final String fileMsgId = SocketData.getUUID();
+                            String fileName = net.cb.cb.library.utils.FileUtils.getFileName(filePath);
+                            double fileSize = net.cb.cb.library.utils.FileUtils.getFileOrFilesSize(filePath,SIZETYPE_B);
+                            //创建文件消息，本地先发给自己，等文件上传成功后刷新
+                            SendFileMessage fileMessage = SocketData.createFileMessage(fileMsgId, filePath, fileName, new Double(fileSize).longValue(), fileName);
+                            fileMsgBean = SocketData.sendFileUploadMessagePre(fileMsgId, toUId, toGid, SocketData.getFixTime(), fileMessage, ChatEnum.EMessageType.FILE);
+                            msgListData.add(fileMsgBean);
+                            // 不等于常信小助手(常信小助手记录不存服务器，文件助手需要存)
+                            if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                                UpLoadService.onAddFile(fileMsgId, filePath,fileName,new Double(fileSize).longValue(),fileName, toUId, toGid, -1);
+                                startService(new Intent(getContext(), UpLoadService.class));
+                            }
+                        }
+                    }
+                    MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, fileMsgBean);
+                    notifyData2Bottom(true);
                     break;
 
             }
@@ -2763,6 +2789,27 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 //        LogUtil.getLog().e("====location=message=="+GsonUtils.optObject(message));
         sendMessage(message, ChatEnum.EMessageType.LOCATION);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void taskUpFileEvent(EventUpFileLoadEvent event) {
+        if (event.getState() == 0) {
+            taskRefreshImage(event.getMsgid());
+        } else if (event.getState() == -1) {
+            //处理失败的情况
+            if (!isFinishing()) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
+                        replaceListDataAndNotify(msgAllbean, true);
+                    }
+                }, 800);
+            }
+        } else if (event.getState() == 1) {
+            MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
+            replaceListDataAndNotify(msgAllbean);
+        }
     }
 
 
@@ -3676,6 +3723,17 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         @Override
                         public void onClick(View v) {
                             LocationActivity.openActivity(ChatActivity.this, true, msgbean);
+                        }
+                    });
+                    break;
+                case ChatEnum.EMessageType.FILE:
+                    menus.add(new OptionMenu("转发"));
+                    menus.add(new OptionMenu("删除"));
+                    SendFileMessage fileMessage = msgbean.getSendFileMessage();
+                    holder.viewChatItem.setDataFile(fileMessage, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            ToastUtil.show("下载文件 或 打开");
                         }
                     });
                     break;
