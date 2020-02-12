@@ -160,34 +160,30 @@ public class UpLoadService extends Service {
      * @param toGid     群ID
      * @param time      发送时间
      */
-    public static void onAddFile(final String id, String file,String fileName,final Long fileSize,String format, final Long toUId, final String toGid, final long time) {
-        final UpProgress upProgress = new UpProgress();
-        upProgress.setId(id);
-        upProgress.setFile(file);
-        updateProgress(id, new Random().nextInt(5) + 1);//发送后默认给个进度，显示阴影表示正在上传
-        upProgress.setCallback(new UpFileUtil.OssUpCallback() {
+    public static void onAddFile(Context mContext,final String id, String file,String fileName,final Long fileSize,String format, final Long toUId, final String toGid, final long time) {
+        // 上传文件时，默认给1-5的上传进度，解决一开始上传不显示进度问题
+        updateProgress(id, new Random().nextInt(5) + 1);
 
+        UpFileAction upFileAction = new UpFileAction();
+        upFileAction.upFile(UpFileAction.PATH.FILE, mContext, new UpFileUtil.OssUpCallback() {
             @Override
-            public void success(final String url) {
+            public void success(String url) {
+                LogUtil.getLog().d(TAG, "success : 文件上传成功===============>" + file);
                 EventUpFileLoadEvent eventUpFileLoadEvent = new EventUpFileLoadEvent();
                 updateProgress(id, 100);
                 eventUpFileLoadEvent.setMsgid(id);
                 eventUpFileLoadEvent.setState(1);
                 eventUpFileLoadEvent.setUrl(url);
                 Object msgbean = SocketData.sendFile(id,url,toUId,toGid,fileName,fileSize,format, time);
-
                 eventUpFileLoadEvent.setMsgAllBean(msgbean);
                 EventBus.getDefault().post(eventUpFileLoadEvent);
-
             }
 
             @Override
             public void fail() {
                 EventUpFileLoadEvent eventUpFileLoadEvent = new EventUpFileLoadEvent();
-                //  LogUtil.getLog().d("tag", "fail : ===============>"+id);
-
-                System.out.println(UpLoadService.class.getSimpleName() + "--");
                 updateProgress(id, 0);
+                LogUtil.getLog().d(TAG, "fail : 文件上传失败===============>" + id);
                 eventUpFileLoadEvent.setMsgid(id);
                 eventUpFileLoadEvent.setState(-1);
                 eventUpFileLoadEvent.setUrl("");
@@ -201,19 +197,16 @@ public class UpLoadService extends Service {
                     return;
                 }
                 EventUpFileLoadEvent eventUpFileLoadEvent = new EventUpFileLoadEvent();
-                // LogUtil.getLog().d("tag", "inProgress : ===============>"+id);
                 oldUptime = System.currentTimeMillis();
-
                 int pg = new Double(progress / (zong + 0.0f) * 100.0).intValue();
-
+                LogUtil.getLog().d(TAG, "inProgress : 文件上传进度===============>" + pg);
                 updateProgress(id, pg);
                 eventUpFileLoadEvent.setMsgid(id);
                 eventUpFileLoadEvent.setState(0);
                 eventUpFileLoadEvent.setUrl("");
                 EventBus.getDefault().post(eventUpFileLoadEvent);
             }
-        });
-        queue.offer(upProgress);
+        }, file);
     }
 
 

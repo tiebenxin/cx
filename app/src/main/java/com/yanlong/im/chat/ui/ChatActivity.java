@@ -2504,8 +2504,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                         videoMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
                         msgListData.add(videoMsgBean);
-                        // 不等于常信小助手、文件传输助手
-                        if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
+                        // 不等于常信小助手
+                        if (!Constants.CX_HELPER_UID.equals(toUId)) {
                             UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, time, videoMessageSD,false);
                             startService(new Intent(getContext(), UpLoadService.class));
                         }
@@ -2568,8 +2568,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" +*/ file, isArtworkMaster);//TODO:使用file://路径会使得检测本地路径不存在
                             imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
                             msgListData.add(imgMsgBean);
-                            // 不等于常信小助手、文件传输助手
-                            if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
+                            // 不等于常信小助手
+                            if (!Constants.CX_HELPER_UID.equals(toUId)) {
                                 UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
                                 startService(new Intent(getContext(), UpLoadService.class));
                             }
@@ -2599,8 +2599,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + videofile, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), videofile);
                                 imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
                                 msgListData.add(imgMsgBean);
-                                // 不等于常信小助手、文件传输助手
-                                if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
+                                // 不等于常信小助手
+                                if (!Constants.CX_HELPER_UID.equals(toUId)) {
                                     UpLoadService.onAddVideo(this.context, imgMsgId, videofile, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid,
                                             videoMessage.getDuration(), videoMessageSD,false);
                                     startService(new Intent(getContext(), UpLoadService.class));
@@ -2673,13 +2673,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             final String fileMsgId = SocketData.getUUID();
                             String fileName = net.cb.cb.library.utils.FileUtils.getFileName(filePath);
                             double fileSize = net.cb.cb.library.utils.FileUtils.getFileOrFilesSize(filePath,SIZETYPE_B);
-                            //创建文件消息，本地先发给自己，等文件上传成功后刷新
+                            //创建文件消息，本地预先准备好这条文件消息，等文件上传成功后刷新
                             SendFileMessage fileMessage = SocketData.createFileMessage(fileMsgId, filePath, fileName, new Double(fileSize).longValue(), fileName);
                             fileMsgBean = SocketData.sendFileUploadMessagePre(fileMsgId, toUId, toGid, SocketData.getFixTime(), fileMessage, ChatEnum.EMessageType.FILE);
                             msgListData.add(fileMsgBean);
                             // 不等于常信小助手(常信小助手记录不存服务器，文件助手需要存)
                             if (!Constants.CX_HELPER_UID.equals(toUId)) {
-                                UpLoadService.onAddFile(fileMsgId, filePath,fileName,new Double(fileSize).longValue(),fileName, toUId, toGid, -1);
+                                UpLoadService.onAddFile(this.context,fileMsgId, filePath,fileName,new Double(fileSize).longValue(),fileName, toUId, toGid, -1);
                                 startService(new Intent(getContext(), UpLoadService.class));
                             }
                         }
@@ -2793,10 +2793,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskUpFileEvent(EventUpFileLoadEvent event) {
+        //更新文件上传进度(参考图片上传)
         if (event.getState() == 0) {
             taskRefreshImage(event.getMsgid());
         } else if (event.getState() == -1) {
-            //处理失败的情况
+            //上传失败或成功均刷新
             if (!isFinishing()) {
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -3222,6 +3223,23 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             holder.viewChatItem.setVideoIMGShow(true);
                         }
                         menus.add(new OptionMenu("删除"));
+                        break;
+                    case ChatEnum.EMessageType.FILE:
+                        Integer pgFile = null;
+                        pgFile = UpLoadService.getProgress(msgbean.getMsg_id());
+                        LogUtil.getLog().i(TAG, "更新进度--msgId=" + msgbean.getMsg_id() + "--progress=" + pgFile);
+
+                        holder.viewChatItem.setFileProgress(pgFile);
+                        holder.viewChatItem.setErr(msgbean.getSend_state(), false);
+//                        holder.viewChatItem.updateSendStatusAndProgress(msgbean.getSend_state(), pg);
+
+                        if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+                            menus.add(new OptionMenu("转发"));
+                            menus.add(new OptionMenu("删除"));
+                        } else {
+                            menus.add(new OptionMenu("删除"));
+                        }
+
                         break;
                     default:
                         onBindViewHolder(holder, position);
@@ -3727,8 +3745,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     });
                     break;
                 case ChatEnum.EMessageType.FILE:
-                    menus.add(new OptionMenu("转发"));
-                    menus.add(new OptionMenu("删除"));
+                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+                        menus.add(new OptionMenu("转发"));
+                        menus.add(new OptionMenu("删除"));
+                    } else {
+                        menus.add(new OptionMenu("删除"));
+                    }
                     SendFileMessage fileMessage = msgbean.getSendFileMessage();
                     holder.viewChatItem.setDataFile(fileMessage, new View.OnClickListener() {
                         @Override
@@ -3737,6 +3759,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     });
                     break;
+                    //TODO 参考图片等逻辑
+
             }
 
             holder.viewChatItem.setOnErr(new View.OnClickListener() {

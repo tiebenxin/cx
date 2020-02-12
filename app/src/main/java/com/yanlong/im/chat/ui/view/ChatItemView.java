@@ -220,6 +220,8 @@ public class ChatItemView extends LinearLayout {
     private TextView tvFileNameMe;
     private TextView tvFileSizeOt;
     private TextView tvFileSizeMe;
+    private LinearLayout layoutFileProgress;
+    private TextView tvFileProgressValue;
 
     public ChatItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -376,6 +378,8 @@ public class ChatItemView extends LinearLayout {
         viewFileMe = rootView.findViewById(R.id.view_file_me);
         tvFileNameMe = rootView.findViewById(R.id.tv_filename_me);
         tvFileSizeMe = rootView.findViewById(R.id.tv_filesize_me);
+        layoutFileProgress = rootView.findViewById(R.id.layout_file_progress);
+        tvFileProgressValue = rootView.findViewById(R.id.tv_file_progress_value);
 
         //新消息提醒
         tvNew = rootView.findViewById(R.id.tv_new);
@@ -1282,6 +1286,17 @@ public class ChatItemView extends LinearLayout {
         }
     }
 
+    //文件进度条显示
+    public void setFileProgress(Integer pg) {
+        if (pg != null && pg != 100 && pg != 0) {
+            layoutFileProgress.setVisibility(VISIBLE);
+            tvFileProgressValue.setText(pg + "%");
+            imgMeErr.setVisibility(GONE);
+        } else {
+            layoutFileProgress.setVisibility(GONE);
+        }
+    }
+
     public void setVideoIMGShow(boolean show) {
         if (show) {
             img_me_4_play.setVisibility(View.VISIBLE);
@@ -1429,6 +1444,9 @@ public class ChatItemView extends LinearLayout {
                 imgMeErr.setImageResource(R.mipmap.ic_net_err);
                 if (viewMeUp != null && viewMeUp.getVisibility() == VISIBLE) {//隐藏进度
                     viewMeUp.setVisibility(GONE);
+                }
+                if (layoutFileProgress != null && layoutFileProgress.getVisibility() == VISIBLE) {//隐藏文件进度
+                    layoutFileProgress.setVisibility(GONE);
                 }
                 break;
             case 2://发送中

@@ -23,7 +23,7 @@ import retrofit2.Response;
  */
 public class UpFileAction {
     public static enum PATH {
-        HEAD, HEAD_GROUP, COMPLAINT, FEEDBACK, IMG, VOICE, HEAD_GROUP_CHANGE, VIDEO
+        HEAD, HEAD_GROUP, COMPLAINT, FEEDBACK, IMG, VOICE, HEAD_GROUP_CHANGE, VIDEO, FILE
     }
 
     private UpFileServer server;
@@ -87,6 +87,9 @@ public class UpFileAction {
                 break;
             case VIDEO:
                 pt = AppConfig.UP_PATH + "/video/android/" + simpleDateFormat.format(data) + "/";
+                break;
+            case FILE:
+                pt = AppConfig.UP_PATH + "/file/android/" + simpleDateFormat.format(data) + "/";
                 break;
             default:
                 data.setTime(System.currentTimeMillis());
