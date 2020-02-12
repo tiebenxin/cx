@@ -234,13 +234,13 @@ public class FileUtils {
 
 
     /**
-     * 文件消息显示规则处理，根据文件大小分别显示K M G
+     * 文件消息显示规则处理，根据文件大小分别显示B K M G
      * @param fileSize
      * @return
      */
     public static String getFileSizeString(long fileSize){
         if(fileSize < 1024){
-            return fileSize+"";
+            return fileSize+"B";
         }else if(fileSize > 1024 && fileSize < 1048576){
             return FormetFileSize(fileSize,SIZETYPE_KB) +"K";
         }else if(fileSize > 1048576 && fileSize < 1073741824){

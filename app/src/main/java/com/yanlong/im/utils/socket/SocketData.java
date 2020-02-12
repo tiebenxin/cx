@@ -498,6 +498,9 @@ public class SocketData {
             case TAKE_SCREENSHOT://截屏
                 wmsg.setTakeScrennshot((MsgBean.TakeScreenshotMessage) value);
                 break;
+            case SEND_FILE://文件
+                wmsg.setSendFile((MsgBean.SendFileMessage) value);
+                break;
             case UNRECOGNIZED:
                 break;
 

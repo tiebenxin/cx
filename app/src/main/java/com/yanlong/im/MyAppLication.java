@@ -75,11 +75,12 @@ public class MyAppLication extends MainApplication {
                 AppConfig.DEBUG = true;
                 //---------------------------
 //                AppConfig.SOCKET_IP = "beta.zhixun6.com";
-                AppConfig.SOCKET_IP = "im-app.zhixun6.com";
+                AppConfig.SOCKET_IP = "im-app.zhixun6.com";//真实IP地址
 //                AppConfig.SOCKET_IP = "yanlong.1616d.top";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
-                AppConfig.UP_PATH = "test-environment";
+//                AppConfig.UP_PATH = "test-environment";
+                AppConfig.UP_PATH = "product-environment";//真实上传地址
 
 //                AppConfig.SOCKET_IP = "beta.zhixun6.com";
 //                AppConfig.SOCKET_IP = "im-app.zhixun6.com";
