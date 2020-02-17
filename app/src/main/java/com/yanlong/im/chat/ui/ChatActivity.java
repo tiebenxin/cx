@@ -2927,7 +2927,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     /**
      * 跳转UserInfoActivity
      *
-     * @param message
+     * @param uid
      */
     private void toUserInfoActivity(long uid) {
         String name = "";
@@ -3034,7 +3034,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     public void clickUser(String userId, String gid) {
-        long user = StringUtil.getLong(userId);
+        long user = Long.valueOf(userId);
         if (user > 0) {
             toUserInfoActivity(user);
         }
