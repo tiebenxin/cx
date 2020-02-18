@@ -71,6 +71,7 @@ import net.cb.cb.library.bean.CanStampEvent;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventNetStatus;
+import net.cb.cb.library.bean.EventOnlineStatus;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
@@ -577,6 +578,14 @@ public class MainActivity extends AppActivity {
             startChatServer();
         } else {
             stopService(new Intent(getContext(), ChatServer.class));
+        }
+
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventOnlineStatus(EventOnlineStatus event) {
+        if (event.isOn()) {
+//            MessageManager.getInstance().testReceiveMsg();
         }
 
     }

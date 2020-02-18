@@ -34,6 +34,7 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
+import net.cb.cb.library.bean.EventOnlineStatus;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventSwitchDisturb;
@@ -94,9 +95,9 @@ public class MessageManager {
 
 
     //缓存
-    private static Map<Long, UserInfo> cacheUsers = new HashMap<>();//用户信息缓存
-    private static Map<String, Group> cacheGroups = new HashMap<>();//群信息缓存
-    private static List<Session> cacheSessions = new ArrayList<>();//Session缓存，
+//    private static Map<Long, UserInfo> cacheUsers = new HashMap<>();//用户信息缓存
+//    private static Map<String, Group> cacheGroups = new HashMap<>();//群信息缓存
+//    private static List<Session> cacheSessions = new ArrayList<>();//Session缓存，
     private static Map<Long, List<MsgAllBean>> cacheMessagePrivate = new HashMap();//私聊消息缓存，以用户id为key
     private static Map<String, List<MsgAllBean>> cacheMessageGroup = new HashMap();//群聊消息缓存，以群id为key
     private static List<Group> saveGroups = new ArrayList<>();//已保存群信息缓存
@@ -143,7 +144,7 @@ public class MessageManager {
                     TaskDealWithMsgList taskMsgList = getMsgTask(bean.getRequestId());
                     if (taskMsgList == null) {
                         taskMsgList = new TaskDealWithMsgList(msgList, bean.getRequestId());
-                        System.out.println(TAG + "--MsgTask--add--requestId=" + bean.getRequestId());
+//                        System.out.println(TAG + "--MsgTask--add--requestId=" + bean.getRequestId());
                         taskMaps.put(bean.getRequestId(), taskMsgList);
                     } else {
                         taskMsgList.clearPendingList();
@@ -153,6 +154,26 @@ public class MessageManager {
                 }
             }
         }
+    }
+
+    public synchronized void testReceiveMsg() {
+        MsgBean.UniversalMessage.Builder builder = MsgBean.UniversalMessage.newBuilder();
+        builder.setRequestId(SocketData.getUUID());
+        builder.setToUid(100105);
+        for (int i = 0; i < 1000; i++) {
+            MsgBean.UniversalMessage.WrapMessage.Builder wrapMsg = MsgBean.UniversalMessage.WrapMessage.newBuilder();
+            wrapMsg.setMsgId(SocketData.getUUID());
+            wrapMsg.setFromUid(100804);
+            wrapMsg.setTimestamp(SocketData.getSysTime());
+            wrapMsg.setNickname("Liszt");
+            wrapMsg.setAvatar("http://zx-im-img.zhixun6.com/product-environment/avatar/99a5614b-6648-4f45-a512-5e03e0d0dd6e.jpg");
+            wrapMsg.setToUid(100105);
+            MsgBean.ChatMessage.Builder msg = MsgBean.ChatMessage.newBuilder();
+            msg.setMsg("测试第" + i + "条数据");
+            wrapMsg.setChat(msg.build());
+            builder.addWrapMsg(wrapMsg.build());
+        }
+        onReceive(builder.build());
     }
 
     //接收到的单条消息作为服务器时间
@@ -170,10 +191,14 @@ public class MessageManager {
      * @return 返回结果，不需要处理逻辑的消息，默认处理成功
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify, String requestId) {
+//        System.out.println(TAG + "开始处理: " + wrapMessage.getMsgId() + "--time=" + System.currentTimeMillis());
 
-        if (wrapMessage != null && wrapMessage.getMsgType() != null && wrapMessage.getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
-            LogUtil.getLog().e("===收到=msg=" + GsonUtils.optObject(wrapMessage));
-        }
+        /*
+        * 打印json很耗时
+        * */
+//        if (wrapMessage != null && wrapMessage.getMsgType() != null && wrapMessage.getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
+//            LogUtil.getLog().e("===收到=msg=" + GsonUtils.optObject(wrapMessage));
+//        }
 
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
             return true;
@@ -188,7 +213,7 @@ public class MessageManager {
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
             if (oldMsgId.contains(wrapMessage.getMsgId())) {
                 LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
-                System.out.println(TAG + ">>>>>重复消息: " + wrapMessage.getMsgId());
+//                System.out.println(TAG + ">>>>>重复消息: " + wrapMessage.getMsgId());
                 return true;
             } else {
                 if (oldMsgId.size() >= 500) {
@@ -198,7 +223,9 @@ public class MessageManager {
             }
         }
         updateUserAvatarAndNick(wrapMessage, isList, requestId);
+//        System.out.println(TAG + "开始转换bean: " + wrapMessage.getMsgId() + "--time=" + System.currentTimeMillis());
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
+//        System.out.println(TAG + "结束转换bean: " + wrapMessage.getMsgId() + "--time=" + System.currentTimeMillis());
         if (bean != null && !TextUtils.isEmpty(requestId)) {
             bean.setRequest_id(requestId);
         }
@@ -559,6 +586,7 @@ public class MessageManager {
                 }
                 break;
         }
+//        System.out.println(TAG + "结束存储: " + wrapMessage.getMsgId() + "--time=" + System.currentTimeMillis());
         //刷新单个,接收到音视频通话消息不需要刷新
         if (result && !hasNotified && !isList && bean != null && wrapMessage.getMsgType() != P2P_AU_VIDEO_DIAL) {
             setMessageChange(true);
@@ -784,6 +812,9 @@ public class MessageManager {
      * 网络加载群信息
      * */
     private void loadGroupInfo(final String gid, final long uid, boolean isList, MsgAllBean bean) {
+        if (TextUtils.isEmpty(gid)){
+            return;
+        }
         new MsgAction().groupInfo(gid, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
@@ -1049,15 +1080,15 @@ public class MessageManager {
      * */
     public UserInfo getCacheUserInfo(Long uid) {
         UserInfo info = null;
-        if (uid != null && uid > 0) {
-            info = cacheUsers.get(uid);
-            if (info == null) {
-                info = userDao.findUserInfo(uid);
-                if (info != null) {
-                    cacheUsers.put(uid, info);
-                }
-            }
-        }
+//        if (uid != null && uid > 0) {
+//            info = cacheUsers.get(uid);
+//            if (info == null) {
+//                info = userDao.findUserInfo(uid);
+//                if (info != null) {
+//                    cacheUsers.put(uid, info);
+//                }
+//            }
+//        }
         return info;
     }
 
@@ -1066,15 +1097,15 @@ public class MessageManager {
      * */
     public Group getCacheGroup(String gid) {
         Group group = null;
-        if (!TextUtils.isEmpty(gid)) {
-            group = cacheGroups.get(gid);
-            if (group == null) {
-                group = msgDao.getGroup4Id(gid);
-                if (group != null) {
-                    cacheGroups.put(gid, group);
-                }
-            }
-        }
+//        if (!TextUtils.isEmpty(gid)) {
+//            group = cacheGroups.get(gid);
+//            if (group == null) {
+//                group = msgDao.getGroup4Id(gid);
+//                if (group != null) {
+//                    cacheGroups.put(gid, group);
+//                }
+//            }
+//        }
         return group;
     }
 
@@ -1084,7 +1115,7 @@ public class MessageManager {
     public boolean updateUserAvatarAndNick(long uid, String avatar, String nickName) {
         boolean hasChange = userDao.userHeadNameUpdate(uid, avatar, nickName);
         if (hasChange) {
-            updateCacheUserAvatarAndName(uid, avatar, nickName);
+//            updateCacheUserAvatarAndName(uid, avatar, nickName);
         }
         return hasChange;
     }
@@ -1093,37 +1124,37 @@ public class MessageManager {
      * 更新缓存用户头像及昵称
      * */
     private void updateCacheUserAvatarAndName(long uid, String avatar, String nickName) {
-        if (cacheUsers != null) {
-            UserInfo info = getCacheUserInfo(uid);
-            if (info != null) {
-                info.setHead(avatar);
-                info.setName(nickName);
-                cacheUsers.remove(info);
-                cacheUsers.put(uid, info);
-            }
-        }
+//        if (cacheUsers != null) {
+//            UserInfo info = getCacheUserInfo(uid);
+//            if (info != null) {
+//                info.setHead(avatar);
+//                info.setName(nickName);
+//                cacheUsers.remove(info);
+//                cacheUsers.put(uid, info);
+//            }
+//        }
     }
 
     /*
      * 更新缓存用户在线状态及最后在线时间
      * */
     public void updateCacheUserOnlineStatus(long uid, int onlineType, long time) {
-        if (cacheUsers != null) {
-            UserInfo info = getCacheUserInfo(uid);
-            if (info != null) {
-                info.setLastonline(time);
-                info.setActiveType(onlineType);
-                cacheUsers.remove(info);
-                cacheUsers.put(uid, info);
-            }
-        }
+//        if (cacheUsers != null) {
+//            UserInfo info = getCacheUserInfo(uid);
+//            if (info != null) {
+//                info.setLastonline(time);
+//                info.setActiveType(onlineType);
+//                cacheUsers.remove(info);
+//                cacheUsers.put(uid, info);
+//            }
+//        }
     }
 
     /*
      * 获取内存缓存中session数据
      * */
     public List<Session> getCacheSession() {
-        return cacheSessions;
+        return null /* cacheSessions*/;
     }
 
     //检测是否是双重消息，及一条消息需要产生两条本地消息记录,回执在通知消息中发送
@@ -1352,47 +1383,46 @@ public class MessageManager {
      * 更新缓存群头像
      * */
     public void updateCacheGroupAvatar(String gid, String url) {
-        if (!TextUtils.isEmpty(gid) && !TextUtils.isEmpty(url)) {
-            Group group = getCacheGroup(gid);
-            if (group != null) {
-                group.setAvatar(url);
-                cacheGroups.remove(gid);
-                cacheGroups.put(gid, group);
-            }
-        }
+//        if (!TextUtils.isEmpty(gid) && !TextUtils.isEmpty(url)) {
+//            Group group = getCacheGroup(gid);
+//            if (group != null) {
+//                group.setAvatar(url);
+//                cacheGroups.remove(gid);
+//                cacheGroups.put(gid, group);
+//            }
+//        }
     }
 
     /*
      * 更新缓存置顶或者免打扰
      * */
     public void updateCacheTopOrDisturb(String gid, int top, int disturb) {
-        if (!TextUtils.isEmpty(gid)) {
-            Group group = getCacheGroup(gid);
-            if (group != null) {
-//                group.setAvatar(url);
-                cacheGroups.remove(gid);
-                cacheGroups.put(gid, group);
-            }
-        }
+//        if (!TextUtils.isEmpty(gid)) {
+//            Group group = getCacheGroup(gid);
+//            if (group != null) {
+//                cacheGroups.remove(gid);
+//                cacheGroups.put(gid, group);
+//            }
+//        }
     }
 
     public void updateCacheGroup(Group group) {
-        if (cacheGroups != null && group != null) {
-            if (cacheGroups.containsValue(group)) {
-                cacheGroups.remove(group.getGid());
-            }
-            cacheGroups.put(group.getGid(), group);
-        }
+//        if (cacheGroups != null && group != null) {
+//            if (cacheGroups.containsValue(group)) {
+//                cacheGroups.remove(group.getGid());
+//            }
+//            cacheGroups.put(group.getGid(), group);
+//        }
     }
 
     public void updateCacheUser(UserInfo user) {
-        if (cacheUsers != null && user != null) {
-            if (cacheUsers.containsValue(user)) {
-                cacheUsers.remove(user.getUid());
-            }
-            cacheUsers.put(user.getUid(), user);
-
-        }
+//        if (cacheUsers != null && user != null) {
+//            if (cacheUsers.containsValue(user)) {
+//                cacheUsers.remove(user.getUid());
+//            }
+//            cacheUsers.put(user.getUid(), user);
+//
+//        }
     }
 
     /*
@@ -1622,6 +1652,12 @@ public class MessageManager {
         event.setUid(uid);
         event.setFlag(flag);
         EventBus.getDefault().post(event);
+    }
+
+    public void notifyOnlineStatus(boolean status) {
+        EventOnlineStatus eventOnlineStatus = new EventOnlineStatus();
+        eventOnlineStatus.setOn(status);
+        EventBus.getDefault().post(eventOnlineStatus);
     }
 
 
