@@ -1,11 +1,19 @@
 package net.cb.cb.library.utils;
 
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
+
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.download.FileDownLoadListener;
+import com.android.volley.toolbox.download.FileDownloader;
+import com.kye.net.NetRequestHelper;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -16,6 +24,7 @@ import okhttp3.Response;
 public class DownloadUtil {
     private static DownloadUtil downloadUtil;
     private final OkHttpClient okHttpClient;
+    public final String TAG = "DownloadUtil";
 
     public static DownloadUtil get() {
         if (downloadUtil == null) {
@@ -88,7 +97,7 @@ public class DownloadUtil {
                     fos.flush();
                     //下载完成
                     listener.onDownloadSuccess(file);
-                    Log.v("DownloadUtil", file.getAbsolutePath() + "--下载完成");
+                    Log.v(TAG, file.getAbsolutePath() + "--下载完成");
 
                 } catch (Exception e) {
                     listener.onDownloadFailed(e);
@@ -221,5 +230,93 @@ public class DownloadUtil {
          * 下载异常信息
          */
         void onDownloadFailed(Exception e);
+    }
+
+    /**
+     * 文件开始下载.支持断点续传功能
+     *
+     * @param downloadUrl 下载连接
+     * @param savePath    保存路径
+     * @param listener    下载监听
+     */
+    public void downLoadFile(String downloadUrl, File savePath, final OnDownloadListener listener) {
+        try {
+            if (TextUtils.isEmpty(downloadUrl)) {
+                return;
+            }
+            // 1, 开始下载
+            NetRequestHelper netRequestHelper = NetRequestHelper.getInstance();
+            FileDownloader.DownloadController downloadController = netRequestHelper.getDownloadController(savePath, downloadUrl);
+            // 2, 如果当前下载任务正在执行，则无序重新建立下载任务
+            FileDownLoadListener<Void> downLoadListener = generateDownloadLIstener(listener);
+            if (downloadController != null) {
+                // a, 重新设置监听器
+                if (!downloadController.isDownloading()) {
+                    try {
+                        Field field = downloadController.getClass().getDeclaredField("mListener");
+                        if (null != field) {
+                            field.setAccessible(true);
+                            field.set(downloadController, downLoadListener);
+                        }
+                    } catch (Exception e) {
+                        LogUtil.getLog().e(TAG, e.getMessage());
+                    }
+
+                    // b, 继续下载
+                    downloadController.resume();
+                }
+            } else {
+                // 3, 否则重新建立下载任务
+                NetRequestHelper.getInstance().addDownLoadFile(savePath, downloadUrl, downLoadListener, true);
+            }
+
+
+        } catch (Exception e) {
+            LogUtil.getLog().e(TAG, e.getMessage());
+        }
+    }
+
+    @NonNull
+    private FileDownLoadListener<Void> generateDownloadLIstener(final OnDownloadListener listener) {
+        return new FileDownLoadListener<Void>() {
+            @Override
+            public void onPreExecute() {
+                super.onPreExecute();
+            }
+
+            @Override
+            public void onFinish() {
+                super.onFinish();
+            }
+
+            @Override
+            public void onSuccess(Void response) {
+                super.onSuccess(response);
+                listener.onDownloadSuccess(null);
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                super.onError(error);
+                listener.onDownloadFailed(error);
+            }
+
+            @Override
+            public void onCancel() {
+                super.onCancel();
+            }
+
+            @Override
+            public void onProgressChange(long fileSize, long downloadedSize) {
+                float currentPercent = downloadedSize / (float) fileSize * 100;
+                listener.onDownloading((int) currentPercent);
+            }
+
+            @Override
+            public void onRetry() {
+                super.onRetry();
+            }
+        };
+
     }
 }
