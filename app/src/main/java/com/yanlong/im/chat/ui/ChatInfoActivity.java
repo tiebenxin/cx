@@ -94,16 +94,10 @@ public class ChatInfoActivity extends AppActivity {
         findViews();
         initEvent();
         initData();
-        EventBus.getDefault().register(this);
+        if(!EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().register(this);
+        }
     }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
-    }
-
 
     //自动寻找控件
     private void findViews() {
@@ -302,12 +296,13 @@ public class ChatInfoActivity extends AppActivity {
             switch (position) {
                 case 0:
                     userInfo = fUserInfo;
-
-
                     // holder.imgHead.setImageURI(Uri.parse("" + userInfo.getHead()));
-                    Glide.with(context).load(userInfo.getHead())
-                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-
+                    if(userInfo!=null){
+                        if(!TextUtils.isEmpty(userInfo.getHead())){
+                            Glide.with(context).load(userInfo.getHead())
+                                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                        }
+                    }
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {

@@ -343,41 +343,43 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private MsgDao msgDao = new MsgDao();
 
     private void initViewPageAdapterData() {
-        tv_title.setText(position + 1 + "/" + images.size());
+        if(images!=null && images.size()>0){
+            tv_title.setText(position + 1 + "/" + images.size());
 //        adapter = new SimpleFragmentAdapter();
 //        viewPager.setAdapter(adapter);
-        AdapterPreviewImage mAdapter = new AdapterPreviewImage(this);
-        mAdapter.setPopParentView(tv_title);
-        mAdapter.bindData(images);
-        viewPager.setAdapter(mAdapter);
-        viewPager.setCurrentItem(position);
-        indexPath = images.get(position).getPath();
+            AdapterPreviewImage mAdapter = new AdapterPreviewImage(this);
+            mAdapter.setPopParentView(tv_title);
+            mAdapter.bindData(images);
+            viewPager.setAdapter(mAdapter);
+            viewPager.setCurrentItem(position);
+            indexPath = images.get(position).getPath();
 
 
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
-            }
+                }
 
-            @Override
-            public void onPageSelected(int position) {
-                tv_title.setText(position + 1 + "/" + images.size());
-                indexPath = images.get(position).getPath();
+                @Override
+                public void onPageSelected(int position) {
+                    tv_title.setText(position + 1 + "/" + images.size());
+                    indexPath = images.get(position).getPath();
 
-            }
+                }
 
-            @Override
-            public void onPageScrollStateChanged(int state) {
-            }
-        });
-        //点击返回
-        viewPager.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+                @Override
+                public void onPageScrollStateChanged(int state) {
+                }
+            });
+            //点击返回
+            viewPager.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onBackPressed();
+                }
+            });
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

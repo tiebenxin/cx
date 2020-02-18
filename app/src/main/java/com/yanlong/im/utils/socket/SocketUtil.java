@@ -15,6 +15,7 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.MainApplication;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
+import net.cb.cb.library.bean.EventOnlineStatus;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.constant.BuglyTag;
 import net.cb.cb.library.event.EventFactory;
@@ -50,7 +51,7 @@ public class SocketUtil {
         public void onACK(MsgBean.AckMessage bean) {
             SocketData.setPreServerAckTime(bean.getTimestamp());
             if (bean.getRejectType() == MsgBean.RejectType.ACCEPTED) {//接收到发送的消息了
-                LogUtil.getLog().d(TAG, ">>>>>保存[发送]的消息到数据库 ackTime=" + bean.getTimestamp());
+                LogUtil.getLog().d(TAG, ">>>>>消息发送成功");
                 boolean result = SocketData.updateMsgSendStatusByAck(bean);
                 if (!result) {
                     SocketData.msgSave4Me(bean);
@@ -105,7 +106,7 @@ public class SocketUtil {
 //                LogUtil.getLog().d(TAG, ">>>>>发送回执: " + bean.getRequestId());
                 if (count == 1) {//单条消息直接回执，多条消息待消息存成功后再回执
                     SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null), null, bean.getRequestId());
-                    System.out.println(TAG + "--发送回执1--requestId=" + bean.getRequestId());
+//                    System.out.println(TAG + "--发送回执1--requestId=" + bean.getRequestId());
                     LogUtil.writeLog("--发送回执1--requestId=" + bean.getRequestId() + " msgType:" + bean.getWrapMsg(0).getMsgType());
                 }
             }
@@ -139,6 +140,7 @@ public class SocketUtil {
                     ev.onLine(state);
                 }
             }
+            MessageManager.getInstance().notifyOnlineStatus(state);
 
         }
     };
@@ -187,7 +189,7 @@ public class SocketUtil {
      */
     public void addEvent(SocketEvent event) {
         if (!eventLists.contains(event)) {
-            LogUtil.getLog().i(TAG, ">>>>>>添加消息监听");
+//            LogUtil.getLog().i(TAG, ">>>>>>添加消息监听");
             eventLists.add(event);
         }
 
@@ -195,7 +197,7 @@ public class SocketUtil {
 
     public void addEvent(SocketEvent event, int index) {
         if (!eventLists.contains(event)) {
-            LogUtil.getLog().i(TAG, ">>>>>>添加消息监听");
+//            LogUtil.getLog().i(TAG, ">>>>>>添加消息监听");
             eventLists.add(index, event);
         }
 
@@ -206,7 +208,7 @@ public class SocketUtil {
      * @param event
      */
     public void removeEvent(SocketEvent event) {
-        LogUtil.getLog().i(TAG, ">>>>>>移除消息监听");
+//        LogUtil.getLog().i(TAG, ">>>>>>移除消息监听");
         eventLists.remove(event);
     }
 

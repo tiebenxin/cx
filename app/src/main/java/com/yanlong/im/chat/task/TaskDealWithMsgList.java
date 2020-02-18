@@ -70,7 +70,7 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
         if (messages != null) {
             int length = messages.size();
             taskCount = length;
-            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "总消息数-taskCount=" + taskCount + "--requestId=" + requestId);
+            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "总消息数-taskCount=" + taskCount + "--requestId=" + requestId + "--time=" + System.currentTimeMillis());
             for (int i = 0; i < length; i++) {
                 MsgBean.UniversalMessage.WrapMessage wrapMessage = messages.get(i);
                 boolean result = MessageManager.getInstance().dealWithMsg(wrapMessage, true, i == length - 1, requestId);//最后一条消息，发出通知声音
@@ -81,7 +81,7 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
                     CrashReport.setUserSceneTag(MyAppLication.getInstance().getApplicationContext(), BUGLY_TAG_SAVE_DATA);
                     // 上传异常数据
                     CrashReport.putUserData(MyAppLication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_1,
-                            "requestId:" + requestId + ";MsgType:" +wrapMessage.getMsgType());
+                            "requestId:" + requestId + ";MsgType:" + wrapMessage.getMsgType());
                 }
             }
         }
@@ -215,27 +215,27 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
 
             List<MsgAllBean> msgList = /*MessageManager.getInstance().*/getPendingMsgList();
             if (msgList != null) {
-                System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--doPendingData--更新消息--" + msgList.size() + "--requestId=" + requestId);
+                System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--doPendingData--更新消息--" + msgList.size() + "--requestId=" + requestId + "--time=" + System.currentTimeMillis());
                 if (msgList.size() > 0) {
                     boolean isSuccess = msgDao.insertOrUpdateMsgList(msgList);
                     if (isSuccess) {
-                        SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null), null,requestId);
-                        System.out.println(TAG + "--发送回执2--requestId=" + requestId);
+                        SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null), null, requestId);
+                        System.out.println(TAG + "--发送回执2--requestId=" + requestId + "--time=" + System.currentTimeMillis());
                         LogUtil.writeLog("--发送回执2--requestId=" + requestId);
                     } else {
-                        LogUtil.writeLog("--数据更新失败--requestId="+ requestId + ";" + new Gson().toJson(msgList));
+                        LogUtil.writeLog("--数据更新失败--requestId=" + requestId + ";" + new Gson().toJson(msgList));
                         // 上报后的Crash会显示该标签
                         CrashReport.setUserSceneTag(MyAppLication.getInstance().getApplicationContext(), BUGLY_TAG_SAVE_DATA);
                         // 上传异常数据
                         CrashReport.putUserData(MyAppLication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_1, "Id:" + requestId + ";" + new Gson().toJson(msgList));
                     }
                 } else {
-                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null), null,requestId);
+                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null), null, requestId);
                     System.out.println(TAG + "--发送回执3--requestId=" + requestId);
                     LogUtil.writeLog("--发送回执3--requestId=" + requestId);
                 }
             } else {
-                SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null), null,requestId);
+                SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null), null, requestId);
                 System.out.println(TAG + "--发送回执4--requestId=" + requestId);
                 LogUtil.writeLog("--发送回执4--requestId=" + requestId);
             }

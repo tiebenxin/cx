@@ -105,7 +105,9 @@ public class GroupMemPowerSetActivity extends BaseBindActivity<ActivityGroupMemP
                 }, 300);
             }
         } else {
-            getSingleMemberInfo();
+            if(!TextUtils.isEmpty(mUid+"")){
+                getSingleMemberInfo();
+            }
         }
         mList = new ArrayList<>();
         mList.add(mUid);
@@ -173,6 +175,7 @@ public class GroupMemPowerSetActivity extends BaseBindActivity<ActivityGroupMemP
      * 获取单个群成员信息
      */
     private void getSingleMemberInfo() {
+
         mUserAction.getSingleMemberInfo(mGid, Integer.parseInt(mUid + ""), new CallBack<ReturnBean<SingleMeberInfoBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<SingleMeberInfoBean>> call, Response<ReturnBean<SingleMeberInfoBean>> response) {

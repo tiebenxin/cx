@@ -74,8 +74,8 @@ public class MyAppLication extends MainApplication {
             case "debug"://测试服
                 AppConfig.DEBUG = true;
                 //---------------------------
-                AppConfig.SOCKET_IP = "beta.zhixun6.com";
-//                AppConfig.SOCKET_IP = "yanlong.1616d.top";
+//                AppConfig.SOCKET_IP = "beta.zhixun6.com";
+                AppConfig.SOCKET_IP = "yanlong.1616d.top";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
                 AppConfig.UP_PATH = "test-environment";

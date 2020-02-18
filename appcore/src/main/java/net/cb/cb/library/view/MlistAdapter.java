@@ -42,11 +42,11 @@ public class MlistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
 //        try {
-            if (payloads == null || payloads.isEmpty()) {
-                super.onBindViewHolder(holder, position, payloads);
-            } else {
-                adapter.onBindViewHolder(holder, position, payloads);
-            }
+        if (payloads == null || payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads);
+        } else {
+            adapter.onBindViewHolder(holder, position, payloads);
+        }
 
 //        } catch (Exception e) {
 //            e.printStackTrace();
@@ -57,7 +57,7 @@ public class MlistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     //自动生成控件事件
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if ((position + 1) == getItemCount()) {//底部
+        if ((position + 1) == getItemCount() && holder instanceof RCLoadMoreViewHolder) {//底部
             RCLoadMoreViewHolder holdLoad = (RCLoadMoreViewHolder) holder;
             switch (loadState) {
                 case LOAD_STATE_NOMORL:
