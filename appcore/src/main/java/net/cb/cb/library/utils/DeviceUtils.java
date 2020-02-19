@@ -2,6 +2,9 @@ package net.cb.cb.library.utils;
 
 import android.os.Build;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+
 /**
  * @author Liszt
  * @date 2019/11/8
@@ -48,6 +51,26 @@ public class DeviceUtils {
             return true;
         }
         return false;
+    }
+
+    //获取运行内存大小,GB
+    public static int getTotalRam() {
+        String path = "/proc/meminfo";
+        String firstLine = null;
+        int totalRam = 0;
+        try {
+            FileReader fileReader = new FileReader(path);
+            BufferedReader br = new BufferedReader(fileReader, 8192);
+            firstLine = br.readLine().split("\\s+")[1];
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (firstLine != null) {
+            totalRam = (int) Math.ceil((new Float(Float.valueOf(firstLine) / (1024 * 1024)).doubleValue()));
+        }
+        System.out.println(DeviceUtils.class.getSimpleName() + "--运行内存--" + totalRam + "GB");
+        return totalRam;
     }
 
 }
