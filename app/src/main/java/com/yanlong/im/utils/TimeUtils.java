@@ -40,25 +40,29 @@ public class TimeUtils {
 
             @Override
             public void onTick(long millisUntilFinished) {
-                Iterator<MsgAllBean> it = msgAllBeans.iterator();
-                while (it.hasNext()) {
-                    MsgAllBean bean = it.next();
-                    if (bean.getEndTime() <= DateUtils.getSystemTime()) {
-                        LogUtil.getLog().d("SurvivalTime", "结束时间:" + bean.getEndTime() + "---------" + "系统时间" + DateUtils.getSystemTime());
-                        LogUtil.getLog().i("SurvivalTime", "删除msg:" + bean.getMsg_id());
-                        msgDao.msgDel4MsgId(bean.getMsg_id());
-                        updateSession(bean);
-                        it.remove();
-                        EventBus.getDefault().post(new EventRefreshChat());
-                    } else if (bean.getSurvival_time() == -1) {
-                        LogUtil.getLog().i("SurvivalTime", "退出即焚删除msg:" + bean.getMsg_id());
-                        msgDao.msgDel4MsgId(bean.getMsg_id());
-                        updateSession(bean);
-                        it.remove();
-                    }
-                }
+                delete();
             }
         }.start();
+    }
+
+    private synchronized void delete() {
+        Iterator<MsgAllBean> it = msgAllBeans.iterator();
+        while (it.hasNext()) {
+            MsgAllBean bean = it.next();
+            if (bean.getEndTime() <= DateUtils.getSystemTime()) {
+                LogUtil.getLog().d("SurvivalTime", "结束时间:" + bean.getEndTime() + "---------" + "系统时间" + DateUtils.getSystemTime());
+                LogUtil.getLog().i("SurvivalTime", "删除msg:" + bean.getMsg_id());
+                msgDao.msgDel4MsgId(bean.getMsg_id());
+                updateSession(bean);
+                it.remove();
+                EventBus.getDefault().post(new EventRefreshChat());
+            } else if (bean.getSurvival_time() == -1) {
+                LogUtil.getLog().i("SurvivalTime", "退出即焚删除msg:" + bean.getMsg_id());
+                msgDao.msgDel4MsgId(bean.getMsg_id());
+                updateSession(bean);
+                it.remove();
+            }
+        }
     }
 
 
@@ -67,24 +71,24 @@ public class TimeUtils {
         String gid = msgAllBean.getGid();
         if (TextUtils.isEmpty(gid)) {
             Long uid = msgAllBean.isMe() ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid();
-            MsgAllBean uidMsgAllBean = msgDao.msgGetLast4FUid(uid);
-            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, uidMsgAllBean);
-            LogUtil.getLog().e("=单聊=="+CoreEnum.EChatType.PRIVATE+"==="+uid+"==="+ gid+"==="+ CoreEnum.ESessionRefreshTag.SINGLE+"==="+ uidMsgAllBean);
+//            MsgAllBean uidMsgAllBean = msgDao.msgGetLast4FUid(uid);
+            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+//            LogUtil.getLog().e("=单聊=="+CoreEnum.EChatType.PRIVATE+"==="+uid+"==="+ gid+"==="+ CoreEnum.ESessionRefreshTag.SINGLE+"==="+ uidMsgAllBean);
         } else {
-            MsgAllBean gidMsgAllBean = msgDao.msgGetLast4Gid(gid);
+//            MsgAllBean gidMsgAllBean = msgDao.msgGetLast4Gid(gid);
             Long uid = msgAllBean.isMe() ? msgAllBean.getTo_uid() : msgAllBean.getTo_uid();
-            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, gidMsgAllBean);
-            LogUtil.getLog().e("=群聊=="+CoreEnum.EChatType.PRIVATE+"==="+uid+"==="+ gid+"==="+ CoreEnum.ESessionRefreshTag.SINGLE+"==="+ gidMsgAllBean);
+            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+//            LogUtil.getLog().e("=群聊=="+CoreEnum.EChatType.PRIVATE+"==="+uid+"==="+ gid+"==="+ CoreEnum.ESessionRefreshTag.SINGLE+"==="+ gidMsgAllBean);
         }
     }
 
 
-    public void addMsgAllBean(MsgAllBean msgAllBean) {
+    public synchronized void addMsgAllBean(MsgAllBean msgAllBean) {
         msgAllBeans.add(msgAllBean);
     }
 
     //添加阅后即焚消息进入队列
-    public void addMsgAllBeans(List<MsgAllBean> msgs) {
+    public synchronized void addMsgAllBeans(List<MsgAllBean> msgs) {
         msgAllBeans.addAll(msgs);
     }
 

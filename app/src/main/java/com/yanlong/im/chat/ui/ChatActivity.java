@@ -588,7 +588,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 @Override
                 public void run() {
                     // TODO #41806 java.lang.IndexOutOfBoundsException
-                    if(bean.getMsgIdList() != null && bean.getMsgIdList().size()>0){
+                    if (bean.getMsgIdList() != null && bean.getMsgIdList().size() > 0) {
                         fixSendTime(bean.getMsgId(0));
                     }
                     //群聊自己发送的消息直接加入阅后即焚队列
@@ -2502,7 +2502,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         msgListData.add(videoMsgBean);
                         // 不等于常信小助手
                         if (!Constants.CX_HELPER_UID.equals(toUId)) {
-                            UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, time, videoMessageSD,false);
+                            UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, time, videoMessageSD, false);
                             startService(new Intent(getContext(), UpLoadService.class));
                         }
                     } else if (dataType == RecordedActivity.RESULT_TYPE_PHOTO) {
@@ -2523,9 +2523,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         final String imgMsgId = SocketData.getUUID();
                         // 记录本次上传图片的ID跟本地路径
 //                        mTempImgPath.put(imgMsgId, "file://" + file);
-                        if(TextUtils.isEmpty(file)){
+                        if (TextUtils.isEmpty(file)) {
                             ToastUtil.show("图片异常,请重新选择");
-                            return ;
+                            return;
                         }
                         ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" + */file, isArtworkMaster);
                         videoMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
@@ -2602,7 +2602,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 // 不等于常信小助手
                                 if (!Constants.CX_HELPER_UID.equals(toUId)) {
                                     UpLoadService.onAddVideo(this.context, imgMsgId, videofile, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid,
-                                            videoMessage.getDuration(), videoMessageSD,false);
+                                            videoMessage.getDuration(), videoMessageSD, false);
                                     startService(new Intent(getContext(), UpLoadService.class));
                                 }
                             } else {
@@ -3008,7 +3008,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     }
                     UpLoadService.onAddVideo(this.context, reMsg.getMsg_id(), url, videoMessage.getBg_url(), false, toUId, toGid,
-                            videoMessage.getDuration(), videoMessageSD,false);
+                            videoMessage.getDuration(), videoMessageSD, false);
                     startService(new Intent(getContext(), UpLoadService.class));
 
                 } else {
@@ -3034,10 +3034,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     public void clickUser(String userId, String gid) {
-        long user = Long.valueOf(userId);
-        if (user > 0) {
-            toUserInfoActivity(user);
+        try {
+            long user = Long.valueOf(userId);
+            if (user > 0) {
+                toUserInfoActivity(user);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 
     @Override
@@ -5040,6 +5045,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 获取群信息
      */
     private void taskGroupInfo() {
+        if (!isGroup()) {
+            return;
+        }
         msgAction.groupInfo(toGid, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
@@ -5095,9 +5103,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 发请求->获取部分好友信息
      */
     private void httpGetUserInfo() {
-        if(uidList==null){
+        if (uidList == null) {
             uidList = new ArrayList<>();
-            uidList.add(toUId+"");
+            uidList.add(toUId + "");
         }
         msgAction.getUserInfo(new Gson().toJson(uidList), new Callback<ReturnBean<UserInfo>>() {
             @Override
@@ -5683,7 +5691,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 deleteEnvelopInfo(envelopeInfo);
             } else {
                 // TODO 处理#50702 android.view.WindowManager$BadTokenException
-                if(!isFinishing()){
+                if (!isFinishing()) {
                     showSendEnvelopeDialog(envelopeInfo);
                 }
             }
