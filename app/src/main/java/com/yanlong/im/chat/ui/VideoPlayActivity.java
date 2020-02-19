@@ -114,7 +114,12 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         if (!TextUtils.isEmpty(bgUrl)) {
             Glide.with(this).load(bgUrl).into(img_bg);
         }
-
+        if (!TextUtils.isEmpty(msgAllBean)) {
+            MsgAllBean msgAllBeanForm = new Gson().fromJson(msgAllBean, MsgAllBean.class);
+            if (mPath.contains("http://")) {
+                downVideo(msgAllBeanForm, msgAllBeanForm.getVideoMessage());
+            }
+        }
         MessageManager.setCanStamp(false);
     }
 
@@ -126,35 +131,31 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         }
         final String fileName = MyDiskCache.getFileNmae(msgAllBean.getVideoMessage().getUrl()) + ".mp4";
         final File fileVideo = new File(appDir, fileName);
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    DownloadUtil.get().download(msgAllBean.getVideoMessage().getUrl(), appDir.getAbsolutePath(), fileName, new DownloadUtil.OnDownloadListener() {
-                        @Override
-                        public void onDownloadSuccess(File file) {
-                            videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
-                            MsgDao dao = new MsgDao();
-                            dao.fixVideoLocalUrl(msgAllBean.getVideoMessage().getMsgId(), fileVideo.getAbsolutePath());
-                            MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
-                        }
 
-                        @Override
-                        public void onDownloading(int progress) {
-
-                        }
-
-                        @Override
-                        public void onDownloadFailed(Exception e) {
-                        }
-                    });
-
-                } catch (Exception e) {
-
+        try {
+            DownloadUtil.get().downLoadFile(msgAllBean.getVideoMessage().getUrl(), fileVideo, new DownloadUtil.OnDownloadListener() {
+                @Override
+                public void onDownloadSuccess(File file) {
+                    videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
+                    MsgDao dao = new MsgDao();
+                    dao.fixVideoLocalUrl(msgAllBean.getVideoMessage().getMsgId(), fileVideo.getAbsolutePath());
+                    MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
                 }
-            }
-        }.start();
 
+                @Override
+                public void onDownloading(int progress) {
+                    LogUtil.getLog().i("DownloadUtil", "progress:" + progress);
+                }
+
+                @Override
+                public void onDownloadFailed(Exception e) {
+                    LogUtil.getLog().i("DownloadUtil", "Exception下载失败:" + e.getMessage());
+                }
+            });
+
+        } catch (Exception e) {
+            LogUtil.getLog().i("DownloadUtil", "Exception:" + e.getMessage());
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -298,23 +299,21 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
-                    mMediaPlayer.start();
-                    MsgAllBean msgAllBeanForm = new Gson().fromJson(msgAllBean, MsgAllBean.class);
-                    if (mPath.contains("http://")) {
-                        downVideo(msgAllBeanForm, msgAllBeanForm.getVideoMessage());
-                    }
-                    // 转成秒
-                    mTempTime = mMediaPlayer.getDuration() / 1000;
-                    mHour = mTempTime / 3600;
-                    mMin = mTempTime % 3600 / 60;
-                    mSecond = mTempTime % 60;
-                    if (mHour > 0) {
-                        activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
-                    } else {
-                        activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
-                    }
+                    if (!isFinishing()) {
+                        mMediaPlayer.start();
+                        // 转成秒
+                        mTempTime = mMediaPlayer.getDuration() / 1000;
+                        mHour = mTempTime / 3600;
+                        mMin = mTempTime % 3600 / 60;
+                        mSecond = mTempTime % 60;
+                        if (mHour > 0) {
+                            activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
+                        } else {
+                            activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
+                        }
 
-                    getProgress();
+                        getProgress();
+                    }
                 }
             });
             mMediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
