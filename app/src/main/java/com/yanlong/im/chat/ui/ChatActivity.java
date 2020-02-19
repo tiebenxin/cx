@@ -5045,6 +5045,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 获取群信息
      */
     private void taskGroupInfo() {
+        if (!isGroup()) {
+            return;
+        }
         msgAction.groupInfo(toGid, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
