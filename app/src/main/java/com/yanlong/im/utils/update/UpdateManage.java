@@ -212,7 +212,11 @@ public class UpdateManage {
             }else {
                 dialog.showCancle(true);
             }
-            dialog.show();
+            //判断活动是否仍然存活
+            if(activity!=null && !activity.isFinishing()){
+                dialog.show();
+            }
+
         }
     }
 
