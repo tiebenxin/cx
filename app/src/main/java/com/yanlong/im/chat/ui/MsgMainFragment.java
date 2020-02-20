@@ -17,6 +17,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -773,7 +774,11 @@ public class MsgMainFragment extends Fragment {
                         headList.add(icon);
                         holder.imgHead.setList(headList);
                     } else {
-                        loadGroupHeads(bean, holder.imgHead);
+                        if (bean.getAvatarList() != null && bean.getAvatarList().size() > 0) {
+                            holder.imgHead.setList(bean.getAvatarList());
+                        } else {
+                            loadGroupHeads(bean, holder.imgHead);
+                        }
                     }
                 }
 
@@ -875,6 +880,7 @@ public class MsgMainFragment extends Fragment {
          * @param imgHead
          */
         public synchronized void loadGroupHeads(Session bean, MultiImageView imgHead) {
+            LogUtil.getLog().d(MsgMainFragment.class.getSimpleName(), "loadGroupAvatar--" + bean.getGid());
             Group gginfo = msgDao.getGroup4Id(bean.getGid());
             if (gginfo != null) {
                 int i = gginfo.getUsers().size();
@@ -946,7 +952,7 @@ public class MsgMainFragment extends Fragment {
 //        if (isSearchMode) {
 //            return;
 //        }
-//        LogUtil.getLog().d("a=", "MsgMainFragment --开始获取session数据" + System.currentTimeMillis());
+        LogUtil.getLog().d("a=", "MsgMainFragment --开始获取session数据" + System.currentTimeMillis());
         Observable.just(0)
                 .map(new Function<Integer, List<Session>>() {
                     @Override
@@ -1035,9 +1041,21 @@ public class MsgMainFragment extends Fragment {
             if (group != null) {
                 session.setName(msgDao.getGroupName(group));
                 session.setIsMute(group.getNotNotify());
-                session.setAvatar(group.getAvatar());
-
-
+                if (!TextUtils.isEmpty(group.getAvatar())) {
+                    session.setAvatar(group.getAvatar());
+                } else {
+                    if (group.getUsers() != null) {
+                        int i = group.getUsers().size();
+                        i = i > 9 ? 9 : i;
+                        //头像地址
+                        List<String> headList = new ArrayList<>();
+                        for (int j = 0; j < i; j++) {
+                            MemberUser userInfo = group.getUsers().get(j);
+                            headList.add(userInfo.getHead());
+                        }
+                        session.setAvatarList(headList);
+                    }
+                }
             } else {
                 session.setName(msgDao.getGroupName(session.getGid()));
             }
@@ -1072,6 +1090,7 @@ public class MsgMainFragment extends Fragment {
                 session.setMessage(msg);
             }
         }
+
     }
 
     private void taskDelSession(Long from_uid, String gid) {
