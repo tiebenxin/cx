@@ -392,7 +392,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             MessageManager.getInstance().setSessionSolo(toUId);
         }
         //刷新群资料
-        taskSessionInfo();
+        taskSessionInfo(false);
 
         clickAble = true;
         //更新阅后即焚状态
@@ -733,34 +733,23 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (!isGroup()) {
             return;
         }
+        if (!msg.getGid().equals(toGid)) {
+            return;
+        }
         switch (msg.getMsgType()) {
-
             case DESTROY_GROUP:
-                // ToastUtil.show(getApplicationContext(), "销毁群");
-//                taskGroupConf();
-                taskSessionInfo();
+                taskSessionInfo(true);
                 break;
             case REMOVE_GROUP_MEMBER://退出群
-//                taskGroupConf();
-                taskSessionInfo();
+                taskSessionInfo(true);
                 break;
             case ACCEPT_BE_GROUP://邀请进群刷新
                 if (groupInfo != null) {
-                    taskSessionInfo();
-                    if (StringUtil.isNotNull(groupInfo.getAvatar())) {
-//                        taskGroupConf();
-                    } else {
-                        if (groupInfo.getUsers().size() >= 9) {
-//                            taskGroupConf();
-                        } else {
-//                            taskGroupConf();
-                            GroupHeadImageUtil.creatAndSaveImg(this, groupInfo.getGid());
-                        }
-                    }
+                    taskSessionInfo(true);
                 }
                 break;
             case CHANGE_GROUP_META:// 修改群信息
-                taskSessionInfo();
+                taskSessionInfo(true);
                 break;
         }
 
@@ -882,7 +871,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
         toUId = toUId == 0 ? null : toUId;
-        taskSessionInfo();
+        taskSessionInfo(false);
         if (!TextUtils.isEmpty(toGid)) {
             taskGroupInfo();
         }
@@ -951,20 +940,20 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     return;
                 }
 
-//                try {
-//                    if (text.startsWith("@000_")) { //文字测试
-//                        int count = Integer.parseInt(text.split("_")[1]);
-//                        taskTestSend(count);
-//                        return;
-//                    }
-//                    if (text.startsWith("@111_")) {//图片测试
-//                        int count = Integer.parseInt(text.split("_")[1]);
-//                        taskTestImage(count);
-//                        return;
-//                    }
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
+                try {
+                    if (text.startsWith("@000_")) { //文字测试
+                        int count = Integer.parseInt(text.split("_")[1]);
+                        taskTestSend(count);
+                        return;
+                    }
+                    if (text.startsWith("@111_")) {//图片测试
+                        int count = Integer.parseInt(text.split("_")[1]);
+                        taskTestImage(count);
+                        return;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
 
                 int totalSize = text.length();
@@ -2680,7 +2669,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (event.isNeedLoad()) {
             taskGroupInfo();
         } else {
-            taskSessionInfo();
+            taskSessionInfo(true);
         }
     }
 
@@ -2691,7 +2680,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventSwitchDisturb(EventSwitchDisturb event) {
-        taskSessionInfo();
+        taskSessionInfo(true);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -3106,7 +3095,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 final MsgAllBean msgbean = msgListData.get(position);
                 //菜单
                 final List<OptionMenu> menus = new ArrayList<>();
-                LogUtil.getLog().d("CountDownView", "单条刷新");
+                LogUtil.getLog().d("SurvivalTime", "单条刷新");
 
                 if (!isGroup()) {
                     if (msgbean.isMe()) {
@@ -4432,10 +4421,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     /***
      * 获取会话信息
      */
-    private void taskSessionInfo() {
+    private void taskSessionInfo(boolean needRefresh) {
         String title = "";
         if (isGroup()) {
-            groupInfo = msgDao.getGroup4Id(toGid);
+            if (!needRefresh && groupInfo == null) {
+                groupInfo = msgDao.getGroup4Id(toGid);
+            }
             if (groupInfo != null) {
                 if (!TextUtils.isEmpty(groupInfo.getName())) {
                     title = groupInfo.getName();
@@ -4822,20 +4813,35 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     /***
      * 获取群配置,并显示更多按钮
      */
+    @SuppressLint("CheckResult")
     private void taskGroupConf() {
         if (!isGroup()) {
             return;
         }
-        GroupConfig config = dao.groupConfigGet(toGid);
-        if (config != null) {
-            boolean isExited;
-            if (config.getIsExit() == 1) {
-                isExited = true;
-            } else {
-                isExited = false;
-            }
-            setBanView(isExited);
-        }
+        Observable.just(0)
+                .map(new Function<Integer, GroupConfig>() {
+                    @Override
+                    public GroupConfig apply(Integer integer) throws Exception {
+                        return dao.groupConfigGet(toGid);
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<GroupConfig>empty())
+                .subscribe(new Consumer<GroupConfig>() {
+                    @Override
+                    public void accept(GroupConfig config) throws Exception {
+                        if (config != null) {
+                            boolean isExited;
+                            if (config.getIsExit() == 1) {
+                                isExited = true;
+                            } else {
+                                isExited = false;
+                            }
+                            setBanView(isExited);
+                        }
+                    }
+                });
+
     }
 
     /*
@@ -5072,7 +5078,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 } else {
                     viewFunc.removeView(viewChatRobot);
                 }
-                taskSessionInfo();
+                taskSessionInfo(true);
             }
 
             @Override
@@ -5094,7 +5100,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 } else {
                     viewFunc.removeView(viewChatRobot);
                 }
-                taskSessionInfo();
+                taskSessionInfo(false);
             }
         });
     }
