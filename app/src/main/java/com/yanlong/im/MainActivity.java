@@ -452,7 +452,7 @@ public class MainActivity extends AppActivity {
         // 关闭浮动窗口
         mBtnMinimizeVoice.close(this);
         mHandler.removeCallbacks(runnable);
-        timeUtils.cancle();
+        timeUtils.cancel();
         super.onDestroy();
     }
 
@@ -506,7 +506,7 @@ public class MainActivity extends AppActivity {
     }
 
 
-    private void startChatServer(){
+    private void startChatServer() {
         // 启动聊天服务
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 //            startForegroundService(new Intent(getContext(), ChatServer.class));
@@ -515,7 +515,6 @@ public class MainActivity extends AppActivity {
 //        }
         startService(new Intent(getContext(), ChatServer.class));
     }
-
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -799,9 +798,9 @@ public class MainActivity extends AppActivity {
                         versionBean.setVersion(bean.getVersion());
                         preferencesUtil.save2Json(versionBean);
                         //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
-                        if(VersionUtil.isBigVersion(context,bean.getVersion())){
+                        if (VersionUtil.isBigVersion(context, bean.getVersion())) {
                             updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
-                        }else {
+                        } else {
                             updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                         }
                         //如有新版本，首页底部提示红点
@@ -919,7 +918,7 @@ public class MainActivity extends AppActivity {
             //子线程延时 等待myapplication初始化完成
             //查询所有阅后即焚消息加入定时器
             List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
-            if (list != null) {
+            if (list != null && list.size() > 0) {
                 timeUtils.addMsgAllBeans(list);
             }
         } catch (Exception e) {
@@ -933,7 +932,7 @@ public class MainActivity extends AppActivity {
     public void addSurvivalTimeList(EventSurvivalTimeAdd survivalTimeAdd) {
         if (survivalTimeAdd.msgAllBean != null) {
             timeUtils.addMsgAllBean(survivalTimeAdd.msgAllBean);
-        } else if (survivalTimeAdd.list != null) {
+        } else if (survivalTimeAdd.list != null && survivalTimeAdd.list.size() > 0) {
             timeUtils.addMsgAllBeans(survivalTimeAdd.list);
         }
     }

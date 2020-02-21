@@ -2675,7 +2675,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void EtaskRefreshMessagevent(EventRefreshChat event) {
-        taskRefreshMessage(event.isScrollBottom);
+        int type = event.getRefreshType();
+        if (type == CoreEnum.ERefreshType.ALL) {
+            taskRefreshMessage(event.isScrollBottom);
+        } else if (type == CoreEnum.ERefreshType.DELETE) {
+            if (event.getObject() != null && event.getObject() instanceof MsgAllBean) {
+                deleteMsg((MsgAllBean) event.getObject());
+            }
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -5832,6 +5839,34 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             // 开始截图监听
             screenShotListenManager.startListen();
         }
+    }
+
+
+    //删除单条消息
+    private void deleteMsg(MsgAllBean bean) {
+        LogUtil.getLog().i("SurvivalTime", "deleteMsg:" + bean.getMsg_id());
+        if (msgListData == null) {
+            return;
+        }
+        int position = msgListData.indexOf(bean);
+        if (position < 0) {
+            return;
+        }
+        msgListData.remove(bean);
+        mtListView.getListView().getAdapter().notifyItemRemoved(position);//删除刷新
+    }
+
+    //删除单条消息
+    private void deleteMsgList(List<MsgAllBean> list) {
+        if (msgListData == null || list == null) {
+            return;
+        }
+        int position = msgListData.indexOf(list);
+        if (position < 0) {
+            return;
+        }
+        msgListData.remove(list);
+        mtListView.getListView().getAdapter().notifyItemRangeRemoved(position, list.size());//删除刷新
     }
 
 

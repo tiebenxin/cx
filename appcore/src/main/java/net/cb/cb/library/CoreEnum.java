@@ -79,4 +79,16 @@ public class CoreEnum {
         int RECEIVE = 1; // 接收
         int CALLING = 2; // 通话
     }
+
+    /*
+     *刷新类型
+     * */
+    @IntDef({ERefreshType.SINGLE, ERefreshType.ALL, ERefreshType.DELETE, ERefreshType.ADD})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ERefreshType {
+        int SINGLE = 0; // 单刷
+        int ALL = 1; //全刷
+        int DELETE = 2; //删除
+        int ADD = 3; //添加
+    }
 }

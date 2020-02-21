@@ -50,12 +50,15 @@ public class TimeUtils {
         while (it.hasNext()) {
             MsgAllBean bean = it.next();
             if (bean.getEndTime() <= DateUtils.getSystemTime()) {
-                LogUtil.getLog().d("SurvivalTime", "结束时间:" + bean.getEndTime() + "---------" + "系统时间" + DateUtils.getSystemTime());
-                LogUtil.getLog().i("SurvivalTime", "删除msg:" + bean.getMsg_id());
+//                LogUtil.getLog().d("SurvivalTime", "结束时间:" + bean.getEndTime() + "---------" + "系统时间" + DateUtils.getSystemTime());
+                long time = System.currentTimeMillis();
+                LogUtil.getLog().i("SurvivalTime", "删除msg前:" + bean.getMsg_id() + time);
                 msgDao.msgDel4MsgId(bean.getMsg_id());
+                LogUtil.getLog().i("SurvivalTime", "删除msg后:" + bean.getMsg_id() + "耗时==" + (System.currentTimeMillis() - time));
                 updateSession(bean);
                 it.remove();
-                EventBus.getDefault().post(new EventRefreshChat());
+//                EventBus.getDefault().post(new EventRefreshChat());
+                MessageManager.getInstance().notifyRefreshChat(bean, CoreEnum.ERefreshType.DELETE);
             } else if (bean.getSurvival_time() == -1) {
                 LogUtil.getLog().i("SurvivalTime", "退出即焚删除msg:" + bean.getMsg_id());
                 msgDao.msgDel4MsgId(bean.getMsg_id());
@@ -84,16 +87,18 @@ public class TimeUtils {
 
 
     public synchronized void addMsgAllBean(MsgAllBean msgAllBean) {
+        LogUtil.getLog().i("SurvivalTime", "addMsgAllBean");
         msgAllBeans.add(msgAllBean);
     }
 
     //添加阅后即焚消息进入队列
     public synchronized void addMsgAllBeans(List<MsgAllBean> msgs) {
+        LogUtil.getLog().i("SurvivalTime", "addMsgAllBeans:" + msgs.size());
         msgAllBeans.addAll(msgs);
     }
 
 
-    public void cancle() {
+    public void cancel() {
         if (timer != null) {
             timer.cancel();
             timer = null;
