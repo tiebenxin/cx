@@ -776,6 +776,9 @@ public class MainActivity extends AppActivity {
 
     }
 
+    /**
+     * 发请求---判断是否需要更新
+     */
     private void taskNewVersion() {
         userAction.getNewVersion(StringUtil.getChannelName(context), new CallBack<ReturnBean<NewVersionBean>>() {
             @Override
@@ -786,19 +789,22 @@ public class MainActivity extends AppActivity {
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
                     UpdateManage updateManage = new UpdateManage(context, MainActivity.this);
+                    //强制更新
                     if (response.body().getData().getForceUpdate() != 0) {
-                        //updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                     } else {
+                        //缓存最新版本
                         SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
                         VersionBean versionBean = new VersionBean();
                         versionBean.setVersion(bean.getVersion());
                         preferencesUtil.save2Json(versionBean);
-                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
-//                        if (updateManage.isToDayFirst(bean)) {
-//                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
-//                        }
-
+                        //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
+                        if(VersionUtil.isBigVersion(context,bean.getVersion())){
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
+                        }else {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                        }
+                        //如有新版本，首页底部提示红点
                         if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
                             if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
                                 sbme.setNum(1, true);
