@@ -46,18 +46,19 @@ public class TimeUtils {
     }
 
     private synchronized void delete() {
+//        LogUtil.getLog().i("SurvivalTime", "delete" + "--time=" + System.currentTimeMillis());
         Iterator<MsgAllBean> it = msgAllBeans.iterator();
+        LogUtil.getLog().i("SurvivalTime", "delete" + "--time=" + System.currentTimeMillis() + "--size=" + msgAllBeans.size());
         while (it.hasNext()) {
             MsgAllBean bean = it.next();
             if (bean.getEndTime() <= DateUtils.getSystemTime()) {
 //                LogUtil.getLog().d("SurvivalTime", "结束时间:" + bean.getEndTime() + "---------" + "系统时间" + DateUtils.getSystemTime());
                 long time = System.currentTimeMillis();
-                LogUtil.getLog().i("SurvivalTime", "删除msg前:" + bean.getMsg_id() + time);
+                LogUtil.getLog().i("SurvivalTime", "删除msg前:" + bean.getMsg_id() + "--time=" + time);
                 msgDao.msgDel4MsgId(bean.getMsg_id());
-                LogUtil.getLog().i("SurvivalTime", "删除msg后:" + bean.getMsg_id() + "耗时==" + (System.currentTimeMillis() - time));
+//                LogUtil.getLog().i("SurvivalTime", "删除msg后:" + bean.getMsg_id() + "耗时==" + (System.currentTimeMillis() - time));
                 updateSession(bean);
                 it.remove();
-//                EventBus.getDefault().post(new EventRefreshChat());
                 MessageManager.getInstance().notifyRefreshChat(bean, CoreEnum.ERefreshType.DELETE);
             } else if (bean.getSurvival_time() == -1) {
                 LogUtil.getLog().i("SurvivalTime", "退出即焚删除msg:" + bean.getMsg_id());
@@ -68,6 +69,37 @@ public class TimeUtils {
         }
     }
 
+//    private synchronized void delete() {
+//        if (msgAllBeans != null && msgAllBeans.size() > 0) {
+//            List<MsgAllBean> tempList = msgAllBeans;
+//            msgAllBeans.clear();
+//            boolean result = msgDao.deleteMsgList(tempList);
+//            if (result) {
+//                MessageManager.getInstance().notifyRefreshChat(tempList, CoreEnum.ERefreshType.DELETE);
+//                updateSession(bean);
+//            }
+//        }
+//        Iterator<MsgAllBean> it = msgAllBeans.iterator();
+//        while (it.hasNext()) {
+//            MsgAllBean bean = it.next();
+//            if (bean.getEndTime() <= DateUtils.getSystemTime()) {
+////                LogUtil.getLog().d("SurvivalTime", "结束时间:" + bean.getEndTime() + "---------" + "系统时间" + DateUtils.getSystemTime());
+//                long time = System.currentTimeMillis();
+//                LogUtil.getLog().i("SurvivalTime", "删除msg前:" + bean.getMsg_id() + "--time=" + time);
+//                msgDao.msgDel4MsgId(bean.getMsg_id());
+////                LogUtil.getLog().i("SurvivalTime", "删除msg后:" + bean.getMsg_id() + "耗时==" + (System.currentTimeMillis() - time));
+//                updateSession(bean);
+//                it.remove();
+//                MessageManager.getInstance().notifyRefreshChat(bean, CoreEnum.ERefreshType.DELETE);
+//            } else if (bean.getSurvival_time() == -1) {
+//                LogUtil.getLog().i("SurvivalTime", "退出即焚删除msg:" + bean.getMsg_id());
+//                msgDao.msgDel4MsgId(bean.getMsg_id());
+//                updateSession(bean);
+//                it.remove();
+//            }
+//        }
+//    }
+
 
     //更新会话列表消息
     private void updateSession(MsgAllBean msgAllBean) {
@@ -76,19 +108,19 @@ public class TimeUtils {
             Long uid = msgAllBean.isMe() ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid();
 //            MsgAllBean uidMsgAllBean = msgDao.msgGetLast4FUid(uid);
             MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
-//            LogUtil.getLog().e("=单聊=="+CoreEnum.EChatType.PRIVATE+"==="+uid+"==="+ gid+"==="+ CoreEnum.ESessionRefreshTag.SINGLE+"==="+ uidMsgAllBean);
         } else {
 //            MsgAllBean gidMsgAllBean = msgDao.msgGetLast4Gid(gid);
             Long uid = msgAllBean.isMe() ? msgAllBean.getTo_uid() : msgAllBean.getTo_uid();
             MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
-//            LogUtil.getLog().e("=群聊=="+CoreEnum.EChatType.PRIVATE+"==="+uid+"==="+ gid+"==="+ CoreEnum.ESessionRefreshTag.SINGLE+"==="+ gidMsgAllBean);
         }
     }
 
 
     public synchronized void addMsgAllBean(MsgAllBean msgAllBean) {
-        LogUtil.getLog().i("SurvivalTime", "addMsgAllBean");
-        msgAllBeans.add(msgAllBean);
+        if (!msgAllBeans.contains(msgAllBean)) {
+            LogUtil.getLog().i("SurvivalTime", "addMsgAllBean");
+            msgAllBeans.add(msgAllBean);
+        }
     }
 
     //添加阅后即焚消息进入队列

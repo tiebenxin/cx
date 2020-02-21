@@ -2681,6 +2681,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         } else if (type == CoreEnum.ERefreshType.DELETE) {
             if (event.getObject() != null && event.getObject() instanceof MsgAllBean) {
                 deleteMsg((MsgAllBean) event.getObject());
+            }else if (event.getList() != null){
+                deleteMsgList(event.getList());
             }
         }
     }

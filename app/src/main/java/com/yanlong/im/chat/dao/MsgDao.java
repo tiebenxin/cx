@@ -1417,7 +1417,6 @@ public class MsgDao {
     }
 
 
-
     /***
      * 获取所有会话
      * @param isAll 是否剔除小助手，true不剔除，false剔除
@@ -1848,8 +1847,8 @@ public class MsgDao {
 //        RealmResults<ApplyBean> res = realm.where(ApplyBean.class).notEqualTo("stat", 3).sort("time", Sort.DESCENDING).findAll();
 
         //删除错误数据
-        RealmResults<ApplyBean> resTemp=realm.where(ApplyBean.class).equalTo("uid",0).findAll();
-        if(resTemp!=null){
+        RealmResults<ApplyBean> resTemp = realm.where(ApplyBean.class).equalTo("uid", 0).findAll();
+        if (resTemp != null) {
             resTemp.deleteAllFromRealm();
         }
 
@@ -3240,21 +3239,72 @@ public class MsgDao {
         return null;
     }
 
-    public void updateGroupSnapshot(String gid,int value){
+    public void updateGroupSnapshot(String gid, int value) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
-            Group group = realm.where(Group.class).equalTo("gid",gid).findFirst();
-            if (group != null){
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
                 group.setScreenshotNotification(value);
             }
             realm.commitTransaction();
             realm.close();
-        }catch (Exception e){
+        } catch (Exception e) {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
 
+    }
+
+    //批量删除消息
+    public boolean deleteMsgList(List<MsgAllBean> list) {
+        if (list == null) {
+            return true;
+        }
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            int len = list.size();
+            for (int i = 0; i < len; i++) {
+                MsgAllBean bean = list.get(i);
+                MsgAllBean msg = realm.where(MsgAllBean.class).equalTo("msg_id", bean.getMsg_id()).findFirst();
+                if (msg != null) {
+                    deleteRealmMsg(msg);
+                    msg.deleteFromRealm();
+                }
+            }
+            realm.commitTransaction();
+            realm.close();
+            return true;
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return false;
+
+    }
+
+    private void deleteRealmMsg(MsgAllBean msg) {
+        if (msg.getReceive_red_envelope() != null)
+            msg.getReceive_red_envelope().deleteFromRealm();
+        if (msg.getMsgNotice() != null)
+            msg.getMsgNotice().deleteFromRealm();
+        if (msg.getBusiness_card() != null)
+            msg.getBusiness_card().deleteFromRealm();
+        if (msg.getStamp() != null)
+            msg.getStamp().deleteFromRealm();
+        if (msg.getChat() != null)
+            msg.getChat().deleteFromRealm();
+        if (msg.getImage() != null)
+            msg.getImage().deleteFromRealm();
+        if (msg.getRed_envelope() != null)
+            msg.getRed_envelope().deleteFromRealm();
+        if (msg.getTransfer() != null)
+            msg.getTransfer().deleteFromRealm();
+        if (msg.getMsgCancel() != null)
+            msg.getMsgCancel().deleteFromRealm();
+        if (msg.getVoiceMessage() != null)
+            msg.getVoiceMessage().deleteFromRealm();
     }
 
 

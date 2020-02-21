@@ -1673,5 +1673,18 @@ public class MessageManager {
         EventBus.getDefault().post(event);
     }
 
+    /*
+     * 通知刷新聊天界面
+     * */
+    public void notifyRefreshChat(List<MsgAllBean> list, @CoreEnum.ERefreshType int type) {
+        if (list == null || type < 0) {
+            return;
+        }
+        EventRefreshChat event = new EventRefreshChat();
+        event.setList(list);
+        event.setRefreshType(type);
+        EventBus.getDefault().post(event);
+    }
+
 
 }
