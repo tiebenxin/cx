@@ -165,7 +165,7 @@ public class ChatEnum {
      * */
     @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CANCEL,
             UNRECOGNIZED, EMessageType.MSG_VIDEO, EMessageType.MSG_VOICE_VIDEO, EMessageType.LOCK, EMessageType.CHANGE_SURVIVAL_TIME,
-            EMessageType.READ, EMessageType.MSG_VOICE_VIDEO_NOTICE, EMessageType.LOCATION, EMessageType.BALANCE_ASSISTANT,EMessageType.SHIPPED_EXPRESSION})
+            EMessageType.READ, EMessageType.MSG_VOICE_VIDEO_NOTICE, EMessageType.LOCATION, EMessageType.BALANCE_ASSISTANT, EMessageType.SHIPPED_EXPRESSION})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMessageType {
         int UNRECOGNIZED = -1; //未识别
@@ -253,8 +253,8 @@ public class ChatEnum {
      * */
     @IntDef({ENoticeType.ENTER_BY_QRCODE, ENoticeType.INVITED, ENoticeType.KICK, ENoticeType.FORTH, ENoticeType.TRANSFER_GROUP_OWNER, ENoticeType.LEAVE, ENoticeType.RED_ENVELOPE_RECEIVED,
             ENoticeType.RECEIVE_RED_ENVELOPE, ENoticeType.CANCEL, ENoticeType.BLACK_ERROR, ENoticeType.NO_FRI_ERROR, ENoticeType.LOCK, ENoticeType.CHANGE_VICE_ADMINS_ADD,
-            ENoticeType.CHANGE_VICE_ADMINS_CANCLE,ENoticeType.FORBIDDEN_WORDS_OPEN,ENoticeType.FORBIDDEN_WORDS_CLOSE,ENoticeType.RED_ENVELOPE_RECEIVED_SELF,
-            ENoticeType.FORBIDDEN_WORDS_SINGE,ENoticeType.OPEN_UP_RED_ENVELOPER,ENoticeType.SYS_ENVELOPE_RECEIVED_SELF,ENoticeType.RECEIVE_SYS_ENVELOPE,ENoticeType.SYS_ENVELOPE_RECEIVED})
+            ENoticeType.CHANGE_VICE_ADMINS_CANCLE, ENoticeType.FORBIDDEN_WORDS_OPEN, ENoticeType.FORBIDDEN_WORDS_CLOSE, ENoticeType.RED_ENVELOPE_RECEIVED_SELF,
+            ENoticeType.FORBIDDEN_WORDS_SINGE, ENoticeType.OPEN_UP_RED_ENVELOPER, ENoticeType.SYS_ENVELOPE_RECEIVED_SELF, ENoticeType.RECEIVE_SYS_ENVELOPE, ENoticeType.SYS_ENVELOPE_RECEIVED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ENoticeType {
         int ENTER_BY_QRCODE = 1; //扫二维码进群
@@ -357,6 +357,5 @@ public class ChatEnum {
         int CARD = 9;//名片
         int GROUP_ASSISTANT = 10;//群助手
         int FILE = 11;//文件
-
     }
 }

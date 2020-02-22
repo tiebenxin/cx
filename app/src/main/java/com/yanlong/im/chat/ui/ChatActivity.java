@@ -144,6 +144,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.ExpressionUtil;
@@ -2675,7 +2676,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void EtaskRefreshMessagevent(EventRefreshChat event) {
-        taskRefreshMessage(event.isScrollBottom);
+        int type = event.getRefreshType();
+        if (type == CoreEnum.ERefreshType.ALL) {
+            taskRefreshMessage(event.isScrollBottom);
+        } else if (type == CoreEnum.ERefreshType.DELETE) {
+            if (event.getObject() != null && event.getObject() instanceof MsgAllBean) {
+                deleteMsg((MsgAllBean) event.getObject());
+            } else if (event.getList() != null) {
+                deleteMsgList(event.getList());
+            }
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -5287,7 +5297,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 添加阅读即焚消息到队列
      */
     public void addSurvivalTime(MsgAllBean msgbean) {
-        if (msgbean == null) {
+        if (msgbean == null || BurnManager.getInstance().isContainMsg(msgbean)) {
             return;
         }
         if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0) {
@@ -5302,7 +5312,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     public void addSurvivalTimeAndRead(MsgAllBean msgbean) {
-        if (msgbean == null) {
+        if (msgbean == null || BurnManager.getInstance().isContainMsg(msgbean)) {
             return;
         }
         if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0 && msgbean.getRead() == 1) {
@@ -5832,6 +5842,38 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             // 开始截图监听
             screenShotListenManager.startListen();
         }
+    }
+
+
+    //删除单条消息
+    private void deleteMsg(MsgAllBean bean) {
+        LogUtil.getLog().i("SurvivalTime", "deleteMsg:" + bean.getMsg_id());
+        if (msgListData == null) {
+            return;
+        }
+        int position = msgListData.indexOf(bean);
+        if (position < 0) {
+            return;
+        }
+        msgListData.remove(bean);
+        mtListView.getListView().getAdapter().notifyItemRemoved(position);//删除刷新
+    }
+
+    //删除单条消息
+    private void deleteMsgList(List<MsgAllBean> list) {
+        LogUtil.getLog().d("SurvivalTime", "deleteMsgList size=" + list.size());
+        if (msgListData == null || list == null) {
+            return;
+        }
+//        int position = msgListData.indexOf(list);
+//        LogUtil.getLog().d("SurvivalTime", "删除消息 position=" + position);
+//        if (position < 0) {
+//            return;
+//        }
+        msgListData.removeAll(list);
+//        mtListView.getListView().getAdapter().notifyItemRangeRemoved(position, list.size());//删除刷新
+        mtListView.notifyDataSetChange();
+
     }
 
 

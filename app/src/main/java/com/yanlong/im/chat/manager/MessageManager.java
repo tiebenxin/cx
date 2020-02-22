@@ -194,8 +194,8 @@ public class MessageManager {
 //        System.out.println(TAG + "开始处理: " + wrapMessage.getMsgId() + "--time=" + System.currentTimeMillis());
 
         /*
-        * 打印json很耗时
-        * */
+         * 打印json很耗时
+         * */
 //        if (wrapMessage != null && wrapMessage.getMsgType() != null && wrapMessage.getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
 //            LogUtil.getLog().e("===收到=msg=" + GsonUtils.optObject(wrapMessage));
 //        }
@@ -477,7 +477,7 @@ public class MessageManager {
                             isCancelValid = true;
                         }
                     }
-                    EventBus.getDefault().post(new EventRefreshChat());
+                    notifyRefreshChat();
                     // 处理图片撤回，在预览弹出提示
                     EventFactory.ClosePictureEvent event = new EventFactory.ClosePictureEvent();
                     event.msg_id = bean.getMsgCancel().getMsgidCancel();
@@ -812,7 +812,7 @@ public class MessageManager {
      * 网络加载群信息
      * */
     private void loadGroupInfo(final String gid, final long uid, boolean isList, MsgAllBean bean) {
-        if (TextUtils.isEmpty(gid)){
+        if (TextUtils.isEmpty(gid)) {
             return;
         }
         new MsgAction().groupInfo(gid, new CallBack<ReturnBean<Group>>() {
@@ -1658,6 +1658,32 @@ public class MessageManager {
         EventOnlineStatus eventOnlineStatus = new EventOnlineStatus();
         eventOnlineStatus.setOn(status);
         EventBus.getDefault().post(eventOnlineStatus);
+    }
+
+    /*
+     * 通知刷新聊天界面
+     * */
+    public void notifyRefreshChat(MsgAllBean bean, @CoreEnum.ERefreshType int type) {
+        if (bean == null || type < 0) {
+            return;
+        }
+        EventRefreshChat event = new EventRefreshChat();
+        event.setObject(bean);
+        event.setRefreshType(type);
+        EventBus.getDefault().post(event);
+    }
+
+    /*
+     * 通知刷新聊天界面
+     * */
+    public void notifyRefreshChat(List<MsgAllBean> list, @CoreEnum.ERefreshType int type) {
+        if (list == null || type < 0) {
+            return;
+        }
+        EventRefreshChat event = new EventRefreshChat();
+        event.setList(list);
+        event.setRefreshType(type);
+        EventBus.getDefault().post(event);
     }
 
 

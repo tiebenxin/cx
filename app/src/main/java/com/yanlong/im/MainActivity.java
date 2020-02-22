@@ -59,7 +59,7 @@ import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
-import com.yanlong.im.utils.TimeUtils;
+import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.update.UpdateManage;
@@ -133,7 +133,6 @@ public class MainActivity extends AppActivity {
     // 通话时间
     private int mPassedTime = 0;
     private final int TIME = 1000;
-    private TimeUtils timeUtils = new TimeUtils();
     private long mExitTime;
     private int mHour, mMin, mSecond;
     private EventFactory.VoiceMinimizeEvent mVoiceMinimizeEvent;
@@ -218,7 +217,7 @@ public class MainActivity extends AppActivity {
     private void findViews() {
         viewPage = findViewById(R.id.viewPage);
         bottomTab = findViewById(R.id.bottom_tab);
-        timeUtils.RunTimer();
+        BurnManager.getInstance().RunTimer();
         mBtnMinimizeVoice = findViewById(R.id.btn_minimize_voice);
     }
 
@@ -452,7 +451,7 @@ public class MainActivity extends AppActivity {
         // 关闭浮动窗口
         mBtnMinimizeVoice.close(this);
         mHandler.removeCallbacks(runnable);
-        timeUtils.cancle();
+        BurnManager.getInstance().cancel();
         super.onDestroy();
     }
 
@@ -506,7 +505,7 @@ public class MainActivity extends AppActivity {
     }
 
 
-    private void startChatServer(){
+    private void startChatServer() {
         // 启动聊天服务
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 //            startForegroundService(new Intent(getContext(), ChatServer.class));
@@ -515,7 +514,6 @@ public class MainActivity extends AppActivity {
 //        }
         startService(new Intent(getContext(), ChatServer.class));
     }
-
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -799,9 +797,9 @@ public class MainActivity extends AppActivity {
                         versionBean.setVersion(bean.getVersion());
                         preferencesUtil.save2Json(versionBean);
                         //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
-                        if(VersionUtil.isBigVersion(context,bean.getVersion())){
+                        if (VersionUtil.isBigVersion(context, bean.getVersion())) {
                             updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
-                        }else {
+                        } else {
                             updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                         }
                         //如有新版本，首页底部提示红点
@@ -919,8 +917,8 @@ public class MainActivity extends AppActivity {
             //子线程延时 等待myapplication初始化完成
             //查询所有阅后即焚消息加入定时器
             List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
-            if (list != null) {
-                timeUtils.addMsgAllBeans(list);
+            if (list != null && list.size() > 0) {
+                BurnManager.getInstance().addMsgAllBeans(list);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -932,9 +930,9 @@ public class MainActivity extends AppActivity {
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void addSurvivalTimeList(EventSurvivalTimeAdd survivalTimeAdd) {
         if (survivalTimeAdd.msgAllBean != null) {
-            timeUtils.addMsgAllBean(survivalTimeAdd.msgAllBean);
-        } else if (survivalTimeAdd.list != null) {
-            timeUtils.addMsgAllBeans(survivalTimeAdd.list);
+            BurnManager.getInstance().addMsgAllBean(survivalTimeAdd.msgAllBean);
+        } else if (survivalTimeAdd.list != null && survivalTimeAdd.list.size() > 0) {
+            BurnManager.getInstance().addMsgAllBeans(survivalTimeAdd.list);
         }
     }
 
