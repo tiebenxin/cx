@@ -5308,7 +5308,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean, null));
             LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间1----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
         }
-//        LogUtil.getLog().e("==msgbean.toString===2=="+msgbean.toString());
     }
 
     public void addSurvivalTimeAndRead(MsgAllBean msgbean) {
@@ -5323,7 +5322,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean, null));
             LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间2----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
         }
-//        LogUtil.getLog().e("==msgbean.toString===3=="+msgbean.toString());
     }
 
 
@@ -5332,7 +5330,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             return;
         }
         for (int i = 0; i < list.size(); i++) {
-
             MsgAllBean msgbean = list.get(i);
             if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0) {
                 long date = DateUtils.getSystemTime();
