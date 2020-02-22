@@ -186,6 +186,9 @@ public class BurnManager {
         if (!historyMsgIds.contains(msgAllBean.getMsg_id())) {
 //            LogUtil.getLog().i("SurvivalTime", "addMsgAllBean");
             msgAllBeans.add(msgAllBean);
+            if (historyMsgIds.size() >= 500){
+                historyMsgIds.remove(0);
+            }
             historyMsgIds.add(msgAllBean.getMsg_id());
         }
     }
