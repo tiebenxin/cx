@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-   <com.baoyz.widget.PullRefreshLayout
+   <net.cb.cb.library.view.NewPullRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/swipeLayout"
         android:layout_width="match_parent"
@@ -21,6 +21,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"/>
-    </com.baoyz.widget.PullRefreshLayout>
+    </net.cb.cb.library.view.NewPullRefreshLayout>
 
 </LinearLayout>
