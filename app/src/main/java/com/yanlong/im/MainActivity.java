@@ -59,7 +59,7 @@ import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
-import com.yanlong.im.utils.TimeUtils;
+import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.update.UpdateManage;
@@ -133,7 +133,6 @@ public class MainActivity extends AppActivity {
     // 通话时间
     private int mPassedTime = 0;
     private final int TIME = 1000;
-    private TimeUtils timeUtils = new TimeUtils();
     private long mExitTime;
     private int mHour, mMin, mSecond;
     private EventFactory.VoiceMinimizeEvent mVoiceMinimizeEvent;
@@ -218,7 +217,7 @@ public class MainActivity extends AppActivity {
     private void findViews() {
         viewPage = findViewById(R.id.viewPage);
         bottomTab = findViewById(R.id.bottom_tab);
-        timeUtils.RunTimer();
+        BurnManager.getInstance().RunTimer();
         mBtnMinimizeVoice = findViewById(R.id.btn_minimize_voice);
     }
 
@@ -452,7 +451,7 @@ public class MainActivity extends AppActivity {
         // 关闭浮动窗口
         mBtnMinimizeVoice.close(this);
         mHandler.removeCallbacks(runnable);
-        timeUtils.cancel();
+        BurnManager.getInstance().cancel();
         super.onDestroy();
     }
 
@@ -919,7 +918,7 @@ public class MainActivity extends AppActivity {
             //查询所有阅后即焚消息加入定时器
             List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
             if (list != null && list.size() > 0) {
-                timeUtils.addMsgAllBeans(list);
+                BurnManager.getInstance().addMsgAllBeans(list);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -931,9 +930,9 @@ public class MainActivity extends AppActivity {
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void addSurvivalTimeList(EventSurvivalTimeAdd survivalTimeAdd) {
         if (survivalTimeAdd.msgAllBean != null) {
-            timeUtils.addMsgAllBean(survivalTimeAdd.msgAllBean);
+            BurnManager.getInstance().addMsgAllBean(survivalTimeAdd.msgAllBean);
         } else if (survivalTimeAdd.list != null && survivalTimeAdd.list.size() > 0) {
-            timeUtils.addMsgAllBeans(survivalTimeAdd.list);
+            BurnManager.getInstance().addMsgAllBeans(survivalTimeAdd.list);
         }
     }
 
