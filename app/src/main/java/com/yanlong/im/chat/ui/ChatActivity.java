@@ -5223,6 +5223,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         List<UserInfo> userInfoList = new ArrayList<>();
                         userInfoList.addAll(response.body().getData());
                         if(userInfoList.get(0)!=null){
+                            userInfoList.get(0).setuType(ChatEnum.EUserType.FRIEND);//TODO 记得设置类型为好友(这里排查耗时过久，牢记教训) zjy
                             userDao.updateUserinfo(userInfoList.get(0));//本地更新对方数据
                             taskSessionInfo(true);
                         }
