@@ -389,10 +389,11 @@ public class UserInfoActivity extends AppActivity {
         mIsFromGroup = intent.getBooleanExtra(IS_GROUP, false);
         mIsAdmin = intent.getBooleanExtra(IS_ADMINS, false);
         taskFindExist();
-        taskUserInfo(id);
         if (!TextUtils.isEmpty(gid)) {
+            taskGroupInfo(gid);
             getSingleMemberInfo();
         }
+        taskUserInfo(id);
     }
 
     @Override
@@ -428,7 +429,15 @@ public class UserInfoActivity extends AppActivity {
         } else if (type == 1) {
             mLayoutMsg.setVisibility(View.GONE);
             btnMsg.setVisibility(View.GONE);
-            mBtnAdd.setVisibility(View.VISIBLE);
+            if (!TextUtils.isEmpty(gid)) {
+                if (group != null && group.getContactIntimately() != null) {
+                    if (group.getContactIntimately() == 1 && !group.getMaster().equals("" + UserAction.getMyId())) {
+                        mBtnAdd.setVisibility(View.GONE);
+                    }
+                }
+            } else {
+                mBtnAdd.setVisibility(View.VISIBLE);
+            }
             mViewSettingName.setVisibility(View.GONE);
             if (TextUtils.isEmpty(sayHi)) {
                 mTvRemark.setVisibility(View.GONE);
@@ -541,20 +550,24 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void taskGroupInfo(String gid) {
-        new MsgAction().groupInfo4UserInfo(gid, new CallBack<ReturnBean<Group>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-                super.onResponse(call, response);
-                if (response.body() == null) {
-                    return;
+        group = msgDao.getGroup4Id(gid);
+        if (group == null) {
+            new MsgAction().groupInfo4UserInfo(gid, new CallBack<ReturnBean<Group>>() {
+                @Override
+                public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                    super.onResponse(call, response);
+                    if (response.body() == null) {
+                        return;
+                    }
+                    if (response.body().isOk()) {
+                        group = response.body().getData();
+                        setGroupData(group);
+                    }
                 }
-                if (response.body().isOk()) {
-                    group = response.body().getData();
-                    setGroupData(group);
-                }
-            }
-
-        });
+            });
+        } else {
+            setGroupData(group);
+        }
     }
 
 
@@ -563,6 +576,8 @@ public class UserInfoActivity extends AppActivity {
         if (group.getContactIntimately() != null) {
             if (group.getContactIntimately() == 1 && !group.getMaster().equals("" + UserAction.getMyId())) {
                 mBtnAdd.setVisibility(View.GONE);
+            } else {
+                mBtnAdd.setVisibility(View.VISIBLE);
             }
         }
 
