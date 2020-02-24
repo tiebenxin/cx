@@ -5224,7 +5224,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         userInfoList.addAll(response.body().getData());
                         if(userInfoList.get(0)!=null){
                             userDao.updateUserinfo(userInfoList.get(0));//本地更新对方数据
-                            taskSessionInfo();
+                            taskSessionInfo(true);
                         }
                     }
                 }
