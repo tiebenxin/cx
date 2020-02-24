@@ -903,5 +903,10 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         }
     }
 
+    @Override
+    public void startUploadService() {
+        startService(new Intent(getContext(), UpLoadService.class));
+    }
+
 
 }
