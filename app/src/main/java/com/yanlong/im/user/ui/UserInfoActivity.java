@@ -577,7 +577,12 @@ public class UserInfoActivity extends AppActivity {
             if (group.getContactIntimately() == 1 && !group.getMaster().equals("" + UserAction.getMyId())) {
                 mBtnAdd.setVisibility(View.GONE);
             } else {
-                mBtnAdd.setVisibility(View.VISIBLE);
+                //uType=2 表示是好友
+                if (userInfoLocal != null && userInfoLocal.getuType() != null && userInfoLocal.getuType() != 2) {
+                    mBtnAdd.setVisibility(View.VISIBLE);
+                } else {
+                    mBtnAdd.setVisibility(View.GONE);
+                }
             }
         }
 
