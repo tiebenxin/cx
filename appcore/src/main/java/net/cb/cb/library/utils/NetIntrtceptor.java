@@ -2,10 +2,12 @@ package net.cb.cb.library.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.tencent.bugly.crashreport.BuglyLog;
 import com.tencent.bugly.crashreport.CrashReport;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.MainApplication;
+import net.cb.cb.library.bean.BuglyException;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.constant.BuglyTag;
@@ -112,17 +114,10 @@ public class NetIntrtceptor implements Interceptor {
                 LogUtil.getLog().e(TAG, "<<拦截器:401 url:" + resp.request().url().url().toString());
                 // 上报后的Crash会显示该标签
                 CrashReport.setUserSceneTag(MainApplication.getInstance().getApplicationContext(), BUGLY_TAG_LOGIN);
-                // 上传异常数据
-                CrashReport.putUserData(MainApplication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_3, "401：" + resp.message() + " " + resp.body());
+                // 上传异常数据,BuglyLog最多20字节
+                BuglyLog.i(BuglyTag.BUGLY_TAG_3, "401：" + resp.message());
+                CrashReport.postCatchedException(new BuglyException());
                 EventBus.getDefault().post(new EventLoginOut());
-              /*  if(token==null||token.getToken()==null){//没登录,在当前页面弹登录
-                    EventBus.getDefault().post(new EventLoginOut());
-                }else{//有登录,被踢了
-
-                    EventBus.getDefault().post(new EventReLogin());
-                }*/
-
-
                 break;
 
             case 403:
@@ -130,7 +125,8 @@ public class NetIntrtceptor implements Interceptor {
                 // 上报后的Crash会显示该标签
                 CrashReport.setUserSceneTag(MainApplication.getInstance().getApplicationContext(), BUGLY_TAG_LOGIN);
                 // 上传异常数据
-                CrashReport.putUserData(MainApplication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_3, "403：" + resp.message() + " " + resp.body());
+                BuglyLog.i(BuglyTag.BUGLY_TAG_3, "403：" + resp.message() /*+ " " + resp.body()*/);
+                CrashReport.postCatchedException(new BuglyException());
                 EventBus.getDefault().post(new EventLoginOut());
                 break;
             case 404:

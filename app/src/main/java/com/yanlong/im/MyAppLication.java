@@ -12,6 +12,7 @@ import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.controll.AVChatSoundPlayer;
 import com.example.nim_lib.ui.VideoActivity;
 import com.jrmf360.tools.JrmfClient;
+import com.kye.net.NetRequestHelper;
 import com.lansosdk.box.LSLog;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.SDKOptions;
@@ -23,6 +24,7 @@ import com.umeng.socialize.PlatformConfig;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yanlong.im.controll.AVChatKit;
 import com.yanlong.im.location.LocationService;
+import com.yanlong.im.utils.IVolleyInitImp;
 import com.yanlong.im.utils.LogcatHelper;
 import com.yanlong.im.utils.MyDiskCacheController;
 import com.yanlong.im.utils.MyDiskCacheUtils;
@@ -75,12 +77,10 @@ public class MyAppLication extends MainApplication {
                 AppConfig.DEBUG = true;
                 //---------------------------
 //                AppConfig.SOCKET_IP = "beta.zhixun6.com";
-                AppConfig.SOCKET_IP = "im-app.zhixun6.com";//真实IP地址
-//                AppConfig.SOCKET_IP = "yanlong.1616d.top";
+                AppConfig.SOCKET_IP = "yanlong.1616d.top";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
-//                AppConfig.UP_PATH = "test-environment";
-                AppConfig.UP_PATH = "product-environment";//真实上传地址
+                AppConfig.UP_PATH = "test-environment";
 
 //                AppConfig.SOCKET_IP = "beta.zhixun6.com";
 //                AppConfig.SOCKET_IP = "im-app.zhixun6.com";
@@ -128,8 +128,9 @@ public class MyAppLication extends MainApplication {
         initCache();
         // 初始化表情
         FaceView.initFaceMap();
-//        initLocation();//初始化定位
+        initLocation();//初始化定位
         initARouter();//初始化路由
+        initVolley();
     }
 
     /**
@@ -166,6 +167,11 @@ public class MyAppLication extends MainApplication {
         strategy.setUploadProcess(processName == null || processName.equals(packageName));
         CrashReport.initCrashReport(this, "7780d7e928", false, strategy);
 
+    }
+
+    private void initVolley(){
+        // 初始化新网络框架请求 用于文件断点续传
+        NetRequestHelper.getInstance().init(this, new IVolleyInitImp());
     }
 
     /**

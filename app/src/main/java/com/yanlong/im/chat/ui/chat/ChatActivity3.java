@@ -14,7 +14,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 
-import com.baoyz.widget.PullRefreshLayout;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -57,6 +56,7 @@ import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.NewPullRefreshLayout;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -492,7 +492,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         //test 6.26
         ui.viewFuncRoot.viewFunc.removeView(ui.viewFuncRoot.viewTransfer);
 
-        ui.viewRefresh.setOnRefreshListener(new PullRefreshLayout.OnRefreshListener() {
+        ui.viewRefresh.setOnRefreshListener(new NewPullRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 presenter.loadAndSetMoreData();

@@ -204,12 +204,12 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
         int sampleSize = (int) (options.outHeight / (float) 200);
         if (sampleSize <= 0)
             sampleSize = 1;
-        options.inSampleSize = sampleSize;
-        scanBitmap = BitmapFactory.decodeFile(path, options);
-        RGBLuminanceSource source = new RGBLuminanceSource(scanBitmap);
-        BinaryBitmap bitmap1 = new BinaryBitmap(new HybridBinarizer(source));
-        QRCodeReader reader = new QRCodeReader();
         try {
+            options.inSampleSize = sampleSize;
+            scanBitmap = BitmapFactory.decodeFile(path, options);
+            RGBLuminanceSource source = new RGBLuminanceSource(scanBitmap);
+            BinaryBitmap bitmap1 = new BinaryBitmap(new HybridBinarizer(source));
+            QRCodeReader reader = new QRCodeReader();
             return reader.decode(bitmap1, hints);
         } catch (NotFoundException e) {
             e.printStackTrace();

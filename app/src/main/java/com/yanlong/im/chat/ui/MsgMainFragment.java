@@ -17,6 +17,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -256,7 +257,7 @@ public class MsgMainFragment extends Fragment {
 
     private void resetNetWorkView(@CoreEnum.ENetStatus int status) {
         try {
-            LogUtil.getLog().i(MsgMainFragment.class.getSimpleName(), "resetNetWorkView--status=" + status);
+//            LogUtil.getLog().i(MsgMainFragment.class.getSimpleName(), "resetNetWorkView--status=" + status);
             if (mAdapter == null || mAdapter.viewNetwork == null) {
                 return;
             }
@@ -414,7 +415,7 @@ public class MsgMainFragment extends Fragment {
                                         listData.remove(index);
                                         listData.add(0, session);//放在首位
                                         mtListView.getListView().getAdapter().notifyItemRangeChanged(1, index + 1);//范围刷新
-                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "置顶刷新--session=" + session.getSid());
+//                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "置顶刷新--session=" + session.getSid());
                                     } else {//取消置顶
                                         listData.set(index, session);
                                         sortSession(index == 0);
@@ -422,21 +423,21 @@ public class MsgMainFragment extends Fragment {
                                         int start = index > newIndex ? newIndex : index;//谁小，取谁
                                         int count = Math.abs(newIndex - index) + 1;
                                         mtListView.getListView().getAdapter().notifyItemRangeChanged(start + 1, count);////范围刷新,刷新旧位置和新位置之间即可
-                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "取消置顶刷新--session=" + session.getSid());
+//                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "取消置顶刷新--session=" + session.getSid());
 
                                     }
                                 } else {
                                     listData.set(index, session);
                                     if (s != null && s.getUp_time().equals(session.getUp_time())) {//时间未更新，所以不要重新排序
                                         mtListView.getListView().getAdapter().notifyItemChanged(index + 1, index);
-                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "时间未更新--session=" + session.getSid());
+//                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "时间未更新--session=" + session.getSid());
                                     } else {//有时间更新,需要重排
                                         sortSession(index == 0);
                                         int newIndex = listData.indexOf(session);
                                         int start = index > newIndex ? newIndex : index;//谁小，取谁
                                         int count = Math.abs(newIndex - index) + 1;
                                         mtListView.getListView().getAdapter().notifyItemRangeChanged(start + 1, count);//范围刷新
-                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "时间更新重排--session=" + session.getSid());
+//                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "时间更新重排--session=" + session.getSid());
                                     }
                                 }
                             } else {
@@ -451,7 +452,7 @@ public class MsgMainFragment extends Fragment {
                             }
                         } else {
                             int position = insertSession(session);
-                            LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "新session--session=" + session.getSid());
+//                            LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "新session--session=" + session.getSid());
                             if (position == 0) {
                                 mtListView.notifyDataSetChange();
                             } else {
@@ -773,7 +774,11 @@ public class MsgMainFragment extends Fragment {
                         headList.add(icon);
                         holder.imgHead.setList(headList);
                     } else {
-                        loadGroupHeads(bean, holder.imgHead);
+                        if (bean.getAvatarList() != null && bean.getAvatarList().size() > 0) {
+                            holder.imgHead.setList(bean.getAvatarList());
+                        } else {
+                            loadGroupHeads(bean, holder.imgHead);
+                        }
                     }
                 }
 
@@ -809,7 +814,8 @@ public class MsgMainFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         holder.swipeLayout.quickClose();
-                        taskDelSession(bean.getFrom_uid(), bean.getGid());
+//                        taskDelSession(bean.getFrom_uid(), bean.getGid());
+                        deleteSession(bean);
                     }
                 });
 //            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#f1f1f1"));
@@ -875,6 +881,7 @@ public class MsgMainFragment extends Fragment {
          * @param imgHead
          */
         public synchronized void loadGroupHeads(Session bean, MultiImageView imgHead) {
+//            LogUtil.getLog().d(MsgMainFragment.class.getSimpleName(), "loadGroupAvatar--" + bean.getGid());
             Group gginfo = msgDao.getGroup4Id(bean.getGid());
             if (gginfo != null) {
                 int i = gginfo.getUsers().size();
@@ -1035,9 +1042,21 @@ public class MsgMainFragment extends Fragment {
             if (group != null) {
                 session.setName(msgDao.getGroupName(group));
                 session.setIsMute(group.getNotNotify());
-                session.setAvatar(group.getAvatar());
-
-
+                if (!TextUtils.isEmpty(group.getAvatar())) {
+                    session.setAvatar(group.getAvatar());
+                } else {
+                    if (group.getUsers() != null) {
+                        int i = group.getUsers().size();
+                        i = i > 9 ? 9 : i;
+                        //头像地址
+                        List<String> headList = new ArrayList<>();
+                        for (int j = 0; j < i; j++) {
+                            MemberUser userInfo = group.getUsers().get(j);
+                            headList.add(userInfo.getHead());
+                        }
+                        session.setAvatarList(headList);
+                    }
+                }
             } else {
                 session.setName(msgDao.getGroupName(session.getGid()));
             }
@@ -1072,12 +1091,34 @@ public class MsgMainFragment extends Fragment {
                 session.setMessage(msg);
             }
         }
+
     }
 
     private void taskDelSession(Long from_uid, String gid) {
+        LogUtil.getLog().d("a==", "MsgMainFragment --删除session");
         MessageManager.getInstance().deleteSessionAndMsg(from_uid, gid);
-        MessageManager.getInstance().notifyRefreshMsg();
+        MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
         taskListData();
+    }
+
+    private void deleteSession(Session session) {
+        if (listData == null) {
+            return;
+        }
+        int position = listData.indexOf(session);
+        if (position < 0) {
+            return;
+        }
+        listData.remove(session);
+        MessageManager.getInstance().deleteSessionAndMsg(session.getFrom_uid(), session.getGid());
+        MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
+        getView().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mtListView.getListView().getAdapter().notifyItemRemoved(position + 1);//范围刷新
+            }
+        }, 50);
+
     }
 
 

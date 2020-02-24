@@ -59,7 +59,7 @@ import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
-import com.yanlong.im.utils.TimeUtils;
+import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.update.UpdateManage;
@@ -71,6 +71,7 @@ import net.cb.cb.library.bean.CanStampEvent;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventNetStatus;
+import net.cb.cb.library.bean.EventOnlineStatus;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
@@ -132,7 +133,6 @@ public class MainActivity extends AppActivity {
     // 通话时间
     private int mPassedTime = 0;
     private final int TIME = 1000;
-    private TimeUtils timeUtils = new TimeUtils();
     private long mExitTime;
     private int mHour, mMin, mSecond;
     private EventFactory.VoiceMinimizeEvent mVoiceMinimizeEvent;
@@ -217,7 +217,7 @@ public class MainActivity extends AppActivity {
     private void findViews() {
         viewPage = findViewById(R.id.viewPage);
         bottomTab = findViewById(R.id.bottom_tab);
-        timeUtils.RunTimer();
+        BurnManager.getInstance().RunTimer();
         mBtnMinimizeVoice = findViewById(R.id.btn_minimize_voice);
     }
 
@@ -325,11 +325,8 @@ public class MainActivity extends AppActivity {
 
 
         // 启动聊天服务
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
-            startForegroundService(new Intent(getContext(), ChatServer.class));
-        } else {
-            startService(new Intent(getContext(), ChatServer.class));
-        }
+        startChatServer();
+
         mBtnMinimizeVoice.setOnClickListener(new ImageMoveView.OnSingleTapListener() {
             @Override
             public void onClick() {
@@ -454,7 +451,7 @@ public class MainActivity extends AppActivity {
         // 关闭浮动窗口
         mBtnMinimizeVoice.close(this);
         mHandler.removeCallbacks(runnable);
-        timeUtils.cancle();
+        BurnManager.getInstance().cancel();
         super.onDestroy();
     }
 
@@ -506,6 +503,18 @@ public class MainActivity extends AppActivity {
             }
         }
     }
+
+
+    private void startChatServer() {
+        // 启动聊天服务
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            startForegroundService(new Intent(getContext(), ChatServer.class));
+//        } else {
+//            startService(new Intent(getContext(), ChatServer.class));
+//        }
+        startService(new Intent(getContext(), ChatServer.class));
+    }
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefresh(EventRefreshMainMsg event) {
@@ -564,9 +573,17 @@ public class MainActivity extends AppActivity {
     public void eventRunState(EventRunState event) {
         LogUtil.getLog().i("TAG", ">>>>EventRunState:" + event.getRun());
         if (event.getRun()) {
-            startService(new Intent(getContext(), ChatServer.class));
+            startChatServer();
         } else {
             stopService(new Intent(getContext(), ChatServer.class));
+        }
+
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventOnlineStatus(EventOnlineStatus event) {
+        if (event.isOn()) {
+//            MessageManager.getInstance().testReceiveMsg();
         }
 
     }
@@ -757,6 +774,9 @@ public class MainActivity extends AppActivity {
 
     }
 
+    /**
+     * 发请求---判断是否需要更新
+     */
     private void taskNewVersion() {
         userAction.getNewVersion(StringUtil.getChannelName(context), new CallBack<ReturnBean<NewVersionBean>>() {
             @Override
@@ -767,19 +787,22 @@ public class MainActivity extends AppActivity {
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
                     UpdateManage updateManage = new UpdateManage(context, MainActivity.this);
+                    //强制更新
                     if (response.body().getData().getForceUpdate() != 0) {
-                        //updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                     } else {
+                        //缓存最新版本
                         SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
                         VersionBean versionBean = new VersionBean();
                         versionBean.setVersion(bean.getVersion());
                         preferencesUtil.save2Json(versionBean);
-                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
-//                        if (updateManage.isToDayFirst(bean)) {
-//                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
-//                        }
-
+                        //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
+                        if (VersionUtil.isBigVersion(context, bean.getVersion())) {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
+                        } else {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                        }
+                        //如有新版本，首页底部提示红点
                         if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
                             if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
                                 sbme.setNum(1, true);
@@ -894,8 +917,8 @@ public class MainActivity extends AppActivity {
             //子线程延时 等待myapplication初始化完成
             //查询所有阅后即焚消息加入定时器
             List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
-            if (list != null) {
-                timeUtils.addMsgAllBeans(list);
+            if (list != null && list.size() > 0) {
+                BurnManager.getInstance().addMsgAllBeans(list);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -907,9 +930,9 @@ public class MainActivity extends AppActivity {
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void addSurvivalTimeList(EventSurvivalTimeAdd survivalTimeAdd) {
         if (survivalTimeAdd.msgAllBean != null) {
-            timeUtils.addMsgAllBean(survivalTimeAdd.msgAllBean);
-        } else if (survivalTimeAdd.list != null) {
-            timeUtils.addMsgAllBeans(survivalTimeAdd.list);
+            BurnManager.getInstance().addMsgAllBean(survivalTimeAdd.msgAllBean);
+        } else if (survivalTimeAdd.list != null && survivalTimeAdd.list.size() > 0) {
+            BurnManager.getInstance().addMsgAllBeans(survivalTimeAdd.list);
         }
     }
 

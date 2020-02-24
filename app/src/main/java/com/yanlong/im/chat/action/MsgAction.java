@@ -393,7 +393,7 @@ public class MsgAction {
                             isTop = true;
                         } else if (notNotify != null) {
                             dao.updateGroupAndSessionDisturb(gid, notNotify.intValue());
-                            MessageManager.getInstance().updateCacheTopOrDisturb(gid, 0, notNotify.intValue());
+//                            MessageManager.getInstance().updateCacheTopOrDisturb(gid, 0, notNotify.intValue());
                             isTop = false;
                         }
                         //置顶通知刷新，面打扰在activity onStop时再刷新，避免快速点击开关的时候，造成刷新异常

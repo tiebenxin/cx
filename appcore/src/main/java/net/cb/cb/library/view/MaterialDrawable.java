@@ -28,8 +28,6 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.Transformation;
 
-import com.baoyz.widget.PullRefreshLayout;
-import com.baoyz.widget.RefreshDrawable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -136,7 +134,7 @@ class MaterialDrawable extends RefreshDrawable implements Animatable {
     private int mTop;
     private int mDiameter;
 
-    public MaterialDrawable(Context context, PullRefreshLayout parent) {
+    public MaterialDrawable(Context context, NewPullRefreshLayout parent) {
         super(context, parent);
         mParent = parent;
         mResources = context.getResources();

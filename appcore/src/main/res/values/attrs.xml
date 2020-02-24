@@ -53,32 +53,44 @@
     </declare-styleable>
 
     <declare-styleable name="ViewfinderView">
-        <attr name="corner_color" format="color"/>
-        <attr name="laser_color" format="color"/>
+        <attr name="corner_color" format="color" />
+        <attr name="laser_color" format="color" />
         <attr name="frame_color" format="color" />
         <attr name="mask_color" format="color" />
-        <attr name="result_point_color" format="color"/>
+        <attr name="result_point_color" format="color" />
         <attr name="result_color" format="color" />
-        <attr name="label_text_color" format="color"/>
-        <attr name="label_text" format="string"/>
-        <attr name="label_text_size" format="float"/>
+        <attr name="label_text_color" format="color" />
+        <attr name="label_text" format="string" />
+        <attr name="label_text_size" format="float" />
     </declare-styleable>
 
     <declare-styleable name="SpringView">
         <attr name="type">
-            <enum name="overlap" value="0"/>
-            <enum name="follow" value="1"/>
+            <enum name="overlap" value="0" />
+            <enum name="follow" value="1" />
         </attr>
         <attr name="give">
-            <enum name="both" value="0"/>
-            <enum name="top" value="1"/>
-            <enum name="bottom" value="2"/>
-            <enum name="none" value="3"/>
+            <enum name="both" value="0" />
+            <enum name="top" value="1" />
+            <enum name="bottom" value="2" />
+            <enum name="none" value="3" />
         </attr>
-        <attr format="reference" name="header"/>
-        <attr format="reference" name="footer"/>
-        <attr format="reference" name="leftRes"/>
-        <attr format="reference" name="rightRes"/>
+        <attr name="header" format="reference" />
+        <attr name="footer" format="reference" />
+        <attr name="leftRes" format="reference" />
+        <attr name="rightRes" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="refresh_PullRefreshLayout">
+        <attr name="refreshType" format="enum">
+            <enum name="material" value="0" />
+            <enum name="circles" value="1" />
+            <enum name="water_drop" value="2" />
+            <enum name="ring" value="3" />
+            <enum name="smartisan" value="4" />
+        </attr>
+        <attr name="refreshColors" format="reference" />
+        <attr name="refreshColor" format="reference" />
     </declare-styleable>
 
 </resources>

@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import com.baoyz.widget.PullRefreshLayout;
 
 import net.cb.cb.library.R;
 
@@ -32,7 +31,7 @@ import static net.cb.cb.library.view.MlistAdapter.LOAD_STATE_NOMORL;
 public class MultiListView extends LinearLayout {
     private static final String TAG = "MultiListView";
     private LoadView loadView;
-    private PullRefreshLayout swipeLayout;
+    private NewPullRefreshLayout swipeLayout;
     private RecyclerView listView;
     private Context context;
     private MlistAdapter adt;
@@ -66,7 +65,7 @@ public class MultiListView extends LinearLayout {
         return loadView;
     }
 
-    public PullRefreshLayout getSwipeLayout() {
+    public NewPullRefreshLayout getSwipeLayout() {
         return swipeLayout;
     }
 
@@ -104,7 +103,7 @@ public class MultiListView extends LinearLayout {
         listView.setItemAnimator(null);
         // ------------------------------------------
         // 下拉刷新
-        swipeLayout.setOnRefreshListener(new PullRefreshLayout.OnRefreshListener() {
+        swipeLayout.setOnRefreshListener(new NewPullRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 if (event != null) {

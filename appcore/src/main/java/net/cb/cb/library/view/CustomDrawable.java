@@ -9,8 +9,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 
-import com.baoyz.widget.PullRefreshLayout;
-import com.baoyz.widget.RefreshDrawable;
 
 import net.cb.cb.library.utils.DensityUtil;
 
@@ -21,7 +19,7 @@ class CustomDrawable extends RefreshDrawable {
     private float opadding = 50;
     private long animtime = 500;
 
-    public CustomDrawable(Context context, final PullRefreshLayout layout) {
+    public CustomDrawable(Context context, final NewPullRefreshLayout layout) {
         super(context, layout);
         osize = DensityUtil.dip2px(context, 4);
         opadding = DensityUtil.dip2px(context, 16);
