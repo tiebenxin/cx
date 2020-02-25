@@ -77,10 +77,10 @@ public class MyAppLication extends MainApplication {
                 AppConfig.DEBUG = true;
                 //---------------------------
 //                AppConfig.SOCKET_IP = "beta.zhixun6.com";
-                AppConfig.SOCKET_IP = "yanlong.1616d.top";
+                AppConfig.SOCKET_IP = "im-app.zhixun6.com";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
-                AppConfig.UP_PATH = "test-environment";
+                AppConfig.UP_PATH = "product-environment";
 
 //                AppConfig.SOCKET_IP = "beta.zhixun6.com";
 //                AppConfig.SOCKET_IP = "im-app.zhixun6.com";
@@ -128,7 +128,7 @@ public class MyAppLication extends MainApplication {
         initCache();
         // 初始化表情
         FaceView.initFaceMap();
-        initLocation();//初始化定位
+//        initLocation();//初始化定位
         initARouter();//初始化路由
         initVolley();
     }

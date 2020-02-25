@@ -725,23 +725,23 @@
                             <!-- 文件消息-->
                             <RelativeLayout
                                 android:id="@+id/view_file_ot"
-                                android:layout_width="226dp"
+                                android:layout_width="220dp"
                                 android:layout_height="wrap_content"
-                                android:background="@color/white"
-                                android:visibility="gone">
+                                android:background="@drawable/bg_chat_other_file"
+                                android:visibility="visible">
                                 <ImageView
                                     android:id="@+id/iv_file_icon_ot"
-                                    style="@style/app_img_head"
                                     android:layout_alignParentRight="true"
                                     android:layout_centerVertical="true"
                                     android:layout_marginRight="10dp"
+                                    android:src="@mipmap/ic_unknow"
                                     android:layout_width="41dp"
                                     android:layout_height="41dp" />
                                 <LinearLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginLeft="10dp"
-                                    android:layout_marginRight="10dp"
+                                    android:layout_marginLeft="20dp"
+                                    android:layout_marginRight="20dp"
                                     android:layout_marginTop="15dp"
                                     android:layout_marginBottom="15dp"
                                     android:layout_toLeftOf="@+id/iv_file_icon_ot"
@@ -752,12 +752,16 @@
                                         android:layout_height="wrap_content"
                                         android:ellipsize="end"
                                         android:maxLines="1"
-                                        android:text="文件名.txt"/>
+                                        android:textSize="15sp"
+                                        android:textColor="@color/c_353535"
+                                        android:text="文件.txt"/>
                                     <TextView
                                         android:id="@+id/tv_filesize_ot"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:layout_marginTop="2dp"
+                                        android:layout_marginTop="10dp"
+                                        android:textSize="12sp"
+                                        android:textColor="@color/c_878787"
                                         android:text="0K"/>
 
                                 </LinearLayout>
@@ -1392,24 +1396,26 @@
                                 <!-- 文件消息-->
                                 <RelativeLayout
                                     android:id="@+id/view_file_me"
-                                    android:layout_width="226dp"
-                                    android:layout_height="85dp"
-                                    android:background="@color/white"
+                                    android:layout_width="220dp"
+                                    android:layout_height="wrap_content"
+                                    android:background="@drawable/bg_chat_me_file"
                                     android:visibility="visible">
                                     <ImageView
                                         android:id="@+id/iv_file_icon_me"
-                                        style="@style/app_img_head"
                                         android:layout_alignParentRight="true"
                                         android:layout_centerVertical="true"
-                                        android:layout_marginRight="10dp"
+                                        android:layout_marginRight="20dp"
+                                        android:src="@mipmap/ic_unknow"
                                         android:layout_width="41dp"
                                         android:layout_height="41dp" />
                                     <LinearLayout
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:layout_marginLeft="10dp"
-                                        android:layout_marginRight="10dp"
+                                        android:layout_marginRight="20dp"
                                         android:layout_centerVertical="true"
+                                        android:layout_marginTop="15dp"
+                                        android:layout_marginBottom="15dp"
                                         android:layout_toLeftOf="@+id/iv_file_icon_me"
                                         android:orientation="vertical">
                                         <TextView
@@ -1418,12 +1424,16 @@
                                             android:layout_height="wrap_content"
                                             android:ellipsize="end"
                                             android:maxLines="1"
-                                            android:text="文件名.txt"/>
+                                            android:textSize="15sp"
+                                            android:textColor="@color/c_353535"
+                                            android:text="文件.txt"/>
                                         <TextView
                                             android:id="@+id/tv_filesize_me"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
-                                            android:layout_marginTop="5dp"
+                                            android:layout_marginTop="10dp"
+                                            android:textSize="12sp"
+                                            android:textColor="@color/c_878787"
                                             android:text="0K"/>
 
                                     </LinearLayout>
