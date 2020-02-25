@@ -245,6 +245,7 @@ public class MessageManager {
             case CHANGE_VICE_ADMINS:// 管理员变更通知
             case SHIPPED_EXPRESSION:// 动画表情
             case TAKE_SCREENSHOT:// 截屏通知
+            case SEND_FILE:// 文件消息
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }

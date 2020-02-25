@@ -128,7 +128,9 @@ public class FileUtils {
 
 
     /**
-     * 获取文件名及后缀
+     * 获取文件名（含后缀）
+     * @param path 文件路径
+     * @return
      */
     public static String getFileName(String path) {
         if(TextUtils.isEmpty(path)){
@@ -141,6 +143,26 @@ public class FileUtils {
             return "";
         }
     }
+
+
+    /**
+     * 获取文件后缀
+     * @param fileName 传入文件名
+     * @return
+     */
+    public static String getFileSuffix(String fileName){
+        if(!TextUtils.isEmpty(fileName)){
+            int pointPosition = fileName.lastIndexOf(".");//查询尾部逗号位置，截取后缀
+            if (pointPosition != -1 ) { //查不到则返回-1
+                return fileName.substring(pointPosition + 1);
+            } else {
+                return "";
+            }
+        }else {
+            return "";
+        }
+    }
+
 
     /**
      * 获取文件大小

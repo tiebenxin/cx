@@ -220,6 +220,9 @@ public class ChatItemView extends LinearLayout {
     private TextView tvFileNameMe;
     private TextView tvFileSizeOt;
     private TextView tvFileSizeMe;
+    private ImageView ivFileIconMe;
+    private ImageView ivFileIconOt;
+
     private LinearLayout layoutFileProgress;
     private TextView tvFileProgressValue;
 
@@ -378,6 +381,8 @@ public class ChatItemView extends LinearLayout {
         viewFileMe = rootView.findViewById(R.id.view_file_me);
         tvFileNameMe = rootView.findViewById(R.id.tv_filename_me);
         tvFileSizeMe = rootView.findViewById(R.id.tv_filesize_me);
+        ivFileIconMe = rootView.findViewById(R.id.iv_file_icon_me);
+        ivFileIconOt = rootView.findViewById(R.id.iv_file_icon_ot);
         layoutFileProgress = rootView.findViewById(R.id.layout_file_progress);
         tvFileProgressValue = rootView.findViewById(R.id.tv_file_progress_value);
 
@@ -1377,8 +1382,23 @@ public class ChatItemView extends LinearLayout {
             tvFileSizeMe.setText(FileUtils.getFileSizeString(fileMessage.getSize()));
             tvFileSizeOt.setText(FileUtils.getFileSizeString(fileMessage.getSize()));
         }
-        viewFileMe.setOnClickListener(listener);
-        viewFileOt.setOnClickListener(listener);
+        //不同类型
+        if(fileMessage.getFormat().equals("txt")){
+            ivFileIconMe.setImageResource(R.mipmap.ic_txt);
+        }else if(fileMessage.getFormat().equals("xls") || fileMessage.getFormat().equals("xlsx")){
+            ivFileIconMe.setImageResource(R.mipmap.ic_excel);
+        }else if(fileMessage.getFormat().equals("ppt") || fileMessage.getFormat().equals("pptx") || fileMessage.getFormat().equals("pdf")){ //这里还有PDF
+            ivFileIconMe.setImageResource(R.mipmap.ic_ppt);
+        }else if(fileMessage.getFormat().equals("doc") || fileMessage.getFormat().equals("docx")){
+            ivFileIconMe.setImageResource(R.mipmap.ic_word);
+        }else if(fileMessage.getFormat().equals("rar") || fileMessage.getFormat().equals("zip")){
+            ivFileIconMe.setImageResource(R.mipmap.ic_zip);
+        }else {
+            ivFileIconMe.setImageResource(R.mipmap.ic_unknow);
+        }
+
+        viewMeTouch.setOnClickListener(listener);
+        viewOtTouch.setOnClickListener(listener);
     }
 
     private Context mContext;

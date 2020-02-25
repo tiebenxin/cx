@@ -2668,13 +2668,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             final String fileMsgId = SocketData.getUUID();
                             String fileName = net.cb.cb.library.utils.FileUtils.getFileName(filePath);
                             double fileSize = net.cb.cb.library.utils.FileUtils.getFileOrFilesSize(filePath,SIZETYPE_B);
+                            String fileFormat = net.cb.cb.library.utils.FileUtils.getFileSuffix(fileName);
                             //创建文件消息，本地预先准备好这条文件消息，等文件上传成功后刷新
-                            SendFileMessage fileMessage = SocketData.createFileMessage(fileMsgId, filePath, fileName, new Double(fileSize).longValue(), fileName);
+                            SendFileMessage fileMessage = SocketData.createFileMessage(fileMsgId, filePath, fileName, new Double(fileSize).longValue(), fileFormat);
                             fileMsgBean = SocketData.sendFileUploadMessagePre(fileMsgId, toUId, toGid, SocketData.getFixTime(), fileMessage, ChatEnum.EMessageType.FILE);
                             msgListData.add(fileMsgBean);
                             // 不等于常信小助手(常信小助手记录不存服务器，文件助手需要存)
                             if (!Constants.CX_HELPER_UID.equals(toUId)) {
-                                UpLoadService.onAddFile(this.context,fileMsgId, filePath,fileName,new Double(fileSize).longValue(),fileName, toUId, toGid, -1);
+                                UpLoadService.onAddFile(this.context,fileMsgId, filePath,fileName,new Double(fileSize).longValue(),fileFormat, toUId, toGid, -1);
                                 startService(new Intent(getContext(), UpLoadService.class));
                             }
                         }
@@ -3753,7 +3754,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     });
                     break;
-                case ChatEnum.EMessageType.FILE:
+                case ChatEnum.EMessageType.FILE: //文件消息
                     if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                         menus.add(new OptionMenu("转发"));
                         menus.add(new OptionMenu("删除"));
@@ -3761,6 +3762,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         menus.add(new OptionMenu("删除"));
                     }
                     SendFileMessage fileMessage = msgbean.getSendFileMessage();
+                    //UI显示和点击事件
                     holder.viewChatItem.setDataFile(fileMessage, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
