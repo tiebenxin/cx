@@ -33,6 +33,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 
+import net.cb.cb.library.utils.DeviceUtils;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -50,6 +51,8 @@ public class SocketData {
 
     private static long preServerAckTime;//前一个服务器回执时间
     private static long preSendLocalTime;//前一个本地消息发送的时间
+    private static int currentPosition = 0;//当前离线消息位置
+    private static int offlineCount = -1;//一批离线消息总数
 
 
     private static MsgDao msgDao = new MsgDao();
@@ -105,16 +108,19 @@ public class SocketData {
         MsgBean.AuthRequestMessage auth = MsgBean.AuthRequestMessage.newBuilder()
                 .setAccessToken(tokenBean.getAccessToken()).build();
 
-        return SocketPact.getPakage(SocketPact.DataType.AUTH, auth.toByteArray());
+//        return SocketPact.getPackage(SocketPact.DataType.AUTH, auth.toByteArray());
+        return SocketPacket.getPackage(SocketPacket.DataType.AUTH, auth.toByteArray());
 
     }
 
     /***
      * 回执,可以不发送msgId
+     * @param from 0 在线消息， 1离线消息
+     * @param lastest 是否需要最新消息
      * @return
      */
-    public static byte[] msg4ACK(String rid, List<String> msgids) {
-
+    public static byte[] msg4ACK(String rid, List<String> msgids, int from, boolean latest, boolean isEnd) {
+        LogUtil.getLog().i(TAG, "发送ACK====" + "--from=" + from + "--latest=" + latest + "--isEnd=" + isEnd);
         MsgBean.AckMessage ack;
         MsgBean.AckMessage.Builder amsg = MsgBean.AckMessage.newBuilder().setRequestId(rid);
         if (msgids != null) {
@@ -122,12 +128,28 @@ public class SocketData {
                 amsg.addMsgId(msgids.get(i));
             }
         }
+        //离线消息，回执需要添加下一次需要多少数据
+        if (from == 1) {
+            LogUtil.getLog().i(TAG, "--请求离线--历史");
+            if (isEnd) {
+                MsgBean.OfflineMsgRequest.Builder request = MsgBean.OfflineMsgRequest.newBuilder();
+                request.setCount(-1);
+                request.setLatest(false);
+                amsg.setMergedNextReq(request);
+            } else {
+                MsgBean.OfflineMsgRequest.Builder request = MsgBean.OfflineMsgRequest.newBuilder();
+                request.setCount(offlineCount);
+                request.setLatest(false);
+                amsg.setMergedNextReq(request);
+            }
+        }
         ack = amsg.build();
 
         //添加到消息队中监听
         SendList.addSendList(ack.getRequestId(), amsg);
 
-        return SocketPact.getPakage(SocketPact.DataType.ACK, ack.toByteArray());
+//        return SocketPact.getPackage(SocketPact.DataType.ACK, ack.toByteArray());
+        return SocketPacket.getPackage(SocketPacket.DataType.ACK, ack.toByteArray());
 
     }
 //------------------------收-----------------------------
@@ -140,7 +162,8 @@ public class SocketData {
     public static MsgBean.UniversalMessage msgConversion(byte[] data) {
         try {
 
-            MsgBean.UniversalMessage msg = MsgBean.UniversalMessage.parseFrom(SocketPact.bytesToLists(data, 12).get(1));
+//            MsgBean.UniversalMessage msg = MsgBean.UniversalMessage.parseFrom(SocketPact.bytesToLists(data, 12).get(1));
+            MsgBean.UniversalMessage msg = MsgBean.UniversalMessage.parseFrom(SocketPacket.bytesToLists(data, 10).get(1));
             return msg;
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
@@ -156,7 +179,8 @@ public class SocketData {
     public static MsgBean.AckMessage ackConversion(byte[] data) {
         try {
 
-            MsgBean.AckMessage msg = MsgBean.AckMessage.parseFrom(SocketPact.bytesToLists(data, 12).get(1));
+//            MsgBean.AckMessage msg = MsgBean.AckMessage.parseFrom(SocketPact.bytesToLists(data, 12).get(1));
+            MsgBean.AckMessage msg = MsgBean.AckMessage.parseFrom(SocketPacket.bytesToLists(data, 10).get(1));
             return msg;
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
@@ -171,9 +195,8 @@ public class SocketData {
      */
     public static MsgBean.AuthResponseMessage authConversion(byte[] data) {
         try {
-            MsgBean.AuthResponseMessage ruthmsg = MsgBean.AuthResponseMessage.parseFrom(SocketPact.bytesToLists(data, 12).get(1));
-
-
+//            MsgBean.AuthResponseMessage ruthmsg = MsgBean.AuthResponseMessage.parseFrom(SocketPact.bytesToLists(data, 12).get(1));
+            MsgBean.AuthResponseMessage ruthmsg = MsgBean.AuthResponseMessage.parseFrom(SocketPacket.bytesToLists(data, 10).get(1));
             return ruthmsg;
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
@@ -424,7 +447,9 @@ public class SocketData {
 
         wmsg.setTimestamp(time);
         if (toId != null && toId > 0) {//给个人发
-            msg.setToUid(toId);
+//            msg.setToUid(toId);
+            wmsg.setToUid(toId);
+
         }
         if (toGid != null && toGid.length() > 0) {//给群发
             wmsg.setGid(toGid);
@@ -1206,8 +1231,6 @@ public class SocketData {
         if (type != null && value != null && isSend) {
             SendList.addMsgToSendSequence(bean.getRequest_id(), bean);//添加到发送队列
             MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getRequest_id(), bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
-            //立即发送
-            LogUtil.getLog().e("===发送=msg===" + GsonUtils.optObject(msg));
             SocketUtil.getSocketUtil().sendData4Msg(msg);
         }
     }
@@ -1817,6 +1840,50 @@ public class SocketData {
         MsgBean.UniversalMessage.Builder msg = toMsgBuilder("", SocketData.getUUID(), toId, toGid, SocketData.getFixTime(), MsgBean.MessageType.TAKE_SCREENSHOT, contentMsg);
         //立即发送
         SocketUtil.getSocketUtil().sendData4Msg(msg);
+    }
+
+
+//    public static int getCurrentPosition() {
+//        return currentPosition;
+//    }
+//
+//    public static void clearSocket() {
+//        currentPosition = 0;
+//    }
+
+    public static int getOfflineCount() {
+        if (offlineCount <= 0) {
+            int ramSize = DeviceUtils.getTotalRam();
+            if (ramSize <= 2) {//运行内存小于等于2GB
+                offlineCount = 500;
+            } else {
+                offlineCount = 1000;
+            }
+        }
+        return offlineCount;
+    }
+
+    //判断离线消息是否满额收取
+    public static boolean isEnough(int msgCount) {
+        return msgCount <= getOfflineCount();
+    }
+
+    public static boolean isLatest() {
+        return currentPosition == 0;
+    }
+
+
+    /***
+     * 请求获取离线消息
+     * @return
+     */
+    public static byte[] requestOffline() {
+        LogUtil.getLog().i(TAG, "--请求离线--最新" + getOfflineCount());
+        MsgBean.OfflineMsgRequest.Builder request = MsgBean.OfflineMsgRequest.newBuilder();
+        request.setCount(getOfflineCount());
+        request.setLatest(true);
+        //添加到消息队中监听
+        return SocketPacket.getPackage(SocketPacket.DataType.REQUEST_MSG, request.build().toByteArray());
     }
 
 }

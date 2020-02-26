@@ -59,10 +59,15 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
     private Map<String, Integer> pendingGroupUnread = new HashMap<>();//批量群session未读数，待保存到数据库
     private Map<Long, Integer> pendingUserUnread = new HashMap<>();//批量私聊session未读数，待保存到数据库
     private final String requestId;
+    private final int from;//0 在线消息  1 离线消息
+    private final int msgCount;//这批消息总数
 
-    public TaskDealWithMsgList(List<MsgBean.UniversalMessage.WrapMessage> wrapMessageList, String requestId) {
+
+    public TaskDealWithMsgList(List<MsgBean.UniversalMessage.WrapMessage> wrapMessageList, String requestId, int from, int msgCount) {
         this.requestId = requestId;
         messages = wrapMessageList;
+        this.from = from;
+        this.msgCount = msgCount;
     }
 
     @Override
@@ -219,7 +224,7 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
                 if (msgList.size() > 0) {
                     boolean isSuccess = msgDao.insertOrUpdateMsgList(msgList);
                     if (isSuccess) {
-                        SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null), null, requestId);
+                        SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, from, false, SocketData.isEnough(msgCount)), null, requestId);
                         System.out.println(TAG + "--发送回执2--requestId=" + requestId + "--time=" + System.currentTimeMillis());
                         LogUtil.writeLog("--发送回执2--requestId=" + requestId);
                     } else {
@@ -230,12 +235,12 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
                         CrashReport.putUserData(MyAppLication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_1, "Id:" + requestId + ";" + new Gson().toJson(msgList));
                     }
                 } else {
-                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null), null, requestId);
+                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, from, false, SocketData.isEnough(msgCount)), null, requestId);
                     System.out.println(TAG + "--发送回执3--requestId=" + requestId);
                     LogUtil.writeLog("--发送回执3--requestId=" + requestId);
                 }
             } else {
-                SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null), null, requestId);
+                SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, from, false, SocketData.isEnough(msgCount)), null, requestId);
                 System.out.println(TAG + "--发送回执4--requestId=" + requestId);
                 LogUtil.writeLog("--发送回执4--requestId=" + requestId);
             }
