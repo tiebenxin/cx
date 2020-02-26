@@ -48,6 +48,7 @@ import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.task.TaskLoadSavedGroup;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.notify.NotifySettingDialog;
+import com.yanlong.im.shop.ShopFragemnt;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
 import com.yanlong.im.user.bean.NewVersionBean;
@@ -229,10 +230,10 @@ public class MainActivity extends AppActivity {
     //自动生成的控件事件
     private void initEvent() {
         mMsgMainFragment = MsgMainFragment.newInstance();
-        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), MyFragment.newInstance()};
-        tabs = new String[]{"消息", "通讯录", "我"};
-        iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_me};
-        iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_me_h};
+        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), ShopFragemnt.newInstance(), MyFragment.newInstance()};
+        tabs = new String[]{"消息", "通讯录", "商城", "我"};
+        iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_shop, R.mipmap.ic_me};
+        iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_shop_h, R.mipmap.ic_me_h};
         viewPage.setOffscreenPageLimit(2);
         viewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -264,12 +265,12 @@ public class MainActivity extends AppActivity {
                     }
                 }
 
-                if (tab.getPosition() == 2) {
+                if (tab.getPosition() == 3) {
                     //每次点击检查新版泵
                     EventBus.getDefault().post(new EventCheckVersionBean());
                 }
                 // 同时点击导航栏跟气泡时，延迟关闭气泡
-                if (tab.getPosition() == 1 || tab.getPosition() == 2) {
+                if (tab.getPosition() == 1 || tab.getPosition() == 3) {
                     if (!isFinishing()) {
                         new Handler().postDelayed(new Runnable() {
                             @Override
@@ -298,6 +299,12 @@ public class MainActivity extends AppActivity {
             View rootView = getLayoutInflater().inflate(R.layout.tab_item, null);
             TextView txt = rootView.findViewById(R.id.txt);
             StrikeButton sb = rootView.findViewById(R.id.sb);
+            if (i == 3) {
+                sb.setSktype(1);
+                //设置值
+                sb.setNum(0, true);
+                sbme = sb;
+            }
             if (i == 2) {
                 sb.setSktype(1);
                 //设置值
@@ -309,9 +316,7 @@ public class MainActivity extends AppActivity {
                 sb.setNum(0, true);
                 sbfriend = sb;
             }
-
             if (i == 0) {//消息数量
-
                 sbmsg = sb;
             }
 
