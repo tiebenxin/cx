@@ -2669,9 +2669,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     for (String filePath : filePathList) {
                         if (StringUtil.isNotNull(filePath)) {
                             //生成随机uuid、获取文件名、文件大小
-                            final String fileMsgId = SocketData.getUUID();
-                            String fileName = net.cb.cb.library.utils.FileUtils.getFileName(filePath);
                             double fileSize = net.cb.cb.library.utils.FileUtils.getFileOrFilesSize(filePath, SIZETYPE_B);
+                            if(fileSize > 104857600){
+                                ToastUtil.show("文件最大不能超过100M");
+                                return;
+                            }
+                            String fileMsgId = SocketData.getUUID();
+                            String fileName = net.cb.cb.library.utils.FileUtils.getFileName(filePath);
                             String fileFormat = net.cb.cb.library.utils.FileUtils.getFileSuffix(fileName);
                             //创建文件消息，本地预先准备好这条文件消息，等文件上传成功后刷新
                             SendFileMessage fileMessage = SocketData.createFileMessage(fileMsgId, filePath, fileName, new Double(fileSize).longValue(), fileFormat);
@@ -3782,7 +3786,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 }
                             } else {
                                 //如果是别人发的文件
-
+                                //如果下载路径存在该文件，则直接打开；否则需要下载
+//                                if(){
+//
+//                                }else {
+//
+//                                }
                             }
                         }
                     });
