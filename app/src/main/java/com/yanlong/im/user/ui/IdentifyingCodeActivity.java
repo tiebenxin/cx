@@ -67,7 +67,7 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
         mBtnLogin = findViewById(R.id.btn_login);
         mHeadView = findViewById(R.id.headView);
         phone = getIntent().getStringExtra(PHONE);
-        if(!TextUtils.isEmpty(phone)){
+        if (!TextUtils.isEmpty(phone)) {
             mEtPhoneContent.setText(phone);
         }
 
@@ -120,7 +120,7 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
             ToastUtil.show(IdentifyingCodeActivity.this, "请填写手机号码");
             return;
         }
-        if(!CheckUtil.isMobileNO(phone)){
+        if (!CheckUtil.isMobileNO(phone)) {
             ToastUtil.show(this, "手机号格式不正确");
             return;
         }
@@ -144,50 +144,53 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
             ToastUtil.show(this, "请输入验证码");
             return;
         }
-        if(!CheckUtil.isMobileNO(phone)){
+        if (!CheckUtil.isMobileNO(phone)) {
             ToastUtil.show(this, "手机号格式不正确");
             return;
         }
-        LogUtil.getLog().i("youmeng","IdentifyingCodeActivity------->getDevId");
-       new RunUtils(new RunUtils.Enent() {
-           String devId;
-           @Override
-           public void onRun() {
-               devId= UserAction.getDevId(getContext());
-           }
+        LogUtil.getLog().i("youmeng", "IdentifyingCodeActivity------->getDevId");
+        new RunUtils(new RunUtils.Enent() {
+            String devId;
 
-           @Override
-           public void onMain() {
-               userAction.login4Captch(phone, code,devId , new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
+            @Override
+            public void onRun() {
+                devId = UserAction.getDevId(getContext());
+            }
 
-                   @Override
-                   public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                       LogUtil.getLog().i("youmeng","IdentifyingCodeActivity------->login----->onResp");
-                       if (response.body() == null) {
-                           return;
-                       }
-                       if (response.body().isOk()) {
-                           SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FIRST_TIME);
-                           preferencesUtil.save2Json(true);
+            @Override
+            public void onMain() {
+                userAction.login4Captch(phone, code, devId, new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
 
-                           Intent intent = new Intent(getContext(),MainActivity.class);
-                           intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                           intent.putExtra(MainActivity.IS_LOGIN, true);
-                           startActivity(intent);
-                       } else {
-                           ToastUtil.show(getContext(), response.body().getMsg());
-                       }
-                   }
+                    @Override
+                    public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                        LogUtil.getLog().i("youmeng", "IdentifyingCodeActivity------->login----->onResp");
+                        if (response.body() == null) {
+                            return;
+                        }
+                        if (response.body().isOk()) {
+                            SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FIRST_TIME);
+                            preferencesUtil.save2Json(true);
 
-                   @Override
-                   public void onFail(Call<ReturnBean<TokenBean>> call, Throwable t) {
-                       super.onFail(call, t);
-                       LogUtil.getLog().i("youmeng","IdentifyingCodeActivity------->login----->onFail");
-                   }
-               });
+                            Intent intent = new Intent(getContext(), MainActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            intent.putExtra(MainActivity.IS_LOGIN, true);
+                            startActivity(intent);
+                        } else if (response.body().getCode().longValue() == 10004) {//手机号未注册
+                            ToastUtil.show(getContext(), response.body().getMsg());
+                        } else {
+                            ToastUtil.show(getContext(), response.body().getMsg());
+                        }
+                    }
 
-           }
-       }).run();
+                    @Override
+                    public void onFail(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                        super.onFail(call, t);
+                        LogUtil.getLog().i("youmeng", "IdentifyingCodeActivity------->login----->onFail");
+                    }
+                });
+
+            }
+        }).run();
 
     }
 
@@ -196,8 +199,8 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
         userAction.smsCaptchaGet(phone, "login", new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if(response.body() == null){
-                    ToastUtil.show(context,"登录异常");
+                if (response.body() == null) {
+                    ToastUtil.show(context, "登录异常");
                     return;
                 }
                 if (response.body() == null) {

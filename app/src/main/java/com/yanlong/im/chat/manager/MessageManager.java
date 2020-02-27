@@ -310,9 +310,9 @@ public class MessageManager {
                     if (bean != null) {
                         if (msgDao.isMemberInCharge(wrapMessage.getGid(), wrapMessage.getFromUid())) {
                             result = saveMessageNew(bean, isList);
-                            refreshGroupInfo(bean.getGid());
                             hasNotified = true;
                         }
+                        refreshGroupInfo(bean.getGid());
                     }
                 } else {
                     MemberUser memberUser = userToMember(UserAction.getMyInfo(), bean.getGid());

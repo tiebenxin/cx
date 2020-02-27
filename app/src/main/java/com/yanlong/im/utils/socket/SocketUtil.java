@@ -280,8 +280,9 @@ public class SocketUtil {
 
         //关闭信道
         try {
-            socketChannel.close();
-
+            if (socketChannel != null) {
+                socketChannel.close();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

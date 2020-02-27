@@ -214,6 +214,8 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                                     initDialog();
                                 }
                                 count += 1;
+                            } if (response.body().getCode().longValue() == 10004) {//账号未注册
+                                ToastUtil.show(getContext(), response.body().getMsg());
                             } else {
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             }
@@ -248,7 +250,9 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                                     initDialog();
                                 }
                                 count += 1;
-                            } else {
+                            }if (response.body().getCode().longValue() == 10004) {//账号不存在
+                                ToastUtil.show(getContext(), response.body().getMsg());
+                            }  else {
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             }
                         }
