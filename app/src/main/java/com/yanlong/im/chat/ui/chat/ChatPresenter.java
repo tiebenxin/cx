@@ -2,6 +2,7 @@ package com.yanlong.im.chat.ui.chat;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
 
@@ -12,6 +13,7 @@ import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
@@ -21,6 +23,7 @@ import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -66,6 +69,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -268,9 +272,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
 
     //重新发送消息
     private void resendMessage(MsgAllBean msgBean) {
-        //从数据拉出来,然后再发送
         MsgAllBean reMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgBean.getMsg_id());
-
         try {
             LogUtil.getLog().d(TAG, "点击重复发送" + reMsg.getMsg_id() + "--" + reMsg.getTimestamp());
             if (reMsg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {//图片重发处理7.31
@@ -280,7 +282,8 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                     ImageMessage image = SocketData.createImageMessage(reMsg.getMsg_id(), file, isArtworkMaster);
                     MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), model.getUid(), model.getGid(), reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
                     getView().replaceListDataAndNotify(imgMsgBean);
-                    getView().startUploadServer(reMsg, file, isArtworkMaster);
+                    UpLoadService.onAdd(reMsg.getMsg_id(), file, isArtworkMaster, model.getUid(), model.getGid(), reMsg.getTimestamp());
+                    getView().startUploadService();
                 } else {
                     //点击发送的时候如果要改变成发送中的状态
                     reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
@@ -303,17 +306,48 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
                     getView().replaceListDataAndNotify(reMsg);
                 }
+            } else if (reMsg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                //todo 重新上传视频
+                String url = reMsg.getVideoMessage().getLocalUrl();
+                reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
+                if (!TextUtils.isEmpty(url)) {
+                    VideoMessage videoMessage = reMsg.getVideoMessage();
+                    LogUtil.getLog().e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
+                    VideoMessage videoMessageSD = SocketData.createVideoMessage(reMsg.getMsg_id(), "file://" + url, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), url);
+                    MsgAllBean imgMsgBeanReSend = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), model.getUid(), model.getGid(), SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
+                    getView().replaceListDataAndNotify(imgMsgBeanReSend);
+//                    msgListData.add(imgMsgBeanReSend);
+
+                    if (!TextUtils.isEmpty(videoMessage.getBg_url())) {
+                        // 当预览图清空掉时重新获取
+                        File file = new File(videoMessage.getBg_url());
+                        if (file == null || !file.exists()) {
+                            videoMessage.setBg_url(getVideoAttBitmap(url));
+                        }
+                    }
+                    UpLoadService.onAddVideo(this.context, reMsg.getMsg_id(), url, videoMessage.getBg_url(), false, model.getUid(), model.getGid(), videoMessage.getDuration(), videoMessageSD, false);
+                    getView().startUploadService();
+                } else {
+                    //点击发送的时候如果要改变成发送中的状态
+                    DaoUtil.update(reMsg);
+                    MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
+                    SocketUtil.getSocketUtil().sendData4Msg(bean);
+//                    taskRefreshMessage(false);
+                    loadAndSetData();
+                }
             } else {
                 //点击发送的时候如果要改变成发送中的状态
                 reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
                 DaoUtil.update(reMsg);
                 MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
                 SocketUtil.getSocketUtil().sendData4Msg(bean);
+//                taskRefreshMessage(false);
                 loadAndSetData();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
 
     }
 
@@ -347,7 +381,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
         getView().replaceListDataAndNotify(bean);
     }
 
-    public void doSendText(MsgEditText edtChat, boolean isGroup,int survivalTime) {
+    public void doSendText(MsgEditText edtChat, boolean isGroup, int survivalTime) {
         String txt = edtChat.getText().toString();
         if (txt.startsWith("@000")) {
             int count = Integer.parseInt(txt.split("_")[1]);
@@ -367,14 +401,12 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                 }
             }
             if (edtChat.isAtAll()) {
-                MsgAllBean msgAllbean = SocketData.send4At(model.getUid(), model.getGid(), text, 1, edtChat.getUserIdList());
-//                showSendObj(msgAllbean);
-                loadAndSetData();
+                AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.ALL, edtChat.getUserIdList());
+                sendMessage(message, ChatEnum.EMessageType.AT);
                 edtChat.getText().clear();
             } else {
-                MsgAllBean msgAllbean = SocketData.send4At(model.getUid(), model.getGid(), text, 0, edtChat.getUserIdList());
-//                showSendObj(msgAllbean);
-                loadAndSetData();
+                AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.MULTIPLE, edtChat.getUserIdList());
+                sendMessage(message, ChatEnum.EMessageType.AT);
                 edtChat.getText().clear();
             }
         } else {
@@ -390,9 +422,8 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                 }
                 if (totalSize <= MIN_TEXT) {//非长文本
                     isSendingHypertext = false;
-                    MsgAllBean msgAllbean = SocketData.send4Chat(model.getUid(), model.getGid(), text);
-//                    showSendObj(msgAllbean);
-                    loadAndSetData();
+                    ChatMessage message = SocketData.createChatMessage(SocketData.getUUID(), text);
+                    sendMessage(message, ChatEnum.EMessageType.TEXT);
                     edtChat.getText().clear();
                 } else {
                     isSendingHypertext = true;//正在分段发送长文本
@@ -865,5 +896,26 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
             isSend = false;
         }
         return isSend;
+    }
+
+    private String getVideoAttBitmap(String mUri) {
+        VideoMessage videoMessage = new VideoMessage();
+        File file = null;
+        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+        try {
+            if (mUri != null) {
+                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
+                mmr.setDataSource(inputStream.getFD());
+//                mmr.setDataSource(mUri, headers);
+            } else {
+                //mmr.setDataSource(mFD, mOffset, mLength);
+            }
+            file = GroupHeadImageUtil.save2File(mmr.getFrameAtTime());
+        } catch (Exception ex) {
+            LogUtil.getLog().e("TAG", "MediaMetadataRetriever exception " + ex);
+        } finally {
+            mmr.release();
+        }
+        return file.getAbsolutePath();
     }
 }

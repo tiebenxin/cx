@@ -43,4 +43,7 @@ public interface ChatView extends IView {
 
     void addAndShowSendMessage(MsgAllBean bean);
 
+
+    void startUploadService();
+
 }
