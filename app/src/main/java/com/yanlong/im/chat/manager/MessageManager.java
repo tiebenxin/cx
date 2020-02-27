@@ -140,7 +140,7 @@ public class MessageManager {
                     checkServerTimeInit(wrapMessage);
 
                 } else {//收到多条消息（如离线）
-//                    LogUtil.getLog().d("a=", "--总任务数="  + "--当前时间-3=" + System.currentTimeMillis());
+                    LogUtil.getLog().d("a=", "--总任务数=" + length + "--from=" + bean.getMsgFrom());
                     TaskDealWithMsgList taskMsgList = getMsgTask(bean.getRequestId());
                     if (taskMsgList == null) {
                         taskMsgList = new TaskDealWithMsgList(msgList, bean.getRequestId(), bean.getMsgFrom(), length);

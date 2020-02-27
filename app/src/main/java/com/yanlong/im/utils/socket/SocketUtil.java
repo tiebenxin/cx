@@ -34,9 +34,10 @@ public class SocketUtil {
     private static final String TAG = "SocketUtil";
     private static SocketUtil socketUtil;
     // Bugly发送回执异常标签
-    private final int BUGLY_TAG_SEND_DATA = 139067;
+    public static final int BUGLY_TAG_SEND_DATA = 139067;
     // Bugly异常登录标签
     public static final int BUGLY_TAG_LOGIN = 139070;
+    private AsyncPacketWriter writer;
 
     private static List<SocketEvent> eventLists = new CopyOnWriteArrayList<>();
     //事件分发
@@ -402,19 +403,20 @@ public class SocketUtil {
 
                 while (isStart) {
                     LogUtil.getLog().i(TAG, ">>>>>服务器链接检查isRun: " + isRun);
-                    LogUtil.getLog().i(TAG, ">>>>>服务器链接socketChannel: " + socketChannel);
-                    if (socketChannel != null)
+//                    LogUtil.getLog().i(TAG, ">>>>>服务器链接socketChannel: " + socketChannel);
+                    if (socketChannel != null) {
                         LogUtil.getLog().i(TAG, ">>>>>服务器链接isConnected: " + socketChannel.isConnected());
+                    }
                     if ((socketChannel == null || !socketChannel.isConnected()) && isRun == 0) {//没有启动,就执行启动
 
                         //线程版本+1
                         threadVer++;
-                        LogUtil.getLog().i(TAG, ">>>>>新线程版本:" + threadVer);
+//                        LogUtil.getLog().i(TAG, ">>>>>新线程版本:" + threadVer);
                         SocketUtil.this.run();
                         LogUtil.getLog().i(TAG, ">>>>>新线程结束");
 
                     } else {//已经启动了
-                        LogUtil.getLog().i(TAG, ">>>>>跳过当前线程版本:" + threadVer);
+//                        LogUtil.getLog().i(TAG, ">>>>>跳过当前线程版本:" + threadVer);
                     }
 
                     try {
@@ -456,46 +458,56 @@ public class SocketUtil {
     public void sendData(final byte[] data, final MsgBean.UniversalMessage.Builder msgTag, String requetId) {
         if (!isRun())
             return;
-        if (data == null)
+        if (data == null) {
             return;
+        }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int state = 0;
-                try {
-                    ByteBuffer writeBuf = ByteBuffer.allocate(data.length);
-                    writeBuf.put(data);
-                    writeBuf.flip();
-                    LogUtil.getLog().i(TAG, ">>>发送长度:" + data.length);
-                    LogUtil.getLog().i(TAG, ">>>发送:" + SocketPact.bytesToHex(data));
-                    state = socketChannel.write(writeBuf);
-                    writeBuf.clear();
-                    LogUtil.getLog().i(TAG, ">>>发送状态:" + state);
-                    // TODO 回执上传成功，需要清除回执缓存队列，不在重发
-                    if (msgTag == null) {
-                        if (!TextUtils.isEmpty(requetId)) {
-                            SendList.removeSendListJust(requetId);
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    CrashReport.setUserSceneTag(MyAppLication.getInstance().getApplicationContext(), BUGLY_TAG_SEND_DATA); // 上报后的Crash会显示该标签
-                    CrashReport.postCatchedException(e.fillInStackTrace());  // bugly会将这个throwable上报
-                    LogUtil.getLog().e(TAG, ">>>发送失败" + SocketPact.bytesToHex(data));
-                    LogUtil.writeLog(">>>发送失败" + SocketPact.bytesToHex(data) + " Exception:" + e.getMessage() + ">>>发送状态:" + state);
-                    // 上传异常数据
-                    CrashReport.putUserData(MyAppLication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_2, " Exception:" + e.getMessage() + ">>>发送状态:" + state);
-                    //取消发送队列,返回失败
-                    if (msgTag != null) {
-                        SendList.removeSendList(msgTag.getRequestId());
-                    }
+        if (writer == null) {
+            return;
+        }
 
-                    stop(false);
-                    startSocket();
-                }
-            }
-        }).start();
+        writer.write(data, msgTag, requetId);
+
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                int state = 0;
+//                try {
+//                    ByteBuffer writeBuf = ByteBuffer.allocate(data.length);
+//                    writeBuf.put(data);
+//                    writeBuf.flip();
+//                    LogUtil.getLog().i(TAG, ">>>发送长度:" + data.length);
+//                    if (data.length < 1024) {
+//                        LogUtil.getLog().i(TAG, ">>>发送:" + SocketPact.bytesToHex(data));
+//                    }
+//
+//                    state = socketChannel.write(writeBuf);
+//                    writeBuf.clear();
+//                    LogUtil.getLog().i(TAG, ">>>发送状态:" + state);
+//                    // TODO 回执上传成功，需要清除回执缓存队列，不在重发
+//                    if (msgTag == null) {
+//                        if (!TextUtils.isEmpty(requetId)) {
+//                            SendList.removeSendListJust(requetId);
+//                        }
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    CrashReport.setUserSceneTag(MyAppLication.getInstance().getApplicationContext(), BUGLY_TAG_SEND_DATA); // 上报后的Crash会显示该标签
+//                    CrashReport.postCatchedException(e.fillInStackTrace());  // bugly会将这个throwable上报
+//                    LogUtil.getLog().e(TAG, ">>>发送失败" + SocketPact.bytesToHex(data));
+//                    LogUtil.writeLog(">>>发送失败" + SocketPact.bytesToHex(data) + " Exception:" + e.getMessage() + ">>>发送状态:" + state);
+//                    // 上传异常数据
+//                    CrashReport.putUserData(MyAppLication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_2, " Exception:" + e.getMessage() + ">>>发送状态:" + state);
+//                    //取消发送队列,返回失败
+//                    if (msgTag != null) {
+//                        SendList.removeSendList(msgTag.getRequestId());
+//                    }
+//
+//                    stop(false);
+//                    startSocket();
+//                }
+//            }
+//        }).start();
 
 
     }
@@ -526,7 +538,7 @@ public class SocketUtil {
         socketChannel = new SSLSocketChannel2(SocketChannel.open());
         //socketChannel =  SocketChannel.open();
 
-
+        writer = new AsyncPacketWriter(socketChannel);
         socketChannel.configureBlocking(false);
 
 
@@ -599,8 +611,9 @@ public class SocketUtil {
                             //当次数据
                             byte[] data = new byte[data_size];
                             readBuf.get(data, 0, data_size);
-
-                            LogUtil.getLog().d(TAG, "<<<<<接收数据: " + SocketPact.bytesToHex(data));
+                            if (data.length < 1024) {
+                                LogUtil.getLog().d(TAG, "<<<<<接收数据: " + SocketPact.bytesToHex(data));
+                            }
                             LogUtil.getLog().d(TAG, "<<<<<接收数据总大小: " + data.length);
 
 //                            if (SocketPact.isHead(data)) {//收到包头

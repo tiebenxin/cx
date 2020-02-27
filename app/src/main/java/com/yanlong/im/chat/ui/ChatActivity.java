@@ -3303,10 +3303,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time());
 
             if (msgbean.getSurvival_time() > 0 && msgbean.getStartTime() > 0 && msgbean.getEndTime() > 0) {
-                LogUtil.getLog().i("CountDownView", msgbean.getMsg_id() + "---");
+//                LogUtil.getLog().i("CountDownView", msgbean.getMsg_id() + "---");
                 holder.viewChatItem.setDataSt(msgbean.getStartTime(), msgbean.getEndTime());
             }
-            LogUtil.getLog().d("getSend_state", msgbean.getSurvival_time() + "----" + msgbean.getMsg_id());
+//            LogUtil.getLog().d("getSend_state", msgbean.getSurvival_time() + "----" + msgbean.getMsg_id());
             //设置阅后即焚图标显示
 
 
