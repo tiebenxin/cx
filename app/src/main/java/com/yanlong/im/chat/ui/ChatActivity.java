@@ -2680,6 +2680,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             }
                         }
                     }
+                    //刷新首页消息列表
                     MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, fileMsgBean);
                     notifyData2Bottom(true);
                     break;
@@ -2798,7 +2799,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskUpFileEvent(EventUpFileLoadEvent event) {
-        //更新文件上传进度(参考图片上传)
+        //上传中：更新文件上传进度
         if (event.getState() == 0) {
             taskRefreshImage(event.getMsgid());
         } else if (event.getState() == -1) {
@@ -2812,9 +2813,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                 }, 800);
             }
-        } else if (event.getState() == 1) {
-            MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
-            replaceListDataAndNotify(msgAllbean);
+        }
+        else if (event.getState() == 1) {
+            //已完成：更新文件上传进度，同时拿最新的数据
+            taskRefreshImage(event.getMsgid());
+//            taskRefreshMessage(true);
         }
     }
 
@@ -3766,11 +3769,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     holder.viewChatItem.setDataFile(fileMessage, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            ToastUtil.show("下载文件 或 打开");
+                            //如果是我发的文件
+                            if(msgbean.isMe()){
+                                if(net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getLocalPath())){
+                                    ToastUtil.show(""+fileMessage.getLocalPath());
+                                }else {
+                                    ToastUtil.show("文件不存在或者已被删除");
+                                }
+                            }else {
+                                //如果是别人发的文件
+
+                            }
                         }
                     });
                     break;
-                    //TODO 参考图片等逻辑
+                //TODO 参考图片等逻辑
 
             }
 

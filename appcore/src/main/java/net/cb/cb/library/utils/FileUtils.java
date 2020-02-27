@@ -30,6 +30,7 @@ public class FileUtils {
 
     /**
      * 根据Uri获取文件path路径
+     *
      * @param context
      * @param uri
      * @return
@@ -129,15 +130,16 @@ public class FileUtils {
 
     /**
      * 获取文件名（含后缀）
+     *
      * @param path 文件路径
      * @return
      */
     public static String getFileName(String path) {
-        if(TextUtils.isEmpty(path)){
+        if (TextUtils.isEmpty(path)) {
             return "";
         }
         int start = path.lastIndexOf("/");
-        if (start != -1 ) {
+        if (start != -1) {
             return path.substring(start + 1);
         } else {
             return "";
@@ -147,18 +149,19 @@ public class FileUtils {
 
     /**
      * 获取文件后缀
+     *
      * @param fileName 传入文件名
      * @return
      */
-    public static String getFileSuffix(String fileName){
-        if(!TextUtils.isEmpty(fileName)){
+    public static String getFileSuffix(String fileName) {
+        if (!TextUtils.isEmpty(fileName)) {
             int pointPosition = fileName.lastIndexOf(".");//查询尾部逗号位置，截取后缀
-            if (pointPosition != -1 ) { //查不到则返回-1
+            if (pointPosition != -1) { //查不到则返回-1
                 return fileName.substring(pointPosition + 1);
             } else {
                 return "";
             }
-        }else {
+        } else {
             return "";
         }
     }
@@ -166,22 +169,23 @@ public class FileUtils {
 
     /**
      * 获取文件大小
+     *
      * @param filePath
      * @param sizeType
      * @return
      */
-    public static double getFileOrFilesSize(String filePath,int sizeType){
-        File file=new File(filePath);
-        long blockSize=0;
+    public static double getFileOrFilesSize(String filePath, int sizeType) {
+        File file = new File(filePath);
+        long blockSize = 0;
         try {
-            if(file.isDirectory()){
+            if (file.isDirectory()) {
                 blockSize = getFileSizes(file);
-            }else{
+            } else {
                 blockSize = getFileSize(file);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            LogUtil.getLog().e("获取文件大小","获取失败!");
+            LogUtil.getLog().e("获取文件大小", "获取失败!");
         }
         return FormetFileSize(blockSize, sizeType);
     }
@@ -189,25 +193,27 @@ public class FileUtils {
 
     /**
      * 获取指定文件大小
+     *
      * @param file
      * @return
      * @throws Exception
      */
     private static long getFileSize(File file) throws Exception {
         long size = 0;
-        if (file.exists()){
+        if (file.exists()) {
             FileInputStream fis = null;
             fis = new FileInputStream(file);
             size = fis.available();
-        } else{
+        } else {
             file.createNewFile();
-            LogUtil.getLog().e("获取文件大小","文件不存在!");
+            LogUtil.getLog().e("获取文件大小", "文件不存在!");
         }
         return size;
     }
 
     /**
      * 获取指定文件夹
+     *
      * @param file
      * @return
      * @throws Exception
@@ -215,11 +221,11 @@ public class FileUtils {
     private static long getFileSizes(File file) throws Exception {
         long size = 0;
         File flist[] = file.listFiles();
-        for (int i = 0; i < flist.length; i++){
-            if (flist[i].isDirectory()){
+        for (int i = 0; i < flist.length; i++) {
+            if (flist[i].isDirectory()) {
                 size = size + getFileSizes(flist[i]);
-            } else{
-                size =size + getFileSize(flist[i]);
+            } else {
+                size = size + getFileSize(flist[i]);
             }
         }
         return size;
@@ -227,26 +233,26 @@ public class FileUtils {
 
     /**
      * 转换文件大小,指定转换的类型
+     *
      * @param fileS
      * @param sizeType
      * @return
      */
-    private static double FormetFileSize(long fileS,int sizeType)
-    {
+    private static double FormetFileSize(long fileS, int sizeType) {
         DecimalFormat df = new DecimalFormat("#.00");
         double fileSizeLong = 0;
         switch (sizeType) {
             case SIZETYPE_B:
-                fileSizeLong=Double.valueOf(df.format((double) fileS));
+                fileSizeLong = Double.valueOf(df.format((double) fileS));
                 break;
             case SIZETYPE_KB:
-                fileSizeLong=Double.valueOf(df.format((double) fileS / 1024));
+                fileSizeLong = Double.valueOf(df.format((double) fileS / 1024));
                 break;
             case SIZETYPE_MB:
-                fileSizeLong=Double.valueOf(df.format((double) fileS / 1048576));
+                fileSizeLong = Double.valueOf(df.format((double) fileS / 1048576));
                 break;
             case SIZETYPE_GB:
-                fileSizeLong=Double.valueOf(df.format((double) fileS / 1073741824));
+                fileSizeLong = Double.valueOf(df.format((double) fileS / 1073741824));
                 break;
             default:
                 break;
@@ -257,19 +263,37 @@ public class FileUtils {
 
     /**
      * 文件消息显示规则处理，根据文件大小分别显示B K M G
+     *
      * @param fileSize
      * @return
      */
-    public static String getFileSizeString(long fileSize){
-        if(fileSize < 1024){
-            return fileSize+"B";
-        }else if(fileSize > 1024 && fileSize < 1048576){
-            return FormetFileSize(fileSize,SIZETYPE_KB) +"K";
-        }else if(fileSize > 1048576 && fileSize < 1073741824){
-            return FormetFileSize(fileSize,SIZETYPE_MB) +"M";
-        }else {
-            return FormetFileSize(fileSize,SIZETYPE_GB) +"G";
+    public static String getFileSizeString(long fileSize) {
+        if (fileSize < 1024) {
+            return fileSize + "B";
+        } else if (fileSize > 1024 && fileSize < 1048576) {
+            return FormetFileSize(fileSize, SIZETYPE_KB) + "K";
+        } else if (fileSize > 1048576 && fileSize < 1073741824) {
+            return FormetFileSize(fileSize, SIZETYPE_MB) + "M";
+        } else {
+            return FormetFileSize(fileSize, SIZETYPE_GB) + "G";
         }
     }
 
+
+    /**
+     * 判断本地文件是否存在
+     * @param filePath
+     * @return
+     */
+    public static boolean fileIsExist(String filePath) {
+        try {
+            File f = new File(filePath);
+            if (!f.exists()) {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
 }

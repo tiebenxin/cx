@@ -10,6 +10,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VideoUploadBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventUpFileLoadEvent;
@@ -152,7 +153,7 @@ public class UpLoadService extends Service {
     /**
      * 发送文件
      * @param id        msgID
-     * @param file      文件路径
+     * @param filePath  文件路径
      * @param fileName  文件名
      * @param fileSize  文件大小
      * @param format    后缀类型
@@ -160,7 +161,7 @@ public class UpLoadService extends Service {
      * @param toGid     群ID
      * @param time      发送时间
      */
-    public static void onAddFile(Context mContext,final String id, String file,String fileName,final Long fileSize,String format, final Long toUId, final String toGid, final long time) {
+    public static void onAddFile(Context mContext,final String id, String filePath,String fileName,final Long fileSize,String format, final Long toUId, final String toGid, final long time) {
         // 上传文件时，默认给1-5的上传进度，解决一开始上传不显示进度问题
         updateProgress(id, new Random().nextInt(5) + 1);
 
@@ -168,14 +169,15 @@ public class UpLoadService extends Service {
         upFileAction.upFile(UpFileAction.PATH.FILE, mContext, new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String url) {
-                LogUtil.getLog().d(TAG, "success : 文件上传成功===============>" + file);
+                LogUtil.getLog().d(TAG, "success : 文件上传成功===============>" + filePath);
                 EventUpFileLoadEvent eventUpFileLoadEvent = new EventUpFileLoadEvent();
                 updateProgress(id, 100);
                 eventUpFileLoadEvent.setMsgid(id);
                 eventUpFileLoadEvent.setState(1);
                 eventUpFileLoadEvent.setUrl(url);
-                Object msgbean = SocketData.sendFile(id,url,toUId,toGid,fileName,fileSize,format, time);
-                eventUpFileLoadEvent.setMsgAllBean(msgbean);
+
+                //发送文件消息到服务器，传递给目标用户
+                SocketData.sendFile(id,url,toUId,toGid,fileName,fileSize,format,time,filePath);
                 EventBus.getDefault().post(eventUpFileLoadEvent);
             }
 
@@ -206,7 +208,7 @@ public class UpLoadService extends Service {
                 eventUpFileLoadEvent.setUrl("");
                 EventBus.getDefault().post(eventUpFileLoadEvent);
             }
-        }, file);
+        }, filePath);
     }
 
 

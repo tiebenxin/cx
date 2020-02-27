@@ -1385,16 +1385,22 @@ public class ChatItemView extends LinearLayout {
         //不同类型
         if(fileMessage.getFormat().equals("txt")){
             ivFileIconMe.setImageResource(R.mipmap.ic_txt);
+            ivFileIconOt.setImageResource(R.mipmap.ic_txt);
         }else if(fileMessage.getFormat().equals("xls") || fileMessage.getFormat().equals("xlsx")){
             ivFileIconMe.setImageResource(R.mipmap.ic_excel);
+            ivFileIconOt.setImageResource(R.mipmap.ic_excel);
         }else if(fileMessage.getFormat().equals("ppt") || fileMessage.getFormat().equals("pptx") || fileMessage.getFormat().equals("pdf")){ //这里还有PDF
             ivFileIconMe.setImageResource(R.mipmap.ic_ppt);
+            ivFileIconOt.setImageResource(R.mipmap.ic_ppt);
         }else if(fileMessage.getFormat().equals("doc") || fileMessage.getFormat().equals("docx")){
             ivFileIconMe.setImageResource(R.mipmap.ic_word);
+            ivFileIconOt.setImageResource(R.mipmap.ic_word);
         }else if(fileMessage.getFormat().equals("rar") || fileMessage.getFormat().equals("zip")){
             ivFileIconMe.setImageResource(R.mipmap.ic_zip);
+            ivFileIconOt.setImageResource(R.mipmap.ic_zip);
         }else {
             ivFileIconMe.setImageResource(R.mipmap.ic_unknow);
+            ivFileIconOt.setImageResource(R.mipmap.ic_unknow);
         }
 
         viewMeTouch.setOnClickListener(listener);

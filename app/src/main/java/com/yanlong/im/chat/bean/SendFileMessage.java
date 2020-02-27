@@ -12,6 +12,9 @@ public class SendFileMessage extends RealmObject implements IMsgContent{
     private String format; // 格式描述
     private long size = 0; // 文件大小
 
+    //TODO 额外本地属性
+    private String localPath;//文件本地路径
+
     public String getUrl() {
         return url;
     }
@@ -51,5 +54,13 @@ public class SendFileMessage extends RealmObject implements IMsgContent{
 
     public void setMsgId(String msgId) {
         this.msgId = msgId;
+    }
+
+    public String getLocalPath() {
+        return localPath;
+    }
+
+    public void setLocalPath(String localPath) {
+        this.localPath = localPath;
     }
 }

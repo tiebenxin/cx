@@ -55,6 +55,7 @@ public class SocketData {
 
     private static MsgDao msgDao = new MsgDao();
     public static long CLL_ASSITANCE_ID = 1L;//常信小助手id
+    private static String fileLocalUrl = "";//文件消息本地路径
 
 
     /***
@@ -222,6 +223,10 @@ public class SocketData {
             if (msgAllBean.getVideoMessage() != null) {
                 msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
             }
+            //文件消息，保存本地路径 （这里收到回执后回再次本地保存消息，发送给后端的文件消息和SendList不含有localUrl字段，会覆盖掉数据，所以客户端这里自行补上）
+            if (msgAllBean.getSendFileMessage() != null) {
+                msgAllBean.getSendFileMessage().setLocalPath(fileLocalUrl);
+            }
             //收到直接存表,创建会话
             DaoUtil.update(msgAllBean);
             MsgDao msgDao = new MsgDao();
@@ -264,6 +269,10 @@ public class SocketData {
             if (msgAllBean.getMsgCancel() != null) {
                 msgAllBean.getMsgCancel().setCancelContent(mCancelContent);
                 msgAllBean.getMsgCancel().setCancelContentType(mCancelContentType);
+            }
+            //文件消息，保存本地路径
+            if (msgAllBean.getSendFileMessage() != null) {
+                msgAllBean.getSendFileMessage().setLocalPath(fileLocalUrl);
             }
             //收到直接存表,创建会话
             DaoUtil.update(msgAllBean);
@@ -714,14 +723,15 @@ public class SocketData {
      * @param time
      * @return
      */
-    public static MsgAllBean sendFile(String msgId,String url, Long toId, String toGid,String fileName,Long fileSize, String format, long time) {
+    public static MsgAllBean sendFile(String msgId,String url, Long toId, String toGid,String fileName,Long fileSize, String format, long time,String filePath) {
         MsgBean.SendFileMessage msg;
         msg = MsgBean.SendFileMessage.newBuilder()
-                    .setUrl(url)
-                    .setFileName(fileName)
-                    .setFormat(fileName)
-                    .setSize(fileSize.intValue())
-                    .build();
+                .setUrl(url)
+                .setFileName(fileName)
+                .setFormat(format)
+                .setSize(fileSize.intValue())
+                .build();
+        fileLocalUrl = filePath;
         return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SEND_FILE, msg);
     }
 
@@ -898,13 +908,14 @@ public class SocketData {
     }
 
     @NonNull
-    public static SendFileMessage createFileMessage(String msgId, String url,String fileName,long size,String format) {
+    public static SendFileMessage createFileMessage(String msgId, String filePath,String fileName,long size,String format) {
         SendFileMessage fileMessage = new SendFileMessage();
         fileMessage.setMsgId(msgId);
-        fileMessage.setUrl(url);
+        fileMessage.setLocalPath(filePath);
         fileMessage.setFile_name(fileName);
         fileMessage.setSize(size);
         fileMessage.setFormat(format);
+        fileMessage.setUrl("");//默认url为空，上传成功后拥有下载地址
         return fileMessage;
     }
 
