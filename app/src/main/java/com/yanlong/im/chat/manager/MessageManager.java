@@ -308,7 +308,7 @@ public class MessageManager {
             case OUT_GROUP://退出群聊，如果该群是已保存群聊，需要改为未保存
                 if (wrapMessage.getFromUid() != UserAction.getMyId()) {//不是自己退群，才更新（自己退群，session信息已经被删除）
                     if (bean != null) {
-                        if (msgDao.isMemberInCharge(wrapMessage.getGid(), wrapMessage.getFromUid())) {
+                        if (msgDao.isMemberInCharge(wrapMessage.getGid(), UserAction.getMyId())) {
                             result = saveMessageNew(bean, isList);
                             hasNotified = true;
                         }
