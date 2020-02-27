@@ -388,7 +388,9 @@ public class MsgConversionBean {
                 goutNotice.setMsgid(msgAllBean.getMsg_id());
                 goutNotice.setMsgType(6);
                 name = bean.getNickname();
-                userInfo = new UserDao().findUserInfo(bean.getFromUid());
+                if (userInfo == null) {
+                    userInfo = new UserDao().findUserInfo(bean.getFromUid());
+                }
                 if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
                     name = userInfo.getMkName();
                 }
