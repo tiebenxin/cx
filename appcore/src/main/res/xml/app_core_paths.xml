@@ -3,4 +3,5 @@
 
     <external-path name="download" path="/"/>
     <external-files-path name = "exPath" path = "*"/>
+    <external-path name="external_files" path="."/>
 </paths>

@@ -2,6 +2,7 @@ package com.yanlong.im.chat.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -16,9 +17,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -220,6 +223,7 @@ import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MultiListView;
+import net.cb.cb.library.zxing.activity.CaptureActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -881,7 +885,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             taskGroupInfo();
         } else {
             //id不为0且不为客服则获取最新用户信息
-            if(toUId !=null && toUId != 100121L){
+            if (toUId != null && toUId != 100121L) {
                 httpGetUserInfo();
             }
         }
@@ -2667,7 +2671,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             //生成随机uuid、获取文件名、文件大小
                             final String fileMsgId = SocketData.getUUID();
                             String fileName = net.cb.cb.library.utils.FileUtils.getFileName(filePath);
-                            double fileSize = net.cb.cb.library.utils.FileUtils.getFileOrFilesSize(filePath,SIZETYPE_B);
+                            double fileSize = net.cb.cb.library.utils.FileUtils.getFileOrFilesSize(filePath, SIZETYPE_B);
                             String fileFormat = net.cb.cb.library.utils.FileUtils.getFileSuffix(fileName);
                             //创建文件消息，本地预先准备好这条文件消息，等文件上传成功后刷新
                             SendFileMessage fileMessage = SocketData.createFileMessage(fileMsgId, filePath, fileName, new Double(fileSize).longValue(), fileFormat);
@@ -2675,7 +2679,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             msgListData.add(fileMsgBean);
                             // 不等于常信小助手(常信小助手记录不存服务器，文件助手需要存)
                             if (!Constants.CX_HELPER_UID.equals(toUId)) {
-                                UpLoadService.onAddFile(this.context,fileMsgId, filePath,fileName,new Double(fileSize).longValue(),fileFormat, toUId, toGid, -1);
+                                UpLoadService.onAddFile(this.context, fileMsgId, filePath, fileName, new Double(fileSize).longValue(), fileFormat, toUId, toGid, -1);
                                 startService(new Intent(getContext(), UpLoadService.class));
                             }
                         }
@@ -2813,8 +2817,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                 }, 800);
             }
-        }
-        else if (event.getState() == 1) {
+        } else if (event.getState() == 1) {
             //已完成：更新文件上传进度，同时拿最新的数据
             taskRefreshImage(event.getMsgid());
 //            taskRefreshMessage(true);
@@ -3770,13 +3773,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         @Override
                         public void onClick(View view) {
                             //如果是我发的文件
-                            if(msgbean.isMe()){
-                                if(net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getLocalPath())){
-                                    ToastUtil.show(""+fileMessage.getLocalPath());
-                                }else {
+                            if (msgbean.isMe()) {
+                                //若文件仍然存在，则直接打开；否则提示文件不存在
+                                if (net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getLocalPath())) {
+                                    openAndroidFile(fileMessage.getLocalPath());
+                                } else {
                                     ToastUtil.show("文件不存在或者已被删除");
                                 }
-                            }else {
+                            } else {
                                 //如果是别人发的文件
 
                             }
@@ -5234,10 +5238,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (response.body() == null) {
                     return;
                 } else {
-                    if (response.body().isOk() && response.body().getData() != null && response.body().getData().size()>0) {
+                    if (response.body().isOk() && response.body().getData() != null && response.body().getData().size() > 0) {
                         List<UserInfo> userInfoList = new ArrayList<>();
                         userInfoList.addAll(response.body().getData());
-                        if(userInfoList.get(0)!=null){
+                        if (userInfoList.get(0) != null) {
                             userInfoList.get(0).setuType(ChatEnum.EUserType.FRIEND);//TODO 记得设置类型为好友(这里排查耗时过久，牢记教训) zjy
                             userDao.updateUserinfo(userInfoList.get(0));//本地更新对方数据
                             taskSessionInfo(true);
@@ -5952,7 +5956,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     //选择文件
-    private void toSelectFile(){
+    private void toSelectFile() {
         FilePickerManager.INSTANCE
                 .from(this)
                 .forResult(FilePickerManager.REQUEST_CODE);
@@ -5990,5 +5994,40 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     }
 
+
+    /**
+     * 选择已有程序打开文件
+     *
+     * @param filepath
+     */
+    public void openAndroidFile(String filepath) {
+        try {
+            Intent intent = new Intent();
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            // 7.0以上加上文件检查权限
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    // 申请权限
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+                    return;
+                }
+            }
+            File file = new File(filepath);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.setAction(Intent.ACTION_VIEW);//动作，查看
+            // 7.0适配问题
+            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.N){
+                intent.setDataAndType(FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", file), net.cb.cb.library.utils.FileUtils.getMIMEType(file));//设置类型
+            }else{
+                intent.setDataAndType(Uri.fromFile(file), net.cb.cb.library.utils.FileUtils.getMIMEType(file));//设置类型
+            }
+            startActivity(intent);
+
+        } catch (ActivityNotFoundException e) {
+            ToastUtil.show("附件不能打开，请下载相关软件！");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }
