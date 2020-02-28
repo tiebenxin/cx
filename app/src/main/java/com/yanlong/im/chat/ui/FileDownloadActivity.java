@@ -98,7 +98,7 @@ public class FileDownloadActivity extends AppActivity {
                     DownloadUtil.get().downLoadFile(fileUrl, file, new DownloadUtil.OnDownloadListener() {
                         @Override
                         public void onDownloadSuccess(File file) {
-                            ToastUtil.showLong(activity,"下载成功! \n文件已保存："+FileConfig.PATH_DOWNLOAD+"目录");
+                            ToastUtil.showLong(activity,"下载成功! \n文件已保存："+FileConfig.PATH_DOWNLOAD+"目录下");
                             tvDownload.setText("下载完成 100%");
                             //如果用户退出当前界面，则只提示已经完成；若仍在当前界面，则打开文件
                             if(activity==null || activity.isFinishing()){
