@@ -133,12 +133,12 @@ public class SocketData {
             LogUtil.getLog().i(TAG, "--请求离线--历史");
             if (isEnd) {
                 MsgBean.OfflineMsgRequest.Builder request = MsgBean.OfflineMsgRequest.newBuilder();
-                request.setCount(-1);
+                request.setReqCount(-1);
                 request.setLatest(false);
                 amsg.setMergedNextReq(request);
             } else {
                 MsgBean.OfflineMsgRequest.Builder request = MsgBean.OfflineMsgRequest.newBuilder();
-                request.setCount(offlineCount);
+                request.setReqCount(offlineCount);
                 request.setLatest(false);
                 amsg.setMergedNextReq(request);
             }
@@ -1880,7 +1880,7 @@ public class SocketData {
     public static byte[] requestOffline() {
         LogUtil.getLog().i(TAG, "--请求离线--最新" + getOfflineCount());
         MsgBean.OfflineMsgRequest.Builder request = MsgBean.OfflineMsgRequest.newBuilder();
-        request.setCount(getOfflineCount());
+        request.setReqCount(getOfflineCount());
         request.setLatest(true);
         //添加到消息队中监听
         return SocketPacket.getPackage(SocketPacket.DataType.REQUEST_MSG, request.build().toByteArray());
