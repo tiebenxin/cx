@@ -138,7 +138,7 @@ dependencies {
 
     //常用控件
     api 'com.kyleduo.switchbutton:library:2.0.0'
-    api 'com.baoyz.pullrefreshlayout:library:1.2.0'
+//    api 'com.baoyz.pullrefreshlayout:library:1.2.0'
     api 'com.contrarywind:Android-PickerView:4.1.9'
 
     //下拉刷新

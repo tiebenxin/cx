@@ -3204,9 +3204,9 @@ public class MsgDao {
     }
 
     //批量删除消息
-    public void deleteMsgList(List<MsgAllBean> list) {
+    public boolean deleteMsgList(List<MsgAllBean> list) {
         if (list == null) {
-            return;
+            return true;
         }
         Realm realm = DaoUtil.open();
         try {
@@ -3222,10 +3222,12 @@ public class MsgDao {
             }
             realm.commitTransaction();
             realm.close();
+            return true;
         } catch (Exception e) {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
+        return false;
 
     }
 

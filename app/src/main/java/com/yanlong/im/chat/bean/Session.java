@@ -4,6 +4,8 @@ import androidx.annotation.Nullable;
 
 import net.cb.cb.library.manager.Constants;
 
+import java.util.List;
+
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
@@ -38,10 +40,8 @@ public class Session extends RealmObject implements Comparable<Session> {
     private String name; //session名字，群聊即群名，私聊即好友备注或昵称
     @Ignore
     private String avatar;//头像
-    //    @Ignore
-//    private boolean hasInitDisturb = false;//是否已经初始化免打扰
-//    @Ignore
-//    private boolean hasInitTop = false;//是否已经初始化置顶
+    @Ignore
+    private List<String> avatarList;//群头像
     @Ignore
     private MsgAllBean message;//最后消息
 
@@ -73,13 +73,6 @@ public class Session extends RealmObject implements Comparable<Session> {
     }
 
     public int getIsMute() {
-//        if (!hasInitDisturb) {
-//            try {
-//                isMute = type == 0 ? new UserDao().findUserInfo(from_uid).getDisturb() : new MsgDao().getGroup4Id(gid).getNotNotify();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
         return isMute;
     }
 
@@ -88,13 +81,6 @@ public class Session extends RealmObject implements Comparable<Session> {
     }
 
     public int getIsTop() {
-//        if (!hasInitTop) {
-//            try {
-//                isTop = type == 0 ? new UserDao().findUserInfo(from_uid).getIstop() : new MsgDao().getGroup4Id(gid).getIsTop();
-//            } catch (Exception e) {
-//                //  e.printStackTrace();
-//            }
-//        }
         return isTop;
     }
 
@@ -196,17 +182,13 @@ public class Session extends RealmObject implements Comparable<Session> {
         isSelect = select;
     }
 
-    //    public void setHasInitTop(boolean hasInitTop) {
-//        this.hasInitTop = hasInitTop;
-//    }
-//
-//    public boolean isHasInitDisturb() {
-//        return hasInitDisturb;
-//    }
-//
-//    public boolean isHasInitTop() {
-//        return hasInitTop;
-//    }
+    public List<String> getAvatarList() {
+        return avatarList;
+    }
+
+    public void setAvatarList(List<String> avatarList) {
+        this.avatarList = avatarList;
+    }
 
     @Override
     public boolean equals(@Nullable Object obj) {

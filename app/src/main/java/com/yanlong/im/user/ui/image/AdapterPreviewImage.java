@@ -193,9 +193,9 @@ public class AdapterPreviewImage extends PagerAdapter {
                     if (isOriginal) {
                         if (finalHasRead) {
                             saveImageToLocal(ivZoom, media, isGif, isHttp, isOriginal);
-                        } else if (PictureFileUtils.hasImageCache(media.getPath(), media.getSize())){
-                            saveImageFromCacheFile(media.getPath(),ivZoom);
-                        }else {
+                        } else if (PictureFileUtils.hasImageCache(media.getPath(), media.getSize())) {
+                            saveImageFromCacheFile(media.getPath(), ivZoom);
+                        } else {
                             downloadOriginImage(!TextUtils.isEmpty(originUrl) ? originUrl : path, tvViewOrigin, ivDownload, ivZoom, ivLarge, true, isGif);
                         }
                     } else {
@@ -450,6 +450,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                     }
                 }
             } else {
+                hideLargeImageView(ivLarge);
                 ivDownload.setVisibility(View.VISIBLE);
                 loadImage(media.getCompressPath(), ivZoom, false);
             }
@@ -898,7 +899,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                     LogUtil.getLog().e("=======网络图片=bitmap不为空=");
                     Result result = scanningImage(path, bitmap);
                     QRCodeManage.toZhifubao(context, result);
-                }else {
+                } else {
                     ToastUtil.show(context, "识别二维码失败");
                 }
             } else {

@@ -14,7 +14,7 @@
             android:orientation="vertical"
             android:splitMotionEvents="false">
 
-            <com.baoyz.widget.PullRefreshLayout
+            <net.cb.cb.library.view.NewPullRefreshLayout
                 android:id="@+id/view_refresh"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -26,7 +26,7 @@
                     android:layout_height="wrap_content"
                     android:fitsSystemWindows="true" />
 
-            </com.baoyz.widget.PullRefreshLayout>
+            </net.cb.cb.library.view.NewPullRefreshLayout>
 
             <LinearLayout
                 android:id="@+id/view_chat_bottom"

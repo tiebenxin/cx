@@ -3,6 +3,7 @@ package com.yanlong.im.utils.socket;
 import android.accounts.NetworkErrorException;
 import android.text.TextUtils;
 
+import com.tencent.bugly.crashreport.BuglyLog;
 import com.hm.cxpay.global.PayEnvironment;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.yanlong.im.MyAppLication;
@@ -13,6 +14,7 @@ import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.MainApplication;
+import net.cb.cb.library.bean.BuglyException;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventOnlineStatus;
@@ -736,6 +738,8 @@ public class SocketUtil {
                         CrashReport.setUserSceneTag(MainApplication.getInstance().getApplicationContext(), BUGLY_TAG_LOGIN);
                         // 上传异常数据
                         CrashReport.putUserData(MainApplication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_3, "鉴权失败退出登录");
+                        BuglyLog.i(BuglyTag.BUGLY_TAG_3, "鉴权失败退出登录");
+                        CrashReport.postCatchedException(new BuglyException());
                         //6.20 鉴权失败退出登录
                         EventBus.getDefault().post(new EventLoginOut());
                     } else {

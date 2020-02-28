@@ -48,6 +48,7 @@ import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.task.TaskLoadSavedGroup;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.notify.NotifySettingDialog;
+import com.yanlong.im.shop.ShopFragemnt;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
 import com.yanlong.im.user.bean.NewVersionBean;
@@ -59,7 +60,7 @@ import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
-import com.yanlong.im.utils.TimeUtils;
+import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.update.UpdateManage;
@@ -133,7 +134,6 @@ public class MainActivity extends AppActivity {
     // 通话时间
     private int mPassedTime = 0;
     private final int TIME = 1000;
-    private TimeUtils timeUtils = new TimeUtils();
     private long mExitTime;
     private int mHour, mMin, mSecond;
     private EventFactory.VoiceMinimizeEvent mVoiceMinimizeEvent;
@@ -218,7 +218,7 @@ public class MainActivity extends AppActivity {
     private void findViews() {
         viewPage = findViewById(R.id.viewPage);
         bottomTab = findViewById(R.id.bottom_tab);
-        timeUtils.RunTimer();
+        BurnManager.getInstance().RunTimer();
         mBtnMinimizeVoice = findViewById(R.id.btn_minimize_voice);
     }
 
@@ -230,10 +230,10 @@ public class MainActivity extends AppActivity {
     //自动生成的控件事件
     private void initEvent() {
         mMsgMainFragment = MsgMainFragment.newInstance();
-        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), MyFragment.newInstance()};
-        tabs = new String[]{"消息", "通讯录", "我"};
-        iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_me};
-        iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_me_h};
+        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), ShopFragemnt.newInstance(), MyFragment.newInstance()};
+        tabs = new String[]{"消息", "通讯录", "商城", "我"};
+        iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_shop, R.mipmap.ic_me};
+        iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_shop_h, R.mipmap.ic_me_h};
         viewPage.setOffscreenPageLimit(2);
         viewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -265,12 +265,12 @@ public class MainActivity extends AppActivity {
                     }
                 }
 
-                if (tab.getPosition() == 2) {
+                if (tab.getPosition() == 3) {
                     //每次点击检查新版泵
                     EventBus.getDefault().post(new EventCheckVersionBean());
                 }
                 // 同时点击导航栏跟气泡时，延迟关闭气泡
-                if (tab.getPosition() == 1 || tab.getPosition() == 2) {
+                if (tab.getPosition() == 1 || tab.getPosition() == 3) {
                     if (!isFinishing()) {
                         new Handler().postDelayed(new Runnable() {
                             @Override
@@ -299,6 +299,12 @@ public class MainActivity extends AppActivity {
             View rootView = getLayoutInflater().inflate(R.layout.tab_item, null);
             TextView txt = rootView.findViewById(R.id.txt);
             StrikeButton sb = rootView.findViewById(R.id.sb);
+            if (i == 3) {
+                sb.setSktype(1);
+                //设置值
+                sb.setNum(0, true);
+                sbme = sb;
+            }
             if (i == 2) {
                 sb.setSktype(1);
                 //设置值
@@ -310,9 +316,7 @@ public class MainActivity extends AppActivity {
                 sb.setNum(0, true);
                 sbfriend = sb;
             }
-
             if (i == 0) {//消息数量
-
                 sbmsg = sb;
             }
 
@@ -452,7 +456,7 @@ public class MainActivity extends AppActivity {
         // 关闭浮动窗口
         mBtnMinimizeVoice.close(this);
         mHandler.removeCallbacks(runnable);
-        timeUtils.cancle();
+        BurnManager.getInstance().cancel();
         super.onDestroy();
     }
 
@@ -509,7 +513,7 @@ public class MainActivity extends AppActivity {
     }
 
 
-    private void startChatServer(){
+    private void startChatServer() {
         // 启动聊天服务
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 //            startForegroundService(new Intent(getContext(), ChatServer.class));
@@ -518,7 +522,6 @@ public class MainActivity extends AppActivity {
 //        }
         startService(new Intent(getContext(), ChatServer.class));
     }
-
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -779,6 +782,9 @@ public class MainActivity extends AppActivity {
 
     }
 
+    /**
+     * 发请求---判断是否需要更新
+     */
     private void taskNewVersion() {
         userAction.getNewVersion(StringUtil.getChannelName(context), new CallBack<ReturnBean<NewVersionBean>>() {
             @Override
@@ -789,19 +795,22 @@ public class MainActivity extends AppActivity {
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
                     UpdateManage updateManage = new UpdateManage(context, MainActivity.this);
+                    //强制更新
                     if (response.body().getData().getForceUpdate() != 0) {
-                        //updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                     } else {
+                        //缓存最新版本
                         SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
                         VersionBean versionBean = new VersionBean();
                         versionBean.setVersion(bean.getVersion());
                         preferencesUtil.save2Json(versionBean);
-                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
-//                        if (updateManage.isToDayFirst(bean)) {
-//                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
-//                        }
-
+                        //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
+                        if (VersionUtil.isBigVersion(context, bean.getVersion())) {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
+                        } else {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                        }
+                        //如有新版本，首页底部提示红点
                         if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
                             if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
                                 sbme.setNum(1, true);
@@ -912,16 +921,16 @@ public class MainActivity extends AppActivity {
 //        new Handler().postDelayed(new Runnable() {
 //            @Override
 //            public void run() {
-                try {
-                    //子线程延时 等待myapplication初始化完成
-                    //查询所有阅后即焚消息加入定时器
-                    List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
-                    if (list != null) {
-                        timeUtils.addMsgAllBeans(list);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        try {
+            //子线程延时 等待myapplication初始化完成
+            //查询所有阅后即焚消息加入定时器
+            List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
+            if (list != null && list.size() > 0) {
+                BurnManager.getInstance().addMsgAllBeans(list);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 //            }
 //        }, 1000);
     }
@@ -929,9 +938,9 @@ public class MainActivity extends AppActivity {
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void addSurvivalTimeList(EventSurvivalTimeAdd survivalTimeAdd) {
         if (survivalTimeAdd.msgAllBean != null) {
-            timeUtils.addMsgAllBean(survivalTimeAdd.msgAllBean);
-        } else if (survivalTimeAdd.list != null) {
-            timeUtils.addMsgAllBeans(survivalTimeAdd.list);
+            BurnManager.getInstance().addMsgAllBean(survivalTimeAdd.msgAllBean);
+        } else if (survivalTimeAdd.list != null && survivalTimeAdd.list.size() > 0) {
+            BurnManager.getInstance().addMsgAllBeans(survivalTimeAdd.list);
         }
     }
 
