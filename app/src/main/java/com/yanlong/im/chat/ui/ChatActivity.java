@@ -202,6 +202,7 @@ import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.DownloadUtil;
+import net.cb.cb.library.utils.FileConfig;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.InputUtil;
@@ -3787,17 +3788,24 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             } else {
                                 //如果是别人发的文件
                                 //如果下载路径存在该文件，则直接打开；否则需要下载
-//                                if(){
-//
-//                                }else {
-//
-//                                }
+                                if(net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name())){
+                                    openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
+                                }else {
+                                    if(!TextUtils.isEmpty(fileMessage.getUrl())){
+                                        Intent intent = new Intent(ChatActivity.this,FileDownloadActivity.class);
+                                        intent.putExtra("file_name",fileMessage.getFile_name());
+                                        intent.putExtra("file_format",fileMessage.getFormat());
+                                        intent.putExtra("file_url",fileMessage.getUrl());
+                                        startActivity(intent);
+                                    }else {
+                                        ToastUtil.show("文件下载地址错误，请联系客服");
+                                    }
+
+                                }
                             }
                         }
                     });
                     break;
-                //TODO 参考图片等逻辑
-
             }
 
             holder.viewChatItem.setOnErr(new View.OnClickListener() {
@@ -6008,6 +6016,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 选择已有程序打开文件
      *
      * @param filepath
+     * @备注  todo 暂时只有2个地方用到，后续如果用的地方较多，再抽取到工具类FileUtil
      */
     public void openAndroidFile(String filepath) {
         try {

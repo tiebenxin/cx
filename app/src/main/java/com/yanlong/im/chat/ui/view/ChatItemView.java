@@ -1389,7 +1389,7 @@ public class ChatItemView extends LinearLayout {
         }else if(fileMessage.getFormat().equals("xls") || fileMessage.getFormat().equals("xlsx")){
             ivFileIconMe.setImageResource(R.mipmap.ic_excel);
             ivFileIconOt.setImageResource(R.mipmap.ic_excel);
-        }else if(fileMessage.getFormat().equals("ppt") || fileMessage.getFormat().equals("pptx") || fileMessage.getFormat().equals("pdf")){ //这里还有PDF
+        }else if(fileMessage.getFormat().equals("ppt") || fileMessage.getFormat().equals("pptx") || fileMessage.getFormat().equals("pdf")){ //PDF暂用此图标
             ivFileIconMe.setImageResource(R.mipmap.ic_ppt);
             ivFileIconOt.setImageResource(R.mipmap.ic_ppt);
         }else if(fileMessage.getFormat().equals("doc") || fileMessage.getFormat().equals("docx")){
@@ -1398,6 +1398,9 @@ public class ChatItemView extends LinearLayout {
         }else if(fileMessage.getFormat().equals("rar") || fileMessage.getFormat().equals("zip")){
             ivFileIconMe.setImageResource(R.mipmap.ic_zip);
             ivFileIconOt.setImageResource(R.mipmap.ic_zip);
+        }else if(fileMessage.getFormat().equals("exe")){
+            ivFileIconMe.setImageResource(R.mipmap.ic_exe);
+            ivFileIconOt.setImageResource(R.mipmap.ic_exe);
         }else {
             ivFileIconMe.setImageResource(R.mipmap.ic_unknow);
             ivFileIconOt.setImageResource(R.mipmap.ic_unknow);
