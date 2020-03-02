@@ -58,8 +58,8 @@ public class ChatModel implements IModel {
             }
         }
         final long finalTime = time;
-        if (length < 20) {
-            length += 20;
+        if (length < 80) {
+            length += 80;
         }
         final int finalLength = length;
         return Observable.create(new ObservableOnSubscribe<List<MsgAllBean>>() {
@@ -72,7 +72,10 @@ public class ChatModel implements IModel {
                 if (finalTime > 0) {
                     list = msgAction.getMsg4User(gid, uid, null, finalLength);
                 } else {
-                    list = msgAction.getMsg4User(gid, uid, null, 20);
+                    list = msgAction.getMsg4User(gid, uid, null, 80);
+                }
+                if (list != null) {
+                    listData.addAll(0, list);
                 }
                 taskMkName(list);
                 e.onNext(list);

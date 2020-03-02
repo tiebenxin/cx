@@ -566,7 +566,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
      * */
     public void notifyAndScrollBottom() {
         if (adapter != null) {
-            adapter.bindData(mChatModel.getListData());
+            adapter.bindData(mChatModel.getListData(), false);
         }
         scrollListView(true);
     }
@@ -683,7 +683,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
 
     @Override
     public void setAndRefreshData(List<MsgAllBean> l) {
-        adapter.bindData(l);
+        adapter.bindData(l, false);
         ui.recyclerView.scrollToPosition(adapter.getItemCount() - 1);
 
     }
@@ -741,7 +741,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     @Override
     public void bindData(List<MsgAllBean> l) {
         if (adapter != null) {
-            adapter.bindData(l);
+            adapter.bindData(l, true);
         }
     }
 

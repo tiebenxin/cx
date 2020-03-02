@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.hm.cxpay.bean.BindBankInfo;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.TransAccountBean;
 import com.jrmf360.rplib.utils.callback.TransAccountCallBack;
@@ -114,12 +117,14 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
             needRefresh = false;
         }
         Observable<List<MsgAllBean>> observable = model.loadMessages();
-        observable.subscribe(new DBOptionObserver<List<MsgAllBean>>() {
-            @Override
-            public void onOptionSuccess(List<MsgAllBean> list) {
-                getView().setAndRefreshData(list);
-            }
-        });
+        observable.compose(RxSchedulers.<List<MsgAllBean>>compose())
+                .compose(RxSchedulers.<List<MsgAllBean>>handleResult())
+                .subscribe(new DBOptionObserver<List<MsgAllBean>>() {
+                    @Override
+                    public void onOptionSuccess(List<MsgAllBean> list) {
+                        getView().setAndRefreshData(list);
+                    }
+                });
     }
 
     public void checkLockMessage() {
@@ -571,13 +576,15 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
     public void loadAndSetMoreData() {
         final int position = model.getTotalSize();
         Observable<List<MsgAllBean>> observable = model.loadMoreMessages();
-        observable.subscribe(new DBOptionObserver<List<MsgAllBean>>() {
-            @Override
-            public void onOptionSuccess(List<MsgAllBean> list) {
-                getView().bindData(list);
-                getView().scrollToPositionWithOff(list.size() - position, DensityUtil.dip2px(context, 20f));
-            }
-        });
+        observable.compose(RxSchedulers.<List<MsgAllBean>>compose())
+                .compose(RxSchedulers.<List<MsgAllBean>>handleResult())
+                .subscribe(new DBOptionObserver<List<MsgAllBean>>() {
+                    @Override
+                    public void onOptionSuccess(List<MsgAllBean> list) {
+                        getView().bindData(list);
+                        getView().scrollToPositionWithOff(list.size() - position, DensityUtil.dip2px(context, 20f));
+                    }
+                });
     }
 
     public void setAndClearDraft() {
