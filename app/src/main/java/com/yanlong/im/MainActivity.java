@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -35,6 +36,7 @@ import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.EnvelopeInfo;
@@ -103,6 +105,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 import java.util.Locale;
 
@@ -230,10 +234,10 @@ public class MainActivity extends AppActivity {
     //自动生成的控件事件
     private void initEvent() {
         mMsgMainFragment = MsgMainFragment.newInstance();
-        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), ShopFragemnt.newInstance(), MyFragment.newInstance()};
-        tabs = new String[]{"消息", "通讯录", "商城", "我"};
-        iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_shop, R.mipmap.ic_me};
-        iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_shop_h, R.mipmap.ic_me_h};
+        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), /*ShopFragemnt.newInstance(), */MyFragment.newInstance()};
+        tabs = new String[]{"消息", "通讯录",/* "商城",*/ "我"};
+        iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, /*R.mipmap.ic_shop,*/ R.mipmap.ic_me};
+        iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h,/* R.mipmap.ic_shop_h,*/ R.mipmap.ic_me_h};
         viewPage.setOffscreenPageLimit(2);
         viewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -265,12 +269,12 @@ public class MainActivity extends AppActivity {
                     }
                 }
 
-                if (tab.getPosition() == 3) {
+                if (tab.getPosition() == EMainTab.ME) {
                     //每次点击检查新版泵
                     EventBus.getDefault().post(new EventCheckVersionBean());
                 }
                 // 同时点击导航栏跟气泡时，延迟关闭气泡
-                if (tab.getPosition() == 1 || tab.getPosition() == 3) {
+                if (tab.getPosition() == EMainTab.CONTACT || tab.getPosition() == EMainTab.ME) {
                     if (!isFinishing()) {
                         new Handler().postDelayed(new Runnable() {
                             @Override
@@ -299,24 +303,24 @@ public class MainActivity extends AppActivity {
             View rootView = getLayoutInflater().inflate(R.layout.tab_item, null);
             TextView txt = rootView.findViewById(R.id.txt);
             StrikeButton sb = rootView.findViewById(R.id.sb);
-            if (i == 3) {
+//            if (i == 3) {
+//                sb.setSktype(1);
+//                //设置值
+//                sb.setNum(0, true);
+//                sbme = sb;
+//            }
+            if (i == EMainTab.ME) {
                 sb.setSktype(1);
                 //设置值
                 sb.setNum(0, true);
                 sbme = sb;
             }
-            if (i == 2) {
-                sb.setSktype(1);
-                //设置值
-                sb.setNum(0, true);
-                sbme = sb;
-            }
-            if (i == 1) {
+            if (i == EMainTab.CONTACT) {
                 sb.setSktype(1);
                 sb.setNum(0, true);
                 sbfriend = sb;
             }
-            if (i == 0) {//消息数量
+            if (i == EMainTab.MSG) {//消息数量
                 sbmsg = sb;
             }
 
@@ -1051,5 +1055,17 @@ public class MainActivity extends AppActivity {
                         super.onHandleError(baseResponse);
                     }
                 });
+    }
+
+    /*
+     *from
+     * */
+    @IntDef({EMainTab.MSG, EMainTab.CONTACT, /*EMainTab.SHOP,*/ EMainTab.ME})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EMainTab {
+        int MSG = 0; // 消息界面
+        int CONTACT = 1; // 好友界面
+        //        int SHOP = 2; // 商城界面
+        int ME = 2; // 我的界面
     }
 }

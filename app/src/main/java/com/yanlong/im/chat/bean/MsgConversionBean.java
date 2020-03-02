@@ -106,12 +106,12 @@ public class MsgConversionBean {
 //            msgAllBean.setSurvival_time(survivalTime);
 //        }
 
-        if (msg != null) {
-            msgAllBean.setRequest_id(msg.getRequestId());
-            msgAllBean.setTo_uid(msg.getToUid());
-        } else {
-            msgAllBean.setTo_uid(bean.getToUid());
-        }
+//        if (msg != null) {
+//            msgAllBean.setRequest_id(msg.getRequestId());
+//            msgAllBean.setTo_uid(msg.getToUid());
+//        } else {
+        msgAllBean.setTo_uid(bean.getToUid());
+//        }
 
         //这里需要处理用户信息
         userInfo = DaoUtil.findOne(UserInfo.class, "uid", bean.getFromUid());
@@ -127,6 +127,7 @@ public class MsgConversionBean {
 
         switch (bean.getMsgType()) {
             case CHAT:
+//                System.out.println("MessageManager--文本消息内容==" + bean.getChat().getMsg());
                 ChatMessage chat = new ChatMessage();
                 chat.setMsgid(msgAllBean.getMsg_id());
                 chat.setMsg(bean.getChat().getMsg());
@@ -239,8 +240,8 @@ public class MsgConversionBean {
                 if (bean.getReceiveRedEnvelope().getReType().getNumber() == 0) {
                     if (isError) {
                         rbNotice.setMsgType(ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE);
-                        String nick = msgDao.getUsername4Show(bean.getGid(), msg.getToUid());
-                        name = "<font color='#276baa' id='" + msg.getToUid() + "'>" + nick + "</font>";
+                        String nick = msgDao.getUsername4Show(bean.getGid(), bean.getToUid());
+                        name = "<font color='#276baa' id='" + bean.getToUid() + "'>" + nick + "</font>";
                         rbNotice.setNote("你领取了\"" + name + "的云红包" + "<div id= '" + bean.getGid() + "'></div>");
                     } else {
 
@@ -387,7 +388,9 @@ public class MsgConversionBean {
                 goutNotice.setMsgid(msgAllBean.getMsg_id());
                 goutNotice.setMsgType(6);
                 name = bean.getNickname();
-                userInfo = new UserDao().findUserInfo(bean.getFromUid());
+                if (userInfo == null) {
+                    userInfo = new UserDao().findUserInfo(bean.getFromUid());
+                }
                 if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
                     name = userInfo.getMkName();
                 }

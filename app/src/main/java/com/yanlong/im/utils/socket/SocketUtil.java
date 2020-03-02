@@ -16,8 +16,6 @@ import net.cb.cb.library.MainApplication;
 import net.cb.cb.library.bean.BuglyException;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
-import net.cb.cb.library.bean.EventOnlineStatus;
-import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.constant.BuglyTag;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.LogUtil;
@@ -36,9 +34,10 @@ public class SocketUtil {
     private static final String TAG = "SocketUtil";
     private static SocketUtil socketUtil;
     // Bugly发送回执异常标签
-    private final int BUGLY_TAG_SEND_DATA = 139067;
+    public static final int BUGLY_TAG_SEND_DATA = 139067;
     // Bugly异常登录标签
     public static final int BUGLY_TAG_LOGIN = 139070;
+    private AsyncPacketWriter writer;
 
     private static List<SocketEvent> eventLists = new CopyOnWriteArrayList<>();
     //事件分发
@@ -106,7 +105,7 @@ public class SocketUtil {
             if (count > 0 && bean.getWrapMsg(0).getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
 //                LogUtil.getLog().d(TAG, ">>>>>发送回执: " + bean.getRequestId());
                 if (count == 1) {//单条消息直接回执，多条消息待消息存成功后再回执
-                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null), null, bean.getRequestId());
+                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
 //                    System.out.println(TAG + "--发送回执1--requestId=" + bean.getRequestId());
                     LogUtil.writeLog("--发送回执1--requestId=" + bean.getRequestId() + " msgType:" + bean.getWrapMsg(0).getMsgType());
                 }
@@ -281,8 +280,9 @@ public class SocketUtil {
 
         //关闭信道
         try {
-            socketChannel.close();
-
+            if (socketChannel != null) {
+                socketChannel.close();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -326,8 +326,8 @@ public class SocketUtil {
                             stop(true);
 
                         } else {
-                            sendData(SocketPact.getPakage(SocketPact.DataType.PROTOBUF_HEARTBEAT, null), null, "");
-
+//                            sendData(SocketPact.getPackage(SocketPact.DataType.PROTOBUF_HEARTBEAT, SocketPacket.P_HEART), null, "");
+                            sendData(SocketPacket.getPackage(SocketPacket.DataType.PROTOBUF_HEARTBEAT, SocketPacket.P_HEART), null, "");
                         }
 
 
@@ -404,19 +404,20 @@ public class SocketUtil {
 
                 while (isStart) {
                     LogUtil.getLog().i(TAG, ">>>>>服务器链接检查isRun: " + isRun);
-                    LogUtil.getLog().i(TAG, ">>>>>服务器链接socketChannel: " + socketChannel);
-                    if (socketChannel != null)
+//                    LogUtil.getLog().i(TAG, ">>>>>服务器链接socketChannel: " + socketChannel);
+                    if (socketChannel != null) {
                         LogUtil.getLog().i(TAG, ">>>>>服务器链接isConnected: " + socketChannel.isConnected());
+                    }
                     if ((socketChannel == null || !socketChannel.isConnected()) && isRun == 0) {//没有启动,就执行启动
 
                         //线程版本+1
                         threadVer++;
-                        LogUtil.getLog().i(TAG, ">>>>>新线程版本:" + threadVer);
+//                        LogUtil.getLog().i(TAG, ">>>>>新线程版本:" + threadVer);
                         SocketUtil.this.run();
                         LogUtil.getLog().i(TAG, ">>>>>新线程结束");
 
                     } else {//已经启动了
-                        LogUtil.getLog().i(TAG, ">>>>>跳过当前线程版本:" + threadVer);
+//                        LogUtil.getLog().i(TAG, ">>>>>跳过当前线程版本:" + threadVer);
                     }
 
                     try {
@@ -458,46 +459,56 @@ public class SocketUtil {
     public void sendData(final byte[] data, final MsgBean.UniversalMessage.Builder msgTag, String requetId) {
         if (!isRun())
             return;
-        if (data == null)
+        if (data == null) {
             return;
+        }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int state = 0;
-                try {
-                    ByteBuffer writeBuf = ByteBuffer.allocate(data.length);
-                    writeBuf.put(data);
-                    writeBuf.flip();
-                    LogUtil.getLog().i(TAG, ">>>发送长度:" + data.length);
-                    LogUtil.getLog().i(TAG, ">>>发送:" + SocketPact.bytesToHex(data));
-                    state = socketChannel.write(writeBuf);
-                    writeBuf.clear();
-                    LogUtil.getLog().i(TAG, ">>>发送状态:" + state);
-                    // TODO 回执上传成功，需要清除回执缓存队列，不在重发
-                    if (msgTag == null) {
-                        if (!TextUtils.isEmpty(requetId)) {
-                            SendList.removeSendListJust(requetId);
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    CrashReport.setUserSceneTag(MyAppLication.getInstance().getApplicationContext(), BUGLY_TAG_SEND_DATA); // 上报后的Crash会显示该标签
-                    CrashReport.postCatchedException(e.fillInStackTrace());  // bugly会将这个throwable上报
-                    LogUtil.getLog().e(TAG, ">>>发送失败" + SocketPact.bytesToHex(data));
-                    LogUtil.writeLog(">>>发送失败" + SocketPact.bytesToHex(data) + " Exception:" + e.getMessage() + ">>>发送状态:" + state);
-                    // 上传异常数据
-                    CrashReport.putUserData(MyAppLication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_2, " Exception:" + e.getMessage() + ">>>发送状态:" + state);
-                    //取消发送队列,返回失败
-                    if (msgTag != null) {
-                        SendList.removeSendList(msgTag.getRequestId());
-                    }
+        if (writer == null) {
+            return;
+        }
 
-                    stop(false);
-                    startSocket();
-                }
-            }
-        }).start();
+        writer.write(data, msgTag, requetId);
+
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                int state = 0;
+//                try {
+//                    ByteBuffer writeBuf = ByteBuffer.allocate(data.length);
+//                    writeBuf.put(data);
+//                    writeBuf.flip();
+//                    LogUtil.getLog().i(TAG, ">>>发送长度:" + data.length);
+//                    if (data.length < 1024) {
+//                        LogUtil.getLog().i(TAG, ">>>发送:" + SocketPact.bytesToHex(data));
+//                    }
+//
+//                    state = socketChannel.write(writeBuf);
+//                    writeBuf.clear();
+//                    LogUtil.getLog().i(TAG, ">>>发送状态:" + state);
+//                    // TODO 回执上传成功，需要清除回执缓存队列，不在重发
+//                    if (msgTag == null) {
+//                        if (!TextUtils.isEmpty(requetId)) {
+//                            SendList.removeSendListJust(requetId);
+//                        }
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    CrashReport.setUserSceneTag(MyAppLication.getInstance().getApplicationContext(), BUGLY_TAG_SEND_DATA); // 上报后的Crash会显示该标签
+//                    CrashReport.postCatchedException(e.fillInStackTrace());  // bugly会将这个throwable上报
+//                    LogUtil.getLog().e(TAG, ">>>发送失败" + SocketPact.bytesToHex(data));
+//                    LogUtil.writeLog(">>>发送失败" + SocketPact.bytesToHex(data) + " Exception:" + e.getMessage() + ">>>发送状态:" + state);
+//                    // 上传异常数据
+//                    CrashReport.putUserData(MyAppLication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_2, " Exception:" + e.getMessage() + ">>>发送状态:" + state);
+//                    //取消发送队列,返回失败
+//                    if (msgTag != null) {
+//                        SendList.removeSendList(msgTag.getRequestId());
+//                    }
+//
+//                    stop(false);
+//                    startSocket();
+//                }
+//            }
+//        }).start();
 
 
     }
@@ -510,7 +521,7 @@ public class SocketUtil {
 //        LogUtil.getLog().e("=sendData4Msg=msg=="+msg);
         //添加到消息队中监听
         SendList.addSendList(msg.getRequestId(), msg);
-        sendData(SocketPact.getPakage(SocketPact.DataType.PROTOBUF_MSG, msg.build().toByteArray()), msg, msg.getRequestId());
+        sendData(SocketPacket.getPackage(SocketPacket.DataType.PROTOBUF_MSG, msg.build().toByteArray()), msg, msg.getRequestId());
     }
 
 
@@ -528,7 +539,7 @@ public class SocketUtil {
         socketChannel = new SSLSocketChannel2(SocketChannel.open());
         //socketChannel =  SocketChannel.open();
 
-
+        writer = new AsyncPacketWriter(socketChannel);
         socketChannel.configureBlocking(false);
 
 
@@ -573,8 +584,6 @@ public class SocketUtil {
                 //发送认证请求
                 sendData(SocketData.msg4Auth(), null, "");
             }
-
-
         }
 
     }
@@ -603,17 +612,22 @@ public class SocketUtil {
                             //当次数据
                             byte[] data = new byte[data_size];
                             readBuf.get(data, 0, data_size);
-
-                            LogUtil.getLog().d(TAG, "<<<<<接收数据: " + SocketPact.bytesToHex(data));
+                            if (data.length < 1024) {
+                                LogUtil.getLog().d(TAG, "<<<<<接收数据: " + SocketPact.bytesToHex(data));
+                            }
                             LogUtil.getLog().d(TAG, "<<<<<接收数据总大小: " + data.length);
 
-                            if (SocketPact.isHead(data)) {//收到包头
+//                            if (SocketPact.isHead(data)) {//收到包头
+                            if (SocketPacket.isHead(data)) {//收到包头
                                 LogUtil.getLog().d(TAG, ">>>接收数据: 是包头");
                                 temp.clear();//每次收到包头把之前的缓存清理
                                 byte[] ex = doPackage(data);//没处理完的断包
                                 if (ex != null) {
-                                    if (!SocketPact.isHead(ex)) {//下个断包是否是包头不是就抛掉
-                                        LogUtil.getLog().d(TAG, ">>抛掉错误数据" + SocketPact.bytesToHex(ex));
+//                                    if (!SocketPact.isHead(ex)) {//下个断包是否是包头不是就抛掉
+//                                        LogUtil.getLog().d(TAG, ">>抛掉错误数据" + SocketPact.bytesToHex(ex));
+//                                    }
+                                    if (!SocketPacket.isHead(ex)) {//下个断包是否是包头不是就抛掉
+                                        LogUtil.getLog().d(TAG, ">>抛掉错误数据" + SocketPacket.bytesToHex(ex));
                                     }
 
                                     temp.add(ex);
@@ -623,10 +637,12 @@ public class SocketUtil {
                             } else {//收到包体
                                 LogUtil.getLog().d(TAG, ">>>接收数据: 是包体");
                                 if (temp.size() > 0) {
-                                    byte[] oldpk = SocketPact.listToBytes(temp);
+//                                    byte[] oldpk = SocketPact.listToBytes(temp);
+                                    byte[] oldpk = SocketPacket.listToBytes(temp);
                                     LogUtil.getLog().d(TAG, ">>>上一个包大小" + oldpk.length);
                                     temp.clear();
-                                    byte[] epk = SocketPact.byteMergerAll(oldpk, data);//合成的新包
+//                                    byte[] epk = SocketPact.byteMergerAll(oldpk, data);//合成的新包
+                                    byte[] epk = SocketPacket.byteMergerAll(oldpk, data);//合成的新包
                                     LogUtil.getLog().d(TAG, ">>>合成包大小" + epk.length);
                                     byte[] ex = doPackage(epk);
                                     if (ex != null) {
@@ -689,15 +705,16 @@ public class SocketUtil {
         }
 
 
-        int len = 4 + SocketPact.getLength(data);//包长
+//        int len = 4 + SocketPact.getLength(data);//包长
+        int len = 8 + SocketPacket.getLength(data);//包长
         if (data.length < len) {//不能解析完整包
             ex = data;
         } else {//有一个以上完整的包
-            List<byte[]> ls = SocketPact.bytesToLists(data, len);
-
+//            List<byte[]> ls = SocketPact.bytesToLists(data, len);
+            List<byte[]> ls = SocketPacket.bytesToLists(data, len);
             byte[] indexData = ls.get(0);
-
-            SocketPact.DataType type = SocketPact.getType(indexData);//类型
+//            SocketPact.DataType type = SocketPact.getType(indexData);//类型
+            SocketPacket.DataType type = SocketPacket.getType(indexData);//类型
             //数据处理
             switch (type) {
                 case PROTOBUF_MSG:
@@ -747,6 +764,7 @@ public class SocketUtil {
                         //开始心跳
                         heartbeatTime = System.currentTimeMillis();
                         heartbeatThread();
+                        sendRequestForOffline();
                         //开始启动消息重发队列
                         sendListThread();
 
@@ -761,6 +779,14 @@ public class SocketUtil {
                     event.onACK(ackmsg);
                     //这里处理回执的事情
                     break;
+                case REQUEST_MSG:
+//                    MsgBean.AckMessage ackmsg = SocketData.ackConversion(indexData);
+//                    LogUtil.getLog().i(TAG, ">>>-----<收到回执" + ackmsg.getRequestId());
+//                    event.onACK(ackmsg);
+                    //这里处理回执的事情
+                    LogUtil.getLog().i(TAG, ">>>-----< REQUEST_MSG");
+
+                    break;
                 case OTHER:
                     LogUtil.getLog().i(TAG, ">>>-----<收到其他数据包");
                     break;
@@ -770,17 +796,13 @@ public class SocketUtil {
             if (ls.size() > 1) {//多个包情况
                 return doPackage(ls.get(1));
             }
-
-
         }
-
-
         return ex;
     }
 
-    private void notifyChatRefresh() {
-        EventBus.getDefault().post(new EventRefreshChat());
+    //发送请求离线的数据
+    private void sendRequestForOffline() {
+        sendData(SocketData.requestOffline(), null, "");
     }
-
 
 }

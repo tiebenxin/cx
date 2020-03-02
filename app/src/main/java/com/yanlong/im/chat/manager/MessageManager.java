@@ -140,10 +140,10 @@ public class MessageManager {
                     checkServerTimeInit(wrapMessage);
 
                 } else {//收到多条消息（如离线）
-//                    LogUtil.getLog().d("a=", "--总任务数="  + "--当前时间-3=" + System.currentTimeMillis());
+                    LogUtil.getLog().d("a=", "--总任务数=" + length + "--from=" + bean.getMsgFrom());
                     TaskDealWithMsgList taskMsgList = getMsgTask(bean.getRequestId());
                     if (taskMsgList == null) {
-                        taskMsgList = new TaskDealWithMsgList(msgList, bean.getRequestId());
+                        taskMsgList = new TaskDealWithMsgList(msgList, bean.getRequestId(), bean.getMsgFrom(), length);
 //                        System.out.println(TAG + "--MsgTask--add--requestId=" + bean.getRequestId());
                         taskMaps.put(bean.getRequestId(), taskMsgList);
                     } else {
@@ -159,7 +159,7 @@ public class MessageManager {
     public synchronized void testReceiveMsg() {
         MsgBean.UniversalMessage.Builder builder = MsgBean.UniversalMessage.newBuilder();
         builder.setRequestId(SocketData.getUUID());
-        builder.setToUid(100105);
+//        builder.setToUid(100105);
         for (int i = 0; i < 1000; i++) {
             MsgBean.UniversalMessage.WrapMessage.Builder wrapMsg = MsgBean.UniversalMessage.WrapMessage.newBuilder();
             wrapMsg.setMsgId(SocketData.getUUID());
@@ -192,14 +192,6 @@ public class MessageManager {
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify, String requestId) {
 //        System.out.println(TAG + "开始处理: " + wrapMessage.getMsgId() + "--time=" + System.currentTimeMillis());
-
-        /*
-         * 打印json很耗时
-         * */
-//        if (wrapMessage != null && wrapMessage.getMsgType() != null && wrapMessage.getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
-//            LogUtil.getLog().e("===收到=msg=" + GsonUtils.optObject(wrapMessage));
-//        }
-
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
             return true;
         }
@@ -225,7 +217,6 @@ public class MessageManager {
         updateUserAvatarAndNick(wrapMessage, isList, requestId);
 //        System.out.println(TAG + "开始转换bean: " + wrapMessage.getMsgId() + "--time=" + System.currentTimeMillis());
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
-//        System.out.println(TAG + "结束转换bean: " + wrapMessage.getMsgId() + "--time=" + System.currentTimeMillis());
         if (bean != null && !TextUtils.isEmpty(requestId)) {
             bean.setRequest_id(requestId);
         }
@@ -317,9 +308,11 @@ public class MessageManager {
             case OUT_GROUP://退出群聊，如果该群是已保存群聊，需要改为未保存
                 if (wrapMessage.getFromUid() != UserAction.getMyId()) {//不是自己退群，才更新（自己退群，session信息已经被删除）
                     if (bean != null) {
-                        result = saveMessageNew(bean, isList);
+                        if (msgDao.isMemberInCharge(wrapMessage.getGid(), UserAction.getMyId())) {
+                            result = saveMessageNew(bean, isList);
+                            hasNotified = true;
+                        }
                         refreshGroupInfo(bean.getGid());
-                        hasNotified = true;
                     }
                 } else {
                     MemberUser memberUser = userToMember(UserAction.getMyInfo(), bean.getGid());

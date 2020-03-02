@@ -81,10 +81,12 @@ import com.hm.cxpay.ui.transfer.TransferDetailActivity;
 import com.hm.cxpay.utils.UIUtils;
 
 import com.jrmf360.tools.utils.ThreadUtil;
+import com.yanlong.im.adapter.AdapterPopMenu;
 import com.yanlong.im.chat.MsgTagHandler;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
+import com.yanlong.im.chat.ui.view.ControllerLinearList;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -331,16 +333,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private int popupHeight;// 气泡高
     private ImageView mImgTriangleUp;// 上箭头
     private ImageView mImgTriangleDown;// 下箭头
-    private TextView mTxtView1;
-    private TextView mTxtView2;
-    private TextView mTxtView3;
-    private TextView mTxtView4;
-    private TextView mTxtDelete;
-    private View layoutContent;
     private View mRootView;
-    private View mViewLine1;
-    private View mViewLine2;
-    private View mViewLine3;
     //    private Map<String, String> mTempImgPath = new HashMap<>();// 用于存放本次会话发送的本地图片路径
     private MsgAllBean currentPlayBean;
     private Session session;
@@ -357,6 +350,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private ScreenShotListenManager screenShotListenManager;//截屏监听相关
     private boolean isScreenShotListen;//是否监听截屏
+    private ControllerLinearList popController;
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -3303,10 +3297,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time());
 
             if (msgbean.getSurvival_time() > 0 && msgbean.getStartTime() > 0 && msgbean.getEndTime() > 0) {
-                LogUtil.getLog().i("CountDownView", msgbean.getMsg_id() + "---");
+//                LogUtil.getLog().i("CountDownView", msgbean.getMsg_id() + "---");
                 holder.viewChatItem.setDataSt(msgbean.getStartTime(), msgbean.getEndTime());
             }
-            LogUtil.getLog().d("getSend_state", msgbean.getSurvival_time() + "----" + msgbean.getMsg_id());
+//            LogUtil.getLog().d("getSend_state", msgbean.getSurvival_time() + "----" + msgbean.getMsg_id());
             //设置阅后即焚图标显示
 
 
@@ -3795,7 +3789,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                     }
                                 }, 100);
                             }
-                        }, holder);
+                        });
                     }
                     return true;
                 }
@@ -4098,14 +4092,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * @param menus
      * @param msgbean
      */
-    private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean,
-                         final IMenuSelectListener listener, RecyclerViewAdapter.RCViewHolder holder) {
-        //禁止滑动
-//        mtListView.getListView().setNestedScrollingEnabled(true);
-
-
-        initPopWindowEvent(msgbean);
-        setMessageType(menus);
+    private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean, final IMenuSelectListener listener) {
+        if (popController == null) {
+            return;
+        }
+        AdapterPopMenu adapterPopMenu = new AdapterPopMenu(menus, this);
+        popController.setAdapter(adapterPopMenu);
+        adapterPopMenu.setListener(new AdapterPopMenu.IMenuClickListener() {
+            @Override
+            public void onClick(OptionMenu menu) {
+                if (mPopupWindow != null) {
+                    mPopupWindow.dismiss();
+                }
+                onBubbleClick((String) menu.getTitle(), msgbean);
+            }
+        });
 
         // 重新获取自身的长宽高
         mRootView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
@@ -4163,7 +4164,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 初始化PopupWindow
      */
     private void initPopupWindow() {
-        mRootView = getLayoutInflater().inflate(R.layout.view_chat_bubble, null, false);
+        mRootView = getLayoutInflater().inflate(R.layout.view_chat_pop, null, false);
         //获取自身的长宽高
         mRootView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         popupWidth = mRootView.getMeasuredWidth();
@@ -4171,53 +4172,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
         mImgTriangleUp = mRootView.findViewById(R.id.img_triangle_up);
         mImgTriangleDown = mRootView.findViewById(R.id.img_triangle_down);
-        layoutContent = mRootView.findViewById(R.id.layout_content);
-        mTxtView1 = mRootView.findViewById(R.id.txt_value1);
-        mTxtView2 = mRootView.findViewById(R.id.txt_value2);
-        mTxtView3 = mRootView.findViewById(R.id.txt_value3);
-        mTxtView4 = mRootView.findViewById(R.id.txt_value4);
-        mTxtDelete = mRootView.findViewById(R.id.txt_delete);
-        mViewLine1 = mRootView.findViewById(R.id.view_line1);
-        mViewLine2 = mRootView.findViewById(R.id.view_line2);
-        mViewLine3 = mRootView.findViewById(R.id.view_line3);
-    }
-
-    private void initPopWindowEvent(final MsgAllBean msgbean) {
-        mTxtView1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mPopupWindow != null) mPopupWindow.dismiss();
-                onBubbleClick(mTxtView1.getText().toString(), msgbean);
-            }
-        });
-        mTxtView2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mPopupWindow != null) mPopupWindow.dismiss();
-                onBubbleClick(mTxtView2.getText().toString(), msgbean);
-            }
-        });
-        mTxtView3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mPopupWindow != null) mPopupWindow.dismiss();
-                onBubbleClick(mTxtView3.getText().toString(), msgbean);
-            }
-        });
-        mTxtView4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mPopupWindow != null) mPopupWindow.dismiss();
-                onBubbleClick(mTxtView4.getText().toString(), msgbean);
-            }
-        });
-        mTxtDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mPopupWindow != null) mPopupWindow.dismiss();
-                onBubbleClick(mTxtDelete.getText().toString(), msgbean);
-            }
-        });
+        LinearLayout llContent = mRootView.findViewById(R.id.ll_content);
+        popController = new ControllerLinearList(llContent);
     }
 
     /**
@@ -4326,58 +4282,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
-
-    /**
-     * 设置不同的消息类型弹出对应气泡
-     *
-     * @param menus
-     */
-    private void setMessageType(List<OptionMenu> menus) {
-        if (menus.size() == 1) {
-            layoutContent.setVisibility(GONE);
-            mTxtDelete.setVisibility(VISIBLE);
-            mTxtDelete.setText(menus.get(0).getTitle());
-        } else if (menus.size() == 2) {
-            layoutContent.setVisibility(VISIBLE);
-            mTxtDelete.setVisibility(GONE);
-            mTxtView1.setVisibility(VISIBLE);
-            mTxtView2.setVisibility(GONE);
-            mTxtView3.setVisibility(GONE);
-            mTxtView4.setVisibility(VISIBLE);
-            mViewLine1.setVisibility(VISIBLE);
-            mViewLine2.setVisibility(GONE);
-            mViewLine3.setVisibility(GONE);
-            mTxtView1.setText(menus.get(0).getTitle());
-            mTxtView4.setText(menus.get(1).getTitle());
-        } else if (menus.size() == 3) {
-            layoutContent.setVisibility(VISIBLE);
-            mTxtDelete.setVisibility(GONE);
-            mTxtView1.setVisibility(VISIBLE);
-            mTxtView2.setVisibility(VISIBLE);
-            mTxtView3.setVisibility(GONE);
-            mTxtView4.setVisibility(VISIBLE);
-            mViewLine1.setVisibility(VISIBLE);
-            mViewLine2.setVisibility(VISIBLE);
-            mViewLine3.setVisibility(GONE);
-            mTxtView1.setText(menus.get(0).getTitle());
-            mTxtView2.setText(menus.get(1).getTitle());
-            mTxtView4.setText(menus.get(2).getTitle());
-        } else if (menus.size() == 4) {
-            layoutContent.setVisibility(VISIBLE);
-            mTxtDelete.setVisibility(GONE);
-            mTxtView1.setVisibility(VISIBLE);
-            mTxtView2.setVisibility(VISIBLE);
-            mTxtView3.setVisibility(VISIBLE);
-            mTxtView4.setVisibility(VISIBLE);
-            mViewLine1.setVisibility(VISIBLE);
-            mViewLine2.setVisibility(VISIBLE);
-            mViewLine3.setVisibility(VISIBLE);
-            mTxtView1.setText(menus.get(0).getTitle());
-            mTxtView2.setText(menus.get(1).getTitle());
-            mTxtView3.setText(menus.get(2).getTitle());
-            mTxtView4.setText(menus.get(3).getTitle());
-        }
-    }
 
     /**
      * 设置显示在v上方(以v的左边距为开始位置)

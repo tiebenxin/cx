@@ -3307,5 +3307,31 @@ public class MsgDao {
             msg.getVoiceMessage().deleteFromRealm();
     }
 
+    //判断当前用户是否群主或者群管理员
+    public boolean isMemberInCharge(String gid, long uid) {
+        if (TextUtils.isEmpty(gid) || uid <= 0) {
+            return false;
+        }
+        boolean result = false;
+        Realm realm = DaoUtil.open();
+        try {
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
+                if (!TextUtils.isEmpty(group.getMaster()) && group.getMaster().equals(uid + "")) {
+                    result = true;
+                } else {
+                    RealmList<Long> viceAdmins = group.getViceAdmins();
+                    if (viceAdmins != null && viceAdmins.contains(uid)) {
+                        result = true;
+                    }
+                }
+            }
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return result;
+    }
 
 }

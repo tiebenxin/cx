@@ -700,7 +700,7 @@ public class ChatItemView extends LinearLayout {
 
     //设置阅后即焚消息显示
     public void setDataSurvivalTimeShow(int type) {
-        LogUtil.getLog().d("CountDownView", type + "");
+//        LogUtil.getLog().d("CountDownView", type + "");
         //   timerCancel();
         if (isMe) {
             if (type == -1) {
