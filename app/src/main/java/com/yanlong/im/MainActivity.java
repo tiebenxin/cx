@@ -186,7 +186,7 @@ public class MainActivity extends AppActivity {
         }else {
             //有缓存则按需求规则，超过24小时再上报用户地理位置信息
             try {
-                if(DateUtils.judgmentDate(lastPostLocationTime,new Date().toString())){
+                if(!DateUtils.judgmentDate(lastPostLocationTime,DateUtils.getNowFormatTime(),24)){
                     getLocation();
                 }
             } catch (Exception e) {
@@ -1123,7 +1123,7 @@ public class MainActivity extends AppActivity {
                                 super.onResponse(call, response);
                                 if (response != null && response.body() != null && response.body().isOk()){
                                     LogUtil.getLog().i("TAG","位置信息上报成功");
-                                    //缓存本次调用的时间，24小时以内不再发请求，超过则需要重新发
+                                    //缓存本次调用的时间，24小时以内只需要发一次请求
                                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.POST_LOCATION_TIME).save2Json(DateUtils.getNowFormatTime());
                                 }
                             }

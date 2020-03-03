@@ -123,13 +123,14 @@ public class DateUtils {
     }
 
     /**
-     * 判断是否超过24小时
-     * @param date1
-     * @param date2
+     * 判断时间间隔是否在X小时以内
+     * @param date1 上次时间
+     * @param date2 本次时间
+     * @param hour  目标小时数
      * @return boolean
      * @throws Exception
      */
-    public static boolean judgmentDate(String date1, String date2) throws Exception {
+    public static boolean judgmentDate(String date1, String date2, double hour) throws Exception {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date start = sdf.parse(date1);
         Date end = sdf.parse(date2);
@@ -138,7 +139,7 @@ public class DateUtils {
             return false;
         }
         double result = cha * 1.0 / (1000 * 60 * 60);
-        if(result<=24){
+        if(result<= hour){
             return true;
         }else{
             return false;
