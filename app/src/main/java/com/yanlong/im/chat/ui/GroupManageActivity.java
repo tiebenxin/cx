@@ -145,7 +145,7 @@ public class GroupManageActivity extends BaseBindActivity<ActivityGroupManageBin
     }
 
     private void taskGetInfoNetwork() {
-        msgAction.groupInfo(mGid, new CallBack<ReturnBean<Group>>() {
+        msgAction.groupInfo(mGid,true, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {

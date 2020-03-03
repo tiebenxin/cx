@@ -210,9 +210,9 @@ public class MsgAction {
      * @param gid
      * @param callback
      */
-    public void groupInfo(final String gid, final Callback<ReturnBean<Group>> callback) {
+    public void groupInfo(final String gid, boolean isShow, final Callback<ReturnBean<Group>> callback) {
         if (NetUtil.isNetworkConnected()) {
-            NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>() {
+            NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>(isShow) {
                 @Override
                 public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                     if (response.body() == null) {
@@ -278,7 +278,7 @@ public class MsgAction {
      */
     public void loadGroupMember(final String gid, final Callback<ReturnBean<Group>> callback) {
         if (NetUtil.isNetworkConnected()) {
-            NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>() {
+            NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>(false) {
                 @Override
                 public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                     if (response.body() == null) {
@@ -515,7 +515,7 @@ public class MsgAction {
                             group.setUsers(dao.getGroup4Id(ginfo.getGid()).getUsers());
 
                         } else {
-                            groupInfo(ginfo.getGid(), new CallBack<ReturnBean<Group>>() {
+                            groupInfo(ginfo.getGid(), true, new CallBack<ReturnBean<Group>>() {
                                 @Override
                                 public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                                     if (response.body().isOk()) {
@@ -528,7 +528,7 @@ public class MsgAction {
                         dao.groupSave(group);
                         groupList.add(group);
                     } else {
-                        groupInfo(ginfo.getGid(), new CallBack<ReturnBean<Group>>() {
+                        groupInfo(ginfo.getGid(), true, new CallBack<ReturnBean<Group>>() {
                             @Override
                             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> responseInner) {
                                 if (responseInner.body().isOk()) {

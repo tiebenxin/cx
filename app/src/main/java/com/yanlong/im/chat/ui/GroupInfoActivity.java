@@ -830,7 +830,7 @@ public class GroupInfoActivity extends AppActivity {
                 }
             }
         };
-        msgAction.groupInfo(gid, callBack);
+        msgAction.groupInfo(gid, true,callBack);
     }
 
     private void filterData() {

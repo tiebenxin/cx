@@ -19,8 +19,13 @@ import retrofit2.Response;
 public abstract class CallBack<T> implements Callback<T> {
     MultiListView listView;
     View btnView;
+    private boolean showErrorMsg = true;//默认显示错误信息
 
     public CallBack() {
+    }
+
+    public CallBack(boolean isShow) {
+        showErrorMsg = isShow;
     }
 
     public CallBack(MultiListView listView) {
@@ -43,9 +48,9 @@ public abstract class CallBack<T> implements Callback<T> {
     @Override
     public void onFailure(Call<T> call, Throwable t) {
         LogUtil.getLog().e("==响应异常=解析异常==" + t.getMessage());
-//        if (listView == null) {
-//            ToastUtil.show(AppConfig.APP_CONTEXT, R.string.app_link_err);
-//        }
+        if (listView == null && showErrorMsg) {
+            ToastUtil.show(AppConfig.APP_CONTEXT, R.string.app_link_err);
+        }
 
         if (listView != null) {
             listView.getLoadView().setStateNoNet(new View.OnClickListener() {

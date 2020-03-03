@@ -283,7 +283,7 @@ public class FriendApplyAcitvity extends AppActivity {
     }
 
     private void groupInfo(String gid){
-        msgAction.groupInfo(gid, new CallBack<ReturnBean<Group>>() {
+        msgAction.groupInfo(gid, true,new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {

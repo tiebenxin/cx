@@ -244,7 +244,7 @@ public class SetupSysManagerActivity extends BaseBindActivity<ActivitySetupSysMa
      * 获取群信息
      */
     private void requestGroupInfo() {
-        mMsgAction.groupInfo(mGid, new CallBack<ReturnBean<Group>>() {
+        mMsgAction.groupInfo(mGid, true, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);

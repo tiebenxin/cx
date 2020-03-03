@@ -206,7 +206,7 @@ public class GroupSelectUserActivity extends AppActivity {
     }
 
     private void taskGetInfo() {
-        new MsgAction().groupInfo(gid, new CallBack<ReturnBean<Group>>() {
+        new MsgAction().groupInfo(gid,true, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response == null) {
