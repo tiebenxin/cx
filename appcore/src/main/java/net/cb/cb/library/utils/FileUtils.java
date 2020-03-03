@@ -387,7 +387,9 @@ public class FileUtils {
      * @return
      */
     public static String getMIMEType(File file) {
-        String type="*/*";
+        //6.0以下不涉及权限问题，预期效果是调用全部支持格式的程序列表，部分手机无法兼容，会报"解析软件包时出现问题"
+        //TODO 因此暂时将无格式的文件，采用文本格式打开，可用程序为浏览器、文本等
+        String type="text/plain";
         String fName = file.getName();
         //获取后缀名前的分隔符"."在fName中的位置。
         int dotIndex = fName.lastIndexOf(".");

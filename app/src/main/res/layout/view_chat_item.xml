@@ -726,7 +726,7 @@
                             <RelativeLayout
                                 android:id="@+id/view_file_ot"
                                 android:layout_width="220dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="90dp"
                                 android:background="@drawable/bg_chat_other_file"
                                 android:visibility="visible">
                                 <ImageView
@@ -1397,7 +1397,7 @@
                                 <RelativeLayout
                                     android:id="@+id/view_file_me"
                                     android:layout_width="220dp"
-                                    android:layout_height="wrap_content"
+                                    android:layout_height="90dp"
                                     android:background="@drawable/bg_chat_me_file"
                                     android:visibility="visible">
                                     <ImageView

@@ -52,6 +52,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
@@ -84,6 +85,7 @@ import com.hm.cxpay.ui.transfer.TransferDetailActivity;
 import com.hm.cxpay.utils.UIUtils;
 
 import com.jrmf360.tools.utils.ThreadUtil;
+import com.yanlong.im.BuildConfig;
 import com.yanlong.im.chat.MsgTagHandler;
 import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
@@ -6091,27 +6093,25 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     public void openAndroidFile(String filepath) {
         try {
-            Intent intent = new Intent();
+            Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            // 7.0以上加上文件检查权限
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    // 申请权限
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
-                    return;
-                }
-            }
             File file = new File(filepath);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            intent.setAction(Intent.ACTION_VIEW);//动作，查看
-            // 7.0适配问题
-            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.N){
-                intent.setDataAndType(FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", file), net.cb.cb.library.utils.FileUtils.getMIMEType(file));//设置类型
-            }else{
-                intent.setDataAndType(Uri.fromFile(file), net.cb.cb.library.utils.FileUtils.getMIMEType(file));//设置类型
+            Uri uri = null;
+            // 7.0行为变更适配，加上文件权限，通过FileProvider在应用中共享文件
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".app", file);
+                //添加这一句表示对目标应用临时授权该Uri所代表的文件
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }else {
+                uri = Uri.fromFile(file);
             }
-            startActivity(intent);
-
+            intent.setDataAndType(uri,net.cb.cb.library.utils.FileUtils.getMIMEType(file));//设置类型
+            if (context.getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
+                startActivity(intent);
+            } else {
+                Toast.makeText(context, "没有找到对应的程序", Toast.LENGTH_SHORT).show();
+            }
+//            startActivity(intent);
         } catch (ActivityNotFoundException e) {
             ToastUtil.show("附件不能打开，请下载相关软件！");
         } catch (Exception e) {
