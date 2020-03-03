@@ -43,9 +43,9 @@ public abstract class CallBack<T> implements Callback<T> {
     @Override
     public void onFailure(Call<T> call, Throwable t) {
         LogUtil.getLog().e("==响应异常=解析异常==" + t.getMessage());
-        if (listView == null) {
-            ToastUtil.show(AppConfig.APP_CONTEXT, R.string.app_link_err);
-        }
+//        if (listView == null) {
+//            ToastUtil.show(AppConfig.APP_CONTEXT, R.string.app_link_err);
+//        }
 
         if (listView != null) {
             listView.getLoadView().setStateNoNet(new View.OnClickListener() {

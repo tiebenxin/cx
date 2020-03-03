@@ -53,7 +53,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
 //            mList = list;
 //        }
         if (isMore) {
-            mList.addAll(0,list);
+            mList.addAll(0, list);
         } else {
             mList = list;
 
@@ -145,6 +145,20 @@ public class MessageAdapter extends RecyclerView.Adapter {
             return viewMap.get(position);
         }
         return null;
+    }
+
+    public void addMessage(MsgAllBean msg) {
+        if (mList == null) {
+            mList = new ArrayList<>();
+        }
+        mList.add(msg);
+    }
+
+    public void addMessageList(List<MsgAllBean> msg) {
+        if (mList == null) {
+            mList = new ArrayList<>();
+        }
+        mList.addAll(msg);
     }
 
 }

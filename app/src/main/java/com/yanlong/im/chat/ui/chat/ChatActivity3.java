@@ -25,6 +25,7 @@ import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.ChatInfoActivity;
 import com.yanlong.im.chat.ui.GroupInfoActivity;
 import com.yanlong.im.chat.ui.GroupSelectUserActivity;
+import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;
 import com.yanlong.im.chat.ui.cell.ICellEventListener;
 import com.yanlong.im.chat.ui.cell.MessageAdapter;
@@ -86,6 +87,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     private List<View> emojiLayout;
     private final CheckPermission2Util permission2Util = new CheckPermission2Util();
     private int survivalTime;
+    private ControllerNewMessage viewNewMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -428,6 +430,20 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
                 }
             }
         });
+        viewNewMessage = new ControllerNewMessage(ui.viewNewMessage);
+//        viewNewMessage.setClickListener(() -> {
+//            if (mChatModel.getListData() == null) {
+//                return;
+//            }
+//            int position = mChatModel.getListData() .size() - unreadCount;
+//            if (position >= 0) {
+//                scrollChatToPosition(position);
+//            } else {
+//                scrollChatToPosition(0);
+//            }
+//            viewNewMessage.setVisible(false);
+//            unreadCount = 0;
+//        });
 
         //6.15 先加载完成界面,后刷数据
         actionbar.post(new Runnable() {
@@ -784,9 +800,10 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         if (bean.getMsg_type() != ChatEnum.EMessageType.MSG_CANCEL) {
             int size = mChatModel.getListData().size();
             mChatModel.getListData().add(bean);
+            adapter.addMessage(bean);
             adapter.notifyItemRangeInserted(size, 1);
             // 处理发送失败时位置错乱问题
-            adapter.notifyItemRangeChanged(size + 1, size - 1);
+//            adapter.notifyItemRangeChanged(size + 1, size - 1);
 
             //红包通知 不滚动到底部
             if (bean.getMsgNotice() != null && (bean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE

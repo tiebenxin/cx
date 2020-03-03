@@ -29,7 +29,6 @@ import android.widget.TextView;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
-import com.hm.cxpay.bean.BindBankInfo;
 import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.bean.TransferDetailBean;
 import com.hm.cxpay.bean.UserBean;
@@ -69,6 +68,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.IMsgContent;
 import com.yanlong.im.chat.bean.ImageMessage;
+import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
@@ -79,13 +79,14 @@ import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.AckEvent;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
-import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.chat.ui.GroupRobotActivity;
 import com.yanlong.im.chat.ui.GroupSelectUserActivity;
 import com.yanlong.im.location.LocationActivity;
+import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.action.UserAction;
@@ -128,7 +129,6 @@ import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.ImgSizeUtil;
-import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
@@ -252,6 +252,33 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
         checkMoreVoice(event.getPosition(), (MsgAllBean) event.getBean());
     }
 
+    //发送位置
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void locationSendEvent(LocationSendEvent event) {
+        LocationMessage message = SocketData.createLocationMessage(SocketData.getUUID(), event.message);
+        sendMessage(message, ChatEnum.EMessageType.LOCATION);
+    }
+
+    //处理ack
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void doAck(AckEvent event) {
+        LogUtil.getLog().i(TAG, "doAck--收到回执" + event.getData());
+        if (event.getData() instanceof MsgAllBean) {//发送成功
+            MsgAllBean msg = (MsgAllBean) event.getData();
+            getView().replaceListDataAndNotify(msg);
+        } else if (event.getData() instanceof MsgBean.AckMessage) {
+            MsgBean.AckMessage ackMessage = (MsgBean.AckMessage) event.getData();
+            if (ackMessage.getRejectType() != MsgBean.RejectType.ACCEPTED) {//发送失败
+                loadAndSetData();
+            }
+        }
+        if (isSendingHypertext) {
+            if (sendTexts != null && sendTexts.size() > 0 && textPosition != sendTexts.size() - 1) {
+                sendHypertext(sendTexts, textPosition + 1);
+            }
+        }
+    }
+
 
     /***
      * 查询历史
@@ -273,6 +300,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
     public void onHeartbeat() {
 
     }
+
 
     @Override
     public void onACK(MsgBean.AckMessage bean) {
