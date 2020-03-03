@@ -18,6 +18,9 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.baidu.location.BDAbstractLocationListener;
+import com.baidu.location.BDLocation;
+import com.baidu.location.LocationClientOption;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
@@ -31,6 +34,7 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.utils.DateUtils;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthService;
@@ -47,6 +51,9 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.task.TaskLoadSavedGroup;
 import com.yanlong.im.chat.ui.MsgMainFragment;
+import com.yanlong.im.location.LocationPersimmions;
+import com.yanlong.im.location.LocationService;
+import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.notify.NotifySettingDialog;
 import com.yanlong.im.shop.ShopFragemnt;
 import com.yanlong.im.user.action.UserAction;
@@ -103,6 +110,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -138,9 +148,13 @@ public class MainActivity extends AppActivity {
     private int mHour, mMin, mSecond;
     private EventFactory.VoiceMinimizeEvent mVoiceMinimizeEvent;
     private boolean isActivityStop;
+    //定位相关
+    private LocationService locService;
+    private BDAbstractLocationListener listener;
 
     private UserAction userAction = new UserAction();
     private boolean testMe = true;
+    private String lastPostLocationTime = "";//最近一次上传用户位置的时间
 
 
     @Override
@@ -162,6 +176,21 @@ public class MainActivity extends AppActivity {
             brand = brand.toUpperCase();
             if (brand.contains("OPPO")) {
                 permissionCheck();
+            }
+        }
+
+        lastPostLocationTime = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.POST_LOCATION_TIME).get4Json(String.class);
+        //无缓存则直接定位，记录本次上传位置的时间
+        if(TextUtils.isEmpty(lastPostLocationTime)){
+            getLocation();
+        }else {
+            //有缓存则按需求规则，超过24小时再上报用户地理位置信息
+            try {
+                if(DateUtils.judgmentDate(lastPostLocationTime,new Date().toString())){
+                    getLocation();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
@@ -458,6 +487,13 @@ public class MainActivity extends AppActivity {
         mHandler.removeCallbacks(runnable);
         BurnManager.getInstance().cancel();
         super.onDestroy();
+        // 在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
+        if(listener!=null){
+            locService.unregisterListener(listener);
+        }
+        if(locService!=null){
+            locService.stop();
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -1051,5 +1087,60 @@ public class MainActivity extends AppActivity {
                         super.onHandleError(baseResponse);
                     }
                 });
+    }
+
+    /**
+     * 百度地图获取定位信息
+     */
+    private void getLocation() {
+        if (!LocationPersimmions.checkPermissions(this)) {
+            return;
+        }
+        if (!LocationUtils.isLocationEnabled(this)) {
+            ToastUtil.show("请打开定位服务");
+            return;
+        }
+        locService = ((MyAppLication) getApplication()).locationService;
+        LocationClientOption mOption = locService.getDefaultLocationClientOption();
+        mOption.setLocationMode(LocationClientOption.LocationMode.Battery_Saving);
+        mOption.setCoorType("bd09ll");
+        locService.setLocationOption(mOption);
+        listener = new BDAbstractLocationListener() {
+            @Override
+            public void onReceiveLocation(BDLocation bdLocation) {
+
+                try {
+                    if (bdLocation != null && bdLocation.getPoiList() != null) {
+                        String city = bdLocation.getCity();
+                        String country = bdLocation.getCountry();
+                        String lat = bdLocation.getLatitude()+"";
+                        String lon = bdLocation.getLongitude()+"";
+                        locService.stop();//定位成功后停止定位
+                        //请求——>上报用户地理位置信息
+                        userAction.postLocation(city, country, lat, lon, new CallBack<ReturnBean>() {
+                            @Override
+                            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                                super.onResponse(call, response);
+                                if (response != null && response.body() != null && response.body().isOk()){
+                                    LogUtil.getLog().i("TAG","位置信息上报成功");
+                                    //缓存本次调用的时间，24小时以内不再发请求，超过则需要重新发
+                                    new SharedPreferencesUtil(SharedPreferencesUtil.SPName.POST_LOCATION_TIME).save2Json(DateUtils.getNowFormatTime());
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                                super.onFailure(call, t);
+                                LogUtil.getLog().i("TAG","位置信息上报失败");
+                            }
+                        });
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        locService.registerListener(listener);
+        locService.start();
     }
 }

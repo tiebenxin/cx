@@ -888,4 +888,12 @@ public class UserAction {
         NetUtil.getNet().exec(server.getUserInfo(userId), callBack);
     }
 
+    /**
+     * 上报用户地理位置信息
+     */
+    public void postLocation(String city,String country,String lat,String lon,CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.postLocation(city,country,lat,lon), callback);
+    }
+
+
 }

@@ -2694,6 +2694,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             String fileMsgId = SocketData.getUUID();
                             String fileName = net.cb.cb.library.utils.FileUtils.getFileName(filePath);
                             String fileFormat = net.cb.cb.library.utils.FileUtils.getFileSuffix(fileName);
+                            //如果是图片或者视频，按原旧的逻辑处理
+
                             //创建文件消息，本地预先准备好这条文件消息，等文件上传成功后刷新
                             SendFileMessage fileMessage = SocketData.createFileMessage(fileMsgId, filePath, fileName, new Double(fileSize).longValue(), fileFormat);
                             fileMsgBean = SocketData.sendFileUploadMessagePre(fileMsgId, toUId, toGid, SocketData.getFixTime(), fileMessage, ChatEnum.EMessageType.FILE);

@@ -121,4 +121,36 @@ public class DateUtils {
     public static String getTransferTime(long time) {
         return getTime(time, "yyyy-MM-dd  HH:mm:ss");
     }
+
+    /**
+     * 判断是否超过24小时
+     * @param date1
+     * @param date2
+     * @return boolean
+     * @throws Exception
+     */
+    public static boolean judgmentDate(String date1, String date2) throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date start = sdf.parse(date1);
+        Date end = sdf.parse(date2);
+        long cha = end.getTime() - start.getTime();
+        if(cha<0){
+            return false;
+        }
+        double result = cha * 1.0 / (1000 * 60 * 60);
+        if(result<=24){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    /**
+     * 获取当前系统时间，格式如2018-11-27 10:41:47
+     * @return
+     */
+    public static String getNowFormatTime(){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return sdf.format(new Date());
+    }
 }
