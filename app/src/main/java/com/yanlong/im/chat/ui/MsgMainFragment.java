@@ -17,7 +17,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +38,7 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.chat.ui.chat.ChatActivity3;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -804,21 +804,15 @@ public class MsgMainFragment extends Fragment {
                                 .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
                                 .putExtra(ChatActivity.ONLINE_STATE, onlineState)
                         );
-//                    if (bean.getUnread_count() > 0) {
-//                        MessageManager.getInstance().setMessageChange(true);
-//                    }
-
                     }
                 });
                 holder.btnDel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         holder.swipeLayout.quickClose();
-//                        taskDelSession(bean.getFrom_uid(), bean.getGid());
                         deleteSession(bean);
                     }
                 });
-//            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#f1f1f1"));
                 holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#ececec"));
                 holder.iv_disturb.setVisibility(bean.getIsMute() == 0 ? View.GONE : View.VISIBLE);
             } else if (viewHolder instanceof HeadViewHolder) {

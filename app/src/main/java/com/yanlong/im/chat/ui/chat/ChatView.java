@@ -43,7 +43,16 @@ public interface ChatView extends IView {
 
     void addAndShowSendMessage(MsgAllBean bean);
 
-
     void startUploadService();
+
+    void startVoiceUI(Boolean b);
+
+    void hideBt();
+
+    void insertEditContent(CharSequence charSequence);
+
+    void changeEmojiLevel(int level);
+
+    void addAtSpan(String maskText, String showText, long uid);
 
 }

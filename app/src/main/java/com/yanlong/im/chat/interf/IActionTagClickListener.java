@@ -1,7 +1,7 @@
 package com.yanlong.im.chat.interf;
 
 /**
- * Created by LL130386 on 2018/5/16.
+ * Created by Liszt on 2018/5/16.
  */
 
 public interface IActionTagClickListener {

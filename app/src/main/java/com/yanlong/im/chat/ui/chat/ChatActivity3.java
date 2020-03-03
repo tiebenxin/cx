@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -14,12 +15,8 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 
-import com.luck.picture.lib.PictureSelector;
-import com.luck.picture.lib.config.PictureConfig;
-import com.luck.picture.lib.config.PictureMimeType;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.bean.IMsgContent;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.VoiceMessage;
@@ -27,7 +24,6 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.ChatInfoActivity;
 import com.yanlong.im.chat.ui.GroupInfoActivity;
-import com.yanlong.im.chat.ui.GroupRobotActivity;
 import com.yanlong.im.chat.ui.GroupSelectUserActivity;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;
 import com.yanlong.im.chat.ui.cell.ICellEventListener;
@@ -36,16 +32,17 @@ import com.yanlong.im.databinding.ActivityChat2Binding;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.utils.audio.AudioRecordManager;
 import com.yanlong.im.utils.audio.IAdioTouch;
 import com.yanlong.im.utils.audio.IAudioRecord;
 import com.yanlong.im.utils.socket.SocketData;
+import com.yanlong.im.view.face.FaceViewPager;
+import com.yanlong.im.view.face.bean.FaceBean;
+import com.yanlong.im.view.function.ChatExtendMenuView;
 
-import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.BaseMvpActivity;
-import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
@@ -69,7 +66,7 @@ import static android.view.View.VISIBLE;
 /**
  * @author Liszt
  * @date 2019/9/19
- * Description
+ * Description 聊天界面（优化版）
  */
 public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPresenter> implements ICellEventListener, ChatView {
     public static final String AGM_TOUID = "toUId";
@@ -186,7 +183,6 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     @Override
     public void initUIAndListener() {
         actionbar = ui.headView.getActionbar();
-        addViewPagerEvent();
         font_size = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
         actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         if (isGroup) {
@@ -263,55 +259,63 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         ui.btnFunc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ui.viewFuncRoot.viewFunc.getVisibility() == View.VISIBLE) {
-                    hideBt();
-                } else {
-                    showBtType(0);
-                }
+                ui.btnFunc.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (ui.viewExtendMenu.getVisibility() == View.VISIBLE) {
+                            hideBt();
+                        } else {
+                            showBtType(ChatEnum.EShowType.FUNCTION);
+                        }
+                    }
+                }, 100);
+
             }
         });
         ui.btnEmj.setTag(0);
         ui.btnEmj.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                if (ui.viewEmojiPager.emojiPagerCon.getVisibility() == View.VISIBLE) {
-//                    hideBt();
-//                    InputUtil.showKeyboard(ui.edtChat);
-//                    ui.btnEmj.setImageLevel(0);
-//                } else {
-//                    showBtType(1);
-//                    ui.btnEmj.setImageLevel(1);
-//                }
+                if (ui.viewFace.getVisibility() == View.VISIBLE) {
+                    hideBt();
+                    InputUtil.showKeyboard(ui.edtChat);
+                    changeEmojiLevel(0);
+                } else {
+                    showBtType(ChatEnum.EShowType.EMOJI);
+                    changeEmojiLevel(1);
+                }
             }
         });
 
-        //todo  emoji表情处理
-//        for (int j = 0; j < emojiLayout.size(); j++) {
-//
-//            GridLayout viewEmojiItem = (GridLayout) emojiLayout.get(j).findViewById(R.id.view_emoji);
-//            for (int i = 0; i < viewEmojiItem.getChildCount(); i++) {
-//                if (viewEmojiItem.getChildAt(i) instanceof TextView) {
-//                    final TextView tv = (TextView) viewEmojiItem.getChildAt(i);
-//                    tv.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//                            ui.edtChat.getText().insert(ui.edtChat.getSelectionEnd(), tv.getText());
-//                        }
-//                    });
-//                } else {
-//                    viewEmojiItem.getChildAt(i).setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//                            int keyCode = KeyEvent.KEYCODE_DEL;
-//                            KeyEvent keyEventDown = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
-//                            KeyEvent keyEventUp = new KeyEvent(KeyEvent.ACTION_UP, keyCode);
-//                            ui.edtChat.onKeyDown(keyCode, keyEventDown);
-//                            ui.edtChat.onKeyUp(keyCode, keyEventUp);
-//                        }
-//                    });
-//                }
-//            }
-//        }
+        // 表情点击事件
+        ui.viewFace.setOnItemClickListener(new FaceViewPager.FaceClickListener() {
+
+            @Override
+            public void OnItemClick(FaceBean bean) {
+                presenter.sendFace(bean);
+                ui.viewFace.addOftenUseFace(bean);
+            }
+        });
+        // 删除表情按钮
+        ui.viewFace.setOnDeleteListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                int selection = ui.edtChat.getSelectionStart();
+                String msg = ui.edtChat.getText().toString().trim();
+                if (selection >= 1) {
+                    if (selection >= PatternUtil.FACE_EMOJI_LENGTH) {
+                        String emoji = msg.substring(selection - PatternUtil.FACE_EMOJI_LENGTH, selection);
+                        if (PatternUtil.isExpression(emoji)) {
+                            ui.edtChat.getText().delete(selection - PatternUtil.FACE_EMOJI_LENGTH, selection);
+                            return;
+                        }
+                    }
+                    ui.edtChat.getText().delete(selection - 1, selection);
+                }
+            }
+        });
+
 
         //处理键盘
         SoftKeyBoardListener kbLinst = new SoftKeyBoardListener(this);
@@ -320,9 +324,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             public void keyBoardShow(int h) {
                 hideBt();
                 ui.viewChatBottom.setPadding(0, 0, 0, h);
-
-
-                ui.btnEmj.setImageLevel(0);
+                changeEmojiLevel(0);
                 scrollBottom();
                 isSoftShow = true;
             }
@@ -334,75 +336,6 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             }
         });
 
-        ui.viewFuncRoot.viewCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                permission2Util.requestPermissions(ChatActivity3.this, new CheckPermission2Util.Event() {
-                    @Override
-                    public void onSuccess() {
-                        PictureSelector.create(ChatActivity3.this)
-                                .openCamera(PictureMimeType.ofImage())
-                                .compress(true)
-                                .forResult(PictureConfig.REQUEST_CAMERA);
-                    }
-
-                    @Override
-                    public void onFail() {
-
-                    }
-                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
-
-
-            }
-        });
-
-        ui.viewFuncRoot.viewPic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PictureSelector.create(ChatActivity3.this)
-                        .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
-                        .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
-                        .previewImage(false)// 是否可预览图片 true or false
-                        .isCamera(false)// 是否显示拍照按钮 ture or false
-                        .compress(true)// 是否压缩 true or false
-                        .isGif(true)
-                        .selectArtworkMaster(true)
-                        .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
-            }
-        });
-
-        //支付宝红包
-        ui.viewFuncRoot.viewRbZfb.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                presenter.sendRb();
-            }
-        });
-        ui.viewFuncRoot.viewTransfer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                presenter.doTrans();
-            }
-        });
-
-        //戳一下
-        ui.viewFuncRoot.viewAction.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                presenter.doStamp(survivalTime);
-
-            }
-        });
-        //名片
-        ui.viewFuncRoot.viewCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // go(SelectUserActivity.class);
-                startActivityForResult(new Intent(getContext(), SelectUserActivity.class), SelectUserActivity.RET_CODE_SELECTUSR);
-            }
-        });
-
         //语音
         ui.btnVoice.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -411,7 +344,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
                 permission2Util.requestPermissions(ChatActivity3.this, new CheckPermission2Util.Event() {
                     @Override
                     public void onSuccess() {
-                        startVoice(null);
+                        startVoiceUI(null);
                     }
 
                     @Override
@@ -466,32 +399,6 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             }
         }));
 
-        //群助手
-        ui.viewFuncRoot.viewChatRobot.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //  ToastUtil.show(getContext(),"群助手");
-                if (mChatModel.getGroup() == null)
-                    return;
-
-                startActivity(new Intent(getContext(), GroupRobotActivity.class)
-                        .putExtra(GroupRobotActivity.AGM_GID, gid)
-                        .putExtra(GroupRobotActivity.AGM_RID, mChatModel.getGroup().getRobotid())
-                );
-            }
-        });
-
-        if (isGroup) {//去除群的控件
-            ui.viewFuncRoot.viewFunc.removeView(ui.viewFuncRoot.viewAction);
-            //viewFunc.removeView(viewTransfer);
-            ui.viewFuncRoot.viewChatRobot.setVisibility(View.INVISIBLE);
-        } else {
-            ui.viewFuncRoot.viewFunc.removeView(ui.viewFuncRoot.viewChatRobot);
-        }
-        ui.viewFuncRoot.viewFunc.removeView(ui.viewFuncRoot.viewRb);
-        //test 6.26
-        ui.viewFuncRoot.viewFunc.removeView(ui.viewFuncRoot.viewTransfer);
-
         ui.viewRefresh.setOnRefreshListener(new NewPullRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -529,6 +436,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
                 presenter.setAndClearDraft();
             }
         });
+        initExtendFunctionView();
 
 
         //9.17 进去后就清理会话的阅读数量
@@ -536,6 +444,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         MessageManager.getInstance().notifyRefreshMsg();
 
     }
+
 
     @Override
     public void setDraft(String draft) {
@@ -571,64 +480,54 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         scrollListView(true);
     }
 
-    /***
-     * 开始语音
-     */
-    private void startVoice(Boolean open) {
-        if (open == null) {
-            open = ui.txtVoice.getVisibility() == View.GONE ? true : false;
-        }
-        if (open) {
-            showBtType(2);
-        } else {
-            showVoice(false);
-            hideBt();
-        }
-    }
 
     /***
      * 隐藏底部所有面板
      */
-    private void hideBt() {
-        ui.viewFuncRoot.viewFunc.setVisibility(View.GONE);
-//        ui.viewEmojiPager.emojiPagerCon.setVisibility(View.GONE);
+    public void hideBt() {
+        ui.viewExtendMenu.setVisibility(View.GONE);
+        ui.viewFace.setVisibility(View.GONE);
+
     }
 
+    @Override
+    public void insertEditContent(CharSequence charSequence) {
+        ui.edtChat.getText().insert(ui.edtChat.getSelectionStart(), charSequence);
+    }
 
-    private void addViewPagerEvent() {
-//        emojiLayout = new ArrayList<>();
-//        View view1 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji, null);
-//        View view2 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji2, null);
-//        emojiLayout.add(view1);
-//        emojiLayout.add(view2);
-//        ui.viewEmojiPager.emojiPager.setAdapter(new EmojiAdapter(emojiLayout, ui.edtChat));
-//        ui.viewEmojiPager.emojiPager.addOnPageChangeListener(new PageIndicator(this, (LinearLayout) findViewById(R.id.dot_hor), 2));
+    @Override
+    public void changeEmojiLevel(int level) {
+        ui.btnEmj.setImageLevel(level);
+    }
+
+    @Override
+    public void addAtSpan(String maskText, String showText, long uid) {
+        ui.edtChat.addAtSpan(maskText, showText, uid);
     }
 
     /***
      * 底部显示面板
      */
     private void showBtType(final int type) {
-        ui.btnEmj.setImageLevel(0);
+        changeEmojiLevel(0);
         InputUtil.hideKeyboard(ui.edtChat);
         showVoice(false);
-        ui.viewFuncRoot.viewFunc.postDelayed(new Runnable() {
+        ui.viewExtendMenu.postDelayed(new Runnable() {
             @Override
             public void run() {
                 hideBt();
                 switch (type) {
-                    case 0://功能面板
-                        //第二种解决方案
-                        ui.viewFuncRoot.viewFunc.setVisibility(View.VISIBLE);
+                    case ChatEnum.EShowType.FUNCTION://功能面板
+                        ui.viewExtendMenu.setVisibility(View.VISIBLE);
                         break;
-                    case 1://emoji面板
-//                        ui.viewEmojiPager.emojiPagerCon.setVisibility(View.VISIBLE);
+                    case ChatEnum.EShowType.EMOJI://emoji面板
+                        ui.viewFace.setVisibility(View.VISIBLE);
                         break;
-                    case 2://语音
+                    case ChatEnum.EShowType.VOICE://语音
                         showVoice(true);
                         break;
                 }
-                //滚动到结尾 7.5
+                //滚动到结尾
                 scrollBottom();
             }
         }, 50);
@@ -836,11 +735,8 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
 
     @Override
     public void setRobotView(boolean isMaster) {
-        if (isMaster) {
-            ui.viewFuncRoot.viewChatRobot.setVisibility(View.VISIBLE);
-        } else {
-            ui.viewFuncRoot.viewChatRobot.removeView(ui.viewFuncRoot.viewRb);
-        }
+        //群信息可能有变化，群主显示机器人
+        initExtendData();
     }
 
     /*
@@ -908,5 +804,73 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         startService(new Intent(getContext(), UpLoadService.class));
     }
 
+    @Override
+    public void startVoiceUI(Boolean open) {
+        if (open == null) {
+            open = ui.txtVoice.getVisibility() == View.GONE ? true : false;
+        }
+        if (open) {
+            showBtType(ChatEnum.EShowType.VOICE);
+        } else {
+            showVoice(false);
+            hideBt();
+            InputUtil.showKeyboard(ui.edtChat);
+            ui.edtChat.requestFocus();
+        }
+    }
 
+    //初始化拓展功能栏
+    private void initExtendFunctionView() {
+        ui.viewExtendMenu.setListener(new ChatExtendMenuView.OnFunctionListener() {
+            @Override
+            public void onClick(int id) {
+                switch (id) {
+                    case ChatEnum.EFunctionId.GALLERY:
+                        presenter.toGallery();
+                        break;
+                    case ChatEnum.EFunctionId.TAKE_PHOTO:
+                        presenter.toCamera();
+                        break;
+                    case ChatEnum.EFunctionId.ENVELOPE_SYS:
+                        presenter.toSystemEnvelope();
+                        break;
+                    case ChatEnum.EFunctionId.TRANSFER:
+                        presenter.toTransfer();
+                        break;
+                    case ChatEnum.EFunctionId.VIDEO_CALL:
+                        presenter.toVideoCall();
+                        break;
+                    case ChatEnum.EFunctionId.ENVELOPE_MF:
+                        presenter.taskPayRb();
+                        break;
+                    case ChatEnum.EFunctionId.LOCATION:
+                        presenter.toLocation();
+                        break;
+                    case ChatEnum.EFunctionId.STAMP:
+                        presenter.toStamp();
+                        break;
+                    case ChatEnum.EFunctionId.CARD:
+                        presenter.toCard();
+                        break;
+                    case ChatEnum.EFunctionId.GROUP_ASSISTANT:
+                        presenter.toGroupRobot();
+                        break;
+                    case ChatEnum.EFunctionId.FILE:
+                        break;
+                }
+            }
+        });
+        initExtendData();
+    }
+
+    //初始化底边拓展栏数据
+    private void initExtendData() {
+        ui.viewExtendMenu.bindDate(mChatModel.getItemModels());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        presenter.onActivityResult(requestCode, resultCode, data);
+    }
 }
