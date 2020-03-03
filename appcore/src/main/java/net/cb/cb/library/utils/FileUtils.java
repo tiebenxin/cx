@@ -20,6 +20,14 @@ import java.text.DecimalFormat;
  * @Date：2020/1/10
  * @by zjy
  * @备注：
+ *  ->方法列表
+ *  1 根据Uri获取文件path路径
+ *  2 获取文件名（含后缀）
+ *  3 获取文件后缀
+ *  4 获取文件大小并转换，按照指定转换的类型，显示文件大小分别显示B K M G
+ *  5 判断本地文件是否存在
+ *  6 获取文件的MIME类型
+ *  7 判断文件是否为图片/视频
  */
 public class FileUtils {
 
@@ -396,6 +404,32 @@ public class FileUtils {
                 type = MIME_MapTable[i][1];
         }
         return type;
+    }
+
+
+    /**
+     * 判断文件是否为图片/视频
+     * @param fileFormat
+     * @return
+     */
+    public static boolean isImage(String fileFormat){
+        if(fileFormat.equals("bmp") || fileFormat.equals("gif") || fileFormat.equals("jpeg") || fileFormat.equals("JPEG")
+                || fileFormat.equals("jpg") || fileFormat.equals("png") || fileFormat.equals("webp") || fileFormat.equals("psd")){
+            return true;
+        }else {
+            return false;
+        }
+    }
+
+    public static boolean isVideo(String fileFormat){
+        if(fileFormat.equals("3gp") || fileFormat.equals("asf") || fileFormat.equals("avi") || fileFormat.equals("m4u")
+                || fileFormat.equals("m4v") || fileFormat.equals("mov") || fileFormat.equals("mp4") || fileFormat.equals("mpe")
+                || fileFormat.equals("mpeg") || fileFormat.equals("mpg") || fileFormat.equals("mpg4") || fileFormat.equals("wmv")
+                || fileFormat.equals("flv") || fileFormat.equals("rmvb")){
+            return true;
+        }else {
+            return false;
+        }
     }
 
 }
