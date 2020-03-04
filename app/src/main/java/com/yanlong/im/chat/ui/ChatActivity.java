@@ -572,12 +572,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onLayoutChange(View view, int left,int top,int right,int bottom,int oldLeft,int oldTop,int oldRight,int oldBottom) {
                 //如果bottom小于oldBottom,说明键盘是弹起。
                 if(bottom < oldBottom){
-                    mtListView.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            mtListView.scrollToEnd();
-                        }
-                    },100);
+                    //滑动到底部
+                    mtListView.scrollToEnd();
                 }
             }
         });
