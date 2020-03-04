@@ -875,16 +875,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
 
                 try {
-//                    if (text.startsWith("@000_")) { //文字测试
-//                        int count = Integer.parseInt(text.split("_")[1]);
-//                        taskTestSend(count);
-//                        return;
-//                    }
-//                    if (text.startsWith("@111_")) {//图片测试
-//                        int count = Integer.parseInt(text.split("_")[1]);
-//                        taskTestImage(count);
-//                        return;
-//                    }
+                    if (AppConfig.DEBUG) {
+                        if (text.startsWith("@000_")) { //文字测试
+                            int count = Integer.parseInt(text.split("_")[1]);
+                            taskTestSend(count);
+                            return;
+                        }
+                        if (text.startsWith("@111_")) {//图片测试
+                            int count = Integer.parseInt(text.split("_")[1]);
+                            taskTestImage(count);
+                            return;
+                        }
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -900,17 +902,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (editChat.isAtAll()) {
                         AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.ALL, editChat.getUserIdList());
                         sendMessage(message, ChatEnum.EMessageType.AT);
-//                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 1, editChat.getUserIdList());
-//                        showSendObj(msgAllbean);
-//                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                         editChat.getText().clear();
 
                     } else {
                         AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.MULTIPLE, editChat.getUserIdList());
                         sendMessage(message, ChatEnum.EMessageType.AT);
-//                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 0, editChat.getUserIdList());
-//                        showSendObj(msgAllbean);
-//                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                         editChat.getText().clear();
                     }
                 } else {
@@ -924,7 +920,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                         if (totalSize <= MIN_TEXT) {//非长文本
                             isSendingHypertext = false;
-//                            MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, text);
                             ChatMessage message = SocketData.createChatMessage(SocketData.getUUID(), text);
                             sendMessage(message, ChatEnum.EMessageType.TEXT);
                             editChat.getText().clear();
@@ -1606,12 +1601,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         boolean isSend = true;
         if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_BALANCE_UID.equals(toUId)) {//常信小助手不需要发送到后台
             isSend = false;
-        } /*else if (message instanceof RedEnvelopeMessage) {
-            RedEnvelopeMessage bean = (RedEnvelopeMessage) message;
-            if (bean.getRe_type() == MsgBean.RedEnvelopeMessage.RedEnvelopeType.SYSTEM_VALUE) {//系统红包消息不需要发送到后台
-                isSend = false;
-            }
-        }*/
+        }
         return isSend;
     }
 
@@ -1767,10 +1757,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                 try {
                     for (int i = 1; i <= count; i++) {
-                        if (i % 10 == 0)
-                            SocketData.send4Chat(toUId, toGid, "连续测试发送" + i + "-------");
-                        else
-                            SocketData.send4Chat(toUId, toGid, "连续测试发送" + i);
+                        if (i % 10 == 0) {
+                            ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), "连续测试发送" + i + "-------");
+                            sendMessage(chatMessage, ChatEnum.EMessageType.TEXT);
+                        } else {
+                            ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), "连续测试发送" + i);
+                            sendMessage(chatMessage, ChatEnum.EMessageType.TEXT);
+                        }
 
                         if (i % 100 == 0)
                             Thread.sleep(2 * 1000);
@@ -1825,8 +1818,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                 if (i % 10 == 0) {
                     Thread.sleep(2 * 1000);
-//                    SocketData.send4Chat(toUId, toGid, "连续测试发送" + i + "-------");
-//                    SocketData.send4Chat(toUId, toGid, "-------");
                 }
 
             }
