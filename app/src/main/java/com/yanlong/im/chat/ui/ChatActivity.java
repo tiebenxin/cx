@@ -210,6 +210,7 @@ import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.ScreenShotListenManager;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
@@ -1392,26 +1393,19 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         });
 
         //处理键盘
-//        SoftKeyBoardListener kbLinst = new SoftKeyBoardListener(this);
-//        kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
-//            @Override
-//            public void keyBoardShow(int h) {
-//                hideBt();
-//                viewChatBottom.setPadding(0, 0, 0, h);
-//
-//
-//                btnEmj.setImageLevel(0);
-//                showEndMsg();
-//                isSoftShow = true;
-//            }
-//
-//            @Override
-//            public void keyBoardHide(int h) {
-//                viewChatBottom.setPadding(0, 0, 0, 0);
-//                isSoftShow = false;
-//                dismissPop();
-//            }
-//        });
+        SoftKeyBoardListener kbLinst = new SoftKeyBoardListener(this);
+        kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
+            @Override
+            public void keyBoardShow(int h) {
+                setPanelHeight(h,viewFunc);
+                setPanelHeight(h,viewFaceView);
+                setPanelHeight(h,viewExtendFunction);
+            }
+
+            @Override
+            public void keyBoardHide(int h) {
+            }
+        });
 
         //6.15 先加载完成界面,后刷数据
         actionbar.post(new Runnable() {
@@ -1471,6 +1465,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         initExtendFunctionView();
 
 
+    }
+    private void setPanelHeight(int h,View view){
+        LinearLayout.LayoutParams linearParams=(LinearLayout.LayoutParams) view.getLayoutParams(); //取控
+        if(linearParams.height!=h){
+            linearParams.height=h;
+            view.setLayoutParams(linearParams);
+        }
     }
 
     private void checkScrollFirst(int first) {
@@ -2129,7 +2130,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void run() {
                 getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             }
-        }, 50);
+        }, 100);
     }
 
     public void showViewFunction(boolean isShow) {
