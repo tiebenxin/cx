@@ -1027,7 +1027,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         editChat.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                Log.e("raleigh_test","onTouch");
                 hideBt();
                 return false;
             }
@@ -1035,7 +1034,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         editChat.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                Log.e("raleigh_test","beforeTextChanged");
 
             }
 
@@ -2100,42 +2098,38 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void showBtType(final int type) {
         btnEmj.setImageLevel(0);
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        //软键盘是否开启
-        boolean isActive=imm.isActive(editChat);
-        Log.e("raleigh_test","isActive="+isActive);
-        if (isActive) {
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-            // 如果开启
-            imm.hideSoftInputFromWindow(editChat.getWindowToken(), 0);
-//            imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,
-//                    InputMethodManager.HIDE_NOT_ALWAYS);
-            // 关闭软键盘，开启方法相同，这个方法是切换开启与关闭状态的
-        }
+
 //        InputUtil.hideKeyboard(editChat);
 ////
         showVoice(false);
+        hideBt();
+        switch (type) {
+            case ChatEnum.EShowType.FUNCTION://功能面板
+                //第二种解决方案
+                showViewFunction(true);
+                break;
+            case ChatEnum.EShowType.EMOJI://emoji面板
+                viewFaceView.setVisibility(View.VISIBLE);
+                break;
+            case ChatEnum.EShowType.VOICE://语音
+                showVoice(true);
+                break;
+        }
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        //软键盘是否开启
+        boolean isActive=imm.isActive(editChat);
+        if (isActive) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+            // 关闭软键盘
+            imm.hideSoftInputFromWindow(editChat.getWindowToken(), 0);
+           }
+        showEndMsg();
         viewFunc.postDelayed(new Runnable() {
             @Override
             public void run() {
-                hideBt();
-                switch (type) {
-                    case ChatEnum.EShowType.FUNCTION://功能面板
-                        //第二种解决方案
-                        showViewFunction(true);
-                        break;
-                    case ChatEnum.EShowType.EMOJI://emoji面板
-                        viewFaceView.setVisibility(View.VISIBLE);
-                        break;
-                    case ChatEnum.EShowType.VOICE://语音
-                        showVoice(true);
-                        break;
-                }
-                //滚动到结尾 7.5
-                showEndMsg();
-                if(isActive)getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             }
-        }, 0);
+        }, 50);
     }
 
     public void showViewFunction(boolean isShow) {
