@@ -1028,7 +1028,17 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         editChat.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                hideBt();
+                //有功能面板，先更改软键盘模式，延迟隐藏面板和恢复软键盘模式
+                if(viewFaceView.getVisibility()== View.VISIBLE||viewExtendFunction.getVisibility()== View.VISIBLE){
+                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+                    viewFunc.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            hideBt();
+                            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                        }
+                    },500);
+                }
                 return false;
             }
         });
@@ -1071,18 +1081,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         btnFunc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                btnFunc.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (viewExtendFunction.getVisibility() == View.VISIBLE) {
+                Log.e("raleigh_test","viewExtendFunctionVisb="+(viewExtendFunction.getVisibility()==View.VISIBLE));
+                if (viewExtendFunction.getVisibility() == View.VISIBLE) {
+                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+                    editChat.requestFocus();
+                    InputUtil.showKeyboard(editChat);
+                    viewFunc.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
                             hideBt();
-                            editChat.requestFocus();
-                            InputUtil.showKeyboard(editChat);
-                        } else {
-                            showBtType(ChatEnum.EShowType.FUNCTION);
+                            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                         }
-                    }
-                }, 100);
+                    },500);
+                } else {
+                    showBtType(ChatEnum.EShowType.FUNCTION);
+                }
             }
         });
         btnEmj.setTag(0);
@@ -1090,10 +1103,19 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onClick(View v) {
                 if (viewFaceView.getVisibility() == View.VISIBLE) {
-                    hideBt();
+                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                     editChat.requestFocus();
                     InputUtil.showKeyboard(editChat);
                     btnEmj.setImageLevel(0);
+                    viewFunc.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            hideBt();
+                            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                        }
+                    },500);
+
+
                 } else {
 
                     showBtType(ChatEnum.EShowType.EMOJI);
@@ -2123,7 +2145,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
             // 关闭软键盘
             imm.hideSoftInputFromWindow(editChat.getWindowToken(), 0);
-           }
+        }
         showEndMsg();
         viewFunc.postDelayed(new Runnable() {
             @Override
