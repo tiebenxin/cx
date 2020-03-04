@@ -150,5 +150,12 @@ public interface PayService {
     @POST(Route.RETURN_TRANSFER)
     Observable<BaseResponse<TransferResultBean>> returnTransfer(@Body RequestBody body);
 
+    //商城->获取免登陆商城URL
+    @POST(Route.SHOP_GET_URL)
+    Observable<BaseResponse> getShopUrl();
+
+    //商城->校验支付密码
+    @POST(Route.SHOP_CHECK_PAYWORD)
+    Observable<BaseResponse> checkShopPayword(@Body RequestBody body);
 
 }
