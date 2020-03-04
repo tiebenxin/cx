@@ -43,6 +43,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -167,6 +168,7 @@ import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.view.CustomerEditText;
+import com.yanlong.im.view.HeadView2;
 import com.yanlong.im.view.face.AddFaceActivity;
 import com.yanlong.im.view.face.FaceView;
 import com.yanlong.im.view.face.FaceViewPager;
@@ -208,7 +210,6 @@ import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.ScreenShotListenManager;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
-import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
@@ -261,7 +262,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //返回需要刷新的 8.19 取消自动刷新
     // public static final int REQ_REFRESH = 7779;
-    private net.cb.cb.library.view.HeadView headView;
+    private HeadView2 headView;
     private ActionbarView actionbar;
     private net.cb.cb.library.view.MultiListView mtListView;
     private ImageView btnVoice;
@@ -357,8 +358,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_chat);
         Window window = getWindow();
+//
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         //标题栏
         window.setStatusBarColor(getResources().getColor(R.color.blue_title));
@@ -374,6 +377,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         checkUserPower();
         initSurvivaltime4Uid();
         getOftenUseFace();
+
     }
 
 
@@ -536,6 +540,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
         mtListView = findViewById(R.id.mtListView);
+//        mtListView.getLayoutManager().setStackFromEnd(true);
         btnVoice = findViewById(R.id.btn_voice);
         editChat = findViewById(R.id.edit_chat);
         btnEmj = findViewById(R.id.btn_emj);
@@ -562,6 +567,20 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         viewNewMessage = new ControllerNewMessage(findViewById(R.id.viewNewMessage));
         setChatImageBackground();
         viewExtendFunction = findViewById(R.id.view_extend_menu);
+        mtListView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View view, int left,int top,int right,int bottom,int oldLeft,int oldTop,int oldRight,int oldBottom) {
+                //如果bottom小于oldBottom,说明键盘是弹起。
+                if(bottom < oldBottom){
+                    mtListView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mtListView.scrollToEnd();
+                        }
+                    },100);
+                }
+            }
+        });
     }
 
 
@@ -1009,10 +1028,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
             }
         });
-
+        editChat.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Log.e("raleigh_test","onTouch");
+                hideBt();
+                return false;
+            }
+        });
         editChat.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                Log.e("raleigh_test","beforeTextChanged");
 
             }
 
@@ -1073,6 +1100,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     InputUtil.showKeyboard(editChat);
                     btnEmj.setImageLevel(0);
                 } else {
+
                     showBtType(ChatEnum.EShowType.EMOJI);
                     btnEmj.setImageLevel(1);
                 }
@@ -1370,26 +1398,26 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         });
 
         //处理键盘
-        SoftKeyBoardListener kbLinst = new SoftKeyBoardListener(this);
-        kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
-            @Override
-            public void keyBoardShow(int h) {
-                hideBt();
-                viewChatBottom.setPadding(0, 0, 0, h);
-
-
-                btnEmj.setImageLevel(0);
-                showEndMsg();
-                isSoftShow = true;
-            }
-
-            @Override
-            public void keyBoardHide(int h) {
-                viewChatBottom.setPadding(0, 0, 0, 0);
-                isSoftShow = false;
-                dismissPop();
-            }
-        });
+//        SoftKeyBoardListener kbLinst = new SoftKeyBoardListener(this);
+//        kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
+//            @Override
+//            public void keyBoardShow(int h) {
+//                hideBt();
+//                viewChatBottom.setPadding(0, 0, 0, h);
+//
+//
+//                btnEmj.setImageLevel(0);
+//                showEndMsg();
+//                isSoftShow = true;
+//            }
+//
+//            @Override
+//            public void keyBoardHide(int h) {
+//                viewChatBottom.setPadding(0, 0, 0, 0);
+//                isSoftShow = false;
+//                dismissPop();
+//            }
+//        });
 
         //6.15 先加载完成界面,后刷数据
         actionbar.post(new Runnable() {
@@ -2055,7 +2083,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (show) {//开启语音
             txtVoice.setVisibility(View.VISIBLE);
             btnVoice.setImageDrawable(getResources().getDrawable(R.mipmap.ic_chat_kb));
-            editChat.setVisibility(View.GONE);
+            editChat.setVisibility(View.INVISIBLE);
             btnSend.setVisibility(GONE);
             btnFunc.setVisibility(VISIBLE);
         } else {//关闭语音
@@ -2075,9 +2103,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 底部显示面板
      */
     private void showBtType(final int type) {
-
         btnEmj.setImageLevel(0);
-        InputUtil.hideKeyboard(editChat);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        //软键盘是否开启
+        boolean isActive=imm.isActive(editChat);
+        Log.e("raleigh_test","isActive="+isActive);
+        if (isActive) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+            // 如果开启
+            imm.hideSoftInputFromWindow(editChat.getWindowToken(), 0);
+//            imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,
+//                    InputMethodManager.HIDE_NOT_ALWAYS);
+            // 关闭软键盘，开启方法相同，这个方法是切换开启与关闭状态的
+        }
+//        InputUtil.hideKeyboard(editChat);
+////
         showVoice(false);
         viewFunc.postDelayed(new Runnable() {
             @Override
@@ -2097,8 +2137,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
                 //滚动到结尾 7.5
                 showEndMsg();
+                if(isActive)getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             }
-        }, 50);
+        }, 0);
     }
 
     public void showViewFunction(boolean isShow) {
@@ -2108,66 +2149,67 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void showEndMsg() {
-        if (isLoadHistory) {
-            return;
-        }
-        mtListView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                scrollListView(true);
-            }
-        }, 100);
-
+//        if (isLoadHistory) {
+//            return;
+//        }
+//        mtListView.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                scrollListView(true);
+//            }
+//        }, 100);
+        mtListView.scrollToEnd();
     }
 
     /*
      * @param isMustBottom 是否必须滑动到底部
      * */
     private void scrollListView(boolean isMustBottom) {
-        if (isLoadHistory) {
-            isLoadHistory = false;
-        }
-        if (msgListData != null) {
-            int length = msgListData.size();//刷新后当前size
-            if (isMustBottom) {
-                scrollChatToPosition(length);
-            } else {
-                if (lastPosition >= 0 && lastPosition < length) {
-                    if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
-                        scrollChatToPosition(length);
-                    }
-                } else {
-                    SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
-                    if (sp != null) {
-                        ScrollConfig config = sp.get4Json(ScrollConfig.class, "scroll_config");
-                        if (config != null) {
-                            if (config.getUserId() == UserAction.getMyId()) {
-                                if (toUId != null && config.getUid() > 0 && config.getUid() == toUId.intValue()) {
-                                    lastPosition = config.getLastPosition();
-                                    lastOffset = config.getLastOffset();
-                                } else if (!TextUtils.isEmpty(config.getChatId()) && !TextUtils.isEmpty(toGid) && config.getChatId().equals(toGid)) {
-                                    lastPosition = config.getLastPosition();
-                                    lastOffset = config.getLastOffset();
-                                }
-                            }
-                        }
-                    }
-                    if (lastPosition >= 0 && lastPosition < length) {
-                        if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
-                            scrollChatToPosition(length);
-                        } else {
-                            scrollChatToPositionWithOffset(lastPosition, lastOffset);
-                        }
-                    } else {
-                        if (currentScrollPosition > 0) {
-                            scrollChatToPositionWithOffset(currentScrollPosition, lastPosition);
-                        } else {
-                            scrollChatToPosition(length);
-                        }
-                    }
-                }
-            }
-        }
+        mtListView.scrollToEnd();
+//        if (isLoadHistory) {
+//            isLoadHistory = false;
+//        }
+//        if (msgListData != null) {
+//            int length = msgListData.size();//刷新后当前size
+//            if (isMustBottom) {
+//                scrollChatToPosition(length);
+//            } else {
+//                if (lastPosition >= 0 && lastPosition < length) {
+//                    if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
+//                        scrollChatToPosition(length);
+//                    }
+//                } else {
+//                    SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
+//                    if (sp != null) {
+//                        ScrollConfig config = sp.get4Json(ScrollConfig.class, "scroll_config");
+//                        if (config != null) {
+//                            if (config.getUserId() == UserAction.getMyId()) {
+//                                if (toUId != null && config.getUid() > 0 && config.getUid() == toUId.intValue()) {
+//                                    lastPosition = config.getLastPosition();
+//                                    lastOffset = config.getLastOffset();
+//                                } else if (!TextUtils.isEmpty(config.getChatId()) && !TextUtils.isEmpty(toGid) && config.getChatId().equals(toGid)) {
+//                                    lastPosition = config.getLastPosition();
+//                                    lastOffset = config.getLastOffset();
+//                                }
+//                            }
+//                        }
+//                    }
+//                    if (lastPosition >= 0 && lastPosition < length) {
+//                        if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
+//                            scrollChatToPosition(length);
+//                        } else {
+//                            scrollChatToPositionWithOffset(lastPosition, lastOffset);
+//                        }
+//                    } else {
+//                        if (currentScrollPosition > 0) {
+//                            scrollChatToPositionWithOffset(currentScrollPosition, lastPosition);
+//                        } else {
+//                            scrollChatToPosition(length);
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
 
     /***
