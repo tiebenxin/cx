@@ -485,10 +485,10 @@ public class UserInfoActivity extends AppActivity {
                     if (response.body() == null || response.body().getData() == null) {
                         return;
                     }
-                    final UserInfo info = response.body().getData();
-                    setData(info);
-                    if (info != null) {
-                        Session session = new MsgDao().sessionGet("", info.getUid());
+                    userInfoLocal = response.body().getData();
+                    if (userInfoLocal != null) {
+                        setData(userInfoLocal);
+                        Session session = new MsgDao().sessionGet("", userInfoLocal.getUid());
                         if (session != null) {
                             MessageManager.getInstance().setMessageChange(true);
                             MessageManager.getInstance().notifyRefreshMsg();

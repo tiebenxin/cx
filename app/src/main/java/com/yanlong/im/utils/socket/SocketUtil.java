@@ -299,7 +299,7 @@ public class SocketUtil {
     //重连检测时长
     private long recontTime = 5 * 1000;
     //心跳步长
-    private long heartbeatStep = 10 * 1000;
+    private long heartbeatStep = 30 * 1000;
 //private boolean heartbeatStart=false;
 
     /***
