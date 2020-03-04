@@ -405,7 +405,7 @@ public class PayHttpUtils {
         Map<String, String> map = new HashMap<>();
         map.put("pwd", MD5.md5(pwd));
         map.put("amt", amt);
-        return HttpChannel.getInstance().getPayService().checkPayword(getRequestBody(map));
+        return HttpChannel.getInstance().getPayService().checkShopPayword(getRequestBody(map));
     }
 
 }
