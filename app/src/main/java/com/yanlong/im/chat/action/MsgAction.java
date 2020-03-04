@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.action;
 
+import android.text.TextUtils;
+
 import com.google.gson.Gson;
 import com.yanlong.im.chat.bean.ExitGroupUser;
 import com.yanlong.im.chat.bean.Group;
@@ -211,6 +213,9 @@ public class MsgAction {
      * @param callback
      */
     public void groupInfo(final String gid, boolean isShow, final Callback<ReturnBean<Group>> callback) {
+        if (TextUtils.isEmpty(gid)) {
+            return;
+        }
         if (NetUtil.isNetworkConnected()) {
             NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>(isShow) {
                 @Override
@@ -277,6 +282,9 @@ public class MsgAction {
      * @param callback
      */
     public void loadGroupMember(final String gid, final Callback<ReturnBean<Group>> callback) {
+        if (TextUtils.isEmpty(gid)) {
+            return;
+        }
         if (NetUtil.isNetworkConnected()) {
             NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>(false) {
                 @Override

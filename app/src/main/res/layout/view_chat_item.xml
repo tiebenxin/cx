@@ -34,7 +34,7 @@
         android:paddingRight="6dp"
         android:paddingBottom="3dp"
         android:singleLine="false"
-        android:text="以下是新消息"
+        android:text="----以下是新消息----"
         android:textColor="@color/gray_500"
         android:textSize="12sp" />
 

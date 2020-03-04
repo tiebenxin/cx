@@ -197,6 +197,7 @@ import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.DeviceUtils;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.GsonUtils;
@@ -256,6 +257,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private final String REST_EDIT = "重新编辑";
     private final String IS_VIP = "1";// (0:普通|1:vip)
     public final static int MIN_UNREAD_COUNT = 15;
+    private int MAX_UNREAD_COUNT = 80 * 4;//默认加载最大数据
+
     private List<String> uidList;
 
 
@@ -475,11 +478,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void initViewNewMsg() {
-        if (unreadCount >= MIN_UNREAD_COUNT && unreadCount < 80 * 4) {
-            viewNewMessage.setVisible(false);
-            //            viewNewMessage.setVisible(true);
-//            viewNewMessage.setCount(unreadCount);
-//            mAdapter.setUnreadCount(unreadCount);
+        int ramSize = DeviceUtils.getTotalRam();
+        if (ramSize >= 2) {
+            MAX_UNREAD_COUNT = 80 * 8;
+        } else {
+            MAX_UNREAD_COUNT = 80 * 4;
+        }
+        if (unreadCount >= MIN_UNREAD_COUNT && unreadCount < MAX_UNREAD_COUNT) {
+            viewNewMessage.setVisible(true);
+            viewNewMessage.setCount(unreadCount);
+            mAdapter.setUnreadCount(unreadCount);
+        } else if (unreadCount >= MAX_UNREAD_COUNT) {
+            unreadCount = MAX_UNREAD_COUNT;
+            viewNewMessage.setVisible(true);
+            viewNewMessage.setCount(unreadCount);
+            mAdapter.setUnreadCount(unreadCount);
         } else {
             viewNewMessage.setVisible(false);
             mAdapter.setUnreadCount(0);
@@ -3269,8 +3282,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time, isGroup());
             if (unread >= MIN_UNREAD_COUNT) {
                 if (position == getItemCount() - unread) {
-//                    holder.viewChatItem.showNew(true);
-                    holder.viewChatItem.showNew(false);
+                    holder.viewChatItem.showNew(true);
                 } else {
                     holder.viewChatItem.showNew(false);
                 }
@@ -4491,12 +4503,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (finalTime > 0) {
                             list = msgAction.getMsg4User(toGid, toUId, null, finalLength);
                         } else {
-//                            if (unreadCount < 80) {
-//                                list = msgAction.getMsg4User(toGid, toUId, null, unreadCount + 80);
-//                            } else if (unreadCount > 80 * 4) {
-//                                list = msgAction.getMsg4User(toGid, toUId, null, 80);
-//                            }
-                            list = msgAction.getMsg4User(toGid, toUId, null, 80);
+                            if (unreadCount <= 80) {
+                                list = msgAction.getMsg4User(toGid, toUId, null, unreadCount + 80);
+                            } else if (unreadCount > 80 && unreadCount <= MAX_UNREAD_COUNT) {
+                                list = msgAction.getMsg4User(toGid, toUId, null, unreadCount + 80);
+                            } else if (unreadCount > MAX_UNREAD_COUNT) {
+                                list = msgAction.getMsg4User(toGid, toUId, null, MAX_UNREAD_COUNT);
+                            } else {
+                                list = msgAction.getMsg4User(toGid, toUId, null, 80);
+                            }
+//                            list = msgAction.getMsg4User(toGid, toUId, null, 80);
 
                         }
                         taskMkName(list);
