@@ -485,16 +485,18 @@ public class UserInfoActivity extends AppActivity {
                     if (response.body() == null || response.body().getData() == null) {
                         return;
                     }
-                    userInfoLocal = response.body().getData();
-                    if (userInfoLocal != null) {
-                        setData(userInfoLocal);
-                        Session session = new MsgDao().sessionGet("", userInfoLocal.getUid());
+                    UserInfo userInfo = response.body().getData();
+                    if (userInfoLocal == null) {
+                        userInfoLocal = userInfo;
+                    }
+                    setData(userInfo);
+                    if (userInfo != null) {
+                        Session session = new MsgDao().sessionGet("", userInfo.getUid());
                         if (session != null) {
                             MessageManager.getInstance().setMessageChange(true);
                             MessageManager.getInstance().notifyRefreshMsg();
                         }
                     }
-
 
                 }
             });
