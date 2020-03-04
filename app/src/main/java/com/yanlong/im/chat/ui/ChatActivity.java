@@ -861,6 +861,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         editChat.setText(spannableString);
     }
 
+    private Runnable mEditChatRunnable=new Runnable() {
+        @Override
+        public void run() {
+            hideBt();
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
+    };
     //自动生成的控件事件
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void initEvent() {
@@ -1031,13 +1038,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 //有功能面板，先更改软键盘模式，延迟隐藏面板和恢复软键盘模式
                 if(viewFaceView.getVisibility()== View.VISIBLE||viewExtendFunction.getVisibility()== View.VISIBLE){
                     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-                    viewFunc.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            hideBt();
-                            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-                        }
-                    },500);
+                    btnEmj.setImageLevel(0);
+                    viewFunc.postDelayed(mEditChatRunnable,500);
                 }
                 return false;
             }
@@ -1081,7 +1083,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         btnFunc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e("raleigh_test","viewExtendFunctionVisb="+(viewExtendFunction.getVisibility()==View.VISIBLE));
                 if (viewExtendFunction.getVisibility() == View.VISIBLE) {
                     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                     editChat.requestFocus();
@@ -1094,7 +1095,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     },500);
                 } else {
+                    viewFunc.removeCallbacks(mEditChatRunnable);
                     showBtType(ChatEnum.EShowType.FUNCTION);
+
                 }
             }
         });
@@ -1117,7 +1120,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
                 } else {
-
+                    viewFunc.removeCallbacks(mEditChatRunnable);
                     showBtType(ChatEnum.EShowType.EMOJI);
                     btnEmj.setImageLevel(1);
                 }
