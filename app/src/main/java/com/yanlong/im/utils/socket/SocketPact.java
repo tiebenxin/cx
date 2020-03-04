@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /***
- * 协议的定义
+ * v1 协议的定义
  */
 public class SocketPact {
     //包头2位

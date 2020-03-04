@@ -55,7 +55,7 @@ public class AsyncPacketWriter {
                 writeBuf.flip();
                 LogUtil.getLog().i(TAG, ">>>发送长度:" + data.length);
                 if (data.length < 1024) {
-                    LogUtil.getLog().i(TAG, ">>>发送:" + SocketPact.bytesToHex(data));
+                    LogUtil.getLog().i(TAG, ">>>发送:" + SocketPacket.bytesToHex(data));
                 }
 
                 state = socketChannel.write(writeBuf);
@@ -71,8 +71,8 @@ public class AsyncPacketWriter {
                 e.printStackTrace();
                 CrashReport.setUserSceneTag(MyAppLication.getInstance().getApplicationContext(), BUGLY_TAG_SEND_DATA); // 上报后的Crash会显示该标签
                 CrashReport.postCatchedException(e.fillInStackTrace());  // bugly会将这个throwable上报
-                LogUtil.getLog().e(TAG, ">>>发送失败" + SocketPact.bytesToHex(data));
-                LogUtil.writeLog(">>>发送失败" + SocketPact.bytesToHex(data) + " Exception:" + e.getMessage() + ">>>发送状态:" + state);
+                LogUtil.getLog().e(TAG, ">>>发送失败" + SocketPacket.bytesToHex(data));
+                LogUtil.writeLog(">>>发送失败" + SocketPacket.bytesToHex(data) + " Exception:" + e.getMessage() + ">>>发送状态:" + state);
                 // 上传异常数据
                 CrashReport.putUserData(MyAppLication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_2, " Exception:" + e.getMessage() + ">>>发送状态:" + state);
                 //取消发送队列,返回失败
