@@ -41,6 +41,8 @@ public class CommonBean extends BaseBean implements Parcelable {
     private String phone;
     //忘记密码验证bean类
     private String token;
+    //商城复用
+    private String url;
 
 
     protected CommonBean(Parcel in) {
@@ -278,6 +280,14 @@ public class CommonBean extends BaseBean implements Parcelable {
 
     public void setRefundType(int refundType) {
         this.refundType = refundType;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     @Override
