@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <net.cb.cb.library.view.HeadView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <net.cb.cb.library.view.HeadView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/headView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -10,19 +9,20 @@
 
         <ScrollView
             android:layout_width="match_parent"
-            android:scrollbars="vertical"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical">
+
             <LinearLayout
-                android:layout_marginTop="0dp"
                 style="@style/app_layout_list2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginTop="0dp"
                 android:orientation="vertical">
                 <!--设置管理员-->
                 <LinearLayout
                     android:id="@+id/layout_setup_manager"
-                    android:layout_marginBottom="@dimen/app_margin_item_top"
-                    style="@style/app_layout_list2_item">
+                    style="@style/app_layout_list2_item"
+                    android:layout_marginBottom="@dimen/app_margin_item_top">
 
                     <TextView
                         style="@style/app_txt_title_2"
@@ -33,9 +33,10 @@
                     <TextView
                         android:id="@+id/txt_manager_number"
                         style="@style/app_txt_title_2"
-                        android:textColor="@color/gray_300"
                         android:layout_marginRight="@dimen/app_margin_item"
-                        android:text="" />
+                        android:text=""
+                        android:textColor="@color/gray_300" />
+
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -56,17 +57,18 @@
                         android:id="@+id/ck_forbidden_words"
                         style="@style/app_check" />
                 </LinearLayout>
+
                 <TextView
                     style="@style/app_txt_content_2"
+                    android:layout_marginBottom="5dp"
                     android:paddingLeft="@dimen/app_margin_main"
                     android:paddingRight="@dimen/app_margin_main"
-                    android:layout_marginBottom="5dp"
                     android:text="开启后，仅群主和管理员可发言。进入群成员资料页面，可对单个成员禁言" />
                 <!--禁止领取零钱红包-->
                 <LinearLayout
                     android:id="@+id/layout_ban_redenvelopes"
-                    android:visibility="visible"
-                    style="@style/app_layout_list2_item">
+                    style="@style/app_layout_list2_item"
+                    android:visibility="visible">
 
                     <TextView
                         style="@style/app_txt_title_2"
@@ -82,8 +84,8 @@
                 <!--未领取红包列表-->
                 <LinearLayout
                     android:id="@+id/layout_no_redenvelopes"
-                    android:visibility="gone"
-                    style="@style/app_layout_list2_item">
+                    style="@style/app_layout_list2_item"
+                    android:visibility="visible">
 
                     <TextView
                         style="@style/app_txt_title_2"
@@ -99,8 +101,8 @@
                 <!--不活跃群成员-->
                 <LinearLayout
                     android:id="@+id/layout_inactive_user"
-                    android:visibility="gone"
-                    style="@style/app_layout_list2_item">
+                    style="@style/app_layout_list2_item"
+                    android:visibility="gone">
 
                     <TextView
                         style="@style/app_txt_title_2"
@@ -129,11 +131,12 @@
                         android:layout_height="wrap_content"
                         android:src="@mipmap/ic_btn_goto" />
                 </LinearLayout>
+
                 <LinearLayout
                     android:id="@+id/layout_bottom"
                     android:layout_width="match_parent"
-                    android:orientation="vertical"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
                     <!--是否开启群成员保护-->
                     <LinearLayout
                         android:id="@+id/view_group_intimately"
@@ -150,11 +153,12 @@
                             android:id="@+id/ck_group_intimately"
                             style="@style/app_check" />
                     </LinearLayout>
+
                     <TextView
                         style="@style/app_txt_content_2"
+                        android:layout_marginBottom="5dp"
                         android:paddingLeft="@dimen/app_margin_main"
                         android:paddingRight="@dimen/app_margin_main"
-                        android:layout_marginBottom="5dp"
                         android:text="开启后，群成员不能通过群添加好友" />
                     <!--是否开启群认证-->
                     <LinearLayout
@@ -171,11 +175,12 @@
                             android:id="@+id/ck_group_verif"
                             style="@style/app_check" />
                     </LinearLayout>
+
                     <TextView
                         style="@style/app_txt_content_2"
+                        android:layout_marginBottom="5dp"
                         android:paddingLeft="@dimen/app_margin_main"
                         android:paddingRight="@dimen/app_margin_main"
-                        android:layout_marginBottom="5dp"
                         android:text="开启后，需要管理员同意才能加入群聊" />
                     <!--群助手-->
                     <LinearLayout
@@ -189,11 +194,11 @@
                             android:text="群助手" />
 
                         <TextView
-                            android:layout_weight="1"
-                            android:gravity="right"
                             android:id="@+id/txt_group_robot"
                             style="@style/app_txt_title_4"
                             android:layout_marginRight="@dimen/app_margin_item"
+                            android:layout_weight="1"
+                            android:gravity="right"
                             android:text="未配置" />
 
                         <ImageView
@@ -203,9 +208,9 @@
                     </LinearLayout>
                     <!--群主管理权转让-->
                     <LinearLayout
-                        android:layout_marginTop="@dimen/app_margin_item_top"
                         android:id="@+id/view_group_transfer"
-                        style="@style/app_layout_list2_item">
+                        style="@style/app_layout_list2_item"
+                        android:layout_marginTop="@dimen/app_margin_item_top">
 
                         <TextView
                             style="@style/app_txt_title_2"
