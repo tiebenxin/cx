@@ -10,8 +10,10 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VideoUploadBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.bean.EventUpFileLoadEvent;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -146,6 +148,69 @@ public class UpLoadService extends Service {
         });
         queue.offer(upProgress);
     }
+
+
+    /**
+     * 发送文件
+     * @param id        msgID
+     * @param filePath  文件路径
+     * @param fileName  文件名
+     * @param fileSize  文件大小
+     * @param format    后缀类型
+     * @param toUId     接收人ID
+     * @param toGid     群ID
+     * @param time      发送时间
+     */
+    public static void onAddFile(Context mContext,final String id, String filePath,String fileName,final Long fileSize,String format, final Long toUId, final String toGid, final long time) {
+        // 上传文件时，默认给1-5的上传进度，解决一开始上传不显示进度问题
+        updateProgress(id, new Random().nextInt(5) + 1);
+
+        UpFileAction upFileAction = new UpFileAction();
+        upFileAction.upFile(UpFileAction.PATH.FILE, mContext, new UpFileUtil.OssUpCallback() {
+            @Override
+            public void success(String url) {
+                LogUtil.getLog().d(TAG, "success : 文件上传成功===============>" + filePath);
+                EventUpFileLoadEvent eventUpFileLoadEvent = new EventUpFileLoadEvent();
+                updateProgress(id, 100);
+                eventUpFileLoadEvent.setMsgid(id);
+                eventUpFileLoadEvent.setState(1);
+                eventUpFileLoadEvent.setUrl(url);
+
+                //发送文件消息到服务器，传递给目标用户
+                SocketData.sendFile(id,url,toUId,toGid,fileName,fileSize,format,time,filePath);
+                EventBus.getDefault().post(eventUpFileLoadEvent);
+            }
+
+            @Override
+            public void fail() {
+                EventUpFileLoadEvent eventUpFileLoadEvent = new EventUpFileLoadEvent();
+                updateProgress(id, 0);
+                LogUtil.getLog().d(TAG, "fail : 文件上传失败===============>" + id);
+                eventUpFileLoadEvent.setMsgid(id);
+                eventUpFileLoadEvent.setState(-1);
+                eventUpFileLoadEvent.setUrl("");
+                eventUpFileLoadEvent.setMsgAllBean(msgDao.fixStataMsg(id, ChatEnum.ESendStatus.ERROR));//写库
+                EventBus.getDefault().post(eventUpFileLoadEvent);
+            }
+
+            @Override
+            public void inProgress(long progress, long zong) {
+                if (System.currentTimeMillis() - oldUptime < 100) {
+                    return;
+                }
+                EventUpFileLoadEvent eventUpFileLoadEvent = new EventUpFileLoadEvent();
+                oldUptime = System.currentTimeMillis();
+                int pg = new Double(progress / (zong + 0.0f) * 100.0).intValue();
+                LogUtil.getLog().d(TAG, "inProgress : 文件上传进度===============>" + pg);
+                updateProgress(id, pg);
+                eventUpFileLoadEvent.setMsgid(id);
+                eventUpFileLoadEvent.setState(0);
+                eventUpFileLoadEvent.setUrl("");
+                EventBus.getDefault().post(eventUpFileLoadEvent);
+            }
+        }, filePath);
+    }
+
 
     /**
      * 发送视屏

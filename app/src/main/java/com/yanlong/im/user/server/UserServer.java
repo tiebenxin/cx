@@ -199,4 +199,8 @@ public interface UserServer {
     @POST("/group/get-single-member")
     @FormUrlEncoded
     Call<ReturnBean<SingleMeberInfoBean>> getSingleMemberInfo(@Field("gid") String gid, @Field("uid") int uid);
+
+    @POST("/user/report-geo-position")
+    @FormUrlEncoded
+    Call<ReturnBean> postLocation(@Field("city") String city, @Field("country") String country, @Field("lat") String lat,@Field("lon") String lon);
 }

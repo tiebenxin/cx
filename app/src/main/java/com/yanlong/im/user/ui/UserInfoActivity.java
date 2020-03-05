@@ -467,7 +467,7 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void taskUserInfo(Long id) {
-        if (id == 1L) {
+        if (id == 1L || id == 3L) {
             UserInfo info = userDao.findUserInfo(id);
             if (info != null) {
                 setData(info);

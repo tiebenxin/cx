@@ -55,6 +55,7 @@ import com.yanlong.im.chat.bean.BalanceAssistantMessage;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.ui.RoundTransform;
@@ -70,6 +71,7 @@ import com.yanlong.im.view.face.AddFaceActivity;
 import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -211,6 +213,18 @@ public class ChatItemView extends LinearLayout {
     private LinearLayout viewOtChild;
     private TextView tvNew;
     private CheckBox ckSelect;
+    //文件
+    private RelativeLayout viewFileOt;
+    private RelativeLayout viewFileMe;
+    private TextView tvFileNameOt;
+    private TextView tvFileNameMe;
+    private TextView tvFileSizeOt;
+    private TextView tvFileSizeMe;
+    private ImageView ivFileIconMe;
+    private ImageView ivFileIconOt;
+
+    private LinearLayout layoutFileProgress;
+    private TextView tvFileProgressValue;
 
     public ChatItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -360,6 +374,17 @@ public class ChatItemView extends LinearLayout {
         location_desc_you_tv = rootView.findViewById(R.id.location_desc_you_tv);
         location_name_me_tv = rootView.findViewById(R.id.location_name_me_tv);
         location_desc_me_tv = rootView.findViewById(R.id.location_desc_me_tv);
+        //文件
+        viewFileOt = rootView.findViewById(R.id.view_file_ot);
+        tvFileNameOt = rootView.findViewById(R.id.tv_filename_ot);
+        tvFileSizeOt = rootView.findViewById(R.id.tv_filesize_ot);
+        viewFileMe = rootView.findViewById(R.id.view_file_me);
+        tvFileNameMe = rootView.findViewById(R.id.tv_filename_me);
+        tvFileSizeMe = rootView.findViewById(R.id.tv_filesize_me);
+        ivFileIconMe = rootView.findViewById(R.id.iv_file_icon_me);
+        ivFileIconOt = rootView.findViewById(R.id.iv_file_icon_ot);
+        layoutFileProgress = rootView.findViewById(R.id.layout_file_progress);
+        tvFileProgressValue = rootView.findViewById(R.id.tv_file_progress_value);
 
         //新消息提醒
         tvNew = rootView.findViewById(R.id.tv_new);
@@ -445,6 +470,8 @@ public class ChatItemView extends LinearLayout {
         viewMeGameShare.setVisibility(GONE);
         viewOtGameShare.setVisibility(GONE);
         viewOtBalance.setVisibility(GONE);
+        viewFileOt.setVisibility(GONE);
+        viewFileMe.setVisibility(GONE);
 
         //位置
         location_you_ll.setVisibility(GONE);
@@ -525,6 +552,10 @@ public class ChatItemView extends LinearLayout {
             case ChatEnum.EMessageType.BALANCE_ASSISTANT:
                 setNoAvatarUI(isMe);
                 viewOtBalance.setVisibility(VISIBLE);
+                break;
+            case ChatEnum.EMessageType.FILE:
+                viewFileOt.setVisibility(VISIBLE);
+                viewFileMe.setVisibility(VISIBLE);
                 break;
         }
 
@@ -1260,6 +1291,17 @@ public class ChatItemView extends LinearLayout {
         }
     }
 
+    //文件进度条显示
+    public void setFileProgress(Integer pg) {
+        if (pg != null && pg != 100 && pg != 0) {
+            layoutFileProgress.setVisibility(VISIBLE);
+            tvFileProgressValue.setText(pg + "%");
+            imgMeErr.setVisibility(GONE);
+        } else {
+            layoutFileProgress.setVisibility(GONE);
+        }
+    }
+
     public void setVideoIMGShow(boolean show) {
         if (show) {
             img_me_4_play.setVisibility(View.VISIBLE);
@@ -1328,6 +1370,46 @@ public class ChatItemView extends LinearLayout {
         viewOtTouch.setOnClickListener(onk);
     }
 
+    //文件消息
+    public void setDataFile(SendFileMessage fileMessage, OnClickListener listener) {
+        //文件名
+        if(!TextUtils.isEmpty(fileMessage.getFile_name())){
+            tvFileNameMe.setText(fileMessage.getFile_name());
+            tvFileNameOt.setText(fileMessage.getFile_name());
+        }
+        //文件大小
+        if(fileMessage.getSize()!=0){
+            tvFileSizeMe.setText(FileUtils.getFileSizeString(fileMessage.getSize()));
+            tvFileSizeOt.setText(FileUtils.getFileSizeString(fileMessage.getSize()));
+        }
+        //不同类型
+        if(fileMessage.getFormat().equals("txt")){
+            ivFileIconMe.setImageResource(R.mipmap.ic_txt);
+            ivFileIconOt.setImageResource(R.mipmap.ic_txt);
+        }else if(fileMessage.getFormat().equals("xls") || fileMessage.getFormat().equals("xlsx")){
+            ivFileIconMe.setImageResource(R.mipmap.ic_excel);
+            ivFileIconOt.setImageResource(R.mipmap.ic_excel);
+        }else if(fileMessage.getFormat().equals("ppt") || fileMessage.getFormat().equals("pptx") || fileMessage.getFormat().equals("pdf")){ //PDF暂用此图标
+            ivFileIconMe.setImageResource(R.mipmap.ic_ppt);
+            ivFileIconOt.setImageResource(R.mipmap.ic_ppt);
+        }else if(fileMessage.getFormat().equals("doc") || fileMessage.getFormat().equals("docx")){
+            ivFileIconMe.setImageResource(R.mipmap.ic_word);
+            ivFileIconOt.setImageResource(R.mipmap.ic_word);
+        }else if(fileMessage.getFormat().equals("rar") || fileMessage.getFormat().equals("zip")){
+            ivFileIconMe.setImageResource(R.mipmap.ic_zip);
+            ivFileIconOt.setImageResource(R.mipmap.ic_zip);
+        }else if(fileMessage.getFormat().equals("exe")){
+            ivFileIconMe.setImageResource(R.mipmap.ic_exe);
+            ivFileIconOt.setImageResource(R.mipmap.ic_exe);
+        }else {
+            ivFileIconMe.setImageResource(R.mipmap.ic_unknow);
+            ivFileIconOt.setImageResource(R.mipmap.ic_unknow);
+        }
+
+        viewMeTouch.setOnClickListener(listener);
+        viewOtTouch.setOnClickListener(listener);
+    }
+
     private Context mContext;
 
 
@@ -1391,6 +1473,9 @@ public class ChatItemView extends LinearLayout {
                 imgMeErr.setImageResource(R.mipmap.ic_net_err);
                 if (viewMeUp != null && viewMeUp.getVisibility() == VISIBLE) {//隐藏进度
                     viewMeUp.setVisibility(GONE);
+                }
+                if (layoutFileProgress != null && layoutFileProgress.getVisibility() == VISIBLE) {//隐藏文件进度
+                    layoutFileProgress.setVisibility(GONE);
                 }
                 break;
             case 2://发送中

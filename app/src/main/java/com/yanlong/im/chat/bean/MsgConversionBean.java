@@ -796,6 +796,16 @@ public class MsgConversionBean {
                     msgAllBean.setMsgNotice(screenNotice);
                 }
                 break;
+            case SEND_FILE: // 文件消息
+                SendFileMessage fileMessage = new SendFileMessage();
+                fileMessage.setMsgId(msgAllBean.getMsg_id());
+                fileMessage.setFile_name(bean.getSendFile().getFileName());
+                fileMessage.setUrl(bean.getSendFile().getUrl());
+                fileMessage.setSize(bean.getSendFile().getSize());
+                fileMessage.setFormat(bean.getSendFile().getFormat());
+                msgAllBean.setSendFileMessage(fileMessage);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.FILE);
+                break;
 
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;

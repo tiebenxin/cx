@@ -547,7 +547,8 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
         if (uid == null) {
             return false;
         }
-        if (uid.equals(Constants.CX888_UID) || uid.equals(Constants.CX999_UID) || uid.equals(Constants.CX_HELPER_UID)) {
+        if (uid.equals(Constants.CX888_UID) || uid.equals(Constants.CX999_UID) || uid.equals(Constants.CX_HELPER_UID)
+                || uid.equals(Constants.CX_FILE_HELPER_UID)) {
             return true;
         }
         return false;

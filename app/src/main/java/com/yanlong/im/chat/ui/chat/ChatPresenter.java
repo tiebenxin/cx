@@ -1011,7 +1011,8 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
 
     private boolean filterMessage(IMsgContent message) {
         boolean isSend = true;
-        if (Constants.CX_HELPER_UID.equals(model.getUid()) || Constants.CX_BALANCE_UID.equals(model.getUid())) {//常信小助手不需要发送到后台
+        if (Constants.CX_HELPER_UID.equals(model.getUid()) || Constants.CX_BALANCE_UID.equals(model.getUid())
+                || Constants.CX_FILE_HELPER_UID.equals(model.getUid())) {//常信小助手不需要发送到后台
             isSend = false;
         }
         return isSend;

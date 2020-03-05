@@ -100,6 +100,10 @@ public class DaoMigration implements RealmMigration {
                 updateV20(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 20) {
+                updateV21(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -386,6 +390,14 @@ public class DaoMigration implements RealmMigration {
         schema.get("Group")
                 .addField("screenshotNotification", int.class);//群聊截屏通知
     }
+
+    //文件消息类型 新增属性
+    private void updateV21(RealmSchema schema){
+        schema.get("SendFileMessage")
+                .addField("localPath", String.class);
+    }
+
+
 
     @Override
     public boolean equals(@Nullable Object obj) {

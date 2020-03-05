@@ -19,6 +19,7 @@ import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
+import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
@@ -54,6 +55,7 @@ public class SocketData {
     private static int offlineCount = -1;//一批离线消息总数
     private static MsgDao msgDao = new MsgDao();
     public static long CLL_ASSITANCE_ID = 1L;//常信小助手id
+    private static String fileLocalUrl = "";//文件消息本地路径
 
 
     /***
@@ -211,6 +213,10 @@ public class SocketData {
             if (msgAllBean.getVideoMessage() != null) {
                 msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
             }
+            //文件消息，保存本地路径 （这里收到回执后回再次本地保存消息，发送给后端的文件消息和SendList不含有localUrl字段，会覆盖掉数据，所以客户端这里自行补上）
+            if (msgAllBean.getSendFileMessage() != null) {
+                msgAllBean.getSendFileMessage().setLocalPath(fileLocalUrl);
+            }
             //收到直接存表,创建会话
             DaoUtil.update(msgAllBean);
             MsgDao msgDao = new MsgDao();
@@ -252,6 +258,10 @@ public class SocketData {
             if (msgAllBean.getMsgCancel() != null) {
                 msgAllBean.getMsgCancel().setCancelContent(mCancelContent);
                 msgAllBean.getMsgCancel().setCancelContentType(mCancelContentType);
+            }
+            //文件消息，保存本地路径
+            if (msgAllBean.getSendFileMessage() != null) {
+                msgAllBean.getSendFileMessage().setLocalPath(fileLocalUrl);
             }
             //收到直接存表,创建会话
             DaoUtil.update(msgAllBean);
@@ -475,6 +485,9 @@ public class SocketData {
             case TAKE_SCREENSHOT://截屏
                 wmsg.setTakeScrennshot((MsgBean.TakeScreenshotMessage) value);
                 break;
+            case SEND_FILE://文件
+                wmsg.setSendFile((MsgBean.SendFileMessage) value);
+                break;
             case UNRECOGNIZED:
                 break;
 
@@ -611,6 +624,30 @@ public class SocketData {
         return send4BaseById(msgId, toId, toGid, -1, MsgBean.MessageType.SHORT_VIDEO, msg);
     }
 
+    /**
+     * 发送文件
+     * @param msgId
+     * @param url
+     * @param toId
+     * @param toGid
+     * @param fileName
+     * @param fileSize  文件大小
+     * @param format    文件后缀类型
+     * @param time
+     * @return
+     */
+    public static MsgAllBean sendFile(String msgId,String url, Long toId, String toGid,String fileName,Long fileSize, String format, long time,String filePath) {
+        MsgBean.SendFileMessage msg;
+        msg = MsgBean.SendFileMessage.newBuilder()
+                .setUrl(url)
+                .setFileName(fileName)
+                .setFormat(format)
+                .setSize(fileSize.intValue())
+                .build();
+        fileLocalUrl = filePath;
+        return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SEND_FILE, msg);
+    }
+
 
 
     public static MsgAllBean send4Image(Long toId, String toGid, String url, ImgSizeUtil.ImageSize imgSize, long time) {
@@ -648,6 +685,10 @@ public class SocketData {
             case ChatEnum.EMessageType.MSG_VIDEO:
                 VideoMessage video = (VideoMessage) t;
                 msgAllBean.setVideoMessage(video);
+                break;
+            case ChatEnum.EMessageType.FILE:
+                SendFileMessage file = (SendFileMessage) t;
+                msgAllBean.setSendFileMessage(file);
                 break;
         }
 
@@ -720,6 +761,18 @@ public class SocketData {
             videoMessage.setReadOrigin(isOriginal);
         }
         return videoMessage;
+    }
+
+    @NonNull
+    public static SendFileMessage createFileMessage(String msgId, String filePath,String fileName,long size,String format) {
+        SendFileMessage fileMessage = new SendFileMessage();
+        fileMessage.setMsgId(msgId);
+        fileMessage.setLocalPath(filePath);
+        fileMessage.setFile_name(fileName);
+        fileMessage.setSize(size);
+        fileMessage.setFormat(format);
+        fileMessage.setUrl("");//默认url为空，上传成功后拥有下载地址
+        return fileMessage;
     }
 
 

@@ -73,7 +73,15 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private LocationMessage locationMessage;
     private TransferNoticeMessage transferNoticeMessage;
     private ShippedExpressionMessage shippedExpressionMessage;
+    private SendFileMessage sendFileMessage;
 
+    public SendFileMessage getSendFileMessage() {
+        return sendFileMessage;
+    }
+
+    public void setSendFileMessage(SendFileMessage sendFileMessage) {
+        this.sendFileMessage = sendFileMessage;
+    }
 
     public long getServerTime() {
         return serverTime;
@@ -383,6 +391,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             str = "[位置]";
         } else if (msg_type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {//阅后即焚
             str = "[零钱小助手消息]";
+        } else if (msg_type == ChatEnum.EMessageType.FILE) {//文件
+            str = "[文件]";
         }
 
         return str;

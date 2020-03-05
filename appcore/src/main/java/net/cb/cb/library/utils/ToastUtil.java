@@ -99,13 +99,10 @@ public class ToastUtil {
             try {
                 //  Looper.prepare();
                 toast = Toast.makeText(context, txt, Toast.LENGTH_LONG);
-                //    Looper.loop();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-            //    toast.setGravity(Gravity.CENTER, 0, 0);
-
+            toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
         }
 
