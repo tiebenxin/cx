@@ -391,6 +391,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (isScreenShotListen) {
             initScreenShotListener();
         }
+        editChat.clearFocus();
     }
 
 

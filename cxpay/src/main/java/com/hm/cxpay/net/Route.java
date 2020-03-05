@@ -101,4 +101,10 @@ public class Route {
 
     //退还转账
     public static final String RETURN_TRANSFER = "/order/reject_transfer";
+
+    //商城->获取免登陆商城URL
+    public static final String SHOP_GET_URL = "/store/getStoreAutoLoginUrl";
+
+    //商城->校验支付密码
+    public static final String SHOP_CHECK_PAYWORD = "/store/trans_validate";
 }

@@ -394,5 +394,18 @@ public class PayHttpUtils {
         return HttpChannel.getInstance().getPayService().returnTransfer(getRequestBody(map));
     }
 
+    //商城->获取免登陆商城URL
+    public Observable<BaseResponse> getShopUrl() {
+        return HttpChannel.getInstance().getPayService().getShopUrl();
+    }
+
+
+    //商城->校验支付密码
+    public Observable<BaseResponse> checkShopPayword(String pwd,String amt) {
+        Map<String, String> map = new HashMap<>();
+        map.put("pwd", MD5.md5(pwd));
+        map.put("amt", amt);
+        return HttpChannel.getInstance().getPayService().checkShopPayword(getRequestBody(map));
+    }
 
 }
