@@ -165,7 +165,7 @@
                     <com.yanlong.im.view.function.ChatExtendMenuView
                         android:id="@+id/view_extend_menu"
                         android:layout_width="match_parent"
-                        android:layout_height="240dp"
+                        android:layout_height="@dimen/chat_fuction_panel_height"
                         android:paddingLeft="@dimen/app_margin_main"
                         android:paddingRight="@dimen/app_margin_main"
                         android:visibility="gone" />
@@ -174,7 +174,7 @@
                     <com.yanlong.im.view.face.FaceView
                         android:id="@+id/chat_view_faceview"
                         android:layout_width="match_parent"
-                        android:layout_height="240dp"
+                        android:layout_height="@dimen/chat_fuction_panel_height"
                         android:background="@null"
                         android:paddingTop="10dp"
                         android:visibility="gone" />
