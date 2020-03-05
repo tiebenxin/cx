@@ -50,7 +50,9 @@ public class AppActivity extends AppCompatActivity {
         //友盟Push后台进行日活统计及多维度推送的必调用方法
         if (savedInstanceState != null) {
             // 处理APP在后台，关闭某个权限后需要重启APP
-            EventBus.getDefault().register(this);
+            if (!EventBus.getDefault().isRegistered(this)) {
+                EventBus.getDefault().register(this);
+            }
             EventBus.getDefault().post(new EventFactory.RestartAppEvent());
         }
     }
