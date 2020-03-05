@@ -323,7 +323,15 @@ public class MultiListView extends LinearLayout {
                 });*/
             }
         }
+        //滑到底部
+        scrollToEnd();
+    }
 
+    /**
+     *   滑到列表底部
+     */
+    public void scrollToEnd(){
+        getLayoutManager().scrollToPositionWithOffset(adt.getItemCount() - 1, Integer.MIN_VALUE);
     }
 
     /***

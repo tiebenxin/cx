@@ -82,10 +82,10 @@ public class MyAppLication extends MainApplication {
                 AppConfig.UP_PATH = "test-environment";
 
 //                AppConfig.SOCKET_IP = "beta.zhixun6.com";
-////                AppConfig.SOCKET_IP = "im-app.zhixun6.com";
-//                AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
-//                AppConfig.SOCKET_PORT = 19991;
-//                AppConfig.UP_PATH = "product-environment";
+                AppConfig.SOCKET_IP = "im-app.zhixun6.com";
+                AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
+                AppConfig.SOCKET_PORT = 19991;
+                AppConfig.UP_PATH = "product-environment";
                 break;
             case "pre": //预发布服  美国 usa-test.1616d.top    香港 hk-test.1616d.top
                 AppConfig.DEBUG = false;
@@ -119,7 +119,7 @@ public class MyAppLication extends MainApplication {
         initRunstate();
         initRedPacket();
         LogcatHelper.getInstance(this).start();
-//        initException();
+        initException();
         initUploadUtils();
         if("release".equals(BuildConfig.BUILD_TYPE)){
             initBugly();

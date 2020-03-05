@@ -578,11 +578,13 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
 
                 try {
                     for (int i = 1; i <= count; i++) {
-                        if (i % 10 == 0)
-                            SocketData.send4Chat(model.getUid(), model.getGid(), "连续测试发送" + i + "-------");
-                        else
-                            SocketData.send4Chat(model.getUid(), model.getGid(), "连续测试发送" + i);
-
+                        if (i % 10 == 0) {
+                            ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), "连续测试发送" + i + "-------");
+                            sendMessage(chatMessage, ChatEnum.EMessageType.TEXT);
+                        } else {
+                            ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), "连续测试发送" + i);
+                            sendMessage(chatMessage, ChatEnum.EMessageType.TEXT);
+                        }
                         if (i % 100 == 0)
                             Thread.sleep(2 * 1000);
 
@@ -804,7 +806,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
     }
 
     public void taskGroupInfo() {
-        new MsgAction().groupInfo(model.getGid(),true, new CallBack<ReturnBean<Group>>() {
+        new MsgAction().groupInfo(model.getGid(), true, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body() == null)
