@@ -156,6 +156,6 @@ public interface PayService {
 
     //商城->校验支付密码
     @POST(Route.SHOP_CHECK_PAYWORD)
-    Observable<BaseResponse> checkShopPayword(@Body RequestBody body);
+    Observable<BaseResponse<CommonBean>> checkShopPayword(@Body RequestBody body);
 
 }

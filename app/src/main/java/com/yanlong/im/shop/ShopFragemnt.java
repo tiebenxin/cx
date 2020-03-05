@@ -272,19 +272,25 @@ public class ShopFragemnt extends Fragment {
      */
     private void httpCheckPayword(final String payword, final PswView pswView) {
         PayHttpUtils.getInstance().checkShopPayword(payword, payMoney)
-                .compose(RxSchedulers.<BaseResponse>compose())
-                .compose(RxSchedulers.<BaseResponse>handleResult())
-                .subscribe(new FGObserver<BaseResponse>() {
+                .compose(RxSchedulers.<BaseResponse<CommonBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<CommonBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<CommonBean>>() {
                     @Override
-                    public void onHandleSuccess(BaseResponse baseResponse) {
+                    public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
                         ToastUtil.show("支付成功！");
                         if(checkPaywordDialog.isShowing()){
                             checkPaywordDialog.dismiss();
                         }
+                        if(baseResponse.getData()!=null){
+                            CommonBean bean = baseResponse.getData();
+                            if(!TextUtils.isEmpty(bean.getUrl())){
+                                webView.loadUrl(bean.getUrl());
+                            }
+                        }
                     }
 
                     @Override
-                    public void onHandleError(BaseResponse baseResponse) {
+                    public void onHandleError(BaseResponse<CommonBean> baseResponse) {
                         super.onHandleError(baseResponse);
                         ToastUtil.show(activity, baseResponse.getMessage());
                         pswView.clear();

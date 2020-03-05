@@ -401,7 +401,7 @@ public class PayHttpUtils {
 
 
     //商城->校验支付密码
-    public Observable<BaseResponse> checkShopPayword(String pwd,String amt) {
+    public Observable<BaseResponse<CommonBean>> checkShopPayword(String pwd,String amt) {
         Map<String, String> map = new HashMap<>();
         map.put("pwd", MD5.md5(pwd));
         map.put("amt", amt);
