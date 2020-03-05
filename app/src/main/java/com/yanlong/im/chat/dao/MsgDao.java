@@ -1973,6 +1973,7 @@ public class MsgDao {
                 if (envelopeMessage.getIsInvalid() == 0) {//没拆才更新，已经拆过了不更新
                     envelopeMessage.setIsInvalid(envelopeStatus != PayEnum.EEnvelopeStatus.NORMAL ? 1 : 0);
                 }
+                envelopeMessage.setEnvelopStatus(envelopeStatus);
                 realm.insertOrUpdate(envelopeMessage);
             }
             realm.commitTransaction();
