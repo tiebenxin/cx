@@ -1083,6 +1083,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         btnFunc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                viewFunc.removeCallbacks(mEditChatRunnable);
                 if (viewExtendFunction.getVisibility() == View.VISIBLE) {
                     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                     editChat.requestFocus();
@@ -1095,7 +1096,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     },500);
                 } else {
-                    viewFunc.removeCallbacks(mEditChatRunnable);
                     showBtType(ChatEnum.EShowType.FUNCTION);
 
                 }
@@ -1105,6 +1105,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         btnEmj.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                viewFunc.removeCallbacks(mEditChatRunnable);
                 if (viewFaceView.getVisibility() == View.VISIBLE) {
                     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                     editChat.requestFocus();
@@ -1120,7 +1121,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
                 } else {
-                    viewFunc.removeCallbacks(mEditChatRunnable);
                     showBtType(ChatEnum.EShowType.EMOJI);
                     btnEmj.setImageLevel(1);
                 }
