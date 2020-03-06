@@ -486,6 +486,15 @@ public class UserInfoActivity extends AppActivity {
                         return;
                     }
                     UserInfo userInfo = response.body().getData();
+                    if (userInfo.getStat() == 0) {
+                        userInfo.setuType(ChatEnum.EUserType.FRIEND);
+                    } else if (userInfo.getStat() == 2) {
+                        userInfo.setuType(ChatEnum.EUserType.BLACK);
+                    } else if (userInfo.getStat() == 1) {
+                        userInfo.setuType(ChatEnum.EUserType.STRANGE);
+                    } else if (userInfo.getStat() == 9) {
+                        userInfo.setuType(ChatEnum.EUserType.ASSISTANT);
+                    }
                     if (userInfoLocal == null) {
                         userInfoLocal = userInfo;
                     }
@@ -580,7 +589,7 @@ public class UserInfoActivity extends AppActivity {
                 mBtnAdd.setVisibility(View.GONE);
             } else {
                 //uType=2 表示是好友
-                if (userInfoLocal != null && userInfoLocal.getuType() != null && userInfoLocal.getuType() != 2) {
+                if (userInfoLocal != null && userInfoLocal.getuType() != null && userInfoLocal.getuType() != ChatEnum.EUserType.FRIEND && userInfoLocal.getuType() != ChatEnum.EUserType.BLACK) {
                     mBtnAdd.setVisibility(View.VISIBLE);
                 } else {
                     mBtnAdd.setVisibility(View.GONE);
