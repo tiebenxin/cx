@@ -965,6 +965,7 @@ public class MsgMainFragment extends Fragment {
                     @Override
                     public void accept(List<Session> list) throws Exception {
                         mtListView.notifyDataSetChange();
+                        mtListView.getLayoutManager().scrollToPosition(0);
                         checkSessionData(list);
 //                        LogUtil.getLog().d("a=", "MsgMainFragment --获取session数据后刷新" + System.currentTimeMillis());
                     }
