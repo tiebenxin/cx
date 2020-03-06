@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -62,6 +63,7 @@ public class ShopFragemnt extends Fragment {
 
     private String url = "";//商城地址
     private String payMoney = "";//需要支付的钱
+    private String payStatus = "1";// 1 无操作  0 关闭密码框/用户支付失败  含http，即为成功，返回url
 
     public static ShopFragemnt newInstance() {
         ShopFragemnt fragment = new ShopFragemnt();
@@ -86,7 +88,9 @@ public class ShopFragemnt extends Fragment {
 
     private void initContentWeb(WebView webView, String url) {
         webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);// 设置允许JS弹窗
         webView.addJavascriptInterface(new JavascriptInterface(), "JsToAndroid");//name需要和JS一致
+        webView.addJavascriptInterface(new JavascriptInterface(), "JsGetValue");//name需要和JS一致
         webView.setWebViewClient(new MyWebViewClient());
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -129,6 +133,12 @@ public class ShopFragemnt extends Fragment {
                 ToastUtil.show("支付金额不能为空");
             }
 //            ToastUtil.show("JS调起android成功!"+" 支付金额为"+money);
+        }
+
+        @android.webkit.JavascriptInterface
+        public String getReturnValue(){
+            LogUtil.getLog().i("TAGG","查询了1次!  "+payStatus);
+            return payStatus;
         }
 
     }
@@ -214,6 +224,7 @@ public class ShopFragemnt extends Fragment {
             @Override
             public void onClick(View view) {
                 checkPaywordDialog.dismiss();
+                payStatus = "0";
             }
         });
         //输入支付密码
@@ -284,7 +295,7 @@ public class ShopFragemnt extends Fragment {
                         if(baseResponse.getData()!=null){
                             CommonBean bean = baseResponse.getData();
                             if(!TextUtils.isEmpty(bean.getUrl())){
-                                webView.loadUrl(bean.getUrl());
+                                payStatus = bean.getUrl();
                             }
                         }
                     }
@@ -292,7 +303,13 @@ public class ShopFragemnt extends Fragment {
                     @Override
                     public void onHandleError(BaseResponse<CommonBean> baseResponse) {
                         super.onHandleError(baseResponse);
-                        ToastUtil.show(activity, baseResponse.getMessage());
+                        if (baseResponse.getCode() == (-21000)) {
+                            ToastUtil.show(activity, "支付密码错误！");
+                        }else {
+                            ToastUtil.show(activity, baseResponse.getMessage());
+                        }
+                        //传失败状态给JS
+                        payStatus = "0";
                         pswView.clear();
                     }
                 });
