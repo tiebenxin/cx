@@ -1335,7 +1335,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void setPanelHeight(int h,View view){
         LinearLayout.LayoutParams linearParams=(LinearLayout.LayoutParams) view.getLayoutParams(); //取控
         if(linearParams.height!=h){
-            linearParams.height=h;
+            int minHeight=getResources().getDimensionPixelSize(R.dimen.chat_fuction_panel_height);
+            linearParams.height=Math.max(h,minHeight);
             view.setLayoutParams(linearParams);
         }
     }

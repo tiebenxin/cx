@@ -72,7 +72,6 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
     private CommonRecyclerViewAdapter<MsgAllBean, ItemNoRedbagBinding> mViewAdapter;
     private String mGid;
     private MsgDao msgDao = new MsgDao();
-    private int currentPosition = 0;
 
     @Override
     protected int setView() {
@@ -104,7 +103,6 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                     if (ViewUtils.isFastDoubleClick()) {
                         return;
                     }
-                    currentPosition = position;
                     receiveEnvelope(msgAllBean);
 
                 });
@@ -177,14 +175,14 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                             //0 正常状态未领取，1 红包已经被领取，2 红包失效不能领取，3 红包未失效但已经被领完，4 普通红包并且用户点击自己红包
                             int envelopeStatus = grabRpBean.getEnvelopeStatus();
                             if (envelopeStatus == 0 && grabRpBean.isHadGrabRp()) {
-                                SocketData.send4RbRev(bean.getTo_uid(), bean.getGid(), message.getId(), MsgBean.RedEnvelopeType.MFPAY_VALUE);
+                                SocketData.send4RbRev(bean.getFrom_uid(), bean.getGid(), message.getId(), MsgBean.RedEnvelopeType.MFPAY_VALUE);
                                 taskPayRbCheck(bean, message.getId(), MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
-                                mViewAdapter.remove(currentPosition);
+                                mViewAdapter.remove(bean);
                                 notifyRefreshChat();
                             }
-                            if (envelopeStatus == 2 || envelopeStatus == 3) {
+                            if (envelopeStatus == 1 || envelopeStatus == 2 || envelopeStatus == 3) {
                                 taskPayRbCheck(bean, message.getId(), MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
-                                mViewAdapter.remove(currentPosition);
+                                mViewAdapter.remove(bean);
                                 notifyRefreshChat();
                             }
                         }
@@ -213,7 +211,7 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                     MsgNotice message = SocketData.createMsgNoticeOfRb(SocketData.getUUID(), msgBean.getFrom_uid(), mGid, rid + "");
                     MsgAllBean msgAllBean = SocketData.createMessageBean(msgBean.getTo_uid(), msgBean.getGid(), ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
                     MessageManager.getInstance().saveMessage(msgAllBean);
-                    mViewAdapter.remove(currentPosition);
+                    mViewAdapter.remove(msgBean);
                     notifyRefreshChat();
                 }
             }

@@ -2,6 +2,8 @@ package com.yanlong.im.utils;
 
 import androidx.annotation.Nullable;
 
+import com.yanlong.im.chat.bean.MsgAllBean;
+
 import net.cb.cb.library.utils.LogUtil;
 
 import io.realm.DynamicRealm;
@@ -363,6 +365,7 @@ public class DaoMigration implements RealmMigration {
 
     /**
      * 添加是否能领取零钱红包
+     *
      * @param schema
      */
     private void updateV18(RealmSchema schema) {
@@ -372,6 +375,7 @@ public class DaoMigration implements RealmMigration {
 
     /**
      * 添加动画表情
+     *
      * @param schema
      */
     private void updateV19(RealmSchema schema) {
@@ -384,19 +388,26 @@ public class DaoMigration implements RealmMigration {
     }
 
     //更新截屏通知开关
-    private void updateV20(RealmSchema schema){
+    private void updateV20(RealmSchema schema) {
         schema.get("UserInfo")
                 .addField("screenshotNotification", int.class);//单聊截屏通知
         schema.get("Group")
                 .addField("screenshotNotification", int.class);//群聊截屏通知
     }
 
-    //文件消息类型 新增属性
-    private void updateV21(RealmSchema schema){
-        schema.get("SendFileMessage")
+    //文件消息类型 新建表
+    private void updateV21(RealmSchema schema) {
+        schema.create("SendFileMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("url", String.class)
+                .addField("file_name", String.class)
+                .addField("format", String.class)
+                .addField("size", long.class)
                 .addField("localPath", String.class);
-    }
 
+        schema.get("MsgAllBean")
+                .addRealmObjectField("sendFileMessage", schema.get("SendFileMessage"));
+    }
 
 
     @Override
