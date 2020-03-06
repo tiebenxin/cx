@@ -540,9 +540,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         viewExtendFunction = findViewById(R.id.view_extend_menu);
         mtListView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
-            public void onLayoutChange(View view, int left,int top,int right,int bottom,int oldLeft,int oldTop,int oldRight,int oldBottom) {
+            public void onLayoutChange(View view, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
                 //如果bottom小于oldBottom,说明键盘是弹起。
-                if(bottom < oldBottom){
+                if (bottom < oldBottom) {
                     //滑动到底部
                     mtListView.scrollToEnd();
                 }
@@ -818,13 +818,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         editChat.setText(spannableString);
     }
 
-    private Runnable mEditChatRunnable=new Runnable() {
+    private Runnable mEditChatRunnable = new Runnable() {
         @Override
         public void run() {
             hideBt();
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         }
     };
+
     //自动生成的控件事件
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void initEvent() {
@@ -987,10 +988,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 //有功能面板，先更改软键盘模式，延迟隐藏面板和恢复软键盘模式
-                if(viewFaceView.getVisibility()== View.VISIBLE||viewExtendFunction.getVisibility()== View.VISIBLE){
+                if (viewFaceView.getVisibility() == View.VISIBLE || viewExtendFunction.getVisibility() == View.VISIBLE) {
                     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                     btnEmj.setImageLevel(0);
-                    viewExtendFunction.postDelayed(mEditChatRunnable,500);
+                    viewExtendFunction.postDelayed(mEditChatRunnable, 500);
                 }
                 return false;
             }
@@ -1045,7 +1046,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             hideBt();
                             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                         }
-                    },500);
+                    }, 500);
                 } else {
                     showBtType(ChatEnum.EShowType.FUNCTION);
 
@@ -1068,7 +1069,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             hideBt();
                             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                         }
-                    },500);
+                    }, 500);
 
 
                 } else {
@@ -1168,9 +1169,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 // 不等于常信小助手、文件传输助手
                 if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
                     uploadVoice(file, msg);
-                }else {
+                } else {
                     //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
-                    msgDao.fixStataMsg(voice.getMsgId(),ChatEnum.ESendStatus.NORMAL);
+                    msgDao.fixStataMsg(voice.getMsgId(), ChatEnum.ESendStatus.NORMAL);
                 }
                 msgListData.add(msg);
             }
@@ -1264,8 +1265,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
             @Override
             public void keyBoardShow(int h) {
-                setPanelHeight(h,viewFaceView);
-                setPanelHeight(h,viewExtendFunction);
+                setPanelHeight(h, viewFaceView);
+                setPanelHeight(h, viewExtendFunction);
             }
 
             @Override
@@ -1332,11 +1333,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     }
-    private void setPanelHeight(int h,View view){
-        LinearLayout.LayoutParams linearParams=(LinearLayout.LayoutParams) view.getLayoutParams(); //取控
-        if(linearParams.height!=h){
-            int minHeight=getResources().getDimensionPixelSize(R.dimen.chat_fuction_panel_height);
-            linearParams.height=Math.max(h,minHeight);
+
+    private void setPanelHeight(int h, View view) {
+        LinearLayout.LayoutParams linearParams = (LinearLayout.LayoutParams) view.getLayoutParams(); //取控
+        if (linearParams.height != h) {
+            int minHeight = getResources().getDimensionPixelSize(R.dimen.chat_fuction_panel_height);
+            linearParams.height = Math.max(h, minHeight);
             view.setLayoutParams(linearParams);
         }
     }
@@ -1607,7 +1609,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 list.add(createItemMode("群助手", R.mipmap.ic_chat_robot, ChatEnum.EFunctionId.GROUP_ASSISTANT));
             }
         }
-        list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
+//        list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
         return list;
     }
 
@@ -1983,7 +1985,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         //软键盘是否开启
-        boolean isActive=imm.isActive(editChat);
+        boolean isActive = imm.isActive(editChat);
         if (isActive) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
             // 关闭软键盘
@@ -2367,9 +2369,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (!Constants.CX_HELPER_UID.equals(toUId)) {
                             UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, time, videoMessageSD, false);
                             startService(new Intent(getContext(), UpLoadService.class));
-                        }else {
+                        } else {
                             //若为常信小助手和文件传输助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
-                            msgDao.fixStataMsg(imgMsgId,ChatEnum.ESendStatus.NORMAL);
+                            msgDao.fixStataMsg(imgMsgId, ChatEnum.ESendStatus.NORMAL);
                         }
                         msgListData.add(videoMsgBean);
                     } else if (dataType == RecordedActivity.RESULT_TYPE_PHOTO) {
@@ -2396,9 +2398,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
                             UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
                             startService(new Intent(getContext(), UpLoadService.class));
-                        }else {
+                        } else {
                             //若为常信小助手和文件传输助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
-                            msgDao.fixStataMsg(imgMsgId,ChatEnum.ESendStatus.NORMAL);
+                            msgDao.fixStataMsg(imgMsgId, ChatEnum.ESendStatus.NORMAL);
                         }
                         msgListData.add(videoMsgBean);
                     }
@@ -2433,9 +2435,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
                                 UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
                                 startService(new Intent(getContext(), UpLoadService.class));
-                            }else {
+                            } else {
                                 //若为常信小助手和文件传输助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
-                                msgDao.fixStataMsg(imgMsgId,ChatEnum.ESendStatus.NORMAL);
+                                msgDao.fixStataMsg(imgMsgId, ChatEnum.ESendStatus.NORMAL);
                             }
                             msgListData.add(imgMsgBean);
 
@@ -2469,9 +2471,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                     UpLoadService.onAddVideo(this.context, imgMsgId, videofile, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid,
                                             videoMessage.getDuration(), videoMessageSD, false);
                                     startService(new Intent(getContext(), UpLoadService.class));
-                                }else {
+                                } else {
                                     //若为常信小助手和文件传输助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
-                                    msgDao.fixStataMsg(imgMsgId,ChatEnum.ESendStatus.NORMAL);
+                                    msgDao.fixStataMsg(imgMsgId, ChatEnum.ESendStatus.NORMAL);
                                 }
                                 msgListData.add(imgMsgBean);
                             } else {
@@ -2535,7 +2537,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (StringUtil.isNotNull(filePath)) {
                             //生成随机uuid、获取文件名、文件大小
                             double fileSize = net.cb.cb.library.utils.FileUtils.getFileOrFilesSize(filePath, SIZETYPE_B);
-                            if(fileSize > 104857600){
+                            if (fileSize > 104857600) {
                                 ToastUtil.show("文件最大不能超过100M");
                                 return;
                             }
@@ -2543,7 +2545,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             String fileName = net.cb.cb.library.utils.FileUtils.getFileName(filePath);
                             String fileFormat = net.cb.cb.library.utils.FileUtils.getFileSuffix(fileName);
                             //如果是图片或者视频，按原有旧的方式打开，不调用第三方程序列表
-                            if(net.cb.cb.library.utils.FileUtils.isImage(fileFormat)){
+                            if (net.cb.cb.library.utils.FileUtils.isImage(fileFormat)) {
                                 //1.上传图片
                                 final String imgMsgId = SocketData.getUUID();
                                 ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" +*/ filePath, false);//TODO:使用file://路径会使得检测本地路径不存在
@@ -2552,12 +2554,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
                                     UpLoadService.onAdd(imgMsgId, filePath, false, toUId, toGid, -1);
                                     startService(new Intent(getContext(), UpLoadService.class));
-                                }else {
+                                } else {
                                     //若为常信小助手和文件传输助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
-                                    msgDao.fixStataMsg(imgMsgId,ChatEnum.ESendStatus.NORMAL);
+                                    msgDao.fixStataMsg(imgMsgId, ChatEnum.ESendStatus.NORMAL);
                                 }
                                 msgListData.add(imgMsgBean);
-                            }else if(net.cb.cb.library.utils.FileUtils.isVideo(fileFormat)){
+                            } else if (net.cb.cb.library.utils.FileUtils.isVideo(fileFormat)) {
                                 long length = ImgSizeUtil.getVideoSize(filePath);
                                 long duration = Long.parseLong(getVideoAtt(filePath));
                                 // 大于50M、5分钟不发送
@@ -2585,12 +2587,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                     UpLoadService.onAddVideo(this.context, imgMsgId, filePath, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid,
                                             videoMessage.getDuration(), videoMessageSD, false);
                                     startService(new Intent(getContext(), UpLoadService.class));
-                                }else {
+                                } else {
                                     //若为常信小助手和文件传输助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
-                                    msgDao.fixStataMsg(imgMsgId,ChatEnum.ESendStatus.NORMAL);
+                                    msgDao.fixStataMsg(imgMsgId, ChatEnum.ESendStatus.NORMAL);
                                 }
                                 msgListData.add(imgMsgBean);
-                            }else {
+                            } else {
                                 //创建文件消息，本地预先准备好这条文件消息，等文件上传成功后刷新
                                 SendFileMessage fileMessage = SocketData.createFileMessage(fileMsgId, filePath, fileName, new Double(fileSize).longValue(), fileFormat);
                                 fileMsgBean = SocketData.sendFileUploadMessagePre(fileMsgId, toUId, toGid, SocketData.getFixTime(), fileMessage, ChatEnum.EMessageType.FILE);
@@ -2598,13 +2600,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 if (!Constants.CX_HELPER_UID.equals(toUId)) {
                                     UpLoadService.onAddFile(this.context, fileMsgId, filePath, fileName, new Double(fileSize).longValue(), fileFormat, toUId, toGid, -1);
                                     startService(new Intent(getContext(), UpLoadService.class));
-                                }else {
+                                } else {
                                     //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
-                                    msgDao.fixStataMsg(fileMsgId,ChatEnum.ESendStatus.NORMAL);
+                                    msgDao.fixStataMsg(fileMsgId, ChatEnum.ESendStatus.NORMAL);
                                 }
                                 msgListData.add(fileMsgBean);
                             }
-                        }else {
+                        } else {
                             ToastUtil.show("文件不存在或已被删除");
                         }
                     }
@@ -3694,16 +3696,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             } else {
                                 //如果是别人发的文件
                                 //如果下载路径存在该文件，则直接打开；否则需要下载
-                                if(net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name())){
+                                if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name())) {
                                     openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
-                                }else {
-                                    if(!TextUtils.isEmpty(fileMessage.getUrl())){
-                                        Intent intent = new Intent(ChatActivity.this,FileDownloadActivity.class);
-                                        intent.putExtra("file_name",fileMessage.getFile_name());
-                                        intent.putExtra("file_format",fileMessage.getFormat());
-                                        intent.putExtra("file_url",fileMessage.getUrl());
+                                } else {
+                                    if (!TextUtils.isEmpty(fileMessage.getUrl())) {
+                                        Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
+                                        intent.putExtra("file_name", fileMessage.getFile_name());
+                                        intent.putExtra("file_format", fileMessage.getFormat());
+                                        intent.putExtra("file_url", fileMessage.getUrl());
                                         startActivity(intent);
-                                    }else {
+                                    } else {
                                         ToastUtil.show("文件下载地址错误，请联系客服");
                                     }
 
@@ -5759,7 +5761,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 选择已有程序打开文件
      *
      * @param filepath
-     * @备注  todo 暂时只有2个地方用到，后续如果用的地方较多，再抽取到工具类FileUtil
+     * @备注 todo 暂时只有2个地方用到，后续如果用的地方较多，再抽取到工具类FileUtil
      */
     public void openAndroidFile(String filepath) {
         try {
@@ -5772,10 +5774,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".app", file);
                 //添加这一句表示对目标应用临时授权该Uri所代表的文件
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            }else {
+            } else {
                 uri = Uri.fromFile(file);
             }
-            intent.setDataAndType(uri,net.cb.cb.library.utils.FileUtils.getMIMEType(file));//设置类型
+            intent.setDataAndType(uri, net.cb.cb.library.utils.FileUtils.getMIMEType(file));//设置类型
             if (context.getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
                 startActivity(intent);
             } else {

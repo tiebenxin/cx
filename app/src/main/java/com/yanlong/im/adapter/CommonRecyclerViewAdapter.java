@@ -56,7 +56,7 @@ public abstract class CommonRecyclerViewAdapter<T, VB extends ViewDataBinding> e
     public void remove(MsgAllBean bean) {
         if (mList != null) {
             int position = mList.indexOf(bean);
-            if (position < 0 || position > getItemCount()) return;
+            if (position < 0 || position >= getItemCount()) return;
             mList.remove(position);
             notifyItemRemoved(position);
         }
