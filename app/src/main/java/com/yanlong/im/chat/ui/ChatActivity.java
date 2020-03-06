@@ -2020,51 +2020,50 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * @param isMustBottom 是否必须滑动到底部
      * */
     private void scrollListView(boolean isMustBottom) {
-        mtListView.scrollToEnd();
-//        if (isLoadHistory) {
-//            isLoadHistory = false;
-//        }
-//        if (msgListData != null) {
-//            int length = msgListData.size();//刷新后当前size
-//            if (isMustBottom) {
-//                scrollChatToPosition(length);
-//            } else {
-//                if (lastPosition >= 0 && lastPosition < length) {
-//                    if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
-//                        scrollChatToPosition(length);
-//                    }
-//                } else {
-//                    SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
-//                    if (sp != null) {
-//                        ScrollConfig config = sp.get4Json(ScrollConfig.class, "scroll_config");
-//                        if (config != null) {
-//                            if (config.getUserId() == UserAction.getMyId()) {
-//                                if (toUId != null && config.getUid() > 0 && config.getUid() == toUId.intValue()) {
-//                                    lastPosition = config.getLastPosition();
-//                                    lastOffset = config.getLastOffset();
-//                                } else if (!TextUtils.isEmpty(config.getChatId()) && !TextUtils.isEmpty(toGid) && config.getChatId().equals(toGid)) {
-//                                    lastPosition = config.getLastPosition();
-//                                    lastOffset = config.getLastOffset();
-//                                }
-//                            }
-//                        }
-//                    }
-//                    if (lastPosition >= 0 && lastPosition < length) {
-//                        if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
-//                            scrollChatToPosition(length);
-//                        } else {
-//                            scrollChatToPositionWithOffset(lastPosition, lastOffset);
-//                        }
-//                    } else {
-//                        if (currentScrollPosition > 0) {
-//                            scrollChatToPositionWithOffset(currentScrollPosition, lastPosition);
-//                        } else {
-//                            scrollChatToPosition(length);
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        if (isLoadHistory) {
+            isLoadHistory = false;
+        }
+        if (msgListData != null) {
+            int length = msgListData.size();//刷新后当前size
+            if (isMustBottom) {
+                mtListView.scrollToEnd();
+            } else {
+                if (lastPosition >= 0 && lastPosition < length) {
+                    if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
+                        scrollChatToPosition(length);
+                    }
+                } else {
+                    SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
+                    if (sp != null) {
+                        ScrollConfig config = sp.get4Json(ScrollConfig.class, "scroll_config");
+                        if (config != null) {
+                            if (config.getUserId() == UserAction.getMyId()) {
+                                if (toUId != null && config.getUid() > 0 && config.getUid() == toUId.intValue()) {
+                                    lastPosition = config.getLastPosition();
+                                    lastOffset = config.getLastOffset();
+                                } else if (!TextUtils.isEmpty(config.getChatId()) && !TextUtils.isEmpty(toGid) && config.getChatId().equals(toGid)) {
+                                    lastPosition = config.getLastPosition();
+                                    lastOffset = config.getLastOffset();
+                                }
+                            }
+                        }
+                    }
+                    if (lastPosition >= 0 && lastPosition < length) {
+                        if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
+                            scrollChatToPosition(length);
+                        } else {
+                            scrollChatToPositionWithOffset(lastPosition, lastOffset);
+                        }
+                    } else {
+                        if (currentScrollPosition > 0) {
+                            scrollChatToPositionWithOffset(currentScrollPosition, lastPosition);
+                        } else {
+                            scrollChatToPosition(length);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /***
