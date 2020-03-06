@@ -2,6 +2,7 @@ package com.yanlong.im.chat.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.Observer;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -17,8 +18,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.StrictMode;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -91,6 +92,7 @@ import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
+import com.yanlong.im.chat.ui.chat.ChatViewModel;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -98,7 +100,6 @@ import com.jrmf360.rplib.bean.GrabRpBean;
 import com.jrmf360.rplib.bean.TransAccountBean;
 import com.jrmf360.rplib.utils.callback.GrabRpCallBack;
 import com.jrmf360.rplib.utils.callback.TransAccountCallBack;
-import com.jrmf360.tools.utils.ThreadUtil;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -111,7 +112,6 @@ import com.yanlong.im.R;
 import com.yanlong.im.adapter.AdapterPopMenu;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
-import com.yanlong.im.chat.MsgTagHandler;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
@@ -130,15 +130,12 @@ import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.Session;
-import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
-import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
@@ -151,7 +148,6 @@ import com.yanlong.im.location.LocationActivity;
 import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
-import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -234,7 +230,6 @@ import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MultiListView;
-import net.cb.cb.library.zxing.activity.CaptureActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -258,7 +253,6 @@ import io.realm.RealmList;
 import me.kareluo.ui.OptionMenu;
 import me.rosuh.filepicker.config.FilePickerManager;
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
@@ -359,6 +353,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private boolean isScreenShotListen;//是否监听截屏
     private ControllerLinearList popController;
 
+    private ChatViewModel mViewModel=new ChatViewModel();
+
+    //软键盘是否显示
+    private boolean isKeyBoardShow =false;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -379,12 +377,140 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             EventBus.getDefault().register(this);
         }
         findViews();
+        initObserver();
         initEvent();
         initSurvivaltime4Uid();
         getOftenUseFace();
 
     }
 
+    private Runnable mInputRecoverySoftInputModeRunnable=new Runnable() {
+        @Override
+        public void run() {
+            //设置改SoftInput模式为：顶起输入框
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
+    };
+    private Runnable mPanelRecoverySoftInputModeRunnable=new Runnable() {
+        @Override
+        public void run() {
+            if(viewExtendFunction.getVisibility()== VISIBLE)
+                viewExtendFunction.setVisibility(View.GONE);
+            if(viewFaceView.getVisibility()== VISIBLE)
+                viewFaceView.setVisibility(View.GONE);
+            //设置改SoftInput模式为：顶起输入框
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
+    };
+
+    private void initObserver(){
+        long delayMillis=500;
+        mViewModel.isInputText.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean value) {
+                if(value){//打开
+                    //重置其他状态
+                    mViewModel.recoveryOtherValue(mViewModel.isInputText);
+                }else{//关闭
+                    //清除焦点
+                    editChat.clearFocus();
+                    //软键盘是否开启
+                    if (isKeyBoardShow) {
+                        // 关闭软键盘
+                        InputUtil.hideKeyboard(editChat);
+                        //虚拟键盘弹出,需更改SoftInput模式为：顶起输入框
+                        handler.postDelayed(mInputRecoverySoftInputModeRunnable,delayMillis);
+                    }
+                }
+            }
+        });
+
+        mViewModel.isOpenEmoj.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean value) {
+                handler.removeCallbacks(mInputRecoverySoftInputModeRunnable);
+                handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
+                if(value){//打开
+                    //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
+                    if (isKeyBoardShow)getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+                    btnEmj.setImageLevel(1);
+                    //因为面板有延迟执行，所以必须执行该方法
+                    viewExtendFunction.setVisibility(View.GONE);
+                    viewFaceView.setVisibility(View.VISIBLE);
+                    //重置其他状态
+                    mViewModel.recoveryOtherValue(mViewModel.isOpenEmoj);
+                }else{//关闭
+                    btnEmj.setImageLevel(0);
+                    if(mViewModel.isOpenValue()){//有事件触发
+                        if(mViewModel.isOpenFunctionValue()){//其他功能面板，非输入框触发，直接关闭当前面板
+                            viewFaceView.setVisibility(View.GONE);
+                        }else{
+                            /*******输入框弹出键盘，pos tDelayed关闭面板*****************************************/
+//                       //更改SoftInput模式为：不顶起输入框
+                            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+                            if(!isKeyBoardShow){//没有弹出输入框，则直接弹出
+                                editChat.requestFocus();
+                                InputUtil.showKeyboard(editChat);
+                            }
+                            handler.postDelayed(mPanelRecoverySoftInputModeRunnable,delayMillis);
+                        }
+                    }
+                }
+            }
+        });
+
+        mViewModel.isOpenFuction.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean value) {
+                handler.removeCallbacks(mInputRecoverySoftInputModeRunnable);
+                handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
+                if(value){//打开
+                    //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
+                    if(isKeyBoardShow) getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+                    //因为面板有延迟执行，所以必须执行该方法
+                    viewFaceView.setVisibility(View.GONE);
+                    viewExtendFunction.setVisibility(View.VISIBLE);
+                    //重置其他状态
+                    mViewModel.recoveryOtherValue(mViewModel.isOpenFuction);
+                }else{//关闭
+                    if (mViewModel.isOpenValue()) {//有事件触发，
+                        if(mViewModel.isOpenFunctionValue()){//其他功能面板，非输入框触发，直接关闭当前面板
+                            viewExtendFunction.setVisibility(View.GONE);
+                        }else{
+                            /*******输入框弹出键盘，pos tDelayed关闭面板*****************************************/
+//                       //更改SoftInput模式为：不顶起输入框
+                            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+                            if(!isKeyBoardShow){//没有弹出输入框，则直接弹出
+                                editChat.requestFocus();
+                                InputUtil.showKeyboard(editChat);
+                            }
+                            handler.postDelayed(mPanelRecoverySoftInputModeRunnable,delayMillis);
+                        }
+
+                    }
+                }
+            }
+        });
+        mViewModel.isOpenSpeak.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean value) {
+                if(value){//打开
+                    //重置其他状态
+                    mViewModel.recoveryOtherValue(mViewModel.isOpenSpeak);
+                    showVoice(true);
+                }else{//关闭
+                    showVoice(false);
+                    //没有事件触发就打开软键盘
+                    if(!mViewModel.isOpenValue()) {
+                        //输入框弹出键盘
+                        mViewModel.isInputText.setValue(true);
+                        editChat.requestFocus();
+                        InputUtil.showKeyboard(editChat);
+                    }
+                }
+            }
+        });
+    }
 
     @Override
     protected void onResume() {
@@ -785,8 +911,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         } else if (FaceView.face_custom.equals(bean.getGroup())) {
             if ("add".equals(bean.getName())) {
                 if (!ViewUtils.isFastDoubleClick()) {
-                    hideBt();
-                    btnEmj.setImageLevel(0);
+                    mViewModel.isOpenEmoj.setValue(false);
                     IntentUtil.gotoActivity(this, AddFaceActivity.class);
                 }
             } else {
@@ -818,13 +943,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         editChat.setText(spannableString);
     }
 
-    private Runnable mEditChatRunnable=new Runnable() {
-        @Override
-        public void run() {
-            hideBt();
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        }
-    };
+
     //自动生成的控件事件
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void initEvent() {
@@ -986,12 +1105,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         editChat.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                //有功能面板，先更改软键盘模式，延迟隐藏面板和恢复软键盘模式
-                if(viewFaceView.getVisibility()== View.VISIBLE||viewExtendFunction.getVisibility()== View.VISIBLE){
-                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-                    btnEmj.setImageLevel(0);
-                    viewExtendFunction.postDelayed(mEditChatRunnable,500);
-                }
+                if(!mViewModel.isInputText.getValue())
+                    mViewModel.isInputText.setValue(true);
                 return false;
             }
         });
@@ -1034,47 +1149,25 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         btnFunc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                viewExtendFunction.removeCallbacks(mEditChatRunnable);
-                if (viewExtendFunction.getVisibility() == View.VISIBLE) {
-                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-                    editChat.requestFocus();
-                    InputUtil.showKeyboard(editChat);
-                    viewExtendFunction.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            hideBt();
-                            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-                        }
-                    },500);
-                } else {
-                    showBtType(ChatEnum.EShowType.FUNCTION);
-
-                }
+                boolean orignilValue=mViewModel.isOpenFuction.getValue();
+                //关闭面板时，打开输入框,需先调用
+                if(orignilValue)
+                    mViewModel.isInputText.setValue(true);
+                mViewModel.isOpenFuction.setValue(!orignilValue);
             }
         });
         btnEmj.setTag(0);
         btnEmj.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                viewExtendFunction.removeCallbacks(mEditChatRunnable);
-                if (viewFaceView.getVisibility() == View.VISIBLE) {
-                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-                    editChat.requestFocus();
-                    InputUtil.showKeyboard(editChat);
-                    btnEmj.setImageLevel(0);
-                    viewExtendFunction.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            hideBt();
-                            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-                        }
-                    },500);
-
-
-                } else {
-                    showBtType(ChatEnum.EShowType.EMOJI);
-                    btnEmj.setImageLevel(1);
+                boolean orignilValue=mViewModel.isOpenEmoj.getValue();
+                //关闭面板时，打开输入框,需先调用
+                if(orignilValue){
+                    mViewModel.isInputText.setValue(true);
                 }
+                mViewModel.isOpenEmoj.setValue(!orignilValue);
+
+
             }
         });
 
@@ -1217,9 +1310,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (isRun == 1) {
                             isRun = 2;
                             //7.5
-                            InputUtil.hideKeyboard(editChat);
-                            hideBt();
-                            btnEmj.setImageLevel(0);
+                            //恢复所有状态
+                            mViewModel.recoveryOtherValue(null);
                         } else if (isRun == 0) {
                             isRun = 1;
                         }
@@ -1264,12 +1356,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
             @Override
             public void keyBoardShow(int h) {
+                isKeyBoardShow =true;
                 setPanelHeight(h,viewFaceView);
                 setPanelHeight(h,viewExtendFunction);
             }
 
             @Override
             public void keyBoardHide(int h) {
+                isKeyBoardShow =false;
             }
         });
 
@@ -1355,7 +1449,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void toVideoCall() {
-        hideBt();
+        //重置所有状态值
+        mViewModel.recoveryOtherValue(null);
         DialogHelper.getInstance().createSelectDialog(ChatActivity.this, new ICustomerItemClick() {
             @Override
             public void onClickItemVideo() {// 视频
@@ -1930,12 +2025,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             open = txtVoice.getVisibility() == View.GONE ? true : false;
         }
         if (open) {
-            showBtType(ChatEnum.EShowType.VOICE);
+            mViewModel.isOpenSpeak.setValue(true);
         } else {
-            showVoice(false);
-            hideBt();
-            InputUtil.showKeyboard(editChat);
-            editChat.requestFocus();
+            mViewModel.isOpenSpeak.setValue(false);
         }
     }
 
@@ -1956,46 +2048,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 btnSend.setVisibility(GONE);
             }
         }
-    }
-
-
-    /***
-     * 底部显示面板
-     */
-    private void showBtType(final int type) {
-        btnEmj.setImageLevel(0);
-
-//        InputUtil.hideKeyboard(editChat);
-////
-        showVoice(false);
-        hideBt();
-        switch (type) {
-            case ChatEnum.EShowType.FUNCTION://功能面板
-                //第二种解决方案
-                showViewFunction(true);
-                break;
-            case ChatEnum.EShowType.EMOJI://emoji面板
-                viewFaceView.setVisibility(View.VISIBLE);
-                break;
-            case ChatEnum.EShowType.VOICE://语音
-                showVoice(true);
-                break;
-        }
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        //软键盘是否开启
-        boolean isActive=imm.isActive(editChat);
-        if (isActive) {
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-            // 关闭软键盘
-            imm.hideSoftInputFromWindow(editChat.getWindowToken(), 0);
-        }
-        showEndMsg();
-        viewExtendFunction.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-            }
-        }, 100);
     }
 
     public void showViewFunction(boolean isShow) {
@@ -2021,58 +2073,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * */
     private void scrollListView(boolean isMustBottom) {
         mtListView.scrollToEnd();
-//        if (isLoadHistory) {
-//            isLoadHistory = false;
-//        }
-//        if (msgListData != null) {
-//            int length = msgListData.size();//刷新后当前size
-//            if (isMustBottom) {
-//                scrollChatToPosition(length);
-//            } else {
-//                if (lastPosition >= 0 && lastPosition < length) {
-//                    if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
-//                        scrollChatToPosition(length);
-//                    }
-//                } else {
-//                    SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
-//                    if (sp != null) {
-//                        ScrollConfig config = sp.get4Json(ScrollConfig.class, "scroll_config");
-//                        if (config != null) {
-//                            if (config.getUserId() == UserAction.getMyId()) {
-//                                if (toUId != null && config.getUid() > 0 && config.getUid() == toUId.intValue()) {
-//                                    lastPosition = config.getLastPosition();
-//                                    lastOffset = config.getLastOffset();
-//                                } else if (!TextUtils.isEmpty(config.getChatId()) && !TextUtils.isEmpty(toGid) && config.getChatId().equals(toGid)) {
-//                                    lastPosition = config.getLastPosition();
-//                                    lastOffset = config.getLastOffset();
-//                                }
-//                            }
-//                        }
-//                    }
-//                    if (lastPosition >= 0 && lastPosition < length) {
-//                        if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
-//                            scrollChatToPosition(length);
-//                        } else {
-//                            scrollChatToPositionWithOffset(lastPosition, lastOffset);
-//                        }
-//                    } else {
-//                        if (currentScrollPosition > 0) {
-//                            scrollChatToPositionWithOffset(currentScrollPosition, lastPosition);
-//                        } else {
-//                            scrollChatToPosition(length);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-    }
-
-    /***
-     * 隐藏底部所有面板
-     */
-    private void hideBt() {
-        showViewFunction(false);
-        viewFaceView.setVisibility(View.GONE);
     }
 
     @Override
@@ -2082,13 +2082,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         LogUtil.getLog().e(TAG, "onBackPressed");
         clearScrollPosition();
         super.onBackPressed();
-        if (viewExtendFunction.getVisibility() == View.VISIBLE) {
-            showViewFunction(false);
+        if (mViewModel.isOpenFuction.getValue()) {
+            mViewModel.isOpenFuction.setValue(false);
             return;
         }
-        if (viewFaceView.getVisibility() == View.VISIBLE) {
-            viewFaceView.setVisibility(View.GONE);
-            btnEmj.setImageLevel(0);
+        if (mViewModel.isOpenEmoj.getValue()) {
+            mViewModel.isOpenEmoj.setValue(false);
             return;
         }
         //oppo 手机 调用 onBackPressed不会finish
