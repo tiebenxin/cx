@@ -324,7 +324,7 @@ public class MultiListView extends LinearLayout {
             }
         }
         //滑到底部
-        scrollToEnd();
+//        scrollToEnd();
     }
 
     /**
