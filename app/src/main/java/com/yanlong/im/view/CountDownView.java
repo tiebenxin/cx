@@ -44,11 +44,11 @@ public class CountDownView extends LinearLayout {
 
     //这是倒计时执行方法
     public void setRunTimer(long startTime, long endTime) {
-        LogUtil.getLog().i("CountDownView","setRunTimer");
-        timer = new CountDownTimer(endTime - startTime,1000) {
+        LogUtil.getLog().i("CountDownView", "setRunTimer=" + startTime + "---" + endTime);
+        timer = new CountDownTimer(endTime - startTime, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                setImagePostion(startTime,endTime);
+                setImagePostion(startTime, endTime);
             }
 
             @Override
@@ -59,14 +59,14 @@ public class CountDownView extends LinearLayout {
     }
 
 
-    public void timerStop(){
+    public void timerStop() {
+        LogUtil.getLog().i("CountDownView", "timerStop");
         imCountDown.setImageResource(R.mipmap.icon_st_1);
-        if(timer != null){
+        if (timer != null) {
             timer.cancel();
             timer = null;
         }
     }
-
 
 
     private void initView(Context context) {
@@ -84,8 +84,10 @@ public class CountDownView extends LinearLayout {
     }
 
 
-    private void isME(int type){
-        switch (type){
+    private void isME(int type) {
+        LogUtil.getLog().i("CountDownView", "isME=" + type);
+
+        switch (type) {
             case 12:
                 imCountDown.setImageResource(R.mipmap.icon_st_1);
                 break;
@@ -130,11 +132,6 @@ public class CountDownView extends LinearLayout {
 //                break;
         }
     }
-
-
-
-
-
 
 
 }
