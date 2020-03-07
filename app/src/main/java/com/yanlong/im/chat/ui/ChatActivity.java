@@ -492,19 +492,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         } else {
             MAX_UNREAD_COUNT = 80 * 4;
         }
-        if (unreadCount >= MIN_UNREAD_COUNT && unreadCount < MAX_UNREAD_COUNT) {
-            viewNewMessage.setVisible(true);
-            viewNewMessage.setCount(unreadCount);
-            mAdapter.setUnreadCount(unreadCount);
-        } else if (unreadCount >= MAX_UNREAD_COUNT) {
-            unreadCount = MAX_UNREAD_COUNT;
-            viewNewMessage.setVisible(true);
-            viewNewMessage.setCount(unreadCount);
-            mAdapter.setUnreadCount(unreadCount);
-        } else {
-            viewNewMessage.setVisible(false);
-            mAdapter.setUnreadCount(0);
-        }
+        viewNewMessage.setVisible(false);
+        mAdapter.setUnreadCount(0);
+//        if (unreadCount >= MIN_UNREAD_COUNT && unreadCount < MAX_UNREAD_COUNT) {
+//            viewNewMessage.setVisible(true);
+//            viewNewMessage.setCount(unreadCount);
+//            mAdapter.setUnreadCount(unreadCount);
+//        } else if (unreadCount >= MAX_UNREAD_COUNT) {
+//            unreadCount = MAX_UNREAD_COUNT;
+//            viewNewMessage.setVisible(true);
+//            viewNewMessage.setCount(unreadCount);
+//            mAdapter.setUnreadCount(unreadCount);
+//        } else {
+//            viewNewMessage.setVisible(false);
+//            mAdapter.setUnreadCount(0);
+//        }
     }
 
     //检测是否有截屏权限
@@ -3277,7 +3279,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time, isGroup());
             if (unread >= MIN_UNREAD_COUNT) {
                 if (position == getItemCount() - unread) {
-                    holder.viewChatItem.showNew(true);
+//                    holder.viewChatItem.showNew(true);
+                    holder.viewChatItem.showNew(false);
                 } else {
                     holder.viewChatItem.showNew(false);
                 }
