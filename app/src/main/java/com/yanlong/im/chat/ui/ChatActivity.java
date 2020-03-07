@@ -1609,7 +1609,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 list.add(createItemMode("群助手", R.mipmap.ic_chat_robot, ChatEnum.EFunctionId.GROUP_ASSISTANT));
             }
         }
-//        list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
+        list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
         return list;
     }
 
@@ -2732,7 +2732,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         } else if (event.getState() == 1) {
             //已完成：更新文件上传进度，同时拿最新的数据
-            taskRefreshImage(event.getMsgid());
+            MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
+            replaceListDataAndNotify(msgAllbean);
+
+//            taskRefreshImage(event.getMsgid());
 //            taskRefreshMessage(true);
         }
     }

@@ -175,9 +175,9 @@ public class UpLoadService extends Service {
                 eventUpFileLoadEvent.setMsgid(id);
                 eventUpFileLoadEvent.setState(1);
                 eventUpFileLoadEvent.setUrl(url);
-
                 //发送文件消息到服务器，传递给目标用户
-                SocketData.sendFile(id,url,toUId,toGid,fileName,fileSize,format,time,filePath);
+                Object msgbean = SocketData.sendFile(id,url,toUId,toGid,fileName,fileSize,format,time,filePath);
+                eventUpFileLoadEvent.setMsgAllBean(msgbean);
                 EventBus.getDefault().post(eventUpFileLoadEvent);
             }
 
