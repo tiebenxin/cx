@@ -36,6 +36,9 @@ public class UserDao {
         if (userInfo == null) {
             return;
         }
+        if (TextUtils.isEmpty(userInfo.getTag())) {
+            userInfo.toTag();
+        }
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
