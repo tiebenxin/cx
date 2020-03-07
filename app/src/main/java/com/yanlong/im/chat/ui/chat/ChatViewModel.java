@@ -48,13 +48,4 @@ public class ChatViewModel extends ViewModel {
                 isOpenFuction.getValue()||isOpenSpeak.getValue();
 
     }
-    /**
-     * 是否有事件触发, 除了输入框
-     * @return
-     */
-    public boolean isOpenFunctionValue(){
-        return isOpenEmoj.getValue()||
-                isOpenFuction.getValue()||isOpenSpeak.getValue();
-
-    }
 }
