@@ -3779,12 +3779,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (ViewUtils.isFastDoubleClick()) {
                             return;
                         }
-                        showVoice(false);
-                        InputUtil.showKeyboard(editChat);
-//                        editChat.setText(editChat.getText().toString() + restContent);
+
                         showDraftContent(editChat.getText().toString() + restContent);
-                        editChat.requestFocus();
                         editChat.setSelection(editChat.getText().length());
+                        mViewModel.isInputText.setValue(true);
+                        if(!mViewModel.isOpenEmoj.getValue()&&!mViewModel.isOpenFuction.getValue()){
+                            InputUtil.showKeyboard(editChat);
+                        }
                     }
                 }
 
