@@ -355,9 +355,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private ChatViewModel mViewModel=new ChatViewModel();
 
-    //软键盘是否显示
-    private boolean isKeyBoardShow =false;
-
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -409,6 +406,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onChanged(@Nullable Boolean value) {
                 if(value){//打开
+                    editChat.requestFocus();
+                    InputUtil.showKeyboard(editChat);
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isInputText);
                 }else{//关闭
@@ -429,7 +428,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if(value){//打开
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
-                    if (isKeyBoardShow)getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+                    if (mViewModel.isInputText.getValue())getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                     btnEmj.setImageLevel(1);
                     //因为面板有延迟执行，所以必须执行该方法
                     viewExtendFunction.setVisibility(View.GONE);
@@ -439,17 +438,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }else{//关闭
                     btnEmj.setImageLevel(0);
                     if(mViewModel.isOpenValue()){//有事件触发
-                        if(mViewModel.isOpenFunctionValue()){//其他功能面板，非输入框触发，直接关闭当前面板
-                            viewFaceView.setVisibility(View.GONE);
-                        }else{
+                        if(mViewModel.isInputText.getValue()) {//无其他功能触发，则弹出输入框
                             /*******输入框弹出键盘，pos tDelayed关闭面板*****************************************/
 //                       //更改SoftInput模式为：不顶起输入框
                             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-                            if(!isKeyBoardShow){//没有弹出输入框，则直接弹出
-                                editChat.requestFocus();
-                                InputUtil.showKeyboard(editChat);
-                            }
+                            editChat.requestFocus();
+                            InputUtil.showKeyboard(editChat);
                             handler.postDelayed(mPanelRecoverySoftInputModeRunnable,delayMillis);
+                        }else{//其他功能触发，非输入框触发，直接关闭当前面板
+                            viewFaceView.setVisibility(View.GONE);
                         }
                     }
                 }
@@ -463,27 +460,24 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if(value){//打开
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
-                    if(isKeyBoardShow) getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+                    if(mViewModel.isInputText.getValue()) getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                     //因为面板有延迟执行，所以必须执行该方法
                     viewFaceView.setVisibility(View.GONE);
                     viewExtendFunction.setVisibility(View.VISIBLE);
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isOpenFuction);
                 }else{//关闭
-                    if (mViewModel.isOpenValue()) {//有事件触发，
-                        if(mViewModel.isOpenFunctionValue()){//其他功能面板，非输入框触发，直接关闭当前面板
-                            viewExtendFunction.setVisibility(View.GONE);
-                        }else{
+                    if (mViewModel.isOpenValue()) {//有事件触发
+                        if(mViewModel.isInputText.getValue()){//无其他功能触发，则弹出输入框
                             /*******输入框弹出键盘，pos tDelayed关闭面板*****************************************/
 //                       //更改SoftInput模式为：不顶起输入框
                             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-                            if(!isKeyBoardShow){//没有弹出输入框，则直接弹出
-                                editChat.requestFocus();
-                                InputUtil.showKeyboard(editChat);
-                            }
+                            editChat.requestFocus();
+                            InputUtil.showKeyboard(editChat);
                             handler.postDelayed(mPanelRecoverySoftInputModeRunnable,delayMillis);
+                        }else{//其他功能触发，非输入框触发，直接关闭当前面板
+                            viewExtendFunction.setVisibility(View.GONE);
                         }
-
                     }
                 }
             }
@@ -497,13 +491,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     showVoice(true);
                 }else{//关闭
                     showVoice(false);
-                    //没有事件触发就打开软键盘
-                    if(!mViewModel.isOpenValue()) {
-                        //输入框弹出键盘
-                        mViewModel.isInputText.setValue(true);
-                        editChat.requestFocus();
-                        InputUtil.showKeyboard(editChat);
-                    }
                 }
             }
         });
@@ -1147,10 +1134,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onClick(View v) {
                 boolean orignilValue=mViewModel.isOpenFuction.getValue();
-                //关闭面板时，打开输入框,需先调用
-                if(orignilValue)
+                if(orignilValue){//已经打开了面板，再次点击->打开输入框
                     mViewModel.isInputText.setValue(true);
-                mViewModel.isOpenFuction.setValue(!orignilValue);
+                }else{//未打开面板->打开功能面板
+                    mViewModel.isOpenFuction.setValue(true);
+                }
             }
         });
         btnEmj.setTag(0);
@@ -1158,11 +1146,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onClick(View v) {
                 boolean orignilValue=mViewModel.isOpenEmoj.getValue();
-                //关闭面板时，打开输入框,需先调用
-                if(orignilValue){
+                if(orignilValue){//已经打开了面板，再次点击->打开输入框
                     mViewModel.isInputText.setValue(true);
+                }else{//未打开面板->打开功能面板
+                    mViewModel.isOpenEmoj.setValue(true);
                 }
-                mViewModel.isOpenEmoj.setValue(!orignilValue);
 
 
             }
@@ -1353,14 +1341,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
             @Override
             public void keyBoardShow(int h) {
-                isKeyBoardShow =true;
                 setPanelHeight(h,viewFaceView);
                 setPanelHeight(h,viewExtendFunction);
             }
 
             @Override
             public void keyBoardHide(int h) {
-                isKeyBoardShow =false;
             }
         });
 
@@ -2024,7 +2010,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (open) {
             mViewModel.isOpenSpeak.setValue(true);
         } else {
-            mViewModel.isOpenSpeak.setValue(false);
+            //弹起输入框
+            mViewModel.isInputText.setValue(true);
         }
     }
 
@@ -3780,9 +3767,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         showDraftContent(editChat.getText().toString() + restContent);
                         editChat.setSelection(editChat.getText().length());
                         mViewModel.isInputText.setValue(true);
-                        if(!mViewModel.isOpenEmoj.getValue()&&!mViewModel.isOpenFuction.getValue()){
-                            InputUtil.showKeyboard(editChat);
-                        }
                     }
                 }
 
