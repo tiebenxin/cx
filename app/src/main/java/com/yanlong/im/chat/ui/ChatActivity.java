@@ -1254,7 +1254,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             currentScrollPosition = -1;
                         }
                         saveScrollPosition();
-                        LogUtil.getLog().d("a=", TAG + "当前滑动位置：size = " + msgListData.size() + "--lastPosition=" + lastPosition + "--firstPosition=" + first);
+//                        LogUtil.getLog().d("a=", TAG + "当前滑动位置：size = " + msgListData.size() + "--lastPosition=" + lastPosition + "--firstPosition=" + first);
                     }
                 }
             }
@@ -1346,7 +1346,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void checkScrollFirst(int first) {
         if (unreadCount > 0 && msgListData != null) {
             int size = msgListData.size();
-            if (first == size - unreadCount) {
+            LogUtil.getLog().d("a=", TAG + "checkScrollFirst：size = " + size + "--unreadCount=" + unreadCount + "--firstPosition=" + first);
+            if (first >= size - unreadCount - 1 && first <= size - unreadCount + 1) {
                 viewNewMessage.setVisible(false);
             }
         }
@@ -3102,6 +3103,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                 holder.viewChatItem.timerCancel();
                 holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time());
+                LogUtil.getLog().d("CountDownView", "type=" + msgbean.getSurvival_time() + "--msgId=" + msgbean.getMsg_id());
+
 
                 if (msgbean.getSurvival_time() > 0 && msgbean.getStartTime() > 0 && msgbean.getEndTime() > 0) {
                     LogUtil.getLog().i("CountDownView", msgbean.getMsg_id() + "---");
@@ -3293,6 +3296,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             holder.viewChatItem.timerCancel();
             holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time());
+            LogUtil.getLog().d("CountDownView", "type=" + msgbean.getSurvival_time() + "--msgId=" + msgbean.getMsg_id());
 
             if (msgbean.getSurvival_time() > 0 && msgbean.getStartTime() > 0 && msgbean.getEndTime() > 0) {
 //                LogUtil.getLog().i("CountDownView", msgbean.getMsg_id() + "---");
@@ -3758,7 +3762,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             return;
                         }
                         showVoice(false);
-                        boolean hasPanelShow=viewFaceView.getVisibility() == View.VISIBLE || viewExtendFunction.getVisibility() == View.VISIBLE;
+                        boolean hasPanelShow = viewFaceView.getVisibility() == View.VISIBLE || viewExtendFunction.getVisibility() == View.VISIBLE;
                         if (hasPanelShow) {
                             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                             btnEmj.setImageLevel(0);
@@ -3767,7 +3771,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         editChat.setSelection(editChat.getText().length());
                         editChat.requestFocus();
                         InputUtil.showKeyboard(editChat);
-                        if(hasPanelShow) viewExtendFunction.postDelayed(mEditChatRunnable, 500);
+                        if (hasPanelShow) viewExtendFunction.postDelayed(mEditChatRunnable, 500);
 
 
                     }
@@ -5180,7 +5184,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 添加阅读即焚消息到队列
      */
     public void addSurvivalTime(MsgAllBean msgbean) {
-        if (msgbean == null || BurnManager.getInstance().isContainMsg(msgbean)) {
+        if (msgbean == null || BurnManager.getInstance().isContainMsg(msgbean) || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL) {
             return;
         }
         if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0) {
