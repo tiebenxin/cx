@@ -54,8 +54,10 @@ public class CountDownView extends LinearLayout {
 
             @Override
             public void onFinish() {
-                timer.cancel();
-                LogUtil.getLog().i("CountDownView", "onFinish--timer=" + timer);
+                if (timer != null) {
+                    timer.cancel();
+                    LogUtil.getLog().i("CountDownView", "onFinish--timer=" + timer);
+                }
             }
         }.start();
     }
@@ -84,17 +86,22 @@ public class CountDownView extends LinearLayout {
         int time = (int) ((endTime - nowTime) / ((endTime - startTime) / 12));
         if (time != preTime) {
             preTime = time;
-            getHandler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    isME(time);
-                }
-            }, 1000);
+            if (getHandler() != null) {
+                getHandler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        isME(time);
+                    }
+                }, 1000);
+            }
         }
     }
 
 
     private void isME(int type) {
+        if (imCountDown == null) {
+            return;
+        }
         LogUtil.getLog().i("CountDownView", "isME=" + type);
         switch (type) {
             case 12:

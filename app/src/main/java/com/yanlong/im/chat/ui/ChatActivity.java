@@ -47,6 +47,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -1238,7 +1239,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == SCROLL_STATE_IDLE) {
-
                     LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                     if (layoutManager != null) {
                         //获取可视的第一个view
@@ -1255,6 +1255,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                         saveScrollPosition();
 //                        LogUtil.getLog().d("a=", TAG + "当前滑动位置：size = " + msgListData.size() + "--lastPosition=" + lastPosition + "--firstPosition=" + first);
+                    }
+                } else if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL || newState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
+                    LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                    if (layoutManager != null) {
+                        int first = layoutManager.findFirstCompletelyVisibleItemPosition();
+                        checkScrollFirst(first);
                     }
                 }
             }
@@ -3103,11 +3109,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                 holder.viewChatItem.timerCancel();
                 holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time());
-                LogUtil.getLog().d("CountDownView", "type=" + msgbean.getSurvival_time() + "--msgId=" + msgbean.getMsg_id());
+//                LogUtil.getLog().d("CountDownView", "type=" + msgbean.getSurvival_time() + "--msgId=" + msgbean.getMsg_id());
 
 
                 if (msgbean.getSurvival_time() > 0 && msgbean.getStartTime() > 0 && msgbean.getEndTime() > 0) {
-                    LogUtil.getLog().i("CountDownView", msgbean.getMsg_id() + "---");
+//                    LogUtil.getLog().i("CountDownView", msgbean.getMsg_id() + "---");
                     holder.viewChatItem.setDataSt(msgbean.getStartTime(), msgbean.getEndTime());
                 }
 
@@ -3296,7 +3302,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             holder.viewChatItem.timerCancel();
             holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time());
-            LogUtil.getLog().d("CountDownView", "type=" + msgbean.getSurvival_time() + "--msgId=" + msgbean.getMsg_id());
+//            LogUtil.getLog().d("CountDownView", "type=" + msgbean.getSurvival_time() + "--msgId=" + msgbean.getMsg_id());
 
             if (msgbean.getSurvival_time() > 0 && msgbean.getStartTime() > 0 && msgbean.getEndTime() > 0) {
 //                LogUtil.getLog().i("CountDownView", msgbean.getMsg_id() + "---");
@@ -5748,6 +5754,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         msgListData.remove(bean);
         mtListView.getListView().getAdapter().notifyItemRemoved(position);//删除刷新
+        if (unreadCount > 0 && msgListData.size() == 0) {
+            viewNewMessage.setVisible(false);
+            unreadCount = 0;
+        }
     }
 
     //删除单条消息
@@ -5756,13 +5766,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (msgListData == null || list == null) {
             return;
         }
-//        int position = msgListData.indexOf(list);
-//        LogUtil.getLog().d("SurvivalTime", "删除消息 position=" + position);
-//        if (position < 0) {
-//            return;
-//        }
         msgListData.removeAll(list);
-//        mtListView.getListView().getAdapter().notifyItemRangeRemoved(position, list.size());//删除刷新
+        if (unreadCount > 0 && msgListData.size() == 0) {
+            viewNewMessage.setVisible(false);
+            unreadCount = 0;
+        }
         mtListView.notifyDataSetChange();
 
     }
