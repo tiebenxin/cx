@@ -1073,8 +1073,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
                 } else {
-                    showBtType(ChatEnum.EShowType.EMOJI);
                     btnEmj.setImageLevel(1);
+                    showBtType(ChatEnum.EShowType.EMOJI);
                 }
             }
         });
@@ -3758,11 +3758,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             return;
                         }
                         showVoice(false);
-                        InputUtil.showKeyboard(editChat);
-//                        editChat.setText(editChat.getText().toString() + restContent);
+                        boolean hasPanelShow=viewFaceView.getVisibility() == View.VISIBLE || viewExtendFunction.getVisibility() == View.VISIBLE;
+                        if (hasPanelShow) {
+                            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+                            btnEmj.setImageLevel(0);
+                        }
                         showDraftContent(editChat.getText().toString() + restContent);
-                        editChat.requestFocus();
                         editChat.setSelection(editChat.getText().length());
+                        editChat.requestFocus();
+                        InputUtil.showKeyboard(editChat);
+                        if(hasPanelShow) viewExtendFunction.postDelayed(mEditChatRunnable, 500);
+
+
                     }
                 }
 
