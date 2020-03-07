@@ -414,13 +414,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }else{//关闭
                     //清除焦点
                     editChat.clearFocus();
-                    //软键盘是否开启
-                    if (isKeyBoardShow) {
-                        // 关闭软键盘
-                        InputUtil.hideKeyboard(editChat);
-                        //虚拟键盘弹出,需更改SoftInput模式为：顶起输入框
-                        handler.postDelayed(mInputRecoverySoftInputModeRunnable,delayMillis);
-                    }
+                    // 关闭软键盘
+                    InputUtil.hideKeyboard(editChat);
+                    //虚拟键盘弹出,需更改SoftInput模式为：顶起输入框
+                    handler.postDelayed(mInputRecoverySoftInputModeRunnable,delayMillis);
                 }
             }
         });
