@@ -120,7 +120,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 downVideo(msgAllBeanForm, msgAllBeanForm.getVideoMessage());
             }
         }
-        MessageManager.setCanStamp(false);
+        MessageManager.getInstance().setCanStamp(false);
     }
 
     private void downVideo(final MsgAllBean msgAllBean, final VideoMessage videoMessage) {
@@ -401,7 +401,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             EventBus.getDefault().unregister(this);
         }
 
-        MessageManager.setCanStamp(true);
+        MessageManager.getInstance().setCanStamp(true);
     }
 
     @Override

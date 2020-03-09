@@ -79,44 +79,26 @@ import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
 public class MessageManager {
     private final String TAG = MessageManager.class.getSimpleName();
 
-    private static int SESSION_TYPE = 0;//无会话,1:单人;2群,3静音模式
+    private int SESSION_TYPE = 0;//无会话,1:单人;2群,3静音模式
     public static Long SESSION_FUID;//单人会话id
     public static String SESSION_GID;//群会话id
 
     private static MessageManager INSTANCE;
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();
-    private static boolean isMessageChange;//是否有聊天消息变化
+    private boolean isMessageChange;//是否有聊天消息变化
 
-    private static List<String> loadGids = new ArrayList<>();//需要异步加载群数据的群id
-    private static List<Long> loadUids = new ArrayList<>();//需要异步记载用户数据的用户id
-
-//    private static Map<String, MsgAllBean> sequenceMap = new HashMap<>();//消息发送队列
-
+    private List<String> loadGids = new ArrayList<>();//需要异步加载群数据的群id
+    private List<Long> loadUids = new ArrayList<>();//需要异步记载用户数据的用户id
 
     //缓存
-//    private static Map<Long, UserInfo> cacheUsers = new HashMap<>();//用户信息缓存
-//    private static Map<String, Group> cacheGroups = new HashMap<>();//群信息缓存
-//    private static List<Session> cacheSessions = new ArrayList<>();//Session缓存，
-    private static Map<Long, List<MsgAllBean>> cacheMessagePrivate = new HashMap();//私聊消息缓存，以用户id为key
-    private static Map<String, List<MsgAllBean>> cacheMessageGroup = new HashMap();//群聊消息缓存，以群id为key
     private static List<Group> saveGroups = new ArrayList<>();//已保存群信息缓存
-
-
-    //批量消息待处理
-//    private static Map<String, MsgAllBean> pendingMessages = new HashMap<>();//批量接收到的消息，待保存到数据库
-//    private static Map<String, MsgAllBean> pendingCancelMessages = new HashMap<>();//批量接收到的撤销消息，待保存到数据库
-//    private static Map<Long, UserInfo> pendingUsers = new HashMap<>();//批量用户信息（头像和昵称），待保存到数据库
-//    private static Map<String, Integer> pendingGroupUnread = new HashMap<>();//批量群session未读数，待保存到数据库
-//    private static Map<Long, Integer> pendingUserUnread = new HashMap<>();//批量私聊session未读数，待保存到数据库
-
     private static Map<String, TaskDealWithMsgList> taskMaps = new HashMap<>();//批量消息的处理
-
 
     private long playTimeOld = 0;//当前声音播放时间
     private long playVBTimeOld = 0; //当前震动时间
 
-    private static Boolean CAN_STAMP = true;//true 允许戳一戳弹窗 ,false 不允许
+    private Boolean CAN_STAMP = true;//true 允许戳一戳弹窗 ,false 不允许
 
 
     public static MessageManager getInstance() {
@@ -809,7 +791,7 @@ public class MessageManager {
         if (TextUtils.isEmpty(gid)) {
             return;
         }
-        new MsgAction().groupInfo(gid, false,new CallBack<ReturnBean<Group>>() {
+        new MsgAction().groupInfo(gid, false, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
@@ -1152,7 +1134,7 @@ public class MessageManager {
     }
 
     //检测是否是双重消息，及一条消息需要产生两条本地消息记录,回执在通知消息中发送
-    private static void checkDoubleMessage(MsgBean.UniversalMessage.WrapMessage wmsg) {
+    private void checkDoubleMessage(MsgBean.UniversalMessage.WrapMessage wmsg) {
         if (wmsg.getMsgType() == ACCEPT_BE_FRIENDS) {
             MsgBean.AcceptBeFriendsMessage receiveMessage = wmsg.getAcceptBeFriends();
             if (receiveMessage != null && !TextUtils.isEmpty(receiveMessage.getSayHi())) {
@@ -1259,7 +1241,7 @@ public class MessageManager {
     /***
      * 无会话
      */
-    public static void setSessionNull() {
+    public void setSessionNull() {
         if (SESSION_TYPE == 3)
             return;
         SESSION_TYPE = 0;
@@ -1268,7 +1250,7 @@ public class MessageManager {
     }
 
     //允许戳一戳弹窗
-    public static void setCanStamp(Boolean canStamp) {
+    public void setCanStamp(Boolean canStamp) {
         CAN_STAMP = canStamp;
         LogUtil.getLog().e("==CAN_STAMP==" + CAN_STAMP);
     }

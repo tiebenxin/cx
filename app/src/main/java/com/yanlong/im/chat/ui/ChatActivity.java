@@ -1207,7 +1207,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 btnEmj.setEnabled(false);
                 btnFunc.setEnabled(false);
 
-                MessageManager.setCanStamp(false);
+                MessageManager.getInstance().setCanStamp(false);
             }
 
             @Override
@@ -1227,7 +1227,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                 //  alert.show();
 
-                MessageManager.setCanStamp(true);
+                MessageManager.getInstance().setCanStamp(true);
             }
         }));
 
@@ -4051,9 +4051,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         });
 
         if (ChatEnum.EPlayStatus.PLAYING == status) {
-            MessageManager.setCanStamp(false);
+            MessageManager.getInstance().setCanStamp(false);
         } else if (ChatEnum.EPlayStatus.STOP_PLAY == status || ChatEnum.EPlayStatus.PLAYED == status) {
-            MessageManager.setCanStamp(true);
+            MessageManager.getInstance().setCanStamp(true);
         }
     }
 
