@@ -94,7 +94,6 @@
                         android:layout_height="match_parent"
                         android:layout_marginRight="@dimen/app_margin_item"
                         android:layout_weight="1"
-                        android:background="@color/yellow_200"
                         android:orientation="vertical">
 
                         <LinearLayout
@@ -136,7 +135,6 @@
                             android:layout_height="0dp"
                             android:layout_gravity="center_vertical"
                             android:layout_weight="1"
-                            android:background="@color/blue"
                             android:fontFamily="normal"
                             android:text="" />
 
