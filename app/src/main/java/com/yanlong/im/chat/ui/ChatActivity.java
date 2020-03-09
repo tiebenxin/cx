@@ -17,7 +17,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -99,7 +98,6 @@ import com.jrmf360.rplib.bean.GrabRpBean;
 import com.jrmf360.rplib.bean.TransAccountBean;
 import com.jrmf360.rplib.utils.callback.GrabRpCallBack;
 import com.jrmf360.rplib.utils.callback.TransAccountCallBack;
-import com.jrmf360.tools.utils.ThreadUtil;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -112,7 +110,6 @@ import com.yanlong.im.R;
 import com.yanlong.im.adapter.AdapterPopMenu;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
-import com.yanlong.im.chat.MsgTagHandler;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
@@ -131,15 +128,12 @@ import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.Session;
-import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
-import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
@@ -152,7 +146,6 @@ import com.yanlong.im.location.LocationActivity;
 import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
-import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -235,7 +228,6 @@ import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MultiListView;
-import net.cb.cb.library.zxing.activity.CaptureActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -259,7 +251,6 @@ import io.realm.RealmList;
 import me.kareluo.ui.OptionMenu;
 import me.rosuh.filepicker.config.FilePickerManager;
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
@@ -492,21 +483,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         } else {
             MAX_UNREAD_COUNT = 80 * 4;
         }
-        viewNewMessage.setVisible(false);
-        mAdapter.setUnreadCount(0);
-//        if (unreadCount >= MIN_UNREAD_COUNT && unreadCount < MAX_UNREAD_COUNT) {
-//            viewNewMessage.setVisible(true);
-//            viewNewMessage.setCount(unreadCount);
-//            mAdapter.setUnreadCount(unreadCount);
-//        } else if (unreadCount >= MAX_UNREAD_COUNT) {
-//            unreadCount = MAX_UNREAD_COUNT;
-//            viewNewMessage.setVisible(true);
-//            viewNewMessage.setCount(unreadCount);
-//            mAdapter.setUnreadCount(unreadCount);
-//        } else {
-//            viewNewMessage.setVisible(false);
-//            mAdapter.setUnreadCount(0);
-//        }
+//        viewNewMessage.setVisible(false);
+//        mAdapter.setUnreadCount(0);
+        if (unreadCount >= MIN_UNREAD_COUNT && unreadCount < MAX_UNREAD_COUNT) {
+            viewNewMessage.setVisible(true);
+            viewNewMessage.setCount(unreadCount);
+            mAdapter.setUnreadCount(unreadCount);
+        } else if (unreadCount >= MAX_UNREAD_COUNT) {
+            unreadCount = MAX_UNREAD_COUNT;
+            viewNewMessage.setVisible(true);
+            viewNewMessage.setCount(unreadCount);
+            mAdapter.setUnreadCount(unreadCount);
+        } else {
+            viewNewMessage.setVisible(false);
+            mAdapter.setUnreadCount(0);
+        }
     }
 
     //检测是否有截屏权限
@@ -3046,6 +3037,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
         void setUnreadCount(int count) {
             unread = count;
+            notifyDataSetChanged();
         }
 
         //设置选择模式
@@ -3279,8 +3271,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time, isGroup());
             if (unread >= MIN_UNREAD_COUNT) {
                 if (position == getItemCount() - unread) {
-//                    holder.viewChatItem.showNew(true);
-                    holder.viewChatItem.showNew(false);
+                    holder.viewChatItem.showNew(true);
+//                    holder.viewChatItem.showNew(false);
                 } else {
                     holder.viewChatItem.showNew(false);
                 }
@@ -5747,7 +5739,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //删除单条消息
     private void deleteMsg(MsgAllBean bean) {
-        LogUtil.getLog().i("SurvivalTime", "deleteMsg:" + bean.getMsg_id());
+//        LogUtil.getLog().i("SurvivalTime", "deleteMsg:" + bean.getMsg_id());
         if (msgListData == null) {
             return;
         }
@@ -5757,23 +5749,31 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         msgListData.remove(bean);
         mtListView.getListView().getAdapter().notifyItemRemoved(position);//删除刷新
-        if (unreadCount > 0 && msgListData.size() == 0) {
-            viewNewMessage.setVisible(false);
-            unreadCount = 0;
+        removeUnreadCount(1);
+    }
+
+    private void removeUnreadCount(int num) {
+        if (unreadCount > 0) {
+            unreadCount = unreadCount - num;
+            if (unreadCount > 0) {
+                viewNewMessage.setCount(unreadCount);
+                mAdapter.setUnreadCount(unreadCount);
+            } else {
+                viewNewMessage.setVisible(false);
+                unreadCount = 0;
+                mAdapter.setUnreadCount(0);
+            }
         }
     }
 
     //删除单条消息
     private void deleteMsgList(List<MsgAllBean> list) {
-        LogUtil.getLog().d("SurvivalTime", "deleteMsgList size=" + list.size());
+//        LogUtil.getLog().d("SurvivalTime", "deleteMsgList size=" + list.size());
         if (msgListData == null || list == null) {
             return;
         }
         msgListData.removeAll(list);
-        if (unreadCount > 0 && msgListData.size() == 0) {
-            viewNewMessage.setVisible(false);
-            unreadCount = 0;
-        }
+        removeUnreadCount(list.size());
         mtListView.notifyDataSetChange();
 
     }

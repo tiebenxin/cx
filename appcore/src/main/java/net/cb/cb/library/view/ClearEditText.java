@@ -14,13 +14,13 @@ import net.cb.cb.library.R;
 
 /**
  * @说明： 自定义带删除按钮的EditText
- *
  */
 public class ClearEditText extends android.support.v7.widget.AppCompatEditText implements View.OnFocusChangeListener,
         TextWatcher {
     //EditText右侧的删除按钮
     private Drawable mClearDrawable;
     private boolean hasFoucs;
+    private int diff = 20;//默认扩大选区
 
     public ClearEditText(Context context) {
         this(context, null);
@@ -71,13 +71,13 @@ public class ClearEditText extends android.support.v7.widget.AppCompatEditText i
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_UP) {
             if (getCompoundDrawables()[2] != null) {
-                int x = (int)event.getX();
-                int y = (int)event.getY();
+                int x = (int) event.getX();
+                int y = (int) event.getY();
                 Rect rect = getCompoundDrawables()[2].getBounds();
                 int height = rect.height();
-                int distance = (getHeight() - height)/2;
-                boolean isInnerWidth = x > (getWidth() - getTotalPaddingRight()) && x < (getWidth() - getPaddingRight());
-                boolean isInnerHeight = y > distance && y <(distance + height);
+                int distance = (getHeight() - height) / 2;
+                boolean isInnerWidth = x > (getWidth() - getTotalPaddingRight() - diff) && x < (getWidth() - getPaddingRight() + diff);
+                boolean isInnerHeight = y > distance - diff && y < (distance + height + diff);
                 if (isInnerWidth && isInnerHeight) {
                     this.setText("");
                 }

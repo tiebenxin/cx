@@ -1649,12 +1649,6 @@ public class MsgDao {
                 }
                 realm.insertOrUpdate(list);
             }
-            //TODO:将未读数清零
-            Session session = realm.where(Session.class).equalTo("from_uid", uid).findFirst();
-            if (session != null && session.getUnread_count() > 0) {
-                session.setUnread_count(0);
-                realm.insertOrUpdate(session);
-            }
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
