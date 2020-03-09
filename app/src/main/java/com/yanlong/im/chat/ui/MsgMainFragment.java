@@ -38,7 +38,6 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.ui.chat.ChatActivity3;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -406,6 +405,7 @@ public class MsgMainFragment extends Fragment {
                 .subscribe(new Consumer<Session>() {
                     @Override
                     public void accept(Session session) throws Exception {
+
                         if (listData != null) {
                             int index = listData.indexOf(session);
                             if (index >= 0) {
