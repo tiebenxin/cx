@@ -24,6 +24,7 @@ public class CountDownView extends LinearLayout {
     private Context context;
     private ImageView imCountDown;
     private CountDownTimer timer;
+    private int preTime;
 
 
     public CountDownView(Context context) {
@@ -53,19 +54,22 @@ public class CountDownView extends LinearLayout {
 
             @Override
             public void onFinish() {
-                timer.cancel();
+                if (timer != null) {
+                    timer.cancel();
+                    LogUtil.getLog().i("CountDownView", "onFinish--timer=" + timer);
+                }
             }
         }.start();
     }
 
 
     public void timerStop() {
-        LogUtil.getLog().i("CountDownView", "timerStop");
+//        LogUtil.getLog().i("CountDownView", "timerStop--timer=" + (timer == null));
         imCountDown.setImageResource(R.mipmap.icon_st_1);
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
-        }
+//        if (timer != null) {
+//            timer.cancel();
+//            timer = null;
+//        }
     }
 
 
@@ -80,13 +84,25 @@ public class CountDownView extends LinearLayout {
     public void setImagePostion(long startTime, long endTime) {
         long nowTime = DateUtils.getSystemTime();
         int time = (int) ((endTime - nowTime) / ((endTime - startTime) / 12));
-        isME(time);
+        if (time != preTime) {
+            preTime = time;
+            if (getHandler() != null) {
+                getHandler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        isME(time);
+                    }
+                }, 1000);
+            }
+        }
     }
 
 
     private void isME(int type) {
+        if (imCountDown == null) {
+            return;
+        }
         LogUtil.getLog().i("CountDownView", "isME=" + type);
-
         switch (type) {
             case 12:
                 imCountDown.setImageResource(R.mipmap.icon_st_1);

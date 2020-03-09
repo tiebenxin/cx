@@ -731,7 +731,6 @@ public class ChatItemView extends LinearLayout {
 
     //设置阅后即焚消息显示
     public void setDataSurvivalTimeShow(int type) {
-//        LogUtil.getLog().d("CountDownView", type + "");
         //   timerCancel();
         if (isMe) {
             if (type == -1) {
@@ -1373,35 +1372,35 @@ public class ChatItemView extends LinearLayout {
     //文件消息
     public void setDataFile(SendFileMessage fileMessage, OnClickListener listener) {
         //文件名
-        if(!TextUtils.isEmpty(fileMessage.getFile_name())){
+        if (!TextUtils.isEmpty(fileMessage.getFile_name())) {
             tvFileNameMe.setText(fileMessage.getFile_name());
             tvFileNameOt.setText(fileMessage.getFile_name());
         }
         //文件大小
-        if(fileMessage.getSize()!=0){
+        if (fileMessage.getSize() != 0) {
             tvFileSizeMe.setText(FileUtils.getFileSizeString(fileMessage.getSize()));
             tvFileSizeOt.setText(FileUtils.getFileSizeString(fileMessage.getSize()));
         }
         //不同类型
-        if(fileMessage.getFormat().equals("txt")){
+        if (fileMessage.getFormat().equals("txt")) {
             ivFileIconMe.setImageResource(R.mipmap.ic_txt);
             ivFileIconOt.setImageResource(R.mipmap.ic_txt);
-        }else if(fileMessage.getFormat().equals("xls") || fileMessage.getFormat().equals("xlsx")){
+        } else if (fileMessage.getFormat().equals("xls") || fileMessage.getFormat().equals("xlsx")) {
             ivFileIconMe.setImageResource(R.mipmap.ic_excel);
             ivFileIconOt.setImageResource(R.mipmap.ic_excel);
-        }else if(fileMessage.getFormat().equals("ppt") || fileMessage.getFormat().equals("pptx") || fileMessage.getFormat().equals("pdf")){ //PDF暂用此图标
+        } else if (fileMessage.getFormat().equals("ppt") || fileMessage.getFormat().equals("pptx") || fileMessage.getFormat().equals("pdf")) { //PDF暂用此图标
             ivFileIconMe.setImageResource(R.mipmap.ic_ppt);
             ivFileIconOt.setImageResource(R.mipmap.ic_ppt);
-        }else if(fileMessage.getFormat().equals("doc") || fileMessage.getFormat().equals("docx")){
+        } else if (fileMessage.getFormat().equals("doc") || fileMessage.getFormat().equals("docx")) {
             ivFileIconMe.setImageResource(R.mipmap.ic_word);
             ivFileIconOt.setImageResource(R.mipmap.ic_word);
-        }else if(fileMessage.getFormat().equals("rar") || fileMessage.getFormat().equals("zip")){
+        } else if (fileMessage.getFormat().equals("rar") || fileMessage.getFormat().equals("zip")) {
             ivFileIconMe.setImageResource(R.mipmap.ic_zip);
             ivFileIconOt.setImageResource(R.mipmap.ic_zip);
-        }else if(fileMessage.getFormat().equals("exe")){
+        } else if (fileMessage.getFormat().equals("exe")) {
             ivFileIconMe.setImageResource(R.mipmap.ic_exe);
             ivFileIconOt.setImageResource(R.mipmap.ic_exe);
-        }else {
+        } else {
             ivFileIconMe.setImageResource(R.mipmap.ic_unknow);
             ivFileIconOt.setImageResource(R.mipmap.ic_unknow);
         }

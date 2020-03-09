@@ -90,7 +90,7 @@ public class BurnManager {
     private synchronized void delete() {
         needRefreshChat = false;
         if (msgAllBeans != null && msgAllBeans.size() > 0) {
-            LogUtil.getLog().i("SurvivalTime", "消息size:" + msgAllBeans.size());
+//            LogUtil.getLog().i("SurvivalTime", "消息size:" + msgAllBeans.size());
             List<MsgAllBean> tempList = new ArrayList<>();
             Iterator<MsgAllBean> it = msgAllBeans.iterator();
             while (it.hasNext()) {
@@ -184,9 +184,9 @@ public class BurnManager {
 
     public synchronized void addMsgAllBean(MsgAllBean msgAllBean) {
         if (!historyMsgIds.contains(msgAllBean.getMsg_id())) {
-            LogUtil.getLog().i("SurvivalTime", "addMsgAllBean");
+            LogUtil.getLog().i("SurvivalTime", "addMsgAllBean--status==" + msgAllBean.getSend_state());
             msgAllBeans.add(msgAllBean);
-            if (historyMsgIds.size() >= 500){
+            if (historyMsgIds.size() >= 500) {
                 historyMsgIds.remove(0);
             }
             historyMsgIds.add(msgAllBean.getMsg_id());
