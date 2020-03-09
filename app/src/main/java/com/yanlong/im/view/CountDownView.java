@@ -64,7 +64,7 @@ public class CountDownView extends LinearLayout {
 
 
     public void timerStop() {
-        LogUtil.getLog().i("CountDownView", "timerStop--timer=" + (timer == null));
+//        LogUtil.getLog().i("CountDownView", "timerStop--timer=" + (timer == null));
         imCountDown.setImageResource(R.mipmap.icon_st_1);
 //        if (timer != null) {
 //            timer.cancel();

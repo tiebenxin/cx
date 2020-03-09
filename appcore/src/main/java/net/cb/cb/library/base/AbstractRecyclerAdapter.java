@@ -63,4 +63,28 @@ public abstract class AbstractRecyclerAdapter<T> extends RecyclerView.Adapter<Re
     }
 
 
+    public List<T> getBeanList() {
+        return mBeanList;
+    }
+
+    public void removeItem(int position) {
+        if (mBeanList != null) {
+            mBeanList.remove(position);
+        }
+    }
+
+    public void addItem(int position, T bean) {
+        if (mBeanList != null) {
+            mBeanList.add(position, bean);
+        }
+    }
+
+    public int getIndex(T t) {
+        if (mBeanList != null) {
+            return mBeanList.indexOf(t);
+        }
+        return -1;
+    }
+
+
 }

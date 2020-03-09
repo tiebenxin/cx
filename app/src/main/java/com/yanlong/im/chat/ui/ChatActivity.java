@@ -5756,7 +5756,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (unreadCount > 0) {
             unreadCount = unreadCount - num;
             if (unreadCount > 0) {
-                viewNewMessage.setCount(unreadCount);
+//                viewNewMessage.setCount(unreadCount);
                 mAdapter.setUnreadCount(unreadCount);
             } else {
                 viewNewMessage.setVisible(false);

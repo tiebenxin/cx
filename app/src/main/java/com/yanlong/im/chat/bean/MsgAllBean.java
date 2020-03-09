@@ -393,6 +393,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             str = "[零钱小助手消息]";
         } else if (msg_type == ChatEnum.EMessageType.FILE) {//文件
             str = "[文件]";
+        } else if (msg_type == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+            str = "[动态表情]";
         }
 
         return str;

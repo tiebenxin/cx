@@ -29,6 +29,7 @@ import com.google.gson.Gson;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
+import com.yanlong.im.adapter.SessionAdapter;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
@@ -39,6 +40,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.chat.ChatActivity3;
+import com.yanlong.im.interf.ISessionListener;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -99,6 +101,7 @@ public class MsgMainFragment extends Fragment {
     private net.cb.cb.library.view.ActionbarView actionBar;
     private net.cb.cb.library.view.MultiListView mtListView;
     private RecyclerViewAdapter mAdapter;
+//    private SessionAdapter sessionAdapter;
 
     private LinearLayout viewPopGroup;
     private LinearLayout viewPopAdd;
@@ -154,6 +157,13 @@ public class MsgMainFragment extends Fragment {
     private void initEvent() {
         mAdapter = new RecyclerViewAdapter(mHeadView);
         mtListView.init(mAdapter);
+//        sessionAdapter = new SessionAdapter(getActivity(), new ISessionListener() {
+//            @Override
+//            public void deleteSession(long uid, String gid) {
+//                deleteSession(uid, gid);
+//            }
+//        });
+//        mtListView.init(sessionAdapter);
 
         mtListView.getLoadView().setStateNormal();
         SocketUtil.getSocketUtil().addEvent(socketEvent = new SocketEvent() {
@@ -290,7 +300,7 @@ public class MsgMainFragment extends Fragment {
 
             }
         } catch (NullPointerException e) {
-
+            e.printStackTrace();
         }
     }
 
@@ -298,6 +308,10 @@ public class MsgMainFragment extends Fragment {
         if (mAdapter.viewNetwork != null && runnable != null) {
             mAdapter.viewNetwork.removeCallbacks(runnable);
         }
+//
+//        if (sessionAdapter.getViewNetwork() != null && runnable != null) {
+//            sessionAdapter.getViewNetwork().removeCallbacks(runnable);
+//        }
     }
 
     @Override
@@ -464,6 +478,97 @@ public class MsgMainFragment extends Fragment {
                 });
     }
 
+
+    /*  *//*
+     * 刷新单一位置
+     * TODO　增加文件头，默认的位置都需要加1
+     * *//*
+    @SuppressLint("CheckResult")
+    private void refreshPosition(String gid, Long uid, MsgAllBean bean, Session s, boolean isRefreshTop) {
+        Observable.just(0)
+                .map(new Function<Integer, Session>() {
+                    @Override
+                    public Session apply(Integer integer) throws Exception {
+                        if (s == null) {
+                            Session session = msgDao.sessionGet(gid, uid);
+                            if (bean != null) {
+                                session.setMessage(bean);
+                            }
+                            prepareSession(session, false);
+                            return session;
+                        } else {
+                            if (bean != null) {
+                                s.setMessage(bean);
+                            }
+                            prepareSession(s, true);
+                            return s;
+                        }
+
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<Session>empty())
+                .subscribe(new Consumer<Session>() {
+                    @Override
+                    public void accept(Session session) throws Exception {
+                        if (sessionAdapter.getBeanList() != null) {
+                            int index = sessionAdapter.getIndex(session);
+                            if (index >= 0) {
+                                Session s = sessionAdapter.getBeanList().get(index);
+                                if (isRefreshTop *//*|| session.getIsTop() == 1*//*) {//是否刷新置顶
+                                    if (session.getIsTop() == 1) {//修改了置顶状态
+                                        sessionAdapter.removeItem(index);
+                                        sessionAdapter.addItem(0, session);//放在首位
+                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(1, index + 1);//范围刷新
+//                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "置顶刷新--session=" + session.getSid());
+                                    } else {//取消置顶
+                                        sessionAdapter.getBeanList().set(index, session);
+                                        sortSession(index == 0);
+                                        int newIndex = sessionAdapter.getIndex(session);//获取重排后新位置
+                                        int start = index > newIndex ? newIndex : index;//谁小，取谁
+                                        int count = Math.abs(newIndex - index) + 1;
+                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(start + 1, count);////范围刷新,刷新旧位置和新位置之间即可
+//                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "取消置顶刷新--session=" + session.getSid());
+
+                                    }
+                                } else {
+                                    sessionAdapter.getBeanList().set(index, session);
+                                    if (s != null && s.getUp_time().equals(session.getUp_time())) {//时间未更新，所以不要重新排序
+                                        mtListView.getListView().getAdapter().notifyItemChanged(index + 1, index);
+//                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "时间未更新--session=" + session.getSid());
+                                    } else {//有时间更新,需要重排
+                                        sortSession(index == 0);
+                                        int newIndex = sessionAdapter.getIndex(session);
+                                        int start = index > newIndex ? newIndex : index;//谁小，取谁
+                                        int count = Math.abs(newIndex - index) + 1;
+                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(start + 1, count);//范围刷新
+//                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "时间更新重排--session=" + session.getSid());
+                                    }
+                                }
+                            } else {
+                                int position = insertSession(session);
+                                LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "新session--session=" + session.getSid());
+                                if (position == 0) {
+                                    mtListView.notifyDataSetChange();
+                                } else {
+                                    mtListView.getListView().getAdapter().notifyItemRangeInserted(position + 1, 1);
+                                    mtListView.getListView().scrollToPosition(0);
+                                }
+                            }
+                        } else {
+                            int position = insertSession(session);
+//                            LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "新session--session=" + session.getSid());
+                            if (position == 0) {
+                                mtListView.notifyDataSetChange();
+                            } else {
+                                mtListView.getListView().getAdapter().notifyItemRangeInserted(position + 1, 1);
+                                mtListView.getListView().scrollToPosition(0);
+                            }
+                        }
+                    }
+                });
+    }*/
+
     /*
      * 重新排序,置顶和非置顶分别重排
      * @param isTop 当前要更新的session 是否在列表第一位置（置顶）
@@ -507,6 +612,46 @@ public class MsgMainFragment extends Fragment {
         }
     }
 
+    /*private void sortSession(boolean isTop) {
+        List<Session> beanList = sessionAdapter.getBeanList();
+        if (beanList != null) {
+            int len = beanList.size();
+            if (len > 0) {
+                Session first = null;
+                if (!isTop) {
+                    first = beanList.get(0);
+                } else {
+                    if (len >= 2) {
+                        first = beanList.get(1);
+                    }
+                }
+                if (first != null && first.getIsTop() == 1) {//有置顶
+                    List<Session> topList = new ArrayList<>();
+                    List<Session> list = new ArrayList<>();
+                    for (int i = 0; i < len; i++) {
+                        Session session = listData.get(i);
+                        if (session.getIsTop() == 1) {
+                            topList.add(session);
+                        } else {
+                            list.add(session);
+                        }
+                    }
+                    beanList.clear();
+                    if (topList.size() > 0) {
+                        Collections.sort(topList);
+                        beanList.addAll(topList);
+                    }
+                    if (list.size() > 0) {
+                        Collections.sort(list);
+                        beanList.addAll(list);
+                    }
+                } else {//无置顶
+                    Collections.sort(beanList);
+                }
+            }
+        }
+    }*/
+
     /*
      * 插入位置需要考虑置顶
      * */
@@ -538,6 +683,36 @@ public class MsgMainFragment extends Fragment {
         }
         return position;
     }
+
+ /*   private int insertSession(Session s) {
+        int position = 0;//需要插入位置
+        List<Session> beanList = sessionAdapter.getBeanList();
+        if (beanList != null) {
+            int len = beanList.size();
+            boolean hasTop = false;
+            if (s.getIsTop() == 1) {
+                beanList.add(0, s);
+            } else {
+                for (int i = 0; i < len; i++) {
+                    Session session = beanList.get(i);
+                    if (session.getIsTop() != 1) {
+                        position = i;
+                        break;//结束循环
+                    } else {
+                        hasTop = true;
+                    }
+                }
+                if (hasTop && position == 0) {//全是置顶
+                    position = len;
+                }
+                beanList.add(position, s);
+            }
+        } else {
+            beanList = new ArrayList<>();
+            beanList.add(s);
+        }
+        return position;
+    }*/
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -667,11 +842,13 @@ public class MsgMainFragment extends Fragment {
                             showMessage(holder.txtInfo, bean.getDraft(), style);
                         } else {
                             // 判断是否是动画表情
-                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
-                                holder.txtInfo.setText(TYPE_FACE);
-                            } else {
-                                showMessage(holder.txtInfo, info, null);
-                            }
+//                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+//                                holder.txtInfo.setText(TYPE_FACE);
+//                            } else {
+//                                showMessage(holder.txtInfo, info, null);
+//                            }
+                            showMessage(holder.txtInfo, info, null);
+
                         }
                     }
                     headList.add(icon);
@@ -747,11 +924,13 @@ public class MsgMainFragment extends Fragment {
                                 showMessage(holder.txtInfo, bean.getDraft(), style);
                             } else {
                                 // 判断是否是动画表情
-                                if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
-                                    holder.txtInfo.setText(msginfo.getFrom_nickname() + ":" + TYPE_FACE);
-                                } else {
-                                    showMessage(holder.txtInfo, info, null);
-                                }
+//                                if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+//                                    holder.txtInfo.setText(msginfo.getFrom_nickname() + ":" + TYPE_FACE);
+//                                } else {
+//                                    showMessage(holder.txtInfo, info, null);
+//                                }
+                                showMessage(holder.txtInfo, info, null);
+
                             }
                             break;
                         case 3:
@@ -762,12 +941,14 @@ public class MsgMainFragment extends Fragment {
                             break;
                         default:
                             // 判断是否是动画表情
-                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
-                                holder.txtInfo.setText(msginfo.getFrom_nickname() + ":" + TYPE_FACE);
-                            } else {
-                                showMessage(holder.txtInfo, info, null);
-                            }
+//                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+//                                holder.txtInfo.setText(msginfo.getFrom_nickname() + ":" + TYPE_FACE);
+//                            } else {
+//                                showMessage(holder.txtInfo, info, null);
+//                            }
+                            showMessage(holder.txtInfo, info, null);
                             break;
+
                     }
 
                     if (StringUtil.isNotNull(icon)) {
@@ -964,6 +1145,7 @@ public class MsgMainFragment extends Fragment {
                 .subscribe(new Consumer<List<Session>>() {
                     @Override
                     public void accept(List<Session> list) throws Exception {
+//                        sessionAdapter.bindData(list);
                         mtListView.notifyDataSetChange();
                         checkSessionData(list);
 //                        LogUtil.getLog().d("a=", "MsgMainFragment --获取session数据后刷新" + System.currentTimeMillis());
