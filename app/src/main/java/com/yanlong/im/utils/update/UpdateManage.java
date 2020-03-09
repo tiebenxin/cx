@@ -103,10 +103,20 @@ public class UpdateManage {
     }
 
 
-    public void uploadApp(String versions, final String content, final String url, boolean isEnforcement) {
+    /**
+     * 版本更新
+     * @param versions 新版本号
+     * @param content 更新内容
+     * @param url
+     * @param isEnforcement 是否强制更新
+     * @param fromMainActivity 是否来自主页 (MainActivity则不再弹框提示用户忽略的版本，AboutAsActivity仍然允许点击唤起更新弹框)
+     */
+    public void uploadApp(String versions, final String content, final String url, boolean isEnforcement, boolean fromMainActivity) {
         //如果是用户忽略的版本，则不再弹框提示
-        if(versions.equals(new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_UPDATE_VERSION).get4Json(String.class))){
-            return;
+        if(fromMainActivity){
+            if(versions.equals(new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IGNORE_UPDATE_VERSION).get4Json(String.class))){
+                return;
+            }
         }
         if (check(versions)) {
             updateURL = url;
