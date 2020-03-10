@@ -7,6 +7,7 @@ import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.ViewGroup;
 
 import net.cb.cb.library.utils.LogUtil;
 
@@ -46,12 +47,7 @@ public class EllipsizedTextView extends android.support.v7.widget.AppCompatTextV
 
     @Override
     public void setText(CharSequence text, BufferType type) {
-        LogUtil.getLog().i("Session", "文本显示start=" + text);
-
         if ((text != null && text.length() > 0) && (mMaxLines != Integer.MAX_VALUE && mMaxLines > 0) && getWidth() != 0) {
-//            LogUtil.getLog().i("Session", "width--1 =" + text + "--" + getWidth());
-            LogUtil.getLog().i("Session", "width =" + text + "--" + getWidth() + "--measureWid=" + getMeasuredWidth());
-
             StaticLayout layout = new StaticLayout(text, getPaint(), getWidth(), Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
             //多行 需要显示的文字加上"..."的总宽度
 //            float textAndEllipsizeWidth = 0;
@@ -60,20 +56,18 @@ public class EllipsizedTextView extends android.support.v7.widget.AppCompatTextV
 //                textAndEllipsizeWidth += layout.getWidth();
 //            }
 //            textAndEllipsizeWidth += layout.getWidth();
-            LogUtil.getLog().i("Session", "width--2 =" + text + "--" + layout.getWidth());
             text = TextUtils.ellipsize(text, getPaint(), layout.getWidth(), TextUtils.TruncateAt.END);
-            LogUtil.getLog().i("Session", "文本显示end=" + text);
         }
         super.setText(text, type);
     }
 
-//    @Override
-//    protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
-//        super.onSizeChanged(width, height, oldWidth, oldHeight);
-//        if (width > 0 && oldWidth != width) {
-//            setText(getText());
-//        }
-//    }
+    @Override
+    protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
+        super.onSizeChanged(width, height, oldWidth, oldHeight);
+        if (width > 0 && oldWidth != width) {
+            setText(getText());
+        }
+    }
 
     @Override
     public int getMaxLines() {
