@@ -85,7 +85,7 @@
                 <LinearLayout
                     android:id="@+id/layout_no_redenvelopes"
                     style="@style/app_layout_list2_item"
-                    android:visibility="gone">
+                    android:visibility="visible">
 
                     <TextView
                         style="@style/app_txt_title_2"

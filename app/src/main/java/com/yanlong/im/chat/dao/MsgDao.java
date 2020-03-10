@@ -3202,7 +3202,9 @@ public class MsgDao {
         if (time <= 0) {
             time = System.currentTimeMillis();
         }
+        //超过10分钟未领取，且未超过24小时
         long diff = TimeToString.DAY;
+        long ten = TimeToString.MINUTE * 10;
         try {
             List<MsgAllBean> msgAllBeans = new ArrayList<>();
             RealmResults<RedEnvelopeMessage> envelopeList = realm.where(RedEnvelopeMessage.class)
@@ -3217,6 +3219,8 @@ public class MsgDao {
                     .beginGroup().isNotNull("red_envelope").endGroup()
                     .and()
                     .beginGroup().greaterThan("timestamp", time - diff).endGroup()
+                    .and()
+                    .beginGroup().lessThan("timestamp", time - ten).endGroup()
                     .sort("timestamp")
                     .findAll();
             if (realmResults != null && envelopeList != null) {
