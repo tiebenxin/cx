@@ -3712,8 +3712,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         menus.add(new OptionMenu("删除"));
                     }
                     Integer filePg = UpLoadService.getProgress(msgbean.getMsg_id());
-                    if(filePg!=null){
-                        holder.viewChatItem.setFileProgress(filePg);
+                    //发送失败状态下，不展现之前的进度，点击重新下载
+                    if (msgbean.getSend_state() != ChatEnum.ESendStatus.ERROR){
+                        if(filePg!=null){
+                            holder.viewChatItem.setFileProgress(filePg);
+                        }
                     }
                     SendFileMessage fileMessage = msgbean.getSendFileMessage();
                     //UI显示和点击事件
