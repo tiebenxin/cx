@@ -47,7 +47,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -85,22 +84,13 @@ import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
 import com.hm.cxpay.ui.transfer.TransferActivity;
 import com.hm.cxpay.ui.transfer.TransferDetailActivity;
 import com.hm.cxpay.utils.UIUtils;
-
-import com.jrmf360.tools.utils.ThreadUtil;
-import com.yanlong.im.BuildConfig;
-import com.yanlong.im.chat.MsgTagHandler;
-import com.yanlong.im.chat.bean.SendFileMessage;
-import com.yanlong.im.chat.bean.ShippedExpressionMessage;
-import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
-import com.yanlong.im.chat.interf.IActionTagClickListener;
-import com.yanlong.im.chat.ui.chat.ChatViewModel;
-import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
 import com.jrmf360.rplib.bean.GrabRpBean;
 import com.jrmf360.rplib.bean.TransAccountBean;
 import com.jrmf360.rplib.utils.callback.GrabRpCallBack;
 import com.jrmf360.rplib.utils.callback.TransAccountCallBack;
+import com.jrmf360.tools.utils.ThreadUtil;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -109,10 +99,12 @@ import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yalantis.ucrop.util.FileUtils;
+import com.yanlong.im.BuildConfig;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.AdapterPopMenu;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
+import com.yanlong.im.chat.MsgTagHandler;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
@@ -130,18 +122,23 @@ import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.ScrollConfig;
+import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
+import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
+import com.yanlong.im.chat.ui.chat.ChatViewModel;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.chat.ui.view.ControllerLinearList;
@@ -149,6 +146,7 @@ import com.yanlong.im.location.LocationActivity;
 import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
+import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -467,6 +465,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (mViewModel.isInputText.getValue())
                         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                     //因为面板有延迟执行，所以必须执行该方法
+                    //因为面板有延迟执行，所以必须执行该方法
                     viewFaceView.setVisibility(View.GONE);
                     viewExtendFunction.setVisibility(View.VISIBLE);
                     //重置其他状态
@@ -484,7 +483,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             viewExtendFunction.setVisibility(View.GONE);
                         }
                     }else{//聊天时界面滑动，关闭面板
-                        viewFaceView.setVisibility(View.GONE);
+                        viewExtendFunction.setVisibility(View.GONE);
                     }
                 }
             }
