@@ -3696,6 +3696,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     } else {
                         menus.add(new OptionMenu("删除"));
                     }
+                    Integer filePg = UpLoadService.getProgress(msgbean.getMsg_id());
+                    if(filePg!=null){
+                        holder.viewChatItem.setFileProgress(filePg);
+                    }
                     SendFileMessage fileMessage = msgbean.getSendFileMessage();
                     //UI显示和点击事件
                     holder.viewChatItem.setDataFile(fileMessage, new View.OnClickListener() {

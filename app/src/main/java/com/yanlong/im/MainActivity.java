@@ -154,8 +154,8 @@ public class MainActivity extends AppActivity {
     private EventFactory.VoiceMinimizeEvent mVoiceMinimizeEvent;
     private boolean isActivityStop;
     //定位相关
-//    private LocationService locService;
-//    private BDAbstractLocationListener listener;
+    private LocationService locService;
+    private BDAbstractLocationListener listener;
 
     private UserAction userAction = new UserAction();
     private boolean testMe = true;
@@ -185,19 +185,19 @@ public class MainActivity extends AppActivity {
         }
 
         lastPostLocationTime = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.POST_LOCATION_TIME).get4Json(String.class);
-//        //无缓存则直接定位，记录本次上传位置的时间
-//        if(TextUtils.isEmpty(lastPostLocationTime)){
-//            getLocation();
-//        }else {
-//            //有缓存则按需求规则，超过24小时再上报用户地理位置信息
-//            try {
-//                if(!DateUtils.judgmentDate(lastPostLocationTime,DateUtils.getNowFormatTime(),24)){
-//                    getLocation();
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
+        //无缓存则直接定位，记录本次上传位置的时间
+        if(TextUtils.isEmpty(lastPostLocationTime)){
+            getLocation();
+        }else {
+            //有缓存则按需求规则，超过24小时再上报用户地理位置信息
+            try {
+                if(!DateUtils.judgmentDate(lastPostLocationTime,DateUtils.getNowFormatTime(),24)){
+                    getLocation();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -492,13 +492,13 @@ public class MainActivity extends AppActivity {
         mHandler.removeCallbacks(runnable);
         BurnManager.getInstance().cancel();
         super.onDestroy();
-//        // 在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
-//        if(listener!=null){
-//            locService.unregisterListener(listener);
-//        }
-//        if(locService!=null){
-//            locService.stop();
-//        }
+        // 在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
+        if(listener!=null){
+            locService.unregisterListener(listener);
+        }
+        if(locService!=null){
+            locService.stop();
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -1109,55 +1109,55 @@ public class MainActivity extends AppActivity {
     /**
      * 百度地图获取定位信息
      */
-//    private void getLocation() {
-//        if (!LocationPersimmions.checkPermissions(this)) {
-//            return;
-//        }
-//        if (!LocationUtils.isLocationEnabled(this)) {
-//            ToastUtil.show("请打开定位服务");
-//            return;
-//        }
-//        locService = ((MyAppLication) getApplication()).locationService;
-//        LocationClientOption mOption = locService.getDefaultLocationClientOption();
-//        mOption.setLocationMode(LocationClientOption.LocationMode.Battery_Saving);
-//        mOption.setCoorType("bd09ll");
-//        locService.setLocationOption(mOption);
-//        listener = new BDAbstractLocationListener() {
-//            @Override
-//            public void onReceiveLocation(BDLocation bdLocation) {
-//
-//                try {
-//                    if (bdLocation != null && bdLocation.getPoiList() != null) {
-//                        String city = bdLocation.getCity();
-//                        String country = bdLocation.getCountry();
-//                        String lat = bdLocation.getLatitude()+"";
-//                        String lon = bdLocation.getLongitude()+"";
-//                        locService.stop();//定位成功后停止定位
-//                        //请求——>上报用户地理位置信息
-//                        userAction.postLocation(city, country, lat, lon, new CallBack<ReturnBean>() {
-//                            @Override
-//                            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-//                                super.onResponse(call, response);
-//                                if (response != null && response.body() != null && response.body().isOk()){
-//                                    LogUtil.getLog().i("TAG","位置信息上报成功");
-//                                    //缓存本次调用的时间，24小时以内只需要发一次请求
-//                                    new SharedPreferencesUtil(SharedPreferencesUtil.SPName.POST_LOCATION_TIME).save2Json(DateUtils.getNowFormatTime());
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onFailure(Call<ReturnBean> call, Throwable t) {
-//                                super.onFailure(call, t);
-//                                LogUtil.getLog().i("TAG","位置信息上报失败");
-//                            }
-//                        });
-//                    }
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        };
-//        locService.registerListener(listener);
-//        locService.start();
-//    }
+    private void getLocation() {
+        if (!LocationPersimmions.checkPermissions(this)) {
+            return;
+        }
+        if (!LocationUtils.isLocationEnabled(this)) {
+            ToastUtil.show("请打开定位服务");
+            return;
+        }
+        locService = ((MyAppLication) getApplication()).locationService;
+        LocationClientOption mOption = locService.getDefaultLocationClientOption();
+        mOption.setLocationMode(LocationClientOption.LocationMode.Battery_Saving);
+        mOption.setCoorType("bd09ll");
+        locService.setLocationOption(mOption);
+        listener = new BDAbstractLocationListener() {
+            @Override
+            public void onReceiveLocation(BDLocation bdLocation) {
+
+                try {
+                    if (bdLocation != null && bdLocation.getPoiList() != null) {
+                        String city = bdLocation.getCity();
+                        String country = bdLocation.getCountry();
+                        String lat = bdLocation.getLatitude()+"";
+                        String lon = bdLocation.getLongitude()+"";
+                        locService.stop();//定位成功后停止定位
+                        //请求——>上报用户地理位置信息
+                        userAction.postLocation(city, country, lat, lon, new CallBack<ReturnBean>() {
+                            @Override
+                            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                                super.onResponse(call, response);
+                                if (response != null && response.body() != null && response.body().isOk()){
+                                    LogUtil.getLog().i("TAG","位置信息上报成功");
+                                    //缓存本次调用的时间，24小时以内只需要发一次请求
+                                    new SharedPreferencesUtil(SharedPreferencesUtil.SPName.POST_LOCATION_TIME).save2Json(DateUtils.getNowFormatTime());
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                                super.onFailure(call, t);
+                                LogUtil.getLog().i("TAG","位置信息上报失败");
+                            }
+                        });
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        locService.registerListener(listener);
+        locService.start();
+    }
 }
