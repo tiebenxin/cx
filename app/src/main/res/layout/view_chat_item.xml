@@ -1397,7 +1397,7 @@
                                 <RelativeLayout
                                     android:id="@+id/view_file_me"
                                     android:layout_width="220dp"
-                                    android:layout_height="90dp"
+                                    android:layout_height="95dp"
                                     android:background="@drawable/bg_chat_me_file"
                                     android:visibility="visible">
                                     <ImageView
@@ -1414,8 +1414,6 @@
                                         android:layout_marginLeft="10dp"
                                         android:layout_marginRight="20dp"
                                         android:layout_centerVertical="true"
-                                        android:layout_marginTop="15dp"
-                                        android:layout_marginBottom="15dp"
                                         android:layout_toLeftOf="@+id/iv_file_icon_me"
                                         android:orientation="vertical">
                                         <TextView
@@ -1423,7 +1421,7 @@
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:ellipsize="end"
-                                            android:maxLines="1"
+                                            android:maxLines="2"
                                             android:textSize="15sp"
                                             android:textColor="@color/c_353535"
                                             android:text="文件.txt"/>

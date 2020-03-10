@@ -3293,6 +3293,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             holder.viewChatItem.isSelectedShow(isSelected);
             //发送状态处理
             if (ChatEnum.EMessageType.MSG_VIDEO == msgbean.getMsg_type() || ChatEnum.EMessageType.IMAGE == msgbean.getMsg_type() ||
+                    ChatEnum.EMessageType.FILE == msgbean.getMsg_type() ||
                     Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_FILE_HELPER_UID.equals(toUId)) {
                 holder.viewChatItem.setErr(msgbean.getSend_state(), false);
             } else {
@@ -5740,10 +5741,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
-    //选择文件
+    //选择文件(限制最大5个，与网络请求并发数一致)
     private void toSelectFile() {
         FilePickerManager.INSTANCE
                 .from(this)
+                .maxSelectable(5)
                 .forResult(FilePickerManager.REQUEST_CODE);
     }
 
