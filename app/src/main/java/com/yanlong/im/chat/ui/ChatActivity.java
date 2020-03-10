@@ -450,6 +450,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         } else {//其他功能触发，非输入框触发，直接关闭当前面板
                             viewFaceView.setVisibility(View.GONE);
                         }
+                    }else{//聊天时界面滑动，关闭面板
+                        viewFaceView.setVisibility(View.GONE);
                     }
                 }
             }
@@ -481,6 +483,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         } else {//其他功能触发，非输入框触发，直接关闭当前面板
                             viewExtendFunction.setVisibility(View.GONE);
                         }
+                    }else{//聊天时界面滑动，关闭面板
+                        viewFaceView.setVisibility(View.GONE);
                     }
                 }
             }
