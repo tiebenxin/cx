@@ -354,7 +354,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private boolean isScreenShotListen;//是否监听截屏
     private ControllerLinearList popController;
 
-    private ChatViewModel mViewModel=new ChatViewModel();
+    private ChatViewModel mViewModel = new ChatViewModel();
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -382,42 +382,42 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     }
 
-    private Runnable mInputRecoverySoftInputModeRunnable=new Runnable() {
+    private Runnable mInputRecoverySoftInputModeRunnable = new Runnable() {
         @Override
         public void run() {
             //设置改SoftInput模式为：顶起输入框
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         }
     };
-    private Runnable mPanelRecoverySoftInputModeRunnable=new Runnable() {
+    private Runnable mPanelRecoverySoftInputModeRunnable = new Runnable() {
         @Override
         public void run() {
-            if(viewExtendFunction.getVisibility()== VISIBLE)
+            if (viewExtendFunction.getVisibility() == VISIBLE)
                 viewExtendFunction.setVisibility(View.GONE);
-            if(viewFaceView.getVisibility()== VISIBLE)
+            if (viewFaceView.getVisibility() == VISIBLE)
                 viewFaceView.setVisibility(View.GONE);
             //设置改SoftInput模式为：顶起输入框
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         }
     };
 
-    private void initObserver(){
-        long delayMillis=500;
+    private void initObserver() {
+        long delayMillis = 500;
         mViewModel.isInputText.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
-                if(value){//打开
+                if (value) {//打开
                     editChat.requestFocus();
                     InputUtil.showKeyboard(editChat);
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isInputText);
-                }else{//关闭
+                } else {//关闭
                     //清除焦点
                     editChat.clearFocus();
                     // 关闭软键盘
                     InputUtil.hideKeyboard(editChat);
                     //虚拟键盘弹出,需更改SoftInput模式为：顶起输入框
-                    handler.postDelayed(mInputRecoverySoftInputModeRunnable,delayMillis);
+                    handler.postDelayed(mInputRecoverySoftInputModeRunnable, delayMillis);
                 }
             }
         });
@@ -427,26 +427,27 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onChanged(@Nullable Boolean value) {
                 handler.removeCallbacks(mInputRecoverySoftInputModeRunnable);
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
-                if(value){//打开
+                if (value) {//打开
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
-                    if (mViewModel.isInputText.getValue())getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+                    if (mViewModel.isInputText.getValue())
+                        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                     btnEmj.setImageLevel(1);
                     //因为面板有延迟执行，所以必须执行该方法
                     viewExtendFunction.setVisibility(View.GONE);
                     viewFaceView.setVisibility(View.VISIBLE);
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isOpenEmoj);
-                }else{//关闭
+                } else {//关闭
                     btnEmj.setImageLevel(0);
-                    if(mViewModel.isOpenValue()){//有事件触发
-                        if(mViewModel.isInputText.getValue()) {//无其他功能触发，则弹出输入框
+                    if (mViewModel.isOpenValue()) {//有事件触发
+                        if (mViewModel.isInputText.getValue()) {//无其他功能触发，则弹出输入框
                             /*******输入框弹出键盘，pos tDelayed关闭面板*****************************************/
 //                       //更改SoftInput模式为：不顶起输入框
                             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                             editChat.requestFocus();
                             InputUtil.showKeyboard(editChat);
-                            handler.postDelayed(mPanelRecoverySoftInputModeRunnable,delayMillis);
-                        }else{//其他功能触发，非输入框触发，直接关闭当前面板
+                            handler.postDelayed(mPanelRecoverySoftInputModeRunnable, delayMillis);
+                        } else {//其他功能触发，非输入框触发，直接关闭当前面板
                             viewFaceView.setVisibility(View.GONE);
                         }
                     }
@@ -459,24 +460,25 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onChanged(@Nullable Boolean value) {
                 handler.removeCallbacks(mInputRecoverySoftInputModeRunnable);
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
-                if(value){//打开
+                if (value) {//打开
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
-                    if(mViewModel.isInputText.getValue()) getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+                    if (mViewModel.isInputText.getValue())
+                        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                     //因为面板有延迟执行，所以必须执行该方法
                     viewFaceView.setVisibility(View.GONE);
                     viewExtendFunction.setVisibility(View.VISIBLE);
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isOpenFuction);
-                }else{//关闭
+                } else {//关闭
                     if (mViewModel.isOpenValue()) {//有事件触发
-                        if(mViewModel.isInputText.getValue()){//无其他功能触发，则弹出输入框
+                        if (mViewModel.isInputText.getValue()) {//无其他功能触发，则弹出输入框
                             /*******输入框弹出键盘，pos tDelayed关闭面板*****************************************/
 //                       //更改SoftInput模式为：不顶起输入框
                             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                             editChat.requestFocus();
                             InputUtil.showKeyboard(editChat);
-                            handler.postDelayed(mPanelRecoverySoftInputModeRunnable,delayMillis);
-                        }else{//其他功能触发，非输入框触发，直接关闭当前面板
+                            handler.postDelayed(mPanelRecoverySoftInputModeRunnable, delayMillis);
+                        } else {//其他功能触发，非输入框触发，直接关闭当前面板
                             viewExtendFunction.setVisibility(View.GONE);
                         }
                     }
@@ -486,11 +488,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mViewModel.isOpenSpeak.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
-                if(value){//打开
+                if (value) {//打开
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isOpenSpeak);
                     showVoice(true);
-                }else{//关闭
+                } else {//关闭
                     showVoice(false);
                 }
             }
@@ -1092,7 +1094,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         editChat.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if(!mViewModel.isInputText.getValue())
+                if (!mViewModel.isInputText.getValue())
                     mViewModel.isInputText.setValue(true);
                 return false;
             }
@@ -1136,10 +1138,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         btnFunc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean orignilValue=mViewModel.isOpenFuction.getValue();
-                if(orignilValue){//已经打开了面板，再次点击->打开输入框
+                boolean orignilValue = mViewModel.isOpenFuction.getValue();
+                if (orignilValue) {//已经打开了面板，再次点击->打开输入框
                     mViewModel.isInputText.setValue(true);
-                }else{//未打开面板->打开功能面板
+                } else {//未打开面板->打开功能面板
                     mViewModel.isOpenFuction.setValue(true);
                 }
             }
@@ -1148,10 +1150,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         btnEmj.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean orignilValue=mViewModel.isOpenEmoj.getValue();
-                if(orignilValue){//已经打开了面板，再次点击->打开输入框
+                boolean orignilValue = mViewModel.isOpenEmoj.getValue();
+                if (orignilValue) {//已经打开了面板，再次点击->打开输入框
                     mViewModel.isInputText.setValue(true);
-                }else{//未打开面板->打开功能面板
+                } else {//未打开面板->打开功能面板
                     mViewModel.isOpenEmoj.setValue(true);
                 }
 
@@ -2043,6 +2045,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
     }
+
     /*
      * @param isMustBottom 是否必须滑动到底部
      * */
@@ -4341,7 +4344,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void taskSessionInfo(boolean needRefresh) {
         String title = "";
         if (isGroup()) {
-            if (!needRefresh && groupInfo == null) {
+            if (needRefresh || groupInfo == null) {
                 groupInfo = msgDao.getGroup4Id(toGid);
             }
             if (groupInfo != null) {

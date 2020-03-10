@@ -669,7 +669,18 @@
         <activity
             android:name=".share.CXEntryActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <data
+                    android:host="changxin.zhixun6.com"
+                    android:path="/share"
+                    android:scheme="changxin" />
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+        </activity>
 
     </application>
 

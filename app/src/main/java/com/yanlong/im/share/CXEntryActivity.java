@@ -10,7 +10,7 @@ import net.cb.cb.library.view.AppActivity;
 /**
  * @author Liszt
  * @date 2020/3/7
- * Description
+ * Description  外部数据承接
  */
 public class CXEntryActivity extends AppActivity {
 
@@ -22,5 +22,17 @@ public class CXEntryActivity extends AppActivity {
         if (intent != null) {
             startActivity(new Intent(this, MsgForwardActivity.class));
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        dismissLoadingDialog();
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }
