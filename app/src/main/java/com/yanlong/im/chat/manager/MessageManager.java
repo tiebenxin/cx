@@ -43,7 +43,6 @@ import net.cb.cb.library.bean.RefreshApplyEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -489,8 +488,17 @@ public class MessageManager {
             case READ://已读消息
 //                msgDao.setUpdateRead(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), wrapMessage.getRead().getTimestamp());
 //                LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getRead().getTimestamp());
-                msgDao.setUpdateRead(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), wrapMessage.getTimestamp());
+                long uids=isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
+                msgDao.setUpdateRead(uids, wrapMessage.getTimestamp());
                 LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getTimestamp());
+                if(isFromSelf){//自己PC端已读，则清除未读消息
+                    String gid=wrapMessage.getGid();
+                    gid=gid==null?"":gid;
+                    msgDao.sessionReadClean(gid,uids);
+                    boolean isGroup = isGroup(wrapMessage.getFromUid(), gid);
+                    //更新UI
+                    notifyRefreshMsg(isGroup?CoreEnum.EChatType.GROUP:CoreEnum.EChatType.PRIVATE, uids, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+                }
                 break;
             case SWITCH_CHANGE: //开关变更
                 // TODO　处理老版本不兼容问题
@@ -683,10 +691,11 @@ public class MessageManager {
                     loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
                 } else {
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), msgAllBean, null);
+                        //非自己发过来的消息，才存储为未读状态
+                        if(!isFromSelf)updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), msgAllBean, null);
                         setMessageChange(true);
                     } else {
-                        updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel, msgAllBean.getRequest_id());
+                        if(!isFromSelf)updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel, msgAllBean.getRequest_id());
                     }
                     result = true;
                 }
@@ -704,28 +713,28 @@ public class MessageManager {
                 } else {
                     LogUtil.getLog().d("a=", TAG + "--异步加载用户信息更新未读数");
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), chatterId, msgAllBean, null);
+                        if(!isFromSelf)updateSessionUnread(msgAllBean.getGid(), chatterId, msgAllBean, null);
                         setMessageChange(true);
                     } else {
-                        updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel, msgAllBean.getRequest_id());
+                        if(!isFromSelf)updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel, msgAllBean.getRequest_id());
                     }
                     result = true;
                 }
             } else {
                 if (!TextUtils.isEmpty(msgAllBean.getGid())) {
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), msgAllBean, null);
+                        if(!isFromSelf)updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), msgAllBean, null);
                         setMessageChange(true);
                     } else {
-                        updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel, msgAllBean.getRequest_id());
+                        if(!isFromSelf)updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel, msgAllBean.getRequest_id());
                     }
                 } else {
                     long chatterId = isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid();
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), chatterId, msgAllBean, null);
+                        if(!isFromSelf)updateSessionUnread(msgAllBean.getGid(), chatterId, msgAllBean, null);
                         setMessageChange(true);
                     } else {
-                        updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel, msgAllBean.getRequest_id());
+                        if(!isFromSelf)updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel, msgAllBean.getRequest_id());
                     }
                 }
                 result = true;
