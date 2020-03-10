@@ -346,6 +346,7 @@ public class MsgMainFragment extends Fragment {
                 LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
                 taskListData();
             } else if (refreshTag == CoreEnum.ESessionRefreshTag.SINGLE) {
+
                 refreshPosition(event.getGid(), event.getUid(), event.getMsgAllBean(), event.getSession(), event.isRefreshTop());
                 LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
             } else if (refreshTag == CoreEnum.ESessionRefreshTag.DELETE) {
@@ -405,7 +406,6 @@ public class MsgMainFragment extends Fragment {
                 .subscribe(new Consumer<Session>() {
                     @Override
                     public void accept(Session session) throws Exception {
-
                         if (listData != null) {
                             int index = listData.indexOf(session);
                             if (index >= 0) {

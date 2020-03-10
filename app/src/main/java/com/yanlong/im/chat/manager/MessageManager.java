@@ -201,7 +201,6 @@ public class MessageManager {
         if (bean != null && !TextUtils.isEmpty(requestId)) {
             bean.setRequest_id(requestId);
         }
-
         switch (wrapMessage.getMsgType()) {
             case CHAT://文本
             case IMAGE://图片
@@ -493,9 +492,12 @@ public class MessageManager {
                 msgDao.setUpdateRead(uids, wrapMessage.getTimestamp());
                 LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getTimestamp());
                 if(isFromSelf){//自己PC端已读，则清除未读消息
-                    msgDao.sessionReadClean("",uids);
+                    String gid=wrapMessage.getGid();
+                    gid=gid==null?"":gid;
+                    msgDao.sessionReadClean(gid,uids);
+                    boolean isGroup = isGroup(wrapMessage.getFromUid(), gid);
                     //更新UI
-                    notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uids, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
+                    notifyRefreshMsg(isGroup?CoreEnum.EChatType.GROUP:CoreEnum.EChatType.PRIVATE, uids, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                 }
                 break;
             case SWITCH_CHANGE: //开关变更
