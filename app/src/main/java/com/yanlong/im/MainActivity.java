@@ -835,7 +835,7 @@ public class MainActivity extends AppActivity {
                     UpdateManage updateManage = new UpdateManage(context, MainActivity.this);
                     //强制更新
                     if (response.body().getData().getForceUpdate() != 0) {
-                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
+                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true,true);
                     } else {
                         //缓存最新版本
                         SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
@@ -844,9 +844,9 @@ public class MainActivity extends AppActivity {
                         preferencesUtil.save2Json(versionBean);
                         //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
                         if (VersionUtil.isBigVersion(context, bean.getVersion())) {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true,true);
                         } else {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false,true);
                         }
                         //如有新版本，首页底部提示红点
                         if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {

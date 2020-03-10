@@ -36,8 +36,9 @@ public class SharedPreferencesUtil {
         NEW_VESRSION("new_vesrsion"),
         UID("login_uid"),//当前登录用户uid
         IM_ID("im_id"),//当前登录用户IM_id及常信号
+        CONN_STATUS("connect_status"),//当前登录用户IM_id及常信号
         POST_LOCATION_TIME("post_location_time"),//最近一次上传地理位置定位的时间
-        CONN_STATUS("connect_status");//当前登录用户IM_id及常信号
+        IGNORE_UPDATE_VERSION("ignore_update_version");//非强制更新-用户选择忽略的版本号(取消后此次版本不再提示)
 
         private String name;
 

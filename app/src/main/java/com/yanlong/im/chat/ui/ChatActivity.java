@@ -450,6 +450,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         } else {//其他功能触发，非输入框触发，直接关闭当前面板
                             viewFaceView.setVisibility(View.GONE);
                         }
+                    }else{//聊天时界面滑动，关闭面板
+                        viewFaceView.setVisibility(View.GONE);
                     }
                 }
             }
@@ -481,6 +483,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         } else {//其他功能触发，非输入框触发，直接关闭当前面板
                             viewExtendFunction.setVisibility(View.GONE);
                         }
+                    }else{//聊天时界面滑动，关闭面板
+                        viewExtendFunction.setVisibility(View.GONE);
                     }
                 }
             }
@@ -1697,7 +1701,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 list.add(createItemMode("群助手", R.mipmap.ic_chat_robot, ChatEnum.EFunctionId.GROUP_ASSISTANT));
             }
         }
-//        list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
+        list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
         return list;
     }
 
@@ -2751,7 +2755,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         } else if (event.getState() == 1) {
             //已完成：更新文件上传进度，同时拿最新的数据
-            taskRefreshImage(event.getMsgid());
+            MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
+            replaceListDataAndNotify(msgAllbean);
+
+//            taskRefreshImage(event.getMsgid());
 //            taskRefreshMessage(true);
         }
     }
@@ -3301,6 +3308,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             holder.viewChatItem.isSelectedShow(isSelected);
             //发送状态处理
             if (ChatEnum.EMessageType.MSG_VIDEO == msgbean.getMsg_type() || ChatEnum.EMessageType.IMAGE == msgbean.getMsg_type() ||
+                    ChatEnum.EMessageType.FILE == msgbean.getMsg_type() ||
                     Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_FILE_HELPER_UID.equals(toUId)) {
                 holder.viewChatItem.setErr(msgbean.getSend_state(), false);
             } else {
@@ -3702,6 +3710,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         menus.add(new OptionMenu("删除"));
                     } else {
                         menus.add(new OptionMenu("删除"));
+                    }
+                    Integer filePg = UpLoadService.getProgress(msgbean.getMsg_id());
+                    if(filePg!=null){
+                        holder.viewChatItem.setFileProgress(filePg);
                     }
                     SendFileMessage fileMessage = msgbean.getSendFileMessage();
                     //UI显示和点击事件
@@ -5739,10 +5751,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
-    //选择文件
+    //选择文件(限制最大5个，与网络请求并发数一致)
     private void toSelectFile() {
         FilePickerManager.INSTANCE
                 .from(this)
+                .maxSelectable(5)
                 .forResult(FilePickerManager.REQUEST_CODE);
     }
 

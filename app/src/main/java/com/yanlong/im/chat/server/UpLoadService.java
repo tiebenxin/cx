@@ -163,7 +163,7 @@ public class UpLoadService extends Service {
      */
     public static void onAddFile(Context mContext,final String id, String filePath,String fileName,final Long fileSize,String format, final Long toUId, final String toGid, final long time) {
         // 上传文件时，默认给1-5的上传进度，解决一开始上传不显示进度问题
-        updateProgress(id, new Random().nextInt(5) + 1);
+//        updateProgress(id, new Random().nextInt(5) + 1);
 
         UpFileAction upFileAction = new UpFileAction();
         upFileAction.upFile(UpFileAction.PATH.FILE, mContext, new UpFileUtil.OssUpCallback() {
@@ -175,9 +175,9 @@ public class UpLoadService extends Service {
                 eventUpFileLoadEvent.setMsgid(id);
                 eventUpFileLoadEvent.setState(1);
                 eventUpFileLoadEvent.setUrl(url);
-
                 //发送文件消息到服务器，传递给目标用户
-                SocketData.sendFile(id,url,toUId,toGid,fileName,fileSize,format,time,filePath);
+                Object msgbean = SocketData.sendFile(id,url,toUId,toGid,fileName,fileSize,format,time,filePath);
+                eventUpFileLoadEvent.setMsgAllBean(msgbean);
                 EventBus.getDefault().post(eventUpFileLoadEvent);
             }
 
