@@ -1649,12 +1649,6 @@ public class MsgDao {
                 }
                 realm.insertOrUpdate(list);
             }
-            //TODO:将未读数清零
-            Session session = realm.where(Session.class).equalTo("from_uid", uid).findFirst();
-            if (session != null && session.getUnread_count() > 0) {
-                session.setUnread_count(0);
-                realm.insertOrUpdate(session);
-            }
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
@@ -3208,7 +3202,9 @@ public class MsgDao {
         if (time <= 0) {
             time = System.currentTimeMillis();
         }
+        //超过10分钟未领取，且未超过24小时
         long diff = TimeToString.DAY;
+        long ten = TimeToString.MINUTE * 10;
         try {
             List<MsgAllBean> msgAllBeans = new ArrayList<>();
             RealmResults<RedEnvelopeMessage> envelopeList = realm.where(RedEnvelopeMessage.class)
@@ -3223,6 +3219,8 @@ public class MsgDao {
                     .beginGroup().isNotNull("red_envelope").endGroup()
                     .and()
                     .beginGroup().greaterThan("timestamp", time - diff).endGroup()
+                    .and()
+                    .beginGroup().lessThan("timestamp", time - ten).endGroup()
                     .sort("timestamp")
                     .findAll();
             if (realmResults != null && envelopeList != null) {

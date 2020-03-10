@@ -29,6 +29,7 @@ import com.google.gson.Gson;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
+import com.yanlong.im.adapter.SessionAdapter;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
@@ -39,6 +40,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.chat.ChatActivity3;
+import com.yanlong.im.interf.ISessionListener;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -106,7 +108,11 @@ public class MsgMainFragment extends Fragment {
     private LinearLayout viewPopHelp;
     private View mHeadView;
     private boolean onlineState = true;//判断网络状态 true在线 false离线
-    private final String TYPE_FACE = "[动画表情]";
+
+    private MsgDao msgDao = new MsgDao();
+    private UserDao userDao = new UserDao();
+    private MsgAction msgAction = new MsgAction();
+    private List<Session> listData = new ArrayList<>();
 
     Runnable runnable = new Runnable() {
         @Override
@@ -263,7 +269,6 @@ public class MsgMainFragment extends Fragment {
             }
             switch (status) {
                 case CoreEnum.ENetStatus.ERROR_ON_NET:
-//                viewNetwork.setVisibility(View.VISIBLE);
                     if (mAdapter.viewNetwork.getVisibility() == View.GONE) {
                         mAdapter.viewNetwork.postDelayed(showRunnable, 15 * 1000);
                     }
@@ -290,7 +295,7 @@ public class MsgMainFragment extends Fragment {
 
             }
         } catch (NullPointerException e) {
-
+            e.printStackTrace();
         }
     }
 
@@ -464,6 +469,7 @@ public class MsgMainFragment extends Fragment {
                 });
     }
 
+
     /*
      * 重新排序,置顶和非置顶分别重排
      * @param isTop 当前要更新的session 是否在列表第一位置（置顶）
@@ -538,6 +544,7 @@ public class MsgMainFragment extends Fragment {
         }
         return position;
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -640,7 +647,6 @@ public class MsgMainFragment extends Fragment {
             if (viewHolder instanceof RCViewHolder) {
                 RCViewHolder holder = (RCViewHolder) viewHolder;
                 final Session bean = listData.get(position - 1);
-//                LogUtil.getLog().e("=session==="+ GsonUtils.optObject(bean));
                 String icon = bean.getAvatar();
                 String title = bean.getName();
                 MsgAllBean msginfo = bean.getMessage();
@@ -666,12 +672,7 @@ public class MsgMainFragment extends Fragment {
                             style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             showMessage(holder.txtInfo, bean.getDraft(), style);
                         } else {
-                            // 判断是否是动画表情
-                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
-                                holder.txtInfo.setText(TYPE_FACE);
-                            } else {
-                                showMessage(holder.txtInfo, info, null);
-                            }
+                            showMessage(holder.txtInfo, info, null);
                         }
                     }
                     headList.add(icon);
@@ -746,12 +747,8 @@ public class MsgMainFragment extends Fragment {
                                 style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 showMessage(holder.txtInfo, bean.getDraft(), style);
                             } else {
-                                // 判断是否是动画表情
-                                if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
-                                    holder.txtInfo.setText(msginfo.getFrom_nickname() + ":" + TYPE_FACE);
-                                } else {
-                                    showMessage(holder.txtInfo, info, null);
-                                }
+                                showMessage(holder.txtInfo, info, null);
+
                             }
                             break;
                         case 3:
@@ -761,13 +758,9 @@ public class MsgMainFragment extends Fragment {
                             showMessage(holder.txtInfo, info, style);
                             break;
                         default:
-                            // 判断是否是动画表情
-                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
-                                holder.txtInfo.setText(msginfo.getFrom_nickname() + ":" + TYPE_FACE);
-                            } else {
-                                showMessage(holder.txtInfo, info, null);
-                            }
+                            showMessage(holder.txtInfo, info, null);
                             break;
+
                     }
 
                     if (StringUtil.isNotNull(icon)) {
@@ -814,7 +807,7 @@ public class MsgMainFragment extends Fragment {
                     }
                 });
                 holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#ececec"));
-                holder.iv_disturb.setVisibility(bean.getIsMute() == 0 ? View.GONE : View.VISIBLE);
+                holder.iv_disturb.setVisibility(bean.getIsMute() == 0 ? View.INVISIBLE : View.VISIBLE);
             } else if (viewHolder instanceof HeadViewHolder) {
                 HeadViewHolder headHolder = (HeadViewHolder) viewHolder;
                 headHolder.edtSearch.setOnClickListener(new View.OnClickListener() {
@@ -866,6 +859,7 @@ public class MsgMainFragment extends Fragment {
                 spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, spannableString);
             }
             txtInfo.setText(spannableString, TextView.BufferType.SPANNABLE);
+            txtInfo.invalidate();
         }
 
         /**
@@ -937,10 +931,6 @@ public class MsgMainFragment extends Fragment {
 
     }
 
-    private MsgDao msgDao = new MsgDao();
-    private UserDao userDao = new UserDao();
-    private MsgAction msgAction = new MsgAction();
-    private List<Session> listData = new ArrayList<>();
 
     @SuppressLint("CheckResult")
     private void taskListData() {
@@ -966,7 +956,6 @@ public class MsgMainFragment extends Fragment {
                     public void accept(List<Session> list) throws Exception {
                         mtListView.notifyDataSetChange();
                         checkSessionData(list);
-//                        LogUtil.getLog().d("a=", "MsgMainFragment --获取session数据后刷新" + System.currentTimeMillis());
                     }
                 });
 
@@ -990,7 +979,6 @@ public class MsgMainFragment extends Fragment {
                                 // 群聊的时候 检查头像跟群名是否存在
                                 if (gginfo.getUsers() == null || gginfo.getUsers().size() == 0 ||
                                         (TextUtils.isEmpty(gginfo.getName()) && TextUtils.isEmpty(session.getName()))) {
-//                                    Log.i("1212", "checkSessionData:" + session.getGid());
                                     MessageManager.getInstance().refreshGroupInfo(session.getGid());
                                 }
                             }

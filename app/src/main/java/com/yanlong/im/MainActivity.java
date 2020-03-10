@@ -1014,7 +1014,7 @@ public class MainActivity extends AppActivity {
     public void posting(CanStampEvent event) {
         if (!isFinishing()) {
             //允许
-            MessageManager.setCanStamp(event.canStamp);
+            MessageManager.getInstance().setCanStamp(event.canStamp);
         }
     }
 
@@ -1022,7 +1022,7 @@ public class MainActivity extends AppActivity {
     public void posting(CanStampEventWX event) {
         if (!isFinishing()) {
             //允许
-            MessageManager.setCanStamp(event.canStamp);
+            MessageManager.getInstance().setCanStamp(event.canStamp);
         }
     }
 

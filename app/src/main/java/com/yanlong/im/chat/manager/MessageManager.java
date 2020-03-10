@@ -43,7 +43,6 @@ import net.cb.cb.library.bean.RefreshApplyEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -79,44 +78,26 @@ import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
 public class MessageManager {
     private final String TAG = MessageManager.class.getSimpleName();
 
-    private static int SESSION_TYPE = 0;//无会话,1:单人;2群,3静音模式
+    private int SESSION_TYPE = 0;//无会话,1:单人;2群,3静音模式
     public static Long SESSION_FUID;//单人会话id
     public static String SESSION_GID;//群会话id
 
     private static MessageManager INSTANCE;
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();
-    private static boolean isMessageChange;//是否有聊天消息变化
+    private boolean isMessageChange;//是否有聊天消息变化
 
-    private static List<String> loadGids = new ArrayList<>();//需要异步加载群数据的群id
-    private static List<Long> loadUids = new ArrayList<>();//需要异步记载用户数据的用户id
-
-//    private static Map<String, MsgAllBean> sequenceMap = new HashMap<>();//消息发送队列
-
+    private List<String> loadGids = new ArrayList<>();//需要异步加载群数据的群id
+    private List<Long> loadUids = new ArrayList<>();//需要异步记载用户数据的用户id
 
     //缓存
-//    private static Map<Long, UserInfo> cacheUsers = new HashMap<>();//用户信息缓存
-//    private static Map<String, Group> cacheGroups = new HashMap<>();//群信息缓存
-//    private static List<Session> cacheSessions = new ArrayList<>();//Session缓存，
-    private static Map<Long, List<MsgAllBean>> cacheMessagePrivate = new HashMap();//私聊消息缓存，以用户id为key
-    private static Map<String, List<MsgAllBean>> cacheMessageGroup = new HashMap();//群聊消息缓存，以群id为key
     private static List<Group> saveGroups = new ArrayList<>();//已保存群信息缓存
-
-
-    //批量消息待处理
-//    private static Map<String, MsgAllBean> pendingMessages = new HashMap<>();//批量接收到的消息，待保存到数据库
-//    private static Map<String, MsgAllBean> pendingCancelMessages = new HashMap<>();//批量接收到的撤销消息，待保存到数据库
-//    private static Map<Long, UserInfo> pendingUsers = new HashMap<>();//批量用户信息（头像和昵称），待保存到数据库
-//    private static Map<String, Integer> pendingGroupUnread = new HashMap<>();//批量群session未读数，待保存到数据库
-//    private static Map<Long, Integer> pendingUserUnread = new HashMap<>();//批量私聊session未读数，待保存到数据库
-
     private static Map<String, TaskDealWithMsgList> taskMaps = new HashMap<>();//批量消息的处理
-
 
     private long playTimeOld = 0;//当前声音播放时间
     private long playVBTimeOld = 0; //当前震动时间
 
-    private static Boolean CAN_STAMP = true;//true 允许戳一戳弹窗 ,false 不允许
+    private Boolean CAN_STAMP = true;//true 允许戳一戳弹窗 ,false 不允许
 
 
     public static MessageManager getInstance() {
@@ -507,8 +488,17 @@ public class MessageManager {
             case READ://已读消息
 //                msgDao.setUpdateRead(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), wrapMessage.getRead().getTimestamp());
 //                LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getRead().getTimestamp());
-                msgDao.setUpdateRead(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), wrapMessage.getTimestamp());
+                long uids=isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
+                msgDao.setUpdateRead(uids, wrapMessage.getTimestamp());
                 LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getTimestamp());
+                if(isFromSelf){//自己PC端已读，则清除未读消息
+                    String gid=wrapMessage.getGid();
+                    gid=gid==null?"":gid;
+                    msgDao.sessionReadClean(gid,uids);
+                    boolean isGroup = isGroup(wrapMessage.getFromUid(), gid);
+                    //更新UI
+                    notifyRefreshMsg(isGroup?CoreEnum.EChatType.GROUP:CoreEnum.EChatType.PRIVATE, uids, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+                }
                 break;
             case SWITCH_CHANGE: //开关变更
                 // TODO　处理老版本不兼容问题
@@ -701,10 +691,11 @@ public class MessageManager {
                     loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
                 } else {
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), msgAllBean, null);
+                        //非自己发过来的消息，才存储为未读状态
+                        if(!isFromSelf)updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), msgAllBean, null);
                         setMessageChange(true);
                     } else {
-                        updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel, msgAllBean.getRequest_id());
+                        if(!isFromSelf)updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel, msgAllBean.getRequest_id());
                     }
                     result = true;
                 }
@@ -722,28 +713,28 @@ public class MessageManager {
                 } else {
                     LogUtil.getLog().d("a=", TAG + "--异步加载用户信息更新未读数");
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), chatterId, msgAllBean, null);
+                        if(!isFromSelf)updateSessionUnread(msgAllBean.getGid(), chatterId, msgAllBean, null);
                         setMessageChange(true);
                     } else {
-                        updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel, msgAllBean.getRequest_id());
+                        if(!isFromSelf)updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel, msgAllBean.getRequest_id());
                     }
                     result = true;
                 }
             } else {
                 if (!TextUtils.isEmpty(msgAllBean.getGid())) {
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), msgAllBean, null);
+                        if(!isFromSelf)updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), msgAllBean, null);
                         setMessageChange(true);
                     } else {
-                        updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel, msgAllBean.getRequest_id());
+                        if(!isFromSelf)updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel, msgAllBean.getRequest_id());
                     }
                 } else {
                     long chatterId = isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid();
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), chatterId, msgAllBean, null);
+                        if(!isFromSelf)updateSessionUnread(msgAllBean.getGid(), chatterId, msgAllBean, null);
                         setMessageChange(true);
                     } else {
-                        updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel, msgAllBean.getRequest_id());
+                        if(!isFromSelf)updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel, msgAllBean.getRequest_id());
                     }
                 }
                 result = true;
@@ -809,7 +800,7 @@ public class MessageManager {
         if (TextUtils.isEmpty(gid)) {
             return;
         }
-        new MsgAction().groupInfo(gid, false,new CallBack<ReturnBean<Group>>() {
+        new MsgAction().groupInfo(gid, false, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
@@ -1152,7 +1143,7 @@ public class MessageManager {
     }
 
     //检测是否是双重消息，及一条消息需要产生两条本地消息记录,回执在通知消息中发送
-    private static void checkDoubleMessage(MsgBean.UniversalMessage.WrapMessage wmsg) {
+    private void checkDoubleMessage(MsgBean.UniversalMessage.WrapMessage wmsg) {
         if (wmsg.getMsgType() == ACCEPT_BE_FRIENDS) {
             MsgBean.AcceptBeFriendsMessage receiveMessage = wmsg.getAcceptBeFriends();
             if (receiveMessage != null && !TextUtils.isEmpty(receiveMessage.getSayHi())) {
@@ -1259,7 +1250,7 @@ public class MessageManager {
     /***
      * 无会话
      */
-    public static void setSessionNull() {
+    public void setSessionNull() {
         if (SESSION_TYPE == 3)
             return;
         SESSION_TYPE = 0;
@@ -1268,7 +1259,7 @@ public class MessageManager {
     }
 
     //允许戳一戳弹窗
-    public static void setCanStamp(Boolean canStamp) {
+    public void setCanStamp(Boolean canStamp) {
         CAN_STAMP = canStamp;
         LogUtil.getLog().e("==CAN_STAMP==" + CAN_STAMP);
     }

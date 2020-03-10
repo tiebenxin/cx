@@ -2,10 +2,16 @@ package net.cb.cb.library.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.text.DynamicLayout;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.ViewGroup;
+
+import net.cb.cb.library.utils.LogUtil;
+
+import java.lang.reflect.Field;
 
 /**
  * @version V1.0
@@ -41,10 +47,9 @@ public class EllipsizedTextView extends android.support.v7.widget.AppCompatTextV
 
     @Override
     public void setText(CharSequence text, BufferType type) {
-
         if ((text != null && text.length() > 0) && (mMaxLines != Integer.MAX_VALUE && mMaxLines > 0) && getWidth() != 0) {
             StaticLayout layout = new StaticLayout(text, getPaint(), getWidth(), Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
-            //需要显示的文字加上"..."的总宽度
+            //多行 需要显示的文字加上"..."的总宽度
 //            float textAndEllipsizeWidth = 0;
 //            for (int i = 0; i < mMaxLines; i++) {
 //                //此处用getWidth()计算的话会有误差，所以用getLineWidth() getLineWidth

@@ -56,7 +56,7 @@ public class CountDownView extends LinearLayout {
             public void onFinish() {
                 if (timer != null) {
                     timer.cancel();
-                    LogUtil.getLog().i("CountDownView", "onFinish--timer=" + timer);
+//                    LogUtil.getLog().i("CountDownView", "onFinish--timer=" + timer);
                 }
             }
         }.start();

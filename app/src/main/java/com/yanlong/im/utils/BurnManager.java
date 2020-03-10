@@ -184,7 +184,7 @@ public class BurnManager {
 
     public synchronized void addMsgAllBean(MsgAllBean msgAllBean) {
         if (!historyMsgIds.contains(msgAllBean.getMsg_id())) {
-            LogUtil.getLog().i("SurvivalTime", "addMsgAllBean--status==" + msgAllBean.getSend_state());
+//            LogUtil.getLog().i("SurvivalTime", "addMsgAllBean--status==" + msgAllBean.getSend_state());
             msgAllBeans.add(msgAllBean);
             if (historyMsgIds.size() >= 500) {
                 historyMsgIds.remove(0);
@@ -195,7 +195,7 @@ public class BurnManager {
 
     //添加阅后即焚消息进入队列
     public synchronized void addMsgAllBeans(List<MsgAllBean> msgs) {
-        LogUtil.getLog().i("SurvivalTime", "addMsgAllBeans:" + msgs.size());
+//        LogUtil.getLog().i("SurvivalTime", "addMsgAllBeans:" + msgs.size());
         msgAllBeans.addAll(msgs);
     }
 
