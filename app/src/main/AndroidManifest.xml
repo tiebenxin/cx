@@ -183,16 +183,16 @@
 
         </activity>
 
-        <!--消息转发--><!--系统相册图片分享(复用)-->
+        <!--消息转发-->
         <activity
             android:name=".chat.ui.forward.MsgForwardActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="image/*" />
-            </intent-filter>
+            <!--            <intent-filter>-->
+            <!--                <action android:name="android.intent.action.SEND" />-->
+            <!--                <category android:name="android.intent.category.DEFAULT" />-->
+            <!--                <data android:mimeType="image/*" />-->
+            <!--            </intent-filter>-->
         </activity>
         <!--群信息-->
         <activity
@@ -666,6 +666,7 @@
             android:screenOrientation="portrait" />
 
         <!--第三方分享入口界面-->
+        <!--系统相册图片分享(复用)-->
         <activity
             android:name=".share.CXEntryActivity"
             android:launchMode="singleTask"
@@ -679,6 +680,12 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <!--                <data android:mimeType="image/*" />-->
             </intent-filter>
         </activity>
 
