@@ -66,6 +66,12 @@ public class SearchFriendGroupActivity extends AppActivity {
         initEvent();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        showSoftKeyword(edtSearch);
+    }
+
     //自动寻找控件
     private void findViews() {
         headView = findViewById(R.id.headView);

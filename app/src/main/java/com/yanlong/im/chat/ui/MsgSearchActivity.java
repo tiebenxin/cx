@@ -83,6 +83,12 @@ public class MsgSearchActivity extends AppActivity {
         initEvent();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        showSoftKeyword(edtSearch);
+    }
+
     private void findViews() {
         headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();

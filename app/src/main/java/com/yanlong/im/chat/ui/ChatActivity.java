@@ -484,7 +484,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             viewExtendFunction.setVisibility(View.GONE);
                         }
                     }else{//聊天时界面滑动，关闭面板
-                        viewFaceView.setVisibility(View.GONE);
+                        viewExtendFunction.setVisibility(View.GONE);
                     }
                 }
             }
