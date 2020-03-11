@@ -3019,6 +3019,26 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
                     taskRefreshMessage(false);
                 }
+            }else if(reMsg.getMsg_type() == ChatEnum.EMessageType.FILE){ //文件消息失败重发机制
+                if (!checkNetConnectStatus()) {
+                    return;
+                }
+                //文件仍然存在，则重发
+                if(net.cb.cb.library.utils.FileUtils.fileIsExist(reMsg.getSendFileMessage().getLocalPath())){
+                    SendFileMessage fileMessage = SocketData.createFileMessage(reMsg.getMsg_id(), reMsg.getSendFileMessage().getLocalPath(), reMsg.getSendFileMessage().getFile_name(), reMsg.getSendFileMessage().getSize(), reMsg.getSendFileMessage().getFormat());
+                    MsgAllBean fileMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, SocketData.getFixTime(), fileMessage, ChatEnum.EMessageType.FILE);
+                    replaceListDataAndNotify(fileMsgBean);
+                    // 若不为常信小助手，消息需要上传到服务端
+                    if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                        UpLoadService.onAddFile(this.context, reMsg.getMsg_id(), reMsg.getSendFileMessage().getLocalPath(), reMsg.getSendFileMessage().getFile_name(), reMsg.getSendFileMessage().getSize(), reMsg.getSendFileMessage().getFormat(), toUId, toGid, -1);
+                        startService(new Intent(getContext(), UpLoadService.class));
+                    } else {
+                        //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
+                        msgDao.fixStataMsg(reMsg.getMsg_id(), ChatEnum.ESendStatus.NORMAL);
+                    }
+                }else {
+                    ToastUtil.show("文件不存在或已被删除");
+                }
             } else {
                 //点击发送的时候如果要改变成发送中的状态
                 reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
@@ -3712,8 +3732,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         menus.add(new OptionMenu("删除"));
                     }
                     Integer filePg = UpLoadService.getProgress(msgbean.getMsg_id());
-                    if(filePg!=null){
-                        holder.viewChatItem.setFileProgress(filePg);
+                    //发送失败状态下，不展现之前的进度，点击重新下载
+                    if (msgbean.getSend_state() != ChatEnum.ESendStatus.ERROR){
+                        if(filePg!=null){
+                            holder.viewChatItem.setFileProgress(filePg);
+                        }
                     }
                     SendFileMessage fileMessage = msgbean.getSendFileMessage();
                     //UI显示和点击事件
