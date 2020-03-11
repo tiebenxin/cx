@@ -220,6 +220,7 @@ public class ChatItemView extends LinearLayout {
 
     private LinearLayout layoutFileProgress;
     private TextView tvFileProgressValue;
+    private View viewOtUnread;
 
     public ChatItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -234,7 +235,7 @@ public class ChatItemView extends LinearLayout {
 
     //自动寻找控件
     private void findViews(View rootView) {
-
+        viewOtUnread=rootView.findViewById(R.id.view_ot_unread);
         txtMeName = rootView.findViewById(R.id.txt_me_name);
         txtOtName = rootView.findViewById(R.id.txt_ot_name);
         txtTime = rootView.findViewById(R.id.txt_time);
@@ -884,8 +885,9 @@ public class ChatItemView extends LinearLayout {
 
     //语音
     public void setData7(int second, boolean isRead, boolean isPlay, int playStatus, final OnClickListener onk) {
-        viewOt7.init(isMe, second, isRead, isPlay, playStatus);
-        viewMe7.init(isMe, second, isRead, isPlay, playStatus);
+        viewOtUnread.setVisibility(playStatus != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
+        viewOt7.initHideUnRead(isMe, second, isRead, isPlay, playStatus);
+        viewMe7.initHideUnRead(isMe, second, isRead, isPlay, playStatus);
         viewMeTouch.setOnClickListener(onk);
         viewOtTouch.setOnClickListener(onk);
     }
@@ -893,8 +895,9 @@ public class ChatItemView extends LinearLayout {
     public void updateVoice(MsgAllBean bean) {
         VoiceMessage voice = bean.getVoiceMessage();
         String url = bean.isMe() ? voice.getLocalUrl() : voice.getUrl();
-        viewOt7.init(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
-        viewMe7.init(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
+        viewOtUnread.setVisibility(voice.getPlayStatus() != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
+        viewOt7.initHideUnRead(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
+        viewMe7.initHideUnRead(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
     }
 
     //普通消息
