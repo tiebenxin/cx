@@ -3121,6 +3121,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             }).doOnComplete(new Action() {
                                 @Override
                                 public void run() throws Exception {
+
                                     updateSurvivalTimeImage(msgId, R.mipmap.icon_st_12, isMe);
                                 }
                             }).subscribe();
@@ -5316,7 +5317,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     public void addSurvivalTimeAndRead(MsgAllBean msgbean) {
-        if (msgbean == null || BurnManager.getInstance().isContainMsg(msgbean)) {
+        if (msgbean == null || BurnManager.getInstance().isContainMsg(msgbean) || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL) {
             return;
         }
         if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0 && msgbean.getRead() == 1) {
