@@ -238,6 +238,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -3189,7 +3190,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else {
 //                LogUtil.getLog().d("sss", "onBindViewHolderpayloads: " + position);
                 final MsgAllBean msgbean = msgListData.get(position);
-                mPositions.put(msgbean.getMsg_id(), position);
+                savePositions(msgbean.getMsg_id(), position);
+
                 //菜单
                 final List<OptionMenu> menus = new ArrayList<>();
                 LogUtil.getLog().d("SurvivalTime", "单条刷新");
@@ -3292,14 +3294,31 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
 
+        /**
+         * 保存msgid位置
+         * @param msgId
+         * @param position
+         */
+        private void savePositions(String msgId,int position){
+            if(mPositions.containsValue(position)){
+                Iterator<String> iterator= mPositions.keySet().iterator();
+                while(iterator.hasNext()) {
+                    String key = iterator.next();
+                    if(mPositions.get(key)==position){
+                        mPositions.remove(key);
+                        break;
+                    }
+                }
+            }
+            mPositions.put(msgId, position);
+        }
+
 
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, final int position) {
             final MsgAllBean msgbean = msgListData.get(position);
-            mPositions.put(msgbean.getMsg_id(), position);
-//            LogUtil.getLog().e(position+"====msgbean="+GsonUtils.optObject(msgbean));
-
+            savePositions(msgbean.getMsg_id(), position);
             if (!isGroup()) {
                 if (msgbean.isMe()) {
                     addSurvivalTimeAndRead(msgbean);
