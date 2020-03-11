@@ -22,7 +22,7 @@ public class CXEntryActivity extends AppActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        showLoadingDialog();
+//        showLoadingDialog();
         Intent intent = getIntent();
         String action = intent.getAction();
         if (intent != null) {
