@@ -892,7 +892,7 @@ public class ChatItemView extends LinearLayout {
 
     //语音
     public void setData7(int second, boolean isRead, boolean isPlay, int playStatus, final OnClickListener onk) {
-        viewOtUnread.setVisibility(playStatus != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
+        if(!isMe)viewOtUnread.setVisibility(playStatus != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
         viewOt7.initHideUnRead(isMe, second, isRead, isPlay, playStatus);
         viewMe7.initHideUnRead(isMe, second, isRead, isPlay, playStatus);
         viewMeTouch.setOnClickListener(onk);
@@ -902,7 +902,7 @@ public class ChatItemView extends LinearLayout {
     public void updateVoice(MsgAllBean bean) {
         VoiceMessage voice = bean.getVoiceMessage();
         String url = bean.isMe() ? voice.getLocalUrl() : voice.getUrl();
-        viewOtUnread.setVisibility(voice.getPlayStatus() != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
+        if(!isMe)viewOtUnread.setVisibility(voice.getPlayStatus() != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
         viewOt7.initHideUnRead(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
         viewMe7.initHideUnRead(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
     }
