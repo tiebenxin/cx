@@ -772,7 +772,7 @@
 
                         </LinearLayout>
 
-                        <com.yanlong.im.view.CountDownView
+                        <android.support.v7.widget.AppCompatImageView
                             android:id="@+id/view_ot_survival_time"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -1469,7 +1469,7 @@
 
                             </LinearLayout>
 
-                            <com.yanlong.im.view.CountDownView
+                            <android.support.v7.widget.AppCompatImageView
                                 android:id="@+id/view_me_survival_time"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"

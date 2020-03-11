@@ -3,12 +3,12 @@ package com.yanlong.im.chat.ui.view;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Html;
 import android.text.Spannable;
@@ -63,16 +63,12 @@ import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
-import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.socket.MsgBean;
-import com.yanlong.im.view.CountDownView;
-import com.yanlong.im.view.face.AddFaceActivity;
 import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.FileUtils;
-import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -82,7 +78,6 @@ import net.cb.cb.library.view.WebPageActivity;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import me.kareluo.ui.OptionMenu;
 
@@ -188,8 +183,8 @@ public class ChatItemView extends LinearLayout {
     private LinearLayout viewRead;
     private TextView tvRead;
     private TextView tvReadTime;
-    private CountDownView viewOtSurvivalTime;
-    private CountDownView viewMeSurvivalTime;
+    public AppCompatImageView viewOtSurvivalTime;
+    public AppCompatImageView viewMeSurvivalTime;
 
     private int mHour, mMin, mSecond;
 
@@ -730,9 +725,12 @@ public class ChatItemView extends LinearLayout {
     }
 
     //设置阅后即焚消息显示
-    public void setDataSurvivalTimeShow(int type) {
+    public void setDataSurvivalTimeShow(int type,boolean isRecovery) {
         //   timerCancel();
         if (isMe) {
+            if(isRecovery){
+                viewMeSurvivalTime.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.mipmap.icon_st_1));
+            }
             if (type == -1) {
                 viewMeSurvivalTime.setVisibility(View.VISIBLE);
             } else if (type == 0) {
@@ -741,6 +739,7 @@ public class ChatItemView extends LinearLayout {
                 viewMeSurvivalTime.setVisibility(View.VISIBLE);
             }
         } else {
+            if(isRecovery)viewOtSurvivalTime.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.mipmap.icon_st_1));
             if (type == -1) {
                 viewOtSurvivalTime.setVisibility(View.VISIBLE);
             } else if (type == 0) {
@@ -751,27 +750,6 @@ public class ChatItemView extends LinearLayout {
         }
 
     }
-
-
-    //阅后即焚倒计时
-    public void setDataSt(long startTime, long endTime) {
-        if (isMe) {
-            viewMeSurvivalTime.setRunTimer(startTime, endTime);
-        } else {
-            viewOtSurvivalTime.setRunTimer(startTime, endTime);
-        }
-
-    }
-
-    //阅后即焚倒计时销毁
-    public void timerCancel() {
-        if (isMe) {
-            viewMeSurvivalTime.timerStop();
-        } else {
-            viewOtSurvivalTime.timerStop();
-        }
-    }
-
 
     /**
      * 音视频消息
