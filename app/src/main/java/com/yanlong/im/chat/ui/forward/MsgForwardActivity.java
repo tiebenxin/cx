@@ -2,6 +2,7 @@ package com.yanlong.im.chat.ui.forward;
 
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
@@ -16,6 +17,8 @@ import android.text.TextWatcher;
 import android.view.View;
 
 import com.example.nim_lib.config.Preferences;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ChatMessage;
@@ -24,11 +27,10 @@ import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
-import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityMsgForwardBinding;
-
 import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.socket.SocketData;
@@ -40,6 +42,8 @@ import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.UpFileAction;
+import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -63,14 +67,14 @@ import io.reactivex.annotations.NonNull;
 
 public class MsgForwardActivity extends AppActivity implements IForwardListener {
     public static final String AGM_JSON = "JSON";
+    public static final String MODE = "mode";
+
     private ActionbarView actionbar;
     private ActivityMsgForwardBinding ui;
     private ClearEditText edtSearch;
 
-    //    private UserDao userDao = new UserDao();
-    private MsgDao msgDao = new MsgDao();
     private MsgAllBean msgAllBean;
-    private MsgAllBean sendMesage;//转发消息
+    private MsgAllBean sendMessage;//转发消息
 
 
     @CustomTabView.ETabPosition
@@ -83,7 +87,25 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     public static String searchKey = null;
 
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
-    private String oneShareImgPath = "";//单图分享路径
+    private int model;
+    private List<MsgAllBean> msgList;
+
+
+    //单条消息转发
+    public static Intent newIntent(Context context, @ChatEnum.EForwardMode int mode, String json) {
+        Intent intent = new Intent(context, MsgForwardActivity.class);
+        intent.putExtra(MODE, mode);
+        intent.putExtra(AGM_JSON, json);
+        return intent;
+    }
+
+    //第三方或系统分享内容
+    public static Intent newIntent(Context context, @ChatEnum.EForwardMode int mode, Bundle bundle) {
+        Intent intent = new Intent(context, MsgForwardActivity.class);
+        intent.putExtras(bundle);
+        intent.putExtra(MODE, mode);
+        return intent;
+    }
 
 
     @Override
@@ -93,11 +115,28 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
+        initIntent();
         findViews();
-//        getSysImgShare(); TODO 【发送相册到常信，还未出文档，已能接收到相册传过来的图片path，后续放开】
         initEvent();
         showFragment(currentPager);
 
+    }
+
+    private void initIntent() {
+        model = getIntent().getIntExtra(MODE, ChatEnum.EForwardMode.DEFAULT);
+        json = getIntent().getStringExtra(AGM_JSON);
+        if (model == ChatEnum.EForwardMode.DEFAULT || model == ChatEnum.EForwardMode.MERGE) {
+            msgAllBean = GsonUtils.getObject(json, MsgAllBean.class);
+        } else if (model == ChatEnum.EForwardMode.ONE_BY_ONE) {
+            Gson gson = new Gson();
+            msgList = gson.fromJson(json, new TypeToken<List<MsgAllBean>>() {
+            }.getType());
+            System.out.println(msgList.size());
+        } else if (model == ChatEnum.EForwardMode.SYS_SEND) {
+            getSysImgShare();
+        } else if (model == ChatEnum.EForwardMode.SHARE) {
+
+        }
     }
 
     //自动寻找控件
@@ -196,7 +235,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             actionbar.getBtnLeft().setVisibility(View.GONE);
             actionbar.setTxtLeft("取消");
 
-            if (moreSessionBeanList.size()==0) {
+            if (moreSessionBeanList.size() == 0) {
                 actionbar.setTxtRight("完成");
             } else {
                 actionbar.setTxtRight("完成(" + moreSessionBeanList.size() + ")");
@@ -274,23 +313,35 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         AlertForward alertForward = new AlertForward();
         String txt = "";
         String imageUrl = "";
-        if (msgAllBean.getChat() != null) {//转换文字
-            txt = msgAllBean.getChat().getMsg();
-        } else if (msgAllBean.getImage() != null) {
-            imageUrl = msgAllBean.getImage().getThumbnail();
-        } else if (msgAllBean.getAtMessage() != null) {
-            txt = msgAllBean.getAtMessage().getMsg();
-        } else if (msgAllBean.getVideoMessage() != null) {
-            imageUrl = msgAllBean.getVideoMessage().getBg_url();
-        } else if (msgAllBean.getLocationMessage() != null) {
+        if (model == ChatEnum.EForwardMode.DEFAULT) {
+            if (msgAllBean == null) {
+                return;
+            }
+            if (msgAllBean.getChat() != null) {//转换文字
+                txt = msgAllBean.getChat().getMsg();
+            } else if (msgAllBean.getImage() != null) {
+                imageUrl = msgAllBean.getImage().getThumbnail();
+            } else if (msgAllBean.getAtMessage() != null) {
+                txt = msgAllBean.getAtMessage().getMsg();
+            } else if (msgAllBean.getVideoMessage() != null) {
+                imageUrl = msgAllBean.getVideoMessage().getBg_url();
+            } else if (msgAllBean.getLocationMessage() != null) {
 //            imageUrl= LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(),msgAllBean.getLocationMessage().getLongitude());
-            txt = "[位置]" + msgAllBean.getLocationMessage().getAddress();
-        } else if (msgAllBean.getShippedExpressionMessage() != null) {
-            imageUrl = msgAllBean.getShippedExpressionMessage().getId();
-        } else if (msgAllBean.getVideoMessage() != null) {
-            imageUrl = msgAllBean.getVideoMessage().getBg_url();
-        } else if (msgAllBean.getLocationMessage() != null) {
-            imageUrl = LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(), msgAllBean.getLocationMessage().getLongitude());
+                txt = "[位置]" + msgAllBean.getLocationMessage().getAddress();
+            } else if (msgAllBean.getShippedExpressionMessage() != null) {
+                imageUrl = msgAllBean.getShippedExpressionMessage().getId();
+            } else if (msgAllBean.getVideoMessage() != null) {
+                imageUrl = msgAllBean.getVideoMessage().getBg_url();
+            } else if (msgAllBean.getLocationMessage() != null) {
+                imageUrl = LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(), msgAllBean.getLocationMessage().getLongitude());
+            }
+        } else if (model == ChatEnum.EForwardMode.ONE_BY_ONE) {
+            if (msgList == null) {
+                return;
+            }
+            txt = "[逐条转发]共" + msgList.size() + "条消息";
+        } else if (model == ChatEnum.EForwardMode.MERGE) {
+            txt = "[合并转发]";
         }
 
         alertForward.init(MsgForwardActivity.this, msgAllBean.getMsg_type(), mIcon, mName, txt, imageUrl, btm, toGid, new AlertForward.Event() {
@@ -301,7 +352,19 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
             @Override
             public void onYes(String content) {
-                send(content, toUid, toGid);
+                if (model == ChatEnum.EForwardMode.DEFAULT || model == ChatEnum.EForwardMode.MERGE) {
+                    send(msgAllBean, content, toUid, toGid);
+                } else if (model == ChatEnum.EForwardMode.ONE_BY_ONE) {
+                    if (msgList != null) {
+                        int len = msgList.size();
+                        if (len > 0) {
+                            for (int i = 0; i < len; i++) {
+                                MsgAllBean msg = msgList.get(i);
+                                send(msg, content, toUid, toGid);
+                            }
+                        }
+                    }
+                }
                 doSendSuccess();
             }
         });
@@ -311,17 +374,16 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     }
 
     //处理逻辑
-    private void send(String content, long toUid, String toGid) {
+    private void send(MsgAllBean msgAllBean, String content, long toUid, String toGid) {
         if (msgAllBean.getChat() != null) {//转换文字
             if (isSingleSelected) {
                 ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getChat().getMsg());
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
                 if (allBean != null) {
                     SocketData.sendAndSaveMessage(allBean);
-                    sendMesage = allBean;
+                    sendMessage = allBean;
                 }
 
-//                    sendMesage = SocketData.send4Chat(toUid, toGid, msgAllBean.getChat().getMsg());
                 sendLeaveMessage(content, toUid, toGid);
                 notifyRefreshMsg(toGid, toUid);
             } else {
@@ -332,14 +394,14 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
                     if (allBean != null) {
                         SocketData.sendAndSaveMessage(allBean);
-                        sendMesage = allBean;
+                        sendMessage = allBean;
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
                     notifyRefreshMsg(bean.getGid(), bean.getUid());
                 }
                 isSingleSelected = true;
             }
-        }else if (msgAllBean.getImage() != null) {
+        } else if (msgAllBean.getImage() != null) {
             if (isSingleSelected) {
                 ImageMessage imagesrc = msgAllBean.getImage();
                 if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
@@ -349,17 +411,13 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), imageMessage);
                 if (allBean != null) {
                     SocketData.sendAndSaveMessage(allBean);
-                    sendMesage = allBean;
+                    sendMessage = allBean;
                 }
-
-//                    sendMesage = SocketData.send4Image(toUid, toGid, imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), new Long(imagesrc.getWidth()).intValue(), new Long(imagesrc.getHeight()).intValue(), new Long(imagesrc.getSize()).intValue());
-//                    msgDao.ImgReadStatSet(imagesrc.getOrigin(), imagesrc.isReadOrigin());
                 sendLeaveMessage(content, toUid, toGid);
                 notifyRefreshMsg(toGid, toUid);
             } else {
                 for (int i = 0; i < moreSessionBeanList.size(); i++) {
                     MoreSessionBean bean = moreSessionBeanList.get(i);
-
                     ImageMessage imagesrc = msgAllBean.getImage();
                     if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
                         imagesrc.setReadOrigin(true);
@@ -368,7 +426,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), imageMessage);
                     if (allBean != null) {
                         SocketData.sendAndSaveMessage(allBean);
-                        sendMesage = allBean;
+                        sendMessage = allBean;
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
                     notifyRefreshMsg(bean.getGid(), bean.getUid());
@@ -381,7 +439,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
                 if (allBean != null) {
                     SocketData.sendAndSaveMessage(allBean);
-                    sendMesage = allBean;
+                    sendMessage = allBean;
                 }
                 sendLeaveMessage(content, toUid, toGid);
                 notifyRefreshMsg(toGid, toUid);
@@ -393,7 +451,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
                     if (allBean != null) {
                         SocketData.sendAndSaveMessage(allBean);
-                        sendMesage = allBean;
+                        sendMessage = allBean;
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
                     notifyRefreshMsg(bean.getGid(), bean.getUid());
@@ -407,7 +465,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), videoMessage);
                 if (allBean != null) {
                     SocketData.sendAndSaveMessage(allBean);
-                    sendMesage = allBean;
+                    sendMessage = allBean;
                 }
                 sendLeaveMessage(content, toUid, toGid);
                 notifyRefreshMsg(toGid, toUid);
@@ -420,7 +478,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), videoMessage);
                     if (allBean != null) {
                         SocketData.sendAndSaveMessage(allBean);
-                        sendMesage = allBean;
+                        sendMessage = allBean;
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
                     notifyRefreshMsg(bean.getGid(), bean.getUid());
@@ -435,7 +493,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), locationMessage);
                 if (allBean != null) {
                     SocketData.sendAndSaveMessage(allBean);
-                    sendMesage = allBean;
+                    sendMessage = allBean;
                 }
                 sendLeaveMessage(content, toUid, toGid);
                 notifyRefreshMsg(toGid, toUid);
@@ -448,22 +506,22 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                             SocketData.getFixTime(), locationMessage);
                     if (allBean != null) {
                         SocketData.sendAndSaveMessage(allBean);
-                        sendMesage = allBean;
+                        sendMessage = allBean;
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
                     notifyRefreshMsg(bean.getGid(), bean.getUid());
                 }
                 isSingleSelected = true;
             }
-        }else if(msgAllBean.getShippedExpressionMessage()!=null){
+        } else if (msgAllBean.getShippedExpressionMessage() != null) {
 
             if (isSingleSelected) {
-                ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(),msgAllBean.getShippedExpressionMessage().getId());
+                ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(), msgAllBean.getShippedExpressionMessage().getId());
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.SHIPPED_EXPRESSION, ChatEnum.ESendStatus.SENDING,
                         SocketData.getFixTime(), message);
                 if (allBean != null) {
                     SocketData.sendAndSaveMessage(allBean);
-                    sendMesage = allBean;
+                    sendMessage = allBean;
                 }
                 sendLeaveMessage(content, toUid, toGid);
                 notifyRefreshMsg(toGid, toUid);
@@ -475,7 +533,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                             ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
                     if (allBean != null) {
                         SocketData.sendAndSaveMessage(allBean);
-                        sendMesage = allBean;
+                        sendMessage = allBean;
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
                     notifyRefreshMsg(bean.getGid(), bean.getUid());
@@ -494,7 +552,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             MsgAllBean messageBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chat);
             if (messageBean != null) {
                 SocketData.sendAndSaveMessage(messageBean);
-                sendMesage = messageBean;
+                sendMessage = messageBean;
             }
         }
     }
@@ -506,7 +564,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     private void notifyRefreshMsg(String toGid, long toUid) {
         MessageManager.getInstance().setMessageChange(true);
-        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(toGid) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUid, toGid, CoreEnum.ESessionRefreshTag.SINGLE, sendMesage);
+        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(toGid) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUid, toGid, CoreEnum.ESessionRefreshTag.SINGLE, sendMessage);
     }
 
     @Override
@@ -519,7 +577,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         }
     }
 
-    public static void addOrDelectMoreSessionBeanList(boolean isAdd, long uid, String gid, String avatar, String nick) {
+    public static void addOrDeleteMoreSessionBeanList(boolean isAdd, long uid, String gid, String avatar, String nick) {
         boolean has = false;
         int hasInt = -1;
         for (int i = 0; i < moreSessionBeanList.size(); i++) {
@@ -583,8 +641,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     if (extras.containsKey(Intent.EXTRA_STREAM)) {
                         try {
                             Uri uri = (Uri) extras.getParcelable(Intent.EXTRA_STREAM);
-                            oneShareImgPath = FileUtils.getFilePathByUri(MsgForwardActivity.this, uri);
-//                            ToastUtil.show("拿到了图片路径");
+                            String path = FileUtils.getFilePathByUri(MsgForwardActivity.this, uri);
+                            upload(path, UpFileAction.PATH.IMG);
                         } catch (Exception e) {
                             LogUtil.getLog().e(e.toString());
                         }
@@ -604,5 +662,50 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         permission2Util.onRequestPermissionsResult();
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private void upload(String file, UpFileAction.PATH type) {
+        uploadFile(file, type, new UpLoadService.UpLoadCallback() {
+            @Override
+            public void success(String url) {
+                if (!TextUtils.isEmpty(url)) {
+                    switch (type) {
+                        case IMG:
+                            ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), file, url, 0, 0, true, false, 0);
+
+                            break;
+                        case FILE:
+                            break;
+
+                    }
+                }
+            }
+
+            @Override
+            public void fail() {
+
+            }
+        });
+    }
+
+
+    //上传文件，图片文件等
+    public void uploadFile(String file, UpFileAction.PATH type, UpLoadService.UpLoadCallback upLoadCallback) {
+        UpFileAction upFileAction = new UpFileAction();
+        upFileAction.upFile(type, this, new UpFileUtil.OssUpCallback() {
+            @Override
+            public void success(String url) {
+                upLoadCallback.success(url);
+            }
+
+            @Override
+            public void fail() {
+                upLoadCallback.fail();
+            }
+
+            @Override
+            public void inProgress(long progress, long zong) {
+            }
+        }, file);
     }
 }

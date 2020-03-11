@@ -335,7 +335,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                             groupInfoBeans.get(position).setSelect(false);
                             holder.ivSelect.setSelected(false);
 
-                            MsgForwardActivity.addOrDelectMoreSessionBeanList(false, -1L, groupInfoBean.getGid(), groupInfoBean.getAvatar(), msgDao.getGroupName(groupInfoBean.getGid()));
+                            MsgForwardActivity.addOrDeleteMoreSessionBeanList(false, -1L, groupInfoBean.getGid(), groupInfoBean.getAvatar(), msgDao.getGroupName(groupInfoBean.getGid()));
                         } else {
 
                             if (MsgForwardActivity.moreSessionBeanList.size() >= MsgForwardActivity.maxNumb) {
@@ -345,7 +345,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 
                             groupInfoBeans.get(position).setSelect(true);
                             holder.ivSelect.setSelected(true);
-                            MsgForwardActivity.addOrDelectMoreSessionBeanList(true, -1L, groupInfoBean.getGid(), groupInfoBean.getAvatar(), msgDao.getGroupName(groupInfoBean.getGid()));
+                            MsgForwardActivity.addOrDeleteMoreSessionBeanList(true, -1L, groupInfoBean.getGid(), groupInfoBean.getAvatar(), msgDao.getGroupName(groupInfoBean.getGid()));
                         }
 
 //                        LogUtil.getLog().e(getAdapterPosition()+"=信息==="+(finalIsGroup? -1L : bean.getFrom_uid())+"==0=="+ bean.getGid()+ "==0="+finalIcon+"=0===="+ finalTitle);

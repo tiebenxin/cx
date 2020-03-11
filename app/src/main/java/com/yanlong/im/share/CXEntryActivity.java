@@ -1,19 +1,16 @@
 package com.yanlong.im.share;
 
-import android.Manifest;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 
+import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
+import com.yanlong.im.user.bean.TokenBean;
+import com.yanlong.im.user.ui.LoginActivity;
 
-import net.cb.cb.library.utils.CheckPermission2Util;
-import net.cb.cb.library.utils.FileUtils;
-import net.cb.cb.library.utils.LogUtil;
-import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.view.AppActivity;
-
-import io.reactivex.annotations.NonNull;
 
 /**
  * @author Liszt
@@ -21,26 +18,40 @@ import io.reactivex.annotations.NonNull;
  * Description  外部数据承接
  */
 public class CXEntryActivity extends AppActivity {
-    private CheckPermission2Util permission2Util = new CheckPermission2Util();
-    private String oneShareImgPath;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         showLoadingDialog();
         Intent intent = getIntent();
+        String action = intent.getAction();
         if (intent != null) {
             Bundle extras = intent.getExtras();
-            String action = intent.getAction();
-            if (Intent.ACTION_SEND.equals(action)) {
-                if (extras != null) {
-                    getSysImgShare(extras);
+            if (extras != null) {
+                int mode;
+                if (Intent.ACTION_SEND.equals(action)) {
+                    mode = ChatEnum.EForwardMode.SYS_SEND;
+                } else {
+                    mode = ChatEnum.EForwardMode.SHARE;
                 }
+                goActivity(extras, mode);
             } else {
 
             }
-            startActivity(new Intent(this, MsgForwardActivity.class));
+        } else {
+
+        }
+    }
+
+    private void goActivity(Bundle extras, int mode) {
+        if (checkTokenValid()) {
+            startChatServer();
+            Intent intentShare = MsgForwardActivity.newIntent(this, mode, extras);
+            startActivity(intentShare);
+            finish();
+        } else {
+            startActivity(new Intent(CXEntryActivity.this, LoginActivity.class));
+            finish();
         }
     }
 
@@ -48,42 +59,27 @@ public class CXEntryActivity extends AppActivity {
     protected void onStop() {
         super.onStop();
         dismissLoadingDialog();
-
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    private void startChatServer() {
+        // 启动聊天服务
+        startService(new Intent(getContext(), ChatServer.class));
     }
 
-
-    //获取系统相册分享的图片(暂时仅支持单张图片分享)
-    private void getSysImgShare(Bundle extras) {
-        //TODO 担心有权限问题，加一层保险起见
-        permission2Util.requestPermissions(CXEntryActivity.this, new CheckPermission2Util.Event() {
-            @Override
-            public void onSuccess() {
-                if (extras.containsKey(Intent.EXTRA_STREAM)) {
-                    try {
-                        Uri uri = (Uri) extras.getParcelable(Intent.EXTRA_STREAM);
-                        oneShareImgPath = FileUtils.getFilePathByUri(CXEntryActivity.this, uri);
-//                            ToastUtil.show("拿到了图片路径");
-                    } catch (Exception e) {
-                        LogUtil.getLog().e(e.toString());
-                    }
-                }
+    public boolean checkTokenValid() {
+        boolean result = false;
+        TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+        Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
+        if (token != null) {
+            if (!token.isTokenValid(uid)) {
+                result = false;
+            } else {
+                result = true;
             }
-
-            @Override
-            public void onFail() {
-                ToastUtil.show("需要同意访问权限");
-            }
-        }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
+        } else {
+            result = false;
+        }
+        return result;
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        permission2Util.onRequestPermissionsResult();
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
 }

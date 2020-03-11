@@ -626,17 +626,18 @@ public class SocketData {
 
     /**
      * 发送文件
+     *
      * @param msgId
      * @param url
      * @param toId
      * @param toGid
      * @param fileName
-     * @param fileSize  文件大小
-     * @param format    文件后缀类型
+     * @param fileSize 文件大小
+     * @param format   文件后缀类型
      * @param time
      * @return
      */
-    public static MsgAllBean sendFile(String msgId,String url, Long toId, String toGid,String fileName,Long fileSize, String format, long time,String filePath) {
+    public static MsgAllBean sendFile(String msgId, String url, Long toId, String toGid, String fileName, Long fileSize, String format, long time, String filePath) {
         MsgBean.SendFileMessage msg;
         msg = MsgBean.SendFileMessage.newBuilder()
                 .setUrl(url)
@@ -647,7 +648,6 @@ public class SocketData {
         fileLocalUrl = filePath;
         return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SEND_FILE, msg);
     }
-
 
 
     public static MsgAllBean send4Image(Long toId, String toGid, String url, ImgSizeUtil.ImageSize imgSize, long time) {
@@ -748,6 +748,25 @@ public class SocketData {
     }
 
     @NonNull
+    public static ImageMessage createImageMessage(String msgId, String local, String originUrl, long width, long height, boolean isOriginal, boolean isOriginRead, long size) {
+        ImageMessage image = new ImageMessage();
+        String extTh = "/below-20k";
+        String extPv = "/below-200k";
+        image.setLocalimg(local);
+        image.setPreview(originUrl + extPv);
+        image.setThumbnail(originUrl + extTh);
+        image.setMsgid(msgId);
+        image.setWidth(width);
+        image.setHeight(height);
+        image.setSize(size);
+        if (isOriginal) {
+            image.setOrigin(originUrl);
+        }
+        image.setReadOrigin(isOriginRead);
+        return image;
+    }
+
+    @NonNull
     public static VideoMessage createVideoMessage(String msgId, String url, String bgUrl, boolean isOriginal, long duration, long width, long height, String localUrl) {
         VideoMessage videoMessage = new VideoMessage();
         videoMessage.setMsgId(msgId);
@@ -764,7 +783,7 @@ public class SocketData {
     }
 
     @NonNull
-    public static SendFileMessage createFileMessage(String msgId, String filePath,String fileName,long size,String format) {
+    public static SendFileMessage createFileMessage(String msgId, String filePath, String fileName, long size, String format) {
         SendFileMessage fileMessage = new SendFileMessage();
         fileMessage.setMsgId(msgId);
         fileMessage.setLocalPath(filePath);
