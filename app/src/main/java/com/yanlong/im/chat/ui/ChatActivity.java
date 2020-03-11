@@ -3020,6 +3020,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     taskRefreshMessage(false);
                 }
             }else if(reMsg.getMsg_type() == ChatEnum.EMessageType.FILE){ //文件消息失败重发机制
+                if (!checkNetConnectStatus()) {
+                    return;
+                }
                 //文件仍然存在，则重发
                 if(net.cb.cb.library.utils.FileUtils.fileIsExist(reMsg.getSendFileMessage().getLocalPath())){
                     SendFileMessage fileMessage = SocketData.createFileMessage(reMsg.getMsg_id(), reMsg.getSendFileMessage().getLocalPath(), reMsg.getSendFileMessage().getFile_name(), reMsg.getSendFileMessage().getSize(), reMsg.getSendFileMessage().getFormat());
