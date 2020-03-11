@@ -62,6 +62,12 @@ public class FindFriendActivity extends AppActivity {
         initData();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        showSoftKeyword(edtSearch);
+    }
+
     private void initView() {
         mHeadView = findViewById(R.id.headView);
         edtSearch = findViewById(R.id.edt_search);
