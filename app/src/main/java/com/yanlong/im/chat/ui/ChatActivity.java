@@ -3185,13 +3185,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
         @Override
         public void onBindViewHolder(@NonNull RCViewHolder holder, int position, @NonNull List<Object> payloads) {
+            holder.viewChatItem.recoveryOtUnreadView();
             if (payloads == null || payloads.isEmpty()) {
                 onBindViewHolder(holder, position);
             } else {
 //                LogUtil.getLog().d("sss", "onBindViewHolderpayloads: " + position);
                 final MsgAllBean msgbean = msgListData.get(position);
                 savePositions(msgbean.getMsg_id(), position);
-
                 //菜单
                 final List<OptionMenu> menus = new ArrayList<>();
                 LogUtil.getLog().d("SurvivalTime", "单条刷新");

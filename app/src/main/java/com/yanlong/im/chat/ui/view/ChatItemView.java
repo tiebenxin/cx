@@ -883,6 +883,13 @@ public class ChatItemView extends LinearLayout {
         }
     }
 
+    /**
+     * 恢复未读语音红点
+     */
+    public void recoveryOtUnreadView(){
+        viewOtUnread.setVisibility(View.GONE);
+    }
+
     //语音
     public void setData7(int second, boolean isRead, boolean isPlay, int playStatus, final OnClickListener onk) {
         viewOtUnread.setVisibility(playStatus != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
