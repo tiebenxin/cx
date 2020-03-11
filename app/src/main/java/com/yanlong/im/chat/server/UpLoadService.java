@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VideoUploadBean;
@@ -149,19 +150,84 @@ public class UpLoadService extends Service {
         queue.offer(upProgress);
     }
 
+    public static void onAdd(final MsgAllBean msg, String file, final Boolean isOriginal) {
+        if (msg == null) {
+            return;
+        }
+        final UpProgress upProgress = new UpProgress();
+        upProgress.setId(msg.getMsg_id());
+        upProgress.setFile(file);
+        updateProgress(msg.getMsg_id(), new Random().nextInt(5) + 1);//发送图片后默认给个进度，显示阴影表示正在上传
+        final ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(file);
+        upProgress.setCallback(new UpFileUtil.OssUpCallback() {
+
+            @Override
+            public void success(final String url) {
+                EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
+                updateProgress(msg.getMsg_id(), 100);
+                eventUpImgLoadEvent.setMsgid(msg.getMsg_id());
+                eventUpImgLoadEvent.setState(1);
+                eventUpImgLoadEvent.setUrl(url);
+                eventUpImgLoadEvent.setOriginal(isOriginal);
+
+                ImageMessage image = msg.getImage();
+                ImageMessage imageMessage = SocketData.createImageMessage(msg.getMsg_id(), file, url, image.getWidth(), image.getHeight(), isOriginal, false, image.getSize());
+                MsgAllBean msgbean = msg;
+                msgbean.setImage(imageMessage);
+                eventUpImgLoadEvent.setMsgAllBean(msgbean);
+                EventBus.getDefault().post(eventUpImgLoadEvent);
+
+            }
+
+            @Override
+            public void fail() {
+                EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
+                //  LogUtil.getLog().d("tag", "fail : ===============>"+id);
+                updateProgress(msg.getMsg_id(), 0);
+                eventUpImgLoadEvent.setMsgid(msg.getMsg_id());
+                eventUpImgLoadEvent.setState(-1);
+                eventUpImgLoadEvent.setUrl("");
+                eventUpImgLoadEvent.setOriginal(isOriginal);
+                eventUpImgLoadEvent.setMsgAllBean(msgDao.fixStataMsg(msg.getMsg_id(), ChatEnum.ESendStatus.ERROR));//写库
+                EventBus.getDefault().post(eventUpImgLoadEvent);
+            }
+
+            @Override
+            public void inProgress(long progress, long zong) {
+                if (System.currentTimeMillis() - oldUptime < 100) {
+                    return;
+                }
+                EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
+                // LogUtil.getLog().d("tag", "inProgress : ===============>"+id);
+                oldUptime = System.currentTimeMillis();
+
+                int pg = new Double(progress / (zong + 0.0f) * 100.0).intValue();
+
+                updateProgress(msg.getMsg_id(), pg);
+                eventUpImgLoadEvent.setMsgid(msg.getMsg_id());
+                eventUpImgLoadEvent.setState(0);
+                eventUpImgLoadEvent.setUrl("");
+                eventUpImgLoadEvent.setOriginal(isOriginal);
+                EventBus.getDefault().post(eventUpImgLoadEvent);
+            }
+        });
+        queue.offer(upProgress);
+    }
+
 
     /**
      * 发送文件
-     * @param id        msgID
-     * @param filePath  文件路径
-     * @param fileName  文件名
-     * @param fileSize  文件大小
-     * @param format    后缀类型
-     * @param toUId     接收人ID
-     * @param toGid     群ID
-     * @param time      发送时间
+     *
+     * @param id       msgID
+     * @param filePath 文件路径
+     * @param fileName 文件名
+     * @param fileSize 文件大小
+     * @param format   后缀类型
+     * @param toUId    接收人ID
+     * @param toGid    群ID
+     * @param time     发送时间
      */
-    public static void onAddFile(Context mContext,final String id, String filePath,String fileName,final Long fileSize,String format, final Long toUId, final String toGid, final long time) {
+    public static void onAddFile(Context mContext, final String id, String filePath, String fileName, final Long fileSize, String format, final Long toUId, final String toGid, final long time) {
         // 上传文件时，默认给1-5的上传进度，解决一开始上传不显示进度问题
 //        updateProgress(id, new Random().nextInt(5) + 1);
 
@@ -176,7 +242,7 @@ public class UpLoadService extends Service {
                 eventUpFileLoadEvent.setState(1);
                 eventUpFileLoadEvent.setUrl(url);
                 //发送文件消息到服务器，传递给目标用户
-                Object msgbean = SocketData.sendFile(id,url,toUId,toGid,fileName,fileSize,format,time,filePath);
+                Object msgbean = SocketData.sendFile(id, url, toUId, toGid, fileName, fileSize, format, time, filePath);
                 eventUpFileLoadEvent.setMsgAllBean(msgbean);
                 EventBus.getDefault().post(eventUpFileLoadEvent);
             }
@@ -238,7 +304,7 @@ public class UpLoadService extends Service {
         uploadImageOfVideo(mContext, bgUrl, new UpLoadCallback() {
             @Override
             public void success(String url) {
-                LogUtil.getLog().d(TAG,  "视频预览图上传成功了---------" );
+                LogUtil.getLog().d(TAG, "视频预览图上传成功了---------");
                 if (mVideoMaps.get(id) != null) {
                     mVideoMaps.get(id).setSendNum(0);
                 }
@@ -265,7 +331,7 @@ public class UpLoadService extends Service {
                     eventUpImgLoadEvent.setMsgAllBean(msgDao.fixStataMsg(id, 1));//写库
                     EventBus.getDefault().post(eventUpImgLoadEvent);
                 } else {
-                    LogUtil.getLog().d(TAG, "fail : 视频预览图重发了======"+sendNum+"=========>" + id);
+                    LogUtil.getLog().d(TAG, "fail : 视频预览图重发了======" + sendNum + "=========>" + id);
                     loopImageList();
                 }
             }
@@ -330,7 +396,7 @@ public class UpLoadService extends Service {
                     eventUpImgLoadEvent.setMsgAllBean(msgDao.fixStataMsg(id, 1));//写库
                     EventBus.getDefault().post(eventUpImgLoadEvent);
                 } else {
-                    LogUtil.getLog().d(TAG, "fail : 视频重发了======"+sendNum+"=========>" + id);
+                    LogUtil.getLog().d(TAG, "fail : 视频重发了======" + sendNum + "=========>" + id);
                     loopVideoList();
                 }
             }
