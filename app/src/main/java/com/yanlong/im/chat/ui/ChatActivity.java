@@ -2616,7 +2616,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 msgListData.add(imgMsgBean);
                             } else {
                                 //创建文件消息，本地预先准备好这条文件消息，等文件上传成功后刷新
-                                SendFileMessage fileMessage = SocketData.createFileMessage(fileMsgId, filePath, fileName, new Double(fileSize).longValue(), fileFormat);
+                                SendFileMessage fileMessage = SocketData.createFileMessage(fileMsgId, filePath,"", fileName, new Double(fileSize).longValue(), fileFormat);
                                 fileMsgBean = SocketData.sendFileUploadMessagePre(fileMsgId, toUId, toGid, SocketData.getFixTime(), fileMessage, ChatEnum.EMessageType.FILE);
                                 // 若不为常信小助手，消息需要上传到服务端
                                 if (!Constants.CX_HELPER_UID.equals(toUId)) {
@@ -3025,7 +3025,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
                 //文件仍然存在，则重发
                 if(net.cb.cb.library.utils.FileUtils.fileIsExist(reMsg.getSendFileMessage().getLocalPath())){
-                    SendFileMessage fileMessage = SocketData.createFileMessage(reMsg.getMsg_id(), reMsg.getSendFileMessage().getLocalPath(), reMsg.getSendFileMessage().getFile_name(), reMsg.getSendFileMessage().getSize(), reMsg.getSendFileMessage().getFormat());
+                    SendFileMessage fileMessage = SocketData.createFileMessage(reMsg.getMsg_id(), reMsg.getSendFileMessage().getLocalPath(),reMsg.getSendFileMessage().getUrl(), reMsg.getSendFileMessage().getFile_name(), reMsg.getSendFileMessage().getSize(), reMsg.getSendFileMessage().getFormat());
                     MsgAllBean fileMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, SocketData.getFixTime(), fileMessage, ChatEnum.EMessageType.FILE);
                     replaceListDataAndNotify(fileMsgBean);
                     // 若不为常信小助手，消息需要上传到服务端

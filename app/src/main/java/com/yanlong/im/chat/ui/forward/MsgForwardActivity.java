@@ -25,6 +25,7 @@ import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -334,6 +335,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 imageUrl = msgAllBean.getVideoMessage().getBg_url();
             } else if (msgAllBean.getLocationMessage() != null) {
                 imageUrl = LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(), msgAllBean.getLocationMessage().getLongitude());
+            } else if (msgAllBean.getSendFileMessage() !=null){
+                txt = "[文件]" +msgAllBean.getSendFileMessage().getFile_name();
             }
         } else if (model == ChatEnum.EForwardMode.ONE_BY_ONE) {
             if (msgList == null) {
@@ -531,6 +534,30 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     ShippedExpressionMessage chatMessage = SocketData.createFaceMessage(SocketData.getUUID(), msgAllBean.getShippedExpressionMessage().getId());
                     MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), ChatEnum.EMessageType.SHIPPED_EXPRESSION,
                             ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
+                    if (allBean != null) {
+                        SocketData.sendAndSaveMessage(allBean);
+                        sendMessage = allBean;
+                    }
+                    sendLeaveMessage(content, bean.getUid(), bean.getGid());
+                    notifyRefreshMsg(bean.getGid(), bean.getUid());
+                }
+                isSingleSelected = true;
+            }
+        } else if (msgAllBean.getSendFileMessage() != null) { //转发文件消息
+            if (isSingleSelected) {
+                SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), msgAllBean.getSendFileMessage().getLocalPath(),msgAllBean.getSendFileMessage().getUrl(), msgAllBean.getSendFileMessage().getFile_name(), msgAllBean.getSendFileMessage().getSize(), msgAllBean.getSendFileMessage().getFormat());
+                MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), fileMessage);
+                if (allBean != null) {
+                    SocketData.sendAndSaveMessage(allBean);
+                    sendMessage = allBean;
+                }
+                sendLeaveMessage(content, toUid, toGid);
+                notifyRefreshMsg(toGid, toUid);
+            } else {
+                for (int i = 0; i < moreSessionBeanList.size(); i++) {
+                    MoreSessionBean bean = moreSessionBeanList.get(i);
+                    SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), msgAllBean.getSendFileMessage().getLocalPath(),msgAllBean.getSendFileMessage().getUrl(), msgAllBean.getSendFileMessage().getFile_name(), msgAllBean.getSendFileMessage().getSize(), msgAllBean.getSendFileMessage().getFormat());
+                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), fileMessage);
                     if (allBean != null) {
                         SocketData.sendAndSaveMessage(allBean);
                         sendMessage = allBean;

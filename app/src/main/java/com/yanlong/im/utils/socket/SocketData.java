@@ -94,7 +94,7 @@ public class SocketData {
     /***
      * 回执,可以不发送msgId
      * @param from 0 在线消息， 1离线消息
-     * @param lastest 是否需要最新消息
+     * @param latest 是否需要最新消息
      * @return
      */
     public static byte[] msg4ACK(String rid, List<String> msgids, int from, boolean latest, boolean isEnd) {
@@ -783,14 +783,14 @@ public class SocketData {
     }
 
     @NonNull
-    public static SendFileMessage createFileMessage(String msgId, String filePath, String fileName, long size, String format) {
+    public static SendFileMessage createFileMessage(String msgId, String filePath,String url, String fileName, long size, String format) {
         SendFileMessage fileMessage = new SendFileMessage();
         fileMessage.setMsgId(msgId);
         fileMessage.setLocalPath(filePath);
         fileMessage.setFile_name(fileName);
         fileMessage.setSize(size);
         fileMessage.setFormat(format);
-        fileMessage.setUrl("");//默认url为空，上传成功后拥有下载地址
+        fileMessage.setUrl(url);//默认url为空，上传成功后拥有下载地址
         return fileMessage;
     }
 
@@ -1032,6 +1032,16 @@ public class SocketData {
                 semBuilder.setId(seMessage.getId());
                 value = semBuilder.build();
                 type = MsgBean.MessageType.SHIPPED_EXPRESSION;
+                break;
+            case ChatEnum.EMessageType.FILE:// 文件
+                SendFileMessage fileMessage = bean.getSendFileMessage();
+                MsgBean.SendFileMessage.Builder fileBuilder = MsgBean.SendFileMessage.newBuilder();
+                fileBuilder.setFileName(fileMessage.getFile_name())
+                        .setUrl(fileMessage.getUrl())
+                        .setSize(new Long(fileMessage.getSize()).intValue())
+                        .setFormat(fileMessage.getFormat());
+                value = fileBuilder.build();
+                type = MsgBean.MessageType.SEND_FILE;
                 break;
         }
 
@@ -1296,6 +1306,13 @@ public class SocketData {
                     return null;
                 }
                 break;
+            case ChatEnum.EMessageType.FILE:
+                if (obj instanceof SendFileMessage) {
+                    msg.setSendFileMessage((SendFileMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
 
         }
 
@@ -1416,6 +1433,13 @@ public class SocketData {
             case ChatEnum.EMessageType.MSG_CANCEL:
                 if (obj instanceof MsgCancel) {
                     msg.setMsgCancel((MsgCancel) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.FILE:
+                if (obj instanceof SendFileMessage) {
+                    msg.setSendFileMessage((SendFileMessage) obj);
                 } else {
                     return null;
                 }
