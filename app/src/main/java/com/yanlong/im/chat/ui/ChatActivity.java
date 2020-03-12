@@ -3432,6 +3432,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, final int position) {
+            holder.viewChatItem.recoveryOtUnreadView();
             final MsgAllBean msgbean = msgListData.get(position);
             savePositions(msgbean.getMsg_id(), position);
             if (!isGroup()) {
