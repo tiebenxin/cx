@@ -55,6 +55,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.realm.Realm;
 import retrofit2.Call;
@@ -89,6 +90,9 @@ public class MessageManager {
 
     private List<String> loadGids = new ArrayList<>();//需要异步加载群数据的群id
     private List<Long> loadUids = new ArrayList<>();//需要异步记载用户数据的用户id
+
+    //撤回消息发送列表
+    private Map<String, MsgAllBean> cancelList = new ConcurrentHashMap<>();
 
     //缓存
     private static List<Group> saveGroups = new ArrayList<>();//已保存群信息缓存
@@ -488,16 +492,16 @@ public class MessageManager {
             case READ://已读消息
 //                msgDao.setUpdateRead(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), wrapMessage.getRead().getTimestamp());
 //                LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getRead().getTimestamp());
-                long uids=isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
+                long uids = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
                 msgDao.setUpdateRead(uids, wrapMessage.getTimestamp());
                 LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getTimestamp());
-                if(isFromSelf){//自己PC端已读，则清除未读消息
-                    String gid=wrapMessage.getGid();
-                    gid=gid==null?"":gid;
-                    msgDao.sessionReadClean(gid,uids);
+                if (isFromSelf) {//自己PC端已读，则清除未读消息
+                    String gid = wrapMessage.getGid();
+                    gid = gid == null ? "" : gid;
+                    msgDao.sessionReadClean(gid, uids);
                     boolean isGroup = isGroup(wrapMessage.getFromUid(), gid);
                     //更新UI
-                    notifyRefreshMsg(isGroup?CoreEnum.EChatType.GROUP:CoreEnum.EChatType.PRIVATE, uids, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+                    notifyRefreshMsg(isGroup ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, uids, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                 }
                 break;
             case SWITCH_CHANGE: //开关变更
@@ -692,10 +696,12 @@ public class MessageManager {
                 } else {
                     if (!isList) {
                         //非自己发过来的消息，才存储为未读状态
-                        if(!isFromSelf)updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), msgAllBean, null);
+                        if (!isFromSelf)
+                            updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), msgAllBean, null);
                         setMessageChange(true);
                     } else {
-                        if(!isFromSelf)updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel, msgAllBean.getRequest_id());
+                        if (!isFromSelf)
+                            updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel, msgAllBean.getRequest_id());
                     }
                     result = true;
                 }
@@ -713,28 +719,34 @@ public class MessageManager {
                 } else {
                     LogUtil.getLog().d("a=", TAG + "--异步加载用户信息更新未读数");
                     if (!isList) {
-                        if(!isFromSelf)updateSessionUnread(msgAllBean.getGid(), chatterId, msgAllBean, null);
+                        if (!isFromSelf)
+                            updateSessionUnread(msgAllBean.getGid(), chatterId, msgAllBean, null);
                         setMessageChange(true);
                     } else {
-                        if(!isFromSelf)updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel, msgAllBean.getRequest_id());
+                        if (!isFromSelf)
+                            updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel, msgAllBean.getRequest_id());
                     }
                     result = true;
                 }
             } else {
                 if (!TextUtils.isEmpty(msgAllBean.getGid())) {
                     if (!isList) {
-                        if(!isFromSelf)updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), msgAllBean, null);
+                        if (!isFromSelf)
+                            updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), msgAllBean, null);
                         setMessageChange(true);
                     } else {
-                        if(!isFromSelf)updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel, msgAllBean.getRequest_id());
+                        if (!isFromSelf)
+                            updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel, msgAllBean.getRequest_id());
                     }
                 } else {
                     long chatterId = isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid();
                     if (!isList) {
-                        if(!isFromSelf)updateSessionUnread(msgAllBean.getGid(), chatterId, msgAllBean, null);
+                        if (!isFromSelf)
+                            updateSessionUnread(msgAllBean.getGid(), chatterId, msgAllBean, null);
                         setMessageChange(true);
                     } else {
-                        if(!isFromSelf)updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel, msgAllBean.getRequest_id());
+                        if (!isFromSelf)
+                            updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel, msgAllBean.getRequest_id());
                     }
                 }
                 result = true;
@@ -1669,6 +1681,34 @@ public class MessageManager {
         event.setList(list);
         event.setRefreshType(type);
         EventBus.getDefault().post(event);
+    }
+
+//    public Map<String, MsgAllBean> getCancelList() {
+//        return cancelList;
+//    }
+//
+//    /***
+//     * 添加撤销消息
+//     * @param msgId 返回的消息id
+//     * @param msgBean 要撤回的消息
+//     */
+//    public void addCancelList(String msgId, MsgAllBean msgBean) {
+//        if (cancelList != null) {
+//            cancelList.put(msgId, msgBean);
+//        }
+//    }
+//
+//    //是否是撤消消息的回执
+//    public boolean isCancelAck(String msgId) {
+//        if (cancelList != null && cancelList.containsKey(msgId)) {
+//            return true;
+//        }
+//        return false;
+//    }
+
+    public MsgAllBean updateCancelMsg(String msgId,String cancelId){
+       return msgDao.msgDel4Cancel(msgId, cancelId);
+
     }
 
 

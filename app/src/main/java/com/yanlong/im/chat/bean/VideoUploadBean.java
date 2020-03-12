@@ -25,9 +25,11 @@ public class VideoUploadBean extends BaseBean {
     private long time;
     private VideoMessage videoMessage;
     private int sendNum = 0;
+    private MsgAllBean msg;
 
-    public VideoUploadBean(Context context,String id,String file,String bgUrl,Boolean isOriginal,Long toUId,String toGid,
-                           long time,VideoMessage videoMessage,int sendNum){
+
+    public VideoUploadBean(Context context, String id, String file, String bgUrl, Boolean isOriginal, Long toUId, String toGid,
+                           long time, VideoMessage videoMessage, int sendNum) {
         this.context = context;
         this.id = id;
         this.file = file;
@@ -37,6 +39,13 @@ public class VideoUploadBean extends BaseBean {
         this.toGid = toGid;
         this.time = time;
         this.videoMessage = videoMessage;
+        this.sendNum = sendNum;
+    }
+
+    public VideoUploadBean(Context context, String id, MsgAllBean msgAllBean, int sendNum) {
+        this.context = context;
+        this.id = id;
+        this.msg = msgAllBean;
         this.sendNum = sendNum;
     }
 
@@ -118,5 +127,13 @@ public class VideoUploadBean extends BaseBean {
 
     public void setVideoMessage(VideoMessage videoMessage) {
         this.videoMessage = videoMessage;
+    }
+
+    public MsgAllBean getMsg() {
+        return msg;
+    }
+
+    public void setMsg(MsgAllBean msg) {
+        this.msg = msg;
     }
 }

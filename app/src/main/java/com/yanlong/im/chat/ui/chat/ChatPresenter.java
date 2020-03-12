@@ -396,9 +396,11 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                 if (!TextUtils.isEmpty(file)) {
                     boolean isArtworkMaster = StringUtil.isNotNull(reMsg.getImage().getOrigin()) ? true : false;
                     ImageMessage image = SocketData.createImageMessage(reMsg.getMsg_id(), file, isArtworkMaster);
-                    MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), model.getUid(), model.getGid(), reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
-                    getView().replaceListDataAndNotify(imgMsgBean);
-                    UpLoadService.onAdd(reMsg.getMsg_id(), file, isArtworkMaster, model.getUid(), model.getGid(), reMsg.getTimestamp());
+//                    MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), model.getUid(), model.getGid(), reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
+//                    getView().replaceListDataAndNotify(imgMsgBean);
+//                    UpLoadService.onAddImage(reMsg.getMsg_id(), file, isArtworkMaster, model.getUid(), model.getGid(), reMsg.getTimestamp());
+                    MsgAllBean imageMsgBean = sendMessage(image, ChatEnum.EMessageType.IMAGE, false);
+                    UpLoadService.onAddImage(imageMsgBean, file, isArtworkMaster);
                     getView().startUploadService();
                 } else {
                     //点击发送的时候如果要改变成发送中的状态
@@ -430,10 +432,8 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                     VideoMessage videoMessage = reMsg.getVideoMessage();
                     LogUtil.getLog().e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
                     VideoMessage videoMessageSD = SocketData.createVideoMessage(reMsg.getMsg_id(), "file://" + url, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), url);
-                    MsgAllBean imgMsgBeanReSend = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), model.getUid(), model.getGid(), SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
-                    getView().replaceListDataAndNotify(imgMsgBeanReSend);
-//                    msgListData.add(imgMsgBeanReSend);
-
+                    MsgAllBean msgAllBean = sendMessage(videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO, false);
+                    getView().replaceListDataAndNotify(msgAllBean);
                     if (!TextUtils.isEmpty(videoMessage.getBg_url())) {
                         // 当预览图清空掉时重新获取
                         File file = new File(videoMessage.getBg_url());
@@ -441,7 +441,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                             videoMessage.setBg_url(getVideoAttBitmap(url));
                         }
                     }
-                    UpLoadService.onAddVideo(this.context, reMsg.getMsg_id(), url, videoMessage.getBg_url(), false, model.getUid(), model.getGid(), videoMessage.getDuration(), videoMessageSD, false);
+                    UpLoadService.onAddVideo(this.context, msgAllBean, false);
                     getView().startUploadService();
                 } else {
                     //点击发送的时候如果要改变成发送中的状态
@@ -1000,13 +1000,22 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
 
     //消息发送，canSend--是否需要发送
 
-    private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType, boolean canSend) {
-        MsgAllBean msgAllBean = SocketData.createMessageBean(model.getUid(), model.getGid(), msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+    private MsgAllBean sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType, boolean canSend) {
+        int sendStatus = ChatEnum.ESendStatus.NORMAL;
+        if (TextUtils.isEmpty(model.getGid()) && model.getUid() > 0 && Constants.CX_HELPER_UID.longValue() == model.getUid()) {//常信小助手
+            sendStatus = ChatEnum.ESendStatus.NORMAL;
+        } else {
+            if (isUploadType(msgType)) {
+                sendStatus = ChatEnum.ESendStatus.PRE_SEND;
+            }
+        }
+        MsgAllBean msgAllBean = SocketData.createMessageBean(model.getUid(), model.getGid(), msgType, sendStatus, SocketData.getFixTime(), message);
         if (msgAllBean != null) {
             SocketData.sendAndSaveMessage(msgAllBean, canSend);
             getView().addAndShowSendMessage(msgAllBean);
             MessageManager.getInstance().notifyRefreshMsg(model.isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, model.getUid(), model.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
         }
+        return msgAllBean;
     }
 
     private boolean filterMessage(IMsgContent message) {
@@ -1729,23 +1738,11 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                         int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
                         int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
                         int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME, 0);
-                        final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
-                        final String imgMsgId = SocketData.getUUID();
-                        VideoMessage videoMessage = new VideoMessage();
-                        videoMessage.setHeight(height);
-                        videoMessage.setHeight(height);
-                        videoMessage.setWidth(width);
-                        videoMessage.setDuration(time);
-                        videoMessage.setBg_url(getVideoAttBitmap(file));
-                        videoMessage.setLocalUrl(file);
-                        LogUtil.getLog().e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
-                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), file);
-
-                        videoMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, model.getUid(), model.getGid(), SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
-                        model.getListData().add(videoMsgBean);
+                        VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + file, getVideoAttBitmap(file), false, time, width, height, file);
+                        MsgAllBean msgAllBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
                         // 不等于常信小助手
                         if (!Constants.CX_HELPER_UID.equals(model.getUid())) {
-                            UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, model.getUid(), model.getGid(), time, videoMessageSD, false);
+                            UpLoadService.onAddVideo(this.context, msgAllBean, false);
                             context.startService(new Intent(context, UpLoadService.class));
                         }
                     } else if (dataType == RecordedActivity.RESULT_TYPE_PHOTO) {
@@ -1758,24 +1755,18 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                         final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                         boolean isGif = FileUtils.isGif(file);
                         if (isArtworkMaster || isGif) {
-                            //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
                             file = photoPath;
                         }
-                        //1.上传图片
-                        // alert.show();
                         final String imgMsgId = SocketData.getUUID();
-                        // 记录本次上传图片的ID跟本地路径
-//                        mTempImgPath.put(imgMsgId, "file://" + file);
                         if (TextUtils.isEmpty(file)) {
                             ToastUtil.show("图片异常,请重新选择");
                             return;
                         }
                         ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" + */file, isArtworkMaster);
-                        videoMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, model.getUid(), model.getGid(), SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
-                        model.getListData().add(videoMsgBean);
+                        videoMsgBean = sendMessage(imageMessage, ChatEnum.EMessageType.IMAGE, isArtworkMaster);
                         // 不等于常信小助手
                         if (!Constants.CX_HELPER_UID.equals(model.getUid())) {
-                            UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, model.getUid(), model.getGid(), -1);
+                            UpLoadService.onAddImage(videoMsgBean, file, isArtworkMaster);
                             context.startService(new Intent(context, UpLoadService.class));
                         }
                     }
@@ -1809,11 +1800,13 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                             // 记录本次上传图片的ID跟本地路径
 //                            mTempImgPath.put(imgMsgId, "file://" + file);
                             ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" +*/ file, isArtworkMaster);//TODO:使用file://路径会使得检测本地路径不存在
-                            imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, model.getUid(), model.getGid(), SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
-                            model.getListData().add(imgMsgBean);
+//                            imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, model.getUid(), model.getGid(), SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
+//                            model.getListData().add(imgMsgBean);
+                            MsgAllBean imageMsgBean = sendMessage(imageMessage, ChatEnum.EMessageType.IMAGE, false);
                             // 不等于常信小助手
                             if (!Constants.CX_HELPER_UID.equals(model.getUid())) {
-                                UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, model.getUid(), model.getGid(), -1);
+//                                UpLoadService.onAddImage(imgMsgId, file, isArtworkMaster, model.getUid(), model.getGid(), -1);
+                                UpLoadService.onAddImage(imageMsgBean, file, isArtworkMaster);
                                 context.startService(new Intent(context, UpLoadService.class));
                             }
                         } else {
@@ -1830,22 +1823,11 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                                     ToastUtil.show(context, "不能选择超过5分钟的视频");
                                     continue;
                                 }
-                                final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
-                                final String imgMsgId = SocketData.getUUID();
-                                VideoMessage videoMessage = new VideoMessage();
-                                videoMessage.setHeight(Long.parseLong(getVideoAttHeigh(videofile)));
-                                videoMessage.setWidth(Long.parseLong(getVideoAttWeith(videofile)));
-                                videoMessage.setDuration(duration);
-                                videoMessage.setBg_url(getVideoAttBitmap(videofile));
-                                videoMessage.setLocalUrl(videofile);
-                                LogUtil.getLog().e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
-                                VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + videofile, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), videofile);
-                                imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, model.getUid(), model.getGid(), SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
-                                model.getListData().add(imgMsgBean);
+                                VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + videofile, getVideoAttBitmap(videofile), false, duration, Long.parseLong(getVideoAttWeith(videofile)), Long.parseLong(getVideoAttHeigh(videofile)), videofile);
+                                videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
                                 // 不等于常信小助手
                                 if (!Constants.CX_HELPER_UID.equals(model.getUid())) {
-                                    UpLoadService.onAddVideo(this.context, imgMsgId, videofile, videoMessage.getBg_url(), isArtworkMaster, model.getUid(), model.getGid(),
-                                            videoMessage.getDuration(), videoMessageSD, false);
+                                    UpLoadService.onAddVideo(context, videoMsgBean, false);
                                     context.startService(new Intent(context, UpLoadService.class));
                                 }
                             } else {
@@ -1994,6 +1976,15 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
             mmr.release();
         }
         return file.getAbsolutePath();
+    }
+
+    //是否是需要上传的消息类型：图片，语音，视频，文件等
+    private boolean isUploadType(int msgType) {
+        if (msgType == ChatEnum.EMessageType.IMAGE || msgType == ChatEnum.EMessageType.VOICE || msgType == ChatEnum.EMessageType.MSG_VIDEO || msgType == ChatEnum.EMessageType.FILE) {
+            return true;
+        }
+        return false;
+
     }
 
 }

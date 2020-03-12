@@ -1,15 +1,11 @@
 package com.yanlong.im.chat.server;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -17,11 +13,8 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
-import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,18 +55,16 @@ public class ChatServer extends Service {
 
         @Override
         public void onACK(MsgBean.AckMessage bean) {
-
-            for (String msgid : bean.getMsgIdList()) {
-                //处理撤回消息
-                if (cancelList.containsKey(msgid)) {
-                    MsgAllBean msgAllBean = cancelList.get(msgid);
-                    msgDao.msgDel4Cancel(msgid, msgAllBean.getMsgCancel().getMsgidCancel());
-
-                    LogUtil.getLog().i(TAG, "onACK: 收到取消回执,手动刷新列表");
-                    EventBus.getDefault().post(new EventRefreshChat());
-                    cancelList.remove(msgid);
-                }
-            }
+//            for (String msgid : bean.getMsgIdList()) {
+//                //处理撤回消息
+//                if (cancelList.containsKey(msgid)) {
+//                    MsgAllBean msgAllBean = cancelList.get(msgid);
+//                    msgDao.msgDel4Cancel(msgid, msgAllBean.getMsgCancel().getMsgidCancel());
+//                    LogUtil.getLog().i(TAG, "onACK: 收到取消回执,手动刷新列表");
+//                    EventBus.getDefault().post(new EventRefreshChat());
+//                    cancelList.remove(msgid);
+//                }
+//            }
         }
 
         @Override

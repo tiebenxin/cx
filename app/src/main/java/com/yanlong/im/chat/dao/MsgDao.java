@@ -662,7 +662,8 @@ public class MsgDao {
      * @param msgid       消息ID
      * @param msgCancelId
      */
-    public void msgDel4Cancel(String msgid, String msgCancelId) {
+    public MsgAllBean msgDel4Cancel(String msgid, String msgCancelId) {
+        MsgAllBean msgAllBean = null;
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -673,7 +674,7 @@ public class MsgDao {
             if (cancel == null && list != null && list.size() > 0) {
                 MsgAllBean bean = list.get(0);
                 if (TextUtils.isEmpty(bean.getMsg_id())) {
-                    return;
+                    return null;
                 }
 
                 cancel = new MsgAllBean();
@@ -722,8 +723,9 @@ public class MsgDao {
                 }
                 list.deleteAllFromRealm();
             }
-
-
+            if (cancel != null) {
+                msgAllBean = realm.copyFromRealm(cancel);
+            }
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
@@ -731,6 +733,7 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
+        return msgAllBean;
     }
 
 
