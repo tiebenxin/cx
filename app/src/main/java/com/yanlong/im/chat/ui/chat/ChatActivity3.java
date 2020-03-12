@@ -575,7 +575,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
 
     @Override
     public void startUploadServer(MsgAllBean bean, String file, boolean isOrigin) {
-        UpLoadService.onAdd(bean.getMsg_id(), file, isOrigin, mChatModel.getUid(), mChatModel.getGid(), bean.getTimestamp());
+        UpLoadService.onAddImage(bean, file, isOrigin);
         startService(new Intent(getContext(), UpLoadService.class));
     }
 

@@ -15,6 +15,7 @@ import net.cb.cb.library.MainApplication;
 import net.cb.cb.library.bean.BuglyException;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
+import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.constant.BuglyTag;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.LogUtil;
@@ -56,6 +57,7 @@ public class SocketUtil {
             SocketData.setPreServerAckTime(bean.getTimestamp());
             boolean isAccepted = false;
             MsgAllBean msgAllBean = null;
+            LogUtil.getLog().d(TAG, ">>>>>接受回执--size=" + bean.getMsgIdCount());
             if (bean.getRejectType() == MsgBean.RejectType.ACCEPTED) {//接收到发送的消息了
                 LogUtil.getLog().d(TAG, ">>>>>消息发送成功");
                 msgAllBean = SocketData.updateMsgSendStatusByAck(bean);
@@ -97,12 +99,7 @@ public class SocketUtil {
 
             if (isAccepted && msgAllBean != null) {
                 notifyAck(msgAllBean);
-            } else {
-//                for (SocketEvent ev : eventLists) {
-//                    if (ev != null) {
-//                        ev.onACK(bean);
-//                    }
-//                }
+            }else {
                 notifyAck(bean);
             }
         }

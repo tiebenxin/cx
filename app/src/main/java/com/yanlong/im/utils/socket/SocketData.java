@@ -27,7 +27,6 @@ import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
@@ -35,7 +34,6 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.utils.DeviceUtils;
-import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -255,10 +253,10 @@ public class SocketData {
                 msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
             }
             // 撤消内容 与内容类型写入数据库
-            if (msgAllBean.getMsgCancel() != null) {
-                msgAllBean.getMsgCancel().setCancelContent(mCancelContent);
-                msgAllBean.getMsgCancel().setCancelContentType(mCancelContentType);
-            }
+//            if (msgAllBean.getMsgCancel() != null) {
+//                msgAllBean.getMsgCancel().setCancelContent(mCancelContent);
+//                msgAllBean.getMsgCancel().setCancelContentType(mCancelContentType);
+//            }
             //文件消息，保存本地路径
             if (msgAllBean.getSendFileMessage() != null) {
                 msgAllBean.getSendFileMessage().setLocalPath(fileLocalUrl);
@@ -851,38 +849,25 @@ public class SocketData {
         return send4Base(false, toId, null, MsgBean.MessageType.READ, msg);
     }
 
-    private static String mCancelContent;// 撤回内容
-    private static Integer mCancelContentType;// 撤回内容类型
 
-    /**
-     * 撤回消息
-     *
-     * @param toId
-     * @param toGid
-     * @param msgId      消息ID
-     * @param msgContent 撤回内容
-     * @param msgType    撤回的消息类型
-     * @return
-     */
-    public static MsgAllBean send4CancelMsg(Long toId, String toGid, String msgId, String msgContent, Integer msgType) {
-        int survivalTime = new UserDao().getReadDestroy(toId, toGid);
-        MsgBean.CancelMessage msg = MsgBean.CancelMessage.newBuilder()
-                .setMsgId(msgId)
-                .build();
-
-        mCancelContent = msgContent;
-        mCancelContentType = msgType;
-
-        String id = getUUID();
-        MsgAllBean msgAllBean = send4Base(true, true, id, toId, toGid, -1, MsgBean.MessageType.CANCEL, msg);
-//        ChatMessage chatMessage = new ChatMessage();
-//        chatMessage.setMsg(msgContent);
-//        chatMessage.setMsgid(msgType + "");// 暂时用来存放撤回的消息类型
-//        msgAllBean.setChat(chatMessage);
-        msgAllBean.setSurvival_time(survivalTime);
-        ChatServer.addCanceLsit(id, msgAllBean);
-
-        return msgAllBean;
+    public static MsgCancel createCancelMsg(MsgAllBean cancelMsg) {
+        if (cancelMsg == null) {
+            return null;
+        }
+        String msg = "";
+        Integer msgType = 0;
+        if (cancelMsg.getChat() != null) {
+            msg = cancelMsg.getChat().getMsg();
+        } else if (cancelMsg.getAtMessage() != null) {
+            msg = cancelMsg.getAtMessage().getMsg();
+        }
+        msgType = cancelMsg.getMsg_type();
+        MsgCancel cancel = new MsgCancel();
+        cancel.setMsgid(cancelMsg.getMsg_id());
+        cancel.setNote("你撤回了一条消息");
+        cancel.setCancelContent(msg);
+        cancel.setCancelContentType(msgType);
+        return cancel;
     }
     /*
      * 发送及保存消息
@@ -1010,7 +995,11 @@ public class SocketData {
                 needSave = false;
                 break;
             case ChatEnum.EMessageType.MSG_CANCEL://撤销消息
-
+                MsgCancel cancel = bean.getMsgCancel();
+                MsgBean.CancelMessage.Builder cancelBuilder = MsgBean.CancelMessage.newBuilder();
+                cancelBuilder.setMsgId(cancel.getMsgId());
+                value = cancelBuilder.build();
+                type = MsgBean.MessageType.CANCEL;
                 break;
             case ChatEnum.EMessageType.LOCATION://位置
                 LocationMessage locationMessage = bean.getLocationMessage();
@@ -1687,7 +1676,6 @@ public class SocketData {
             return true;
         }
         return false;
-
     }
 
 }
