@@ -84,18 +84,6 @@ import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
 import com.hm.cxpay.ui.transfer.TransferActivity;
 import com.hm.cxpay.ui.transfer.TransferDetailActivity;
 import com.hm.cxpay.utils.UIUtils;
-
-import com.jrmf360.tools.utils.ThreadUtil;
-import com.yanlong.im.BuildConfig;
-import com.yanlong.im.chat.MsgTagHandler;
-import com.yanlong.im.chat.bean.MsgCancel;
-import com.yanlong.im.chat.bean.SendFileMessage;
-import com.yanlong.im.chat.bean.ShippedExpressionMessage;
-import com.yanlong.im.chat.eventbus.AckEvent;
-import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
-import com.yanlong.im.chat.interf.IActionTagClickListener;
-import com.yanlong.im.chat.ui.chat.ChatViewModel;
-import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
 import com.jrmf360.rplib.bean.GrabRpBean;
@@ -129,6 +117,7 @@ import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
@@ -143,6 +132,7 @@ import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.AckEvent;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
@@ -250,7 +240,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -396,13 +385,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     }
 
-    private Runnable mInputRecoverySoftInputModeRunnable = new Runnable() {
-        @Override
-        public void run() {
-            //设置改SoftInput模式为：顶起输入框
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        }
-    };
     private Runnable mPanelRecoverySoftInputModeRunnable = new Runnable() {
         @Override
         public void run() {
@@ -430,8 +412,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     editChat.clearFocus();
                     // 关闭软键盘
                     InputUtil.hideKeyboard(editChat);
-                    //虚拟键盘弹出,需更改SoftInput模式为：顶起输入框
-                    handler.postDelayed(mInputRecoverySoftInputModeRunnable, delayMillis);
                 }
             }
         });
@@ -439,7 +419,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mViewModel.isOpenEmoj.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
-                handler.removeCallbacks(mInputRecoverySoftInputModeRunnable);
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if (value) {//打开
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
@@ -474,7 +453,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mViewModel.isOpenFuction.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
-                handler.removeCallbacks(mInputRecoverySoftInputModeRunnable);
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if (value) {//打开
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
@@ -1426,6 +1404,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void keyBoardHide(int h) {
+                dismissPop();
             }
         });
 
@@ -3202,8 +3181,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         boolean isSelected = false;
         //msg_id,计时器 将计时器绑定到数据
         private Map<String, Disposable> mTimers = new HashMap<>();
-        //msg_id,position 记住msg_id位置
-        private Map<String, Integer> mPositions = new HashMap<>();
+        /********为保证Key-value两个值都是唯一，使用两个map 存储，查找删除方便********************************************************************/
+        //position，msg_id 记住位置对应的Msg_id,用来找Position和保证mMsgIdPositions的position 唯一
+        private Map<Integer, String> mPositionMsgIds = new HashMap<>();
+        //msg_id，position 用来找MsgId对应的position ,保证MsgId 唯一
+        private Map<String, Integer> mMsgIdPositions = new HashMap<>();
+
+        /****************************************************************************/
 
         public void onDestory() {
             //清除计时器，避免内存溢出
@@ -3211,19 +3195,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 timer.dispose();
                 timer = null;
             }
-//            Iterator<Map.Entry<String, Disposable>> entries = mTimers.entrySet().iterator();
-//            while(entries.hasNext()){
-//                Map.Entry<String, Disposable> entry = entries.next();
-//                Disposable timer = entry.getValue();
-//
-//            }
+            mTimers.clear();
             mTimers = null;
         }
 
         private synchronized void bindTimer(final String msgId, final boolean isMe, final long startTime, final long endTime) {
             try {
                 if (mTimers.containsKey(msgId)) {
-                    Log.e("raleigh_test", "mTimers.containsKey=" + msgId);
                     return;
                 }
                 long nowTimeMillis = DateUtils.getSystemTime();
@@ -3260,7 +3238,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             }).doOnComplete(new Action() {
                                 @Override
                                 public void run() throws Exception {
-
                                     updateSurvivalTimeImage(msgId, R.mipmap.icon_st_12, isMe);
                                 }
                             }).subscribe();
@@ -3272,8 +3249,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
 
         private void updateSurvivalTimeImage(String msgId, int id, boolean isMe) {
-            if (mPositions.containsKey(msgId)) {
-                ChatItemView chatItemView = ((ChatItemView) mtListView.getLayoutManager().findViewByPosition(mPositions.get(msgId)));
+            if (mMsgIdPositions.containsKey(msgId)) {
+                int position = mMsgIdPositions.get(msgId);
+                ChatItemView chatItemView = ((ChatItemView) mtListView.getLayoutManager().findViewByPosition(position));
                 if (chatItemView != null) {
                     if (isMe)
                         chatItemView.viewMeSurvivalTime
@@ -3442,17 +3420,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
          * @param position
          */
         private void savePositions(String msgId, int position) {
-            if (mPositions.containsValue(position)) {
-                Iterator<String> iterator = mPositions.keySet().iterator();
-                while (iterator.hasNext()) {
-                    String key = iterator.next();
-                    if (mPositions.get(key) == position) {
-                        mPositions.remove(key);
-                        break;
-                    }
-                }
+            //已经有MsgId包含该位置，则删除上一个，保证唯一性，更新时
+            if (mMsgIdPositions.containsValue(position)) {
+                mMsgIdPositions.remove(mPositionMsgIds.get(position));
             }
-            mPositions.put(msgId, position);
+            //mPositionMsgIds只记录，不处理
+            mPositionMsgIds.put(position, msgId);
+            mMsgIdPositions.put(msgId, position);
         }
 
 
@@ -4387,6 +4361,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mPopupWindow = new PopupWindow(mRootView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         // 设置弹窗外可点击
         mPopupWindow.setTouchable(true);
+        //popwindow不获取焦点
+        mPopupWindow.setFocusable(false);
         mPopupWindow.setTouchInterceptor(new View.OnTouchListener() {
 
             @Override
