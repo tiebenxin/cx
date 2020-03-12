@@ -866,15 +866,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             }
                         }
                         taskRefreshMessage(false);
-
-                    }
-                    if (isSendingHypertext) {
-                        if (sendTexts != null && sendTexts.size() > 0 && textPosition != sendTexts.size() - 1) {
-                            sendHypertext(sendTexts, textPosition + 1);
-                        }
                     }
                 }
             });
+        }
+        //是否是长文本消息
+        if (isSendingHypertext) {
+            if (sendTexts != null && sendTexts.size() > 0 && textPosition != sendTexts.size() - 1) {
+                sendHypertext(sendTexts, textPosition + 1);
+            }
         }
     }
 
@@ -2663,11 +2663,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             double fileSize = net.cb.cb.library.utils.FileUtils.getFileOrFilesSize(filePath, SIZETYPE_B);
                             String fileName = net.cb.cb.library.utils.FileUtils.getFileName(filePath);
                             if (fileSize > 104857600) {
-                                ToastUtil.showLong(this,"文件最大不能超过100M，请重新选择!\n"+"异常文件: "+fileName);
+                                ToastUtil.showLong(this, "文件最大不能超过100M，请重新选择!\n" + "异常文件: " + fileName);
                                 return;
                             }
                             if (fileSize == 0) {
-                                ToastUtil.showLong(this,"文件大小不能为0KB，请重新选择!\n"+"异常文件: "+fileName);
+                                ToastUtil.showLong(this, "文件大小不能为0KB，请重新选择!\n" + "异常文件: " + fileName);
                                 return;
                             }
                             String fileMsgId = SocketData.getUUID();
