@@ -979,8 +979,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, bean.getPath(), true);
                 MsgAllBean msgAllBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
                 msgListData.add(msgAllBean);
-                // 不等于常信小助手、文件传输助手
-                if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
+                // 不等于常信小助手
+                if (!Constants.CX_HELPER_UID.equals(toUId)) {
                     final ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(bean.getPath());
                     SocketData.send4Image(imgMsgId, toUId, toGid, bean.getServerPath(), true, img, -1);
                 }
@@ -1316,8 +1316,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msg);
                     }
                 });
-                // 不等于常信小助手、文件传输助手
-                if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
+                // 不等于常信小助手，需要上传到服务器
+                if (!Constants.CX_HELPER_UID.equals(toUId)) {
                     uploadVoice(file, msg);
                 } else {
                     //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
@@ -2470,12 +2470,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), file);
 
                         videoMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
-                        // 不等于常信小助手和文件传输助手
+                        // 不等于常信小助手，需要上传到服务器
                         if (!Constants.CX_HELPER_UID.equals(toUId)) {
                             UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, time, videoMessageSD, false);
                             startService(new Intent(getContext(), UpLoadService.class));
                         } else {
-                            //若为常信小助手和文件传输助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
+                            //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
                             msgDao.fixStataMsg(imgMsgId, ChatEnum.ESendStatus.NORMAL);
                         }
                         msgListData.add(videoMsgBean);
@@ -2499,12 +2499,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                         ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" + */file, isArtworkMaster);
                         videoMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
-                        // 不等于常信小助手和文件传输助手
-                        if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
+                        // 不等于常信小助手，需要上传到服务器
+                        if (!Constants.CX_HELPER_UID.equals(toUId)) {
                             UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
                             startService(new Intent(getContext(), UpLoadService.class));
                         } else {
-                            //若为常信小助手和文件传输助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
+                            //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
                             msgDao.fixStataMsg(imgMsgId, ChatEnum.ESendStatus.NORMAL);
                         }
                         msgListData.add(videoMsgBean);
@@ -2537,13 +2537,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" +*/ file, isArtworkMaster);//TODO:使用file://路径会使得检测本地路径不存在
                             imgMsgBean = sendMessage(imageMessage, ChatEnum.EMessageType.IMAGE, false);
 //                            imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
-                            // 不等于常信小助手和文件传输助手
-                            if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
+                            // 不等于常信小助手，需要上传到服务器
+                            if (!Constants.CX_HELPER_UID.equals(toUId)) {
 //                                UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
                                 UpLoadService.onAdd(imgMsgBean, file, isArtworkMaster);
                                 startService(new Intent(getContext(), UpLoadService.class));
                             } else {
-                                //若为常信小助手和文件传输助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
+                                //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
 //                                msgDao.fixStataMsg(imgMsgId, ChatEnum.ESendStatus.NORMAL);
                             }
 //                            msgListData.add(imgMsgBean);
@@ -2573,13 +2573,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 LogUtil.getLog().e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
                                 VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + videofile, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), videofile);
                                 imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
-                                // 不等于常信小助手和文件传输助手
-                                if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
+                                // 不等于常信小助手，需要上传到服务器
+                                if (!Constants.CX_HELPER_UID.equals(toUId)) {
                                     UpLoadService.onAddVideo(this.context, imgMsgId, videofile, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid,
                                             videoMessage.getDuration(), videoMessageSD, false);
                                     startService(new Intent(getContext(), UpLoadService.class));
                                 } else {
-                                    //若为常信小助手和文件传输助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
+                                    //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
                                     msgDao.fixStataMsg(imgMsgId, ChatEnum.ESendStatus.NORMAL);
                                 }
                                 msgListData.add(imgMsgBean);
@@ -2644,12 +2644,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (StringUtil.isNotNull(filePath)) {
                             //生成随机uuid、获取文件名、文件大小
                             double fileSize = net.cb.cb.library.utils.FileUtils.getFileOrFilesSize(filePath, SIZETYPE_B);
+                            String fileName = net.cb.cb.library.utils.FileUtils.getFileName(filePath);
                             if (fileSize > 104857600) {
-                                ToastUtil.show("文件最大不能超过100M");
+                                ToastUtil.showLong(this,"文件最大不能超过100M，请重新选择!\n"+"异常文件:"+fileName);
+                                return;
+                            }
+                            if (fileSize == 0) {
+                                ToastUtil.showLong(this,"文件大小不能为0KB，请重新选择!\n"+"异常文件:"+fileName);
                                 return;
                             }
                             String fileMsgId = SocketData.getUUID();
-                            String fileName = net.cb.cb.library.utils.FileUtils.getFileName(filePath);
                             String fileFormat = net.cb.cb.library.utils.FileUtils.getFileSuffix(fileName);
                             //如果是图片或者视频，按原有旧的方式打开，不调用第三方程序列表
                             if (net.cb.cb.library.utils.FileUtils.isImage(fileFormat)) {
@@ -2657,12 +2661,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 final String imgMsgId = SocketData.getUUID();
                                 ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" +*/ filePath, false);//TODO:使用file://路径会使得检测本地路径不存在
                                 imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
-                                // 不等于常信小助手和文件传输助手
-                                if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
+                                // 不等于常信小助手，消息需要上传到服务器
+                                if (!Constants.CX_HELPER_UID.equals(toUId)) {
                                     UpLoadService.onAdd(imgMsgId, filePath, false, toUId, toGid, -1);
                                     startService(new Intent(getContext(), UpLoadService.class));
                                 } else {
-                                    //若为常信小助手和文件传输助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
+                                    //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
                                     msgDao.fixStataMsg(imgMsgId, ChatEnum.ESendStatus.NORMAL);
                                 }
                                 msgListData.add(imgMsgBean);
@@ -2689,13 +2693,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 LogUtil.getLog().e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
                                 VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + filePath, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), filePath);
                                 imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
-                                // 不等于常信小助手和文件传输助手
-                                if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
+                                // 不等于常信小助手，需要上传到服务器
+                                if (!Constants.CX_HELPER_UID.equals(toUId)) {
                                     UpLoadService.onAddVideo(this.context, imgMsgId, filePath, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid,
                                             videoMessage.getDuration(), videoMessageSD, false);
                                     startService(new Intent(getContext(), UpLoadService.class));
                                 } else {
-                                    //若为常信小助手和文件传输助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
+                                    //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
                                     msgDao.fixStataMsg(imgMsgId, ChatEnum.ESendStatus.NORMAL);
                                 }
                                 msgListData.add(imgMsgBean);
@@ -3746,8 +3750,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                     Integer pgVideo = null;
                     pgVideo = UpLoadService.getProgress(msgbean.getMsg_id());
-                    // 等于常信小助手、文件传输助手
-                    if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_FILE_HELPER_UID.equals(toUId)) {
+                    // 等于常信小助手
+                    if (Constants.CX_HELPER_UID.equals(toUId)) {
                         pgVideo = 100;
                     }
 
@@ -4555,6 +4559,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (msgListData != null) {
             mtListView.getListView().getAdapter().notifyItemRangeChanged(0, msgListData.size());
         }
+        mtListView.getSwipeLayout().setRefreshing(false);
     }
 
     private MsgAction msgAction = new MsgAction();
@@ -6009,8 +6014,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         msgListData.removeAll(list);
         removeUnreadCount(list.size());
-//        mtListView.notifyDataSetChange();
-        notifyData();
+        mtListView.notifyDataSetChange();
 
     }
 
