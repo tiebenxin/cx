@@ -83,15 +83,20 @@ public class AdapterPopMenu extends BaseAdapter {
         public void bindData(OptionMenu item, int position) {
             tvContent.setText(item.getTitle());
             if (mList != null) {
-                if (position == 0) {
-                    viewLine.setVisibility(View.VISIBLE);
-                    tvContent.setBackgroundResource(R.drawable.shape_chat_bubble_left);
-                } else if (position == mList.size() - 1) {
+                if (mList.size() == 1) {
                     viewLine.setVisibility(View.GONE);
-                    tvContent.setBackgroundResource(R.drawable.shape_chat_bubble_right);
+                    tvContent.setBackgroundResource(R.drawable.shape_chat_bubble_all);
                 } else {
-                    tvContent.setBackgroundResource(R.drawable.shape_chat_bubble_center);
-                    viewLine.setVisibility(View.VISIBLE);
+                    if (position == 0) {
+                        viewLine.setVisibility(View.VISIBLE);
+                        tvContent.setBackgroundResource(R.drawable.shape_chat_bubble_left);
+                    } else if (position == mList.size() - 1) {
+                        viewLine.setVisibility(View.GONE);
+                        tvContent.setBackgroundResource(R.drawable.shape_chat_bubble_right);
+                    } else {
+                        tvContent.setBackgroundResource(R.drawable.shape_chat_bubble_center);
+                        viewLine.setVisibility(View.VISIBLE);
+                    }
                 }
             }
             root.setOnClickListener(new View.OnClickListener() {
