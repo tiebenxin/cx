@@ -1141,7 +1141,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         editChat.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                    mViewModel.isInputText.setValue(true);
+                mViewModel.isInputText.setValue(true);
                 return false;
             }
         });
@@ -4069,6 +4069,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 }
                             }
                         }
+                        dismissPop();
                         showPop(v, menus, msgbean, new IMenuSelectListener() {
                             @Override
                             public void onSelected() {
