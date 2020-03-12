@@ -902,7 +902,7 @@ public class ChatItemView extends LinearLayout {
     public void updateVoice(MsgAllBean bean) {
         VoiceMessage voice = bean.getVoiceMessage();
         String url = bean.isMe() ? voice.getLocalUrl() : voice.getUrl();
-        if(!isMe)viewOtUnread.setVisibility(voice.getPlayStatus() != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
+        if(!bean.isMe())viewOtUnread.setVisibility(voice.getPlayStatus() != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
         viewOt7.initHideUnRead(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
         viewMe7.initHideUnRead(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
     }
