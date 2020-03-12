@@ -384,13 +384,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     }
 
-    private Runnable mInputRecoverySoftInputModeRunnable = new Runnable() {
-        @Override
-        public void run() {
-            //设置改SoftInput模式为：顶起输入框
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        }
-    };
     private Runnable mPanelRecoverySoftInputModeRunnable = new Runnable() {
         @Override
         public void run() {
@@ -418,8 +411,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     editChat.clearFocus();
                     // 关闭软键盘
                     InputUtil.hideKeyboard(editChat);
-                    //虚拟键盘弹出,需更改SoftInput模式为：顶起输入框
-                    handler.postDelayed(mInputRecoverySoftInputModeRunnable, delayMillis);
                 }
             }
         });
@@ -427,7 +418,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mViewModel.isOpenEmoj.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
-                handler.removeCallbacks(mInputRecoverySoftInputModeRunnable);
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if (value) {//打开
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
@@ -462,7 +452,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mViewModel.isOpenFuction.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
-                handler.removeCallbacks(mInputRecoverySoftInputModeRunnable);
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if (value) {//打开
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
@@ -1415,6 +1404,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void keyBoardHide(int h) {
+                dismissPop();
             }
         });
 
@@ -3163,6 +3153,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         private Map<Integer, String> mPositionMsgIds = new HashMap<>();
         //msg_id，position 用来找MsgId对应的position ,保证MsgId 唯一
         private Map<String, Integer> mMsgIdPositions = new HashMap<>();
+
         /****************************************************************************/
 
         public void onDestory() {
@@ -3175,7 +3166,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             mTimers = null;
         }
 
-        private synchronized void bindTimer(final String msgId, final boolean isMe, final long startTime, final long endTime)  {
+        private synchronized void bindTimer(final String msgId, final boolean isMe, final long startTime, final long endTime) {
             try {
                 if (mTimers.containsKey(msgId)) {
                     return;
@@ -3397,12 +3388,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
          */
         private void savePositions(String msgId, int position) {
             //已经有MsgId包含该位置，则删除上一个，保证唯一性，更新时
-            if(mMsgIdPositions.containsValue(position)){
+            if (mMsgIdPositions.containsValue(position)) {
                 mMsgIdPositions.remove(mPositionMsgIds.get(position));
             }
             //mPositionMsgIds只记录，不处理
             mPositionMsgIds.put(position, msgId);
-            mMsgIdPositions.put( msgId,position);
+            mMsgIdPositions.put(msgId, position);
         }
 
 
@@ -4337,6 +4328,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mPopupWindow = new PopupWindow(mRootView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         // 设置弹窗外可点击
         mPopupWindow.setTouchable(true);
+        //popwindow不获取焦点
+        mPopupWindow.setFocusable(false);
         mPopupWindow.setTouchInterceptor(new View.OnTouchListener() {
 
             @Override
