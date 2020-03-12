@@ -6,6 +6,7 @@ import com.tencent.bugly.crashreport.BuglyLog;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.eventbus.AckEvent;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.utils.DaoUtil;
 
@@ -53,11 +54,15 @@ public class SocketUtil {
         @Override
         public void onACK(MsgBean.AckMessage bean) {
             SocketData.setPreServerAckTime(bean.getTimestamp());
+            boolean isAccepted = false;
+            MsgAllBean msgAllBean = null;
             if (bean.getRejectType() == MsgBean.RejectType.ACCEPTED) {//接收到发送的消息了
                 LogUtil.getLog().d(TAG, ">>>>>消息发送成功");
-                boolean result = SocketData.updateMsgSendStatusByAck(bean);
-                if (!result) {
+                msgAllBean = SocketData.updateMsgSendStatusByAck(bean);
+                if (msgAllBean == null) {
                     SocketData.msgSave4Me(bean);
+                } else {
+                    isAccepted = true;
                 }
             } else {
                 LogUtil.getLog().d(TAG, ">>>>>ack被拒绝 :" + bean.getRejectType());
@@ -90,10 +95,15 @@ public class SocketUtil {
                 }
             }
 
-            for (SocketEvent ev : eventLists) {
-                if (ev != null) {
-                    ev.onACK(bean);
-                }
+            if (isAccepted && msgAllBean != null) {
+                notifyAck(msgAllBean);
+            } else {
+//                for (SocketEvent ev : eventLists) {
+//                    if (ev != null) {
+//                        ev.onACK(bean);
+//                    }
+//                }
+                notifyAck(bean);
             }
         }
 
@@ -441,7 +451,7 @@ public class SocketUtil {
 
     //1.
     private SSLSocketChannel2 socketChannel;
-    //  private SocketChannel socketChannel;
+//  private SocketChannel socketChannel;
 
 
     /***
@@ -695,6 +705,12 @@ public class SocketUtil {
     //发送请求离线的数据
     private void sendRequestForOffline() {
         sendData(SocketData.requestOffline(), null, "");
+    }
+
+    public static void notifyAck(Object o) {
+        AckEvent event = new AckEvent();
+        event.setData(o);
+        EventBus.getDefault().post(event);
     }
 
 }

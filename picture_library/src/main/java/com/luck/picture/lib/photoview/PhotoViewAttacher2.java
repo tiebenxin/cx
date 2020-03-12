@@ -946,7 +946,7 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
             RectF mTempDst;
 
             double rate = drawableWidth * 1.00 / drawableHeight;
-            System.out.println(PhotoViewAttacher2.class.getSimpleName() + "--view=" + viewWidth + "--" + viewHeight + "--drawable=" + drawableWidth + "--" + drawableHeight);
+//            System.out.println(PhotoViewAttacher2.class.getSimpleName() + "--view=" + viewWidth + "--" + viewHeight + "--drawable=" + drawableWidth + "--" + drawableHeight);
 //            if (rate < 0.2) {
 //                mTempSrc = new RectF(0, 0, drawableWidth, drawableHeight);
 //                mTempDst = new RectF(0, 0, viewWidth, (float) (viewWidth / rate));
@@ -981,7 +981,7 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
                     mTempSrc = new RectF(0, 0, drawableHeight, drawableWidth);
                 }
             }
-            System.out.println(PhotoViewAttacher2.class.getSimpleName() + "--mTempSrc=" + (mTempSrc.right - mTempSrc.left) + "--" + (mTempSrc.bottom - mTempSrc.top) + "--mTempDst=" + (mTempDst.right - mTempDst.left) + "--" + (mTempDst.bottom - mTempDst.top));
+//            System.out.println(PhotoViewAttacher2.class.getSimpleName() + "--mTempSrc=" + (mTempSrc.right - mTempSrc.left) + "--" + (mTempSrc.bottom - mTempSrc.top) + "--mTempDst=" + (mTempDst.right - mTempDst.left) + "--" + (mTempDst.bottom - mTempDst.top));
 
 
             switch (mScaleType) {

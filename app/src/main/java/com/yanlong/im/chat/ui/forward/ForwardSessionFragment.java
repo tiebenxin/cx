@@ -115,7 +115,7 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
 
 
     private List<Session> searchSessionBykey(List<Session> sessions,String key){
-        LogUtil.getLog().e("======转发搜索====最近聊天====key=="+key);
+//        LogUtil.getLog().e("======转发搜索====最近聊天====key=="+key);
         if(!StringUtil.isNotNull(key)){
             return sessions;
         }

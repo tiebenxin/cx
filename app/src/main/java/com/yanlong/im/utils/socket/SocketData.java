@@ -695,9 +695,6 @@ public class SocketData {
         msgAllBean.setTo_uid(toId);
         msgAllBean.setGid(toGid == null ? "" : toGid);
         msgAllBean.setSend_state(ChatEnum.ESendStatus.PRE_SEND);
-
-        LogUtil.getLog().d(TAG, "sendFileUploadMessagePre: msgId" + msgId);
-
         DaoUtil.update(msgAllBean);
         msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
         MessageManager.getInstance().setMessageChange(true);
@@ -1584,7 +1581,7 @@ public class SocketData {
     }
 
     //更新发送状态，根据ack
-    public static boolean updateMsgSendStatusByAck(MsgBean.AckMessage ackMessage) {
+    public static MsgAllBean updateMsgSendStatusByAck(MsgBean.AckMessage ackMessage) {
         MsgAllBean msgAllBean = SendList.getMsgFromSendSequence(ackMessage.getRequestId());
         if (msgAllBean != null) {
             SendList.removeMsgFromSendSequence(ackMessage.getRequestId());
@@ -1595,9 +1592,9 @@ public class SocketData {
             }
             msgAllBean.setTimestamp(ackMessage.getTimestamp());
             DaoUtil.update(msgAllBean);
-            return true;
+            return msgAllBean;
         }
-        return false;
+        return null;
     }
 
     /***
@@ -1706,6 +1703,15 @@ public class SocketData {
         request.setLatest(true);
         //添加到消息队中监听
         return SocketPacket.getPackage(SocketPacket.DataType.REQUEST_MSG, request.build().toByteArray());
+    }
+
+    //是否是需要上传的消息类型：图片，语音，视频，文件等
+    public static boolean isUploadType(int msgType) {
+        if (msgType == ChatEnum.EMessageType.IMAGE || msgType == ChatEnum.EMessageType.VOICE || msgType == ChatEnum.EMessageType.MSG_VIDEO || msgType == ChatEnum.EMessageType.FILE) {
+            return true;
+        }
+        return false;
+
     }
 
 }

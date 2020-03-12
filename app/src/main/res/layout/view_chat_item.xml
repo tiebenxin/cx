@@ -771,7 +771,7 @@
 
                         </LinearLayout>
 
-                        <com.yanlong.im.view.CountDownView
+                        <android.support.v7.widget.AppCompatImageView
                             android:id="@+id/view_ot_survival_time"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -781,6 +781,18 @@
                             app:layout_constraintLeft_toRightOf="@+id/view_ot_touch_child"
                             app:layout_constraintRight_toRightOf="@+id/view_ot_touch_child"
                             app:layout_constraintTop_toBottomOf="@+id/view_ot_touch_child" />
+
+                        <ImageView
+                            android:id="@+id/view_ot_unread"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            app:layout_constraintLeft_toRightOf="@+id/view_ot_touch_child"
+                            app:layout_constraintTop_toTopOf="@+id/view_ot_touch_child"
+                            app:layout_constraintBottom_toBottomOf="@+id/view_ot_touch_child"
+                            android:layout_marginLeft="@dimen/app_margin_item"
+                            android:src="@mipmap/bg_red_num_small"
+                            android:visibility="gone" />
                     </android.support.constraint.ConstraintLayout>
 
 
@@ -1466,7 +1478,7 @@
 
                             </LinearLayout>
 
-                            <com.yanlong.im.view.CountDownView
+                            <android.support.v7.widget.AppCompatImageView
                                 android:id="@+id/view_me_survival_time"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"

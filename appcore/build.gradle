@@ -132,7 +132,7 @@ dependencies {
     //图片
     api project(':picture_library')
 
-    // Bugly
+//    // Bugly
     api 'com.tencent.bugly:crashreport:latest.release'
     api 'com.tencent.bugly:nativecrashreport:latest.release'
 

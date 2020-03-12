@@ -47,7 +47,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -91,6 +90,7 @@ import com.yanlong.im.BuildConfig;
 import com.yanlong.im.chat.MsgTagHandler;
 import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
+import com.yanlong.im.chat.eventbus.AckEvent;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.ui.chat.ChatViewModel;
@@ -101,6 +101,7 @@ import com.jrmf360.rplib.bean.GrabRpBean;
 import com.jrmf360.rplib.bean.TransAccountBean;
 import com.jrmf360.rplib.utils.callback.GrabRpCallBack;
 import com.jrmf360.rplib.utils.callback.TransAccountCallBack;
+import com.jrmf360.tools.utils.ThreadUtil;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -109,10 +110,12 @@ import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yalantis.ucrop.util.FileUtils;
+import com.yanlong.im.BuildConfig;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.AdapterPopMenu;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
+import com.yanlong.im.chat.MsgTagHandler;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
@@ -130,18 +133,23 @@ import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.ScrollConfig;
+import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
+import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
+import com.yanlong.im.chat.ui.chat.ChatViewModel;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.chat.ui.view.ControllerLinearList;
@@ -149,6 +157,7 @@ import com.yanlong.im.location.LocationActivity;
 import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
+import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -240,13 +249,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -318,7 +332,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private int lastOffset = -1;
     private int lastPosition = -1;
     private boolean isSoftShow;
-    private Map<Integer, View> viewMap = new HashMap<>();
     private boolean needRefresh;
     private List<String> sendTexts;//文本分段发送
     private boolean isSendingHypertext = false;
@@ -450,7 +463,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         } else {//其他功能触发，非输入框触发，直接关闭当前面板
                             viewFaceView.setVisibility(View.GONE);
                         }
-                    }else{//聊天时界面滑动，关闭面板
+                    } else {//聊天时界面滑动，关闭面板
                         viewFaceView.setVisibility(View.GONE);
                     }
                 }
@@ -483,7 +496,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         } else {//其他功能触发，非输入框触发，直接关闭当前面板
                             viewExtendFunction.setVisibility(View.GONE);
                         }
-                    }else{//聊天时界面滑动，关闭面板
+                    } else {//聊天时界面滑动，关闭面板
                         viewExtendFunction.setVisibility(View.GONE);
                     }
                 }
@@ -568,6 +581,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     protected void onDestroy() {
+        mAdapter.onDestory();
 
         List<MsgAllBean> list = msgDao.getMsg4SurvivalTimeAndExit(toGid, toUId);
         EventBus.getDefault().post(new EventSurvivalTimeAdd(null, list));
@@ -813,6 +827,56 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             });
         }
     };
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void doAckEvent(AckEvent event) {
+        Object data = event.getData();
+        if (data instanceof MsgAllBean) {
+            LogUtil.getLog().i(TAG,"收到回执--MsgAllBean");
+            MsgAllBean msgAllBean = (MsgAllBean) data;
+            fixSendTime(msgAllBean.getMsg_id());
+            replaceListDataAndNotify(msgAllBean);
+        } else if (data instanceof MsgBean.AckMessage) {
+            LogUtil.getLog().i(TAG,"收到回执--AckMessage");
+            MsgBean.AckMessage bean = (MsgBean.AckMessage) data;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    // TODO #41806 java.lang.IndexOutOfBoundsException
+                    if (bean.getMsgIdList() != null && bean.getMsgIdList().size() > 0) {
+                        fixSendTime(bean.getMsgId(0));
+                    }
+                    //群聊自己发送的消息直接加入阅后即焚队列
+                    MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsgId(0));
+                    if (isGroup()) {
+                        addSurvivalTime(msgAllBean);
+                    }
+                    if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
+                        taskRefreshMessage(false);
+                    } else {
+                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
+                            for (String msgid : bean.getMsgIdList()) {
+                                //撤回消息不做刷新
+                                if (ChatServer.getCancelList().containsKey(msgid)) {
+                                    LogUtil.getLog().i(TAG, "onACK: 收到取消回执,等待刷新列表2");
+                                    return;
+                                }
+                            }
+                        }
+                        taskRefreshMessage(false);
+
+                    }
+                    if (isSendingHypertext) {
+                        if (sendTexts != null && sendTexts.size() > 0 && textPosition != sendTexts.size() - 1) {
+                            sendHypertext(sendTexts, textPosition + 1);
+                        }
+                    }
+                }
+            });
+        }
+    }
+
 
     //消息的分发
     public void onMsgbranch(MsgBean.UniversalMessage.WrapMessage msg) {
@@ -1751,13 +1815,31 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     //消息发送，canSend--是否需要发送
-    private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType, boolean canSend) {
-        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+    private MsgAllBean sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType, boolean canSend) {
+        int sendStatus = ChatEnum.ESendStatus.NORMAL;
+        if (TextUtils.isEmpty(toGid) && toUId != null && Constants.CX_HELPER_UID.equals(toUId)) {//常信小助手
+            sendStatus = ChatEnum.ESendStatus.NORMAL;
+        } else {
+            if (isUploadType(msgType)) {
+                sendStatus = ChatEnum.ESendStatus.PRE_SEND;
+            }
+        }
+        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, sendStatus, SocketData.getFixTime(), message);
         if (msgAllBean != null) {
             SocketData.sendAndSaveMessage(msgAllBean, canSend);
             showSendObj(msgAllBean);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
         }
+        return msgAllBean;
+    }
+
+    //是否是需要上传的消息类型：图片，语音，视频，文件等
+    private boolean isUploadType(int msgType) {
+        if (msgType == ChatEnum.EMessageType.IMAGE || msgType == ChatEnum.EMessageType.VOICE || msgType == ChatEnum.EMessageType.MSG_VIDEO || msgType == ChatEnum.EMessageType.FILE) {
+            return true;
+        }
+        return false;
+
     }
 
     private boolean filterMessage(IMsgContent message) {
@@ -2177,7 +2259,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventIsShowRead(EventIsShowRead event) {
-        mtListView.notifyDataSetChange();
+//        mtListView.notifyDataSetChange();
+        notifyData();
     }
 
 
@@ -2452,16 +2535,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             //1.上传图片
                             final String imgMsgId = SocketData.getUUID();
                             ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" +*/ file, isArtworkMaster);//TODO:使用file://路径会使得检测本地路径不存在
-                            imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
+                            imgMsgBean = sendMessage(imageMessage, ChatEnum.EMessageType.IMAGE, false);
+//                            imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
                             // 不等于常信小助手和文件传输助手
                             if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
-                                UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
+//                                UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
+                                UpLoadService.onAdd(imgMsgBean, file, isArtworkMaster);
                                 startService(new Intent(getContext(), UpLoadService.class));
                             } else {
                                 //若为常信小助手和文件传输助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
-                                msgDao.fixStataMsg(imgMsgId, ChatEnum.ESendStatus.NORMAL);
+//                                msgDao.fixStataMsg(imgMsgId, ChatEnum.ESendStatus.NORMAL);
                             }
-                            msgListData.add(imgMsgBean);
+//                            msgListData.add(imgMsgBean);
 
                         } else {
                             String videofile = localMedia.getPath();
@@ -2711,8 +2796,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }, 800);
             }
         } else if (event.getState() == 1) {
-            //  LogUtil.getLog().d("tag", "taskUpImgEvevt 1: ===============>"+event.getMsgId());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
+            LogUtil.getLog().d("tag", "taskUpImgEvevt 1: ===============>" + msgAllbean.getImage());
+            SocketData.sendAndSaveMessage(msgAllbean);
             replaceListDataAndNotify(msgAllbean);
         } else {
             //  LogUtil.getLog().d("tag", "taskUpImgEvevt 2: ===============>"+event.getMsgId());
@@ -3019,7 +3105,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
                     taskRefreshMessage(false);
                 }
-            }else if(reMsg.getMsg_type() == ChatEnum.EMessageType.FILE){ //文件消息失败重发机制
+            } else if (reMsg.getMsg_type() == ChatEnum.EMessageType.FILE) { //文件消息失败重发机制
                 if (!checkNetConnectStatus()) {
                     return;
                 }
@@ -3036,7 +3122,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
                         msgDao.fixStataMsg(reMsg.getMsg_id(), ChatEnum.ESendStatus.NORMAL);
                     }
-                }else {
+                } else {
                     ToastUtil.show("文件不存在或已被删除");
                 }
             } else {
@@ -3080,6 +3166,89 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
         int unread = 0;
         boolean isSelected = false;
+        //msg_id,计时器 将计时器绑定到数据
+        private Map<String, Disposable> mTimers = new HashMap<>();
+        //msg_id,position 记住msg_id位置
+        private Map<String, Integer> mPositions = new HashMap<>();
+
+        public void onDestory() {
+            //清除计时器，避免内存溢出
+            for (Disposable timer : mTimers.values()) {
+                timer.dispose();
+                timer = null;
+            }
+//            Iterator<Map.Entry<String, Disposable>> entries = mTimers.entrySet().iterator();
+//            while(entries.hasNext()){
+//                Map.Entry<String, Disposable> entry = entries.next();
+//                Disposable timer = entry.getValue();
+//
+//            }
+            mTimers = null;
+        }
+
+        private synchronized void  bindTimer(final String msgId, final boolean isMe, final long startTime, final long endTime) {
+            try {
+                if (mTimers.containsKey(msgId)) {
+                    Log.e("raleigh_test", "mTimers.containsKey=" + msgId);
+                    return;
+                }
+                long nowTimeMillis = DateUtils.getSystemTime();
+                long period = 0;
+                long start = 1;
+                int COUNT = 12;
+                if (nowTimeMillis < endTime) {//当前时间还在倒计时结束前
+                    long distance = startTime - nowTimeMillis;//和现在时间相差的毫秒数
+                    //四舍五入
+                    period = Math.round(Double.valueOf(endTime - startTime) / COUNT);
+                    if (distance < 0) {//开始时间小于现在，已经开始了
+                        start = -distance / period;
+                    }
+                    start = Math.max(1, start);
+                    //延迟initialDelay个unit单位后，以period为周期，依次发射count个以start为初始值并递增的数字。
+                    //eg:发送数字1~10，每间隔200毫秒发射一个数据 intervalRange(1, 10, 0, 200, TimeUnit.MILLISECONDS);
+                    //发送数字0~11，每间隔period/COUNT毫秒发射一个数据,延迟distance毫秒
+                    Disposable timer = Flowable.intervalRange(start, COUNT - start + 1, 0, period, TimeUnit.MILLISECONDS)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doOnNext(new Consumer<Long>() {
+                                @Override
+                                public void accept(Long index) throws Exception {
+                                    try {
+                                        long time = nowTimeMillis - DateUtils.getSystemTime();
+                                        String name = "icon_st_" + Math.min(COUNT, index+1);
+                                        int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
+                                        updateSurvivalTimeImage(msgId, id, isMe);
+                                        LogUtil.getLog().i("CountDownView", "isME=" + index);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }).doOnComplete(new Action() {
+                                @Override
+                                public void run() throws Exception {
+
+                                    updateSurvivalTimeImage(msgId, R.mipmap.icon_st_12, isMe);
+                                }
+                            }).subscribe();
+                    mTimers.put(msgId, timer);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        private void updateSurvivalTimeImage(String msgId,int id,boolean isMe){
+            if(mPositions.containsKey(msgId)){
+                ChatItemView chatItemView = ((ChatItemView) mtListView.getLayoutManager().findViewByPosition(mPositions.get(msgId)));
+                if(chatItemView!=null){
+                    if (isMe)
+                        chatItemView.viewMeSurvivalTime
+                                .setImageBitmap(BitmapFactory.decodeResource(context.getResources(), id));
+                    else
+                        chatItemView.viewOtSurvivalTime
+                                .setImageBitmap(BitmapFactory.decodeResource(context.getResources(), id));
+                }
+            }
+        }
 
         void setUnreadCount(int count) {
             unread = count;
@@ -3106,6 +3275,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private com.yanlong.im.chat.ui.view.ChatItemView viewChatItem;
 
+
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
@@ -3121,11 +3291,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
         @Override
         public void onBindViewHolder(@NonNull RCViewHolder holder, int position, @NonNull List<Object> payloads) {
+            holder.viewChatItem.recoveryOtUnreadView();
             if (payloads == null || payloads.isEmpty()) {
                 onBindViewHolder(holder, position);
             } else {
 //                LogUtil.getLog().d("sss", "onBindViewHolderpayloads: " + position);
                 final MsgAllBean msgbean = msgListData.get(position);
+                savePositions(msgbean.getMsg_id(), position);
                 //菜单
                 final List<OptionMenu> menus = new ArrayList<>();
                 LogUtil.getLog().d("SurvivalTime", "单条刷新");
@@ -3146,15 +3318,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         holder.viewChatItem.setDataRead(msgbean.getSend_state(), msgbean.getReadTime());
                     }
                 }
-
-                holder.viewChatItem.timerCancel();
-                holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time());
-//                LogUtil.getLog().d("CountDownView", "type=" + msgbean.getSurvival_time() + "--msgId=" + msgbean.getMsg_id());
-
-
                 if (msgbean.getSurvival_time() > 0 && msgbean.getStartTime() > 0 && msgbean.getEndTime() > 0) {
 //                    LogUtil.getLog().i("CountDownView", msgbean.getMsg_id() + "---");
-                    holder.viewChatItem.setDataSt(msgbean.getStartTime(), msgbean.getEndTime());
+                    //阅后即焚
+                    holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time(),false);
+                    bindTimer(msgbean.getMsg_id(), msgbean.isMe(), msgbean.getStartTime(), msgbean.getEndTime());
+                }else{
+                    holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time(),true);
                 }
 
                 //只更新单条处理
@@ -3230,14 +3400,31 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
 
+        /**
+         * 保存msgid位置
+         * @param msgId
+         * @param position
+         */
+        private void savePositions(String msgId,int position){
+            if(mPositions.containsValue(position)){
+                Iterator<String> iterator= mPositions.keySet().iterator();
+                while(iterator.hasNext()) {
+                    String key = iterator.next();
+                    if(mPositions.get(key)==position){
+                        mPositions.remove(key);
+                        break;
+                    }
+                }
+            }
+            mPositions.put(msgId, position);
+        }
+
 
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, final int position) {
-            viewMap.put(position, holder.itemView);
             final MsgAllBean msgbean = msgListData.get(position);
-//            LogUtil.getLog().e(position+"====msgbean="+GsonUtils.optObject(msgbean));
-
+            savePositions(msgbean.getMsg_id(), position);
             if (!isGroup()) {
                 if (msgbean.isMe()) {
                     addSurvivalTimeAndRead(msgbean);
@@ -3342,13 +3529,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
             }
 
-            holder.viewChatItem.timerCancel();
-            holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time());
-//            LogUtil.getLog().d("CountDownView", "type=" + msgbean.getSurvival_time() + "--msgId=" + msgbean.getMsg_id());
-
             if (msgbean.getSurvival_time() > 0 && msgbean.getStartTime() > 0 && msgbean.getEndTime() > 0) {
+                holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time(),false);
 //                LogUtil.getLog().i("CountDownView", msgbean.getMsg_id() + "---");
-                holder.viewChatItem.setDataSt(msgbean.getStartTime(), msgbean.getEndTime());
+                bindTimer(msgbean.getMsg_id(), msgbean.isMe(), msgbean.getStartTime(), msgbean.getEndTime());
+            }else{
+                holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time(),true);
             }
 //            LogUtil.getLog().d("getSend_state", msgbean.getSurvival_time() + "----" + msgbean.getMsg_id());
             //设置阅后即焚图标显示
@@ -3733,8 +3919,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                     Integer filePg = UpLoadService.getProgress(msgbean.getMsg_id());
                     //发送失败状态下，不展现之前的进度，点击重新下载
-                    if (msgbean.getSend_state() != ChatEnum.ESendStatus.ERROR){
-                        if(filePg!=null){
+                    if (msgbean.getSend_state() != ChatEnum.ESendStatus.ERROR) {
+                        if (filePg != null) {
                             holder.viewChatItem.setFileProgress(filePg);
                         }
                     }
@@ -4365,7 +4551,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void notifyData() {
-        mtListView.notifyDataSetChange();
+//        mtListView.notifyDataSetChange();
+        if (msgListData != null) {
+            mtListView.getListView().getAdapter().notifyItemRangeChanged(0, msgListData.size());
+        }
     }
 
     private MsgAction msgAction = new MsgAction();
@@ -5244,7 +5433,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     public void addSurvivalTimeAndRead(MsgAllBean msgbean) {
-        if (msgbean == null || BurnManager.getInstance().isContainMsg(msgbean)) {
+        if (msgbean == null || BurnManager.getInstance().isContainMsg(msgbean) || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL) {
             return;
         }
         if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0 && msgbean.getRead() == 1) {
@@ -5820,7 +6009,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         msgListData.removeAll(list);
         removeUnreadCount(list.size());
-        mtListView.notifyDataSetChange();
+//        mtListView.notifyDataSetChange();
+        notifyData();
 
     }
 

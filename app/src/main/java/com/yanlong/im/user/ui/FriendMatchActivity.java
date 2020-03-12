@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.FriendInfoBean;
+import com.yanlong.im.user.bean.PhoneBean;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PhoneListUtil;
 import com.yanlong.im.utils.UserUtil;
@@ -143,7 +144,7 @@ public class FriendMatchActivity extends AppActivity {
             public void run() {
                 phoneListUtil.getPhones(FriendMatchActivity.this, new PhoneListUtil.Event() {
                     @Override
-                    public void onList(final List<PhoneListUtil.PhoneBean> list) {
+                    public void onList(final List<PhoneBean> list) {
 
                         if (list == null)
                             return;
@@ -286,7 +287,7 @@ public class FriendMatchActivity extends AppActivity {
     }
 
 
-    private void taskUserMatchPhone(List<PhoneListUtil.PhoneBean> phoneList) {
+    private void taskUserMatchPhone(List<PhoneBean> phoneList) {
         userAction.getUserMatchPhone(new Gson().toJson(phoneList), new CallBack<ReturnBean<List<FriendInfoBean>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<FriendInfoBean>>> call, Response<ReturnBean<List<FriendInfoBean>>> response) {
