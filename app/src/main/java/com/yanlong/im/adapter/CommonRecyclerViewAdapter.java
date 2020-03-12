@@ -62,6 +62,15 @@ public abstract class CommonRecyclerViewAdapter<T, VB extends ViewDataBinding> e
         }
     }
 
+    public void notifyItemChange(MsgAllBean bean) {
+        if (mList != null) {
+            int position = mList.indexOf(bean);
+            if (position < 0 || position >= getItemCount()) return;
+            mList.set(position, (T) bean);
+            notifyItemChanged(position);
+        }
+    }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 

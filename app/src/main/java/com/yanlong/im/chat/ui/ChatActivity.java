@@ -4091,7 +4091,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                     }
 
                                     if (!isExist) {
-
                                         menus.add(new OptionMenu("撤回"));
                                     }
                                 }
@@ -4359,6 +4358,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (popController == null) {
             return;
         }
+        menus = initMenus(msgbean);
         AdapterPopMenu adapterPopMenu = new AdapterPopMenu(menus, this);
         popController.setAdapter(adapterPopMenu);
         adapterPopMenu.setListener(new AdapterPopMenu.IMenuClickListener() {
@@ -4421,6 +4421,48 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             mImgTriangleDown.setVisibility(VISIBLE);
             showPopupWindowUp(v, 2);
         }
+    }
+
+    private List<OptionMenu> initMenus(MsgAllBean msgAllBean) {
+        int type = msgAllBean.getMsg_type();
+        int sendStatus = msgAllBean.getSend_state();
+        List<OptionMenu> menus = new ArrayList<>();
+        if (sendStatus == ChatEnum.ESendStatus.NORMAL) {
+            menus.add(new OptionMenu("转发"));
+        }
+        menus.add(new OptionMenu("删除"));
+        switch (type) {
+            case ChatEnum.EMessageType.TEXT:
+                menus.add(0, new OptionMenu("复制"));
+                break;
+            case ChatEnum.EMessageType.IMAGE:
+            case ChatEnum.EMessageType.MSG_VIDEO:
+                break;
+            case ChatEnum.EMessageType.VOICE:
+                if (msgDao.userSetingGet().getVoicePlayer() == 0) {
+                    menus.add(0, new OptionMenu("听筒播放"));
+                } else {
+                    menus.add(0, new OptionMenu("扬声器播放"));
+                }
+                break;
+        }
+        if (sendStatus == ChatEnum.ESendStatus.NORMAL) {
+            if (msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue() && msgAllBean.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE && !isAtBanedCancel(msgAllBean)) {
+                if (System.currentTimeMillis() - msgAllBean.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
+                    boolean isExist = false;
+                    for (OptionMenu optionMenu : menus) {
+                        if (optionMenu.getTitle().equals("撤回")) {
+                            isExist = true;
+                        }
+                    }
+
+                    if (!isExist) {
+                        menus.add(new OptionMenu("撤回"));
+                    }
+                }
+            }
+        }
+        return menus;
     }
 
     /**
