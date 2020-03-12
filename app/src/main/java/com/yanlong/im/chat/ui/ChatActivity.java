@@ -84,17 +84,6 @@ import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
 import com.hm.cxpay.ui.transfer.TransferActivity;
 import com.hm.cxpay.ui.transfer.TransferDetailActivity;
 import com.hm.cxpay.utils.UIUtils;
-
-import com.jrmf360.tools.utils.ThreadUtil;
-import com.yanlong.im.BuildConfig;
-import com.yanlong.im.chat.MsgTagHandler;
-import com.yanlong.im.chat.bean.SendFileMessage;
-import com.yanlong.im.chat.bean.ShippedExpressionMessage;
-import com.yanlong.im.chat.eventbus.AckEvent;
-import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
-import com.yanlong.im.chat.interf.IActionTagClickListener;
-import com.yanlong.im.chat.ui.chat.ChatViewModel;
-import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
 import com.jrmf360.rplib.bean.GrabRpBean;
@@ -142,6 +131,7 @@ import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.AckEvent;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
@@ -249,7 +239,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -834,12 +823,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     public void doAckEvent(AckEvent event) {
         Object data = event.getData();
         if (data instanceof MsgAllBean) {
-            LogUtil.getLog().i(TAG,"收到回执--MsgAllBean");
+            LogUtil.getLog().i(TAG, "收到回执--MsgAllBean");
             MsgAllBean msgAllBean = (MsgAllBean) data;
             fixSendTime(msgAllBean.getMsg_id());
             replaceListDataAndNotify(msgAllBean);
         } else if (data instanceof MsgBean.AckMessage) {
-            LogUtil.getLog().i(TAG,"收到回执--AckMessage");
+            LogUtil.getLog().i(TAG, "收到回执--AckMessage");
             MsgBean.AckMessage bean = (MsgBean.AckMessage) data;
             runOnUiThread(new Runnable() {
                 @Override
@@ -3169,8 +3158,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         boolean isSelected = false;
         //msg_id,计时器 将计时器绑定到数据
         private Map<String, Disposable> mTimers = new HashMap<>();
-        //msg_id,position 记住msg_id位置
-        private Map<String, Integer> mPositions = new HashMap<>();
+        /********为保证Key-value两个值都是唯一，使用两个map 存储，查找删除方便********************************************************************/
+        //position，msg_id 记住位置对应的Msg_id,用来找Position和保证mMsgIdPositions的position 唯一
+        private Map<Integer, String> mPositionMsgIds = new HashMap<>();
+        //msg_id，position 用来找MsgId对应的position ,保证MsgId 唯一
+        private Map<String, Integer> mMsgIdPositions = new HashMap<>();
+        /****************************************************************************/
 
         public void onDestory() {
             //清除计时器，避免内存溢出
@@ -3178,19 +3171,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 timer.dispose();
                 timer = null;
             }
-//            Iterator<Map.Entry<String, Disposable>> entries = mTimers.entrySet().iterator();
-//            while(entries.hasNext()){
-//                Map.Entry<String, Disposable> entry = entries.next();
-//                Disposable timer = entry.getValue();
-//
-//            }
+            mTimers.clear();
             mTimers = null;
         }
 
-        private synchronized void  bindTimer(final String msgId, final boolean isMe, final long startTime, final long endTime) {
+        private synchronized void bindTimer(final String msgId, final boolean isMe, final long startTime, final long endTime)  {
             try {
                 if (mTimers.containsKey(msgId)) {
-                    Log.e("raleigh_test", "mTimers.containsKey=" + msgId);
                     return;
                 }
                 long nowTimeMillis = DateUtils.getSystemTime();
@@ -3216,7 +3203,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 public void accept(Long index) throws Exception {
                                     try {
                                         long time = nowTimeMillis - DateUtils.getSystemTime();
-                                        String name = "icon_st_" + Math.min(COUNT, index+1);
+                                        String name = "icon_st_" + Math.min(COUNT, index + 1);
                                         int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
                                         updateSurvivalTimeImage(msgId, id, isMe);
                                         LogUtil.getLog().i("CountDownView", "isME=" + index);
@@ -3227,20 +3214,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             }).doOnComplete(new Action() {
                                 @Override
                                 public void run() throws Exception {
-
                                     updateSurvivalTimeImage(msgId, R.mipmap.icon_st_12, isMe);
                                 }
                             }).subscribe();
                     mTimers.put(msgId, timer);
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        private void updateSurvivalTimeImage(String msgId,int id,boolean isMe){
-            if(mPositions.containsKey(msgId)){
-                ChatItemView chatItemView = ((ChatItemView) mtListView.getLayoutManager().findViewByPosition(mPositions.get(msgId)));
-                if(chatItemView!=null){
+
+        private void updateSurvivalTimeImage(String msgId, int id, boolean isMe) {
+            if (mMsgIdPositions.containsKey(msgId)) {
+                int position = mMsgIdPositions.get(msgId);
+                ChatItemView chatItemView = ((ChatItemView) mtListView.getLayoutManager().findViewByPosition(position));
+                if (chatItemView != null) {
                     if (isMe)
                         chatItemView.viewMeSurvivalTime
                                 .setImageBitmap(BitmapFactory.decodeResource(context.getResources(), id));
@@ -3322,10 +3310,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (msgbean.getSurvival_time() > 0 && msgbean.getStartTime() > 0 && msgbean.getEndTime() > 0) {
 //                    LogUtil.getLog().i("CountDownView", msgbean.getMsg_id() + "---");
                     //阅后即焚
-                    holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time(),false);
+                    holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time(), false);
                     bindTimer(msgbean.getMsg_id(), msgbean.isMe(), msgbean.getStartTime(), msgbean.getEndTime());
-                }else{
-                    holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time(),true);
+                } else {
+                    holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time(), true);
                 }
 
                 //只更新单条处理
@@ -3403,21 +3391,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
         /**
          * 保存msgid位置
+         *
          * @param msgId
          * @param position
          */
-        private void savePositions(String msgId,int position){
-            if(mPositions.containsValue(position)){
-                Iterator<String> iterator= mPositions.keySet().iterator();
-                while(iterator.hasNext()) {
-                    String key = iterator.next();
-                    if(mPositions.get(key)==position){
-                        mPositions.remove(key);
-                        break;
-                    }
-                }
+        private void savePositions(String msgId, int position) {
+            //已经有MsgId包含该位置，则删除上一个，保证唯一性，更新时
+            if(mMsgIdPositions.containsValue(position)){
+                mMsgIdPositions.remove(mPositionMsgIds.get(position));
             }
-            mPositions.put(msgId, position);
+            //mPositionMsgIds只记录，不处理
+            mPositionMsgIds.put(position, msgId);
+            mMsgIdPositions.put( msgId,position);
         }
 
 
@@ -3531,11 +3516,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
 
             if (msgbean.getSurvival_time() > 0 && msgbean.getStartTime() > 0 && msgbean.getEndTime() > 0) {
-                holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time(),false);
+                holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time(), false);
 //                LogUtil.getLog().i("CountDownView", msgbean.getMsg_id() + "---");
                 bindTimer(msgbean.getMsg_id(), msgbean.isMe(), msgbean.getStartTime(), msgbean.getEndTime());
-            }else{
-                holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time(),true);
+            } else {
+                holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time(), true);
             }
 //            LogUtil.getLog().d("getSend_state", msgbean.getSurvival_time() + "----" + msgbean.getMsg_id());
             //设置阅后即焚图标显示
