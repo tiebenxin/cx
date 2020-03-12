@@ -2729,10 +2729,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             } else {
                                 //创建文件消息，本地预先准备好这条文件消息，等文件上传成功后刷新
                                 SendFileMessage fileMessage = SocketData.createFileMessage(fileMsgId, filePath, "", fileName, new Double(fileSize).longValue(), fileFormat);
-                                fileMsgBean = SocketData.sendFileUploadMessagePre(fileMsgId, toUId, toGid, SocketData.getFixTime(), fileMessage, ChatEnum.EMessageType.FILE);
+                                fileMsgBean = sendMessage(fileMessage, ChatEnum.EMessageType.FILE, false);
+//                                fileMsgBean = SocketData.sendFileUploadMessagePre(fileMsgId, toUId, toGid, SocketData.getFixTime(), fileMessage, ChatEnum.EMessageType.FILE);
                                 // 若不为常信小助手，消息需要上传到服务端
                                 if (!Constants.CX_HELPER_UID.equals(toUId)) {
-                                    UpLoadService.onAddFile(this.context, fileMsgId, filePath, fileName, new Double(fileSize).longValue(), fileFormat, toUId, toGid, -1);
+//                                    UpLoadService.onAddFile(this.context, fileMsgId, filePath, fileName, new Double(fileSize).longValue(), fileFormat, toUId, toGid, -1);
+                                    UpLoadService.onAddFile(this.context, fileMsgBean);
                                     startService(new Intent(getContext(), UpLoadService.class));
                                 } else {
                                     //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
@@ -3142,11 +3144,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 //文件仍然存在，则重发
                 if (net.cb.cb.library.utils.FileUtils.fileIsExist(reMsg.getSendFileMessage().getLocalPath())) {
                     SendFileMessage fileMessage = SocketData.createFileMessage(reMsg.getMsg_id(), reMsg.getSendFileMessage().getLocalPath(), reMsg.getSendFileMessage().getUrl(), reMsg.getSendFileMessage().getFile_name(), reMsg.getSendFileMessage().getSize(), reMsg.getSendFileMessage().getFormat());
-                    MsgAllBean fileMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, SocketData.getFixTime(), fileMessage, ChatEnum.EMessageType.FILE);
+//                    MsgAllBean fileMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, SocketData.getFixTime(), fileMessage, ChatEnum.EMessageType.FILE);
+                    MsgAllBean fileMsgBean = sendMessage(fileMessage, ChatEnum.EMessageType.FILE, false);
                     replaceListDataAndNotify(fileMsgBean);
                     // 若不为常信小助手，消息需要上传到服务端
                     if (!Constants.CX_HELPER_UID.equals(toUId)) {
-                        UpLoadService.onAddFile(this.context, reMsg.getMsg_id(), reMsg.getSendFileMessage().getLocalPath(), reMsg.getSendFileMessage().getFile_name(), reMsg.getSendFileMessage().getSize(), reMsg.getSendFileMessage().getFormat(), toUId, toGid, -1);
+//                        UpLoadService.onAddFile(this.context, reMsg.getMsg_id(), reMsg.getSendFileMessage().getLocalPath(), reMsg.getSendFileMessage().getFile_name(), reMsg.getSendFileMessage().getSize(), reMsg.getSendFileMessage().getFormat(), toUId, toGid, -1);
+                        UpLoadService.onAddFile(this.context, fileMsgBean);
                         startService(new Intent(getContext(), UpLoadService.class));
                     } else {
                         //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库

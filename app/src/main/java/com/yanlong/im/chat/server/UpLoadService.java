@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VideoUploadBean;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -228,6 +229,7 @@ public class UpLoadService extends Service {
      * @param toGid    群ID
      * @param time     发送时间
      */
+    @Deprecated
     public static void onAddFile(Context mContext, final String id, String filePath, String fileName, final Long fileSize, String format, final Long toUId, final String toGid, final long time) {
         // 上传文件时，默认给1-5的上传进度，解决一开始上传不显示进度问题
 //        updateProgress(id, new Random().nextInt(5) + 1);
@@ -276,6 +278,75 @@ public class UpLoadService extends Service {
                 EventBus.getDefault().post(eventUpFileLoadEvent);
             }
         }, filePath);
+    }
+
+    /**
+     * 发送文件
+     *
+     * @param id       msgID
+     * @param filePath 文件路径
+     * @param fileName 文件名
+     * @param fileSize 文件大小
+     * @param format   后缀类型
+     * @param toUId    接收人ID
+     * @param toGid    群ID
+     * @param time     发送时间
+     */
+    public static void onAddFile(Context mContext, MsgAllBean bean) {
+        // 上传文件时，默认给1-5的上传进度，解决一开始上传不显示进度问题
+//        updateProgress(id, new Random().nextInt(5) + 1);
+        if (bean == null) {
+            return;
+        }
+        SendFileMessage fileMessage = bean.getSendFileMessage();
+        if (fileMessage == null || TextUtils.isEmpty(fileMessage.getLocalPath())) {
+            return;
+        }
+        UpFileAction upFileAction = new UpFileAction();
+        upFileAction.upFile(UpFileAction.PATH.FILE, mContext, new UpFileUtil.OssUpCallback() {
+            @Override
+            public void success(String url) {
+                LogUtil.getLog().d(TAG, "success : 文件上传成功===============>" + fileMessage.getLocalPath());
+                EventUpImgLoadEvent eventUpFileLoadEvent = new EventUpImgLoadEvent();
+                updateProgress(bean.getMsg_id(), 100);
+                eventUpFileLoadEvent.setMsgid(bean.getMsg_id());
+                eventUpFileLoadEvent.setState(1);
+                eventUpFileLoadEvent.setUrl(url);
+                //上传成功后，更新数据
+                fileMessage.setUrl(url);
+                bean.setSendFileMessage(fileMessage);
+                eventUpFileLoadEvent.setMsgAllBean(bean);
+                EventBus.getDefault().post(eventUpFileLoadEvent);
+            }
+
+            @Override
+            public void fail() {
+                EventUpImgLoadEvent eventUpFileLoadEvent = new EventUpImgLoadEvent();
+                updateProgress(bean.getMsg_id(), 0);
+                LogUtil.getLog().d(TAG, "fail : 文件上传失败===============>" + bean.getMsg_id());
+                eventUpFileLoadEvent.setMsgid(bean.getMsg_id());
+                eventUpFileLoadEvent.setState(-1);
+                eventUpFileLoadEvent.setUrl("");
+                eventUpFileLoadEvent.setMsgAllBean(msgDao.fixStataMsg(bean.getMsg_id(), ChatEnum.ESendStatus.ERROR));//写库
+                EventBus.getDefault().post(eventUpFileLoadEvent);
+            }
+
+            @Override
+            public void inProgress(long progress, long zong) {
+                if (System.currentTimeMillis() - oldUptime < 100) {
+                    return;
+                }
+                EventUpImgLoadEvent eventUpFileLoadEvent = new EventUpImgLoadEvent();
+                oldUptime = System.currentTimeMillis();
+                int pg = new Double(progress / (zong + 0.0f) * 100.0).intValue();
+                LogUtil.getLog().d(TAG, "inProgress : 文件上传进度===============>" + pg);
+                updateProgress(bean.getMsg_id(), pg);
+                eventUpFileLoadEvent.setMsgid(bean.getMsg_id());
+                eventUpFileLoadEvent.setState(0);
+                eventUpFileLoadEvent.setUrl("");
+                EventBus.getDefault().post(eventUpFileLoadEvent);
+            }
+        }, fileMessage.getLocalPath());
     }
 
 
