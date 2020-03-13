@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.bean;
 
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
 public class MsgCancel extends RealmObject implements IMsgContent {
@@ -13,6 +14,9 @@ public class MsgCancel extends RealmObject implements IMsgContent {
     private String cancelContent;// 撤回内容
     private Integer cancelContentType;// 撤回内容类型
     private Integer msgType = MSG_TYPE_DEFAULT;
+
+    @Ignore
+    private long time;//源撤销消息时间
 
     public Integer getMsgType() {
         return msgType;
@@ -69,5 +73,13 @@ public class MsgCancel extends RealmObject implements IMsgContent {
 
     public void setMsgid(String msgid) {
         this.msgid = msgid;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
     }
 }

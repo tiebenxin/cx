@@ -91,9 +91,6 @@ public class MessageManager {
     private List<String> loadGids = new ArrayList<>();//需要异步加载群数据的群id
     private List<Long> loadUids = new ArrayList<>();//需要异步记载用户数据的用户id
 
-    //撤回消息发送列表
-    private Map<String, MsgAllBean> cancelList = new ConcurrentHashMap<>();
-
     //缓存
     private static List<Group> saveGroups = new ArrayList<>();//已保存群信息缓存
     private static Map<String, TaskDealWithMsgList> taskMaps = new HashMap<>();//批量消息的处理
@@ -1678,29 +1675,6 @@ public class MessageManager {
         event.setRefreshType(type);
         EventBus.getDefault().post(event);
     }
-
-//    public Map<String, MsgAllBean> getCancelList() {
-//        return cancelList;
-//    }
-//
-//    /***
-//     * 添加撤销消息
-//     * @param msgId 返回的消息id
-//     * @param msgBean 要撤回的消息
-//     */
-//    public void addCancelList(String msgId, MsgAllBean msgBean) {
-//        if (cancelList != null) {
-//            cancelList.put(msgId, msgBean);
-//        }
-//    }
-//
-//    //是否是撤消消息的回执
-//    public boolean isCancelAck(String msgId) {
-//        if (cancelList != null && cancelList.containsKey(msgId)) {
-//            return true;
-//        }
-//        return false;
-//    }
 
     public MsgAllBean updateCancelMsg(String msgId, String cancelId) {
         return msgDao.msgDel4Cancel(msgId, cancelId);
