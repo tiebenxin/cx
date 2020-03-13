@@ -5348,7 +5348,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         userInfoList.addAll(response.body().getData());
                         if (userInfoList.get(0) != null) {
                             UserInfo userInfo = userInfoList.get(0);
-                            userInfo.setuType(ChatEnum.EUserType.FRIEND);//TODO 记得设置类型为好友(这里排查耗时过久，牢记教训) zjy
+                            userInfo.setuType(ChatEnum.EUserType.FRIEND);//TODO 记得设置类型为好友
                             userDao.updateUserinfo(userInfo);//本地更新对方数据
                             taskSessionInfo(true);
                         }
