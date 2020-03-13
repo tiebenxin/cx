@@ -1218,8 +1218,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 } else {//未打开面板->打开功能面板
                     mViewModel.isOpenEmoj.setValue(true);
                 }
-
-
             }
         });
 
@@ -2113,6 +2111,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (open) {
             mViewModel.isOpenSpeak.setValue(true);
         } else {
+            showVoice(false);
+            //设置改SoftInput模式为：顶起输入框
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             //弹起输入框
             mViewModel.isInputText.setValue(true);
         }
