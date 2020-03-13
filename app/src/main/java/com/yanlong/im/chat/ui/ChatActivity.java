@@ -397,12 +397,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     };
 
+
+
     private void initObserver() {
         long delayMillis = 500;
         mViewModel.isInputText.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
-                dismissPop();
                 if (value) {//打开
                     editChat.requestFocus();
                     InputUtil.showKeyboard(editChat);
@@ -420,7 +421,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mViewModel.isOpenEmoj.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
-                dismissPop();
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if (value) {//打开
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
@@ -455,7 +455,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mViewModel.isOpenFuction.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
-                dismissPop();
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if (value) {//打开
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
@@ -487,7 +486,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mViewModel.isOpenSpeak.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
-                dismissPop();
                 if (value) {//打开
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isOpenSpeak);
@@ -564,7 +562,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     protected void onDestroy() {
+        //释放adapter资源
         mAdapter.onDestory();
+        //关闭窗口，避免内存溢出
+        dismissPop();
 
         List<MsgAllBean> list = msgDao.getMsg4SurvivalTimeAndExit(toGid, toUId);
         EventBus.getDefault().post(new EventSurvivalTimeAdd(null, list));
@@ -1057,7 +1058,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dismissPop();
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
@@ -1340,11 +1340,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
-
                     case MotionEvent.ACTION_DOWN:
                         isRun = 1;
-
-
                         break;
                     case MotionEvent.ACTION_UP:
                         isRun = 0;
@@ -1358,7 +1355,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         } else if (isRun == 0) {
                             isRun = 1;
                         }
-                        dismissPop();
                         break;
 
                 }
@@ -1410,7 +1406,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void keyBoardHide(int h) {
-                dismissPop();
                 if(mViewModel.isInputText.getValue())mViewModel.isInputText.setValue(false);
             }
         });
@@ -3179,7 +3174,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     public void clickTransfer(String rid, String msgId) {
-
     }
 
     //自动生成RecyclerViewAdapter
@@ -4370,6 +4364,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mPopupWindow = new PopupWindow(mRootView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         // 设置弹窗外可点击
         mPopupWindow.setTouchable(true);
+        mPopupWindow.setOutsideTouchable(true);
         //popwindow不获取焦点
         mPopupWindow.setFocusable(false);
         mPopupWindow.setTouchInterceptor(new View.OnTouchListener() {
