@@ -701,7 +701,7 @@ public class SocketData {
 
     public static VoiceMessage createVoiceMessage(String msgId, String url, int duration) {
         VoiceMessage message = new VoiceMessage();
-        message.setPlayStatus(ChatEnum.EPlayStatus.NO_DOWNLOADED);
+        message.setPlayStatus(ChatEnum.EPlayStatus.NO_PLAY);
         message.setMsgid(msgId);
         message.setTime(duration);
         message.setLocalUrl(url);

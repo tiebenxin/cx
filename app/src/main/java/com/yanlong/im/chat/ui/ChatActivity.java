@@ -1286,22 +1286,23 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     return;
                 }
                 VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
-                MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgId(), toUId, toGid, SocketData.getFixTime(), voice, ChatEnum.EMessageType.VOICE);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        notifyData2Bottom(true);
-                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msg);
-                    }
-                });
+//                MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgId(), toUId, toGid, SocketData.getFixTime(), voice, ChatEnum.EMessageType.VOICE);
+                MsgAllBean msg = sendMessage(voice, ChatEnum.EMessageType.VOICE, false);
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        notifyData2Bottom(true);
+//                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msg);
+//                    }
+//                });
                 // 不等于常信小助手，需要上传到服务器
                 if (!Constants.CX_HELPER_UID.equals(toUId)) {
                     uploadVoice(file, msg);
                 } else {
                     //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
-                    msgDao.fixStataMsg(voice.getMsgId(), ChatEnum.ESendStatus.NORMAL);
+//                    msgDao.fixStataMsg(voice.getMsgId(), ChatEnum.ESendStatus.NORMAL);
                 }
-                msgListData.add(msg);
+//                msgListData.add(msg);
             }
         }));
 
@@ -1824,8 +1825,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
         MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, sendStatus, SocketData.getFixTime(), message);
-        if (msgAllBean != null) {
+        if (msgAllBean != null && canSend) {
             SocketData.sendAndSaveMessage(msgAllBean, canSend);
+            showSendObj(msgAllBean);
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
+        } else {
+            SocketData.saveMessage(msgAllBean);
             showSendObj(msgAllBean);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
         }
@@ -3373,7 +3378,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         break;
                     case ChatEnum.EMessageType.VOICE:
                         holder.viewChatItem.updateVoice(msgbean);
-
+                        holder.viewChatItem.setErr(msgbean.getSend_state(), false);
                         if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                             menus.add(new OptionMenu("转发"));
                             menus.add(new OptionMenu("删除"));
@@ -4417,7 +4422,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         int type = msgAllBean.getMsg_type();
         int sendStatus = msgAllBean.getSend_state();
         List<OptionMenu> menus = new ArrayList<>();
-        if (sendStatus == ChatEnum.ESendStatus.NORMAL) {
+        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
             menus.add(new OptionMenu("转发"));
         }
         menus.add(new OptionMenu("删除"));
@@ -4453,6 +4458,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
         return menus;
+    }
+
+    //是否禁止转发
+    public boolean isBanForward(@ChatEnum.EMessageType int type) {
+        if (type == ChatEnum.EMessageType.VOICE || type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE) {
+            return true;
+        }
+        return false;
     }
 
     /**
