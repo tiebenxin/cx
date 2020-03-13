@@ -8,6 +8,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -356,6 +357,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private ScreenShotListenManager screenShotListenManager;//截屏监听相关
     private boolean isScreenShotListen;//是否监听截屏
     private ControllerLinearList popController;
+    //记录软键盘高度
+    private String KEY_BOARD="keyboard_setting";
+    //软键盘高度
+    private int mKeyboardHeight=0;
 
     private ChatViewModel mViewModel = new ChatViewModel();
 
@@ -423,6 +428,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onChanged(@Nullable Boolean value) {
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if (value) {//打开
+                    setPanelHeight(mKeyboardHeight,viewFaceView);
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
                     if (mViewModel.isInputText.getValue())
                         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
@@ -457,6 +463,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onChanged(@Nullable Boolean value) {
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if (value) {//打开
+                    setPanelHeight(mKeyboardHeight,viewExtendFunction);
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
                     if (mViewModel.isInputText.getValue())
                         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
@@ -988,6 +995,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //自动生成的控件事件
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void initEvent() {
+        //读取软键盘高度
+        mKeyboardHeight=getSharedPreferences(KEY_BOARD,Context.MODE_PRIVATE).getInt(KEY_BOARD,0);
         toGid = getIntent().getStringExtra(AGM_TOGID);
         toUId = getIntent().getLongExtra(AGM_TOUID, 0);
         onlineState = getIntent().getBooleanExtra(ONLINE_STATE, true);
@@ -1400,8 +1409,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
             @Override
             public void keyBoardShow(int h) {
-                setPanelHeight(h, viewFaceView);
-                setPanelHeight(h, viewExtendFunction);
+                //每次保存软键盘的高度
+                if(mKeyboardHeight!=h){
+                    SharedPreferences sharedPreferences=getSharedPreferences(KEY_BOARD,Context.MODE_PRIVATE);
+                    sharedPreferences.edit().putInt(KEY_BOARD,h).apply();
+                    mKeyboardHeight=h;
+                }
             }
 
             @Override
