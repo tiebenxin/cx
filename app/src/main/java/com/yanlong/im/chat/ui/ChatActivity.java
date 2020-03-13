@@ -402,6 +402,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mViewModel.isInputText.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
+                dismissPop();
                 if (value) {//打开
                     editChat.requestFocus();
                     InputUtil.showKeyboard(editChat);
@@ -419,6 +420,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mViewModel.isOpenEmoj.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
+                dismissPop();
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if (value) {//打开
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
@@ -453,6 +455,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mViewModel.isOpenFuction.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
+                dismissPop();
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if (value) {//打开
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
@@ -484,6 +487,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mViewModel.isOpenSpeak.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean value) {
+                dismissPop();
                 if (value) {//打开
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isOpenSpeak);
@@ -1053,7 +1057,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                dismissPop();
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
@@ -1141,6 +1145,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         editChat.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
+                if(!mViewModel.isOpenValue()) //没有事件触发，设置改SoftInput模式为：顶起输入框
+                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                if(!mViewModel.isInputText.getValue())
                 mViewModel.isInputText.setValue(true);
                 return false;
             }
@@ -1404,6 +1411,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void keyBoardHide(int h) {
                 dismissPop();
+                if(mViewModel.isInputText.getValue())mViewModel.isInputText.setValue(false);
             }
         });
 
