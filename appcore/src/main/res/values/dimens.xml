@@ -24,6 +24,7 @@
     <dimen name="emoji_height">20dp</dimen>
 
     <dimen name="chat_fuction_panel_height">240dp</dimen>
+    <dimen name="chat_fuction_panel_max_height">380dp</dimen>
 
     <dimen name="emoji_bottom_width">28dp</dimen>
     <dimen name="emoji_bottom_height">28dp</dimen>
