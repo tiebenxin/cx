@@ -778,7 +778,7 @@ public class SocketData {
     }
 
     @NonNull
-    public static SendFileMessage createFileMessage(String msgId, String filePath,String url, String fileName, long size, String format) {
+    public static SendFileMessage createFileMessage(String msgId, String filePath, String url, String fileName, long size, String format) {
         SendFileMessage fileMessage = new SendFileMessage();
         fileMessage.setMsgId(msgId);
         fileMessage.setLocalPath(filePath);
@@ -867,6 +867,7 @@ public class SocketData {
         cancel.setNote("你撤回了一条消息");
         cancel.setCancelContent(msg);
         cancel.setCancelContentType(msgType);
+        cancel.setTime(cancelMsg.getTimestamp());
         return cancel;
     }
     /*
@@ -1173,7 +1174,7 @@ public class SocketData {
         MsgAllBean msg = new MsgAllBean();
         msg.setMsg_id(obj.getMsgId());
         msg.setMsg_type(msgType);
-        msg.setTimestamp(time > 0 ? time : getFixTime());
+        msg.setTimestamp(time > 0 ? time : getFixTime());//撤回消息时间需要以原消息时间为准
         msg.setTo_uid(uid);
         msg.setGid(gid);
         msg.setSend_state(sendStatus);
@@ -1266,7 +1267,11 @@ public class SocketData {
                 break;
             case ChatEnum.EMessageType.MSG_CANCEL:
                 if (obj instanceof MsgCancel) {
-                    msg.setMsgCancel((MsgCancel) obj);
+                    MsgCancel cancel = (MsgCancel) obj;
+                    msg.setMsgCancel(cancel);
+                    if (cancel.getTime() > 0) {
+                        msg.setTimestamp(cancel.getTime());
+                    }
                 } else {
                     return null;
                 }
@@ -1579,7 +1584,9 @@ public class SocketData {
             if (msgAllBean.getVideoMessage() != null && !TextUtils.isEmpty(videoLocalUrl)) {
                 msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
             }
-            msgAllBean.setTimestamp(ackMessage.getTimestamp());
+            if (msgAllBean.getMsg_type() != ChatEnum.EMessageType.MSG_CANCEL) {
+                msgAllBean.setTimestamp(ackMessage.getTimestamp());
+            }
             DaoUtil.update(msgAllBean);
             return msgAllBean;
         }
