@@ -834,7 +834,7 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/tv_pay_status"
                         android:layout_marginTop="15dp"
-                        android:text="商品　　："
+                        android:text="商品订单："
                         android:textColor="@color/c_868686"
                         android:textSize="13sp" />
 
