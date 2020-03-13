@@ -1,6 +1,7 @@
 package com.hm.cxpay.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -18,11 +19,14 @@ import android.widget.TextView;
 
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CommonBean;
+import com.hm.cxpay.eventbus.IdentifyUserEvent;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.identification.IdentificationUserActivity;
+import com.hm.cxpay.ui.payword.SetPaywordActivity;
 
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ClickFilter;
@@ -33,6 +37,8 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+
+import org.greenrobot.eventbus.EventBus;
 
 
 /**
@@ -54,6 +60,7 @@ public class BindPhoneNumActivity extends AppActivity {
     private boolean hadPhoneNum = false;//是否存在手机号码  若存在则取已存在的值，若不存在手机号则取输入框的值
 
     private Context activity;
+    private String fromShop = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +83,9 @@ public class BindPhoneNumActivity extends AppActivity {
     }
 
     private void initData() {
+        if(getIntent()!=null){
+            fromShop = getIntent().getStringExtra("from_shop");
+        }
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -221,7 +231,15 @@ public class BindPhoneNumActivity extends AppActivity {
                     public void onHandleSuccess(BaseResponse baseResponse) {
                         ToastUtil.show(context, "手机号码验证成功!");
                         PayEnvironment.getInstance().getUser().setPhoneBindStat(1);
-                        go(LooseChangeActivity.class);
+                        //如果从商城跳转到认证，需要额外增加一个步骤，即设置支付密码
+                        if(!TextUtils.isEmpty(fromShop)){
+                            if(fromShop.equals("1")){
+                                startActivity(new Intent(BindPhoneNumActivity.this, SetPaywordActivity.class).putExtra("from_shop",fromShop));
+                            }else {
+                            }
+                        }else {
+                            go(LooseChangeActivity.class);
+                        }
                         finish();
                     }
 

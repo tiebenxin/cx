@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.alibaba.android.arouter.facade.annotation.Route;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
@@ -114,6 +115,7 @@ import retrofit2.Response;
 import static net.cb.cb.library.utils.SharedPreferencesUtil.SPName.NOTIFICATION;
 
 
+@Route(path = "/app/MainActivity")
 public class MainActivity extends AppActivity {
     public final static String IS_LOGIN = "is_from_login";
     private ViewPagerSlide viewPage;

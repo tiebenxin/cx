@@ -112,6 +112,9 @@ public class ChangeDetailActivity extends AppActivity {
         }else if(type == 5 || type == 9 || type == 10|| type == 11){
             tvTitle.setText("退款");
             titleTvTime.setText("退款时间：");
+        }else if(type == 6){
+            tvTitle.setText("消费");
+            titleTvTime.setText("支付时间：");
         }
         tvTime.setText(DateUtils.timeStamp2Date(data.getCreateTime(), ""));
         tvOrderId.setText(data.getTradeId() + "");

@@ -65,6 +65,7 @@ public class BillDetailListActivity extends AppActivity {
     private TextView tvRedpacket;//红包
     private TextView tvRechargeWithdraw;//充值提现
     private TextView tvRefund;//有退款
+    private TextView tvCost;//消费
     private TextView tvChangeSelectDate;//零钱专用选时间布局
 
 
@@ -159,31 +160,31 @@ public class BillDetailListActivity extends AppActivity {
                 .subscribe(new FGObserver<BaseResponse<BillBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<BillBean> baseResponse) {
-                            if (baseResponse.getData() != null) {
-                                //1 如果当前页有数据
-                                if(baseResponse.getData().getItems()!=null && baseResponse.getData().getItems().size()>0){
-                                    //1-1 如果是加载更多，则分页数据填充到尾部
-                                    if (page > 1) {
-                                        adapter.addMoreList(baseResponse.getData().getItems());
-                                    } else {
-                                        //1-2 如果是第一次加载，则只拿第一页数据
-                                        adapter.updateList(baseResponse.getData().getItems());
-                                    }
-                                    page++;
+                        if (baseResponse.getData() != null) {
+                            //1 如果当前页有数据
+                            if(baseResponse.getData().getItems()!=null && baseResponse.getData().getItems().size()>0){
+                                //1-1 如果是加载更多，则分页数据填充到尾部
+                                if (page > 1) {
+                                    adapter.addMoreList(baseResponse.getData().getItems());
+                                } else {
+                                    //1-2 如果是第一次加载，则只拿第一页数据
+                                    adapter.updateList(baseResponse.getData().getItems());
+                                }
+                                page++;
+                                showNoData(false);
+                            }else {
+                                //2 如果当前页没数据
+                                //2-1 如果是加载更多，当没有数据的时候，提示已经到底了
+                                if (page > 1) {
+                                    adapter.setLoadState(adapter.LOADING_END);
                                     showNoData(false);
-                                }else {
-                                    //2 如果当前页没数据
-                                    //2-1 如果是加载更多，当没有数据的时候，提示已经到底了
-                                    if (page > 1) {
-                                        adapter.setLoadState(adapter.LOADING_END);
-                                        showNoData(false);
-                                    } else {
-                                        //2-2 如果是第一次加载就没有数据则不显示底部
-                                        adapter.setLoadState(adapter.LOADING_GONE);
-                                        showNoData(true);
-                                    }
+                                } else {
+                                    //2-2 如果是第一次加载就没有数据则不显示底部
+                                    adapter.setLoadState(adapter.LOADING_GONE);
+                                    showNoData(true);
                                 }
                             }
+                        }
                     }
 
                     @Override
@@ -259,6 +260,7 @@ public class BillDetailListActivity extends AppActivity {
         tvRedpacket = dialogView.findViewById(R.id.tv_redpacket);
         tvRechargeWithdraw = dialogView.findViewById(R.id.tv_recharge_withdraw);
         tvRefund = dialogView.findViewById(R.id.tv_refund);
+        tvCost = dialogView.findViewById(R.id.tv_cost);
         //显示和点击事件
         tvAll.setOnClickListener(new android.view.View.OnClickListener() {
             @Override
@@ -330,6 +332,20 @@ public class BillDetailListActivity extends AppActivity {
                 getBillDetailsList();
             }
         });
+        tvCost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearSelectedStatus();
+                tvCost.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
+                tvCost.setTextColor(getResources().getColor(R.color.white));
+                selectTypeDialog.dismiss();
+                //刷新数据
+                tvSelectType.setText("消费");
+                page=1;
+                selectType =6 ;
+                getBillDetailsList();
+            }
+        });
         //展示界面
         selectTypeDialog.show();
         //解决圆角shape背景无效问题
@@ -357,11 +373,13 @@ public class BillDetailListActivity extends AppActivity {
         tvRedpacket.setBackgroundResource(R.drawable.shape_5radius_stroke_517da2);
         tvRechargeWithdraw.setBackgroundResource(R.drawable.shape_5radius_stroke_517da2);
         tvRefund.setBackgroundResource(R.drawable.shape_5radius_stroke_517da2);
+        tvCost.setBackgroundResource(R.drawable.shape_5radius_stroke_517da2);
         tvAll.setTextColor(getResources().getColor(R.color.c_517da2));
         tvTransfer.setTextColor(getResources().getColor(R.color.c_517da2));
         tvRedpacket.setTextColor(getResources().getColor(R.color.c_517da2));
         tvRechargeWithdraw.setTextColor(getResources().getColor(R.color.c_517da2));
         tvRefund.setTextColor(getResources().getColor(R.color.c_517da2));
+        tvCost.setTextColor(getResources().getColor(R.color.c_517da2));
     }
 
     /**

@@ -41,6 +41,10 @@ public class CommonBean extends BaseBean implements Parcelable {
     private String phone;
     //忘记密码验证bean类
     private String token;
+    //商城复用
+    private String url;
+    private String storeName;//商家名
+    private String storeOrderNo;//商家订单号
 
 
     protected CommonBean(Parcel in) {
@@ -65,7 +69,11 @@ public class CommonBean extends BaseBean implements Parcelable {
         toGroup = in.readInt();
         tradeId = in.readLong();
         tradeType = in.readInt();
-        refundType = in.readInt();
+        phone = in.readString();
+        token = in.readString();
+        url = in.readString();
+        storeName = in.readString();
+        storeOrderNo = in.readString();
     }
 
     public CommonBean(){
@@ -280,6 +288,30 @@ public class CommonBean extends BaseBean implements Parcelable {
         this.refundType = refundType;
     }
 
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getStoreName() {
+        return storeName;
+    }
+
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
+    }
+
+    public String getStoreOrderNo() {
+        return storeOrderNo;
+    }
+
+    public void setStoreOrderNo(String storeOrderNo) {
+        this.storeOrderNo = storeOrderNo;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -309,6 +341,11 @@ public class CommonBean extends BaseBean implements Parcelable {
         dest.writeLong(tradeId);
         dest.writeInt(tradeType);
         dest.writeInt(refundType);
+        dest.writeString(phone);
+        dest.writeString(token);
+        dest.writeString(url);
+        dest.writeString(storeName);
+        dest.writeString(storeOrderNo);
     }
 
 

@@ -94,6 +94,16 @@ public class BillDetailActivity extends AppActivity {
     private TextView tvWithdrawBank;//提现-提现银行
     private TextView tvWithdrawOrderId;//提现-交易单号
 
+    private RelativeLayout layoutPay;//消费布局
+    private TextView tvPayStatusValue;//交易状态
+    private TextView tvPayGoodsValue;//商品订单
+    private TextView tvPayShopValue;//商户名称
+    private TextView tvPayTimeValue;//支付时间
+    private TextView tvPayStyleValue;//支付方式
+    private TextView tvPayNumberValue;//交易单号
+    private TextView tvPayTime;//支付时间标题
+    private TextView tvPayNumber;//单号标题
+
     private LinearLayout noDataLayout;
     private ScrollView svDetail;
 
@@ -160,6 +170,15 @@ public class BillDetailActivity extends AppActivity {
         titleTvRedPacketPayStyle= findViewById(R.id.title_tv_red_packet_pay_style);
         noDataLayout = findViewById(R.id.no_data_layout);
         svDetail = findViewById(R.id.sv_detail);
+        layoutPay = findViewById(R.id.layout_pay);
+        tvPayStatusValue = findViewById(R.id.tv_pay_status_value);
+        tvPayGoodsValue = findViewById(R.id.tv_pay_goods_value);
+        tvPayShopValue = findViewById(R.id.tv_pay_shop_value);
+        tvPayTimeValue = findViewById(R.id.tv_pay_time_value);
+        tvPayStyleValue = findViewById(R.id.tv_pay_style_value);
+        tvPayNumberValue = findViewById(R.id.tv_pay_number_value);
+        tvPayTime = findViewById(R.id.tv_pay_time);
+        tvPayNumber = findViewById(R.id.tv_pay_number);
         actionbar = headView.getActionbar();
     }
 
@@ -450,6 +469,42 @@ public class BillDetailActivity extends AppActivity {
             }
             tvTransferGetTime.setText(DateUtils.timeStamp2Date(data.getStatConfirmTime(), ""));
             tvTransferGetOrderId.setText(data.getTradeId() + "");
+            //6 消费 12 消费退款
+        } else if (type == 6 || type == 12) {
+            layoutPay.setVisibility(View.VISIBLE);
+            if(type==6){
+                tvTitle.setText("购物-付款");
+                tvPayTime.setText("支付时间：");
+                tvPayNumber.setText("交易单号：");
+            }else {
+                tvTitle.setText("购物-退款");
+                tvPayTime.setText("退款时间：");
+                tvPayNumber.setText("退款单号：");
+            }
+            //根据收支类型->显示操作金额
+            if (data.getIncome() == 1) { //1 收入 其他支出
+                tvContent.setText("+" + UIUtils.getYuan(data.getAmt()));
+            } else {
+                tvContent.setText("-" + UIUtils.getYuan(data.getAmt()));
+            }
+            if (data.getStat() == 1) {
+                tvPayStatusValue.setText("支付成功");
+            } else if (data.getStat() == 2) {
+                tvPayStatusValue.setText("支付失败");
+            } else if (data.getStat() == 99) {
+                tvPayStatusValue.setText("处理中");
+            }
+            if(!TextUtils.isEmpty(data.getStoreOrderNo())){
+                tvPayGoodsValue.setText(data.getStoreOrderNo());
+            }
+            if (!TextUtils.isEmpty(data.getStoreName())) {
+                tvPayShopValue.setText(data.getStoreName());
+            }
+            tvPayTimeValue.setText(DateUtils.timeStamp2Date(data.getStatConfirmTime(), ""));
+            if (data.getBillType() == 1) {
+                tvPayStyleValue.setText("零钱");
+            }
+            tvPayNumberValue.setText(data.getTradeId() + "");
         }
     }
 
@@ -504,6 +559,9 @@ public class BillDetailActivity extends AppActivity {
             case 4:
             case 10:
                 return R.mipmap.ic_withdraw_trade;
+            case 6:
+            case 12:
+                return R.mipmap.ic_pay_shop;
             default:
                 return R.mipmap.ic_transfer;
         }

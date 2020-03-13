@@ -184,6 +184,19 @@ public class PayHttpUtils {
         return HttpChannel.getInstance().getPayService().modifyPayword(getRequestBody(map), getAuthMap());
     }
 
+    //修改支付密码-忘记支付密码
+    public Observable<BaseResponse> forgetPayword(String oldPayword, String newPayword, String token) {
+        Map<String, String> map = new HashMap<>();
+        if (!TextUtils.isEmpty(oldPayword)) {
+            map.put("currentPwd", MD5.md5(oldPayword));
+        }
+        if (!TextUtils.isEmpty(token)) {
+            map.put("token", token);
+        }
+        map.put("newPwd", MD5.md5(newPayword));
+        return HttpChannel.getInstance().getPayService().forgetPayword(getRequestBody(map), getAuthMap());
+    }
+
     //检查支付密码
     public Observable<BaseResponse> checkPayword(String pwd) {
         Map<String, String> map = new HashMap<>();
@@ -448,5 +461,18 @@ public class PayHttpUtils {
         return HttpChannel.getInstance().getPayService().returnTransfer(getRequestBody(map), getAuthMap());
     }
 
+    //商城->获取免登陆商城URL
+    public Observable<BaseResponse> getShopUrl() {
+        return HttpChannel.getInstance().getPayService().getShopUrl(getAuthMap());
+    }
+
+
+    //商城->校验支付密码
+    public Observable<BaseResponse<CommonBean>> checkShopPayword(String pwd,String amt) {
+        Map<String, String> map = new HashMap<>();
+        map.put("pwd", MD5.md5(pwd));
+        map.put("amt", amt);
+        return HttpChannel.getInstance().getPayService().checkShopPayword(getRequestBody(map),getAuthMap());
+    }
 
 }

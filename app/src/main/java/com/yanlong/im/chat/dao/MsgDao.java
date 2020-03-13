@@ -618,28 +618,28 @@ public class MsgDao {
         }
     }
 
-    private void deleteRealmMsg(MsgAllBean msg) {
-        if (msg.getReceive_red_envelope() != null)
-            msg.getReceive_red_envelope().deleteFromRealm();
-        if (msg.getMsgNotice() != null)
-            msg.getMsgNotice().deleteFromRealm();
-        if (msg.getBusiness_card() != null)
-            msg.getBusiness_card().deleteFromRealm();
-        if (msg.getStamp() != null)
-            msg.getStamp().deleteFromRealm();
-        if (msg.getChat() != null)
-            msg.getChat().deleteFromRealm();
-        if (msg.getImage() != null)
-            msg.getImage().deleteFromRealm();
-        if (msg.getRed_envelope() != null)
-            msg.getRed_envelope().deleteFromRealm();
-        if (msg.getTransfer() != null)
-            msg.getTransfer().deleteFromRealm();
-        if (msg.getMsgCancel() != null)
-            msg.getMsgCancel().deleteFromRealm();
-        if (msg.getVoiceMessage() != null)
-            msg.getVoiceMessage().deleteFromRealm();
-    }
+//    private void deleteRealmMsg(MsgAllBean msg) {
+//        if (msg.getReceive_red_envelope() != null)
+//            msg.getReceive_red_envelope().deleteFromRealm();
+//        if (msg.getMsgNotice() != null)
+//            msg.getMsgNotice().deleteFromRealm();
+//        if (msg.getBusiness_card() != null)
+//            msg.getBusiness_card().deleteFromRealm();
+//        if (msg.getStamp() != null)
+//            msg.getStamp().deleteFromRealm();
+//        if (msg.getChat() != null)
+//            msg.getChat().deleteFromRealm();
+//        if (msg.getImage() != null)
+//            msg.getImage().deleteFromRealm();
+//        if (msg.getRed_envelope() != null)
+//            msg.getRed_envelope().deleteFromRealm();
+//        if (msg.getTransfer() != null)
+//            msg.getTransfer().deleteFromRealm();
+//        if (msg.getMsgCancel() != null)
+//            msg.getMsgCancel().deleteFromRealm();
+//        if (msg.getVoiceMessage() != null)
+//            msg.getVoiceMessage().deleteFromRealm();
+//    }
 
 
     /**
@@ -3231,5 +3231,54 @@ public class MsgDao {
 
     }
 
+    private void deleteRealmMsg(MsgAllBean msg) {
+        if (msg.getReceive_red_envelope() != null)
+            msg.getReceive_red_envelope().deleteFromRealm();
+        if (msg.getMsgNotice() != null)
+            msg.getMsgNotice().deleteFromRealm();
+        if (msg.getBusiness_card() != null)
+            msg.getBusiness_card().deleteFromRealm();
+        if (msg.getStamp() != null)
+            msg.getStamp().deleteFromRealm();
+        if (msg.getChat() != null)
+            msg.getChat().deleteFromRealm();
+        if (msg.getImage() != null)
+            msg.getImage().deleteFromRealm();
+        if (msg.getRed_envelope() != null)
+            msg.getRed_envelope().deleteFromRealm();
+        if (msg.getTransfer() != null)
+            msg.getTransfer().deleteFromRealm();
+        if (msg.getMsgCancel() != null)
+            msg.getMsgCancel().deleteFromRealm();
+        if (msg.getVoiceMessage() != null)
+            msg.getVoiceMessage().deleteFromRealm();
+    }
+
+    //判断当前用户是否群主或者群管理员
+    public boolean isMemberInCharge(String gid, long uid) {
+        if (TextUtils.isEmpty(gid) || uid <= 0) {
+            return false;
+        }
+        boolean result = false;
+        Realm realm = DaoUtil.open();
+        try {
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
+                if (!TextUtils.isEmpty(group.getMaster()) && group.getMaster().equals(uid + "")) {
+                    result = true;
+                } else {
+                    RealmList<Long> viceAdmins = group.getViceAdmins();
+                    if (viceAdmins != null && viceAdmins.contains(uid)) {
+                        result = true;
+                    }
+                }
+            }
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return result;
+    }
 
 }

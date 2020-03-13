@@ -72,10 +72,10 @@ public class ModifyPaywordActivity extends AppActivity {
         if (getIntent() != null) {
             if (getIntent().getExtras() != null) {
                 if (getIntent().getExtras().containsKey("final_token")) {
-                        finalToken = getIntent().getExtras().getString("final_token");
-                        layoutOldPayWord.setVisibility(View.GONE);
-                        tvSubmit.setVisibility(View.GONE);
-                        tvSubmitFromForget.setVisibility(View.VISIBLE);//从忘记密码过来的显示另一个确认按钮
+                    finalToken = getIntent().getExtras().getString("final_token");
+                    layoutOldPayWord.setVisibility(View.GONE);
+                    tvSubmit.setVisibility(View.GONE);
+                    tvSubmitFromForget.setVisibility(View.VISIBLE);//从忘记密码过来的显示另一个确认按钮
                 }
                 if (getIntent().getExtras().containsKey("from")) {
                     from = getIntent().getExtras().getInt("from");
@@ -128,7 +128,7 @@ public class ModifyPaywordActivity extends AppActivity {
                     if (etPassword.getText().toString().length() == 6 && etOldPassword.getText().toString().length() == 6) {
                         //3. 密码和确认密码必须一致
                         if (etPassword.getText().toString().equals(etConfirmPassword.getText().toString())) {
-                            httpModifyPayword(etOldPassword.getText().toString(),etPassword.getText().toString(),"");
+                            httpModifyPayword(etOldPassword.getText().toString(),etPassword.getText().toString(),"",false);
                         } else {
                             ToastUtil.show(activity, "两次输入的新密码必须一致");
                         }
@@ -150,7 +150,7 @@ public class ModifyPaywordActivity extends AppActivity {
                     if (etPassword.getText().toString().length() == 6 && etConfirmPassword.getText().toString().length() == 6) {
                         //3. 密码和确认密码必须一致
                         if (etPassword.getText().toString().equals(etConfirmPassword.getText().toString())) {
-                            httpModifyPayword("",etPassword.getText().toString(),finalToken);
+                            httpModifyPayword("",etPassword.getText().toString(),finalToken,true);
                         } else {
                             ToastUtil.show(activity, "两次输入的新密码必须一致");
                         }
@@ -252,33 +252,64 @@ public class ModifyPaywordActivity extends AppActivity {
     /**
      * 发请求->修改支付密码
      */
-    private void httpModifyPayword(String oldPayWord,String newPayWord,String token) {
-        PayHttpUtils.getInstance().modifyPayword(oldPayWord, newPayWord,token)
-                .compose(RxSchedulers.<BaseResponse>compose())
-                .compose(RxSchedulers.<BaseResponse>handleResult())
-                .subscribe(new FGObserver<BaseResponse>() {
-                    @Override
-                    public void onHandleSuccess(BaseResponse baseResponse) {
-                        ToastUtil.show(context, "新支付密码设置成功!");
-                        if(from==1){
-                            go(CheckPaywordActivity.class);//返回密码校验/提现
-                        }else if(from==2){
-                            go(ManagePaywordActivity.class);//返回密码管理
-                        }else if(from==3){
-                            go(RechargeActivity.class);//返回充值界面
-                        }else if(from==4){
-                            go(BankSettingActivity.class);//返回我的银行卡(移除银行卡)
-                        }else if(from==5){
-                            go(BankDetailActivity.class);//返回银行卡详情(移除银行卡)
-                        }else {
-                            finish();
+    private void httpModifyPayword(String oldPayWord,String newPayWord,String token,boolean formForget) {
+        if(formForget){
+            PayHttpUtils.getInstance().forgetPayword(oldPayWord, newPayWord,token)
+                    .compose(RxSchedulers.<BaseResponse>compose())
+                    .compose(RxSchedulers.<BaseResponse>handleResult())
+                    .subscribe(new FGObserver<BaseResponse>() {
+                        @Override
+                        public void onHandleSuccess(BaseResponse baseResponse) {
+                            ToastUtil.show(context, "新支付密码设置成功!");
+                            if(from==1){
+                                go(CheckPaywordActivity.class);//返回密码校验/提现
+                            }else if(from==2){
+                                go(ManagePaywordActivity.class);//返回密码管理
+                            }else if(from==3){
+                                go(RechargeActivity.class);//返回充值界面
+                            }else if(from==4){
+                                go(BankSettingActivity.class);//返回我的银行卡(移除银行卡)
+                            }else if(from==5){
+                                go(BankDetailActivity.class);//返回银行卡详情(移除银行卡)
+                            }else {
+                                finish();
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onHandleError(BaseResponse baseResponse) {
-                        ToastUtil.show(context, baseResponse.getMessage());
-                    }
-                });
+                        @Override
+                        public void onHandleError(BaseResponse baseResponse) {
+                            ToastUtil.show(context, baseResponse.getMessage());
+                        }
+                    });
+
+        }else {
+            PayHttpUtils.getInstance().modifyPayword(oldPayWord, newPayWord,token)
+                    .compose(RxSchedulers.<BaseResponse>compose())
+                    .compose(RxSchedulers.<BaseResponse>handleResult())
+                    .subscribe(new FGObserver<BaseResponse>() {
+                        @Override
+                        public void onHandleSuccess(BaseResponse baseResponse) {
+                            ToastUtil.show(context, "新支付密码设置成功!");
+                            if(from==1){
+                                go(CheckPaywordActivity.class);//返回密码校验/提现
+                            }else if(from==2){
+                                go(ManagePaywordActivity.class);//返回密码管理
+                            }else if(from==3){
+                                go(RechargeActivity.class);//返回充值界面
+                            }else if(from==4){
+                                go(BankSettingActivity.class);//返回我的银行卡(移除银行卡)
+                            }else if(from==5){
+                                go(BankDetailActivity.class);//返回银行卡详情(移除银行卡)
+                            }else {
+                                finish();
+                            }
+                        }
+
+                        @Override
+                        public void onHandleError(BaseResponse baseResponse) {
+                            ToastUtil.show(context, baseResponse.getMessage());
+                        }
+                    });
+        }
     }
 }

@@ -67,6 +67,10 @@ public interface PayService {
     @POST(Route.MODIFY_PAYWORD)
     Observable<BaseResponse> modifyPayword(@Body RequestBody body, @QueryMap Map<String, String> map);
 
+    //修改支付密码
+    @POST(Route.FORGET_PAYWORD)
+    Observable<BaseResponse> forgetPayword(@Body RequestBody body, @QueryMap Map<String, String> map);
+
     //设置检查密码
     @POST(Route.CHECK_PAYWORD)
     Observable<BaseResponse> checkPayword(@Body RequestBody body, @QueryMap Map<String, String> map);
@@ -156,5 +160,12 @@ public interface PayService {
     @POST(Route.RETURN_TRANSFER)
     Observable<BaseResponse<TransferResultBean>> returnTransfer(@Body RequestBody body, @QueryMap Map<String, String> map);
 
+    //商城->获取免登陆商城URL
+    @POST(Route.SHOP_GET_URL)
+    Observable<BaseResponse> getShopUrl(@QueryMap Map<String, String> map);
+
+    //商城->校验支付密码
+    @POST(Route.SHOP_CHECK_PAYWORD)
+    Observable<BaseResponse<CommonBean>> checkShopPayword(@Body RequestBody body,@QueryMap Map<String, String> map);
 
 }

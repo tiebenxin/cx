@@ -1,5 +1,6 @@
 package com.hm.cxpay.ui.identification;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -27,6 +28,7 @@ import org.greenrobot.eventbus.EventBus;
 public class IdentificationUserActivity extends BasePayActivity {
 
     private ActivityIdentificationCentreBinding ui;
+    private String fromShop = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +62,9 @@ public class IdentificationUserActivity extends BasePayActivity {
 
 
     private void initEvent() {
+        if(getIntent()!=null){
+            fromShop = getIntent().getStringExtra("from_shop");
+        }
         ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -85,7 +90,7 @@ public class IdentificationUserActivity extends BasePayActivity {
                         if (baseResponse.isSuccess()) {
                             EventBus.getDefault().post(new IdentifyUserEvent());
 //                            ToastUtil.show(IdentificationUserActivity.this, "认证成功!");
-                            go(BindPhoneNumActivity.class);
+                            startActivity(new Intent(IdentificationUserActivity.this,BindPhoneNumActivity.class).putExtra("from_shop",fromShop));
                             finish();
                         } else {
                             ui.tvNext.setEnabled(true);

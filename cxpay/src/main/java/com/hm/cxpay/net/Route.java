@@ -6,6 +6,9 @@ package com.hm.cxpay.net;
  * Description
  */
 public class Route {
+
+    public static final String BANK = "/bank";
+
     //查看支持银行url
     public static final String SUPPORT_BANK_URL = "https://changxin.zhixun6.com/bank.html";
 
@@ -14,92 +17,101 @@ public class Route {
     public static final String USER_AGREEMENT_OF_PAY = "https://changxin.zhixun6.com/yhxy.html";
 
     //实名认证
-    public static final String URL_USER_AUTH = "/bank/user/real_name_auth";
+    public static final String URL_USER_AUTH = BANK+"/user/real_name_auth";
 
     //检测绑定银行卡
-    public static final String CHECK_BANK_CARD = "/bank/user/get_bank_card_info_and_check";
+    public static final String CHECK_BANK_CARD = BANK+"/user/get_bank_card_info_and_check";
 
     //申请绑定银行卡
-    public static final String APPLY_BIND_BANK_CARD = "/bank/user/apply_bind_bank_card";
+    public static final String APPLY_BIND_BANK_CARD = BANK+"/user/apply_bind_bank_card";
 
     //获取绑定银行卡
-    public static final String GET_BIND_BANK_CARD = "/bank/user/get_my_bank_cards";
+    public static final String GET_BIND_BANK_CARD = BANK+"/user/get_my_bank_cards";
 
     //绑定银行卡
-    public static final String BIND_BANK = "/bank/user/bind_bank_card";
+    public static final String BIND_BANK = BANK+"/user/bind_bank_card";
 
     //获取用户信息
-    public static final String GET_USER_INFO = "/bank/user/get_user_info";
+    public static final String GET_USER_INFO = BANK+"/user/get_user_info";
 
     //设置支付密码
-    public static final String SET_PAYWORD = "/bank/user/set_pay_pwd";
+    public static final String SET_PAYWORD = BANK+"/user/set_pay_pwd";
 
     //修改支付密码
-    public static final String MODIFY_PAYWORD = "/bank/user/modify_pay_pwd";
+    public static final String MODIFY_PAYWORD = BANK+"/user/modify_pay_pwd";
+
+    //忘记支付密码
+    public static final String FORGET_PAYWORD = BANK+"/user/modify_pay_pwd_forgot";
 
     //检查支付密码
-    public static final String CHECK_PAYWORD = "/bank/user/check_pay_pwd";
+    public static final String CHECK_PAYWORD = BANK+"/user/check_pay_pwd";
 
     //解绑银行卡
-    public static final String UNBIND_BANK_CARD = "/bank/user/unbind_bank_card";
+    public static final String UNBIND_BANK_CARD = BANK+"/user/unbind_bank_card";
 
     //充值
-    public static final String TO_RECHARGE = "/bank/order/deposit";
+    public static final String TO_RECHARGE = BANK+"/order/deposit";
 
     //提现
-    public static final String TO_WITHDRAW = "/bank/order/withdraw_apply";
+    public static final String TO_WITHDRAW = BANK+"/order/withdraw_apply";
 
     //提现
-    public static final String GET_RATE = "/bank/user/get_rate";
+    public static final String GET_RATE = BANK+"/user/get_rate";
 
     //获取验证码
-    public static final String GET_PHONE_CODE = "/bank/user/get_sms_code_for_bind_phone";
+    public static final String GET_PHONE_CODE = BANK+"/user/get_sms_code_for_bind_phone";
 
     //获取当前用户IM手机号
-    public static final String GET_MY_PHONE = "/bank/user/get_user_im_phone";
+    public static final String GET_MY_PHONE = BANK+"/user/get_user_im_phone";
 
     //绑定手机号
-    public static final String BIND_PHONE = "/bank/user/bind_phone";
+    public static final String BIND_PHONE = BANK+"/user/bind_phone";
 
     //获取账单明细
-    public static final String GET_BILL_DETAILS_LIST = "/bank/bill/get_trans_list";
+    public static final String GET_BILL_DETAILS_LIST = BANK+"/bill/get_trans_list";
 
     //获取零钱明细
-    public static final String GET_CHANGE_DETAILS_LIST = "/bank/bill/get_balance_trans_list";
+    public static final String GET_CHANGE_DETAILS_LIST = BANK+"/bill/get_balance_trans_list";
 
     //验证实名信息-忘记密码辅助验证第一步
-    public static final String CHECK_REALNAME_INFO = "/bank/user/check_id_card";
+    public static final String CHECK_REALNAME_INFO = BANK+"/user/check_id_card";
 
     //绑定银行卡-忘记密码辅助验证第三步
-    public static final String BIND_BANK_CARD = "/bank/user/apply_bind_bank_card_for_check_req";
+    public static final String BIND_BANK_CARD = BANK+"/user/apply_bind_bank_card_for_check_req";
 
     //验证短信验证码-忘记密码辅助验证第四步
-    public static final String CHECK_CODE = "/bank/user/verify_sms_code_for_bind_card_check";
+    public static final String CHECK_CODE = BANK+"/user/verify_sms_code_for_bind_card_check";
 
     //获取红包明细
-    public static final String GET_RED_ENVELOPE_DETAILS = "/bank/bill/get_red_envelope_list";
+    public static final String GET_RED_ENVELOPE_DETAILS = BANK+"/bill/get_red_envelope_list";
 
     //发送红包
-    public static final String SEND_RED_ENVELOPE = "/bank/order/send_red_envelope";
+    public static final String SEND_RED_ENVELOPE = BANK+"/order/send_red_envelope";
 
     //抢红包
-    public static final String SNATCH_RED_ENVELOPE = "/bank/order/snatch_red_envelope";
+    public static final String SNATCH_RED_ENVELOPE = BANK+"/order/snatch_red_envelope";
 
     //获取单个红包详情
-    public static final String GET_RED_ENVELOPE_DETAIL = "/bank/order/get_red_envelope_detail";
+    public static final String GET_RED_ENVELOPE_DETAIL = BANK+"/order/get_red_envelope_detail";
 
     //拆红包
-    public static final String OPEN_RED_ENVELOPE = "/bank/order/open_red_envelope";
+    public static final String OPEN_RED_ENVELOPE = BANK+"/order/open_red_envelope";
 
     //发送转账
-    public static final String SEND_TRANSFER = "/bank/order/transfer";
+    public static final String SEND_TRANSFER = BANK+"/order/transfer";
 
     //获取转账详情
-    public static final String GET_TRANSFER_DETAIL = "/bank/order/get_trans_detail";
+    public static final String GET_TRANSFER_DETAIL = BANK+"/order/get_trans_detail";
 
     //领取转账
-    public static final String RECEIVE_TRANSFER = "/bank/order/receive_transfer";
+    public static final String RECEIVE_TRANSFER = BANK+"/order/receive_transfer";
 
     //退还转账
-    public static final String RETURN_TRANSFER = "/bank/order/reject_transfer";
+    public static final String RETURN_TRANSFER = BANK+"/order/reject_transfer";
+
+    //商城->获取免登陆商城URL
+    public static final String SHOP_GET_URL = BANK+"/store/getStoreAutoLoginUrl";
+
+    //商城->校验支付密码
+    public static final String SHOP_CHECK_PAYWORD = BANK+"/store/trans_validate";
 }
