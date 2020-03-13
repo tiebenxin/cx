@@ -748,15 +748,17 @@ public class SocketData {
         String extTh = "/below-20k";
         String extPv = "/below-200k";
         image.setLocalimg(local);
-        image.setPreview(originUrl + extPv);
-        image.setThumbnail(originUrl + extTh);
+        if (!TextUtils.isEmpty(originUrl)) {
+            image.setPreview(originUrl + extPv);
+            image.setThumbnail(originUrl + extTh);
+            if (isOriginal) {
+                image.setOrigin(originUrl);
+            }
+        }
         image.setMsgid(msgId);
         image.setWidth(width);
         image.setHeight(height);
         image.setSize(size);
-        if (isOriginal) {
-            image.setOrigin(originUrl);
-        }
         image.setReadOrigin(isOriginRead);
         return image;
     }

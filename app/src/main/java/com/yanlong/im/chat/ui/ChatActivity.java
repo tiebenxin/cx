@@ -4555,9 +4555,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * @param msgbean
      */
     private void onRetransmission(final MsgAllBean msgbean) {
-
-        startActivity(new Intent(getContext(), MsgForwardActivity.class)
-                .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean)));
+        Intent intent = MsgForwardActivity.newIntent(this, ChatEnum.EForwardMode.DEFAULT, new Gson().toJson(msgbean));
+        startActivity(intent);
+//        startActivity(new Intent(getContext(), MsgForwardActivity.class)
+////                .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean)));
     }
 
     /**

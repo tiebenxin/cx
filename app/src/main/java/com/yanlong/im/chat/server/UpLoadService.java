@@ -174,9 +174,8 @@ public class UpLoadService extends Service {
 
                 ImageMessage image = msg.getImage();
                 ImageMessage imageMessage = SocketData.createImageMessage(msg.getMsg_id(), file, url, image.getWidth(), image.getHeight(), isOriginal, false, image.getSize());
-                MsgAllBean msgbean = msg;
-                msgbean.setImage(imageMessage);
-                eventUpImgLoadEvent.setMsgAllBean(msgbean);
+                msg.setImage(imageMessage);
+                eventUpImgLoadEvent.setMsgAllBean(msg);
                 EventBus.getDefault().post(eventUpImgLoadEvent);
 
             }
@@ -283,14 +282,6 @@ public class UpLoadService extends Service {
     /**
      * 发送文件
      *
-     * @param id       msgID
-     * @param filePath 文件路径
-     * @param fileName 文件名
-     * @param fileSize 文件大小
-     * @param format   后缀类型
-     * @param toUId    接收人ID
-     * @param toGid    群ID
-     * @param time     发送时间
      */
     public static void onAddFile(Context mContext, MsgAllBean bean) {
         // 上传文件时，默认给1-5的上传进度，解决一开始上传不显示进度问题

@@ -2,6 +2,7 @@ package com.yanlong.im.share;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.server.ChatServer;
@@ -18,6 +19,7 @@ import net.cb.cb.library.view.AppActivity;
  * Description  外部数据承接
  */
 public class CXEntryActivity extends AppActivity {
+    public static final int REQUEST_SHARE = 1 << 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +49,25 @@ public class CXEntryActivity extends AppActivity {
         if (checkTokenValid()) {
             startChatServer();
             Intent intentShare = MsgForwardActivity.newIntent(this, mode, extras);
-            startActivity(intentShare);
+            if (mode == ChatEnum.EForwardMode.SHARE) {
+                startActivityForResult(intentShare, REQUEST_SHARE);
+            } else {
+                startActivity(intentShare);
+            }
             finish();
         } else {
             startActivity(new Intent(CXEntryActivity.this, LoginActivity.class));
             finish();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_SHARE) {
+                finish();
+            }
         }
     }
 
