@@ -8,6 +8,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -356,6 +357,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private ScreenShotListenManager screenShotListenManager;//截屏监听相关
     private boolean isScreenShotListen;//是否监听截屏
     private ControllerLinearList popController;
+    //记录软键盘高度
+    private String KEY_BOARD="keyboard_setting";
+    //软键盘高度
+    private int mKeyboardHeight=0;
 
     private ChatViewModel mViewModel = new ChatViewModel();
 
@@ -397,6 +402,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     };
 
+
+
     private void initObserver() {
         long delayMillis = 500;
         mViewModel.isInputText.observe(this, new Observer<Boolean>() {
@@ -421,6 +428,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onChanged(@Nullable Boolean value) {
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if (value) {//打开
+                    setPanelHeight(mKeyboardHeight,viewFaceView);
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
                     if (mViewModel.isInputText.getValue())
                         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
@@ -455,6 +463,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onChanged(@Nullable Boolean value) {
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if (value) {//打开
+                    setPanelHeight(mKeyboardHeight,viewExtendFunction);
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
                     if (mViewModel.isInputText.getValue())
                         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
@@ -560,7 +569,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     protected void onDestroy() {
+        //释放adapter资源
         mAdapter.onDestory();
+        //关闭窗口，避免内存溢出
+        dismissPop();
 
         List<MsgAllBean> list = msgDao.getMsg4SurvivalTimeAndExit(toGid, toUId);
         EventBus.getDefault().post(new EventSurvivalTimeAdd(null, list));
@@ -983,6 +995,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //自动生成的控件事件
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void initEvent() {
+        //读取软键盘高度
+        mKeyboardHeight=getSharedPreferences(KEY_BOARD,Context.MODE_PRIVATE).getInt(KEY_BOARD,0);
         toGid = getIntent().getStringExtra(AGM_TOGID);
         toUId = getIntent().getLongExtra(AGM_TOUID, 0);
         onlineState = getIntent().getBooleanExtra(ONLINE_STATE, true);
@@ -1053,7 +1067,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
@@ -1141,6 +1154,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         editChat.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
+                if(!mViewModel.isOpenValue()) //没有事件触发，设置改SoftInput模式为：顶起输入框
+                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                if(!mViewModel.isInputText.getValue())
                 mViewModel.isInputText.setValue(true);
                 return false;
             }
@@ -1202,8 +1218,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 } else {//未打开面板->打开功能面板
                     mViewModel.isOpenEmoj.setValue(true);
                 }
-
-
             }
         });
 
@@ -1334,11 +1348,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
-
                     case MotionEvent.ACTION_DOWN:
                         isRun = 1;
-
-
                         break;
                     case MotionEvent.ACTION_UP:
                         isRun = 0;
@@ -1352,7 +1363,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         } else if (isRun == 0) {
                             isRun = 1;
                         }
-                        dismissPop();
                         break;
 
                 }
@@ -1398,13 +1408,17 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
             @Override
             public void keyBoardShow(int h) {
-                setPanelHeight(h, viewFaceView);
-                setPanelHeight(h, viewExtendFunction);
+                int maxHeigh=getResources().getDimensionPixelSize(R.dimen.chat_fuction_panel_max_height);
+                //每次保存软键盘的高度
+                if(mKeyboardHeight!=h&&h<=maxHeigh){
+                    SharedPreferences sharedPreferences=getSharedPreferences(KEY_BOARD,Context.MODE_PRIVATE);
+                    sharedPreferences.edit().putInt(KEY_BOARD,h).apply();
+                    mKeyboardHeight=h;
+                }
             }
 
             @Override
             public void keyBoardHide(int h) {
-                dismissPop();
             }
         });
 
@@ -2115,6 +2129,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (open) {
             mViewModel.isOpenSpeak.setValue(true);
         } else {
+            showVoice(false);
+            //设置改SoftInput模式为：顶起输入框
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             //弹起输入框
             mViewModel.isInputText.setValue(true);
         }
@@ -3189,7 +3206,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     public void clickTransfer(String rid, String msgId) {
-
     }
 
     //自动生成RecyclerViewAdapter
@@ -4380,6 +4396,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mPopupWindow = new PopupWindow(mRootView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         // 设置弹窗外可点击
         mPopupWindow.setTouchable(true);
+        mPopupWindow.setOutsideTouchable(true);
         //popwindow不获取焦点
         mPopupWindow.setFocusable(false);
         mPopupWindow.setTouchInterceptor(new View.OnTouchListener() {

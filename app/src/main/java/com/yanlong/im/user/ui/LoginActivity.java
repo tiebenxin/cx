@@ -1,6 +1,8 @@
 package com.yanlong.im.user.ui;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -25,6 +27,7 @@ import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AlertYesNo;
@@ -49,6 +52,10 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
     private String[] strings = {"切换账号", "注册", "取消"};
     private String phone;
     private int count = 0;
+    //记录软键盘高度
+    private String KEY_BOARD="keyboard_setting";
+    //软键盘高度
+    private int mKeyboardHeight=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +95,24 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
             public void onClick(View v) {
                 InputUtil.hideKeyboard(mEtPasswordContent);
                 login();
+            }
+        });
+        //处理键盘
+        SoftKeyBoardListener kbLinst = new SoftKeyBoardListener(this);
+        kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
+            @Override
+            public void keyBoardShow(int h) {
+                int maxHeigh=getResources().getDimensionPixelSize(R.dimen.chat_fuction_panel_max_height);
+                //每次保存软键盘的高度
+                if(mKeyboardHeight!=h&&h<=maxHeigh){
+                    SharedPreferences sharedPreferences=getSharedPreferences(KEY_BOARD, Context.MODE_PRIVATE);
+                    sharedPreferences.edit().putInt(KEY_BOARD,h).apply();
+                    mKeyboardHeight=h;
+                }
+            }
+
+            @Override
+            public void keyBoardHide(int h) {
             }
         });
     }
