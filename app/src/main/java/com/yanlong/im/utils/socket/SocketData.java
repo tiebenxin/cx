@@ -863,10 +863,11 @@ public class SocketData {
         }
         msgType = cancelMsg.getMsg_type();
         MsgCancel cancel = new MsgCancel();
-        cancel.setMsgid(cancelMsg.getMsg_id());
+        cancel.setMsgid(SocketData.getUUID());
         cancel.setNote("你撤回了一条消息");
         cancel.setCancelContent(msg);
         cancel.setCancelContentType(msgType);
+        cancel.setMsgidCancel(cancelMsg.getMsg_id());
         cancel.setTime(cancelMsg.getTimestamp());
         return cancel;
     }
@@ -998,9 +999,10 @@ public class SocketData {
             case ChatEnum.EMessageType.MSG_CANCEL://撤销消息
                 MsgCancel cancel = bean.getMsgCancel();
                 MsgBean.CancelMessage.Builder cancelBuilder = MsgBean.CancelMessage.newBuilder();
-                cancelBuilder.setMsgId(cancel.getMsgId());
+                cancelBuilder.setMsgId(cancel.getMsgidCancel());
                 value = cancelBuilder.build();
                 type = MsgBean.MessageType.CANCEL;
+                needSave = false;
                 break;
             case ChatEnum.EMessageType.LOCATION://位置
                 LocationMessage locationMessage = bean.getLocationMessage();
@@ -1031,7 +1033,7 @@ public class SocketData {
                 type = MsgBean.MessageType.SEND_FILE;
                 break;
         }
-
+        //已读消息，撤销消息不需要保存
         if (needSave) {
             saveMessage(bean);
         }
@@ -1586,6 +1588,13 @@ public class SocketData {
             }
             if (msgAllBean.getMsg_type() != ChatEnum.EMessageType.MSG_CANCEL) {
                 msgAllBean.setTimestamp(ackMessage.getTimestamp());
+            } else {
+                //cancel消息，需要将msgId赋予给新的消息，以便替换源消息
+                String cancelId = msgAllBean.getMsgCancel().getMsgidCancel();
+                if (!TextUtils.isEmpty(cancelId)) {
+                    msgAllBean.setMsg_id(cancelId);
+                    msgAllBean.getMsgCancel().setMsgid(cancelId);
+                }
             }
             DaoUtil.update(msgAllBean);
             return msgAllBean;

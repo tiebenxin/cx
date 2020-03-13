@@ -1792,6 +1792,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 //        System.out.println(TAG + "--scrollChatToPositionWithOffset--totalSize =" + msgListData.size() + "--currentScrollPosition=" + currentScrollPosition);
     }
 
+    //消息发送撤销消息
+    private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType, int position) {
+        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+        if (msgAllBean != null) {
+            SocketData.sendAndSaveMessage(msgAllBean);
+            //撤销是最后一条消息，则需要刷新
+            if (msgListData != null && position == msgListData.size() - 1) {
+                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
+            }
+        }
+    }
+
     //消息发送
     private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType) {
         MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
@@ -1809,7 +1821,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
-    //消息发送，canSend--是否需要发送
+    //消息发送，canSend--是否需要发送，图片，视频，语音，文件等
     private MsgAllBean sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType, boolean canSend) {
         int sendStatus = ChatEnum.ESendStatus.NORMAL;
         if (TextUtils.isEmpty(toGid) && toUId != null && Constants.CX_HELPER_UID.equals(toUId)) {//常信小助手
@@ -1839,8 +1851,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private boolean filterMessage(IMsgContent message) {
         boolean isSend = true;
+        //常信小助手不需要发送到后台(文件传输助手除了文件以外暂时也不需要传到后台)
         if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_BALANCE_UID.equals(toUId)
-                || Constants.CX_FILE_HELPER_UID.equals(toUId)) {//常信小助手不需要发送到后台
+                || Constants.CX_FILE_HELPER_UID.equals(toUId)) {
             isSend = false;
         }
         return isSend;
@@ -2650,11 +2663,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             String fileName = net.cb.cb.library.utils.FileUtils.getFileName(filePath);
                             if (fileSize > 104857600) {
                                 ToastUtil.showLong(this, "文件最大不能超过100M，请重新选择!\n" + "异常文件: " + fileName);
-                                return;
+                                continue;
                             }
                             if (fileSize == 0) {
                                 ToastUtil.showLong(this, "文件大小不能为0KB，请重新选择!\n" + "异常文件: " + fileName);
-                                return;
+                                continue;
                             }
                             String fileMsgId = SocketData.getUUID();
                             String fileFormat = net.cb.cb.library.utils.FileUtils.getFileSuffix(fileName);
@@ -2702,7 +2715,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + filePath, getVideoAttBitmap(filePath), false, duration, Long.parseLong(getVideoAttWidth(filePath)), Long.parseLong(getVideoAttHeigh(filePath)), filePath);
                                 videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
                                 // 不等于常信小助手，需要上传到服务器
-                                if (!Constants.CX_HELPER_UID.equals(toUId) || !Constants.CX_FILE_HELPER_UID.equals(toUId)) {
+                                if (!Constants.CX_HELPER_UID.equals(toUId)) {
 //                                    UpLoadService.onAddVideo(this.context, imgMsgId, filePath, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid,
 //                                            videoMessage.getDuration(), videoMessageSD, false);
                                     UpLoadService.onAddVideo(this.context, videoMsgBean, false);
@@ -4545,7 +4558,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     /**
      * 撤回
      *
-     * @param msgbean
+     * @param msgBean
      */
 //    private void onRecall(final MsgAllBean msgbean) {
 //        String msg = "";
@@ -4560,9 +4573,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 //        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
 //    }
     private void onRecall(final MsgAllBean msgBean) {
+        int position = msgListData.indexOf(msgBean);
         MsgCancel cancel = SocketData.createCancelMsg(msgBean);
         if (cancel != null) {
-            sendMessage(cancel, ChatEnum.EMessageType.MSG_CANCEL);
+            sendMessage(cancel, ChatEnum.EMessageType.MSG_CANCEL, position);
         }
     }
 
