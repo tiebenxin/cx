@@ -954,7 +954,10 @@ public class MsgMainFragment extends Fragment {
                 .subscribe(new Consumer<List<Session>>() {
                     @Override
                     public void accept(List<Session> list) throws Exception {
-                        mtListView.notifyDataSetChange();
+                        if (listData != null) {
+//                            mtListView.notifyDataSetChange();
+                            mtListView.getListView().getAdapter().notifyItemRangeChanged(1, listData.size());
+                        }
                         checkSessionData(list);
                     }
                 });
