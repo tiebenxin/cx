@@ -1784,6 +1784,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 //        System.out.println(TAG + "--scrollChatToPositionWithOffset--totalSize =" + msgListData.size() + "--currentScrollPosition=" + currentScrollPosition);
     }
 
+    //消息发送撤销消息
+    private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType, int position) {
+        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+        if (msgAllBean != null) {
+            SocketData.sendAndSaveMessage(msgAllBean);
+            //撤销是最后一条消息，则需要刷新
+            if (msgListData != null && position == msgListData.size() - 1) {
+                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
+            }
+        }
+    }
+
     //消息发送
     private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType) {
         MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
@@ -1801,7 +1813,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
-    //消息发送，canSend--是否需要发送
+    //消息发送，canSend--是否需要发送，图片，视频，语音，文件等
     private MsgAllBean sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType, boolean canSend) {
         int sendStatus = ChatEnum.ESendStatus.NORMAL;
         if (TextUtils.isEmpty(toGid) && toUId != null && Constants.CX_HELPER_UID.equals(toUId)) {//常信小助手
@@ -4552,9 +4564,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 //        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
 //    }
     private void onRecall(final MsgAllBean msgBean) {
+        int position = msgListData.indexOf(msgBean);
         MsgCancel cancel = SocketData.createCancelMsg(msgBean);
         if (cancel != null) {
-            sendMessage(cancel, ChatEnum.EMessageType.MSG_CANCEL);
+            sendMessage(cancel, ChatEnum.EMessageType.MSG_CANCEL, position);
         }
     }
 
