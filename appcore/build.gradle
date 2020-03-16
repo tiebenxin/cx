@@ -132,13 +132,14 @@ dependencies {
     //图片
     api project(':picture_library')
 
-//    // Bugly
+    //    // Bugly
     api 'com.tencent.bugly:crashreport:latest.release'
     api 'com.tencent.bugly:nativecrashreport:latest.release'
 
     //常用控件
     api 'com.kyleduo.switchbutton:library:2.0.0'
-//    api 'com.baoyz.pullrefreshlayout:library:1.2.0'
+
+    //    api 'com.baoyz.pullrefreshlayout:library:1.2.0'
     api 'com.contrarywind:Android-PickerView:4.1.9'
 
     //下拉刷新
@@ -183,4 +184,5 @@ dependencies {
 
     //vivo
     implementation files('libs/volley.jar')
+    implementation files('libs/cxShare.jar')
 }

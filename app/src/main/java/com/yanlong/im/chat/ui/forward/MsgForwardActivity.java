@@ -16,10 +16,10 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 
+import com.cx.sharelib.message.CxMediaMessage;
 import com.example.nim_lib.config.Preferences;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.umeng.commonsdk.debug.I;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -32,7 +32,6 @@ import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.eventbus.AckEvent;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityMsgForwardBinding;
@@ -360,12 +359,12 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), imagePath, "", size.width, size.height, true, false, 0);
             msgAllBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), image);
         } else if (model == ChatEnum.EForwardMode.SHARE) {
-            if (mediaType == 1) {//文本
+            if (mediaType == CxMediaMessage.EMediaType.TEXT) {//文本
                 if (!TextUtils.isEmpty(shareText)) {
                     ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), shareText);
                     msgAllBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
                 }
-            } else if (mediaType == 2) {
+            } else if (mediaType == CxMediaMessage.EMediaType.IMAGE) {
                 if (!TextUtils.isEmpty(shareImageUrl)) {
                     ImageMessage imageMsg = SocketData.createImageMessage(SocketData.getUUID(), "", shareImageUrl, 0, 0, true, false, 0);
                     msgAllBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), imageMsg);
@@ -382,7 +381,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         AlertForward alertForward = new AlertForward();
         String txt = "";
         String imageUrl = "";
-        if (model == ChatEnum.EForwardMode.DEFAULT) {
+        if (model == ChatEnum.EForwardMode.DEFAULT || model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.SHARE) {
             if (msgAllBean == null) {
                 return;
             }
@@ -439,7 +438,25 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 } else if (model == ChatEnum.EForwardMode.SYS_SEND) {
                     upload(imagePath, UpFileAction.PATH.IMG, msgAllBean);
                 } else if (model == ChatEnum.EForwardMode.SHARE) {
-                    send(msgAllBean, content, toUid, toGid);
+                    if (mediaType == CxMediaMessage.EMediaType.TEXT || mediaType == CxMediaMessage.EMediaType.WEB) {
+                        send(msgAllBean, content, toUid, toGid);
+                    } else if (mediaType == CxMediaMessage.EMediaType.IMAGE) {
+                        if (!TextUtils.isEmpty(shareImageUrl)) {
+                            if (isHttp(shareImageUrl)) {
+                                send(msgAllBean, content, toUid, toGid);
+                            } else {
+                                upload(shareImageUrl, UpFileAction.PATH.IMG, msgAllBean);
+                            }
+                        }
+                    } else if (mediaType == CxMediaMessage.EMediaType.FILE) {
+//                        if (!TextUtils.isEmpty(shareImageUrl)) {
+//                            if (isHttp(shareImageUrl)) {
+//                                send(msgAllBean, content, toUid, toGid);
+//                            } else {
+//                                upload(shareImageUrl, UpFileAction.PATH.IMG, msgAllBean);
+//                            }
+//                        }
+                    }
                 }
             }
         });
@@ -827,5 +844,21 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         startActivity(new Intent(MsgForwardActivity.this, MainActivity.class));
                     }
                 }).show();
+    }
+
+    /**
+     * 是否是网络图片
+     *
+     * @param path
+     * @return
+     */
+    public boolean isHttp(String path) {
+        if (!TextUtils.isEmpty(path)) {
+            if (path.startsWith("http")
+                    || path.startsWith("https")) {
+                return true;
+            }
+        }
+        return false;
     }
 }
