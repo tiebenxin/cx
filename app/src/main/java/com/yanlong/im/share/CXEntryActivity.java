@@ -1,6 +1,7 @@
 package com.yanlong.im.share;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
@@ -20,6 +21,7 @@ import net.cb.cb.library.view.AppActivity;
  */
 public class CXEntryActivity extends AppActivity {
     public static final int REQUEST_SHARE = 1 << 1;
+    private int mode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,13 +32,12 @@ public class CXEntryActivity extends AppActivity {
         if (intent != null) {
             Bundle extras = intent.getExtras();
             if (extras != null) {
-                int mode;
                 if (Intent.ACTION_SEND.equals(action)) {
                     mode = ChatEnum.EForwardMode.SYS_SEND;
                 } else {
                     mode = ChatEnum.EForwardMode.SHARE;
                 }
-                goActivity(extras, mode);
+                checkApp(extras);
             } else {
 
             }
@@ -97,6 +98,14 @@ public class CXEntryActivity extends AppActivity {
             result = false;
         }
         return result;
+    }
+
+    private void checkApp(Bundle extras) {
+        if (true) {
+            extras.putString("app_name","酷玩");
+            extras.putString("app_icon","");
+            goActivity(extras, mode);
+        }
     }
 
 }

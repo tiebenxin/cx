@@ -214,7 +214,7 @@
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/selector_chat_other_touch"
                                 android:gravity="left|center_vertical"
-                                android:visibility="visible">
+                                android:visibility="gone">
 
                                 <android.support.v7.widget.AppCompatTextView
                                     android:id="@+id/txt_ot_1"
@@ -589,7 +589,7 @@
                             <!-- 游戏分享消息-->
                             <LinearLayout
                                 android:id="@+id/view_ot_game_share"
-                                android:layout_width="226dp"
+                                android:layout_width="200dp"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/selector_card_other_touch"
                                 android:orientation="vertical"
@@ -617,16 +617,19 @@
                                     <LinearLayout
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
+                                        android:layout_marginTop="5dp"
+                                        android:layout_marginBottom="5dp"
                                         android:orientation="horizontal">
 
                                         <TextView
                                             android:id="@+id/tv_ot_game_info"
-                                            style="@style/app_txt_content_1"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                            android:layout_marginTop="5dp"
                                             android:layout_weight="1"
-                                            android:maxLines="2"
+                                            android:ellipsize="end"
+                                            android:maxLines="3"
+                                            android:textColor="@color/gray_300"
+                                            android:textSize="12sp"
                                             android:visibility="visible"
                                             tool:text="标题" />
 
@@ -634,15 +637,16 @@
                                             android:id="@+id/iv_ot_game_icon"
                                             style="@style/app_img_head"
                                             android:layout_width="41dp"
-                                            android:layout_height="41dp" />
+                                            android:layout_height="41dp"
+                                            android:layout_marginLeft="5dp" />
                                     </LinearLayout>
 
                                 </LinearLayout>
 
-                                <View
-                                    android:layout_width="match_parent"
-                                    android:layout_height="1px"
-                                    android:background="#e9ebea" />
+                                <!--                                <View-->
+                                <!--                                    android:layout_width="match_parent"-->
+                                <!--                                    android:layout_height="1px"-->
+                                <!--                                    android:background="#e9ebea" />-->
 
                                 <LinearLayout
                                     android:layout_width="match_parent"
@@ -728,40 +732,44 @@
                                 android:layout_width="200dp"
                                 android:layout_height="90dp"
                                 android:background="@drawable/bg_chat_other_file"
-                                android:visibility="visible">
+                                android:visibility="gone">
+
                                 <ImageView
                                     android:id="@+id/iv_file_icon_ot"
+                                    android:layout_width="41dp"
+                                    android:layout_height="41dp"
                                     android:layout_alignParentRight="true"
                                     android:layout_centerVertical="true"
                                     android:layout_marginRight="10dp"
-                                    android:src="@mipmap/ic_unknow"
-                                    android:layout_width="41dp"
-                                    android:layout_height="41dp" />
+                                    android:src="@mipmap/ic_unknow" />
+
                                 <LinearLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
+                                    android:layout_centerVertical="true"
                                     android:layout_marginLeft="20dp"
                                     android:layout_marginRight="20dp"
-                                    android:layout_centerVertical="true"
                                     android:layout_toLeftOf="@+id/iv_file_icon_ot"
                                     android:orientation="vertical">
+
                                     <TextView
                                         android:id="@+id/tv_filename_ot"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:ellipsize="end"
                                         android:maxLines="2"
-                                        android:textSize="15sp"
+                                        android:text="文件.txt"
                                         android:textColor="@color/c_353535"
-                                        android:text="文件.txt"/>
+                                        android:textSize="15sp" />
+
                                     <TextView
                                         android:id="@+id/tv_filesize_ot"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="10dp"
-                                        android:textSize="12sp"
+                                        android:text="0K"
                                         android:textColor="@color/c_878787"
-                                        android:text="0K"/>
+                                        android:textSize="12sp" />
 
                                 </LinearLayout>
 
@@ -787,12 +795,12 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            app:layout_constraintLeft_toRightOf="@+id/view_ot_touch_child"
-                            app:layout_constraintTop_toTopOf="@+id/view_ot_touch_child"
-                            app:layout_constraintBottom_toBottomOf="@+id/view_ot_touch_child"
                             android:layout_marginLeft="@dimen/app_margin_item"
                             android:src="@mipmap/bg_red_num_small"
-                            android:visibility="gone" />
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toBottomOf="@+id/view_ot_touch_child"
+                            app:layout_constraintLeft_toRightOf="@+id/view_ot_touch_child"
+                            app:layout_constraintTop_toTopOf="@+id/view_ot_touch_child" />
                     </android.support.constraint.ConstraintLayout>
 
 
@@ -1138,7 +1146,7 @@
                                     android:layout_height="90dp"
                                     android:background="@drawable/bg_chat_me_rp"
                                     android:orientation="vertical"
-                                    android:visibility="visible">
+                                    android:visibility="gone">
 
                                     <LinearLayout
                                         android:layout_width="match_parent"
@@ -1256,7 +1264,7 @@
                                 <!-- 游戏分享消息-->
                                 <LinearLayout
                                     android:id="@+id/view_me_game_share"
-                                    android:layout_width="226dp"
+                                    android:layout_width="200dp"
                                     android:layout_height="wrap_content"
                                     android:background="@drawable/selector_card_me_touch"
                                     android:orientation="vertical"
@@ -1275,7 +1283,7 @@
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
                                             android:maxLines="2"
-                                            android:paddingTop="3dp"
+                                            android:paddingTop="10dp"
                                             android:textColor="#353535"
                                             android:textSize="16sp"
                                             tool:text="标题" />
@@ -1284,32 +1292,36 @@
                                         <LinearLayout
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
+                                            android:layout_marginTop="5dp"
+                                            android:layout_marginBottom="5dp"
                                             android:orientation="horizontal">
 
                                             <TextView
                                                 android:id="@+id/tv_me_game_info"
-                                                style="@style/app_txt_content_1"
                                                 android:layout_width="match_parent"
                                                 android:layout_height="wrap_content"
-                                                android:layout_marginTop="5dp"
                                                 android:layout_weight="1"
-                                                android:maxLines="2"
+                                                android:ellipsize="end"
+                                                android:maxLines="3"
+                                                android:textColor="@color/gray_300"
+                                                android:textSize="12sp"
                                                 android:visibility="visible"
-                                                tool:text="标题" />
+                                                tool:text="内容" />
 
                                             <ImageView
                                                 android:id="@+id/iv_me_game_icon"
                                                 style="@style/app_img_head"
                                                 android:layout_width="41dp"
-                                                android:layout_height="41dp" />
+                                                android:layout_height="41dp"
+                                                android:layout_marginLeft="5dp" />
                                         </LinearLayout>
 
                                     </LinearLayout>
 
-                                    <View
-                                        android:layout_width="match_parent"
-                                        android:layout_height="1px"
-                                        android:background="#e9ebea" />
+                                    <!--                                    <View-->
+                                    <!--                                        android:layout_width="match_parent"-->
+                                    <!--                                        android:layout_height="1px"-->
+                                    <!--                                        android:background="#e9ebea" />-->
 
                                     <LinearLayout
                                         android:layout_width="match_parent"
@@ -1410,48 +1422,53 @@
                                     android:layout_width="200dp"
                                     android:layout_height="90dp"
                                     android:background="@drawable/bg_chat_me_file"
-                                    android:visibility="visible">
+                                    android:visibility="gone">
+
                                     <ImageView
                                         android:id="@+id/iv_file_icon_me"
+                                        android:layout_width="41dp"
+                                        android:layout_height="41dp"
                                         android:layout_alignParentRight="true"
                                         android:layout_centerVertical="true"
                                         android:layout_marginRight="20dp"
-                                        android:src="@mipmap/ic_unknow"
-                                        android:layout_width="41dp"
-                                        android:layout_height="41dp" />
+                                        android:src="@mipmap/ic_unknow" />
+
                                     <LinearLayout
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
+                                        android:layout_centerVertical="true"
                                         android:layout_marginLeft="10dp"
                                         android:layout_marginRight="20dp"
-                                        android:layout_centerVertical="true"
                                         android:layout_toLeftOf="@+id/iv_file_icon_me"
                                         android:orientation="vertical">
+
                                         <TextView
                                             android:id="@+id/tv_filename_me"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:ellipsize="end"
                                             android:maxLines="2"
-                                            android:textSize="15sp"
+                                            android:text="文件.txt"
                                             android:textColor="@color/c_353535"
-                                            android:text="文件.txt"/>
+                                            android:textSize="15sp" />
+
                                         <TextView
                                             android:id="@+id/tv_filesize_me"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:layout_marginTop="10dp"
-                                            android:textSize="12sp"
+                                            android:text="0K"
                                             android:textColor="@color/c_878787"
-                                            android:text="0K"/>
+                                            android:textSize="12sp" />
 
                                     </LinearLayout>
+
                                     <LinearLayout
                                         android:id="@+id/layout_file_progress"
                                         android:layout_width="match_parent"
                                         android:layout_height="match_parent"
-                                        android:layout_gravity="center"
                                         android:layout_centerInParent="true"
+                                        android:layout_gravity="center"
                                         android:background="@color/black_a_20"
                                         android:gravity="center"
                                         android:orientation="vertical"
@@ -1471,7 +1488,6 @@
                                             android:layout_height="wrap_content"
                                             android:textColor="@color/white" />
                                     </LinearLayout>
-
 
 
                                 </RelativeLayout>

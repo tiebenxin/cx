@@ -4010,6 +4010,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     });
                     break;
+                case ChatEnum.EMessageType.WEB:
+                    holder.viewChatItem.setShareWeb(msgbean, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                        }
+                    });
+                    break;
             }
 
             holder.viewChatItem.setOnErr(new View.OnClickListener() {

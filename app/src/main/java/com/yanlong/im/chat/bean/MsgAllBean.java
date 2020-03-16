@@ -74,6 +74,15 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private TransferNoticeMessage transferNoticeMessage;
     private ShippedExpressionMessage shippedExpressionMessage;
     private SendFileMessage sendFileMessage;
+    private WebMessage webMessage;
+
+    public WebMessage getWebMessage() {
+        return webMessage;
+    }
+
+    public void setWebMessage(WebMessage webMessage) {
+        this.webMessage = webMessage;
+    }
 
     public SendFileMessage getSendFileMessage() {
         return sendFileMessage;
@@ -395,6 +404,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             str = "[文件]";
         } else if (msg_type == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
             str = "[动态表情]";
+        } else if (msg_type == ChatEnum.EMessageType.WEB) {
+            str = "[链接]" + getWebMessage().getTitle();
         }
 
         return str;

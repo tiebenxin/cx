@@ -25,6 +25,7 @@ import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
+import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
@@ -1308,6 +1309,13 @@ public class SocketData {
                     return null;
                 }
                 break;
+            case ChatEnum.EMessageType.WEB:
+                if (obj instanceof WebMessage) {
+                    msg.setWebMessage((WebMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
 
         }
 
@@ -1491,6 +1499,18 @@ public class SocketData {
         message.setAvatar(avatar);
         message.setNickname(nick);
         message.setComment(info);
+        return message;
+    }
+
+    //分享web或游戏消息
+    public static WebMessage createWebMessage(String msgId, String appName, String iconUrl, String title, String description, String webUrl) {
+        WebMessage message = new WebMessage();
+        message.setMsgId(msgId);
+        message.setAppName(appName);
+        message.setIconUrl(iconUrl);
+        message.setTitle(title);
+        message.setDescription(description);
+        message.setWebUrl(webUrl);
         return message;
     }
 

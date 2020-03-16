@@ -106,6 +106,10 @@ public class DaoMigration implements RealmMigration {
                 updateV21(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 21) {
+                updateV22(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -407,6 +411,20 @@ public class DaoMigration implements RealmMigration {
 
         schema.get("MsgAllBean")
                 .addRealmObjectField("sendFileMessage", schema.get("SendFileMessage"));
+    }
+
+    //文件消息类型 新建表
+    private void updateV22(RealmSchema schema) {
+        schema.create("WebMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("appName", String.class)
+                .addField("title", String.class)
+                .addField("description", String.class)
+                .addField("webUrl", String.class)
+                .addField("iconUrl", String.class);
+
+        schema.get("MsgAllBean")
+                .addRealmObjectField("webMessage", schema.get("WebMessage"));
     }
 
 
