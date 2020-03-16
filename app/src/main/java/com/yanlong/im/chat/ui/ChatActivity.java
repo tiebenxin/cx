@@ -358,9 +358,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private boolean isScreenShotListen;//是否监听截屏
     private ControllerLinearList popController;
     //记录软键盘高度
-    private String KEY_BOARD="keyboard_setting";
+    private String KEY_BOARD = "keyboard_setting";
     //软键盘高度
-    private int mKeyboardHeight=0;
+    private int mKeyboardHeight = 0;
 
     private ChatViewModel mViewModel = new ChatViewModel();
 
@@ -403,7 +403,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     };
 
 
-
     private void initObserver() {
         long delayMillis = 500;
         mViewModel.isInputText.observe(this, new Observer<Boolean>() {
@@ -428,7 +427,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onChanged(@Nullable Boolean value) {
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if (value) {//打开
-                    setPanelHeight(mKeyboardHeight,viewFaceView);
+                    setPanelHeight(mKeyboardHeight, viewFaceView);
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
                     if (mViewModel.isInputText.getValue())
                         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
@@ -463,7 +462,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onChanged(@Nullable Boolean value) {
                 handler.removeCallbacks(mPanelRecoverySoftInputModeRunnable);
                 if (value) {//打开
-                    setPanelHeight(mKeyboardHeight,viewExtendFunction);
+                    setPanelHeight(mKeyboardHeight, viewExtendFunction);
                     //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
                     if (mViewModel.isInputText.getValue())
                         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
@@ -996,7 +995,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void initEvent() {
         //读取软键盘高度
-        mKeyboardHeight=getSharedPreferences(KEY_BOARD,Context.MODE_PRIVATE).getInt(KEY_BOARD,0);
+        mKeyboardHeight = getSharedPreferences(KEY_BOARD, Context.MODE_PRIVATE).getInt(KEY_BOARD, 0);
         toGid = getIntent().getStringExtra(AGM_TOGID);
         toUId = getIntent().getLongExtra(AGM_TOUID, 0);
         onlineState = getIntent().getBooleanExtra(ONLINE_STATE, true);
@@ -1154,10 +1153,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         editChat.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if(!mViewModel.isOpenValue()) //没有事件触发，设置改SoftInput模式为：顶起输入框
+                if (!mViewModel.isOpenValue()) //没有事件触发，设置改SoftInput模式为：顶起输入框
                     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-                if(!mViewModel.isInputText.getValue())
-                mViewModel.isInputText.setValue(true);
+                if (!mViewModel.isInputText.getValue())
+                    mViewModel.isInputText.setValue(true);
                 return false;
             }
         });
@@ -1380,8 +1379,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (layoutManager != null) {
                         //获取可视的第一个view
                         lastPosition = layoutManager.findLastVisibleItemPosition();
-                        int first = layoutManager.findFirstCompletelyVisibleItemPosition();
-                        checkScrollFirst(first);
+//                        int first = layoutManager.findFirstCompletelyVisibleItemPosition();
+//                        checkScrollFirst(first);
                         View topView = layoutManager.getChildAt(lastPosition);
                         if (topView != null) {
                             //获取与该view的底部的偏移量
@@ -1393,14 +1392,23 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         saveScrollPosition();
 //                        LogUtil.getLog().d("a=", TAG + "当前滑动位置：size = " + msgListData.size() + "--lastPosition=" + lastPosition + "--firstPosition=" + first);
                     }
-                } else if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL || newState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
+                } /*else if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL || newState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
                     LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                     if (layoutManager != null) {
                         int first = layoutManager.findFirstCompletelyVisibleItemPosition();
                         checkScrollFirst(first);
                     }
+                }*/
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (unreadCount > MIN_UNREAD_COUNT) {
+                    int first = mtListView.getLayoutManager().findFirstCompletelyVisibleItemPosition();
+                    checkScrollFirst(first);
                 }
             }
+
         });
 
         //处理键盘
@@ -1408,12 +1416,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
             @Override
             public void keyBoardShow(int h) {
-                int maxHeigh=getResources().getDimensionPixelSize(R.dimen.chat_fuction_panel_max_height);
+                int maxHeigh = getResources().getDimensionPixelSize(R.dimen.chat_fuction_panel_max_height);
                 //每次保存软键盘的高度
-                if(mKeyboardHeight!=h&&h<=maxHeigh){
-                    SharedPreferences sharedPreferences=getSharedPreferences(KEY_BOARD,Context.MODE_PRIVATE);
-                    sharedPreferences.edit().putInt(KEY_BOARD,h).apply();
-                    mKeyboardHeight=h;
+                if (mKeyboardHeight != h && h <= maxHeigh) {
+                    SharedPreferences sharedPreferences = getSharedPreferences(KEY_BOARD, Context.MODE_PRIVATE);
+                    sharedPreferences.edit().putInt(KEY_BOARD, h).apply();
+                    mKeyboardHeight = h;
                 }
             }
 
@@ -1494,8 +1502,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void checkScrollFirst(int first) {
         if (unreadCount > 0 && msgListData != null) {
             int size = msgListData.size();
-            LogUtil.getLog().d("a=", TAG + "checkScrollFirst：size = " + size + "--unreadCount=" + unreadCount + "--firstPosition=" + first);
-            if (first >= size - unreadCount - 1 && first <= size - unreadCount + 1) {
+//            LogUtil.getLog().d("a=", TAG + "checkScrollFirst：size = " + size + "--unreadCount=" + unreadCount + "--firstPosition=" + first);
+            if (first <= size - unreadCount + 1) {
                 mtListView.postDelayed(new Runnable() {
                     @Override
                     public void run() {
