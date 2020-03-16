@@ -669,7 +669,7 @@
         <!--系统相册图片分享(复用)-->
         <activity
             android:name=".share.CXEntryActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleInstance"
             android:screenOrientation="portrait">
             <intent-filter>
                 <data

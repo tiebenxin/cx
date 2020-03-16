@@ -2,7 +2,10 @@ package com.yanlong.im.share;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -74,5 +77,16 @@ public class ShareDialog extends BaseDialog {
         void onLeft();
 
         void onRight();
+    }
+
+    @Override
+    public void show() {
+        super.show();
+        WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
+        layoutParams.gravity = Gravity.CENTER;
+        layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+        layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        getWindow().getDecorView().setPadding(50, 0, 50, 0);
+        getWindow().setAttributes(layoutParams);
     }
 }

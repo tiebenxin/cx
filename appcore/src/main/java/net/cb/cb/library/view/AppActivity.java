@@ -21,7 +21,6 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.dialog.DialogLoadingProgress;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.LogUtil;
-import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

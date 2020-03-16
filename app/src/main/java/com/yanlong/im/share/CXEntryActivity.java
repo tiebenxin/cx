@@ -49,6 +49,7 @@ public class CXEntryActivity extends AppActivity {
         if (checkTokenValid()) {
             startChatServer();
             Intent intentShare = MsgForwardActivity.newIntent(this, mode, extras);
+            intentShare.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             if (mode == ChatEnum.EForwardMode.SHARE) {
                 startActivityForResult(intentShare, REQUEST_SHARE);
             } else {

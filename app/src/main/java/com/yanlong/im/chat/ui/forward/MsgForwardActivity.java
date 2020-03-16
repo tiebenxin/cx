@@ -818,7 +818,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     @Override
                     public void onLeft() {
                         setResult(RESULT_OK);
-                        finish();
+                        MsgForwardActivity.this.finish();
                     }
 
                     @Override
