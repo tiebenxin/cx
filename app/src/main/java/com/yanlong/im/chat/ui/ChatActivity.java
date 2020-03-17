@@ -1415,6 +1415,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
             @Override
             public void keyBoardShow(int h) {
+                isSoftShow=true;
                 int maxHeigh = getResources().getDimensionPixelSize(R.dimen.chat_fuction_panel_max_height);
                 //每次保存软键盘的高度
                 if (mKeyboardHeight != h && h <= maxHeigh) {
@@ -1426,6 +1427,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void keyBoardHide(int h) {
+                isSoftShow=false;
             }
         });
 
