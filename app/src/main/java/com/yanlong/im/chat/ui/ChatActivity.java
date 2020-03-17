@@ -48,7 +48,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -4447,7 +4446,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         int type = msgAllBean.getMsg_type();
         int sendStatus = msgAllBean.getSend_state();
         List<OptionMenu> menus = new ArrayList<>();
-        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
+        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)&&type!=ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
             menus.add(new OptionMenu("转发"));
         }
         menus.add(new OptionMenu("删除"));
@@ -4466,7 +4465,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
                 break;
         }
-        if (sendStatus == ChatEnum.ESendStatus.NORMAL) {
+        if (sendStatus == ChatEnum.ESendStatus.NORMAL&&type!=ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
             if (msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue() && msgAllBean.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE && !isAtBanedCancel(msgAllBean)) {
                 if (System.currentTimeMillis() - msgAllBean.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
                     boolean isExist = false;
