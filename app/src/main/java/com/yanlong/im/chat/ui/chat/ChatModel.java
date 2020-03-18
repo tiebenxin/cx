@@ -47,6 +47,8 @@ public class ChatModel implements IModel {
     private UserInfo userInfo;
     private Session session;
     private GroupConfig groupConfig;
+    private int unreadCount;
+    private String draft;
 
 
     public final void init(String gid, long uid) {
@@ -147,7 +149,8 @@ public class ChatModel implements IModel {
         return StringUtil.isNotNull(gid);
     }
 
-    public final String getUnreadCount() {
+    //获取剩余未读数
+    public final String getLeftUnreadCount() {
         long count = msgDao.getUnreadCount(gid, uid);
         String s = "";
         if (count > 0 && count <= 99) {
@@ -237,7 +240,7 @@ public class ChatModel implements IModel {
 
     public final Session getSession() {
         if (session == null) {
-            msgDao.sessionGet(gid, uid);
+            session = msgDao.sessionGet(gid, uid);
         }
         return session;
     }
@@ -375,6 +378,23 @@ public class ChatModel implements IModel {
     //更新红包状态
     public void updateEnvelope(String rid, int envelopeStatus, int reType, String token) {
         msgDao.redEnvelopeOpen(rid, envelopeStatus, reType, token);
-
     }
+
+    public void setUnreadCount(int num) {
+        unreadCount = num;
+    }
+
+    public int getUnreadCount() {
+        return unreadCount;
+    }
+
+    final void setDraft(String draft) {
+        this.draft = draft;
+    }
+
+    final String getDraft() {
+        return draft;
+    }
+
+
 }

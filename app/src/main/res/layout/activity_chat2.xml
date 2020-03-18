@@ -14,9 +14,10 @@
             android:orientation="vertical"
             android:splitMotionEvents="false">
 
-            <FrameLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
 
                 <net.cb.cb.library.view.NewPullRefreshLayout
                     android:id="@+id/view_refresh"
@@ -36,7 +37,7 @@
                     android:id="@+id/view_new_message"
                     layout="@layout/layout_new_msg" />
 
-            </FrameLayout>
+            </RelativeLayout>
 
             <LinearLayout
                 android:id="@+id/view_chat_bottom"
@@ -44,7 +45,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:splitMotionEvents="false"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <View style="@style/app_line" />
 

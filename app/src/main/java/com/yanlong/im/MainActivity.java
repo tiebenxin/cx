@@ -178,6 +178,10 @@ public class MainActivity extends AppActivity {
             }
         }
 
+        initLocation();
+    }
+
+    private void initLocation() {
         lastPostLocationTime = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.POST_LOCATION_TIME).get4Json(String.class);
         //无缓存则直接定位，记录本次上传位置的时间
         if(TextUtils.isEmpty(lastPostLocationTime)){

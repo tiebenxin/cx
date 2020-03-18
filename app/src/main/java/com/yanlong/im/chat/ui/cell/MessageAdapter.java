@@ -28,6 +28,9 @@ public class MessageAdapter extends RecyclerView.Adapter {
     private final boolean isGroup;//是否群聊
 
     private Map<Integer, View> viewMap = new HashMap<>();
+    private boolean isShowCheckBox;
+    private int unreadCount;
+
 
     public MessageAdapter(Context c, ICellEventListener l, boolean isG) {
         context = c;
@@ -159,6 +162,22 @@ public class MessageAdapter extends RecyclerView.Adapter {
             mList = new ArrayList<>();
         }
         mList.addAll(msg);
+    }
+
+    public void setUnreadCount(int position) {
+        unreadCount = position;
+    }
+
+
+    public void showCheckBox(boolean flag, boolean update) {
+        isShowCheckBox = flag;
+        if (update) {
+            notifyDataSetChanged();
+        }
+    }
+
+    public boolean isShowCheckBox() {
+        return isShowCheckBox;
     }
 
 }

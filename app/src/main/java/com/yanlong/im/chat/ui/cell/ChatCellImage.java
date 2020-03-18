@@ -164,7 +164,7 @@ public class ChatCellImage extends ChatCellBase {
         if (ll_progress == null) {
             return;
         }
-        setSendStatus();
+        setSendStatus(false);
         switch (model.getSend_state()) {
             case ChatEnum.ESendStatus.ERROR:
                 ll_progress.setVisibility(View.GONE);

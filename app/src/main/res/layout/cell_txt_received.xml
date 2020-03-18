@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="10dp"
-        android:text="shijian" />
+        android:text="2019" />
 
     <!-- <TextView
          android:id="@+id/tv_broadcast"
@@ -29,9 +29,9 @@
          android:text="公告"
          android:textColor="@color/white" />-->
 
-    <LinearLayout
-        android:id="@+id/ll_root"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/view_root"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
@@ -43,8 +43,10 @@
             android:layout_marginRight="10dp" />
 
         <LinearLayout
+            android:id="@+id/ll_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/iv_avatar"
             android:orientation="vertical">
 
             <TextView
@@ -57,32 +59,61 @@
                 android:paddingRight="8dp"
                 android:text="name" />
 
-
-            <LinearLayout
-                android:id="@+id/ll_bubble"
+            <FrameLayout
+                android:id="@+id/view_bubble_root"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/selector_chat_other_touch"
-                android:gravity="left|center_vertical"
-                android:visibility="visible">
+                android:layout_height="wrap_content">
 
-                <android.support.v7.widget.AppCompatTextView
-                    android:id="@+id/tv_content"
+                <LinearLayout
+                    android:id="@+id/ll_bubble"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="normal"
-                    android:gravity="center_vertical"
-                    android:maxWidth="210dp"
-                    android:minHeight="30dp"
-                    android:selectAllOnFocus="true"
-                    android:text=""
-                    android:textColor="@color/black"
-                    android:textIsSelectable="false"
-                    android:textSize="15sp" />
+                    android:layout_marginRight="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/selector_chat_other_touch"
+                    android:gravity="left|center_vertical"
+                    android:visibility="visible">
 
-            </LinearLayout>
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/tv_content"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="normal"
+                        android:gravity="center_vertical"
+                        android:maxWidth="210dp"
+                        android:minHeight="30dp"
+                        android:selectAllOnFocus="true"
+                        android:text=""
+                        android:textColor="@color/black"
+                        android:textIsSelectable="false"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/iv_bell"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="right|bottom"
+                    android:src="@mipmap/icon_st_1"
+                    android:visibility="visible" />
+            </FrameLayout>
+
 
         </LinearLayout>
 
-    </LinearLayout>
+        <CheckBox
+            android:id="@+id/ck_select"
+            style="@style/app_check_green"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="5dp"
+            android:gravity="center"
+            android:padding="5dp"
+            android:visibility="visible" />
+
+    </RelativeLayout>
 </LinearLayout>

@@ -186,6 +186,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
     private final PayAction payAction = new PayAction();
     private boolean needRefresh;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
+    private MsgDao msgDao = new MsgDao();
 
     public void init(Context con) {
         context = con;
@@ -383,7 +384,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
     }
 
     public void initUnreadCount() {
-        getView().initUnreadCount(model.getUnreadCount());
+        getView().initLeftUnreadCount(model.getLeftUnreadCount());
     }
 
     //重新发送消息
@@ -1985,6 +1986,62 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
         }
         return false;
 
+    }
+
+    //清除
+    final boolean clearSessionUnread(boolean isFirst) {
+        Session session = model.getSession();
+        if (session != null && session.getUnread_count() > 0) {
+            if (isFirst) {
+                model.setUnreadCount(session.getUnread_count());
+            }
+            msgDao.sessionReadClean(session);
+            if (isFirst) {
+                MessageManager.getInstance().setMessageChange(true);
+                MessageManager.getInstance().notifyRefreshMsg(model.isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, model.getUid(), model.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, null);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    final boolean updateMsgRead() {
+        return msgDao.updateMsgRead(model.getUid(), model.getGid(), true);
+    }
+
+    final boolean updateSessionDraftAndAtMessage() {
+        boolean hasChange = false;
+        Session session = model.getSession();
+        if (session != null && !TextUtils.isEmpty(session.getAtMessage())) {
+            hasChange = true;
+            msgDao.updateSessionAtMsg(model.getGid(), model.getUid());
+        }
+        if (checkAndSaveDraft()) {
+            hasChange = true;
+        }
+        return hasChange;
+    }
+
+    private boolean checkAndSaveDraft() {
+        if (model.isGroup() && !MessageManager.getInstance().isGroupValid(model.getGroup())) {//无效群，不存草稿
+            return false;
+        }
+        String df = getView().getEtText();
+        boolean hasChange = false;
+        if (!TextUtils.isEmpty(model.getDraft())) {
+//            if (TextUtils.isEmpty(df) || !draft.equals(df)) {
+            hasChange = true;
+            msgDao.sessionDraft(model.getGid(), model.getUid(), df);
+            model.setDraft(df);
+//            }
+        } else {
+            if (!TextUtils.isEmpty(df)) {
+                hasChange = true;
+                msgDao.sessionDraft(model.getGid(), model.getUid(), df);
+                model.setDraft(df);
+            }
+        }
+        return hasChange;
     }
 
 }

@@ -43,9 +43,11 @@ import com.yanlong.im.view.face.FaceViewPager;
 import com.yanlong.im.view.face.bean.FaceBean;
 import com.yanlong.im.view.function.ChatExtendMenuView;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.base.BaseMvpActivity;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.DeviceUtils;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.ScreenUtils;
@@ -72,7 +74,10 @@ import static android.view.View.VISIBLE;
 public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPresenter> implements ICellEventListener, ChatView {
     public static final String AGM_TOUID = "toUId";
     public static final String AGM_TOGID = "toGId";
-    private ChatModel mChatModel;
+    public final static int MIN_UNREAD_COUNT = 15;
+    private int MAX_UNREAD_COUNT = 80 * 4;//默认加载最大数据]
+
+    private ChatModel model;
     private boolean isGroup;
     private LinearLayoutManager layoutManager;
     private MessageAdapter adapter;
@@ -112,7 +117,9 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     @Override
     protected void onStart() {
         super.onStart();
+        presenter.clearSessionUnread(true);
         presenter.checkLockMessage();
+        initViewNewMsg();
         presenter.loadAndSetData();
         presenter.initUnreadCount();
     }
@@ -130,6 +137,18 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         //取消激活会话
         MessageManager.getInstance().setSessionNull();
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        boolean hasClear = presenter.clearSessionUnread(false);
+        boolean hasUpdate = presenter.updateMsgRead();
+        boolean hasChange = presenter.updateSessionDraftAndAtMessage();
+        if (hasClear || hasUpdate || hasChange) {
+            MessageManager.getInstance().setMessageChange(true);
+            MessageManager.getInstance().notifyRefreshMsg(model.isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, model.getUid(), model.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, null);
+        }
     }
 
     private void setCurrentSession() {
@@ -152,14 +171,14 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         uid = getIntent().getLongExtra(AGM_TOUID, 0);
         uid = uid == 0 ? -1L : uid;
         isGroup = StringUtil.isNotNull(gid);
-        mChatModel.init(gid, uid);
+        model.init(gid, uid);
         presenter.init(this);
     }
 
     @Override
     public ChatModel createModel() {
-        mChatModel = new ChatModel();
-        return mChatModel;
+        model = new ChatModel();
+        return model;
     }
 
     @Override
@@ -241,7 +260,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
                 } else {
                     ui.btnSend.setVisibility(View.GONE);
                 }
-                if (isGroup && !mChatModel.isHaveDraft()) {
+                if (isGroup && !model.isHaveDraft()) {
                     if (count == 1 && (s.charAt(s.length() - 1) == "@".charAt(0) || s.charAt(s.length() - (s.length() - start)) == "@".charAt(0))) { //添加一个字
                         //跳转到@界面
                         Intent intent = new Intent(ChatActivity3.this, GroupSelectUserActivity.class);
@@ -390,7 +409,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             public void completeRecord(String file, int duration) {
                 VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
                 MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgId(), uid, gid, SocketData.getFixTime(), voice, ChatEnum.EMessageType.VOICE);
-                mChatModel.getListData().add(msg);
+                model.getListData().add(msg);
                 ((Activity) context).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -431,19 +450,19 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             }
         });
         viewNewMessage = new ControllerNewMessage(ui.viewNewMessage);
-//        viewNewMessage.setClickListener(() -> {
-//            if (mChatModel.getListData() == null) {
-//                return;
-//            }
-//            int position = mChatModel.getListData() .size() - unreadCount;
-//            if (position >= 0) {
-//                scrollChatToPosition(position);
-//            } else {
-//                scrollChatToPosition(0);
-//            }
-//            viewNewMessage.setVisible(false);
-//            unreadCount = 0;
-//        });
+        viewNewMessage.setClickListener(() -> {
+            if (model.getListData() == null) {
+                return;
+            }
+            int position = model.getListData().size() - model.getUnreadCount();
+            if (position >= 0) {
+                scrollChatToPosition(position);
+            } else {
+                scrollChatToPosition(0);
+            }
+            viewNewMessage.setVisible(false);
+            model.setUnreadCount(0);
+        });
 
         //6.15 先加载完成界面,后刷数据
         actionbar.post(new Runnable() {
@@ -456,9 +475,39 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
 
 
         //9.17 进去后就清理会话的阅读数量
-        mChatModel.clearUnreadCount();
+        model.clearUnreadCount();
         MessageManager.getInstance().notifyRefreshMsg();
 
+    }
+
+    private void scrollChatToPosition(int position) {
+        layoutManager.scrollToPosition(position);
+
+    }
+
+    private void initViewNewMsg() {
+        int ramSize = DeviceUtils.getTotalRam();
+        if (ramSize >= 2) {
+            MAX_UNREAD_COUNT = 80 * 8;
+        } else {
+            MAX_UNREAD_COUNT = 80 * 4;
+        }
+//        viewNewMessage.setVisible(false);
+//        mAdapter.setUnreadCount(0);
+        int unreadCount = model.getUnreadCount();
+        if (unreadCount >= MIN_UNREAD_COUNT && unreadCount < MAX_UNREAD_COUNT) {
+            viewNewMessage.setVisible(true);
+            viewNewMessage.setCount(unreadCount);
+            adapter.setUnreadCount(unreadCount);
+        } else if (unreadCount >= MAX_UNREAD_COUNT) {
+            unreadCount = MAX_UNREAD_COUNT;
+            viewNewMessage.setVisible(true);
+            viewNewMessage.setCount(unreadCount);
+            adapter.setUnreadCount(unreadCount);
+        } else {
+            viewNewMessage.setVisible(false);
+            adapter.setUnreadCount(0);
+        }
     }
 
 
@@ -479,8 +528,8 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             }
             config.setLastPosition(lastPosition);
             config.setLastOffset(lastOffset);
-            if (mChatModel.getTotalSize() > 0) {
-                config.setTotalSize(mChatModel.getTotalSize());
+            if (model.getTotalSize() > 0) {
+                config.setTotalSize(model.getTotalSize());
             }
             sp.save2Json(config, "scroll_config");
         }
@@ -491,7 +540,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
      * */
     public void notifyAndScrollBottom() {
         if (adapter != null) {
-            adapter.bindData(mChatModel.getListData(), false);
+            adapter.bindData(model.getListData(), false);
         }
         scrollListView(true);
     }
@@ -519,6 +568,11 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     @Override
     public void addAtSpan(String maskText, String showText, long uid) {
         ui.edtChat.addAtSpan(maskText, showText, uid);
+    }
+
+    @Override
+    public String getEtText() {
+        return ui.edtChat.getText().toString();
     }
 
     /***
@@ -560,14 +614,14 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     }
 
     @Override
-    public void initUnreadCount(String s) {
+    public void initLeftUnreadCount(String s) {
         actionbar.setTxtLeft(s, R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity3.this, 5));
     }
 
     @Override
     public void replaceListDataAndNotify(MsgAllBean bean) {
-        int position = mChatModel.getListData().indexOf(bean);
-        if (position >= 0 && position < mChatModel.getListData().size()) {
+        int position = model.getListData().indexOf(bean);
+        if (position >= 0 && position < model.getListData().size()) {
             adapter.updateItemAndRefresh(bean);
             adapter.notifyItemChanged(position, position);
         }
@@ -593,6 +647,9 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
 
     @Override
     public void onEvent(int type, MsgAllBean message, Object... args) {
+        switch (type) {
+//            case ChatEnum.ECellEventType.
+        }
 
     }
 
@@ -608,8 +665,8 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
      * */
     @Override
     public void scrollListView(boolean isMustBottom) {
-        if (mChatModel.getListData() != null) {
-            int length = mChatModel.getListData().size();//刷新后当前size；
+        if (model.getListData() != null) {
+            int length = model.getListData().size();//刷新后当前size；
             if (isMustBottom) {
                 ui.recyclerView.scrollToPosition(length);
             } else {
@@ -692,7 +749,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
 
         if (lastPosition >= 0) {
             int targetHeight = ScreenUtils.getScreenHeight(this) / 2;//屏幕一般高度
-            int size = mChatModel.getListData().size();
+            int size = model.getListData().size();
 //            int onCreate = size - 1;
             int height = 0;
             for (int i = lastPosition; i < size - 1; i++) {
@@ -761,11 +818,11 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     @Override
     public void initTitle() {
         String title = "";
-        if (mChatModel.isGroup()) {
-            title = mChatModel.getGroupName();
+        if (model.isGroup()) {
+            title = model.getGroupName();
             presenter.taskGroupConf();
         } else {
-            UserInfo info = mChatModel.getUserInfo();
+            UserInfo info = model.getUserInfo();
             title = info.getName4Show();
             if (info.getLastonline() > 0) {
                 if (NetUtil.isNetworkConnected()) {
@@ -782,7 +839,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     public void updateOnlineStatus() {
         String title = "";
         if (!isGroup) {
-            UserInfo info = mChatModel.getUserInfo();
+            UserInfo info = model.getUserInfo();
             title = info.getName4Show();
             if (info.getLastonline() > 0) {
                 if (NetUtil.isNetworkConnected()) {
@@ -798,8 +855,8 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     @Override
     public void addAndShowSendMessage(MsgAllBean bean) {
         if (bean.getMsg_type() != ChatEnum.EMessageType.MSG_CANCEL) {
-            int size = mChatModel.getListData().size();
-            mChatModel.getListData().add(bean);
+            int size = model.getListData().size();
+            model.getListData().add(bean);
             adapter.addMessage(bean);
             adapter.notifyItemRangeInserted(size, 1);
             // 处理发送失败时位置错乱问题
@@ -882,7 +939,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
 
     //初始化底边拓展栏数据
     private void initExtendData() {
-        ui.viewExtendMenu.bindDate(mChatModel.getItemModels());
+        ui.viewExtendMenu.bindDate(model.getItemModels());
     }
 
     @Override

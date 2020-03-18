@@ -17,7 +17,7 @@ public interface ChatView extends IView {
 
     void initUIAndListener();
 
-    void initUnreadCount(String s);
+    void initLeftUnreadCount(String s);
 
     void replaceListDataAndNotify(MsgAllBean bean);
 
@@ -54,5 +54,7 @@ public interface ChatView extends IView {
     void changeEmojiLevel(int level);
 
     void addAtSpan(String maskText, String showText, long uid);
+
+    String getEtText();
 
 }
