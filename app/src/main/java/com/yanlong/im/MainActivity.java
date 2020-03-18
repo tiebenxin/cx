@@ -40,7 +40,6 @@ import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
-import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.EnvelopeInfo;
@@ -57,7 +56,6 @@ import com.yanlong.im.location.LocationPersimmions;
 import com.yanlong.im.location.LocationService;
 import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.notify.NotifySettingDialog;
-import com.yanlong.im.shop.ShopFragemnt;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
 import com.yanlong.im.user.bean.NewVersionBean;
@@ -114,13 +112,9 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import cn.jpush.android.api.JPluginPlatformInterface;
 import cn.jpush.android.api.JPushInterface;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -467,9 +461,9 @@ public class MainActivity extends AppActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == JPluginPlatformInterface.JPLUGIN_REQUEST_CODE) {
-
-        }
+//        if (requestCode == JPluginPlatformInterface.JPLUGIN_REQUEST_CODE) {
+//
+//        }
     }
 
     private void updateNetStatus() {

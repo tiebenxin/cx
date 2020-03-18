@@ -30,6 +30,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
+import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.eventbus.AckEvent;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.UpLoadService;
@@ -107,6 +108,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     private String shareImageUrl;
     private String shareWebUrl;
     private int mediaType;
+    private String appName;
+    private String appIcon;
+    private String shareDescription;
+    private String shareTitle;
 
 
     //单条消息转发
@@ -154,16 +159,21 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             getSysImgShare();
         } else if (model == ChatEnum.EForwardMode.SHARE) {
             mediaType = intent.getIntExtra("cxapi_sendmessagetowx_req_media_type", 0);
-            if (mediaType == 0) {//未知
-                finish();
-            } else if (mediaType == 1) {//文本
-                shareText = intent.getStringExtra("cx_object_text");
-            } else if (mediaType == 2) {//图片
-                shareImageUrl = intent.getStringExtra("cx_imageobject_imagePath");
-            } else if (mediaType == 3) {//视频
+            shareTitle = intent.getStringExtra("cxobject_title");
+            shareDescription = intent.getStringExtra("cxobject_description");
 
-            } else if (mediaType == 4) {//web
+            if (mediaType == CxMediaMessage.EMediaType.UNKNOWN) {//未知
+                finish();
+            } else if (mediaType == CxMediaMessage.EMediaType.TEXT) {//文本
+                shareText = intent.getStringExtra("cx_object_text");
+            } else if (mediaType == CxMediaMessage.EMediaType.IMAGE) {//图片
+                shareImageUrl = intent.getStringExtra("cx_imageobject_imagePath");
+            } else if (mediaType == CxMediaMessage.EMediaType.VIDEO) {//视频
+
+            } else if (mediaType == CxMediaMessage.EMediaType.WEB) {//web
                 shareWebUrl = intent.getStringExtra("cxwebpageobject_webpageUrl");
+                appName = intent.getStringExtra("app_name");
+                appIcon = intent.getStringExtra("app_icon");
             }
         }
     }
@@ -370,6 +380,16 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     msgAllBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), imageMsg);
                 }
 
+            } else if (mediaType == CxMediaMessage.EMediaType.WEB) {
+                if (!TextUtils.isEmpty(shareWebUrl)) {
+                    WebMessage webMsg = SocketData.createWebMessage(SocketData.getUUID(), appName, appIcon, shareTitle, shareDescription, shareWebUrl);
+                    msgAllBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.WEB, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), webMsg);
+                }
+            }
+
+            if (msgAllBean == null) {
+                ToastUtil.show(this, "数据异常，分享失败");
+                return;
             }
         }
 
@@ -394,7 +414,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             } else if (msgAllBean.getVideoMessage() != null) {
                 imageUrl = msgAllBean.getVideoMessage().getBg_url();
             } else if (msgAllBean.getLocationMessage() != null) {
-//            imageUrl= LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(),msgAllBean.getLocationMessage().getLongitude());
                 txt = "[位置]" + msgAllBean.getLocationMessage().getAddress();
             } else if (msgAllBean.getShippedExpressionMessage() != null) {
                 imageUrl = msgAllBean.getShippedExpressionMessage().getId();
@@ -404,6 +423,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 imageUrl = LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(), msgAllBean.getLocationMessage().getLongitude());
             } else if (msgAllBean.getSendFileMessage() != null) {
                 txt = "[文件]" + msgAllBean.getSendFileMessage().getFile_name();
+            } else if (msgAllBean.getWebMessage() != null) {
+                txt = "[链接]" + msgAllBean.getWebMessage().getTitle();
             }
         } else if (model == ChatEnum.EForwardMode.ONE_BY_ONE) {
             if (msgList == null) {
@@ -632,6 +653,29 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     MoreSessionBean bean = moreSessionBeanList.get(i);
                     SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), msgAllBean.getSendFileMessage().getLocalPath(), msgAllBean.getSendFileMessage().getUrl(), msgAllBean.getSendFileMessage().getFile_name(), msgAllBean.getSendFileMessage().getSize(), msgAllBean.getSendFileMessage().getFormat());
                     MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), fileMessage);
+                    if (allBean != null) {
+                        sendMessage(allBean);
+                        sendMessage = allBean;
+                    }
+                    sendLeaveMessage(content, bean.getUid(), bean.getGid());
+                    notifyRefreshMsg(bean.getGid(), bean.getUid());
+                }
+                isSingleSelected = true;
+            }
+        } else if (msgAllBean.getWebMessage() != null) { //分享web消息
+            if (isSingleSelected) {
+                WebMessage webMessage = SocketData.createWebMessage(SocketData.getUUID(), appName, appIcon, shareTitle, shareDescription, shareWebUrl);
+                MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), webMessage);
+                if (allBean != null) {
+                    sendMessage(allBean);
+                }
+                sendLeaveMessage(content, toUid, toGid);
+                notifyRefreshMsg(toGid, toUid);
+            } else {
+                for (int i = 0; i < moreSessionBeanList.size(); i++) {
+                    MoreSessionBean bean = moreSessionBeanList.get(i);
+                    WebMessage webMessage = SocketData.createWebMessage(SocketData.getUUID(), appName, appIcon, shareTitle, shareDescription, shareWebUrl);
+                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), webMessage);
                     if (allBean != null) {
                         sendMessage(allBean);
                         sendMessage = allBean;

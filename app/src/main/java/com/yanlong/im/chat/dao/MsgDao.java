@@ -3313,6 +3313,28 @@ public class MsgDao {
             msg.getMsgCancel().deleteFromRealm();
         if (msg.getVoiceMessage() != null)
             msg.getVoiceMessage().deleteFromRealm();
+        if (msg.getAtMessage() != null)
+            msg.getAtMessage().deleteFromRealm();
+        if (msg.getAssistantMessage() != null)
+            msg.getAssistantMessage().deleteFromRealm();
+        if (msg.getChangeSurvivalTimeMessage() != null)
+            msg.getChangeSurvivalTimeMessage().deleteFromRealm();
+        if (msg.getP2PAuVideoDialMessage() != null)
+            msg.getP2PAuVideoDialMessage().deleteFromRealm();
+        if (msg.getP2PAuVideoMessage() != null)
+            msg.getP2PAuVideoMessage().deleteFromRealm();
+        if (msg.getBalanceAssistantMessage() != null)
+            msg.getBalanceAssistantMessage().deleteFromRealm();
+        if (msg.getLocationMessage() != null)
+            msg.getLocationMessage().deleteFromRealm();
+        if (msg.getTransferNoticeMessage() != null)
+            msg.getTransferNoticeMessage().deleteFromRealm();
+        if (msg.getShippedExpressionMessage() != null)
+            msg.getShippedExpressionMessage().deleteFromRealm();
+        if (msg.getSendFileMessage() != null)
+            msg.getSendFileMessage().deleteFromRealm();
+        if (msg.getWebMessage() != null)
+            msg.getWebMessage().deleteFromRealm();
     }
 
     //判断当前用户是否群主或者群管理员

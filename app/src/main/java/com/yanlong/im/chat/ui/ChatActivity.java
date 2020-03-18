@@ -903,13 +903,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     //发送并滑动到列表底部
-    private void showSendObj(MsgAllBean msgAllbean) {
+    private synchronized void showSendObj(MsgAllBean msgAllbean) {
         if (msgAllbean.getMsg_type() != ChatEnum.EMessageType.MSG_CANCEL) {
             int size = msgListData.size();
             msgListData.add(msgAllbean);
             mtListView.getListView().getAdapter().notifyItemRangeInserted(size, 1);
             // 处理发送失败时位置错乱问题
-            mtListView.getListView().getAdapter().notifyItemRangeChanged(size + 1, msgListData.size() - 1);
+//            mtListView.getListView().getAdapter().notifyItemRangeChanged(size + 1, msgListData.size() - 1);
 
             //红包通知 不滚动到底部
             if (msgAllbean.getMsgNotice() != null && (msgAllbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE
@@ -1821,6 +1821,25 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     //消息发送
+    private void sendMessageTest(IMsgContent message, @ChatEnum.EMessageType int msgType) {
+        LogUtil.getLog().i("MessageManager", "发送msgId=" + message.getMsgId());
+        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+        if (msgAllBean != null) {
+            if (!filterMessage(message)) {
+                SocketData.sendAndSaveMessage(msgAllBean, false);
+            } else {
+                SocketData.sendAndSaveMessage(msgAllBean);
+            }
+            //cancel消息发送前不需要更新
+            msgListData.add(msgAllBean);
+//            if (msgType != ChatEnum.EMessageType.MSG_CANCEL) {
+//                showSendObj(msgAllBean);
+//            }
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
+        }
+    }
+
+    //消息发送
     private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType) {
         MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
         if (msgAllBean != null) {
@@ -2033,10 +2052,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     for (int i = 1; i <= count; i++) {
                         if (i % 10 == 0) {
                             ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), "连续测试发送" + i + "-------");
-                            sendMessage(chatMessage, ChatEnum.EMessageType.TEXT);
+                            sendMessageTest(chatMessage, ChatEnum.EMessageType.TEXT);
                         } else {
                             ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), "连续测试发送" + i);
-                            sendMessage(chatMessage, ChatEnum.EMessageType.TEXT);
+                            sendMessageTest(chatMessage, ChatEnum.EMessageType.TEXT);
                         }
 
                         if (i % 100 == 0)
@@ -3707,10 +3726,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                     if (checkCanOpenUpRedEnv()) {
                                         taskPayRbGet(msgbean, touid, rid);
                                     } else {
-                                        ToastUtil.show(ChatActivity.this, "你已被禁止领取红包");
+                                        ToastUtil.show(ChatActivity.this, "您已被禁止领取该群红包");
                                     }
                                 }
                             } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
+                                if (!checkCanOpenUpRedEnv()){
+                                    ToastUtil.show(ChatActivity.this, "您已被禁止领取该群红包");
+                                    return;
+                                }
                                 long tradeId = rb.getTraceId();
                                 if (tradeId == 0 && !TextUtils.isEmpty(rid)) {
                                     try {
@@ -4008,6 +4031,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                                 }
                             }
+                        }
+                    });
+                    break;
+                case ChatEnum.EMessageType.WEB:
+                    holder.viewChatItem.setShareWeb(msgbean, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
                         }
                     });
                     break;

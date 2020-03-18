@@ -51,6 +51,7 @@ import com.hm.cxpay.global.PayEnum;
 import com.luck.picture.lib.tools.StringUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.ChatEnum.EMessageType;
 import com.yanlong.im.chat.bean.BalanceAssistantMessage;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
@@ -58,6 +59,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
+import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.ui.RoundTransform;
 import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.user.ui.UserInfoActivity;
@@ -84,6 +86,9 @@ import me.kareluo.ui.OptionMenu;
 public class ChatItemView extends LinearLayout {
     private final int DEFAULT_W = 120;
     private final int DEFAULT_H = 180;
+
+    private Context mContext;
+
 
     private TextView txtOtName;
     private TextView txtMeName;
@@ -221,6 +226,8 @@ public class ChatItemView extends LinearLayout {
     private LinearLayout layoutFileProgress;
     private TextView tvFileProgressValue;
     private View viewOtUnread;
+    private TextView tvMeAppName;
+    private TextView tvOtAppName;
 
     public ChatItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -235,7 +242,7 @@ public class ChatItemView extends LinearLayout {
 
     //自动寻找控件
     private void findViews(View rootView) {
-        viewOtUnread=rootView.findViewById(R.id.view_ot_unread);
+        viewOtUnread = rootView.findViewById(R.id.view_ot_unread);
         txtMeName = rootView.findViewById(R.id.txt_me_name);
         txtOtName = rootView.findViewById(R.id.txt_ot_name);
         txtTime = rootView.findViewById(R.id.txt_time);
@@ -350,12 +357,16 @@ public class ChatItemView extends LinearLayout {
         tvOtGameInfo = rootView.findViewById(R.id.tv_ot_game_info);
         ivOtGameIcon = rootView.findViewById(R.id.iv_ot_game_icon);
         ivOtAppIcon = rootView.findViewById(R.id.iv_ot_app_icon);
+        tvOtAppName = rootView.findViewById(R.id.tv_ot_game_name);
+
 
         viewMeGameShare = rootView.findViewById(R.id.view_me_game_share);
         tvMeGameTitle = rootView.findViewById(R.id.tv_me_game_title);
         tvMeGameInfo = rootView.findViewById(R.id.tv_me_game_info);
         ivMeGameIcon = rootView.findViewById(R.id.iv_me_game_icon);
         ivMeAppIcon = rootView.findViewById(R.id.iv_me_app_icon);
+        tvMeAppName = rootView.findViewById(R.id.tv_me_game_name);
+
 
         //零钱助手消息，只有接收消息
 //        viewMeBalance = rootView.findViewById(R.id.view_me_balance);
@@ -477,59 +488,56 @@ public class ChatItemView extends LinearLayout {
 
 
         switch (type) {
-            case ChatEnum.EMessageType.MSG_CANCEL://撤回的消息
-            case 0://公告
+            case EMessageType.MSG_CANCEL://撤回的消息
+            case EMessageType.NOTICE://公告
                 viewBroadcast.setVisibility(VISIBLE);
                 viewMe.setVisibility(GONE);
                 viewOt.setVisibility(GONE);
                 break;
-            case 1:
+            case EMessageType.TEXT:
+            case EMessageType.AT:
                 viewMe1.setVisibility(VISIBLE);
                 viewOt1.setVisibility(VISIBLE);
                 break;
-            case 2:
+            case EMessageType.STAMP:
                 viewMe2.setVisibility(VISIBLE);
                 viewOt2.setVisibility(VISIBLE);
                 break;
-            case 3:
+            case EMessageType.RED_ENVELOPE:
                 viewMe3.setVisibility(VISIBLE);
                 viewOt3.setVisibility(VISIBLE);
                 break;
-            case 4:
+            case EMessageType.IMAGE:
                 viewMe4.setVisibility(VISIBLE);
                 viewOt4.setVisibility(VISIBLE);
                 break;
-            case 5:
+            case EMessageType.BUSINESS_CARD:
                 viewMe5.setVisibility(VISIBLE);
                 viewOt5.setVisibility(VISIBLE);
                 break;
-            case 6:
+            case EMessageType.TRANSFER:
                 viewMe6.setVisibility(VISIBLE);
                 viewOt6.setVisibility(VISIBLE);
                 break;
-            case 7:
+            case EMessageType.VOICE:
                 viewMe7.setVisibility(VISIBLE);
                 viewOt7.setVisibility(VISIBLE);
                 break;
-            case 8:
-                viewMe1.setVisibility(VISIBLE);
-                viewOt1.setVisibility(VISIBLE);
-                break;
-            case ChatEnum.EMessageType.ASSISTANT:
+            case EMessageType.ASSISTANT:
                 viewMe8.setVisibility(VISIBLE);
                 viewOt8.setVisibility(VISIBLE);
                 break;
-            case ChatEnum.EMessageType.LOCK:
+            case EMessageType.LOCK:
                 viewLock.setVisibility(VISIBLE);
                 viewMe.setVisibility(GONE);
                 viewOt.setVisibility(GONE);
                 break;
-            case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
+            case EMessageType.CHANGE_SURVIVAL_TIME:
                 viewReadDestroy.setVisibility(VISIBLE);
                 viewMe.setVisibility(GONE);
                 viewOt.setVisibility(GONE);
                 break;
-            case ChatEnum.EMessageType.MSG_VIDEO:
+            case EMessageType.MSG_VIDEO:
                 viewMe4.setVisibility(VISIBLE);
                 viewOt4.setVisibility(VISIBLE);
 //                img_me_4_time.setVisibility(View.VISIBLE);
@@ -537,21 +545,25 @@ public class ChatItemView extends LinearLayout {
                 img_ot_4_time.setVisibility(View.VISIBLE);
                 img_ot_4_play.setVisibility(View.VISIBLE);
                 break;
-            case ChatEnum.EMessageType.MSG_VOICE_VIDEO:
+            case EMessageType.MSG_VOICE_VIDEO:
                 viewMeVoiceVideo.setVisibility(VISIBLE);
                 viewOtVoiceVideo.setVisibility(VISIBLE);
                 break;
-            case ChatEnum.EMessageType.LOCATION:
+            case EMessageType.LOCATION:
                 location_you_ll.setVisibility(VISIBLE);
                 location_me_ll.setVisibility(VISIBLE);
                 break;
-            case ChatEnum.EMessageType.BALANCE_ASSISTANT:
+            case EMessageType.BALANCE_ASSISTANT:
                 setNoAvatarUI(isMe);
                 viewOtBalance.setVisibility(VISIBLE);
                 break;
-            case ChatEnum.EMessageType.FILE:
+            case EMessageType.FILE:
                 viewFileOt.setVisibility(VISIBLE);
                 viewFileMe.setVisibility(VISIBLE);
+                break;
+            case EMessageType.WEB:
+                viewMeGameShare.setVisibility(VISIBLE);
+                viewOtGameShare.setVisibility(VISIBLE);
                 break;
         }
 
@@ -726,10 +738,10 @@ public class ChatItemView extends LinearLayout {
     }
 
     //设置阅后即焚消息显示
-    public void setDataSurvivalTimeShow(int type,boolean isRecovery) {
+    public void setDataSurvivalTimeShow(int type, boolean isRecovery) {
         //   timerCancel();
         if (isMe) {
-            if(isRecovery){
+            if (isRecovery) {
                 viewMeSurvivalTime.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.mipmap.icon_st_1));
             }
             if (type == -1) {
@@ -740,7 +752,8 @@ public class ChatItemView extends LinearLayout {
                 viewMeSurvivalTime.setVisibility(View.VISIBLE);
             }
         } else {
-            if(isRecovery)viewOtSurvivalTime.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.mipmap.icon_st_1));
+            if (isRecovery)
+                viewOtSurvivalTime.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.mipmap.icon_st_1));
             if (type == -1) {
                 viewOtSurvivalTime.setVisibility(View.VISIBLE);
             } else if (type == 0) {
@@ -886,13 +899,14 @@ public class ChatItemView extends LinearLayout {
     /**
      * 恢复未读语音红点
      */
-    public void recoveryOtUnreadView(){
+    public void recoveryOtUnreadView() {
         viewOtUnread.setVisibility(View.GONE);
     }
 
     //语音
     public void setData7(int second, boolean isRead, boolean isPlay, int playStatus, final OnClickListener onk) {
-        if(!isMe)viewOtUnread.setVisibility(playStatus != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
+        if (!isMe)
+            viewOtUnread.setVisibility(playStatus != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
         viewOt7.initHideUnRead(isMe, second, isRead, isPlay, playStatus);
         viewMe7.initHideUnRead(isMe, second, isRead, isPlay, playStatus);
         viewMeTouch.setOnClickListener(onk);
@@ -902,7 +916,8 @@ public class ChatItemView extends LinearLayout {
     public void updateVoice(MsgAllBean bean) {
         VoiceMessage voice = bean.getVoiceMessage();
         String url = bean.isMe() ? voice.getLocalUrl() : voice.getUrl();
-        if(!bean.isMe())viewOtUnread.setVisibility(voice.getPlayStatus() != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
+        if (!bean.isMe())
+            viewOtUnread.setVisibility(voice.getPlayStatus() != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
         viewOt7.initHideUnRead(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
         viewMe7.initHideUnRead(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
     }
@@ -1397,8 +1412,6 @@ public class ChatItemView extends LinearLayout {
         viewOtTouch.setOnClickListener(listener);
     }
 
-    private Context mContext;
-
 
     public void setReadDestroy(MsgAllBean bean) {
         if (bean == null || bean.getMsgCancel() == null || bean.getMsgCancel().getNote() == null) {
@@ -1546,5 +1559,63 @@ public class ChatItemView extends LinearLayout {
         ckSelect.setVisibility(b ? VISIBLE : GONE);
     }
 
+
+    public void setShareWeb(MsgAllBean msgAllBean, OnClickListener listener) {
+        if (msgAllBean == null || msgAllBean.getWebMessage() == null) {
+            viewMeGameShare.setVisibility(GONE);
+            viewOtGameShare.setVisibility(GONE);
+            return;
+        }
+        WebMessage web = msgAllBean.getWebMessage();
+        if (msgAllBean.isMe()) {
+            initText(web.getTitle(), tvMeGameTitle);
+            initText(web.getDescription(), tvMeGameInfo);
+            initText(web.getAppName(), tvMeAppName);
+
+            Glide.with(this).load(web.getIconUrl())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(ivMeGameIcon);
+            Glide.with(this).load(web.getIconUrl())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(ivMeAppIcon);
+//            if (!TextUtils.isEmpty(web.getIconUrl())) {
+//                Glide.with(this).load(web.getIconUrl())
+//                        .apply(GlideOptionsUtil.headImageOptions()).into(ivMeGameIcon);
+//                Glide.with(this).load(web.getIconUrl())
+//                        .apply(GlideOptionsUtil.headImageOptions()).into(ivMeAppIcon);
+//            } else {
+//                ivMeGameIcon.setVisibility(GONE);
+//                ivMeAppIcon.setVisibility(GONE);
+//            }
+        } else {
+            initText(web.getTitle(), tvOtGameTitle);
+            initText(web.getDescription(), tvOtGameInfo);
+            initText(web.getAppName(), tvOtAppName);
+
+            if (!TextUtils.isEmpty(web.getIconUrl())) {
+                Glide.with(this).load(web.getIconUrl())
+                        .apply(GlideOptionsUtil.headImageOptions()).into(ivOtGameIcon);
+                Glide.with(this).load(web.getIconUrl())
+                        .apply(GlideOptionsUtil.headImageOptions()).into(ivOtAppIcon);
+            } else {
+                ivOtGameIcon.setVisibility(GONE);
+                ivOtAppIcon.setVisibility(GONE);
+            }
+        }
+
+        viewMeGameShare.setOnClickListener(listener);
+        viewOtGameShare.setOnClickListener(listener);
+    }
+
+    private void initText(String text, TextView tv) {
+        if (tv == null) {
+            return;
+        }
+        if (!TextUtils.isEmpty(text)) {
+            tv.setVisibility(VISIBLE);
+            tv.setText(text);
+        } else {
+            tv.setVisibility(GONE);
+        }
+
+    }
 
 }
