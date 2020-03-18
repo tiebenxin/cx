@@ -3725,10 +3725,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                     if (checkCanOpenUpRedEnv()) {
                                         taskPayRbGet(msgbean, touid, rid);
                                     } else {
-                                        ToastUtil.show(ChatActivity.this, "你已被禁止领取红包");
+                                        ToastUtil.show(ChatActivity.this, "您已被禁止领取该群红包");
                                     }
                                 }
                             } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
+                                if (!checkCanOpenUpRedEnv()){
+                                    ToastUtil.show(ChatActivity.this, "您已被禁止领取该群红包");
+                                    return;
+                                }
                                 long tradeId = rb.getTraceId();
                                 if (tradeId == 0 && !TextUtils.isEmpty(rid)) {
                                     try {

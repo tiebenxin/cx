@@ -23,8 +23,10 @@ import com.jrmf360.rplib.utils.callback.GrabRpCallBack;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgNotice;
+import com.yanlong.im.chat.bean.NoRedEnvelopesBean;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -48,6 +50,7 @@ import net.cb.cb.library.utils.ViewUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -72,6 +75,8 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
     private CommonRecyclerViewAdapter<MsgAllBean, ItemNoRedbagBinding> mViewAdapter;
     private String mGid;
     private MsgDao msgDao = new MsgDao();
+    private MsgAction mMsgAction;
+    private boolean canGetRedPacket = true;//检测我是否有资格领取红包(是否被禁领红包)
 
     @Override
     protected int setView() {
@@ -98,13 +103,27 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                 }
                 binding.txtOtRpBt.setText(type);
                 binding.txtOtRbTitle.setText(message.getComment());
-
+                //红包领取状态
+                if(message.getIsInvalid()==0){
+                    binding.imgOtRbState.setImageResource(R.mipmap.ic_rb_zfb_un);
+                    binding.layoutRedBag.setBackgroundResource(R.mipmap.ic_rb_not_received);
+                }else {
+                    binding.imgOtRbState.setImageResource(R.mipmap.ic_rb_zfb_n);
+                    binding.layoutRedBag.setBackgroundResource(R.mipmap.ic_rb_received);
+                }
                 binding.layoutRedBag.setOnClickListener(o -> {
                     if (ViewUtils.isFastDoubleClick()) {
                         return;
                     }
-                    receiveEnvelope(msgAllBean);
-
+                    if(message.getIsInvalid()==0){
+                        if(canGetRedPacket){
+                            receiveEnvelope(msgAllBean);
+                        }else {
+                            ToastUtil.show("您已被禁止领取该群红包");
+                        }
+                    }else {
+                        ToastUtil.show("已领取该红包");
+                    }
                 });
             }
         };
@@ -120,8 +139,10 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
 
     @Override
     protected void loadData() {
+        mMsgAction = new MsgAction();
         mGid = getIntent().getStringExtra(GroupSelectUserActivity.GID);
         loadMsg();
+        getCantOpenUpRedMembers();
     }
 
     @SuppressLint("CheckResult")
@@ -399,5 +420,36 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
         EventBus.getDefault().post(new EventRefreshChat<>());
     }
 
+
+    /**
+     * 获取禁领红包群成员列表
+     */
+    private void getCantOpenUpRedMembers() {
+        mMsgAction.getCantOpenUpRedMembers(mGid, new CallBack<ReturnBean<List<NoRedEnvelopesBean>>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<List<NoRedEnvelopesBean>>> call, Response<ReturnBean<List<NoRedEnvelopesBean>>> response) {
+                super.onResponse(call, response);
+                if (response.body() != null && response.body().isOk()) {
+                    List<NoRedEnvelopesBean> list = response.body().getData();
+                    if (list != null && list.size()>0) {
+                        for(int i=0; i<list.size(); i++){
+                            if(list.get(i).getUid() == UserAction.getMyInfo().getUid().longValue()){
+                                canGetRedPacket = false;
+                            }
+                        }
+                    }else {
+                        canGetRedPacket = true;
+                    }
+                } else {
+                    ToastUtil.show(NoRedBagActivity.this, "获取禁领红包群成员列表失败");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<List<NoRedEnvelopesBean>>> call, Throwable t) {
+                super.onFailure(call, t);
+            }
+        });
+    }
 
 }
