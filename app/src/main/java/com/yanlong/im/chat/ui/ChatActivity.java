@@ -1415,7 +1415,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
             @Override
             public void keyBoardShow(int h) {
-                isSoftShow=true;
+                isSoftShow = true;
                 int maxHeigh = getResources().getDimensionPixelSize(R.dimen.chat_fuction_panel_max_height);
                 //每次保存软键盘的高度
                 if (mKeyboardHeight != h && h <= maxHeigh) {
@@ -1427,7 +1427,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void keyBoardHide(int h) {
-                isSoftShow=false;
+                isSoftShow = false;
             }
         });
 
@@ -3730,7 +3730,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                     }
                                 }
                             } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
-                                if (!checkCanOpenUpRedEnv()){
+                                if (!checkCanOpenUpRedEnv()) {
                                     ToastUtil.show(ChatActivity.this, "您已被禁止领取该群红包");
                                     return;
                                 }
@@ -4479,7 +4479,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         int type = msgAllBean.getMsg_type();
         int sendStatus = msgAllBean.getSend_state();
         List<OptionMenu> menus = new ArrayList<>();
-        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)&&type!=ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
+        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
             menus.add(new OptionMenu("转发"));
         }
         menus.add(new OptionMenu("删除"));
@@ -4498,7 +4498,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
                 break;
         }
-        if (sendStatus == ChatEnum.ESendStatus.NORMAL&&type!=ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
+        if (sendStatus == ChatEnum.ESendStatus.NORMAL && type != ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
             if (msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue() && msgAllBean.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE && !isAtBanedCancel(msgAllBean)) {
                 if (System.currentTimeMillis() - msgAllBean.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
                     boolean isExist = false;
@@ -4519,7 +4519,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //是否禁止转发
     public boolean isBanForward(@ChatEnum.EMessageType int type) {
-        if (type == ChatEnum.EMessageType.VOICE || type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE) {
+        if (type == ChatEnum.EMessageType.VOICE || type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
+                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO || type == ChatEnum.EMessageType.BUSINESS_CARD) {
             return true;
         }
         return false;
