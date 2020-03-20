@@ -3999,7 +3999,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             //1 如果是我发的文件
                             if (msgbean.isMe()) {
                                 //2 判断是否为转发
-                                //若是转发，则需要先从下载路径里找，有则直接打开，没有则需要下载
+                                //若是转发他人，则需要先从下载路径里找，有则直接打开，没有则需要下载
                                 if(fileMessage.isFromOther()){
                                     if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name())) {
                                         openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
@@ -4015,7 +4015,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                         }
                                     }
                                 }else {
-                                    //若不是转发，则为本地文件，从本地路径里找，有则打开，没有提示文件已被删除
+                                    //若自己转发自己，则为本地文件，从本地路径里找，有则打开，没有提示文件已被删除
                                     if (net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getLocalPath())) {
                                         openAndroidFile(fileMessage.getLocalPath());
                                     } else {
