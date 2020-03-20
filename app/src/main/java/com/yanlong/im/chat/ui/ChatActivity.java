@@ -3239,6 +3239,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
         int unread = 0;
+        int COUNT = 12;
         boolean isSelected = false;
         //msg_id,计时器 将计时器绑定到数据
         private Map<String, Disposable> mTimers = new HashMap<>();
@@ -3247,9 +3248,32 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         private Map<Integer, String> mPositionMsgIds = new HashMap<>();
         //msg_id，position 用来找MsgId对应的position ,保证MsgId 唯一
         private Map<String, Integer> mMsgIdPositions = new HashMap<>();
+        //msg_id，Indext 记录计时器中12张图片的Index
+        private Map<String, Integer> mTimersIndexs = new HashMap<>();
 
         /****************************************************************************/
 
+        public RecyclerViewAdapter(){
+            mViewModel.adapterCount.observe(ChatActivity.this, new Observer<Integer>() {
+                @Override
+                public void onChanged(@Nullable Integer integer) {
+                    mPositionMsgIds.clear();
+                    mMsgIdPositions.clear();
+
+                    for(int i=0;i<msgListData.size();i++){
+                        int position=i;
+                        String msgId=msgListData.get(i).getMsg_id();
+                        //已经有MsgId包含该位置，则删除上一个，保证唯一性，更新时
+                        if (mMsgIdPositions.containsValue(position)) {
+                            mMsgIdPositions.remove(mPositionMsgIds.get(position));
+                        }
+                        //mPositionMsgIds只记录，不处理
+                        mPositionMsgIds.put(position, msgId);
+                        mMsgIdPositions.put(msgId, position);
+                    }
+                }
+            });
+        }
         public void onDestory() {
             //清除计时器，避免内存溢出
             for (Disposable timer : mTimers.values()) {
@@ -3260,6 +3284,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             mTimers = null;
         }
 
+
         private synchronized void bindTimer(final String msgId, final boolean isMe, final long startTime, final long endTime) {
             try {
                 if (mTimers.containsKey(msgId)) {
@@ -3268,7 +3293,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 long nowTimeMillis = DateUtils.getSystemTime();
                 long period = 0;
                 long start = 1;
-                int COUNT = 12;
+                mTimersIndexs.put(msgId,1);
                 if (nowTimeMillis < endTime) {//当前时间还在倒计时结束前
                     long distance = startTime - nowTimeMillis;//和现在时间相差的毫秒数
                     //四舍五入
@@ -3287,6 +3312,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 @Override
                                 public void accept(Long index) throws Exception {
                                     try {
+                                        mTimersIndexs.put(msgId,index.intValue());
                                         long time = nowTimeMillis - DateUtils.getSystemTime();
                                         String name = "icon_st_" + Math.min(COUNT, index + 1);
                                         int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
@@ -3312,15 +3338,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         private void updateSurvivalTimeImage(String msgId, int id, boolean isMe) {
             if (mMsgIdPositions.containsKey(msgId)) {
                 int position = mMsgIdPositions.get(msgId);
-                ChatItemView chatItemView = ((ChatItemView) mtListView.getLayoutManager().findViewByPosition(position));
-                if (chatItemView != null) {
-                    if (isMe)
-                        chatItemView.viewMeSurvivalTime
-                                .setImageBitmap(BitmapFactory.decodeResource(context.getResources(), id));
-                    else
-                        chatItemView.viewOtSurvivalTime
-                                .setImageBitmap(BitmapFactory.decodeResource(context.getResources(), id));
-                }
+                    ChatItemView chatItemView = ((ChatItemView) mtListView.getListView().getLayoutManager().findViewByPosition(position));
+                    if (chatItemView != null) {
+                        if (isMe)
+                            chatItemView.viewMeSurvivalTime
+                                    .setImageResource(id);
+                        else
+                            chatItemView.viewOtSurvivalTime
+                                    .setImageResource(id);
+                    }
+                    Log.e("raleigh_test","chatItemView"+chatItemView );
             }
         }
 
@@ -3359,7 +3386,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
         @Override
         public int getItemCount() {
-            return msgListData == null ? 0 : msgListData.size();
+            int size=msgListData == null ? 0 : msgListData.size();
+            if(mViewModel.adapterCount.getValue()!=size){
+                mViewModel.adapterCount.setValue(size);
+            }
+            return size;
         }
 
 
@@ -3371,7 +3402,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else {
 //                LogUtil.getLog().d("sss", "onBindViewHolderpayloads: " + position);
                 final MsgAllBean msgbean = msgListData.get(position);
-                savePositions(msgbean.getMsg_id(), position);
+                savePositions(msgbean.getMsg_id(), position,msgbean.isMe(),holder.viewChatItem);
                 //菜单
                 final List<OptionMenu> menus = new ArrayList<>();
                 LogUtil.getLog().d("SurvivalTime", "单条刷新");
@@ -3480,7 +3511,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
          * @param msgId
          * @param position
          */
-        private void savePositions(String msgId, int position) {
+        private void savePositions(String msgId, int position,boolean isMe,ChatItemView chatItemView) {
             //已经有MsgId包含该位置，则删除上一个，保证唯一性，更新时
             if (mMsgIdPositions.containsValue(position)) {
                 mMsgIdPositions.remove(mPositionMsgIds.get(position));
@@ -3488,6 +3519,20 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             //mPositionMsgIds只记录，不处理
             mPositionMsgIds.put(position, msgId);
             mMsgIdPositions.put(msgId, position);
+            //及时更新阅后即焚状态
+            if(mTimersIndexs.containsKey(msgId)){
+                String name = "icon_st_" + Math.min(COUNT, mTimersIndexs.get(msgId) + 1);
+                int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
+                if (mMsgIdPositions.containsKey(msgId)) {
+                        if (isMe)
+                            chatItemView.viewMeSurvivalTime
+                                    .setImageResource(id);
+                        else
+                            chatItemView.viewOtSurvivalTime
+                                    .setImageResource(id);
+                    Log.e("raleigh_test","chatItemView"+chatItemView );
+                }
+            }
         }
 
 
@@ -3496,7 +3541,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         public void onBindViewHolder(RCViewHolder holder, final int position) {
             holder.viewChatItem.recoveryOtUnreadView();
             final MsgAllBean msgbean = msgListData.get(position);
-            savePositions(msgbean.getMsg_id(), position);
+            savePositions(msgbean.getMsg_id(), position,msgbean.isMe(),holder.viewChatItem);
             if (!isGroup()) {
                 if (msgbean.isMe()) {
                     addSurvivalTimeAndRead(msgbean);
@@ -3506,6 +3551,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else {
                 addSurvivalTime(msgbean);
             }
+
 
             //时间戳合并
             String time = null;
@@ -3600,7 +3646,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     holder.viewChatItem.setDataRead(msgbean.getSend_state(), msgbean.getReadTime());
                 }
             }
-
             if (msgbean.getSurvival_time() > 0 && msgbean.getStartTime() > 0 && msgbean.getEndTime() > 0) {
                 holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time(), false);
 //                LogUtil.getLog().i("CountDownView", msgbean.getMsg_id() + "---");
