@@ -1030,7 +1030,7 @@
                                                 android:layout_width="27dp"
                                                 android:layout_height="wrap_content"
                                                 android:layout_gravity="center"
-                                                android:background="@color/black_a_20"
+                                                android:background="@drawable/shape_image_load_bg"
                                                 android:gravity="center"
                                                 android:orientation="vertical"
                                                 android:visibility="visible">

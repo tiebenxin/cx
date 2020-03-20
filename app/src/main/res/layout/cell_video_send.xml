@@ -89,49 +89,76 @@
                     android:gravity="center">
 
                     <FrameLayout
-                        android:id="@+id/view_bubble"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
-                        android:gravity="center">
+                        android:layout_marginBottom="4dp">
+
+                        <FrameLayout
+                            android:id="@+id/view_bubble"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center">
+
+
+                            <ImageView
+                                android:id="@+id/iv_img"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:selectAllOnFocus="true"
+                                android:textColor="@color/black"
+                                android:textIsSelectable="false"
+                                android:textSize="15sp" />
+
+                            <LinearLayout
+                                android:id="@+id/ll_progress"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_gravity="center"
+                                android:background="@drawable/shape_image_load_bg"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:visibility="gone">
+
+                                <ProgressBar
+                                    android:id="@+id/progress_bar"
+                                    android:layout_width="30dp"
+                                    android:layout_height="30dp"
+                                    android:indeterminateBehavior="repeat"
+                                    android:indeterminateDrawable="@drawable/anim_load" />
+
+                                <TextView
+                                    android:id="@+id/tv_progress"
+                                    style="@style/app_txt_title_2"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0%"
+                                    android:textColor="@color/white" />
+                            </LinearLayout>
+
+                        </FrameLayout>
 
 
                         <ImageView
-                            android:id="@+id/iv_img"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:selectAllOnFocus="true"
-                            android:textColor="@color/black"
-                            android:textIsSelectable="false"
-                            android:textSize="15sp" />
-
-                        <LinearLayout
-                            android:id="@+id/ll_progress"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:id="@+id/iv_play"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
                             android:layout_gravity="center"
-                            android:background="@drawable/shape_image_load_bg"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:visibility="visible">
+                            android:background="@mipmap/video_msg_play_show"
+                            android:visibility="visible" />
 
-                            <ProgressBar
-                                android:id="@+id/progress_bar"
-                                android:layout_width="30dp"
-                                android:layout_height="30dp"
-                                android:indeterminateBehavior="repeat"
-                                android:indeterminateDrawable="@drawable/anim_load" />
-
-                            <TextView
-                                android:id="@+id/tv_progress"
-                                style="@style/app_txt_title_2"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0%"
-                                android:textColor="@color/white" />
-                        </LinearLayout>
-
+                        <TextView
+                            android:id="@+id/tv_video_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="right|bottom"
+                            android:layout_marginRight="3dp"
+                            android:layout_marginBottom="3dp"
+                            android:text="00:00"
+                            android:textColor="#fff"
+                            android:textSize="12sp"
+                            android:visibility="visible" />
                     </FrameLayout>
+
 
                     <android.support.v7.widget.AppCompatImageView
                         android:id="@+id/iv_bell"
@@ -141,6 +168,7 @@
                         android:src="@mipmap/icon_st_1"
                         android:visibility="gone" />
                 </FrameLayout>
+
             </LinearLayout>
 
         </LinearLayout>

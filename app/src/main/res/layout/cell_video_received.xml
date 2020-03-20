@@ -18,13 +18,18 @@
         android:layout_marginBottom="10dp"
         android:text="" />
 
-
     <LinearLayout
         android:id="@+id/view_root"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
         android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/iv_avatar"
+            style="@style/app_img_head"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginRight="10dp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -34,65 +39,28 @@
             <TextView
                 android:id="@+id/tv_name"
                 style="@style/app_txt_content_1"
-                android:layout_width="wrap_content"
-                android:layout_gravity="right"
+                android:layout_width="match_parent"
+                android:layout_gravity="left"
                 android:layout_marginBottom="2dp"
                 android:text="name" />
 
 
-            <LinearLayout
+            <FrameLayout
+                android:id="@+id/view_bubble_root"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/iv_error"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginRight="5dp"
-                    android:src="@mipmap/ic_net_err"
-                    android:visibility="gone" />
-
-                <LinearLayout
-                    android:id="@+id/view_read"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginRight="5dp"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:id="@+id/tv_read"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="已读"
-                        android:textColor="@color/gray_500"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/tv_read_time"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/gray_500"
-                        android:textSize="9sp"
-                        tool:text="12:20" />
-                </LinearLayout>
-
+                android:gravity="center">
 
                 <FrameLayout
-                    android:id="@+id/view_bubble_root"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center">
+                    android:layout_marginRight="4dp"
+                    android:layout_marginBottom="4dp">
 
                     <FrameLayout
                         android:id="@+id/view_bubble"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
                         android:gravity="center">
 
 
@@ -113,7 +81,7 @@
                             android:background="@drawable/shape_image_load_bg"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:visibility="visible">
+                            android:visibility="gone">
 
                             <ProgressBar
                                 android:id="@+id/progress_bar"
@@ -133,37 +101,66 @@
 
                     </FrameLayout>
 
-                    <android.support.v7.widget.AppCompatImageView
-                        android:id="@+id/iv_bell"
+
+                    <ImageView
+                        android:id="@+id/iv_play"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:background="@mipmap/video_msg_play_show"
+                        android:visibility="visible" />
+
+                    <TextView
+                        android:id="@+id/tv_video_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="right|bottom"
-                        android:src="@mipmap/icon_st_1"
-                        android:visibility="gone" />
+                        android:layout_marginRight="3dp"
+                        android:layout_marginBottom="3dp"
+                        android:text="00:00"
+                        android:textColor="#fff"
+                        android:textSize="12sp"
+                        android:visibility="visible" />
                 </FrameLayout>
-            </LinearLayout>
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/iv_bell"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right|bottom"
+                    android:src="@mipmap/icon_st_1"
+                    android:visibility="visible" />
+            </FrameLayout>
+
 
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/iv_avatar"
-            style="@style/app_img_head"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_marginLeft="10dp" />
-
-        <CheckBox
-            android:id="@+id/ck_select"
-            style="@style/app_check_green"
+        <LinearLayout
+            android:id="@+id/view_read"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerInParent="true"
-            android:layout_gravity="center"
-            android:layout_marginLeft="10dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5dp"
             android:gravity="center"
-            android:padding="5dp"
-            android:visibility="gone" />
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <TextView
+                android:id="@+id/tv_read"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="已读"
+                android:textColor="@color/gray_500"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_read_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/gray_500"
+                android:textSize="9sp"
+                tool:text="12:20" />
+        </LinearLayout>
 
     </LinearLayout>
 </LinearLayout>

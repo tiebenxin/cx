@@ -613,6 +613,13 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     layout = ChatEnum.EChatCellLayout.IMAGE_RECEIVED;
                 }
                 break;
+            case ChatEnum.EMessageType.MSG_VIDEO://视频
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.VIDEO_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.VIDEO_RECEIVED;
+                }
+                break;
             case ChatEnum.EMessageType.BUSINESS_CARD://名片
                 if (isMe) {
                     layout = ChatEnum.EChatCellLayout.CARD_SEND;
