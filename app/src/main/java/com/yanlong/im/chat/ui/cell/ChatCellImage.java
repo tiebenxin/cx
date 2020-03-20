@@ -26,7 +26,7 @@ import static android.view.View.VISIBLE;
 /*
  * 图片消息
  * */
-public class ChatCellImage extends ChatCellBase {
+public class ChatCellImage extends ChatCellFileBase {
     //w/h = 3/4
     final int DEFAULT_W = DensityUtil.dip2px(getContext(), 120);
     final int DEFAULT_H = DensityUtil.dip2px(getContext(), 180);
@@ -35,9 +35,9 @@ public class ChatCellImage extends ChatCellBase {
 
     private ImageView imageView;
     private ImageMessage imageMessage;
-    private ProgressBar progressBar;
-    private TextView tv_progress;
-    private LinearLayout ll_progress;
+//    private ProgressBar progressBar;
+//    private TextView tv_progress;
+//    private LinearLayout ll_progress;
 
     protected ChatCellImage(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
@@ -48,9 +48,9 @@ public class ChatCellImage extends ChatCellBase {
     protected void initView() {
         super.initView();
         imageView = getView().findViewById(R.id.iv_img);
-        ll_progress = getView().findViewById(R.id.ll_progress);
-        progressBar = getView().findViewById(R.id.progress_bar);
-        tv_progress = getView().findViewById(R.id.tv_progress);
+//        ll_progress = getView().findViewById(R.id.ll_progress);
+//        progressBar = getView().findViewById(R.id.progress_bar);
+//        tv_progress = getView().findViewById(R.id.tv_progress);
     }
 
     @SuppressLint("CheckResult")
@@ -97,9 +97,9 @@ public class ChatCellImage extends ChatCellBase {
 
     }
 
-    private void glide(RequestOptions rOptions, String gif) {
+    public void glide(RequestOptions rOptions, String url) {
         Glide.with(getContext())
-                .load(gif)
+                .load(url)
                 .apply(rOptions)
 //                    .thumbnail(0.2f)
                 .into(imageView);
@@ -161,41 +161,33 @@ public class ChatCellImage extends ChatCellBase {
         }
     }
 
-    private void checkSendStatus() {
+    public void checkSendStatus() {
         if (ll_progress == null) {
             return;
         }
         setSendStatus(false);
         switch (model.getSend_state()) {
             case ChatEnum.ESendStatus.ERROR:
+            case ChatEnum.ESendStatus.NORMAL:
                 ll_progress.setVisibility(View.GONE);
                 break;
             case ChatEnum.ESendStatus.PRE_SEND:
-                ll_progress.setVisibility(VISIBLE);
-                break;
-            case ChatEnum.ESendStatus.NORMAL:
-                ll_progress.setVisibility(View.GONE);
-
-                break;
             case ChatEnum.ESendStatus.SENDING:
                 ll_progress.setVisibility(VISIBLE);
                 break;
+
         }
     }
 
-    public void updateProgress(@ChatEnum.ESendStatus int status, int progress) {
-        loadImage(model);
-//        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "发送状态=" + status + "--发送进度=" + progress);
-        if (ll_progress != null && progressBar != null && tv_progress != null) {
-            checkSendStatus();
-            if (progress > 0 && progress < 100) {
-                ll_progress.setVisibility(View.VISIBLE);
-//                setSendStatus();
-//                tv_progress.setVisibility(VISIBLE);
-                tv_progress.setText(progress + "%");
-            } else {
-                ll_progress.setVisibility(View.GONE);
-            }
-        }
-    }
+//    public void updateProgress(@ChatEnum.ESendStatus int status, int progress) {
+//        if (ll_progress != null && progressBar != null && tv_progress != null) {
+//            checkSendStatus();
+//            if (progress > 0 && progress < 100) {
+//                ll_progress.setVisibility(View.VISIBLE);
+//                tv_progress.setText(progress + "%");
+//            } else {
+//                ll_progress.setVisibility(View.GONE);
+//            }
+//        }
+//    }
 }

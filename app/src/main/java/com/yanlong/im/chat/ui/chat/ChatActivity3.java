@@ -651,7 +651,10 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     @Override
     public void onEvent(int type, MsgAllBean message, Object... args) {
         switch (type) {
-//            case ChatEnum.ECellEventType.
+            case ChatEnum.ECellEventType.AVATAR_CLICK:
+                break;
+            case ChatEnum.ECellEventType.AVATAR_LONG_CLICK:
+                break;
         }
 
     }

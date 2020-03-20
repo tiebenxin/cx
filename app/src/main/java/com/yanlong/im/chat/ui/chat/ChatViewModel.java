@@ -1,6 +1,5 @@
 package com.yanlong.im.chat.ui.chat;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
@@ -13,12 +12,16 @@ public class ChatViewModel extends ViewModel {
     public MutableLiveData<Boolean> isOpenFuction = new MutableLiveData<>();
     //是否打开了点击说话
     public MutableLiveData<Boolean> isOpenSpeak = new MutableLiveData<>();
+
+    //列表数据数量
+    public MutableLiveData<Integer> adapterCount = new MutableLiveData<>();
     public ChatViewModel(){
         //主线程使用setValue,子线程使用postValue赋值
         isInputText.setValue(false);
         isOpenEmoj.setValue(false);
         isOpenFuction.setValue(false);
         isOpenSpeak.setValue(false);
+        adapterCount.setValue(0);
     }
 
     /**
