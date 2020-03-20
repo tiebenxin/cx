@@ -27,7 +27,7 @@ public interface ChatView extends IView {
 
     void notifyDataAndScrollBottom(boolean isScrollBottom);
 
-    void bindData(List<MsgAllBean> l);
+    void bindData(List<MsgAllBean> l,boolean isMore);
 
     void scrollToPositionWithOff(int position, int offset);
 

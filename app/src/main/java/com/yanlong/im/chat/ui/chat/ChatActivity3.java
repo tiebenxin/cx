@@ -2,7 +2,6 @@ package com.yanlong.im.chat.ui.chat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -110,6 +109,9 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     }
 
     private void initEvent() {
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         presenter.registerIMListener();
     }
 
@@ -129,6 +131,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         super.onResume();
         //激活当前会话
         setCurrentSession();
+        sendRead();
     }
 
     @Override
@@ -410,7 +413,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
                 VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
                 MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgId(), uid, gid, SocketData.getFixTime(), voice, ChatEnum.EMessageType.VOICE);
                 model.getListData().add(msg);
-                ((Activity) context).runOnUiThread(new Runnable() {
+                ChatActivity3.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         notifyAndScrollBottom();
@@ -423,7 +426,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         ui.viewRefresh.setOnRefreshListener(new NewPullRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                presenter.loadAndSetMoreData();
+                presenter.loadAndSetMoreData(false);
                 ui.viewRefresh.setRefreshing(false);
             }
         });
@@ -657,7 +660,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     public void setAndRefreshData(List<MsgAllBean> l) {
         adapter.bindData(l, false);
         ui.recyclerView.scrollToPosition(adapter.getItemCount() - 1);
-
+        sendRead();
     }
 
     /*
@@ -711,9 +714,9 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     }
 
     @Override
-    public void bindData(List<MsgAllBean> l) {
+    public void bindData(List<MsgAllBean> l, boolean isMore) {
         if (adapter != null) {
-            adapter.bindData(l, true);
+            adapter.bindData(l, isMore);
         }
     }
 
@@ -947,4 +950,19 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         super.onActivityResult(requestCode, resultCode, data);
         presenter.onActivityResult(requestCode, resultCode, data);
     }
+
+    public void sendRead() {
+        //发送已读回执
+        if (TextUtils.isEmpty(model.getGid())) {
+            MsgAllBean bean = model.getLastMsgFromUid();
+            if (bean != null) {
+                if (bean.getRead() == 0) {
+                    SocketData.send4Read(model.getUid(), bean.getTimestamp());
+                    model.updateRead(bean.getMsg_id());
+                }
+            }
+        }
+    }
+
+
 }

@@ -21,6 +21,7 @@ import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.TimeToString;
 
 import java.util.ArrayList;
@@ -59,6 +60,9 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     private CheckBox ckSelect;
     private AppCompatImageView ivBell;
     private int newMsgPosition;
+    private View viewRead;
+    private TextView tvRead;
+    private TextView tvReadTime;
 
     protected ChatCellBase(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(view);
@@ -114,9 +118,13 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         iv_avatar = viewRoot.findViewById(R.id.iv_avatar);
         tv_name = viewRoot.findViewById(R.id.tv_name);
         iv_error = viewRoot.findViewById(R.id.iv_error);
-        bubbleLayout = viewRoot.findViewById(R.id.ll_bubble);
+        bubbleLayout = viewRoot.findViewById(R.id.view_bubble);
         ckSelect = viewRoot.findViewById(R.id.ck_select);
         ivBell = viewRoot.findViewById(R.id.iv_bell);
+
+        viewRead = viewRoot.findViewById(R.id.view_read);
+        tvRead = viewRoot.findViewById(R.id.tv_read);
+        tvReadTime = viewRoot.findViewById(R.id.tv_read_time);
 
     }
 
@@ -154,7 +162,9 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         initMenu();
         setCheckView();
         initBell();
+        initRead();
     }
+
 
     private void initMenu() {
         menus = new ArrayList<>();
@@ -352,6 +362,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
 
     }
 
+    //设置阅后即焚时钟UI
     private void setBellUI(int type, boolean isRecovery, boolean isMe) {
         if (ivBell == null) {
             return;
@@ -387,15 +398,30 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         }
         if (mAdapter.isShowCheckBox()) {
             ckSelect.setVisibility(VISIBLE);
-
         } else {
-            ckSelect.setVisibility(View.INVISIBLE);
+            ckSelect.setVisibility(View.GONE);
         }
     }
 
     private void setNewMsgPostion(int position) {
         newMsgPosition = position;
 
+    }
+
+    //初始化已读及已读时间
+    private void initRead() {
+        if (viewRead == null) {
+            return;
+        }
+        if (isMe && model.getSend_state() == ChatEnum.ESendStatus.NORMAL && model.getRead() == 1 && model.getReadTime() > 0) {
+            LogUtil.getLog().i("ChatCellBase", "显示已读 msgId--" + model.getMsg_id());
+            viewRead.setVisibility(VISIBLE);
+            tvRead.setText("已读");
+            tvReadTime.setText(TimeToString.HH_MM(model.getReadTime()));
+        } else {
+            LogUtil.getLog().i("ChatCellBase", "隐藏已读 msgId--" + model.getMsg_id());
+            viewRead.setVisibility(View.GONE);
+        }
     }
 
 }

@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.text.Spannable;
@@ -55,10 +56,12 @@ import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.tools.DateUtils;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
@@ -93,6 +96,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
+import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
@@ -114,6 +118,7 @@ import net.cb.cb.library.base.DBOptionObserver;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFindHistory;
 import net.cb.cb.library.bean.EventRefreshChat;
+import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.bean.ReturnBean;
@@ -291,7 +296,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
         observable.subscribe(new DBOptionObserver<List<MsgAllBean>>() {
             @Override
             public void onOptionSuccess(List<MsgAllBean> list) {
-                getView().bindData(list);
+                getView().bindData(list, true);
                 getView().scrollToPositionWithOff(0, 0);
             }
         });
@@ -687,7 +692,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
     }
 
 
-    public void loadAndSetMoreData() {
+    public void loadAndSetMoreData(boolean isMore) {
         final int position = model.getTotalSize();
         Observable<List<MsgAllBean>> observable = model.loadMoreMessages();
         observable.compose(RxSchedulers.<List<MsgAllBean>>compose())
@@ -695,7 +700,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                 .subscribe(new DBOptionObserver<List<MsgAllBean>>() {
                     @Override
                     public void onOptionSuccess(List<MsgAllBean> list) {
-                        getView().bindData(list);
+                        getView().bindData(list, isMore);
                         getView().scrollToPositionWithOff(list.size() - position, DensityUtil.dip2px(context, 20f));
                     }
                 });
@@ -2043,5 +2048,113 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
         }
         return hasChange;
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void doAckEvent(AckEvent event) {
+        Object data = event.getData();
+        if (data instanceof MsgAllBean) {
+            LogUtil.getLog().i(TAG, "收到回执--MsgAllBean");
+            MsgAllBean msgAllBean = (MsgAllBean) data;
+            fixSendTime(msgAllBean.getMsg_id());
+            getView().replaceListDataAndNotify(msgAllBean);
+        } else if (data instanceof MsgBean.AckMessage) {
+            LogUtil.getLog().i(TAG, "收到回执--AckMessage");
+            MsgBean.AckMessage bean = (MsgBean.AckMessage) data;
+            if (bean.getMsgIdList() != null && bean.getMsgIdList().size() > 0) {
+                fixSendTime(bean.getMsgId(0));
+            }
+            //群聊自己发送的消息直接加入阅后即焚队列
+            MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsgId(0));
+            if (model.isGroup()) {
+                addSurvivalTime(msgAllBean);
+            }
+            if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
+                loadAndSetMoreData(false);
+            } else {
+                if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
+                    for (String msgid : bean.getMsgIdList()) {
+                        //撤回消息不做刷新
+                        if (ChatServer.getCancelList().containsKey(msgid)) {
+                            LogUtil.getLog().i(TAG, "onACK: 收到取消回执,等待刷新列表2");
+                            return;
+                        }
+                    }
+                }
+                loadAndSetMoreData(false);
+            }
+        }
+        //是否是长文本消息
+        if (isSendingHypertext) {
+            if (sendTexts != null && sendTexts.size() > 0 && textPosition != sendTexts.size() - 1) {
+                sendHypertext(sendTexts, textPosition + 1);
+            }
+        }
+    }
+
+    /**
+     * 添加阅读即焚消息到队列
+     */
+    public void addSurvivalTime(MsgAllBean msgBean) {
+        if (msgBean == null || BurnManager.getInstance().isContainMsg(msgBean) || msgBean.getSend_state() != ChatEnum.ESendStatus.NORMAL) {
+            return;
+        }
+        if (msgBean.getSurvival_time() > 0 && msgBean.getEndTime() == 0) {
+            long date = DateUtils.getSystemTime();
+            msgDao.setMsgEndTime((date + msgBean.getSurvival_time() * 1000), date, msgBean.getMsg_id());
+            msgBean.setEndTime(date + msgBean.getSurvival_time() * 1000);
+            msgBean.setStartTime(date);
+            EventBus.getDefault().post(new EventSurvivalTimeAdd(msgBean, null));
+            LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间1----> end:" + (date + msgBean.getSurvival_time() * 1000) + "---msgid:" + msgBean.getMsg_id());
+        }
+    }
+
+    public void addSurvivalTimeAndRead(MsgAllBean msgBean) {
+        if (msgBean == null || BurnManager.getInstance().isContainMsg(msgBean) || msgBean.getSend_state() != ChatEnum.ESendStatus.NORMAL) {
+            return;
+        }
+        if (msgBean.getSurvival_time() > 0 && msgBean.getEndTime() == 0 && msgBean.getRead() == 1) {
+            long date = DateUtils.getSystemTime();
+            msgDao.setMsgEndTime((date + msgBean.getSurvival_time() * 1000), date, msgBean.getMsg_id());
+            msgBean.setEndTime(date + msgBean.getSurvival_time() * 1000);
+            msgBean.setStartTime(date);
+            EventBus.getDefault().post(new EventSurvivalTimeAdd(msgBean, null));
+            LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间2----> end:" + (date + msgBean.getSurvival_time() * 1000) + "---msgid:" + msgBean.getMsg_id());
+        }
+    }
+
+
+    public void addSurvivalTimeForList(List<MsgAllBean> list) {
+        if (list == null && list.size() == 0) {
+            return;
+        }
+        for (int i = 0; i < list.size(); i++) {
+            MsgAllBean msgbean = list.get(i);
+            if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0) {
+                long date = DateUtils.getSystemTime();
+                msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000), date, msgbean.getMsg_id());
+                msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
+                msgbean.setStartTime(date);
+                LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间3----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
+            }
+        }
+        EventBus.getDefault().post(new EventSurvivalTimeAdd(null, list));
+    }
+
+    //更新图片，视频，文件上传过程刷新
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventUploadImage(EventUpImgLoadEvent event) {
+        if (event.getState() == 0) {
+//            taskRefreshImage(event.getMsgid());
+        } else if (event.getState() == -1) {
+            //处理失败的情况
+            MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
+            getView().replaceListDataAndNotify(msgAllbean);
+        } else if (event.getState() == 1) {
+            MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
+            SocketData.sendAndSaveMessage(msgAllbean);
+            getView().replaceListDataAndNotify(msgAllbean);
+        }
+    }
+
 
 }

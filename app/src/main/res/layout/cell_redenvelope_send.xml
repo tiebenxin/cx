@@ -55,7 +55,7 @@
                     android:visibility="gone" />
 
                 <LinearLayout
-                    android:id="@+id/ll_bubble"
+                    android:id="@+id/view_bubble"
                     android:layout_width="230dp"
                     android:layout_height="90dp"
                     android:background="@drawable/bg_chat_me_rp"

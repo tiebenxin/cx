@@ -2,26 +2,32 @@ package com.yanlong.im.chat.ui.cell;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
+import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.example.nim_lib.util.ScreenUtil;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VoiceMessage;
-import com.yanlong.im.chat.ui.view.VoiceView;
-import com.yanlong.im.utils.audio.AudioPlayManager;
+
+import net.cb.cb.library.utils.DensityUtil;
+
+import static android.view.View.VISIBLE;
 
 /*
  * 语音
  * */
 public class ChatCellVoice extends ChatCellBase {
 
-    private VoiceView v_voice;
     private VoiceMessage voiceMessage;
     private Uri uri;
+    private ImageView ivVoice;
+    private TextView tvTime;
+    private ImageView ivStatus;
 
     protected ChatCellVoice(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
@@ -30,7 +36,9 @@ public class ChatCellVoice extends ChatCellBase {
     @Override
     protected void initView() {
         super.initView();
-        v_voice = getView().findViewById(R.id.v_voice);
+        ivVoice = getView().findViewById(R.id.iv_voice);
+        tvTime = getView().findViewById(R.id.tv_voice_time);
+        ivStatus = getView().findViewById(R.id.iv_voice_status);
     }
 
     @Override
@@ -38,8 +46,8 @@ public class ChatCellVoice extends ChatCellBase {
         super.showMessage(message);
         voiceMessage = message.getVoiceMessage();
         if (voiceMessage != null) {
-            uri = Uri.parse(voiceMessage.getUrl());
-            v_voice.init(message.isMe(), voiceMessage.getTime(), message.isRead(), AudioPlayManager.getInstance().isPlay(uri), voiceMessage.getPlayStatus());
+            updateBubbleWidth(voiceMessage.getTime());
+            initTime(voiceMessage.getTime());
         }
     }
 
@@ -49,24 +57,41 @@ public class ChatCellVoice extends ChatCellBase {
         if (mCellListener != null) {
             mCellListener.onEvent(ChatEnum.ECellEventType.VOICE_CLICK, model, voiceMessage, currentPosition);
         }
-
-    }
-
-    private void updateRead() {
-        //设置为已读
-        if (model.isRead() == false) {
-            MsgAction action = new MsgAction();
-            action.msgRead(model.getMsg_id(), true);
-            model.setRead(true);
-            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri), voiceMessage.getPlayStatus());
-        }
     }
 
     void updateVoice() {
         voiceMessage = model.getVoiceMessage();
         if (voiceMessage != null) {
             uri = Uri.parse(voiceMessage.getUrl());
-            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri), voiceMessage.getPlayStatus());
+//            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri), voiceMessage.getPlayStatus());
         }
+    }
+
+    private void initTime(int len) {
+        if (len > 0) {
+            tvTime.setVisibility(VISIBLE);
+            tvTime.setText(len + "''");
+        }
+    }
+
+
+    private void updateBubbleWidth(int len) {
+        if (bubbleLayout == null) {
+            return;
+        }
+        if (len > 0) {
+            int s = len > 60 ? 60 : len;
+            int wsum = getScreenWidth() - DensityUtil.dip2px(getContext(), 74) * 2;//-DensityUtil.dip2px(getContext(),35);
+            float x = DensityUtil.dip2px(getContext(), 94);//viewOtP.getX();//原始值60
+            int w = new Float((wsum - x) / 60 * (s)).intValue();
+            bubbleLayout.setMinimumWidth(w);
+        }
+    }
+
+    private int getScreenWidth() {
+        WindowManager windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+        return displayMetrics.widthPixels;
     }
 }

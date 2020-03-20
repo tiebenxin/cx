@@ -350,7 +350,7 @@ public class ChatModel implements IModel {
                 list.add(createItemMode("群助手", R.mipmap.ic_chat_robot, ChatEnum.EFunctionId.GROUP_ASSISTANT));
             }
         }
-//        list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
+        list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
         return list;
     }
 
@@ -394,6 +394,20 @@ public class ChatModel implements IModel {
 
     final String getDraft() {
         return draft;
+    }
+
+    //获取当前聊天最新一条消息
+    final MsgAllBean getLastMsgFromUid() {
+        if (uid > 0) {
+            return msgDao.msgGetLast4FromUid(uid);
+        }
+        return null;
+    }
+
+    //更新已读状态
+    final void updateRead(String msgId) {
+        msgDao.setRead(msgId);
+
     }
 
 

@@ -17,9 +17,9 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.ui.RoundTransform;
 
 import net.cb.cb.library.utils.DensityUtil;
-import net.cb.cb.library.utils.LogUtil;
 
 import static android.view.View.VISIBLE;
 
@@ -28,7 +28,7 @@ import static android.view.View.VISIBLE;
  * */
 public class ChatCellImage extends ChatCellBase {
     //w/h = 3/4
-    final int DEFAULT_W = DensityUtil.dip2px(getContext(), 135);
+    final int DEFAULT_W = DensityUtil.dip2px(getContext(), 120);
     final int DEFAULT_H = DensityUtil.dip2px(getContext(), 180);
     int width = DEFAULT_W;
     int height = DEFAULT_H;
@@ -68,7 +68,8 @@ public class ChatCellImage extends ChatCellBase {
         String thumbnail = imageMessage.getThumbnailShow();
         resetSize();
         checkSendStatus();
-        RequestOptions rOptions = new RequestOptions();
+        //获取圆角
+        RequestOptions rOptions = new RequestOptions().centerCrop().transform(new RoundTransform(mContext, 10));
         rOptions.override(width, height);
         String tag = (String) imageView.getTag(R.id.tag_img);
         if (isGif(thumbnail)) {
