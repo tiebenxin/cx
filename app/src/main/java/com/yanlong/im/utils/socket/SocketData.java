@@ -780,8 +780,19 @@ public class SocketData {
         return videoMessage;
     }
 
+    /**
+     * 创建消息
+     * @param msgId     消息id
+     * @param filePath  文件路径
+     * @param url       文件上传后的url
+     * @param fileName  文件名
+     * @param size      文件大小
+     * @param format    文件后缀
+     * @param isFromOther   是否为转发
+     * @return
+     */
     @NonNull
-    public static SendFileMessage createFileMessage(String msgId, String filePath, String url, String fileName, long size, String format) {
+    public static SendFileMessage createFileMessage(String msgId, String filePath, String url, String fileName, long size, String format, boolean isFromOther) {
         SendFileMessage fileMessage = new SendFileMessage();
         fileMessage.setMsgId(msgId);
         fileMessage.setLocalPath(filePath);
@@ -789,6 +800,7 @@ public class SocketData {
         fileMessage.setSize(size);
         fileMessage.setFormat(format);
         fileMessage.setUrl(url);//默认url为空，上传成功后拥有下载地址
+        fileMessage.setFromOther(isFromOther);
         return fileMessage;
     }
 

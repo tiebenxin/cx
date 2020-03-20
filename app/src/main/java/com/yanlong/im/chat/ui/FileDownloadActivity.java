@@ -12,6 +12,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -47,6 +48,8 @@ public class FileDownloadActivity extends AppActivity {
     private String fileName ="";//文件名
     private String fileUrl ="";//文件url
     private Activity activity;//当前活动实例
+
+    private int downloadStatus = 0; //0 下载中 1 下载完成 2 下载失败
 
 
     @Override
@@ -99,18 +102,20 @@ public class FileDownloadActivity extends AppActivity {
                         @Override
                         public void onDownloadSuccess(File file) {
                             ToastUtil.showLong(activity,"下载成功! \n文件已保存："+FileConfig.PATH_DOWNLOAD+"目录下");
-                            tvDownload.setText("下载完成 100%");
-                            //如果用户退出当前界面，则只提示已经完成；若仍在当前界面，则打开文件
-                            if(activity==null || activity.isFinishing()){
-                            }else {
-                                openAndroidFile(FileConfig.PATH_DOWNLOAD+fileName);
-                            }
+                            tvDownload.setText("打开文件");
+                            downloadStatus = 1;
+//                            //如果用户退出当前界面，则只提示已经完成；若仍在当前界面，则打开文件
+//                            if(activity==null || activity.isFinishing()){
+//                            }else {
+//                                openAndroidFile(FileConfig.PATH_DOWNLOAD+fileName);
+//                            }
                         }
 
                         @Override
                         public void onDownloading(int progress) {
                             LogUtil.getLog().i("DownloadUtil", "progress:" + progress);
                             tvDownload.setText("下载中 "+progress+"%");
+                            downloadStatus = 0;
 
                         }
 
@@ -119,6 +124,7 @@ public class FileDownloadActivity extends AppActivity {
                             ToastUtil.show("文件下载失败");
                             tvDownload.setText("下载失败");
                             LogUtil.getLog().i("DownloadUtil", "Exception下载失败:" + e.getMessage());
+                            downloadStatus = 2;
                         }
                     });
 
@@ -126,8 +132,18 @@ public class FileDownloadActivity extends AppActivity {
                     ToastUtil.show("文件下载失败");
                     tvDownload.setText("下载失败");
                     LogUtil.getLog().i("DownloadUtil", "Exception:" + e.getMessage());
+                    downloadStatus = 2;
                 }
             }
+
+            tvDownload.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(downloadStatus == 1){
+                        openAndroidFile(FileConfig.PATH_DOWNLOAD+fileName);
+                    }
+                }
+            });
         }
     }
 

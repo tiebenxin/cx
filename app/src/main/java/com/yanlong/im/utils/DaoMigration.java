@@ -110,6 +110,10 @@ public class DaoMigration implements RealmMigration {
                 updateV22(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 22) {
+                updateV23(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -425,6 +429,10 @@ public class DaoMigration implements RealmMigration {
 
         schema.get("MsgAllBean")
                 .addRealmObjectField("webMessage", schema.get("WebMessage"));
+    }
+    private void updateV23(RealmSchema schema) {
+        schema.get("SendFileMessage")
+                .addField("isFromOther", boolean.class);
     }
 
 

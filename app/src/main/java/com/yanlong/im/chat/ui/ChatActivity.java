@@ -126,6 +126,7 @@ import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
+import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.UserSeting;
@@ -142,6 +143,7 @@ import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
 import com.yanlong.im.chat.ui.chat.ChatViewModel;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
+import com.yanlong.im.chat.ui.groupmanager.GroupMemPowerSetActivity;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.chat.ui.view.ControllerLinearList;
 import com.yanlong.im.location.LocationActivity;
@@ -332,6 +334,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private String draft;
     private int isFirst;
     private UserInfo mFinfo;// 聊天用户信息，刷新时更新
+    private SingleMeberInfoBean singleMeberInfoBean;// 单个群成员信息，主要查看是否被单人禁言
 
     // 气泡视图
     private PopupWindow mPopupWindow;// 长按消息弹出气泡PopupWindow
@@ -2792,7 +2795,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 //                                msgListData.add(imgMsgBean);
                             } else {
                                 //创建文件消息，本地预先准备好这条文件消息，等文件上传成功后刷新
-                                SendFileMessage fileMessage = SocketData.createFileMessage(fileMsgId, filePath, "", fileName, new Double(fileSize).longValue(), fileFormat);
+                                SendFileMessage fileMessage = SocketData.createFileMessage(fileMsgId, filePath, "", fileName, new Double(fileSize).longValue(), fileFormat,false);
                                 fileMsgBean = sendMessage(fileMessage, ChatEnum.EMessageType.FILE, false);
 //                                fileMsgBean = SocketData.sendFileUploadMessagePre(fileMsgId, toUId, toGid, SocketData.getFixTime(), fileMessage, ChatEnum.EMessageType.FILE);
                                 // 若不为常信小助手，消息需要上传到服务端
@@ -3194,21 +3197,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (!checkNetConnectStatus()) {
                     return;
                 }
-                //文件仍然存在，则重发
-                if (net.cb.cb.library.utils.FileUtils.fileIsExist(reMsg.getSendFileMessage().getLocalPath())) {
-                    SendFileMessage fileMessage = SocketData.createFileMessage(reMsg.getMsg_id(), reMsg.getSendFileMessage().getLocalPath(), reMsg.getSendFileMessage().getUrl(), reMsg.getSendFileMessage().getFile_name(), reMsg.getSendFileMessage().getSize(), reMsg.getSendFileMessage().getFormat());
-                    MsgAllBean fileMsgBean = sendMessageFromResend(fileMessage, ChatEnum.EMessageType.FILE, false);
-//                    replaceListDataAndNotify(fileMsgBean);
-                    // 若不为常信小助手，消息需要上传到服务端
-                    if (!Constants.CX_HELPER_UID.equals(toUId)) {
-                        UpLoadService.onAddFile(this.context, fileMsgBean);
-                        startService(new Intent(getContext(), UpLoadService.class));
-                    } else {
-                        //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
-                        msgDao.fixStataMsg(reMsg.getMsg_id(), ChatEnum.ESendStatus.NORMAL);
-                    }
-                } else {
-                    ToastUtil.show("文件不存在或已被删除");
+                //群文件重发，判断是否被禁言
+                if(isGroup()){
+                    getSingleMemberInfo(reMsg);
+                }else {
+                    resendFileMsg(reMsg);
                 }
             } else {
                 //点击发送的时候如果要改变成发送中的状态
@@ -4061,17 +4054,35 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     holder.viewChatItem.setDataFile(fileMessage, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            //如果是我发的文件
+                            //1 如果是我发的文件
                             if (msgbean.isMe()) {
-                                //若文件仍然存在，则直接打开；否则提示文件不存在
-                                if (net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getLocalPath())) {
-                                    openAndroidFile(fileMessage.getLocalPath());
-                                } else {
-                                    ToastUtil.show("文件不存在或者已被删除");
+                                //2 判断是否为转发
+                                //若是转发他人，则需要先从下载路径里找，有则直接打开，没有则需要下载
+                                if(fileMessage.isFromOther()){
+                                    if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name())) {
+                                        openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
+                                    } else {
+                                        if (!TextUtils.isEmpty(fileMessage.getUrl())) {
+                                            Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
+                                            intent.putExtra("file_name", fileMessage.getFile_name());
+                                            intent.putExtra("file_format", fileMessage.getFormat());
+                                            intent.putExtra("file_url", fileMessage.getUrl());
+                                            startActivity(intent);
+                                        } else {
+                                            ToastUtil.show("文件下载地址错误，请联系客服");
+                                        }
+                                    }
+                                }else {
+                                    //若自己转发自己，则为本地文件，从本地路径里找，有则打开，没有提示文件已被删除
+                                    if (net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getLocalPath())) {
+                                        openAndroidFile(fileMessage.getLocalPath());
+                                    } else {
+                                        ToastUtil.show("文件不存在或者已被删除");
+                                    }
                                 }
                             } else {
                                 //如果是别人发的文件
-                                //如果下载路径存在该文件，则直接打开；否则需要下载
+                                //从下载路径里找，若存在该文件，则直接打开；否则需要下载
                                 if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name())) {
                                     openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
                                 } else {
@@ -6252,4 +6263,64 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
+    /**
+     * 获取单个群成员信息
+     */
+    private void getSingleMemberInfo(MsgAllBean reMsg) {
+        new UserAction().getSingleMemberInfo(toGid, Integer.parseInt(UserAction.getMyId() + ""), new CallBack<ReturnBean<SingleMeberInfoBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<SingleMeberInfoBean>> call, Response<ReturnBean<SingleMeberInfoBean>> response) {
+                super.onResponse(call, response);
+                if (response != null && response.body() != null && response.body().isOk()) {
+                    singleMeberInfoBean = response.body().getData();
+                    //1 是否被单人禁言
+                    if(singleMeberInfoBean.getShutUpDuration()==0){
+                        //2 该群是否全员禁言
+                        if(groupInfo.getWordsNotAllowed()==0){
+                            resendFileMsg(reMsg);
+                        }else {
+                            ToastUtil.showCenter(ChatActivity.this, "本群全员禁言中");
+                        }
+                    }else {
+                        ToastUtil.showCenter(ChatActivity.this, "你已被禁言，暂时无法发送文件");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<SingleMeberInfoBean>> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show(ChatActivity.this, t.getMessage());
+                //2 该群是否全员禁言
+                if(groupInfo.getWordsNotAllowed()==0){
+                    toSelectFile();
+                }else {
+                    ToastUtil.show("全员禁言中，无法发送文件消息!");
+                }
+            }
+        });
+    }
+
+    /**
+     * 发送文件
+     * @param reMsg
+     */
+    private void resendFileMsg(MsgAllBean reMsg){
+        //文件仍然存在，则重发
+        if (net.cb.cb.library.utils.FileUtils.fileIsExist(reMsg.getSendFileMessage().getLocalPath())) {
+            SendFileMessage fileMessage = SocketData.createFileMessage(reMsg.getMsg_id(), reMsg.getSendFileMessage().getLocalPath(), reMsg.getSendFileMessage().getUrl(), reMsg.getSendFileMessage().getFile_name(), reMsg.getSendFileMessage().getSize(), reMsg.getSendFileMessage().getFormat(),false);
+            MsgAllBean fileMsgBean = sendMessageFromResend(fileMessage, ChatEnum.EMessageType.FILE, false);
+            replaceListDataAndNotify(fileMsgBean);
+            // 若不为常信小助手，消息需要上传到服务端
+            if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                UpLoadService.onAddFile(this.context, fileMsgBean);
+                startService(new Intent(getContext(), UpLoadService.class));
+            } else {
+                //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
+                msgDao.fixStataMsg(reMsg.getMsg_id(), ChatEnum.ESendStatus.NORMAL);
+            }
+        } else {
+            ToastUtil.show("文件不存在或已被删除");
+        }
+    }
 }
