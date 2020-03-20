@@ -1879,6 +1879,29 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         return msgAllBean;
     }
 
+    //消息发送，canSend--是否需要发送，图片，视频，语音，文件等
+    private MsgAllBean sendMessageFromResend(IMsgContent message, @ChatEnum.EMessageType int msgType, boolean canSend) {
+        int sendStatus = ChatEnum.ESendStatus.NORMAL;
+        if (TextUtils.isEmpty(toGid) && toUId != null && Constants.CX_HELPER_UID.equals(toUId)) {//常信小助手
+            sendStatus = ChatEnum.ESendStatus.NORMAL;
+        } else {
+            if (isUploadType(msgType)) {
+                sendStatus = ChatEnum.ESendStatus.PRE_SEND;
+            }
+        }
+        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, sendStatus, SocketData.getFixTime(), message);
+        if (msgAllBean != null && canSend) {
+            SocketData.sendAndSaveMessage(msgAllBean, canSend);
+            replaceListDataAndNotify(msgAllBean);
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
+        } else {
+            SocketData.saveMessage(msgAllBean);
+            replaceListDataAndNotify(msgAllBean);
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
+        }
+        return msgAllBean;
+    }
+
     //是否是需要上传的消息类型：图片，语音，视频，文件等
     private boolean isUploadType(int msgType) {
         if (msgType == ChatEnum.EMessageType.IMAGE || msgType == ChatEnum.EMessageType.VOICE || msgType == ChatEnum.EMessageType.MSG_VIDEO || msgType == ChatEnum.EMessageType.FILE) {
@@ -2849,13 +2872,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskUpImgEvevt(EventUpImgLoadEvent event) {
-//        LogUtil.getLog().d("tag", "taskUpImgEvevt state: ===============>" + event.getState() + "--msgId==" + event.getMsgid() );
         if (event.getState() == 0) {
-            // LogUtil.getLog().d("tag", "taskUpImgEvevt 0: ===============>"+event.getMsgId());
             taskRefreshImage(event.getMsgid());
         } else if (event.getState() == -1) {
             //处理失败的情况
-//            LogUtil.getLog().d("tag", "taskUpImgEvevt -1: ===============>" + event.getMsgId());
             if (!isFinishing()) {
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -2871,7 +2891,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             SocketData.sendAndSaveMessage(msgAllbean);
             replaceListDataAndNotify(msgAllbean);
         } else {
-            //  LogUtil.getLog().d("tag", "taskUpImgEvevt 2: ===============>"+event.getMsgId());
         }
     }
 
@@ -3118,10 +3137,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (!TextUtils.isEmpty(file)) {
                     boolean isArtworkMaster = StringUtil.isNotNull(reMsg.getImage().getOrigin()) ? true : false;
                     ImageMessage image = SocketData.createImageMessage(reMsg.getMsg_id(), file, isArtworkMaster);
-//                    MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
-//                    replaceListDataAndNotify(imgMsgBean);
-//                    UpLoadService.onAddImage(reMsg.getMsg_id(), file, isArtworkMaster, toUId, toGid, reMsg.getTimestamp());
-                    MsgAllBean imgMsgBean = sendMessage(image, ChatEnum.EMessageType.IMAGE, false);
+                    MsgAllBean imgMsgBean = sendMessageFromResend(image, ChatEnum.EMessageType.IMAGE, false);
                     UpLoadService.onAddImage(imgMsgBean, file, isArtworkMaster);
                     startService(new Intent(getContext(), UpLoadService.class));
                 } else {
@@ -3155,10 +3171,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     VideoMessage videoMessage = reMsg.getVideoMessage();
                     LogUtil.getLog().e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
                     VideoMessage videoMessageSD = SocketData.createVideoMessage(reMsg.getMsg_id(), "file://" + url, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), url);
-                    MsgAllBean msgAllBean = sendMessage(videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO, false);
-//                    MsgAllBean imgMsgBeanReSend = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
-                    replaceListDataAndNotify(msgAllBean);
-
+                    MsgAllBean msgAllBean = sendMessageFromResend(videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO, false);
+//                    replaceListDataAndNotify(msgAllBean);
                     if (!TextUtils.isEmpty(videoMessage.getBg_url())) {
                         // 当预览图清空掉时重新获取
                         File file = new File(videoMessage.getBg_url());
@@ -3166,8 +3180,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             videoMessage.setBg_url(getVideoAttBitmap(url));
                         }
                     }
-//                    UpLoadService.onAddVideo(this.context, reMsg.getMsg_id(), url, videoMessage.getBg_url(), false, toUId, toGid,
-//                            videoMessage.getDuration(), videoMessageSD, false);
                     UpLoadService.onAddVideo(this.context, msgAllBean, false);
                     startService(new Intent(getContext(), UpLoadService.class));
 
@@ -3185,12 +3197,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 //文件仍然存在，则重发
                 if (net.cb.cb.library.utils.FileUtils.fileIsExist(reMsg.getSendFileMessage().getLocalPath())) {
                     SendFileMessage fileMessage = SocketData.createFileMessage(reMsg.getMsg_id(), reMsg.getSendFileMessage().getLocalPath(), reMsg.getSendFileMessage().getUrl(), reMsg.getSendFileMessage().getFile_name(), reMsg.getSendFileMessage().getSize(), reMsg.getSendFileMessage().getFormat());
-//                    MsgAllBean fileMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, SocketData.getFixTime(), fileMessage, ChatEnum.EMessageType.FILE);
-                    MsgAllBean fileMsgBean = sendMessage(fileMessage, ChatEnum.EMessageType.FILE, false);
-                    replaceListDataAndNotify(fileMsgBean);
+                    MsgAllBean fileMsgBean = sendMessageFromResend(fileMessage, ChatEnum.EMessageType.FILE, false);
+//                    replaceListDataAndNotify(fileMsgBean);
                     // 若不为常信小助手，消息需要上传到服务端
                     if (!Constants.CX_HELPER_UID.equals(toUId)) {
-//                        UpLoadService.onAddFile(this.context, reMsg.getMsg_id(), reMsg.getSendFileMessage().getLocalPath(), reMsg.getSendFileMessage().getFile_name(), reMsg.getSendFileMessage().getSize(), reMsg.getSendFileMessage().getFormat(), toUId, toGid, -1);
                         UpLoadService.onAddFile(this.context, fileMsgBean);
                         startService(new Intent(getContext(), UpLoadService.class));
                     } else {
@@ -3253,16 +3263,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
         /****************************************************************************/
 
-        public RecyclerViewAdapter(){
+        public RecyclerViewAdapter() {
             mViewModel.adapterCount.observe(ChatActivity.this, new Observer<Integer>() {
                 @Override
                 public void onChanged(@Nullable Integer integer) {
                     mPositionMsgIds.clear();
                     mMsgIdPositions.clear();
 
-                    for(int i=0;i<msgListData.size();i++){
-                        int position=i;
-                        String msgId=msgListData.get(i).getMsg_id();
+                    for (int i = 0; i < msgListData.size(); i++) {
+                        int position = i;
+                        String msgId = msgListData.get(i).getMsg_id();
                         //已经有MsgId包含该位置，则删除上一个，保证唯一性，更新时
                         if (mMsgIdPositions.containsValue(position)) {
                             mMsgIdPositions.remove(mPositionMsgIds.get(position));
@@ -3274,6 +3284,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
             });
         }
+
         public void onDestory() {
             //清除计时器，避免内存溢出
             for (Disposable timer : mTimers.values()) {
@@ -3293,7 +3304,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 long nowTimeMillis = DateUtils.getSystemTime();
                 long period = 0;
                 long start = 1;
-                mTimersIndexs.put(msgId,1);
+                mTimersIndexs.put(msgId, 1);
                 if (nowTimeMillis < endTime) {//当前时间还在倒计时结束前
                     long distance = startTime - nowTimeMillis;//和现在时间相差的毫秒数
                     //四舍五入
@@ -3312,7 +3323,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 @Override
                                 public void accept(Long index) throws Exception {
                                     try {
-                                        mTimersIndexs.put(msgId,index.intValue());
+                                        mTimersIndexs.put(msgId, index.intValue());
                                         long time = nowTimeMillis - DateUtils.getSystemTime();
                                         String name = "icon_st_" + Math.min(COUNT, index + 1);
                                         int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
@@ -3338,16 +3349,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         private void updateSurvivalTimeImage(String msgId, int id, boolean isMe) {
             if (mMsgIdPositions.containsKey(msgId)) {
                 int position = mMsgIdPositions.get(msgId);
-                    ChatItemView chatItemView = ((ChatItemView) mtListView.getListView().getLayoutManager().findViewByPosition(position));
-                    if (chatItemView != null) {
-                        if (isMe)
-                            chatItemView.viewMeSurvivalTime
-                                    .setImageResource(id);
-                        else
-                            chatItemView.viewOtSurvivalTime
-                                    .setImageResource(id);
-                    }
-                    Log.e("raleigh_test","chatItemView"+chatItemView );
+                ChatItemView chatItemView = ((ChatItemView) mtListView.getListView().getLayoutManager().findViewByPosition(position));
+                if (chatItemView != null) {
+                    if (isMe)
+                        chatItemView.viewMeSurvivalTime
+                                .setImageResource(id);
+                    else
+                        chatItemView.viewOtSurvivalTime
+                                .setImageResource(id);
+                }
+                Log.e("raleigh_test", "chatItemView" + chatItemView);
             }
         }
 
@@ -3386,8 +3397,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
         @Override
         public int getItemCount() {
-            int size=msgListData == null ? 0 : msgListData.size();
-            if(mViewModel.adapterCount.getValue()!=size){
+            int size = msgListData == null ? 0 : msgListData.size();
+            if (mViewModel.adapterCount.getValue() != size) {
                 mViewModel.adapterCount.setValue(size);
             }
             return size;
@@ -3402,7 +3413,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else {
 //                LogUtil.getLog().d("sss", "onBindViewHolderpayloads: " + position);
                 final MsgAllBean msgbean = msgListData.get(position);
-                savePositions(msgbean.getMsg_id(), position,msgbean.isMe(),holder.viewChatItem);
+                savePositions(msgbean.getMsg_id(), position, msgbean.isMe(), holder.viewChatItem);
                 //菜单
                 final List<OptionMenu> menus = new ArrayList<>();
                 LogUtil.getLog().d("SurvivalTime", "单条刷新");
@@ -3511,7 +3522,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
          * @param msgId
          * @param position
          */
-        private void savePositions(String msgId, int position,boolean isMe,ChatItemView chatItemView) {
+        private void savePositions(String msgId, int position, boolean isMe, ChatItemView chatItemView) {
             //已经有MsgId包含该位置，则删除上一个，保证唯一性，更新时
             if (mMsgIdPositions.containsValue(position)) {
                 mMsgIdPositions.remove(mPositionMsgIds.get(position));
@@ -3520,17 +3531,17 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             mPositionMsgIds.put(position, msgId);
             mMsgIdPositions.put(msgId, position);
             //及时更新阅后即焚状态
-            if(mTimersIndexs.containsKey(msgId)){
+            if (mTimersIndexs.containsKey(msgId)) {
                 String name = "icon_st_" + Math.min(COUNT, mTimersIndexs.get(msgId) + 1);
                 int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
                 if (mMsgIdPositions.containsKey(msgId)) {
-                        if (isMe)
-                            chatItemView.viewMeSurvivalTime
-                                    .setImageResource(id);
-                        else
-                            chatItemView.viewOtSurvivalTime
-                                    .setImageResource(id);
-                    Log.e("raleigh_test","chatItemView"+chatItemView );
+                    if (isMe)
+                        chatItemView.viewMeSurvivalTime
+                                .setImageResource(id);
+                    else
+                        chatItemView.viewOtSurvivalTime
+                                .setImageResource(id);
+                    Log.e("raleigh_test", "chatItemView" + chatItemView);
                 }
             }
         }
@@ -3541,7 +3552,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         public void onBindViewHolder(RCViewHolder holder, final int position) {
             holder.viewChatItem.recoveryOtUnreadView();
             final MsgAllBean msgbean = msgListData.get(position);
-            savePositions(msgbean.getMsg_id(), position,msgbean.isMe(),holder.viewChatItem);
+            savePositions(msgbean.getMsg_id(), position, msgbean.isMe(), holder.viewChatItem);
             if (!isGroup()) {
                 if (msgbean.isMe()) {
                     addSurvivalTimeAndRead(msgbean);
