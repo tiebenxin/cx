@@ -2144,7 +2144,8 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventUploadImage(EventUpImgLoadEvent event) {
         if (event.getState() == 0) {
-//            taskRefreshImage(event.getMsgid());
+            MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
+            getView().replaceListDataAndNotify(msgAllbean);
         } else if (event.getState() == -1) {
             //处理失败的情况
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
