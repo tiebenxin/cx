@@ -208,7 +208,16 @@ public class BurnManager {
         return isContainMsg;
     }
 
-
+    /**
+     * 用户退出登录需清除阅后即焚数据
+     */
+    public void clear(){
+        msgAllBeans.clear();
+        historyMsgIds.clear();
+        gids.clear();
+        uids.clear();
+        cancel();
+    }
     public void cancel() {
         if (timer != null) {
             timer.cancel();
