@@ -927,6 +927,7 @@ public class MessageManager {
                 }
             }
         } else {
+
             if (!TextUtils.isEmpty(gid)) {
                 if (pendingGroupUnread.containsKey(gid)) {
                     int count = pendingGroupUnread.get(gid);
@@ -934,7 +935,7 @@ public class MessageManager {
                         count = 0;
                         pendingGroupUnread.put(gid, count);
                     } else {
-                        if (!isFromSelf && TextUtils.isEmpty(SESSION_GID) || !SESSION_GID.equals(gid)) {//不是当前会话
+                        if (!isFromSelf && (TextUtils.isEmpty(SESSION_GID) || !SESSION_GID.equals(gid))) {//不是当前会话
                             count++;
                         }
                         pendingGroupUnread.put(gid, count);
@@ -954,7 +955,7 @@ public class MessageManager {
                         count = 0;
                         pendingUserUnread.put(uid, count);
                     } else {
-                        if (!isFromSelf && SESSION_FUID == null || !SESSION_FUID.equals(uid)) {//不是当前会话
+                        if (!isFromSelf && (SESSION_FUID == null || !SESSION_FUID.equals(uid))) {//不是当前会话
                             count++;
                         }
                         pendingUserUnread.put(uid, count);
