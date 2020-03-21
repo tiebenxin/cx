@@ -11,6 +11,8 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
+import org.w3c.dom.Text;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.text.DecimalFormat;
@@ -442,6 +444,15 @@ public class FileUtils {
      * @param fileName 文件名
      */
     public static String getFileRename(String fileName) {
+        //获取文件名和后缀，如123.txt
+        String oldFileName;//文件名
+        String fileSuffix = getFileSuffix(fileName);//后缀
+        //后缀不为空，则截取出文件名；后缀为空，则取原文件名
+        if(!TextUtils.isEmpty(fileSuffix)){
+            oldFileName = fileName.substring(0,fileName.indexOf("."));
+        }else {
+            oldFileName = fileName;
+        }
         //先去下载路径寻找目标文件
         File f = new File(FileConfig.PATH_DOWNLOAD);
         //判断路径是否存在，拿到下载路径所有文件集合，对比名称
@@ -457,9 +468,14 @@ public class FileUtils {
             int a = 1;
             //循环查找，集合不含该名称则判定为新文件，直接返回；若有重名文件，则变量+1，并重命名出新的文件名
             while (true) {
-                if (a != 1) {
-                    String[] split = fileName.split("\\.");
-                    fileName = split[0] + "(" + a + ")." + split[1];
+                if (a > 1) {
+//                    String[] split = fileName.split("\\.");
+                    if(!TextUtils.isEmpty(fileSuffix)){
+                        fileName = oldFileName + "(" + a + ")." + fileSuffix;
+                    }else {
+                        fileName = oldFileName + "(" + a + ")";
+                    }
+
                 }
                 if (!hashSet.contains(fileName)) {
                     return fileName;

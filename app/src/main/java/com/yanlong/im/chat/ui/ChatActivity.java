@@ -4066,22 +4066,19 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 //2 判断是否为转发
                                 //若是转发他人，则需要先从下载路径里找，有则代表已下载直接打开，没有则需要下载
                                 if(fileMessage.isFromOther()){
-                                    if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name())) {
+                                    if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
                                         openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
                                     } else {
                                         if (!TextUtils.isEmpty(fileMessage.getUrl())) {
                                             Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
                                             intent.putExtra("file_msg", new Gson().toJson(msgbean));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
-//                                            intent.putExtra("file_name", fileMessage.getFile_name());
-//                                            intent.putExtra("file_format", fileMessage.getFormat());
-//                                            intent.putExtra("file_url", fileMessage.getUrl());
                                             startActivity(intent);
                                         } else {
                                             ToastUtil.show("文件下载地址错误，请联系客服");
                                         }
                                     }
                                 }else {
-                                    //若自己转发自己，则为本地文件，从本地路径里找，有则打开，没有提示文件已被删除
+                                    //若不是转发或者自己转发自己，则为本地文件，从本地路径里找，有则打开，没有提示文件已被删除
                                     if (net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getLocalPath())) {
                                         openAndroidFile(fileMessage.getLocalPath());
                                     } else {
@@ -4091,16 +4088,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             } else {
                                 //如果是别人发的文件
                                 //从下载路径里找，若存在该文件，则直接打开；否则需要下载
-                                if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name())) {
+                                if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
                                     openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
                                 } else {
                                     if (!TextUtils.isEmpty(fileMessage.getUrl())) {
                                         Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
                                         intent.putExtra("file_msg", new Gson().toJson(msgbean));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
-//                                        intent.putExtra("file_name", fileMessage.getFile_name());
-//                                        intent.putExtra("file_format", fileMessage.getFormat());
-//                                        intent.putExtra("file_url", fileMessage.getUrl());
-//                                        intent.putExtra("file_msg_id", fileMessage.getMsgId());
                                         startActivity(intent);
                                     } else {
                                         ToastUtil.show("文件下载地址错误，请联系客服");
