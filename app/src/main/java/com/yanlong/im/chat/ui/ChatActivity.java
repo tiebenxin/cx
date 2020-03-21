@@ -143,7 +143,6 @@ import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
 import com.yanlong.im.chat.ui.chat.ChatViewModel;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
-import com.yanlong.im.chat.ui.groupmanager.GroupMemPowerSetActivity;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.chat.ui.view.ControllerLinearList;
 import com.yanlong.im.location.LocationActivity;
@@ -2222,6 +2221,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if (isMustBottom) {
                 mtListView.scrollToEnd();
             } else {
+                Log.e("raleigh_test","isMustBottom="+isMustBottom+",lastPosition="+lastPosition+",isSoftShow="+isSoftShow+",lastOffset="+lastOffset);
                 if (lastPosition >= 0 && lastPosition < length) {
                     if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
                         scrollChatToPosition(length);
@@ -2846,8 +2846,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             taskRefreshMessage(event.isScrollBottom);
         } else if (type == CoreEnum.ERefreshType.DELETE) {
             if (event.getObject() != null && event.getObject() instanceof MsgAllBean) {
+                Log.e("raleigh_test","deleteMsg");
                 deleteMsg((MsgAllBean) event.getObject());
             } else if (event.getList() != null) {
+                Log.e("raleigh_test","deleteMsgList");
                 deleteMsgList(event.getList());
             }
         }
@@ -3351,7 +3353,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         chatItemView.viewOtSurvivalTime
                                 .setImageResource(id);
                 }
-                Log.e("raleigh_test", "chatItemView" + chatItemView);
             }
         }
 
@@ -3534,7 +3535,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     else
                         chatItemView.viewOtSurvivalTime
                                 .setImageResource(id);
-                    Log.e("raleigh_test", "chatItemView" + chatItemView);
                 }
             }
         }
@@ -4767,6 +4767,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void notifyData() {
 //        mtListView.notifyDataSetChange();
         if (msgListData != null) {
+            //调用该方法，有面板或软键盘弹出时，会使列表跳转到第一项
             mtListView.getListView().getAdapter().notifyItemRangeChanged(0, msgListData.size());
         }
         mtListView.getSwipeLayout().setRefreshing(false);
@@ -6225,7 +6226,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         msgListData.removeAll(list);
         removeUnreadCount(list.size());
 //        mtListView.notifyDataSetChange();
+
         notifyData();
+        //调用notifyItemRangeChanged 有面板或软键盘弹出时，会滑动到顶部
+        //有面板，则滑到底部
+        if(mViewModel.isInputText.getValue()||mViewModel.isOpenEmoj.getValue()||mViewModel.isOpenFuction.getValue()){
+            mtListView.scrollToEnd();
+        }
     }
 
 
