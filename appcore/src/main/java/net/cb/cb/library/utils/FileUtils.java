@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.text.DecimalFormat;
+import java.util.HashSet;
 
 /**
  * @类名：文件操作工具类
@@ -28,6 +29,7 @@ import java.text.DecimalFormat;
  *  5 判断本地文件是否存在
  *  6 获取文件的MIME类型
  *  7 判断文件是否为图片/视频
+ *  8 获取文件重命名 { 如123.txt若有重名则依次保存为123.txt(1) 123.txt(2) }
  */
 public class FileUtils {
 
@@ -432,6 +434,41 @@ public class FileUtils {
         }else {
             return false;
         }
+    }
+
+
+    /**
+     * 获取文件重命名 { 如123.txt若有重名则依次保存为123.txt(1) 123.txt(2) }
+     * @param fileName 文件名
+     */
+    public static String getFileRename(String fileName) {
+        //先去下载路径寻找目标文件
+        File f = new File(FileConfig.PATH_DOWNLOAD);
+        //判断路径是否存在，拿到下载路径所有文件集合，对比名称
+        if (f.exists()) {
+            File[] files = f.listFiles();
+            HashSet<String> hashSet = new HashSet<>();
+            for (File file : files) {
+                if (file.isFile()) {
+                    String name = file.getName();
+                    hashSet.add(name);
+                }
+            }
+            int a = 1;
+            //循环查找，集合不含该名称则判定为新文件，直接返回；若有重名文件，则变量+1，并重命名出新的文件名
+            while (true) {
+                if (a != 1) {
+                    String[] split = fileName.split("\\.");
+                    fileName = split[0] + "(" + a + ")." + split[1];
+                }
+                if (!hashSet.contains(fileName)) {
+                    return fileName;
+                } else {
+                    a++;
+                }
+            }
+        }
+        return fileName;
     }
 
 }

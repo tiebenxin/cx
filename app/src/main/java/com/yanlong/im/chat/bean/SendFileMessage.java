@@ -15,6 +15,7 @@ public class SendFileMessage extends RealmObject implements IMsgContent{
     //TODO 额外本地属性
     private String localPath;//文件本地路径
     private boolean isFromOther;//true 从别人那里转发过来的文件，则需从下载地址里找  false 本地文件/自己转发自己的文件，则需要在本地路径找
+    private String realFileRename;//若存在文件重名，此值为新名称；若不重名，则为原文件名
 
     public String getUrl() {
         return url;
@@ -71,5 +72,13 @@ public class SendFileMessage extends RealmObject implements IMsgContent{
 
     public void setFromOther(boolean fromOther) {
         isFromOther = fromOther;
+    }
+
+    public String getRealFileRename() {
+        return realFileRename;
+    }
+
+    public void setRealFileRename(String realFileRename) {
+        this.realFileRename = realFileRename;
     }
 }
