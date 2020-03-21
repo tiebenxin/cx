@@ -5,16 +5,11 @@ import android.text.TextUtils;
 
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
 
 import net.cb.cb.library.CoreEnum;
-import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.utils.LogUtil;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -200,7 +195,17 @@ public class BurnManager {
     }
 
     public boolean isContainMsg(MsgAllBean bean) {
-        return historyMsgIds.contains(bean.getMsg_id());
+        boolean isContainMsg=historyMsgIds.contains(bean.getMsg_id());
+        //已加入队列的，进行最初赋值
+        if(isContainMsg&&(bean.getStartTime()==0||bean.getEndTime()==0)){
+            int index=msgAllBeans.indexOf(bean);
+            if(index>=0){
+                MsgAllBean historyBean=msgAllBeans.get(index);
+                bean.setStartTime(historyBean.getStartTime());
+                bean.setEndTime(historyBean.getEndTime());
+            }
+        }
+        return isContainMsg;
     }
 
 
