@@ -114,6 +114,10 @@ public class DaoMigration implements RealmMigration {
                 updateV23(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 23) {
+                updateV24(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -433,6 +437,10 @@ public class DaoMigration implements RealmMigration {
     private void updateV23(RealmSchema schema) {
         schema.get("SendFileMessage")
                 .addField("isFromOther", boolean.class);
+    }
+    private void updateV24(RealmSchema schema) {
+        schema.get("SendFileMessage")
+                .addField("realFileRename", String.class);
     }
 
 
