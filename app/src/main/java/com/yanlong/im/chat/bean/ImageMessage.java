@@ -72,7 +72,12 @@ public class ImageMessage extends RealmObject implements IMsgContent {
     public String getOriginShow() {
         String img = origin;
         if (StringUtil.isNotNull(origin) && StringUtil.isNotNull(localimg)) {
-            img = localimg;
+            File file = new File(localimg);
+            if (file.exists()) {
+                img = localimg;
+            } else {
+                LogUtil.getLog().i(ImageMessage.class.getSimpleName(), "本地图片不存在");
+            }
         }
 
         return img;
@@ -89,7 +94,12 @@ public class ImageMessage extends RealmObject implements IMsgContent {
     public String getPreviewShow() {
         String img = preview;
         if (StringUtil.isNotNull(preview) && StringUtil.isNotNull(localimg)) {
-            img = localimg;
+            File file = new File(localimg);
+            if (file.exists()) {
+                img = localimg;
+            } else {
+                LogUtil.getLog().i(ImageMessage.class.getSimpleName(), "本地图片不存在");
+            }
         }
 
         return img;

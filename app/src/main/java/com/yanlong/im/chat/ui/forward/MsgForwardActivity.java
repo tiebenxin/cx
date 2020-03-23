@@ -68,6 +68,8 @@ import java.util.List;
 
 import io.reactivex.annotations.NonNull;
 
+import static net.cb.cb.library.utils.FileUtils.SIZETYPE_B;
+
 /***
  * 消息转换
  *
@@ -102,7 +104,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     private List<MsgAllBean> sendQueue = new ArrayList<>();
 
     //系统发送图片路径
-    private String imagePath;
+    private String filePath;
 
     //第三方分享
     private String shareText;
@@ -113,6 +115,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     private String appIcon;
     private String shareDescription;
     private String shareTitle;
+    private List<String> shareUrls;
 
 
     //单条消息转发
@@ -156,7 +159,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             Gson gson = new Gson();
             msgList = gson.fromJson(json, new TypeToken<List<MsgAllBean>>() {
             }.getType());
-        } else if (model == ChatEnum.EForwardMode.SYS_SEND) {
+        } else if (model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
             getSysImgShare();
         } else if (model == ChatEnum.EForwardMode.SHARE) {
             mediaType = intent.getIntExtra("cxapi_sendmessagetowx_req_media_type", 0);
@@ -369,15 +372,23 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         if (model == ChatEnum.EForwardMode.DEFAULT && msgAllBean == null) {
             return;
         } else if (model == ChatEnum.EForwardMode.SYS_SEND) {
-            if (TextUtils.isEmpty(imagePath)) {
+            if (TextUtils.isEmpty(filePath)) {
                 return;
             }
-            BitmapUtil.Size size = BitmapUtil.getImageSize(imagePath);
-            if (size == null) {
-                return;
+            if (mediaType == CxMediaMessage.EMediaType.IMAGE) {
+                BitmapUtil.Size size = BitmapUtil.getImageSize(filePath);
+                if (size == null) {
+                    return;
+                }
+                ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), filePath, "", size.width, size.height, true, false, 0);
+                msgAllBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), image);
+            } else if (mediaType == CxMediaMessage.EMediaType.FILE) {
+                double fileSize = FileUtils.getFileOrFilesSize(filePath, SIZETYPE_B);
+                String fileName = FileUtils.getFileName(filePath);
+                String fileFormat = FileUtils.getFileSuffix(fileName);
+                SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), filePath, "", fileName, new Double(fileSize).longValue(), fileFormat, false);
+                msgAllBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), fileMessage);
             }
-            ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), imagePath, "", size.width, size.height, true, false, 0);
-            msgAllBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), image);
         } else if (model == ChatEnum.EForwardMode.SHARE) {
             if (mediaType == CxMediaMessage.EMediaType.TEXT) {//文本
                 if (!TextUtils.isEmpty(shareText)) {
@@ -448,6 +459,14 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             txt = "[逐条转发]共" + msgList.size() + "条消息";
         } else if (model == ChatEnum.EForwardMode.MERGE) {
             txt = "[合并转发]";
+        } else if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
+            if (shareUrls == null) {
+                return;
+            }
+            msgList = getMsgList(shareUrls, toUid, toGid);
+            if (msgList == null) {
+                return;
+            }
         }
 
         alertForward.init(MsgForwardActivity.this, msgAllBean.getMsg_type(), mIcon, mName, txt, imageUrl, btm, toGid, new AlertForward.Event() {
@@ -472,7 +491,14 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         }
                     }
                 } else if (model == ChatEnum.EForwardMode.SYS_SEND) {
-                    upload(imagePath, UpFileAction.PATH.IMG, msgAllBean);
+                    UpFileAction.PATH uploadType = getUploadType(mediaType);
+                    if (uploadType != null) {
+                        upload(filePath, uploadType, msgAllBean);
+                    } else {
+                        ToastUtil.show(MsgForwardActivity.this, "分享失败，不支持文件类型");
+                        return;
+                    }
+
                 } else if (model == ChatEnum.EForwardMode.SHARE) {
                     if (mediaType == CxMediaMessage.EMediaType.TEXT || mediaType == CxMediaMessage.EMediaType.WEB) {
                         send(msgAllBean, content, toUid, toGid);
@@ -763,14 +789,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             bean.setGid(gid);
             bean.setAvatar(avatar);
             bean.setNick(nick);
-
             moreSessionBeanList.add(bean);
-//                LogUtil.getLog().e("======add==");
         } else if (!isAdd && hasInt > -1) {
             moreSessionBeanList.remove(hasInt);
-//                LogUtil.getLog().e("======delete==");
         }
-
         EventBus.getDefault().post(new SelectNumbEvent(moreSessionBeanList.size() + ""));
     }
 
@@ -803,19 +825,22 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             public void onSuccess() {
                 Intent intent = getIntent();
                 Bundle extras = intent.getExtras();
-//                String action = intent.getAction();
-//                if (Intent.ACTION_SEND.equals(action)) {
-//                    if (extras.containsKey(Intent.EXTRA_STREAM)) {
+                String type = intent.getType();
+                mediaType = getMediaType(type);
+                if (mediaType == CxMediaMessage.EMediaType.UNKNOWN) {
+                    return;
+                }
                 try {
-                    Uri uri = (Uri) extras.getParcelable(Intent.EXTRA_STREAM);
-                    imagePath = FileUtils.getFilePathByUri(MsgForwardActivity.this, uri);
-//                            upload(path, UpFileAction.PATH.IMG);
+                    if (model == ChatEnum.EForwardMode.SYS_SEND) {
+                        Uri uri = (Uri) extras.getParcelable(Intent.EXTRA_STREAM);
+                        filePath = FileUtils.getFilePathByUri(MsgForwardActivity.this, uri);
+                    } else if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
+                        List<Uri> uriList = extras.getParcelableArrayList(Intent.EXTRA_STREAM);
+                        shareUrls = FileUtils.getUrisForList(MsgForwardActivity.this, uriList);
+                    }
                 } catch (Exception e) {
                     LogUtil.getLog().e(e.toString());
                 }
-
-//                    }
-//                }
             }
 
             @Override
@@ -927,5 +952,50 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             }
         }
         return false;
+    }
+
+    @CxMediaMessage.EMediaType
+    private int getMediaType(String type) {
+        if (!TextUtils.isEmpty(type)) {
+            if (type.startsWith("image/")) {
+                return CxMediaMessage.EMediaType.IMAGE;
+            } else if (type.startsWith("text/")) {
+                return CxMediaMessage.EMediaType.FILE;
+            }
+        }
+        return CxMediaMessage.EMediaType.UNKNOWN;
+    }
+
+    private UpFileAction.PATH getUploadType(int mediaType) {
+        if (mediaType == CxMediaMessage.EMediaType.IMAGE) {
+            return UpFileAction.PATH.IMG;
+        } else if (mediaType == CxMediaMessage.EMediaType.FILE) {
+            return UpFileAction.PATH.FILE;
+        }
+        return null;
+    }
+
+
+    private List<MsgAllBean> getMsgList(List<String> urls, long uid, String gid) {
+        if (urls == null) {
+            return null;
+        }
+        int len = urls.size();
+        if (len > 0) {
+            List<MsgAllBean> list = new ArrayList<>();
+            for (int i = 0; i < len; i++) {
+                String url = urls.get(i);
+                BitmapUtil.Size size = BitmapUtil.getImageSize(url);
+                if (size == null) {
+                    continue;
+                }
+                ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), filePath, "", size.width, size.height, true, false, 0);
+                MsgAllBean msgAllBean = SocketData.createMessageBean(uid, gid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), image);
+                if (msgAllBean != null) {
+                    list.add(msgAllBean);
+                }
+            }
+        }
+        return null;
     }
 }

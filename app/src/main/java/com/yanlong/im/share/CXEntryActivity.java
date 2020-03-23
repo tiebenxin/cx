@@ -1,9 +1,9 @@
 package com.yanlong.im.share;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.server.ChatServer;
@@ -12,6 +12,7 @@ import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.ui.LoginActivity;
 
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AppActivity;
 
 /**
@@ -29,15 +30,23 @@ public class CXEntryActivity extends AppActivity {
 //        showLoadingDialog();
         Intent intent = getIntent();
         String action = intent.getAction();
+        String type = intent.getType();
         if (intent != null) {
             Bundle extras = intent.getExtras();
             if (extras != null) {
                 if (Intent.ACTION_SEND.equals(action)) {
                     mode = ChatEnum.EForwardMode.SYS_SEND;
-                } else {
+                } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
+                    mode = ChatEnum.EForwardMode.SYS_SEND_MULTI;
+                    if (!isSupportType(type)) {
+                        ToastUtil.show(this, "分享失败，多文件分享仅支持照片格式");
+                        finish();
+                        return;
+                    }
+                } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
                     mode = ChatEnum.EForwardMode.SHARE;
                 }
-                checkApp(extras);
+                checkApp(extras, type);
             } else {
 
             }
@@ -46,11 +55,14 @@ public class CXEntryActivity extends AppActivity {
         }
     }
 
-    private void goActivity(Bundle extras, int mode) {
+    private void goActivity(Bundle extras, int mode, String type) {
         if (checkTokenValid()) {
             startChatServer();
             Intent intentShare = MsgForwardActivity.newIntent(this, mode, extras);
             intentShare.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            if (!TextUtils.isEmpty(type)) {
+                intentShare.setType(type);
+            }
             if (mode == ChatEnum.EForwardMode.SHARE) {
                 startActivityForResult(intentShare, REQUEST_SHARE);
             } else {
@@ -100,12 +112,21 @@ public class CXEntryActivity extends AppActivity {
         return result;
     }
 
-    private void checkApp(Bundle extras) {
+    private void checkApp(Bundle extras, String type) {
         if (true) {
             extras.putString("app_name", "酷玩");
             extras.putString("app_icon", "");
-            goActivity(extras, mode);
+            goActivity(extras, mode, type);
         }
+    }
+
+    private boolean isSupportType(String type) {
+        if (!TextUtils.isEmpty(type)) {
+            if (type.startsWith("image/") || type.startsWith("text/")) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

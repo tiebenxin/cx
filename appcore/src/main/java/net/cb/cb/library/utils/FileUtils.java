@@ -16,22 +16,23 @@ import org.w3c.dom.Text;
 import java.io.File;
 import java.io.FileInputStream;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * @类名：文件操作工具类
  * @Date：2020/1/10
  * @by zjy
- * @备注：
- *  ->方法列表
- *  1 根据Uri获取文件path路径
- *  2 获取文件名（含后缀）
- *  3 获取文件后缀
- *  4 获取文件大小并转换，按照指定转换的类型，显示文件大小分别显示B K M G
- *  5 判断本地文件是否存在
- *  6 获取文件的MIME类型
- *  7 判断文件是否为图片/视频
- *  8 获取文件重命名 { 如123.txt若有重名则依次保存为123.txt(1) 123.txt(2) }
+ * @备注： ->方法列表
+ * 1 根据Uri获取文件path路径
+ * 2 获取文件名（含后缀）
+ * 3 获取文件后缀
+ * 4 获取文件大小并转换，按照指定转换的类型，显示文件大小分别显示B K M G
+ * 5 判断本地文件是否存在
+ * 6 获取文件的MIME类型
+ * 7 判断文件是否为图片/视频
+ * 8 获取文件重命名 { 如123.txt若有重名则依次保存为123.txt(1) 123.txt(2) }
  */
 public class FileUtils {
 
@@ -295,6 +296,7 @@ public class FileUtils {
 
     /**
      * 判断本地文件是否存在
+     *
      * @param filePath
      * @return
      */
@@ -314,100 +316,101 @@ public class FileUtils {
     /**
      * 检测文件MIME类型
      */
-    public static final String[][] MIME_MapTable={
+    public static final String[][] MIME_MapTable = {
             //{后缀名，    MIME类型}
-            {".3gp",    "video/3gpp"},
-            {".apk",    "application/vnd.android.package-archive"},
-            {".asf",    "video/x-ms-asf"},
-            {".avi",    "video/x-msvideo"},
-            {".bin",    "application/octet-stream"},
-            {".bmp",      "image/bmp"},
-            {".c",        "text/plain"},
-            {".class",    "application/octet-stream"},
-            {".conf",    "text/plain"},
-            {".cpp",    "text/plain"},
-            {".doc",    "application/msword"},
-            {".docx",    "application/msword"},
-            {".exe",    "application/octet-stream"},
-            {".gif",    "image/gif"},
-            {".gtar",    "application/x-gtar"},
-            {".gz",        "application/x-gzip"},
-            {".h",        "text/plain"},
-            {".htm",    "text/html"},
-            {".html",    "text/html"},
-            {".jar",    "application/java-archive"},
-            {".java",    "text/plain"},
-            {".jpeg",    "image/jpeg"},
-            {".JPEG",    "image/jpeg"},
-            {".jpg",    "image/jpeg"},
-            {".js",        "application/x-javascript"},
-            {".log",    "text/plain"},
-            {".m3u",    "audio/x-mpegurl"},
-            {".m4a",    "audio/mp4a-latm"},
-            {".m4b",    "audio/mp4a-latm"},
-            {".m4p",    "audio/mp4a-latm"},
-            {".m4u",    "video/vnd.mpegurl"},
-            {".m4v",    "video/x-m4v"},
-            {".mov",    "video/quicktime"},
-            {".mp2",    "audio/x-mpeg"},
-            {".mp3",    "audio/x-mpeg"},
-            {".mp4",    "video/mp4"},
-            {".mpc",    "application/vnd.mpohun.certificate"},
-            {".mpe",    "video/mpeg"},
-            {".mpeg",    "video/mpeg"},
-            {".mpg",    "video/mpeg"},
-            {".mpg4",    "video/mp4"},
-            {".mpga",    "audio/mpeg"},
-            {".msg",    "application/vnd.ms-outlook"},
-            {".ogg",    "audio/ogg"},
-            {".pdf",    "application/pdf"},
-            {".png",    "image/png"},
-            {".pps",    "application/vnd.ms-powerpoint"},
-            {".ppt",    "application/vnd.ms-powerpoint"},
-            {".pptx",    "application/vnd.ms-powerpoint"},
-            {".prop",    "text/plain"},
-            {".rar",    "application/x-rar-compressed"},
-            {".rc",        "text/plain"},
-            {".rmvb",    "audio/x-pn-realaudio"},
-            {".rtf",    "application/rtf"},
-            {".sh",        "text/plain"},
-            {".tar",    "application/x-tar"},
-            {".tgz",    "application/x-compressed"},
-            {".txt",    "text/plain"},
-            {".wav",    "audio/x-wav"},
-            {".wma",    "audio/x-ms-wma"},
-            {".wmv",    "audio/x-ms-wmv"},
-            {".wps",    "application/vnd.ms-works"},
-            {".xls",    "application/vnd.ms-excel"},
-            {".xlsx",    "application/vnd.ms-excel"},
-            {".xml",    "text/plain"},
-            {".z",        "application/x-compress"},
-            {".zip",    "application/zip"},
-            {"",        "*/*"}
+            {".3gp", "video/3gpp"},
+            {".apk", "application/vnd.android.package-archive"},
+            {".asf", "video/x-ms-asf"},
+            {".avi", "video/x-msvideo"},
+            {".bin", "application/octet-stream"},
+            {".bmp", "image/bmp"},
+            {".c", "text/plain"},
+            {".class", "application/octet-stream"},
+            {".conf", "text/plain"},
+            {".cpp", "text/plain"},
+            {".doc", "application/msword"},
+            {".docx", "application/msword"},
+            {".exe", "application/octet-stream"},
+            {".gif", "image/gif"},
+            {".gtar", "application/x-gtar"},
+            {".gz", "application/x-gzip"},
+            {".h", "text/plain"},
+            {".htm", "text/html"},
+            {".html", "text/html"},
+            {".jar", "application/java-archive"},
+            {".java", "text/plain"},
+            {".jpeg", "image/jpeg"},
+            {".JPEG", "image/jpeg"},
+            {".jpg", "image/jpeg"},
+            {".js", "application/x-javascript"},
+            {".log", "text/plain"},
+            {".m3u", "audio/x-mpegurl"},
+            {".m4a", "audio/mp4a-latm"},
+            {".m4b", "audio/mp4a-latm"},
+            {".m4p", "audio/mp4a-latm"},
+            {".m4u", "video/vnd.mpegurl"},
+            {".m4v", "video/x-m4v"},
+            {".mov", "video/quicktime"},
+            {".mp2", "audio/x-mpeg"},
+            {".mp3", "audio/x-mpeg"},
+            {".mp4", "video/mp4"},
+            {".mpc", "application/vnd.mpohun.certificate"},
+            {".mpe", "video/mpeg"},
+            {".mpeg", "video/mpeg"},
+            {".mpg", "video/mpeg"},
+            {".mpg4", "video/mp4"},
+            {".mpga", "audio/mpeg"},
+            {".msg", "application/vnd.ms-outlook"},
+            {".ogg", "audio/ogg"},
+            {".pdf", "application/pdf"},
+            {".png", "image/png"},
+            {".pps", "application/vnd.ms-powerpoint"},
+            {".ppt", "application/vnd.ms-powerpoint"},
+            {".pptx", "application/vnd.ms-powerpoint"},
+            {".prop", "text/plain"},
+            {".rar", "application/x-rar-compressed"},
+            {".rc", "text/plain"},
+            {".rmvb", "audio/x-pn-realaudio"},
+            {".rtf", "application/rtf"},
+            {".sh", "text/plain"},
+            {".tar", "application/x-tar"},
+            {".tgz", "application/x-compressed"},
+            {".txt", "text/plain"},
+            {".wav", "audio/x-wav"},
+            {".wma", "audio/x-ms-wma"},
+            {".wmv", "audio/x-ms-wmv"},
+            {".wps", "application/vnd.ms-works"},
+            {".xls", "application/vnd.ms-excel"},
+            {".xlsx", "application/vnd.ms-excel"},
+            {".xml", "text/plain"},
+            {".z", "application/x-compress"},
+            {".zip", "application/zip"},
+            {"", "*/*"}
     };
 
     /**
      * 获取文件的MIME类型
+     *
      * @param file
      * @return
      */
     public static String getMIMEType(File file) {
         //无后缀名的未知文件，6.0以下不涉及权限问题，预期效果是调用全部支持格式的程序列表，部分手机无法兼容，会报"解析软件包时出现问题"
         //TODO 因此暂时将无格式的文件，默认采用文本格式打开，可用程序为浏览器、文本等
-        String type="text/plain";
+        String type = "text/plain";
         String fName = file.getName();
         //获取后缀名前的分隔符"."在fName中的位置。
         int dotIndex = fName.lastIndexOf(".");
-        if(dotIndex < 0){
+        if (dotIndex < 0) {
             return type;
         }
         //获取文件的后缀名
-        String fileType = fName.substring(dotIndex,fName.length()).toLowerCase();
-        if(fileType == null || "".equals(fileType))
+        String fileType = fName.substring(dotIndex, fName.length()).toLowerCase();
+        if (fileType == null || "".equals(fileType))
             return type;
         //在MIME和文件类型的匹配表中找到对应的MIME类型。
-        for(int i=0;i<MIME_MapTable.length;i++){
-            if(fileType.equals(MIME_MapTable[i][0]))
+        for (int i = 0; i < MIME_MapTable.length; i++) {
+            if (fileType.equals(MIME_MapTable[i][0]))
                 type = MIME_MapTable[i][1];
         }
         return type;
@@ -416,25 +419,26 @@ public class FileUtils {
 
     /**
      * 判断文件是否为图片/视频
+     *
      * @param fileFormat
      * @return
      */
-    public static boolean isImage(String fileFormat){
-        if(fileFormat.equals("bmp") || fileFormat.equals("gif") || fileFormat.equals("jpeg") || fileFormat.equals("JPEG")
-                || fileFormat.equals("jpg") || fileFormat.equals("png") || fileFormat.equals("webp") || fileFormat.equals("psd")){
+    public static boolean isImage(String fileFormat) {
+        if (fileFormat.equals("bmp") || fileFormat.equals("gif") || fileFormat.equals("jpeg") || fileFormat.equals("JPEG")
+                || fileFormat.equals("jpg") || fileFormat.equals("png") || fileFormat.equals("webp") || fileFormat.equals("psd")) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }
 
-    public static boolean isVideo(String fileFormat){
-        if(fileFormat.equals("3gp") || fileFormat.equals("asf") || fileFormat.equals("avi") || fileFormat.equals("m4u")
+    public static boolean isVideo(String fileFormat) {
+        if (fileFormat.equals("3gp") || fileFormat.equals("asf") || fileFormat.equals("avi") || fileFormat.equals("m4u")
                 || fileFormat.equals("m4v") || fileFormat.equals("mov") || fileFormat.equals("mp4") || fileFormat.equals("mpe")
                 || fileFormat.equals("mpeg") || fileFormat.equals("mpg") || fileFormat.equals("mpg4") || fileFormat.equals("wmv")
-                || fileFormat.equals("flv") || fileFormat.equals("rmvb")){
+                || fileFormat.equals("flv") || fileFormat.equals("rmvb")) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }
@@ -442,6 +446,7 @@ public class FileUtils {
 
     /**
      * 获取文件重命名 { 如123.txt若有重名则依次保存为123.txt(1) 123.txt(2) }
+     *
      * @param fileName 文件名
      */
     public static String getFileRename(String fileName) {
@@ -449,9 +454,9 @@ public class FileUtils {
         String oldFileName;//文件名
         String fileSuffix = getFileSuffix(fileName);//后缀
         //后缀不为空，则截取出文件名；后缀为空，则取原文件名
-        if(!TextUtils.isEmpty(fileSuffix)){
-            oldFileName = fileName.substring(0,fileName.indexOf("."));
-        }else {
+        if (!TextUtils.isEmpty(fileSuffix)) {
+            oldFileName = fileName.substring(0, fileName.indexOf("."));
+        } else {
             oldFileName = fileName;
         }
         //先去下载路径寻找目标文件
@@ -471,9 +476,9 @@ public class FileUtils {
             while (true) {
                 if (a > 1) {
 //                    String[] split = fileName.split("\\.");
-                    if(!TextUtils.isEmpty(fileSuffix)){
+                    if (!TextUtils.isEmpty(fileSuffix)) {
                         fileName = oldFileName + "(" + a + ")." + fileSuffix;
-                    }else {
+                    } else {
                         fileName = oldFileName + "(" + a + ")";
                     }
 
@@ -486,6 +491,18 @@ public class FileUtils {
             }
         }
         return fileName;
+    }
+
+    public static List<String> getUrisForList(Context context, List<Uri> list) {
+        if (list == null) {
+            return null;
+        }
+        List<String> results = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            String url = getFilePathByUri(context, list.get(i));
+            results.add(url);
+        }
+        return results;
     }
 
 }

@@ -683,12 +683,20 @@
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
 
+            <!--单选所有文件-->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
+                <!--                <data android:mimeType="image/*" />-->
+                <data android:mimeType="*/*" />
+            </intent-filter>
 
+            <!--多选分享,仅限图片-->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="image/*" />
-                <data android:mimeType="file/*" />
+                <!--                <data android:mimeType="*/*" />-->
             </intent-filter>
         </activity>
 
