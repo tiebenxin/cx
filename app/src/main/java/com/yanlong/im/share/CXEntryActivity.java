@@ -102,8 +102,8 @@ public class CXEntryActivity extends AppActivity {
 
     private void checkApp(Bundle extras) {
         if (true) {
-            extras.putString("app_name","酷玩");
-            extras.putString("app_icon","");
+            extras.putString("app_name", "酷玩");
+            extras.putString("app_icon", "");
             goActivity(extras, mode);
         }
     }

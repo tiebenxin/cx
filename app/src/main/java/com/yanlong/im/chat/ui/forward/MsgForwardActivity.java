@@ -41,6 +41,7 @@ import com.yanlong.im.share.ShareDialog;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
+import com.yanlong.im.utils.socket.SocketUtil;
 import com.zhaoss.weixinrecorded.util.BitmapUtil;
 
 import net.cb.cb.library.CoreEnum;
@@ -346,7 +347,12 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             if (isWaitModel()) {
                 sendQueue.remove(msgAllBean);
                 if (sendQueue.size() == 0) {
-                    showShareDialog();
+                    if (model == ChatEnum.EForwardMode.SHARE) {
+                        showShareDialog();
+                    } else if (model == ChatEnum.EForwardMode.SYS_SEND) {
+                        startActivity(new Intent(MsgForwardActivity.this, MainActivity.class));
+                        MsgForwardActivity.this.finish();
+                    }
                 }
             }
         } else if (data instanceof MsgBean.AckMessage) {
@@ -356,6 +362,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     @Override
     public void onForward(final long toUid, final String toGid, String mIcon, String mName) {
+        if (!SocketUtil.getSocketUtil().isRun()) {
+            ToastUtil.show(this, "连接已断开，请退出常信重新分享");
+            return;
+        }
         if (model == ChatEnum.EForwardMode.DEFAULT && msgAllBean == null) {
             return;
         } else if (model == ChatEnum.EForwardMode.SYS_SEND) {
@@ -409,6 +419,11 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 txt = msgAllBean.getChat().getMsg();
             } else if (msgAllBean.getImage() != null) {
                 imageUrl = msgAllBean.getImage().getThumbnail();
+                if (TextUtils.isEmpty(imageUrl)) {
+                    if (model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.SHARE) {
+                        imageUrl = msgAllBean.getImage().getLocalimg();
+                    }
+                }
             } else if (msgAllBean.getAtMessage() != null) {
                 txt = msgAllBean.getAtMessage().getMsg();
             } else if (msgAllBean.getVideoMessage() != null) {
@@ -643,13 +658,13 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             //文件分为两种情况：转发他人/自己转发自己，转发他人的文件需要下载，转发自己的文件直接从本地查找
             boolean isFromOther;
             //如果是自己转发自己的文件
-            if(msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()){
+            if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
                 isFromOther = false;
-            }else {
+            } else {
                 isFromOther = true;
             }
             if (isSingleSelected) {
-                SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), msgAllBean.getSendFileMessage().getLocalPath(), msgAllBean.getSendFileMessage().getUrl(), msgAllBean.getSendFileMessage().getFile_name(), msgAllBean.getSendFileMessage().getSize(), msgAllBean.getSendFileMessage().getFormat(),isFromOther);
+                SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), msgAllBean.getSendFileMessage().getLocalPath(), msgAllBean.getSendFileMessage().getUrl(), msgAllBean.getSendFileMessage().getFile_name(), msgAllBean.getSendFileMessage().getSize(), msgAllBean.getSendFileMessage().getFormat(), isFromOther);
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), fileMessage);
                 if (allBean != null) {
                     sendMessage(allBean);
@@ -659,7 +674,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             } else {
                 for (int i = 0; i < moreSessionBeanList.size(); i++) {
                     MoreSessionBean bean = moreSessionBeanList.get(i);
-                    SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), msgAllBean.getSendFileMessage().getLocalPath(), msgAllBean.getSendFileMessage().getUrl(), msgAllBean.getSendFileMessage().getFile_name(), msgAllBean.getSendFileMessage().getSize(), msgAllBean.getSendFileMessage().getFormat(),isFromOther);
+                    SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), msgAllBean.getSendFileMessage().getLocalPath(), msgAllBean.getSendFileMessage().getUrl(), msgAllBean.getSendFileMessage().getFile_name(), msgAllBean.getSendFileMessage().getSize(), msgAllBean.getSendFileMessage().getFormat(), isFromOther);
                     MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), fileMessage);
                     if (allBean != null) {
                         sendMessage(allBean);
@@ -788,19 +803,19 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             public void onSuccess() {
                 Intent intent = getIntent();
                 Bundle extras = intent.getExtras();
-                String action = intent.getAction();
-                if (Intent.ACTION_SEND.equals(action)) {
-                    if (extras.containsKey(Intent.EXTRA_STREAM)) {
-                        try {
-                            Uri uri = (Uri) extras.getParcelable(Intent.EXTRA_STREAM);
-                            imagePath = FileUtils.getFilePathByUri(MsgForwardActivity.this, uri);
+//                String action = intent.getAction();
+//                if (Intent.ACTION_SEND.equals(action)) {
+//                    if (extras.containsKey(Intent.EXTRA_STREAM)) {
+                try {
+                    Uri uri = (Uri) extras.getParcelable(Intent.EXTRA_STREAM);
+                    imagePath = FileUtils.getFilePathByUri(MsgForwardActivity.this, uri);
 //                            upload(path, UpFileAction.PATH.IMG);
-                        } catch (Exception e) {
-                            LogUtil.getLog().e(e.toString());
-                        }
-
-                    }
+                } catch (Exception e) {
+                    LogUtil.getLog().e(e.toString());
                 }
+
+//                    }
+//                }
             }
 
             @Override
