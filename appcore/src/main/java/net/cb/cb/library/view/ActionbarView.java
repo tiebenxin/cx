@@ -72,6 +72,7 @@ public class ActionbarView extends LinearLayout {
 
     /**
      * 新增-> 设置聊天标题 (单独加粗效果)
+     *
      * @param title
      */
     public void setChatTitle(String title) {
@@ -82,23 +83,25 @@ public class ActionbarView extends LinearLayout {
 
     /**
      * 新增-> 单独显示群聊人数/消息数 (避免标题过长挤压)
+     *
      * @param number 具体数字
      * @param ifShow 控制是否显示
      */
-    public void setNumber(int number,boolean ifShow){
-        tvNumber.setText("("+number+")");
+    public void setNumber(int number, boolean ifShow) {
+        tvNumber.setText("(" + number + ")");
         tvNumber.setVisibility(ifShow ? VISIBLE : GONE);
     }
 
     /**
      * 优化-> 标题底部文字显示(在线状态/几小时前)
-     * @param title 文字内容
+     *
+     * @param title  文字内容
      * @param ifShow 控制是否显示
      */
-    public void setTitleMore(Spanned title,boolean ifShow) {
+    public void setTitleMore(Spanned title, boolean ifShow) {
         if (StringUtil.isNotNull(title.toString())) {
             txtTitleMore.setText(title);
-        }else {
+        } else {
             ifShow = false;
         }
         txtTitleMore.setVisibility(ifShow ? VISIBLE : GONE);
@@ -162,8 +165,12 @@ public class ActionbarView extends LinearLayout {
      * @param txt
      */
     public void setTxtRight(String txt) {
-        txtRight.setText(txt);
-        txtRight.setVisibility(View.VISIBLE);
+        if (TextUtils.isEmpty(txt)) {
+            txtRight.setVisibility(View.GONE);
+        } else {
+            txtRight.setText(txt);
+            txtRight.setVisibility(View.VISIBLE);
+        }
     }
 
     public TextView getTxtRight() {
@@ -215,13 +222,12 @@ public class ActionbarView extends LinearLayout {
 
     /**
      * 阅后即焚图标
-     * */
+     */
 //    public void setImageShow(int image){
 //        actionRightRight.setVisibility(View.VISIBLE);
 //        btnIconRightRight.setImageResource(image);
 //    }
-
-    public ImageView getRightImage(){
+    public ImageView getRightImage() {
         return btnIconRightRight;
     }
 
@@ -245,9 +251,10 @@ public class ActionbarView extends LinearLayout {
 
 
     }
+
     //单聊界面->离线加载条
     public ImageView getLoadBar() {
-        if(ivGroupLoadBar.getVisibility() == VISIBLE){
+        if (ivGroupLoadBar.getVisibility() == VISIBLE) {
             ivGroupLoadBar.setVisibility(GONE);
         }
         return ivLoadBar;
@@ -255,7 +262,7 @@ public class ActionbarView extends LinearLayout {
 
     //群聊界面->离线加载条
     public ImageView getGroupLoadBar() {
-        if(ivLoadBar.getVisibility() == VISIBLE){
+        if (ivLoadBar.getVisibility() == VISIBLE) {
             ivLoadBar.setVisibility(GONE);
         }
         return ivGroupLoadBar;
@@ -441,7 +448,7 @@ public class ActionbarView extends LinearLayout {
     /**
      * 零钱顶部背景样式
      */
-    public void setChangeStyleBg(){
+    public void setChangeStyleBg() {
         rootView.findViewById(R.id.ll_main).setBackgroundColor(Color.parseColor("#c85749"));
 
     }
