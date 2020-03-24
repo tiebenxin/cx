@@ -20,6 +20,7 @@ import com.cx.sharelib.message.CxMediaMessage;
 import com.example.nim_lib.config.Preferences;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -51,6 +52,7 @@ import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
@@ -1094,17 +1096,22 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     }
 
     private void showSendProgress(int position, int count, int progress) {
-        dialogSendProgress = new DialogCommon2(this)
-                .setContent(getProgressText(position, count, progress), false)
-                .setListener(new DialogCommon2.IDialogListener() {
-                    @Override
-                    public void onCancel() {
-                        if (msgList != null) {
-                            msgList.clear();
-                        }
-                    }
-                });
-        dialogSendProgress.show();
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                dialogSendProgress = new DialogCommon2(MsgForwardActivity.this)
+                        .setContent(getProgressText(position, count, progress), false)
+                        .setListener(new DialogCommon2.IDialogListener() {
+                            @Override
+                            public void onCancel() {
+                                if (msgList != null) {
+                                    msgList.clear();
+                                }
+                            }
+                        });
+                dialogSendProgress.show();
+            }
+        });
     }
 
     private void updateSendProgress(MsgAllBean msgAllBean, int progress) {
@@ -1127,12 +1134,16 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             prePosition = position;
             preProgress = progress;
         }
-        actionbar.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                dialogSendProgress.setContent(getProgressText(position, len, progress), false);
-            }
-        }, 100);
+        if (dialogSendProgress.isShowing()) {
+            actionbar.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (dialogSendProgress != null) {
+                        dialogSendProgress.setContent(getProgressText(position, len, progress), false);
+                    }
+                }
+            }, 100);
+        }
 
     }
 

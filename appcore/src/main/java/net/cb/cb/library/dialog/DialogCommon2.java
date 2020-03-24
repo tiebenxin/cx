@@ -57,9 +57,11 @@ public class DialogCommon2 extends BaseDialog {
      * @param center 是否内容居中，默认居右
      */
     public DialogCommon2 setContent(String txt, boolean center) {
-        tvContent.setText(txt);
-        if (center) {
-            tvContent.setGravity(Gravity.CENTER);
+        if (tvContent != null) {
+            tvContent.setText(txt);
+            if (center) {
+                tvContent.setGravity(Gravity.CENTER);
+            }
         }
         return this;
     }
