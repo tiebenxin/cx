@@ -705,15 +705,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
                         taskRefreshMessage(false);
                     } else {
-                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
-                            for (String msgid : bean.getMsgIdList()) {
-                                //撤回消息不做刷新
-                                if (ChatServer.getCancelList().containsKey(msgid)) {
-                                    LogUtil.getLog().i(TAG, "onACK: 收到取消回执,等待刷新列表2");
-                                    return;
-                                }
-                            }
-                        }
+//                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
+//                            for (String msgid : bean.getMsgIdList()) {
+//                                //撤回消息不做刷新
+//                                if (ChatServer.getCancelList().containsKey(msgid)) {
+//                                    LogUtil.getLog().i(TAG, "onACK: 收到取消回执,等待刷新列表2");
+//                                    return;
+//                                }
+//                            }
+//                        }
                         taskRefreshMessage(false);
 
                     }
@@ -848,15 +848,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
                         taskRefreshMessage(false);
                     } else {
-                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
-                            for (String msgid : bean.getMsgIdList()) {
-                                //撤回消息不做刷新
-                                if (ChatServer.getCancelList().containsKey(msgid)) {
-                                    LogUtil.getLog().i(TAG, "onACK: 收到取消回执,等待刷新列表2");
-                                    return;
-                                }
-                            }
-                        }
+//                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
+//                            for (String msgid : bean.getMsgIdList()) {
+//                                //撤回消息不做刷新
+//                                if (ChatServer.getCancelList().containsKey(msgid)) {
+//                                    LogUtil.getLog().i(TAG, "onACK: 收到取消回执,等待刷新列表2");
+//                                    return;
+//                                }
+//                            }
+//                        }
                         taskRefreshMessage(false);
                     }
                 }
