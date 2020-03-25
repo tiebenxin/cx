@@ -1,6 +1,7 @@
 package com.yanlong.im.share;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -14,6 +15,8 @@ import com.yanlong.im.user.ui.LoginActivity;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AppActivity;
+
+import java.util.List;
 
 /**
  * @author Liszt
@@ -36,22 +39,38 @@ public class CXEntryActivity extends AppActivity {
             if (extras != null) {
                 if (Intent.ACTION_SEND.equals(action)) {
                     mode = ChatEnum.EForwardMode.SYS_SEND;
-                } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
-                    mode = ChatEnum.EForwardMode.SYS_SEND_MULTI;
                     if (!isSupportType(type)) {
-                        ToastUtil.show(this, "分享失败，多文件分享仅支持照片格式");
+                        ToastUtil.show(this, "分享失败，单文件分享仅支持照片，文件格式");
                         finish();
                         return;
                     }
                 } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
+                    mode = ChatEnum.EForwardMode.SYS_SEND_MULTI;
+                    if (!isSupportMultiType(type)) {
+                        ToastUtil.show(this, "分享失败，多文件分享仅支持照片格式");
+                        finish();
+                        return;
+                    } else {
+                        List<Uri> uriList = extras.getParcelableArrayList(Intent.EXTRA_STREAM);
+                        if (uriList != null && uriList.size() > 9) {
+                            ToastUtil.show(this, "分享失败，暂不支持分享超过9张图片给朋友");
+                            finish();
+                            return;
+                        }
+                    }
+                } else {
                     mode = ChatEnum.EForwardMode.SHARE;
                 }
                 checkApp(extras, type);
             } else {
-
+                ToastUtil.show(this, "分享失败，无分享数据");
+                finish();
+                return;
             }
         } else {
-
+            ToastUtil.show(this, "分享失败，无分享数据");
+            finish();
+            return;
         }
     }
 
@@ -123,6 +142,15 @@ public class CXEntryActivity extends AppActivity {
     private boolean isSupportType(String type) {
         if (!TextUtils.isEmpty(type)) {
             if (type.startsWith("image/") || type.startsWith("text/")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isSupportMultiType(String type) {
+        if (!TextUtils.isEmpty(type)) {
+            if (type.startsWith("image/")) {
                 return true;
             }
         }
