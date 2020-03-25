@@ -1,5 +1,6 @@
 package com.yanlong.im;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
@@ -116,6 +117,11 @@ import java.util.List;
 import java.util.Locale;
 
 import cn.jpush.android.api.JPushInterface;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -134,7 +140,7 @@ public class MainActivity extends AppActivity {
     private StrikeButton sbmsg;
     private StrikeButton sbfriend;
     private StrikeButton sbme;
-//    private StrikeButton sbshop;
+    //    private StrikeButton sbshop;
     private NotifySettingDialog notifyDialog;
     private NetworkReceiver mNetworkReceiver;
     private MsgMainFragment mMsgMainFragment;
@@ -179,17 +185,18 @@ public class MainActivity extends AppActivity {
         }
 
         initLocation();
+//        getMsgToPC();
     }
 
     private void initLocation() {
         lastPostLocationTime = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.POST_LOCATION_TIME).get4Json(String.class);
         //无缓存则直接定位，记录本次上传位置的时间
-        if(TextUtils.isEmpty(lastPostLocationTime)){
+        if (TextUtils.isEmpty(lastPostLocationTime)) {
             getLocation();
-        }else {
+        } else {
             //有缓存则按需求规则，超过24小时再上报用户地理位置信息
             try {
-                if(!DateUtils.judgmentDate(lastPostLocationTime,DateUtils.getNowFormatTime(),24)){
+                if (!DateUtils.judgmentDate(lastPostLocationTime, DateUtils.getNowFormatTime(), 24)) {
                     getLocation();
                 }
             } catch (Exception e) {
@@ -491,10 +498,10 @@ public class MainActivity extends AppActivity {
         BurnManager.getInstance().cancel();
         super.onDestroy();
         // 在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
-        if(listener!=null){
+        if (listener != null) {
             locService.unregisterListener(listener);
         }
-        if(locService!=null){
+        if (locService != null) {
             locService.stop();
         }
     }
@@ -833,7 +840,7 @@ public class MainActivity extends AppActivity {
                     UpdateManage updateManage = new UpdateManage(context, MainActivity.this);
                     //强制更新
                     if (response.body().getData().getForceUpdate() != 0) {
-                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true,true);
+                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
                     } else {
                         //缓存最新版本
                         SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
@@ -842,9 +849,9 @@ public class MainActivity extends AppActivity {
                         preferencesUtil.save2Json(versionBean);
                         //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
                         if (VersionUtil.isBigVersion(context, bean.getVersion())) {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true,true);
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
                         } else {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false,true);
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
                         }
                         //如有新版本，首页底部提示红点
                         if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
@@ -1100,7 +1107,7 @@ public class MainActivity extends AppActivity {
     public @interface EMainTab {
         int MSG = 0; // 消息界面
         int CONTACT = 1; // 好友界面
-//        int SHOP = 2; // 商城界面
+        //        int SHOP = 2; // 商城界面
         int ME = 2; // 我的界面
     }
 
@@ -1128,16 +1135,16 @@ public class MainActivity extends AppActivity {
                     if (bdLocation != null && bdLocation.getPoiList() != null) {
                         String city = bdLocation.getCity();
                         String country = bdLocation.getCountry();
-                        String lat = bdLocation.getLatitude()+"";
-                        String lon = bdLocation.getLongitude()+"";
+                        String lat = bdLocation.getLatitude() + "";
+                        String lon = bdLocation.getLongitude() + "";
                         locService.stop();//定位成功后停止定位
                         //请求——>上报用户地理位置信息
                         userAction.postLocation(city, country, lat, lon, new CallBack<ReturnBean>() {
                             @Override
                             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                                 super.onResponse(call, response);
-                                if (response != null && response.body() != null && response.body().isOk()){
-                                    LogUtil.getLog().i("TAG","位置信息上报成功");
+                                if (response != null && response.body() != null && response.body().isOk()) {
+                                    LogUtil.getLog().i("TAG", "位置信息上报成功");
                                     //缓存本次调用的时间，24小时以内只需要发一次请求
                                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.POST_LOCATION_TIME).save2Json(DateUtils.getNowFormatTime());
                                 }
@@ -1146,7 +1153,7 @@ public class MainActivity extends AppActivity {
                             @Override
                             public void onFailure(Call<ReturnBean> call, Throwable t) {
                                 super.onFailure(call, t);
-                                LogUtil.getLog().i("TAG","位置信息上报失败");
+                                LogUtil.getLog().i("TAG", "位置信息上报失败");
                             }
                         });
                     }
@@ -1157,5 +1164,27 @@ public class MainActivity extends AppActivity {
         };
         locService.registerListener(listener);
         locService.start();
+    }
+
+    @SuppressLint("CheckResult")
+    private void getMsgToPC() {
+        Observable.just(0)
+                .map(new Function<Integer, List<MsgAllBean>>() {
+                    @Override
+                    public List<MsgAllBean> apply(Integer integer) throws Exception {
+                        return msgDao.getMsgIn3Day();
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<MsgAllBean>>empty())
+                .subscribe(new Consumer<List<MsgAllBean>>() {
+                    @Override
+                    public void accept(List<MsgAllBean> list) throws Exception {
+                        if (list != null) {
+                            LogUtil.getLog().i("a==", list.size() + "");
+                        }
+                    }
+                });
+
     }
 }

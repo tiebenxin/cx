@@ -477,7 +477,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
     @Override
     public int compareTo(UserInfo o) {
-
+        if (TextUtils.isEmpty(getTag()) || (o == null || TextUtils.isEmpty(o.getTag()))) {
+            return -1;
+        }
         int last = getTag().charAt(0);
         if (getTag().equals("#")) {
             return 1;

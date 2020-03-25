@@ -65,7 +65,9 @@ public class SendList {
      * @param msg
      */
     public static void addSendList(String keyId, MsgBean.AckMessage.Builder msg) {
-
+        if (TextUtils.isEmpty(keyId) || msg == null) {
+            return;
+        }
         LogUtil.getLog().d(TAG, "添加发送队列rid:" + keyId);
 //        LogUtil.writeLog("添加发送队列keyId:" +keyId);
         if (SEND_LIST.containsKey(keyId)) {//已经在发送队列中了

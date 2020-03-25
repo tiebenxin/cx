@@ -3364,4 +3364,44 @@ public class MsgDao {
         return result;
     }
 
+    //3天以内的消息
+    public List<MsgAllBean> getMsgIn3Day() {
+        List<MsgAllBean> list = new ArrayList<>();
+        Realm realm = DaoUtil.open();
+        long time = SocketData.getFixTime() - TimeToString.DAY * 3;
+        try {
+            //群聊消息
+            RealmResults<MsgAllBean> groupMsgs = realm.where(MsgAllBean.class)
+                    .beginGroup().isNotEmpty("gid").or().isNotNull("gid").endGroup()
+                    .and()
+                    .beginGroup().greaterThan("timestamp", time).endGroup()
+                    .limit(1000)
+//                    .sort("timestamp",Sort.DESCENDING)
+                    .findAll();
+            //单聊消息
+            RealmResults<MsgAllBean> privateMsgs = realm.where(MsgAllBean.class)
+                    .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup().greaterThan("timestamp", time).endGroup()
+                    .limit(1000)
+//                    .sort("timestamp",Sort.DESCENDING)
+                    .findAll();
+            RealmList<MsgAllBean> results = new RealmList<>();
+            if (groupMsgs != null) {
+                results.addAll(groupMsgs);
+            }
+            if (privateMsgs != null) {
+                results.addAll(privateMsgs);
+            }
+            results.where().sort("timestamp",Sort.DESCENDING);
+            list = realm.copyFromRealm(results);
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return list;
+
+    }
+
 }

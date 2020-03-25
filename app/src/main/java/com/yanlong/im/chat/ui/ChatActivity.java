@@ -189,6 +189,7 @@ import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
+import net.cb.cb.library.bean.EventFileRename;
 import net.cb.cb.library.bean.EventFindHistory;
 import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.EventIsShowRead;
@@ -703,15 +704,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
                         taskRefreshMessage(false);
                     } else {
-                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
-                            for (String msgid : bean.getMsgIdList()) {
-                                //撤回消息不做刷新
-                                if (ChatServer.getCancelList().containsKey(msgid)) {
-                                    LogUtil.getLog().i(TAG, "onACK: 收到取消回执,等待刷新列表2");
-                                    return;
-                                }
-                            }
-                        }
+//                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
+//                            for (String msgid : bean.getMsgIdList()) {
+//                                //撤回消息不做刷新
+//                                if (ChatServer.getCancelList().containsKey(msgid)) {
+//                                    LogUtil.getLog().i(TAG, "onACK: 收到取消回执,等待刷新列表2");
+//                                    return;
+//                                }
+//                            }
+//                        }
                         taskRefreshMessage(false);
 
                     }
@@ -846,15 +847,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
                         taskRefreshMessage(false);
                     } else {
-                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
-                            for (String msgid : bean.getMsgIdList()) {
-                                //撤回消息不做刷新
-                                if (ChatServer.getCancelList().containsKey(msgid)) {
-                                    LogUtil.getLog().i(TAG, "onACK: 收到取消回执,等待刷新列表2");
-                                    return;
-                                }
-                            }
-                        }
+//                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
+//                            for (String msgid : bean.getMsgIdList()) {
+//                                //撤回消息不做刷新
+//                                if (ChatServer.getCancelList().containsKey(msgid)) {
+//                                    LogUtil.getLog().i(TAG, "onACK: 收到取消回执,等待刷新列表2");
+//                                    return;
+//                                }
+//                            }
+//                        }
                         taskRefreshMessage(false);
                     }
                 }
@@ -2943,6 +2944,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void refreshFileRename(EventFileRename event) {
+        MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
+        replaceListDataAndNotify(msgAllbean, true);
+    }
+
 
     private void setChatImageBackground() {
         UserSeting seting = new MsgDao().userSetingGet();
@@ -4057,23 +4064,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             //1 如果是我发的文件
                             if (msgbean.isMe()) {
                                 //2 判断是否为转发
-                                //若是转发他人，则需要先从下载路径里找，有则直接打开，没有则需要下载
+                                //若是转发他人，则需要先从下载路径里找，有则代表已下载直接打开，没有则需要下载
                                 if(fileMessage.isFromOther()){
-                                    if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name())) {
+                                    if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
                                         openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
                                     } else {
                                         if (!TextUtils.isEmpty(fileMessage.getUrl())) {
                                             Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
-                                            intent.putExtra("file_name", fileMessage.getFile_name());
-                                            intent.putExtra("file_format", fileMessage.getFormat());
-                                            intent.putExtra("file_url", fileMessage.getUrl());
+                                            intent.putExtra("file_msg", new Gson().toJson(msgbean));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
                                             startActivity(intent);
                                         } else {
                                             ToastUtil.show("文件下载地址错误，请联系客服");
                                         }
                                     }
                                 }else {
-                                    //若自己转发自己，则为本地文件，从本地路径里找，有则打开，没有提示文件已被删除
+                                    //若不是转发或者自己转发自己，则为本地文件，从本地路径里找，有则打开，没有提示文件已被删除
                                     if (net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getLocalPath())) {
                                         openAndroidFile(fileMessage.getLocalPath());
                                     } else {
@@ -4083,14 +4088,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             } else {
                                 //如果是别人发的文件
                                 //从下载路径里找，若存在该文件，则直接打开；否则需要下载
-                                if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name())) {
+                                if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
                                     openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
                                 } else {
                                     if (!TextUtils.isEmpty(fileMessage.getUrl())) {
                                         Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
-                                        intent.putExtra("file_name", fileMessage.getFile_name());
-                                        intent.putExtra("file_format", fileMessage.getFormat());
-                                        intent.putExtra("file_url", fileMessage.getUrl());
+                                        intent.putExtra("file_msg", new Gson().toJson(msgbean));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
                                         startActivity(intent);
                                     } else {
                                         ToastUtil.show("文件下载地址错误，请联系客服");

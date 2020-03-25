@@ -20,6 +20,7 @@ import com.cx.sharelib.message.CxMediaMessage;
 import com.example.nim_lib.config.Preferences;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -41,13 +42,17 @@ import com.yanlong.im.share.ShareDialog;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
+import com.yanlong.im.utils.socket.SocketUtil;
 import com.zhaoss.weixinrecorded.util.BitmapUtil;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.dialog.DialogCommon2;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.GsonUtils;
+import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
@@ -66,6 +71,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.annotations.NonNull;
+
+import static net.cb.cb.library.utils.FileUtils.SIZETYPE_B;
 
 /***
  * 消息转换
@@ -101,7 +108,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     private List<MsgAllBean> sendQueue = new ArrayList<>();
 
     //系统发送图片路径
-    private String imagePath;
+    private String filePath;
 
     //第三方分享
     private String shareText;
@@ -112,6 +119,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     private String appIcon;
     private String shareDescription;
     private String shareTitle;
+    private List<String> shareUrls;
+    private DialogCommon2 dialogSendProgress;
+    private int prePosition;
+    private int preProgress;
 
 
     //单条消息转发
@@ -145,6 +156,19 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        dismissSendProgress();
+    }
+
+    private void dismissSendProgress() {
+        if (dialogSendProgress != null) {
+            dialogSendProgress.dismiss();
+            dialogSendProgress = null;
+        }
+    }
+
     private void initIntent() {
         Intent intent = getIntent();
         model = intent.getIntExtra(MODE, ChatEnum.EForwardMode.DEFAULT);
@@ -155,7 +179,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             Gson gson = new Gson();
             msgList = gson.fromJson(json, new TypeToken<List<MsgAllBean>>() {
             }.getType());
-        } else if (model == ChatEnum.EForwardMode.SYS_SEND) {
+        } else if (model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
             getSysImgShare();
         } else if (model == ChatEnum.EForwardMode.SHARE) {
             mediaType = intent.getIntExtra("cxapi_sendmessagetowx_req_media_type", 0);
@@ -265,15 +289,17 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     }
 
     private void resetRightText() {
+        if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI || model == ChatEnum.EForwardMode.SYS_SEND) {
+            actionbar.setTxtRight("");
+            return;
+        }
         if (isSingleSelected) {
             actionbar.getBtnLeft().setVisibility(View.VISIBLE);
             actionbar.setTxtLeft("");
-
             actionbar.setTxtRight("多选");
         } else {
             actionbar.getBtnLeft().setVisibility(View.GONE);
             actionbar.setTxtLeft("取消");
-
             if (moreSessionBeanList.size() == 0) {
                 actionbar.setTxtRight("完成");
             } else {
@@ -346,7 +372,16 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             if (isWaitModel()) {
                 sendQueue.remove(msgAllBean);
                 if (sendQueue.size() == 0) {
-                    showShareDialog();
+                    if (model == ChatEnum.EForwardMode.SHARE) {
+                        showShareDialog();
+                    } else if (model == ChatEnum.EForwardMode.SYS_SEND) {
+                        startActivity(new Intent(MsgForwardActivity.this, MainActivity.class));
+                        MsgForwardActivity.this.finish();
+                    } else if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
+                        dismissSendProgress();
+                        startActivity(new Intent(MsgForwardActivity.this, MainActivity.class));
+                        MsgForwardActivity.this.finish();
+                    }
                 }
             }
         } else if (data instanceof MsgBean.AckMessage) {
@@ -356,18 +391,37 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     @Override
     public void onForward(final long toUid, final String toGid, String mIcon, String mName) {
+        if (!SocketUtil.getSocketUtil().isRun()) {
+            ToastUtil.show(this, "连接已断开，请退出常信重新分享");
+            return;
+        }
         if (model == ChatEnum.EForwardMode.DEFAULT && msgAllBean == null) {
             return;
         } else if (model == ChatEnum.EForwardMode.SYS_SEND) {
-            if (TextUtils.isEmpty(imagePath)) {
+            if (TextUtils.isEmpty(filePath)) {
                 return;
             }
-            BitmapUtil.Size size = BitmapUtil.getImageSize(imagePath);
-            if (size == null) {
+            if (mediaType == CxMediaMessage.EMediaType.IMAGE) {
+                ImgSizeUtil.ImageSize imgSize = ImgSizeUtil.getAttribute(filePath);
+                if (imgSize == null) {
+                    return;
+                }
+                ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), filePath, "", imgSize.getWidth(), imgSize.getHeight(), true, false, imgSize.getSize());
+                msgAllBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), image);
+            } else if (mediaType == CxMediaMessage.EMediaType.FILE) {
+                double fileSize = FileUtils.getFileOrFilesSize(filePath, SIZETYPE_B);
+                String fileName = FileUtils.getFileName(filePath);
+                String fileFormat = FileUtils.getFileSuffix(fileName);
+                SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), filePath, "", fileName, new Double(fileSize).longValue(), fileFormat, false);
+                msgAllBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), fileMessage);
+            }
+        } else if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
+            if (shareUrls == null || shareUrls.isEmpty()) {
                 return;
             }
-            ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), imagePath, "", size.width, size.height, true, false, 0);
-            msgAllBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), image);
+            if (mediaType == CxMediaMessage.EMediaType.IMAGE) {
+                msgList = getMsgList(shareUrls, toUid, toGid);
+            }
         } else if (model == ChatEnum.EForwardMode.SHARE) {
             if (mediaType == CxMediaMessage.EMediaType.TEXT) {//文本
                 if (!TextUtils.isEmpty(shareText)) {
@@ -401,14 +455,21 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         AlertForward alertForward = new AlertForward();
         String txt = "";
         String imageUrl = "";
+        int type = 0;
         if (model == ChatEnum.EForwardMode.DEFAULT || model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.SHARE) {
             if (msgAllBean == null) {
                 return;
             }
+            type = msgAllBean.getMsg_type();
             if (msgAllBean.getChat() != null) {//转换文字
                 txt = msgAllBean.getChat().getMsg();
             } else if (msgAllBean.getImage() != null) {
                 imageUrl = msgAllBean.getImage().getThumbnail();
+                if (TextUtils.isEmpty(imageUrl)) {
+                    if (model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.SHARE) {
+                        imageUrl = msgAllBean.getImage().getLocalimg();
+                    }
+                }
             } else if (msgAllBean.getAtMessage() != null) {
                 txt = msgAllBean.getAtMessage().getMsg();
             } else if (msgAllBean.getVideoMessage() != null) {
@@ -433,9 +494,13 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             txt = "[逐条转发]共" + msgList.size() + "条消息";
         } else if (model == ChatEnum.EForwardMode.MERGE) {
             txt = "[合并转发]";
+        } else if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
+            if (msgList == null) {
+                return;
+            }
         }
 
-        alertForward.init(MsgForwardActivity.this, msgAllBean.getMsg_type(), mIcon, mName, txt, imageUrl, btm, toGid, new AlertForward.Event() {
+        alertForward.init(MsgForwardActivity.this, type, mIcon, mName, txt, imageUrl, btm, toGid, new AlertForward.Event() {
             @Override
             public void onON() {
 
@@ -457,7 +522,33 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         }
                     }
                 } else if (model == ChatEnum.EForwardMode.SYS_SEND) {
-                    upload(imagePath, UpFileAction.PATH.IMG, msgAllBean);
+                    UpFileAction.PATH uploadType = getUploadType(mediaType);
+                    if (uploadType != null) {
+                        upload(filePath, uploadType, msgAllBean);
+                    } else {
+                        ToastUtil.show(MsgForwardActivity.this, "分享失败，不支持文件类型");
+                        return;
+                    }
+
+                } else if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
+                    UpFileAction.PATH uploadType = getUploadType(mediaType);
+                    if (uploadType != null) {
+                        if (msgList != null) {
+//                            for (int i = 0; i < msgList.size(); i++) {
+//                                MsgAllBean msg = msgList.get(i);
+//                                upload(msg.getImage().getLocalimg(), uploadType, msg);
+//                            }
+                            showSendProgress(1, msgList.size(), 0);
+                            MsgAllBean msg = msgList.get(0);
+                            upload(msg.getImage().getLocalimg(), uploadType, msg, 0);
+                        } else {
+                            ToastUtil.show(MsgForwardActivity.this, "分享失败，数据异常");
+                        }
+                    } else {
+                        ToastUtil.show(MsgForwardActivity.this, "分享失败，不支持文件类型");
+                        return;
+                    }
+
                 } else if (model == ChatEnum.EForwardMode.SHARE) {
                     if (mediaType == CxMediaMessage.EMediaType.TEXT || mediaType == CxMediaMessage.EMediaType.WEB) {
                         send(msgAllBean, content, toUid, toGid);
@@ -643,13 +734,13 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             //文件分为两种情况：转发他人/自己转发自己，转发他人的文件需要下载，转发自己的文件直接从本地查找
             boolean isFromOther;
             //如果是自己转发自己的文件
-            if(msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()){
+            if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
                 isFromOther = false;
-            }else {
+            } else {
                 isFromOther = true;
             }
             if (isSingleSelected) {
-                SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), msgAllBean.getSendFileMessage().getLocalPath(), msgAllBean.getSendFileMessage().getUrl(), msgAllBean.getSendFileMessage().getFile_name(), msgAllBean.getSendFileMessage().getSize(), msgAllBean.getSendFileMessage().getFormat(),isFromOther);
+                SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), msgAllBean.getSendFileMessage().getLocalPath(), msgAllBean.getSendFileMessage().getUrl(), msgAllBean.getSendFileMessage().getFile_name(), msgAllBean.getSendFileMessage().getSize(), msgAllBean.getSendFileMessage().getFormat(), isFromOther);
                 MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), fileMessage);
                 if (allBean != null) {
                     sendMessage(allBean);
@@ -659,7 +750,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             } else {
                 for (int i = 0; i < moreSessionBeanList.size(); i++) {
                     MoreSessionBean bean = moreSessionBeanList.get(i);
-                    SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), msgAllBean.getSendFileMessage().getLocalPath(), msgAllBean.getSendFileMessage().getUrl(), msgAllBean.getSendFileMessage().getFile_name(), msgAllBean.getSendFileMessage().getSize(), msgAllBean.getSendFileMessage().getFormat(),isFromOther);
+                    SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), msgAllBean.getSendFileMessage().getLocalPath(), msgAllBean.getSendFileMessage().getUrl(), msgAllBean.getSendFileMessage().getFile_name(), msgAllBean.getSendFileMessage().getSize(), msgAllBean.getSendFileMessage().getFormat(), isFromOther);
                     MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), fileMessage);
                     if (allBean != null) {
                         sendMessage(allBean);
@@ -748,14 +839,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             bean.setGid(gid);
             bean.setAvatar(avatar);
             bean.setNick(nick);
-
             moreSessionBeanList.add(bean);
-//                LogUtil.getLog().e("======add==");
         } else if (!isAdd && hasInt > -1) {
             moreSessionBeanList.remove(hasInt);
-//                LogUtil.getLog().e("======delete==");
         }
-
         EventBus.getDefault().post(new SelectNumbEvent(moreSessionBeanList.size() + ""));
     }
 
@@ -788,18 +875,21 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             public void onSuccess() {
                 Intent intent = getIntent();
                 Bundle extras = intent.getExtras();
-                String action = intent.getAction();
-                if (Intent.ACTION_SEND.equals(action)) {
-                    if (extras.containsKey(Intent.EXTRA_STREAM)) {
-                        try {
-                            Uri uri = (Uri) extras.getParcelable(Intent.EXTRA_STREAM);
-                            imagePath = FileUtils.getFilePathByUri(MsgForwardActivity.this, uri);
-//                            upload(path, UpFileAction.PATH.IMG);
-                        } catch (Exception e) {
-                            LogUtil.getLog().e(e.toString());
-                        }
-
+                String type = intent.getType();
+                mediaType = getMediaType(type);
+                if (mediaType == CxMediaMessage.EMediaType.UNKNOWN) {
+                    return;
+                }
+                try {
+                    if (model == ChatEnum.EForwardMode.SYS_SEND) {
+                        Uri uri = (Uri) extras.getParcelable(Intent.EXTRA_STREAM);
+                        filePath = FileUtils.getFilePathByUri(MsgForwardActivity.this, uri);
+                    } else if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
+                        List<Uri> uriList = extras.getParcelableArrayList(Intent.EXTRA_STREAM);
+                        shareUrls = FileUtils.getUrisForList(MsgForwardActivity.this, uriList);
                     }
+                } catch (Exception e) {
+                    LogUtil.getLog().e(e.toString());
                 }
             }
 
@@ -817,7 +907,11 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     }
 
     private void upload(String file, UpFileAction.PATH type, MsgAllBean msg) {
-        uploadFile(file, type, new UpLoadService.UpLoadCallback() {
+        if (TextUtils.isEmpty(file)) {
+            return;
+        }
+        LogUtil.getLog().i("分享", file);
+        uploadFile(file, msg, type, new UpLoadService.UpLoadCallback() {
             @Override
             public void success(String url) {
                 if (!TextUtils.isEmpty(url)) {
@@ -825,8 +919,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         case IMG:
                             ImageMessage image = msg.getImage();
                             ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize());
-                            msgAllBean.setImage(imageMessage);
-                            sendMessage(msgAllBean);
+                            msg.setImage(imageMessage);
+                            sendMessage(msg);
                             break;
                         case FILE:
                             break;
@@ -844,7 +938,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
 
     //上传文件，图片文件等
-    public void uploadFile(String file, UpFileAction.PATH type, UpLoadService.UpLoadCallback upLoadCallback) {
+    public void uploadFile(String file, MsgAllBean msgAllBean, UpFileAction.PATH type, UpLoadService.UpLoadCallback upLoadCallback) {
+//        LogUtil.getLog().i("分享uploadFile", file);
         UpFileAction upFileAction = new UpFileAction();
         upFileAction.upFile(type, this, new UpFileUtil.OssUpCallback() {
             @Override
@@ -859,6 +954,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
             @Override
             public void inProgress(long progress, long zong) {
+                int pg = new Double(progress / (zong + 0.0f) * 100.0).intValue();
+                updateSendProgress(msgAllBean, pg);
             }
         }, file);
     }
@@ -873,7 +970,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     //等待发送成功
     private boolean isWaitModel() {
-        if (model == ChatEnum.EForwardMode.SHARE || model == ChatEnum.EForwardMode.SYS_SEND) {
+        if (model == ChatEnum.EForwardMode.SHARE || model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
             return true;
         }
         return false;
@@ -912,5 +1009,146 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             }
         }
         return false;
+    }
+
+    @CxMediaMessage.EMediaType
+    private int getMediaType(String type) {
+        if (!TextUtils.isEmpty(type)) {
+            if (type.startsWith("image/")) {
+                return CxMediaMessage.EMediaType.IMAGE;
+            } else if (type.startsWith("text/")) {
+                return CxMediaMessage.EMediaType.FILE;
+            }
+        }
+        return CxMediaMessage.EMediaType.UNKNOWN;
+    }
+
+    private UpFileAction.PATH getUploadType(int mediaType) {
+        if (mediaType == CxMediaMessage.EMediaType.IMAGE) {
+            return UpFileAction.PATH.IMG;
+        } else if (mediaType == CxMediaMessage.EMediaType.FILE) {
+            return UpFileAction.PATH.FILE;
+        }
+        return null;
+    }
+
+
+    private List<MsgAllBean> getMsgList(List<String> urls, long uid, String gid) {
+        if (urls == null) {
+            return null;
+        }
+        int len = urls.size();
+        if (len > 0) {
+            List<MsgAllBean> list = new ArrayList<>();
+            for (int i = 0; i < len; i++) {
+                String url = urls.get(i);
+                ImgSizeUtil.ImageSize imgSize = ImgSizeUtil.getAttribute(url);
+                if (imgSize == null) {
+                    continue;
+                }
+                ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), url, "", imgSize.getWidth(), imgSize.getHeight(), true, false, imgSize.getSize());
+                MsgAllBean msgAllBean = SocketData.createMessageBean(uid, gid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), image);
+                if (msgAllBean != null) {
+                    list.add(msgAllBean);
+                }
+            }
+            return list;
+        }
+        return null;
+    }
+
+    private void upload(String file, UpFileAction.PATH type, MsgAllBean msg, final int position) {
+        if (TextUtils.isEmpty(file)) {
+            return;
+        }
+//        LogUtil.getLog().i("分享", file);
+        uploadFile(file, msg, type, new UpLoadService.UpLoadCallback() {
+            @Override
+            public void success(String url) {
+                if (!TextUtils.isEmpty(url)) {
+                    switch (type) {
+                        case IMG:
+                            ImageMessage image = msg.getImage();
+                            ImageMessage imageMessage = SocketData.createImageMessage(image.getMsgId(), image.getLocalimg(), url, image.getWidth(), image.getHeight(), true, true, image.getSize());
+                            msg.setImage(imageMessage);
+                            sendMessage(msg);
+                            break;
+                        case FILE:
+                            break;
+
+                    }
+                    if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
+                        if (msgList != null && position < msgList.size() - 1) {
+                            int newP = position + 1;
+                            MsgAllBean msgAllBean = msgList.get(newP);
+                            updateSendProgress(msgAllBean, 0);
+                            upload(msgAllBean.getImage().getLocalimg(), type, msgAllBean, newP);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void fail() {
+
+            }
+        });
+    }
+
+    private void showSendProgress(int position, int count, int progress) {
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                dialogSendProgress = new DialogCommon2(MsgForwardActivity.this)
+                        .setContent(getProgressText(position, count, progress), false)
+                        .setListener(new DialogCommon2.IDialogListener() {
+                            @Override
+                            public void onCancel() {
+                                if (msgList != null) {
+                                    msgList.clear();
+                                }
+                            }
+                        });
+                dialogSendProgress.show();
+            }
+        });
+    }
+
+    private void updateSendProgress(MsgAllBean msgAllBean, int progress) {
+        if (msgList == null || msgAllBean == null || dialogSendProgress == null) {
+            return;
+        }
+        int index = msgList.indexOf(msgAllBean);
+        if (index < 0) {
+            return;
+        }
+        int len = msgList.size();
+        int position = index + 1;
+        if (prePosition == position) {
+            if (progress > preProgress) {
+                preProgress = progress;
+            } else {
+                return;
+            }
+        } else {
+            prePosition = position;
+            preProgress = progress;
+        }
+        if (dialogSendProgress.isShowing()) {
+            actionbar.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (dialogSendProgress != null) {
+                        dialogSendProgress.setContent(getProgressText(position, len, progress), false);
+                    }
+                }
+            }, 100);
+        }
+
+    }
+
+    private String getProgressText(int position, int count, int progress) {
+        LogUtil.getLog().i("分享", position + "/" + count + "--进度==" + progress);
+        return "正在发送图片（" + position + "/" + count + "): " + progress + "%";
     }
 }

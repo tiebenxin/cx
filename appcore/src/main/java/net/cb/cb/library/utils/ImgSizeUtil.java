@@ -1,6 +1,7 @@
 package net.cb.cb.library.utils;
 
 import android.graphics.BitmapFactory;
+import android.text.TextUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,6 +14,9 @@ import java.text.DecimalFormat;
  */
 public class ImgSizeUtil {
     public static ImageSize getAttribute(String loclUrl) {
+        if (TextUtils.isEmpty(loclUrl)) {
+            return null;
+        }
         loclUrl = loclUrl.replace("file://", "");
         //获取Options对象
         BitmapFactory.Options options = new BitmapFactory.Options();

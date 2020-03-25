@@ -651,12 +651,60 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     @Override
     public void onEvent(int type, MsgAllBean message, Object... args) {
         switch (type) {
+            case ChatEnum.ECellEventType.TXT_CLICK:
+                break;
+            case ChatEnum.ECellEventType.IMAGE_CLICK:
+                break;
+            case ChatEnum.ECellEventType.CARD_CLICK:
+                break;
+            case ChatEnum.ECellEventType.RED_ENVELOPE_CLICK:
+                break;
+            case ChatEnum.ECellEventType.LONG_CLICK:
+                break;
+            case ChatEnum.ECellEventType.TRANSFER_CLICK:
+                break;
             case ChatEnum.ECellEventType.AVATAR_CLICK:
+                toUserInfo(message);
                 break;
             case ChatEnum.ECellEventType.AVATAR_LONG_CLICK:
+                if (isGroup) {
+                    doAtInput(message);
+                }
                 break;
+
         }
 
+    }
+
+    private void toUserInfo(MsgAllBean msgAllBean) {
+        String name = "";
+        if (isGroup) {
+            name = model.getMemberName(gid, msgAllBean.getFrom_uid());
+        } else if (model.getUserInfo() != null) {
+            name = model.getUserInfo().getName4Show();
+        }
+        startActivity(new Intent(getContext(), UserInfoActivity.class)
+                .putExtra(UserInfoActivity.ID, msgAllBean.getFrom_uid())
+                .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
+                .putExtra(UserInfoActivity.GID, gid)
+                .putExtra(UserInfoActivity.IS_GROUP, isGroup)
+                .putExtra(UserInfoActivity.MUC_NICK, name));
+    }
+
+    private void doAtInput(MsgAllBean msgAllBean) {
+        //TODO:优先显示群备注
+        String name = model.getMemberName(gid, msgAllBean.getFrom_uid());
+        String txt = getEtText();
+        if (!txt.contains("@" + name)) {
+            if (!TextUtils.isEmpty(name)) {
+                ui.edtChat.addAtSpan("@", name, msgAllBean.getFrom_uid());
+            } else {
+                name = TextUtils.isEmpty(msgAllBean.getFrom_group_nickname()) ? msgAllBean.getFrom_nickname() : msgAllBean.getFrom_group_nickname();
+                ui.edtChat.addAtSpan("@", name, uid);
+            }
+            scrollBottom();
+
+        }
     }
 
     @Override
@@ -966,6 +1014,5 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             }
         }
     }
-
 
 }

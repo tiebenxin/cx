@@ -16,17 +16,25 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 
+import net.cb.cb.library.bean.EventFileRename;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.FileConfig;
+import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 
@@ -47,7 +55,12 @@ public class FileDownloadActivity extends AppActivity {
     private String fileFormat ="";//文件类型
     private String fileName ="";//文件名
     private String fileUrl ="";//文件url
+    private String fileMsgId ="";//文件消息id
     private Activity activity;//当前活动实例
+
+    private String msgString;//传过来msgAllBean转化的JSON字符串，方便传递
+    private MsgAllBean msgAllBean;//传过来的msgAllBean
+    private SendFileMessage sendFileMessage;
 
     private int downloadStatus = 0; //0 下载中 1 下载完成 2 下载失败
 
@@ -64,14 +77,23 @@ public class FileDownloadActivity extends AppActivity {
 
     private void getExtra() {
         if(getIntent()!=null){
+            msgString = (String) getIntent().getExtras().get("file_msg");
+            if(!TextUtils.isEmpty(msgString)){
+                msgAllBean = new Gson().fromJson(msgString, MsgAllBean.class);
+                sendFileMessage = msgAllBean.getSendFileMessage();
+            }
+
             //显示文件名
-            if(!TextUtils.isEmpty(getIntent().getStringExtra("file_name"))){
-                fileName = getIntent().getStringExtra("file_name");
+            if(!TextUtils.isEmpty(sendFileMessage.getFile_name())){
+                fileName = sendFileMessage.getFile_name();
+                //若有同名文件，则重命名，保存最终真实文件名，如123.txt若有重名则依次保存为123.txt(1) 123.txt(2)
+                //若没有同名文件，则按默认新文件来保存
+                fileName = FileUtils.getFileRename(fileName);
                 tvFileName.setText(fileName);
             }
             //根据文件类型，显示图标
-            if(!TextUtils.isEmpty(getIntent().getStringExtra("file_format"))){
-                fileFormat = getIntent().getStringExtra("file_format");
+            if(!TextUtils.isEmpty(sendFileMessage.getFormat())){
+                fileFormat = sendFileMessage.getFormat();
                 if(fileFormat.equals("txt")){
                     ivFileImage.setImageResource(R.mipmap.ic_txt);
                 }else if(fileFormat.equals("xls") || fileFormat.equals("xlsx")){
@@ -88,9 +110,13 @@ public class FileDownloadActivity extends AppActivity {
                     ivFileImage.setImageResource(R.mipmap.ic_unknow);
                 }
             }
+            //获取文件消息id
+            if(!TextUtils.isEmpty(sendFileMessage.getMsgId())){
+                fileMsgId = sendFileMessage.getMsgId();
+            }
             //获取url，自动开始下载文件，并打开
-            if(!TextUtils.isEmpty(getIntent().getStringExtra("file_url"))){
-                fileUrl = getIntent().getStringExtra("file_url");
+            if(!TextUtils.isEmpty(sendFileMessage.getUrl())){
+                fileUrl = sendFileMessage.getUrl();
                 //指定下载路径文件夹，若不存在则创建
                 File fileDir = new File(FileConfig.PATH_DOWNLOAD);
                 if (!fileDir.exists()) {
@@ -104,6 +130,17 @@ public class FileDownloadActivity extends AppActivity {
                             ToastUtil.showLong(activity,"下载成功! \n文件已保存："+FileConfig.PATH_DOWNLOAD+"目录下");
                             tvDownload.setText("打开文件");
                             downloadStatus = 1;
+                            //下载成功后
+                            //1 数据库本地保存一个新增属性-真实文件名，方便后续聊天界面直接打开重名文件
+                            MsgAllBean reMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", fileMsgId);
+                            reMsg.getSendFileMessage().setRealFileRename(fileName);
+                            DaoUtil.update(reMsg);
+                            //2 通知ChatActivity刷新该文件消息
+                            EventFileRename eventFileRename = new EventFileRename();
+                            sendFileMessage.setRealFileRename(fileName);
+                            eventFileRename.setMsgAllBean(msgAllBean);
+                            EventBus.getDefault().post(eventFileRename);
+
 //                            //如果用户退出当前界面，则只提示已经完成；若仍在当前界面，则打开文件
 //                            if(activity==null || activity.isFinishing()){
 //                            }else {

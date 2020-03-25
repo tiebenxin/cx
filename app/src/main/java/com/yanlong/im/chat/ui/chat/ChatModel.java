@@ -410,5 +410,9 @@ public class ChatModel implements IModel {
 
     }
 
+    final String getMemberName(String gid, long uid) {
+        return msgDao.getGroupMemberName(gid, uid, null, null);
+    }
+
 
 }
