@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.bumptech.glide.Glide;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.R;
@@ -20,6 +21,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.GlideOptionsUtil;
+
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.RefreshApplyEvent;
@@ -30,11 +32,13 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -55,7 +59,7 @@ public class FriendApplyAcitvity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friend_apply);
-        if(!EventBus.getDefault().isRegistered(this)){
+        if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
         findViews();
@@ -103,7 +107,7 @@ public class FriendApplyAcitvity extends AppActivity {
 
 
     private void initData() {
-        listData=msgDao.getApplyBeanList();
+        listData = msgDao.getApplyBeanList();
         mtListView.notifyDataSetChange();
     }
 
@@ -125,8 +129,8 @@ public class FriendApplyAcitvity extends AppActivity {
         //自动生成控件事件
         @Override
         public void onBindViewHolder(final RCViewHolder holder, int position) {
-            ApplyBean bean=listData.get(position);
-            if (CoreEnum.EChatType.PRIVATE==bean.getChatType()) {
+            ApplyBean bean = listData.get(position);
+            if (CoreEnum.EChatType.PRIVATE == bean.getChatType()) {
                 holder.txtName.setText(bean.getNickname());
                 // holder.imgHead.setImageURI(bean.getHead());
                 Glide.with(context).load(bean.getAvatar())
@@ -165,7 +169,7 @@ public class FriendApplyAcitvity extends AppActivity {
                 });
 
 
-            } else if (CoreEnum.EChatType.GROUP==bean.getChatType()) {
+            } else if (CoreEnum.EChatType.GROUP == bean.getChatType()) {
                 holder.txtName.setText(bean.getNickname());
                 Glide.with(context).load(bean.getAvatar())
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
@@ -197,9 +201,9 @@ public class FriendApplyAcitvity extends AppActivity {
             holder.btnComit.setVisibility(View.VISIBLE);
             holder.txtState.setVisibility(View.GONE);
 
-            if(bean.getStat()==1){
+            if (bean.getStat() == 1) {
                 holder.btnComit.setText("接受");
-            }else if(bean.getStat()==2){
+            } else if (bean.getStat() == 2) {
                 holder.btnComit.setText("已接受");
                 holder.btnComit.setTextColor(getResources().getColor(R.color.gray_300));
                 holder.btnComit.setBackgroundColor(getResources().getColor(R.color.transparent));
@@ -210,7 +214,6 @@ public class FriendApplyAcitvity extends AppActivity {
 //                holder.btnComit.setEnabled(false);
 //            }
         }
-
 
 
         //自动生成ViewHold
@@ -241,10 +244,10 @@ public class FriendApplyAcitvity extends AppActivity {
     }
 
     private void taskDelRequestFriend(ApplyBean bean) {
-        if(bean.getStat()==2){
+        if (bean.getStat() == 2) {
             msgDao.applyRemove(bean.getAid());
             initData();
-        }else {
+        } else {
             userAction.delRequestFriend(bean.getUid(), new CallBack<ReturnBean>() {
                 @Override
                 public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -274,16 +277,21 @@ public class FriendApplyAcitvity extends AppActivity {
                             bean.setStat(2);
                             msgDao.applyGroup(bean);
                             initData();
-
                             groupInfo(bean.getGid());
+                        } else if (response.body().getCode() == 10005) {//已是群成员
+                            bean.setStat(2);
+                            msgDao.applyGroup(bean);
+                            initData();
+                            groupInfo(bean.getGid());
+                        } else {
+                            ToastUtil.show(getContext(), response.body().getMsg());
                         }
-                        ToastUtil.show(getContext(), response.body().getMsg());
                     }
                 });
     }
 
-    private void groupInfo(String gid){
-        msgAction.groupInfo(gid, true,new CallBack<ReturnBean<Group>>() {
+    private void groupInfo(String gid) {
+        msgAction.groupInfo(gid, true, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
@@ -322,8 +330,8 @@ public class FriendApplyAcitvity extends AppActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void refreshApplyEvent(RefreshApplyEvent event) {
         for (int i = 0; i < listData.size(); i++) {
-            ApplyBean bean=listData.get(i);
-            if(bean.getUid()==event.uid&&bean.getChatType()==event.chatType&&bean.getStat()==event.stat){
+            ApplyBean bean = listData.get(i);
+            if (bean.getUid() == event.uid && bean.getChatType() == event.chatType && bean.getStat() == event.stat) {
                 bean.setStat(2);
                 msgDao.applyFriend(bean);
                 initData();

@@ -3372,7 +3372,7 @@ public class MsgDao {
         try {
             //群聊消息
             RealmResults<MsgAllBean> groupMsgs = realm.where(MsgAllBean.class)
-                    .beginGroup().isNotEmpty("gid").or().isNotNull("gid").endGroup()
+                    .beginGroup().isNotEmpty("gid").and().isNotNull("gid").endGroup()
                     .and()
                     .beginGroup().greaterThan("timestamp", time).endGroup()
                     .limit(1000)
@@ -3380,7 +3380,9 @@ public class MsgDao {
                     .findAll();
             //单聊消息
             RealmResults<MsgAllBean> privateMsgs = realm.where(MsgAllBean.class)
-                    .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
+                    .beginGroup().isEmpty("gid").endGroup()
+                    .or()
+                    .beginGroup().isNull("gid").endGroup()
                     .and()
                     .beginGroup().greaterThan("timestamp", time).endGroup()
                     .limit(1000)
@@ -3393,7 +3395,7 @@ public class MsgDao {
             if (privateMsgs != null) {
                 results.addAll(privateMsgs);
             }
-            results.where().sort("timestamp",Sort.DESCENDING);
+            results.where().sort("timestamp", Sort.DESCENDING);
             list = realm.copyFromRealm(results);
             realm.close();
         } catch (Exception e) {
