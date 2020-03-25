@@ -3,6 +3,7 @@ package com.yanlong.im.utils.socket;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hm.cxpay.global.PayEnum;
 import com.yanlong.im.chat.ChatEnum;
@@ -391,109 +392,107 @@ public class SocketData {
      * @param value
      * @return
      */
-    private static MsgBean.UniversalMessage.Builder toMsgBuilder(String requestId, String msgid, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
+    private static MsgBean.UniversalMessage.Builder toMsgBuilder(String requestId, String msgId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
         MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild(requestId);
-        MsgBean.UniversalMessage.WrapMessage.Builder wmsg = msg.getWrapMsgBuilder(0);
-        UserInfo userInfo = UserAction.getMyInfo();
-        wmsg.setFromUid(userInfo.getUid());
-        wmsg.setAvatar(userInfo.getHead());
-        wmsg.setNickname(userInfo.getName());
-        //自动生成uuid
-        wmsg.setMsgId(msgid == null ? getUUID() : msgid);
+        MsgBean.UniversalMessage.WrapMessage.Builder wrap = msg.getWrapMsgBuilder(0);
+        initWrapMessage(msgId, toId, toGid, time, type, value, wrap);
+        MsgBean.UniversalMessage.WrapMessage wm = wrap.build();
+        msg.setWrapMsg(0, wm);
+        return msg;
+    }
 
+    private static void initWrapMessage(String msgId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value, MsgBean.UniversalMessage.WrapMessage.Builder wrap) {
+        UserInfo userInfo = UserAction.getMyInfo();
+        wrap.setFromUid(userInfo.getUid());
+        wrap.setAvatar(userInfo.getHead());
+        wrap.setNickname(userInfo.getName());
+        //自动生成uuid
+        wrap.setMsgId(msgId == null ? getUUID() : msgId);
         //添加阅后即焚状态
         int survivalTime = new UserDao().getReadDestroy(toId, toGid);
-        LogUtil.getLog().i("SurvivalTime", "消息构建: 阅后即焚状态---->" + survivalTime + "------");
-
-        wmsg.setSurvivalTime(survivalTime);
-
-        wmsg.setTimestamp(time);
+        wrap.setSurvivalTime(survivalTime);
+        wrap.setTimestamp(time);
         if (toId != null && toId > 0) {//给个人发
 //            msg.setToUid(toId);
-            wmsg.setToUid(toId);
-
+            wrap.setToUid(toId);
         }
         if (toGid != null && toGid.length() > 0) {//给群发
-            wmsg.setGid(toGid);
+            wrap.setGid(toGid);
             Group group = msgDao.getGroup4Id(toGid);
             if (group != null) {
                 String name = group.getMygroupName();
                 if (StringUtil.isNotNull(name)) {
-                    wmsg.setMembername(name);
+                    wrap.setMembername(name);
                 }
             }
-
         }
 
-        wmsg.setMsgType(type);
+        wrap.setMsgType(type);
         switch (type) {
             case CHAT:
-                wmsg.setChat((MsgBean.ChatMessage) value);
+                wrap.setChat((MsgBean.ChatMessage) value);
                 break;
             case IMAGE:
-                wmsg.setImage((MsgBean.ImageMessage) value);
+                wrap.setImage((MsgBean.ImageMessage) value);
                 break;
             case RED_ENVELOPER:
-                wmsg.setRedEnvelope((MsgBean.RedEnvelopeMessage) value);
+                wrap.setRedEnvelope((MsgBean.RedEnvelopeMessage) value);
                 break;
             case RECEIVE_RED_ENVELOPER:
-                wmsg.setReceiveRedEnvelope((MsgBean.ReceiveRedEnvelopeMessage) value);
+                wrap.setReceiveRedEnvelope((MsgBean.ReceiveRedEnvelopeMessage) value);
                 break;
             case TRANSFER:
-                wmsg.setTransfer((MsgBean.TransferMessage) value);
+                wrap.setTransfer((MsgBean.TransferMessage) value);
                 break;
             case STAMP:
-                wmsg.setStamp((MsgBean.StampMessage) value);
+                wrap.setStamp((MsgBean.StampMessage) value);
                 break;
             case BUSINESS_CARD:
-                wmsg.setBusinessCard((MsgBean.BusinessCardMessage) value);
+                wrap.setBusinessCard((MsgBean.BusinessCardMessage) value);
                 break;
             case ACCEPT_BE_FRIENDS:
-                wmsg.setAcceptBeFriends((MsgBean.AcceptBeFriendsMessage) value);
+                wrap.setAcceptBeFriends((MsgBean.AcceptBeFriendsMessage) value);
                 break;
             case REQUEST_FRIEND:
-                wmsg.setRequestFriend((MsgBean.RequestFriendMessage) value);
+                wrap.setRequestFriend((MsgBean.RequestFriendMessage) value);
                 break;
             case VOICE:
-                wmsg.setVoice((MsgBean.VoiceMessage) value);
+                wrap.setVoice((MsgBean.VoiceMessage) value);
                 break;
             case AT:
-                wmsg.setAt((MsgBean.AtMessage) value);
+                wrap.setAt((MsgBean.AtMessage) value);
                 break;
             case CANCEL:
-                wmsg.setCancel((MsgBean.CancelMessage) value);
+                wrap.setCancel((MsgBean.CancelMessage) value);
                 break;
             case SHORT_VIDEO:
-                wmsg.setShortVideo((MsgBean.ShortVideoMessage) value);
+                wrap.setShortVideo((MsgBean.ShortVideoMessage) value);
                 break;
             case P2P_AU_VIDEO:
-                wmsg.setP2PAuVideo((MsgBean.P2PAuVideoMessage) value);
+                wrap.setP2PAuVideo((MsgBean.P2PAuVideoMessage) value);
                 break;
             case P2P_AU_VIDEO_DIAL:
-                wmsg.setP2PAuVideoDial((MsgBean.P2PAuVideoDialMessage) value);
+                wrap.setP2PAuVideoDial((MsgBean.P2PAuVideoDialMessage) value);
                 break;
             case READ:
-                wmsg.setRead((MsgBean.ReadMessage) value);
+                wrap.setRead((MsgBean.ReadMessage) value);
                 break;
             case SNAPSHOT_LOCATION://位置
-                wmsg.setSnapshotLocation((MsgBean.SnapshotLocationMessage) value);
+                wrap.setSnapshotLocation((MsgBean.SnapshotLocationMessage) value);
                 break;
             case SHIPPED_EXPRESSION:
-                wmsg.setShippedExpression((MsgBean.ShippedExpressionMessage) value);
+                wrap.setShippedExpression((MsgBean.ShippedExpressionMessage) value);
                 break;
             case TAKE_SCREENSHOT://截屏
-                wmsg.setTakeScrennshot((MsgBean.TakeScreenshotMessage) value);
+                wrap.setTakeScrennshot((MsgBean.TakeScreenshotMessage) value);
                 break;
             case SEND_FILE://文件
-                wmsg.setSendFile((MsgBean.SendFileMessage) value);
+                wrap.setSendFile((MsgBean.SendFileMessage) value);
                 break;
             case UNRECOGNIZED:
                 break;
 
         }
-        MsgBean.UniversalMessage.WrapMessage wm = wmsg.build();
-        msg.setWrapMsg(0, wm);
-        return msg;
     }
 
     /***
@@ -506,7 +505,6 @@ public class SocketData {
             return false;
         }
         return true;
-
     }
 
 
@@ -602,8 +600,6 @@ public class SocketData {
         } else {
             msgb = msg.build();
         }
-
-
         return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.IMAGE, msgb);
     }
 
@@ -660,16 +656,16 @@ public class SocketData {
         //前保存
         MsgAllBean msgAllBean = new MsgAllBean();
         msgAllBean.setMsg_id(msgId);
-        UserInfo myinfo = UserAction.getMyInfo();
-        msgAllBean.setFrom_uid(myinfo.getUid());
-        msgAllBean.setFrom_avatar(myinfo.getHead());
-        msgAllBean.setFrom_nickname(myinfo.getName());
+        UserInfo mInfo = UserAction.getMyInfo();
+        msgAllBean.setFrom_uid(mInfo.getUid());
+        msgAllBean.setFrom_avatar(mInfo.getHead());
+        msgAllBean.setFrom_nickname(mInfo.getName());
         msgAllBean.setRequest_id(getSysTime() + "");
         msgAllBean.setTimestamp(time);
         msgAllBean.setMsg_type(type);
 
-        int survivaltime = new UserDao().getReadDestroy(toId, toGid);
-        msgAllBean.setSurvival_time(survivaltime);
+        int survivalTime = new UserDao().getReadDestroy(toId, toGid);
+        msgAllBean.setSurvival_time(survivalTime);
 
         msgAllBean.setRead(true);//自己发送时已读的
         switch (type) {
@@ -782,13 +778,14 @@ public class SocketData {
 
     /**
      * 创建消息
-     * @param msgId     消息id
-     * @param filePath  文件路径
-     * @param url       文件上传后的url
-     * @param fileName  文件名
-     * @param size      文件大小
-     * @param format    文件后缀
-     * @param isFromOther   是否为转发
+     *
+     * @param msgId       消息id
+     * @param filePath    文件路径
+     * @param url         文件上传后的url
+     * @param fileName    文件名
+     * @param size        文件大小
+     * @param format      文件后缀
+     * @param isFromOther 是否为转发
      * @return
      */
     @NonNull
@@ -906,148 +903,10 @@ public class SocketData {
             bean.setRequest_id(getUUID());
         }
         int msgType = bean.getMsg_type();
-        MsgBean.MessageType type = null;
-        Object value = null;
-        boolean needSave = true;//默认是需要保存已经待发送的消息，但指令消息则只需发送，不要保存
-        switch (msgType) {
-//            case ChatEnum.EMessageType.NOTICE:
-//                ChatMessage chat = bean.getChat();
-//                MsgBean.ChatMessage.Builder txtBuilder = MsgBean.ChatMessage.newBuilder();
-//                txtBuilder.setMsg(chat.getMsg());
-//                value = txtBuilder.build();
-//                type = MsgBean.MessageType.CHAT;
-//                break;
-            case ChatEnum.EMessageType.TEXT://文本
-                ChatMessage chat = bean.getChat();
-                MsgBean.ChatMessage.Builder txtBuilder = MsgBean.ChatMessage.newBuilder();
-                txtBuilder.setMsg(chat.getMsg());
-                value = txtBuilder.build();
-                type = MsgBean.MessageType.CHAT;
-                break;
-            case ChatEnum.EMessageType.IMAGE://图片
-                ImageMessage image = bean.getImage();
-                MsgBean.ImageMessage.Builder imgBuilder = MsgBean.ImageMessage.newBuilder();
-                imgBuilder.setOrigin(image.getOrigin())
-                        .setPreview(image.getPreview())
-                        .setThumbnail(image.getThumbnail())
-                        .setHeight((int) image.getHeight())
-                        .setWidth((int) image.getWidth())
-                        .setSize((int) image.getSize());
-                value = imgBuilder.build();
-                type = MsgBean.MessageType.IMAGE;
-                break;
-            case ChatEnum.EMessageType.VOICE://语音
-                VoiceMessage voice = bean.getVoiceMessage();
-                MsgBean.VoiceMessage.Builder voiceBuilder = MsgBean.VoiceMessage.newBuilder();
-                voiceBuilder.setDuration(voice.getTime());
-                voiceBuilder.setUrl(voice.getUrl());
-                value = voiceBuilder.build();
-                type = MsgBean.MessageType.VOICE;
-                break;
-            case ChatEnum.EMessageType.MSG_VIDEO://小视频
-                VideoMessage video = bean.getVideoMessage();
-                MsgBean.ShortVideoMessage.Builder videoBuilder = MsgBean.ShortVideoMessage.newBuilder();
-                videoBuilder.setBgUrl(video.getBg_url()).setDuration((int) video.getDuration()).setUrl(video.getUrl()).setWidth((int) video.getWidth()).setHeight((int) video.getHeight());
-                value = videoBuilder.build();
-                type = MsgBean.MessageType.SHORT_VIDEO;
-                break;
-            case ChatEnum.EMessageType.AT://@
-                AtMessage at = bean.getAtMessage();
-                MsgBean.AtMessage.Builder atBuilder = MsgBean.AtMessage.newBuilder();
-                atBuilder.setAtTypeValue(at.getAt_type()).setMsg(at.getMsg()).addAllUid(at.getUid());
-                value = atBuilder.build();
-                type = MsgBean.MessageType.AT;
-                break;
-            case ChatEnum.EMessageType.BUSINESS_CARD://名片
-                BusinessCardMessage card = bean.getBusiness_card();
-                MsgBean.BusinessCardMessage.Builder cardBuilder = MsgBean.BusinessCardMessage.newBuilder();
-                cardBuilder.setUid(card.getUid()).setAvatar(card.getAvatar()).setNickname(card.getNickname()).setComment(card.getComment());
-                value = cardBuilder.build();
-                type = MsgBean.MessageType.BUSINESS_CARD;
-                break;
-            case ChatEnum.EMessageType.STAMP://戳一戳
-                StampMessage stamp = bean.getStamp();
-                MsgBean.StampMessage.Builder stampBuilder = MsgBean.StampMessage.newBuilder();
-                stampBuilder.setComment(stamp.getComment());
-                value = stampBuilder.build();
-                type = MsgBean.MessageType.STAMP;
-                break;
-            case ChatEnum.EMessageType.TRANSFER://转账
-                TransferMessage transfer = bean.getTransfer();
-                MsgBean.TransferMessage.Builder transferBuild = MsgBean.TransferMessage.newBuilder();
-
-                transferBuild.setTransactionAmount(transfer.getTransaction_amount());
-                transferBuild.setComment(transfer.getComment());
-                transferBuild.setId(transfer.getId());
-                transferBuild.setOpType(MsgBean.TransferMessage.OpType.forNumber(transfer.getOpType()));
-                transferBuild.setSign(transfer.getSign());
-                value = transferBuild.build();
-                type = MsgBean.MessageType.TRANSFER;
-                break;
-            case ChatEnum.EMessageType.RED_ENVELOPE://红包
-                RedEnvelopeMessage red = bean.getRed_envelope();
-                int reType = red.getRe_type().intValue();
-                MsgBean.RedEnvelopeMessage.Builder redBuild = null;
-                if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
-                    redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
-                            .setId(red.getId())
-                            .setComment(red.getComment())
-                            .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
-                            .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
-                } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
-                    redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
-                            .setId(red.getTraceId() + "")
-                            .setComment(red.getComment())
-                            .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
-                            .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()))
-                            .setSign(red.getSign());
-                }
-                if (redBuild != null) {
-                    value = redBuild.build();
-                    type = MsgBean.MessageType.RED_ENVELOPER;
-                }
-                break;
-            case ChatEnum.EMessageType.READ://已读消息，不需要保存
-
-                needSave = false;
-                break;
-            case ChatEnum.EMessageType.MSG_CANCEL://撤销消息
-                MsgCancel cancel = bean.getMsgCancel();
-                MsgBean.CancelMessage.Builder cancelBuilder = MsgBean.CancelMessage.newBuilder();
-                cancelBuilder.setMsgId(cancel.getMsgidCancel());
-                value = cancelBuilder.build();
-                type = MsgBean.MessageType.CANCEL;
-                needSave = false;
-                break;
-            case ChatEnum.EMessageType.LOCATION://位置
-                LocationMessage locationMessage = bean.getLocationMessage();
-                MsgBean.SnapshotLocationMessage.Builder locationBuilder = MsgBean.SnapshotLocationMessage.newBuilder();
-                locationBuilder.setLat(locationMessage.getLatitude());
-                locationBuilder.setLon(locationMessage.getLongitude());
-                locationBuilder.setImg(locationMessage.getImg());
-                locationBuilder.setAddr(locationMessage.getAddress());
-                locationBuilder.setDesc(locationMessage.getAddressDescribe());
-                value = locationBuilder.build();
-                type = MsgBean.MessageType.SNAPSHOT_LOCATION;
-                break;
-            case ChatEnum.EMessageType.SHIPPED_EXPRESSION:// 大表情
-                ShippedExpressionMessage seMessage = bean.getShippedExpressionMessage();
-                MsgBean.ShippedExpressionMessage.Builder semBuilder = MsgBean.ShippedExpressionMessage.newBuilder();
-                semBuilder.setId(seMessage.getId());
-                value = semBuilder.build();
-                type = MsgBean.MessageType.SHIPPED_EXPRESSION;
-                break;
-            case ChatEnum.EMessageType.FILE:// 文件
-                SendFileMessage fileMessage = bean.getSendFileMessage();
-                MsgBean.SendFileMessage.Builder fileBuilder = MsgBean.SendFileMessage.newBuilder();
-                fileBuilder.setFileName(fileMessage.getFile_name())
-                        .setUrl(fileMessage.getUrl())
-                        .setSize(new Long(fileMessage.getSize()).intValue())
-                        .setFormat(fileMessage.getFormat());
-                value = fileBuilder.build();
-                type = MsgBean.MessageType.SEND_FILE;
-                break;
-        }
+        InitMsgContentAndType initMsgContentAndType = new InitMsgContentAndType(bean, msgType).invoke();
+        MsgBean.MessageType type = initMsgContentAndType.getType();
+        Object value = initMsgContentAndType.getValue();
+        boolean needSave = initMsgContentAndType.isNeedSave();
         //已读消息，撤销消息不需要保存
         if (needSave) {
             saveMessage(bean);
@@ -1752,4 +1611,193 @@ public class SocketData {
         return false;
     }
 
+    public static MsgBean.UniversalMessage createUniversalMessage(List<MsgAllBean> list) {
+        if (list == null || list.size() <= 0) {
+            return null;
+        }
+        int len = list.size();
+        MsgBean.UniversalMessage.Builder msg = MsgBean.UniversalMessage.newBuilder();
+        msg.setRequestId(getUUID());
+        for (int i = 0; i < len; i++) {
+            MsgAllBean bean = list.get(i);
+            InitMsgContentAndType initMsgContentAndType = new InitMsgContentAndType(bean, bean.getMsg_type()).invoke();
+            Object value = initMsgContentAndType.getValue();
+            MsgBean.MessageType type = initMsgContentAndType.getType();
+            if (value != null && type != null) {
+                MsgBean.UniversalMessage.WrapMessage.Builder wrapBuild = MsgBean.UniversalMessage.WrapMessage.newBuilder();
+                initWrapMessage(bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value, wrapBuild);
+                msg.addWrapMsg(wrapBuild);
+            }
+        }
+        return msg.build();
+    }
+
+    //初始化msgContent和msgType帮助类
+    private static class InitMsgContentAndType {
+        private MsgAllBean bean;
+        private int msgType;
+        private MsgBean.MessageType type = null;
+        private Object value = null;
+        private boolean needSave = true;
+
+        public InitMsgContentAndType(MsgAllBean bean, int msgType) {
+            this.bean = bean;
+            this.msgType = msgType;
+        }
+
+        public MsgBean.MessageType getType() {
+            return type;
+        }
+
+        public Object getValue() {
+            return value;
+        }
+
+        public boolean isNeedSave() {
+            return needSave;
+        }
+
+        public InitMsgContentAndType invoke() {
+            switch (msgType) {
+                //            case ChatEnum.EMessageType.NOTICE:
+                //                ChatMessage chat = bean.getChat();
+                //                MsgBean.ChatMessage.Builder txtBuilder = MsgBean.ChatMessage.newBuilder();
+                //                txtBuilder.setMsg(chat.getMsg());
+                //                value = txtBuilder.build();
+                //                type = MsgBean.MessageType.CHAT;
+                //                break;
+                case ChatEnum.EMessageType.TEXT://文本
+                    ChatMessage chat = bean.getChat();
+                    MsgBean.ChatMessage.Builder txtBuilder = MsgBean.ChatMessage.newBuilder();
+                    txtBuilder.setMsg(chat.getMsg());
+                    value = txtBuilder.build();
+                    type = MsgBean.MessageType.CHAT;
+                    break;
+                case ChatEnum.EMessageType.IMAGE://图片
+                    ImageMessage image = bean.getImage();
+                    MsgBean.ImageMessage.Builder imgBuilder = MsgBean.ImageMessage.newBuilder();
+                    imgBuilder.setOrigin(image.getOrigin())
+                            .setPreview(image.getPreview())
+                            .setThumbnail(image.getThumbnail())
+                            .setHeight((int) image.getHeight())
+                            .setWidth((int) image.getWidth())
+                            .setSize((int) image.getSize());
+                    value = imgBuilder.build();
+                    type = MsgBean.MessageType.IMAGE;
+                    break;
+                case ChatEnum.EMessageType.VOICE://语音
+                    VoiceMessage voice = bean.getVoiceMessage();
+                    MsgBean.VoiceMessage.Builder voiceBuilder = MsgBean.VoiceMessage.newBuilder();
+                    voiceBuilder.setDuration(voice.getTime());
+                    voiceBuilder.setUrl(voice.getUrl());
+                    value = voiceBuilder.build();
+                    type = MsgBean.MessageType.VOICE;
+                    break;
+                case ChatEnum.EMessageType.MSG_VIDEO://小视频
+                    VideoMessage video = bean.getVideoMessage();
+                    MsgBean.ShortVideoMessage.Builder videoBuilder = MsgBean.ShortVideoMessage.newBuilder();
+                    videoBuilder.setBgUrl(video.getBg_url()).setDuration((int) video.getDuration()).setUrl(video.getUrl()).setWidth((int) video.getWidth()).setHeight((int) video.getHeight());
+                    value = videoBuilder.build();
+                    type = MsgBean.MessageType.SHORT_VIDEO;
+                    break;
+                case ChatEnum.EMessageType.AT://@
+                    AtMessage at = bean.getAtMessage();
+                    MsgBean.AtMessage.Builder atBuilder = MsgBean.AtMessage.newBuilder();
+                    atBuilder.setAtTypeValue(at.getAt_type()).setMsg(at.getMsg()).addAllUid(at.getUid());
+                    value = atBuilder.build();
+                    type = MsgBean.MessageType.AT;
+                    break;
+                case ChatEnum.EMessageType.BUSINESS_CARD://名片
+                    BusinessCardMessage card = bean.getBusiness_card();
+                    MsgBean.BusinessCardMessage.Builder cardBuilder = MsgBean.BusinessCardMessage.newBuilder();
+                    cardBuilder.setUid(card.getUid()).setAvatar(card.getAvatar()).setNickname(card.getNickname()).setComment(card.getComment());
+                    value = cardBuilder.build();
+                    type = MsgBean.MessageType.BUSINESS_CARD;
+                    break;
+                case ChatEnum.EMessageType.STAMP://戳一戳
+                    StampMessage stamp = bean.getStamp();
+                    MsgBean.StampMessage.Builder stampBuilder = MsgBean.StampMessage.newBuilder();
+                    stampBuilder.setComment(stamp.getComment());
+                    value = stampBuilder.build();
+                    type = MsgBean.MessageType.STAMP;
+                    break;
+                case ChatEnum.EMessageType.TRANSFER://转账
+                    TransferMessage transfer = bean.getTransfer();
+                    MsgBean.TransferMessage.Builder transferBuild = MsgBean.TransferMessage.newBuilder();
+
+                    transferBuild.setTransactionAmount(transfer.getTransaction_amount());
+                    transferBuild.setComment(transfer.getComment());
+                    transferBuild.setId(transfer.getId());
+                    transferBuild.setOpType(MsgBean.TransferMessage.OpType.forNumber(transfer.getOpType()));
+                    transferBuild.setSign(transfer.getSign());
+                    value = transferBuild.build();
+                    type = MsgBean.MessageType.TRANSFER;
+                    break;
+                case ChatEnum.EMessageType.RED_ENVELOPE://红包
+                    RedEnvelopeMessage red = bean.getRed_envelope();
+                    int reType = red.getRe_type().intValue();
+                    MsgBean.RedEnvelopeMessage.Builder redBuild = null;
+                    if (reType == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
+                        redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
+                                .setId(red.getId())
+                                .setComment(red.getComment())
+                                .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
+                                .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
+                    } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {
+                        redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
+                                .setId(red.getTraceId() + "")
+                                .setComment(red.getComment())
+                                .setReType(MsgBean.RedEnvelopeType.forNumber(red.getRe_type()))
+                                .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()))
+                                .setSign(red.getSign());
+                    }
+                    if (redBuild != null) {
+                        value = redBuild.build();
+                        type = MsgBean.MessageType.RED_ENVELOPER;
+                    }
+                    break;
+                case ChatEnum.EMessageType.READ://已读消息，不需要保存
+
+                    needSave = false;
+                    break;
+                case ChatEnum.EMessageType.MSG_CANCEL://撤销消息
+                    MsgCancel cancel = bean.getMsgCancel();
+                    MsgBean.CancelMessage.Builder cancelBuilder = MsgBean.CancelMessage.newBuilder();
+                    cancelBuilder.setMsgId(cancel.getMsgidCancel());
+                    value = cancelBuilder.build();
+                    type = MsgBean.MessageType.CANCEL;
+                    needSave = false;
+                    break;
+                case ChatEnum.EMessageType.LOCATION://位置
+                    LocationMessage locationMessage = bean.getLocationMessage();
+                    MsgBean.SnapshotLocationMessage.Builder locationBuilder = MsgBean.SnapshotLocationMessage.newBuilder();
+                    locationBuilder.setLat(locationMessage.getLatitude());
+                    locationBuilder.setLon(locationMessage.getLongitude());
+                    locationBuilder.setImg(locationMessage.getImg());
+                    locationBuilder.setAddr(locationMessage.getAddress());
+                    locationBuilder.setDesc(locationMessage.getAddressDescribe());
+                    value = locationBuilder.build();
+                    type = MsgBean.MessageType.SNAPSHOT_LOCATION;
+                    break;
+                case ChatEnum.EMessageType.SHIPPED_EXPRESSION:// 大表情
+                    ShippedExpressionMessage seMessage = bean.getShippedExpressionMessage();
+                    MsgBean.ShippedExpressionMessage.Builder semBuilder = MsgBean.ShippedExpressionMessage.newBuilder();
+                    semBuilder.setId(seMessage.getId());
+                    value = semBuilder.build();
+                    type = MsgBean.MessageType.SHIPPED_EXPRESSION;
+                    break;
+                case ChatEnum.EMessageType.FILE:// 文件
+                    SendFileMessage fileMessage = bean.getSendFileMessage();
+                    MsgBean.SendFileMessage.Builder fileBuilder = MsgBean.SendFileMessage.newBuilder();
+                    fileBuilder.setFileName(fileMessage.getFile_name())
+                            .setUrl(fileMessage.getUrl())
+                            .setSize(new Long(fileMessage.getSize()).intValue())
+                            .setFormat(fileMessage.getFormat());
+                    value = fileBuilder.build();
+                    type = MsgBean.MessageType.SEND_FILE;
+                    break;
+            }
+            return this;
+        }
+    }
 }

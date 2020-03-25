@@ -3,7 +3,6 @@ package com.yanlong.im.share;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
@@ -17,7 +16,6 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AppActivity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,9 +39,14 @@ public class CXEntryActivity extends AppActivity {
             if (extras != null) {
                 if (Intent.ACTION_SEND.equals(action)) {
                     mode = ChatEnum.EForwardMode.SYS_SEND;
+                    if (!isSupportType(type)) {
+                        ToastUtil.show(this, "分享失败，单文件分享仅支持照片，文件格式");
+                        finish();
+                        return;
+                    }
                 } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
                     mode = ChatEnum.EForwardMode.SYS_SEND_MULTI;
-                    if (!isSupportType(type)) {
+                    if (!isSupportMultiType(type)) {
                         ToastUtil.show(this, "分享失败，多文件分享仅支持照片格式");
                         finish();
                         return;
@@ -139,6 +142,15 @@ public class CXEntryActivity extends AppActivity {
     private boolean isSupportType(String type) {
         if (!TextUtils.isEmpty(type)) {
             if (type.startsWith("image/") || type.startsWith("text/")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isSupportMultiType(String type) {
+        if (!TextUtils.isEmpty(type)) {
+            if (type.startsWith("image/")) {
                 return true;
             }
         }
