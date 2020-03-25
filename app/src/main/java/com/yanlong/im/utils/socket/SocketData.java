@@ -395,15 +395,19 @@ public class SocketData {
     private static MsgBean.UniversalMessage.Builder toMsgBuilder(String requestId, String msgId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
         MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild(requestId);
         MsgBean.UniversalMessage.WrapMessage.Builder wrap = msg.getWrapMsgBuilder(0);
-        initWrapMessage(msgId, toId, toGid, time, type, value, wrap);
+        initWrapMessage(msgId, null, toId, toGid, time, type, value, wrap);
         MsgBean.UniversalMessage.WrapMessage wm = wrap.build();
         msg.setWrapMsg(0, wm);
         return msg;
     }
 
-    private static void initWrapMessage(String msgId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value, MsgBean.UniversalMessage.WrapMessage.Builder wrap) {
+    private static void initWrapMessage(String msgId, Long fromId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value, MsgBean.UniversalMessage.WrapMessage.Builder wrap) {
         UserInfo userInfo = UserAction.getMyInfo();
-        wrap.setFromUid(userInfo.getUid());
+        if (fromId == null) {
+            wrap.setFromUid(userInfo.getUid());
+        } else {
+            wrap.setFromUid(fromId);
+        }
         wrap.setAvatar(userInfo.getHead());
         wrap.setNickname(userInfo.getName());
         //自动生成uuid
@@ -1625,7 +1629,7 @@ public class SocketData {
             MsgBean.MessageType type = initMsgContentAndType.getType();
             if (value != null && type != null) {
                 MsgBean.UniversalMessage.WrapMessage.Builder wrapBuild = MsgBean.UniversalMessage.WrapMessage.newBuilder();
-                initWrapMessage(bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value, wrapBuild);
+                initWrapMessage(bean.getMsg_id(), bean.getFrom_uid(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value, wrapBuild);
                 msg.addWrapMsg(wrapBuild);
             }
         }
