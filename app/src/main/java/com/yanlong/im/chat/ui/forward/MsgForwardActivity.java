@@ -179,6 +179,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             Gson gson = new Gson();
             msgList = gson.fromJson(json, new TypeToken<List<MsgAllBean>>() {
             }.getType());
+            if (msgList != null) {
+                sendQueue.clear();
+                sendQueue.addAll(msgList);
+            }
         } else if (model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
             getSysImgShare();
         } else if (model == ChatEnum.EForwardMode.SHARE) {
@@ -413,7 +417,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 String fileName = FileUtils.getFileName(filePath);
                 String fileFormat = FileUtils.getFileSuffix(fileName);
                 SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), filePath, "", fileName, new Double(fileSize).longValue(), fileFormat, false);
-                msgAllBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), fileMessage);
+                msgAllBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.FILE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), fileMessage);
             }
         } else if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
             if (shareUrls == null || shareUrls.isEmpty()) {
@@ -421,6 +425,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             }
             if (mediaType == CxMediaMessage.EMediaType.IMAGE) {
                 msgList = getMsgList(shareUrls, toUid, toGid);
+                sendQueue.clear();
+                sendQueue.addAll(msgList);
             }
         } else if (model == ChatEnum.EForwardMode.SHARE) {
             if (mediaType == CxMediaMessage.EMediaType.TEXT) {//文本
@@ -923,6 +929,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                             sendMessage(msg);
                             break;
                         case FILE:
+                            SendFileMessage file = msg.getSendFileMessage();
+                            SendFileMessage fileMessage = SocketData.createFileMessage(file.getMsgId(), file.getLocalPath(), url, file.getFile_name(), file.getSize(), file.getFormat(), false);
+                            msg.setSendFileMessage(fileMessage);
+                            sendMessage(msg);
                             break;
 
                     }
@@ -962,7 +972,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     private void sendMessage(MsgAllBean msgAllBean) {
         if (isWaitModel()) {
-            sendQueue.add(msgAllBean);
+            if (!sendQueue.contains(msgAllBean)) {
+                sendQueue.add(msgAllBean);
+            }
         }
         SocketData.sendAndSaveMessage(msgAllBean);
         sendMessage = msgAllBean;
@@ -1016,7 +1028,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         if (!TextUtils.isEmpty(type)) {
             if (type.startsWith("image/")) {
                 return CxMediaMessage.EMediaType.IMAGE;
-            } else if (type.startsWith("text/")) {
+            } else if (type.startsWith("text/") || type.startsWith("application/")) {
                 return CxMediaMessage.EMediaType.FILE;
             }
         }

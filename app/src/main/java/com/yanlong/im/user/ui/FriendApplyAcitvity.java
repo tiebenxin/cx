@@ -111,6 +111,15 @@ public class FriendApplyAcitvity extends AppActivity {
         mtListView.notifyDataSetChange();
     }
 
+    private void notifyItem(ApplyBean bean) {
+        if (bean != null && listData != null) {
+            int index = listData.indexOf(bean);
+            if (index >= 0) {
+                mtListView.getListView().getAdapter().notifyItemRangeChanged(index, 1);
+            }
+        }
+    }
+
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
 
@@ -259,7 +268,6 @@ public class FriendApplyAcitvity extends AppActivity {
 //                    bean.setStat(3);
 //                   msgDao.applyFriend(bean);
                         msgDao.applyRemove(bean.getAid());
-
                         initData();
                     }
 
@@ -276,12 +284,14 @@ public class FriendApplyAcitvity extends AppActivity {
                         if (response.body().isOk()) {
                             bean.setStat(2);
                             msgDao.applyGroup(bean);
-                            initData();
+//                            initData();
+                            notifyItem(bean);
                             groupInfo(bean.getGid());
                         } else if (response.body().getCode() == 10005) {//已是群成员
                             bean.setStat(2);
                             msgDao.applyGroup(bean);
-                            initData();
+//                            initData();
+                            notifyItem(bean);
                             groupInfo(bean.getGid());
                         } else {
                             ToastUtil.show(getContext(), response.body().getMsg());
@@ -314,11 +324,10 @@ public class FriendApplyAcitvity extends AppActivity {
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     EventBus.getDefault().post(new EventRefreshFriend());
-//                    taskGetList();
-
                     bean.setStat(2);
                     msgDao.applyFriend(bean);
-                    initData();
+//                    initData();
+                    notifyItem(bean);
                 } else {
                     // ToastUtil.show(getContext(),response.body().getMsg());
                 }
