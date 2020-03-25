@@ -205,7 +205,7 @@ public class ShopFragemnt extends Fragment {
     }
 
     /**
-     * 提示弹框->校验支付密码
+     * 提示弹框->校验支付密码(特殊样式，暂不复用)
      */
     private void showCheckPaywordDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);

@@ -402,7 +402,7 @@ public class WithdrawActivity extends AppActivity {
     }
 
     /**
-     * 获取费率失败弹框
+     * 获取费率失败弹框 (特殊样式，暂不复用)
      */
     private void showFailDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
