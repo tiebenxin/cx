@@ -5,8 +5,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.LocaleList;
-
-import net.cb.cb.library.utils.NetUtil;
+import android.text.TextUtils;
 
 import java.util.Locale;
 
@@ -15,13 +14,13 @@ import java.util.Locale;
  * 公共配置
  */
 public class AppConfig {
-    public static String URL_HOST = "http://127.0.0.1";
-    public static String SOCKET_IP = "127.0.0.1";
-    public static int SOCKET_PORT = 8090;
+    //    public static String URL_HOST = "http://127.0.0.1";
+//    public static String SOCKET_IP = "127.0.0.1";
+//    public static int SOCKET_PORT = 8090;
     public static Context APP_CONTEXT;
     public static boolean DEBUG = false;
     public static float FONT = 1.0f;
-    public static String UP_PATH = "";
+    public static String UP_PATH = BuildConfig.UP_PATH;
 
     // 用户服务协议
     public static final String USER_AGREEMENT = "https://changxin.zhixun6.com/yhxy.html";
@@ -42,19 +41,19 @@ public class AppConfig {
         return APP_CONTEXT;
     }
 
-    public static String getUrlHost() {
-        return URL_HOST;
-    }
+//    public static String getUrlHost() {
+//        return URL_HOST;
+//    }
 
     /***
      * 指定host
      *
      * @param urlHost
      */
-    public static void setUrlHost(String urlHost) {
-        URL_HOST = urlHost;
-        NetUtil.getNet().resetHost();
-    }
+//    public static void setUrlHost(String urlHost) {
+//        URL_HOST = urlHost;
+//        NetUtil.getNet().resetHost();
+//    }
 
     /***
      * 获取系统语言zh0
@@ -101,30 +100,34 @@ public class AppConfig {
         if (APP_CONTEXT == null) {
             return null;
         }
-        String channelName = null;
+
+        String resultData = "";
         try {
             PackageManager packageManager = APP_CONTEXT.getPackageManager();
             if (packageManager != null) {
-                //注意此处为ApplicationInfo 而不是 ActivityInfo,因为友盟设置的meta-data是在application标签中，而不是某activity标签中，所以用ApplicationInfo
-                ApplicationInfo applicationInfo = packageManager.
-                        getApplicationInfo(APP_CONTEXT.getPackageName(), PackageManager.GET_META_DATA);
+                //注意此处为ApplicationInfo，因为友盟设置的meta-data是在application标签中
+                ApplicationInfo applicationInfo = packageManager.getApplicationInfo(APP_CONTEXT.getPackageName(), PackageManager.GET_META_DATA);
                 if (applicationInfo != null) {
                     if (applicationInfo.metaData != null) {
-                        channelName = String.valueOf(applicationInfo.metaData.get("UMENG_CHANNEL"));
+                        //key要与manifest中的配置文件标识一致
+                        resultData = applicationInfo.metaData.getString("UMENG_CHANNEL");
                     }
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (PackageManager.NameNotFoundException e) {
+            return "";
         }
-        return channelName;
+        if (TextUtils.isEmpty(resultData)) {
+            resultData = "";
+        }
+        return resultData;
     }
 
-    public static void setOnline(boolean online){
+    public static void setOnline(boolean online) {
         isOnline = online;
     }
 
-    public static boolean isOnline(){
+    public static boolean isOnline() {
         return isOnline;
     }
 }
