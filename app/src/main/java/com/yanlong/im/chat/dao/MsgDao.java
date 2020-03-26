@@ -53,6 +53,7 @@ import java.util.UUID;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -3376,18 +3377,38 @@ public class MsgDao {
                     .and()
                     .beginGroup().greaterThan("timestamp", time).endGroup()
                     .limit(1000)
-//                    .sort("timestamp",Sort.DESCENDING)
+                    .sort("timestamp", Sort.DESCENDING)
                     .findAll();
             //单聊消息
             RealmResults<MsgAllBean> privateMsgs = realm.where(MsgAllBean.class)
-                    .beginGroup().isEmpty("gid").endGroup()
-                    .or()
-                    .beginGroup().isNull("gid").endGroup()
+                    .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
                     .and()
                     .beginGroup().greaterThan("timestamp", time).endGroup()
                     .limit(1000)
-//                    .sort("timestamp",Sort.DESCENDING)
+                    .sort("timestamp", Sort.DESCENDING)
                     .findAll();
+
+            //TODO：无法控制单聊和群聊数据长度
+            RealmResults<MsgAllBean> totalMsgs = realm.where(MsgAllBean.class)
+                    //群聊
+                    .beginGroup()
+                    .beginGroup().isNotEmpty("gid").and().isNotNull("gid").endGroup()
+                    .and()
+                    .beginGroup().greaterThan("timestamp", time).endGroup()
+                    .and()
+                    .endGroup()
+                    .or()
+                    //单聊
+                    .beginGroup()
+                    .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup().greaterThan("timestamp", time).endGroup()
+                    .and()
+                    .endGroup()
+                    .limit(1000)
+                    .sort("timestamp", Sort.DESCENDING)
+                    .findAll();
+
             RealmList<MsgAllBean> results = new RealmList<>();
             if (groupMsgs != null) {
                 results.addAll(groupMsgs);
@@ -3395,7 +3416,11 @@ public class MsgDao {
             if (privateMsgs != null) {
                 results.addAll(privateMsgs);
             }
-            results.where().sort("timestamp", Sort.DESCENDING);
+
+            if (totalMsgs != null) {
+
+            }
+//            results.sort("timestamp", Sort.DESCENDING);
             list = realm.copyFromRealm(results);
             realm.close();
         } catch (Exception e) {
@@ -3404,6 +3429,27 @@ public class MsgDao {
         }
         return list;
 
+    }
+
+    //更新新的群邀请
+    public void updateNewApply(String gid, long inviter, int status) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            ApplyBean bean = realm.where(ApplyBean.class)
+                    .beginGroup().equalTo("gid", gid).endGroup()
+                    .and()
+                    .beginGroup().equalTo("uid", inviter).endGroup()
+                    .findFirst();
+            if (bean != null && bean.getStat() == 1) {
+                bean.setStat(status);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
     }
 
 }
