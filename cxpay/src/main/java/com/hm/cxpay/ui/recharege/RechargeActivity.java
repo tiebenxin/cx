@@ -331,7 +331,7 @@ public class RechargeActivity extends AppActivity {
     }
 
     /**
-     * 两种类型弹框
+     * 两种类型弹框 (特殊样式，暂不复用)
      * 1 添加银行卡->没绑定过
      * 2 输入支付密码->绑定过
      */
