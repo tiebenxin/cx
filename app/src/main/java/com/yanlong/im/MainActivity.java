@@ -185,7 +185,7 @@ public class MainActivity extends AppActivity {
         }
 
         initLocation();
-//        getMsgToPC();
+        getMsgToPC();
     }
 
     private void initLocation() {
@@ -1182,6 +1182,10 @@ public class MainActivity extends AppActivity {
                     public void accept(List<MsgAllBean> list) throws Exception {
                         if (list != null) {
                             LogUtil.getLog().i("a==", list.size() + "");
+                            MsgBean.UniversalMessage message = SocketData.createUniversalMessage(list);
+                            if (message != null) {
+                                byte[] bytes = message.toByteArray();
+                            }
                         }
                     }
                 });
