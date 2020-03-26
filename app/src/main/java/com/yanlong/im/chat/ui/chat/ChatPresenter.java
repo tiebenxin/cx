@@ -33,6 +33,7 @@ import com.example.nim_lib.ui.VideoActivity;
 import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.bean.TransferDetailBean;
 import com.hm.cxpay.bean.UserBean;
+import com.hm.cxpay.dailog.ChangeSelectDialog;
 import com.hm.cxpay.dailog.DialogDefault;
 import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
@@ -193,9 +194,13 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
     private MsgDao msgDao = new MsgDao();
 
+    private ChangeSelectDialog.Builder builder;
+    private ChangeSelectDialog dialogOne;//通用提示选择弹框：实名认证
+
     public void init(Context con) {
         context = con;
         activity = (ChatActivity3) con;
+        builder = new ChangeSelectDialog.Builder(activity);
     }
 
     /*
@@ -1244,46 +1249,26 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
         if (context == null) {
             return;
         }
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
-        dialogBuilder.setCancelable(false);//取消点击外部消失弹窗
-        final AlertDialog dialog = dialogBuilder.create();
-        View dialogView = LayoutInflater.from(context).inflate(com.hm.cxpay.R.layout.dialog_identify, null);
-        TextView tvCancel = dialogView.findViewById(com.hm.cxpay.R.id.tv_cancel);
-        TextView tvIdentify = dialogView.findViewById(com.hm.cxpay.R.id.tv_identify);
-        //取消
-        tvCancel.setOnClickListener(new android.view.View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
-        //去认证(需要先同意协议)
-        tvIdentify.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (context == null) {
-                    return;
-                }
-                context.startActivity(new Intent(context, ServiceAgreementActivity.class));
-                dialog.dismiss();
-            }
-        });
-        //展示界面
-        dialog.show();
-        //解决圆角shape背景无效问题
-        Window window = dialog.getWindow();
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //相关配置
-        WindowManager.LayoutParams lp = window.getAttributes();
-        window.setGravity(Gravity.CENTER);
-        WindowManager manager = window.getWindowManager();
-        DisplayMetrics metrics = new DisplayMetrics();
-        manager.getDefaultDisplay().getMetrics(metrics);
-        //设置宽高，高度自适应，宽度屏幕0.8
-        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels * 0.8);
-        dialog.getWindow().setAttributes(lp);
-        dialog.setContentView(dialogView);
+        dialogOne = builder.setTitle("根据国家法律法规要求，你需要进行身份认证后\n，才能继续使用该功能。")
+                .setLeftText("取消")
+                .setRightText("去认证")
+                .setLeftOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //取消
+                        dialogOne.dismiss();
+                    }
+                })
+                .setRightOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //去认证(需要先同意协议)
+                        dialogOne.dismiss();
+                        context.startActivity(new Intent(context, ServiceAgreementActivity.class));
+                    }
+                })
+                .build();
+        dialogOne.show();
     }
 
     public void showSettingPswDialog() {
