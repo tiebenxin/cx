@@ -385,11 +385,14 @@ public class MsgMainFragment extends Fragment {
             int refreshTag = event.getRefreshTag();
            if (refreshTag == CoreEnum.ESessionRefreshTag.DELETE) {
                 //阅后即焚 -更新
-                viewModel.updateItemSessionDetail(event.getUid(), event.getGid());
+                viewModel.updateItemSessionDetail();
                 LogUtil.getLog().d("a==", "MsgMainFragment --删除session");
                 MessageManager.getInstance().deleteSessionAndMsg(event.getUid(), event.getGid());
                 MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
-            }
+            }else if(refreshTag == CoreEnum.ESessionRefreshTag.BLACK){
+               //阅后即焚 -更新
+               viewModel.updateItemSessionDetail();
+           }
         }
     }
 

@@ -662,6 +662,7 @@ public class GroupInfoActivity extends AppActivity {
                         content = txtGroupNick.getText().toString();
                     }
                     taskChangeMemberName(gid, content);
+
                     break;
                 case GROUP_NOTE:
                     String note = data.getStringExtra(GroupNoteDetailActivity.CONTENT);
@@ -1181,7 +1182,7 @@ public class GroupInfoActivity extends AppActivity {
     protected void onStop() {
         super.onStop();
         if (isSessionChange) {//免打扰，群名变化
-            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.BLACK, null);
         }
     }
 

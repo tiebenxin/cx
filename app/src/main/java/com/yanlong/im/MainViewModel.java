@@ -63,7 +63,7 @@ public class MainViewModel extends ViewModel {
         });
     }
 
-    public void updateItemSessionDetail(long uid,String gid){
+    public void updateItemSessionDetail(){
         repository.updateSessionDetail();
     }
 
