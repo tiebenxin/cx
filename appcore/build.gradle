@@ -41,6 +41,13 @@ android {
                 VIVO_APPID    : "15217", // VIVO平台注册的appid
         ]
 
+        /**
+         * host地址
+         */
+
+        buildConfigField("String", "HOST_DEV", "\"${rootProject.ext.host_default}\"")
+        buildConfigField("String", "HOST_PRE", "\"${rootProject.ext.host_beta}\"")
+        buildConfigField("String", "HOST_RELEASE", "\"${rootProject.ext.host_release}\"")
     }
 
     buildscript {
@@ -67,14 +74,21 @@ android {
     }
 
     buildTypes {
-        release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-
+        debug {
+            buildConfigField("String", "API_HOST", "\"${rootProject.ext.host_default}\"")
+            buildConfigField("String", "UP_PATH", "\"${rootProject.ext.upload_default}\"")
         }
 
         pre {
+            buildConfigField("String", "API_HOST", "\"${rootProject.ext.host_beta}\"")
+            buildConfigField("String", "UP_PATH", "\"${rootProject.ext.upload_beta}\"")
+        }
 
+        release {
+            minifyEnabled true
+            buildConfigField("String", "API_HOST", "\"${rootProject.ext.host_release}\"")
+            buildConfigField("String", "UP_PATH", "\"${rootProject.ext.upload_release}\"")
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }

@@ -16,6 +16,7 @@ import net.cb.cb.library.bean.BuglyException;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshChat;
+import net.cb.cb.library.constant.AppHostUtil;
 import net.cb.cb.library.constant.BuglyTag;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.LogUtil;
@@ -465,8 +466,10 @@ public class SocketUtil {
 
 
         //---------------------------------------------链接中
-        LogUtil.getLog().d(TAG, "\n\n>>>>socket===============>>>" + AppConfig.SOCKET_IP + ":" + AppConfig.SOCKET_PORT + "\n\n");
-        if (!socketChannel.connect(new InetSocketAddress(AppConfig.SOCKET_IP, AppConfig.SOCKET_PORT))) {
+//        LogUtil.getLog().d(TAG, "\n\n>>>>socket===============>>>" + AppConfig.SOCKET_IP + ":" + AppConfig.SOCKET_PORT + "\n\n");
+//        if (!socketChannel.connect(new InetSocketAddress(AppConfig.SOCKET_IP, AppConfig.SOCKET_PORT))) {
+        LogUtil.getLog().d(TAG, "\n\n>>>>socket===============>>>" + AppHostUtil.getTcpHost() + ":" + AppHostUtil.TCP_PORT + "\n\n");
+        if (!socketChannel.connect(new InetSocketAddress(AppHostUtil.getTcpHost(), AppHostUtil.TCP_PORT))) {
             //不断地轮询连接状态，直到完成连
             LogUtil.getLog().d(TAG, ">>>链接中");
             long ttime = System.currentTimeMillis();

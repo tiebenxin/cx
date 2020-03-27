@@ -252,7 +252,7 @@ public class MessageManager {
                 }
                 break;
             case REQUEST_FRIEND://请求添加为好友
-//                if (!TextUtils.isEmpty(wrapMessage.getRequestFriend().getContactName())) {
+                msgDao.remidCount("friend_apply");
                 UserAction userAction = new UserAction();
                 userAction.friendGet4Apply(new CallBack<ReturnBean<List<ApplyBean>>>() {
                     @Override
@@ -269,13 +269,10 @@ public class MessageManager {
                                 applyBeanList.get(i).setAlias(wrapMessage.getRequestFriend().getContactName());
                             }
                             applyBeanList.get(i).setStat(1);
-
                             msgDao.applyFriend(applyBean);
                         }
                     }
                 });
-//                }
-                msgDao.remidCount("friend_apply");
                 notifyRefreshFriend(true, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.REQUEST_FRIEND);
                 break;
             case REMOVE_FRIEND:
@@ -323,6 +320,7 @@ public class MessageManager {
             case ACCEPT_BE_GROUP://接受入群，
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
+                    updateGroupApply(wrapMessage);
                     refreshGroupInfo(bean.getGid());
                     hasNotified = true;
                 }
@@ -608,6 +606,20 @@ public class MessageManager {
         }
         checkNotifyVoice(wrapMessage, isList, canNotify);
         return result;
+    }
+
+    private void updateGroupApply(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        //被邀请进群，表示已经同意了
+        if (wrapMessage.getAcceptBeGroup() != null) {
+            List<MsgBean.GroupNoticeMessage> noticeMessageList = wrapMessage.getAcceptBeGroup().getNoticeMessageList();
+            if (noticeMessageList != null && noticeMessageList.size() > 0) {
+                for (int i = 0; i < noticeMessageList.size(); i++) {
+                    MsgBean.GroupNoticeMessage message = noticeMessageList.get(i);
+                    long uid = message.getUid();
+                    msgDao.updateNewApply(wrapMessage.getGid(), uid, 2);
+                }
+            }
+        }
     }
 
     private boolean isCancelValid(MsgBean.MessageType type, boolean isValid) {

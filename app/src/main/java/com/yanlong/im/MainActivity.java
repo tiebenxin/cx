@@ -37,6 +37,7 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.utils.DateUtils;
+import com.jrmf360.tools.utils.ThreadUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthService;
@@ -113,6 +114,8 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -185,7 +188,7 @@ public class MainActivity extends AppActivity {
         }
 
         initLocation();
-//        getMsgToPC();
+        getMsgToPC();
     }
 
     private void initLocation() {
@@ -1172,7 +1175,24 @@ public class MainActivity extends AppActivity {
                 .map(new Function<Integer, List<MsgAllBean>>() {
                     @Override
                     public List<MsgAllBean> apply(Integer integer) throws Exception {
-                        return msgDao.getMsgIn3Day();
+                        List<MsgAllBean> msgList = msgDao.getMsgIn3Day();
+                        Collections.sort(msgList, new Comparator<MsgAllBean>() {
+                            @Override
+                            public int compare(MsgAllBean o1, MsgAllBean o2) {
+                                if (o1 == null || o2 == null || o1.getTimestamp() == null || o2.getTimestamp() == null) {
+                                    return -1;
+                                }
+                                if (o1.getTimestamp().longValue() > o2.getTimestamp().longValue()) {
+                                    return 1;
+                                } else if (o1.getTimestamp().longValue() < o2.getTimestamp().longValue()) {
+                                    return -1;
+
+                                } else {
+                                    return 0;
+                                }
+                            }
+                        });
+                        return msgList;
                     }
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -1182,9 +1202,40 @@ public class MainActivity extends AppActivity {
                     public void accept(List<MsgAllBean> list) throws Exception {
                         if (list != null) {
                             LogUtil.getLog().i("a==", list.size() + "");
+                            MsgBean.UniversalMessage message = SocketData.createUniversalMessage(list);
+                            if (message != null) {
+                                byte[] bytes = message.toByteArray();
+                            }
                         }
                     }
                 });
+
+        ThreadUtil.getInstance().execute(new Runnable() {
+            @Override
+            public void run() {
+                List<MsgAllBean> msgList = msgDao.getMsgIn3Day();
+                Collections.sort(msgList, new Comparator<MsgAllBean>() {
+                    @Override
+                    public int compare(MsgAllBean o1, MsgAllBean o2) {
+                        if (o1 == null || o2 == null || o1.getTimestamp() == null || o2.getTimestamp() == null) {
+                            return -1;
+                        }
+                        if (o1.getTimestamp().longValue() > o2.getTimestamp().longValue()) {
+                            return 1;
+                        } else if (o1.getTimestamp().longValue() < o2.getTimestamp().longValue()) {
+                            return -1;
+                        } else {
+                            return 0;
+                        }
+                    }
+                });
+                MsgBean.UniversalMessage message = SocketData.createUniversalMessage(msgList);
+                if (message != null) {
+                    byte[] bytes = message.toByteArray();
+                }
+
+            }
+        });
 
     }
 }
