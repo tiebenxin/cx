@@ -2,7 +2,10 @@ package net.cb.cb.library.manager;
 
 import android.os.Environment;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * @author Liszt
@@ -16,6 +19,14 @@ public class FileManager {
     public static final String VOICE = "/voice";
     public static final String VIDEO = "/video";
     public static final String OTHER = "/other";
+    private static FileManager INSTACNCE;
+
+    public static FileManager getInstance() {
+        if (INSTACNCE == null) {
+            INSTACNCE = new FileManager();
+        }
+        return INSTACNCE;
+    }
 
 
     static {
@@ -57,16 +68,59 @@ public class FileManager {
         }
     }
 
-    public static String getImageCachePath() {
+    public String getImageCachePath() {
         return Environment.getExternalStorageDirectory().getAbsolutePath() + CACHE_ROOT + CACHE + IMAGE;
     }
 
-    public static String getVoiceCachePath() {
+    public String getVoiceCachePath() {
         return Environment.getExternalStorageDirectory().getAbsolutePath() + CACHE_ROOT + CACHE + VOICE;
     }
 
-    public static String getVedioCachePath() {
+    public String getVideoCachePath() {
         return Environment.getExternalStorageDirectory().getAbsolutePath() + CACHE_ROOT + CACHE + VIDEO;
     }
 
+    public String getOtherRoot() {
+        return Environment.getExternalStorageDirectory().getAbsolutePath() + CACHE_ROOT + CACHE + VIDEO;
+    }
+
+
+    //存储pc同步消息
+    public File saveMsgFile(byte[] bytes) {
+        String filePath = getOtherRoot();
+        String fileName = System.currentTimeMillis() + ".txt";
+
+        BufferedOutputStream bos = null;
+        FileOutputStream fos = null;
+        File file = null;
+        try {
+            File dir = new File(filePath);
+            if (!dir.exists() && dir.isDirectory()) {//判断文件目录是否存在
+                dir.mkdirs();
+            }
+            file = new File(filePath + File.separator + fileName);
+            fos = new FileOutputStream(file);
+            bos = new BufferedOutputStream(fos);
+            bos.write(bytes);
+            return file;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
 }
