@@ -394,6 +394,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                     return "生产服";
             }
         } else {
+            switchService(type);
             switch (type) {
                 case ChatEnum.EServiceType.DEBUG:
                     return "测试服";
