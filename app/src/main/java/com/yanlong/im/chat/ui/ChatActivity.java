@@ -2226,7 +2226,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if (isMustBottom) {
                 mtListView.scrollToEnd();
             } else {
-                Log.e("raleigh_test","isMustBottom="+isMustBottom+",lastPosition="+lastPosition+",isSoftShow="+isSoftShow+",lastOffset="+lastOffset);
                 if (lastPosition >= 0 && lastPosition < length) {
                     if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
                         scrollChatToPosition(length);
