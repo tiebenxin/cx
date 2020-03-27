@@ -23,6 +23,7 @@ import com.yanlong.im.chat.ui.ChatActionActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.MediaBackUtil;
@@ -55,7 +56,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import io.realm.Realm;
 import retrofit2.Call;
@@ -1581,6 +1581,8 @@ public class MessageManager {
         if (taskMaps != null) {
             taskMaps.clear();
         }
+        //用户退出登录需清除阅后即焚数据
+        BurnManager.getInstance().clear();
     }
 
     public void doImgHeadChange(String gid, Group group) {

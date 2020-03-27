@@ -46,7 +46,6 @@ import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
-import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
@@ -726,7 +725,7 @@ public class UserInfoActivity extends AppActivity {
                 new MsgDao().sessionCreate("", id);
                 ToastUtil.show(context, response.body().getMsg());
                 notifyRefreshRoster(uid, CoreEnum.ERosterAction.BLACK);
-                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
+                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.BLACK, null);
             }
         });
     }
@@ -778,7 +777,7 @@ public class UserInfoActivity extends AppActivity {
                     updateUserInfo(mark);
                     notifyRefreshRoster(0, CoreEnum.ERosterAction.UPDATE_INFO);// TODO　id改成0 需要全部刷新，改变通讯录的位置
                     MessageManager.getInstance().setMessageChange(true);
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.BLACK, null);
                 }
                 taskUserInfo(id);
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
