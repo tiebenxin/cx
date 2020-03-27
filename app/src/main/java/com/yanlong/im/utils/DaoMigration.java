@@ -2,8 +2,6 @@ package com.yanlong.im.utils;
 
 import androidx.annotation.Nullable;
 
-import com.yanlong.im.chat.bean.MsgAllBean;
-
 import net.cb.cb.library.utils.LogUtil;
 
 import io.realm.DynamicRealm;
@@ -116,6 +114,10 @@ public class DaoMigration implements RealmMigration {
             }
             if (newVersion > oldVersion && oldVersion == 23) {
                 updateV24(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 24) {
+                updateV25(schema);
                 oldVersion++;
             }
         }
@@ -442,7 +444,15 @@ public class DaoMigration implements RealmMigration {
         schema.get("SendFileMessage")
                 .addField("realFileRename", String.class);
     }
-
+    private void updateV25(RealmSchema schema) {
+        schema.create("SessionDetail")
+                .addField("sid", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("name", String.class)
+                .addField("avatar", String.class)
+                .addField("avatarList", String.class)
+                .addField("senderName", String.class)
+                .addRealmObjectField("message", schema.get("MsgAllBean"));
+    }
 
     @Override
     public boolean equals(@Nullable Object obj) {

@@ -36,7 +36,7 @@ public class Session extends RealmObject implements Comparable<Session> {
     @Ignore
     private Boolean isSelect = false;//本地字段
 
-    @Ignore
+      @Ignore
     private String name; //session名字，群聊即群名，私聊即好友备注或昵称
     @Ignore
     private String avatar;//头像
