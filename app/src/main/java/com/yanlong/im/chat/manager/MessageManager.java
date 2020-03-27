@@ -252,7 +252,7 @@ public class MessageManager {
                 }
                 break;
             case REQUEST_FRIEND://请求添加为好友
-//                if (!TextUtils.isEmpty(wrapMessage.getRequestFriend().getContactName())) {
+                msgDao.remidCount("friend_apply");
                 UserAction userAction = new UserAction();
                 userAction.friendGet4Apply(new CallBack<ReturnBean<List<ApplyBean>>>() {
                     @Override
@@ -269,13 +269,10 @@ public class MessageManager {
                                 applyBeanList.get(i).setAlias(wrapMessage.getRequestFriend().getContactName());
                             }
                             applyBeanList.get(i).setStat(1);
-
                             msgDao.applyFriend(applyBean);
                         }
                     }
                 });
-//                }
-                msgDao.remidCount("friend_apply");
                 notifyRefreshFriend(true, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.REQUEST_FRIEND);
                 break;
             case REMOVE_FRIEND:

@@ -11,8 +11,10 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.alibaba.android.arouter.launcher.ARouter;
 import com.luck.picture.lib.adapter.SimpleFragmentAdapter;
 import com.luck.picture.lib.anim.OptAnimationLoader;
 import com.luck.picture.lib.config.PictureConfig;
@@ -47,18 +49,21 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     private ImageView picture_left_back;
     private TextView tv_img_num, tv_title, tv_ok;
     private PreviewViewPager viewPager;
-    private LinearLayout id_ll_ok;
+    private RelativeLayout id_ll_ok;
     private int position;
     private LinearLayout ll_check;
     private List<LocalMedia> images = new ArrayList<>();
     private List<LocalMedia> selectImages = new ArrayList<>();
     private TextView check;
+    private TextView tvEdit;//编辑
+
     private SimpleFragmentAdapter adapter;
     private Animation animation;
     private boolean refresh;
     private int index;
     private int screenWidth;
     private Handler mHandler;
+    public final int EDIT_FROM_ALBUM = 1;//相册预览编辑
 
     /**
      * EventBus 3.0 回调
@@ -97,13 +102,14 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         picture_left_back = (ImageView) findViewById(R.id.picture_left_back);
         viewPager = (PreviewViewPager) findViewById(R.id.preview_pager);
         ll_check = (LinearLayout) findViewById(R.id.ll_check);
-        id_ll_ok = (LinearLayout) findViewById(R.id.id_ll_ok);
+        id_ll_ok = findViewById(R.id.id_ll_ok);
         check = (TextView) findViewById(R.id.check);
         picture_left_back.setOnClickListener(this);
         tv_ok = (TextView) findViewById(R.id.tv_ok);
         id_ll_ok.setOnClickListener(this);
         tv_img_num = (TextView) findViewById(R.id.tv_img_num);
         tv_title = (TextView) findViewById(R.id.picture_title);
+        tvEdit = findViewById(R.id.tv_edit);
         position = getIntent().getIntExtra(PictureConfig.EXTRA_POSITION, 0);
         tv_ok.setText(numComplete ? getString(R.string.picture_done_front_num,
                 0, config.selectionMode == PictureConfig.SINGLE ? 1 : config.maxSelectNum)
@@ -201,6 +207,15 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
 
             @Override
             public void onPageScrollStateChanged(int state) {
+            }
+        });
+        //新增图片编辑
+        tvEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //如果当前图片存在于已选中列表则编辑后需要更新已选列表的数据；否则不需要更新已选列表的数据
+                int editIndex = getSelectedPosition(images.get(position));
+                ARouter.getInstance().build("/weixinrecorded/ImageShowActivity").withString("imgpath",images.get(position).getPath()).withInt("index",editIndex).navigation(PicturePreviewActivity.this,EDIT_FROM_ALBUM);
             }
         });
     }
@@ -329,6 +344,20 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     }
 
     /**
+     * 获取当前图片在已选列表中的位置(方便编辑后刷新)
+     * @param image
+     * @return
+     */
+    public int getSelectedPosition(LocalMedia image){
+        for(int i=0; i<selectImages.size(); i++){
+            if(selectImages.get(i).getPath().equals(image.getPath())){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
      * 更新图片选择数量
      */
 
@@ -453,6 +482,18 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                         setResult(RESULT_OK, data);
                     }
                     finish();
+                    break;
+                case EDIT_FROM_ALBUM:
+                    if(!TextUtils.isEmpty(data.getStringExtra("showPath"))){
+                        images.get(position).setPath(data.getStringExtra("showPath"));
+
+                        adapter.notifyDataSetChanged();//刷新显示编辑后的图片
+                        //不为-1，说明selectImages中存在，即已选图片编辑后，需要刷新数据
+                        if(data.getIntExtra("index",-1) != -1){
+                            int tempIndex = data.getIntExtra("index",-1);
+                            selectImages.get(tempIndex).setPath(data.getStringExtra("showPath"));
+                        }
+                    }
                     break;
             }
         } else if (resultCode == UCrop.RESULT_ERROR) {

@@ -26,6 +26,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.alibaba.android.arouter.facade.annotation.Route;
 import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.databinding.ActivityImgShowBinding;
 import com.zhaoss.weixinrecorded.util.DimenUtils;
@@ -48,10 +49,13 @@ import java.io.IOException;
  * @description 图片编辑
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
+
+@Route(path = "/weixinrecorded/ImageShowActivity")
 public class ImageShowActivity extends BaseActivity implements View.OnClickListener {
 
     ActivityImgShowBinding binding;
     private String mPath;
+    private int index;
     private int mWindowWidth;
     private int mWindowHeight;
     private int mDp100;
@@ -71,6 +75,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
 
     private void init(){
         mPath = getIntent().getExtras().getString("imgpath");
+        index = getIntent().getExtras().getInt("index");
         mWindowWidth = Utils.getWindowWidth(mContext);
         mWindowHeight = Utils.getWindowHeight(mContext);
         binding.imgShow.setImageURI(Uri.parse(mPath));
@@ -341,6 +346,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             String savePath = saveImage(bitmap, 100);
             intent.putExtra("showResult", true);
             intent.putExtra("showPath", savePath);
+            intent.putExtra("index", index);
             setResult(RESULT_OK, intent);
             finish();
         }else if(v.getId() == R.id.rl_close){// 返回

@@ -3389,25 +3389,25 @@ public class MsgDao {
                     .findAll();
 
             //TODO：无法控制单聊和群聊数据长度
-            RealmResults<MsgAllBean> totalMsgs = realm.where(MsgAllBean.class)
-                    //群聊
-                    .beginGroup()
-                    .beginGroup().isNotEmpty("gid").and().isNotNull("gid").endGroup()
-                    .and()
-                    .beginGroup().greaterThan("timestamp", time).endGroup()
-                    .and()
-                    .endGroup()
-                    .or()
-                    //单聊
-                    .beginGroup()
-                    .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
-                    .and()
-                    .beginGroup().greaterThan("timestamp", time).endGroup()
-                    .and()
-                    .endGroup()
-                    .limit(1000)
-                    .sort("timestamp", Sort.DESCENDING)
-                    .findAll();
+//            RealmResults<MsgAllBean> totalMsgs = realm.where(MsgAllBean.class)
+//                    //群聊
+//                    .beginGroup()
+//                    .beginGroup().isNotEmpty("gid").and().isNotNull("gid").endGroup()
+//                    .and()
+//                    .beginGroup().greaterThan("timestamp", time).endGroup()
+//                    .and()
+//                    .endGroup()
+//                    .or()
+//                    //单聊
+//                    .beginGroup()
+//                    .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
+//                    .and()
+//                    .beginGroup().greaterThan("timestamp", time).endGroup()
+//                    .and()
+//                    .endGroup()
+//                    .limit(1000)
+//                    .sort("timestamp", Sort.DESCENDING)
+//                    .findAll();
 
             RealmList<MsgAllBean> results = new RealmList<>();
             if (groupMsgs != null) {
@@ -3417,9 +3417,9 @@ public class MsgDao {
                 results.addAll(privateMsgs);
             }
 
-            if (totalMsgs != null) {
-
-            }
+//            if (totalMsgs != null) {
+//
+//            }
 //            results.sort("timestamp", Sort.DESCENDING);
             list = realm.copyFromRealm(results);
             realm.close();
