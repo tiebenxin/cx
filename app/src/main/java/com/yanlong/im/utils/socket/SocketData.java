@@ -82,10 +82,10 @@ public class SocketData {
     public static byte[] msg4Auth() {
 
         TokenBean tokenBean = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-        LogUtil.getLog().i("tag", ">>>>发送token" + tokenBean.getAccessToken());
         if (tokenBean == null || !StringUtil.isNotNull(tokenBean.getAccessToken())) {
             return null;
         }
+        LogUtil.getLog().i("tag", ">>>>发送token" + tokenBean.getAccessToken());
         MsgBean.AuthRequestMessage auth = MsgBean.AuthRequestMessage.newBuilder()
                 .setAccessToken(tokenBean.getAccessToken()).build();
         return SocketPacket.getPackage(SocketPacket.DataType.AUTH, auth.toByteArray());

@@ -70,6 +70,7 @@ import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
 import com.yanlong.im.utils.BurnManager;
+import com.yanlong.im.utils.socket.ExecutorManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.update.UpdateManage;
@@ -87,6 +88,7 @@ import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
+import net.cb.cb.library.manager.FileManager;
 import net.cb.cb.library.manager.TokenManager;
 import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.net.NetworkReceiver;
@@ -101,6 +103,8 @@ import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.UpFileAction;
+import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
@@ -112,12 +116,14 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import cn.jpush.android.api.JPushInterface;
 import io.reactivex.Observable;
@@ -163,6 +169,7 @@ public class MainActivity extends AppActivity {
     private UserAction userAction = new UserAction();
     private boolean testMe = true;
     private String lastPostLocationTime = "";//最近一次上传用户位置的时间
+    private boolean isCreate = false;
 
 
     @Override
@@ -172,24 +179,23 @@ public class MainActivity extends AppActivity {
         EventBus.getDefault().register(this);
         findViews();
         initEvent();
-        uploadApp();
-        getSurvivalTimeData();
-        checkRosters();
+        isCreate = true;
         doRegisterNetReceiver();
-        checkNeteaseLogin();
+
+    }
+
+    private void checkPermission() {
         SpUtil spUtil = SpUtil.getSpUtil();
         boolean isFist = spUtil.getSPValue(Preferences.IS_FIRST_DIALOG, false);
         if (!isFist) {
-            String brand = android.os.Build.BRAND;
+            String brand = Build.BRAND;
             brand = brand.toUpperCase();
             if (brand.contains("OPPO")) {
                 permissionCheck();
             }
         }
-
-        initLocation();
-        getMsgToPC();
     }
+
 
     private void initLocation() {
         lastPostLocationTime = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.POST_LOCATION_TIME).get4Json(String.class);
@@ -244,6 +250,16 @@ public class MainActivity extends AppActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        if (isCreate) {
+            LogUtil.getLog().i("MainActivity", "isCreate=" + isCreate);
+            uploadApp();
+            getSurvivalTimeData();
+            checkRosters();
+            checkNeteaseLogin();
+            checkPermission();
+            initLocation();
+//            getMsgToPC();
+        }
     }
 
     @Override
@@ -411,30 +427,27 @@ public class MainActivity extends AppActivity {
 
     //检测通讯录问题
     private void checkRosters() {
-//        //延时操作，等待数据库初始化
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-        try {
-            Intent intent = getIntent();
-            boolean isFromLogin = intent.getBooleanExtra(IS_LOGIN, false);
-            if (isFromLogin) {//从登陆页面过来，从网络获取最新数据
-                taskLoadFriends();
+        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Intent intent = getIntent();
+                    boolean isFromLogin = intent.getBooleanExtra(IS_LOGIN, false);
+                    if (isFromLogin) {//从登陆页面过来，从网络获取最新数据
+                        taskLoadFriends();
 //                    taskLoadSavedGroups();
-            } else {
-                UserDao userDao = new UserDao();
-                boolean hasInit = userDao.isRosterInit();
-                if (!hasInit) {//未初始化，初始化本地通讯录
-                    taskLoadFriends();
+                    } else {
+                        UserDao userDao = new UserDao();
+                        boolean hasInit = userDao.isRosterInit();
+                        if (!hasInit) {//未初始化，初始化本地通讯录
+                            taskLoadFriends();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-//            }
-//        }, 1000);
-
+        });
     }
 
     private void taskLoadSavedGroups() {
@@ -470,6 +483,7 @@ public class MainActivity extends AppActivity {
         super.onStop();
         updateNetStatus();
         isActivityStop = true;
+        isCreate = false;
     }
 
     @Override
@@ -964,21 +978,22 @@ public class MainActivity extends AppActivity {
 
     private void getSurvivalTimeData() {
         //延时操作，等待数据库初始化
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-        try {
-            //子线程延时 等待myapplication初始化完成
-            //查询所有阅后即焚消息加入定时器
-            List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
-            if (list != null && list.size() > 0) {
-                BurnManager.getInstance().addMsgAllBeans(list);
+        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    //子线程延时 等待myapplication初始化完成
+                    //查询所有阅后即焚消息加入定时器
+                    List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
+                    if (list != null && list.size() > 0) {
+                        BurnManager.getInstance().addMsgAllBeans(list);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-//            }
-//        }, 1000);
+        });
+
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
@@ -1186,7 +1201,6 @@ public class MainActivity extends AppActivity {
                                     return 1;
                                 } else if (o1.getTimestamp().longValue() < o2.getTimestamp().longValue()) {
                                     return -1;
-
                                 } else {
                                     return 0;
                                 }
@@ -1232,6 +1246,28 @@ public class MainActivity extends AppActivity {
                 MsgBean.UniversalMessage message = SocketData.createUniversalMessage(msgList);
                 if (message != null) {
                     byte[] bytes = message.toByteArray();
+                    if (bytes != null) {
+                        File file = FileManager.getInstance().saveMsgFile(bytes);
+                        if (file != null) {
+                            UpFileAction upFileAction = new UpFileAction();
+                            upFileAction.upFile(UpFileAction.PATH.FILE, MainActivity.this, new UpFileUtil.OssUpCallback() {
+                                @Override
+                                public void success(String url) {
+                                    LogUtil.getLog().i("PC同步消息", "文件上传成功--" + url);
+                                }
+
+                                @Override
+                                public void fail() {
+                                    LogUtil.getLog().i("PC同步消息", "文件上传失败");
+                                }
+
+                                @Override
+                                public void inProgress(long progress, long zong) {
+
+                                }
+                            }, file.getAbsolutePath());
+                        }
+                    }
                 }
 
             }

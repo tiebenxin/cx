@@ -209,7 +209,8 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
                 if (len > 0) {
                     for (int i = 0; i < len; i++) {
                         UserInfo info = userInfos.get(i);
-                        MessageManager.getInstance().updateUserAvatarAndNick(info.getUid(), info.getHead(), info.getName());
+                        MessageManager.getInstance().updateUserAvatarAndNick(info.getUid(),
+                                info.getHead(), info.getName());
                     }
                 }
             }
