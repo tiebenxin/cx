@@ -388,4 +388,17 @@ public class ChatEnum {
         int SYS_SEND = 4; // 系统分享或发送
         int SYS_SEND_MULTI = 5; // 系统批量分享或发送
     }
+
+
+    /*
+     *服务器类型
+     * */
+    @IntDef({EServiceType.DEFAULT, EServiceType.DEBUG, EServiceType.BETA, EServiceType.RELEASE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EServiceType {
+        int DEFAULT = 0; // 默认，跟随编译环境
+        int DEBUG = 1; // 测试服
+        int BETA = 2; // 预发布服
+        int RELEASE = 3; // 生产服
+    }
 }

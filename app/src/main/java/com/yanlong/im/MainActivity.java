@@ -188,7 +188,7 @@ public class MainActivity extends AppActivity {
         }
 
         initLocation();
-        getMsgToPC();
+//        getMsgToPC();
     }
 
     private void initLocation() {
