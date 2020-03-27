@@ -1,10 +1,10 @@
 package com.yanlong.im.data.local;
 
 import android.text.TextUtils;
-import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.google.common.base.Joiner;
-import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
@@ -15,6 +15,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import java.util.List;
@@ -31,15 +32,9 @@ import io.realm.Sort;
  */
 public class UpdateSessionDetail {
     private Realm realm = null;
-    private boolean isNull=false;
 
-    public UpdateSessionDetail(Realm realm) {
-        if (realm == null){
-            this.realm = DaoUtil.open();
-            isNull=true;
-        }
-        else
-            this.realm = realm;
+    public UpdateSessionDetail(@NonNull Realm realm) {
+        this.realm = realm;
         update();
     }
 
@@ -59,27 +54,22 @@ public class UpdateSessionDetail {
                         } else {//单聊
                             synchFriendMsgSession(realm, session);
                         }
-//                        realm.insertOrUpdate(session);
-//                        realm.commitTransaction();
                     }
                 }
             }, new Realm.Transaction.OnSuccess() {
                 @Override
                 public void onSuccess() {
-                    if(isNull)realm.close();
-                    Log.e("raleigh_test", "onSuccess " + DateUtils.timeStamp2Date(DateUtils.getSystemTime(), null));
+                    LogUtil.writeLog("UpdateSessionDetail executeTransactionAsync Success");
                 }
             }, new Realm.Transaction.OnError() {
                 @Override
                 public void onError(Throwable error) {
-                    Log.e("raleigh_test", "onError" +
-                            "" + error.getMessage());
-                    if(isNull)realm.close();
+                    LogUtil.writeLog("UpdateSessionDetail error");
+                    LogUtil.writeError(error);
                 }
             });
         } catch (Exception e) {
             e.printStackTrace();
-            if(isNull)realm.close();
         }
     }
 
@@ -89,7 +79,7 @@ public class UpdateSessionDetail {
      */
     private void synchGroupMsgSession(Realm realm, Session session) {
         Group group = realm.where(Group.class).equalTo("gid", session.getGid()).findFirst();
-        SessionDetail sessionMore=new SessionDetail();
+        SessionDetail sessionMore = new SessionDetail();
         sessionMore.setSid(session.getSid());
         if (group != null) {
             sessionMore.setName(getGroupName(group));
@@ -210,7 +200,7 @@ public class UpdateSessionDetail {
      */
     private void synchFriendMsgSession(Realm realm, Session session) {
         UserInfo info = realm.where(UserInfo.class).equalTo("uid", session.getFrom_uid()).findFirst();
-        SessionDetail sessionMore=new SessionDetail();
+        SessionDetail sessionMore = new SessionDetail();
         sessionMore.setSid(session.getSid());
         if (info != null) {
             sessionMore.setName(info.getName4Show());
