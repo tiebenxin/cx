@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.huawei.agconnect'
 
 android {
     compileSdkVersion 28
@@ -187,6 +188,7 @@ dependencies {
     api 'cn.jiguang.sdk.plugin:xiaomi:3.5.8'
     //华为
     api 'cn.jiguang.sdk.plugin:huawei:3.5.8'
+    implementation 'com.huawei.hms:push:4.0.2.300'
     //魅族
     api 'cn.jiguang.sdk.plugin:meizu:3.5.8'
     // oppo

@@ -1,0 +1,12 @@
+{
+	"client":{
+		"cp_id":"890086000300114336",
+		"product_id":"9105385871708117182",
+		"client_id":"195451428716676096",
+		"client_secret":"ED8E9B7D91F88F1EA685F3BD20AEE89DDF08DAB10F3F2FAF437D72C7A102581A",
+		"app_id":"101160415",
+		"package_name":"com.yanlong.im",
+		"api_key":"CV6pEl5mJn0PA5ky4pxGgOWEjM55XXDcIlgczegqfUyESMtMMdS1ZzUp6DU+TMoiHQJqcq+V3okvp7lTDnCa9hcqvX9s"
+	},
+	"configuration_version":"1.0"
+}

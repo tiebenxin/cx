@@ -3371,7 +3371,7 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         long time = SocketData.getFixTime() - TimeToString.DAY * 3;
         try {
-            //群聊消息
+            //群聊消息,1000
             RealmResults<MsgAllBean> groupMsgs = realm.where(MsgAllBean.class)
                     .beginGroup().isNotEmpty("gid").and().isNotNull("gid").endGroup()
                     .and()
@@ -3379,12 +3379,12 @@ public class MsgDao {
                     .limit(1000)
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
-            //单聊消息
+            //单聊消息,3000
             RealmResults<MsgAllBean> privateMsgs = realm.where(MsgAllBean.class)
                     .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
                     .and()
                     .beginGroup().greaterThan("timestamp", time).endGroup()
-                    .limit(1000)
+                    .limit(3000)
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
 
