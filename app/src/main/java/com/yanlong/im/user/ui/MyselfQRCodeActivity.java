@@ -27,6 +27,7 @@ import com.umeng.socialize.UMShareListener;
 import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.umeng.socialize.media.UMImage;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -35,6 +36,7 @@ import com.yanlong.im.utils.ImageUtils;
 import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.QRCodeBean;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.ImgSizeUtil;
@@ -152,7 +154,7 @@ public class MyselfQRCodeActivity extends AppActivity {
             groupHead = intent.getStringExtra(GROUP_HEAD);
             groupName = intent.getStringExtra(GROUP_NAME);
             // mImgHead.setImageURI(groupHead + "");
-            ImageUtils.showImg(this,groupHead,mImgHead,groupId);
+            ImageUtils.showImg(this, groupHead, mImgHead, groupId);
 
             mTvUserName.setText(groupName + "");
             mHeadView.getActionbar().setTitle("群二维码");
@@ -161,15 +163,15 @@ public class MyselfQRCodeActivity extends AppActivity {
             qrCodeBean.setFunction(QRCodeManage.ADD_GROUP_FUNCHTION);
             qrCodeBean.setParameterValue(QRCodeManage.ID, groupId);
             qrCodeBean.setParameterValue(QRCodeManage.UID, userInfo.getUid() + "");
-            String timeTemp=QRCodeManage.getTime(7);
+            String timeTemp = QRCodeManage.getTime(7);
             qrCodeBean.setParameterValue(QRCodeManage.TIME, timeTemp);
             qrCodeBean.setParameterValue(QRCodeManage.NICK_NAME, userInfo.getName());
             QRCode = QRCodeManage.getQRcodeStr(qrCodeBean);
 
             valid_time_tv.setVisibility(View.VISIBLE);
-            long timeLong=Long.valueOf(timeTemp);
-            String timeStr=DateUtils.timeStamp2Date(timeLong ,"yyyy-MM-dd HH:mm");
-            valid_time_tv.setText("该二维码 "+timeStr+" 前有效");
+            long timeLong = Long.valueOf(timeTemp);
+            String timeStr = DateUtils.timeStamp2Date(timeLong, "yyyy-MM-dd HH:mm");
+            valid_time_tv.setText("该二维码 " + timeStr + " 前有效");
         }
         try {
             if (type == 0) {
@@ -335,7 +337,7 @@ public class MyselfQRCodeActivity extends AppActivity {
         if (requestCode == CaptureActivity.REQ_QR_CODE && resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString(CaptureActivity.INTENT_EXTRA_KEY_QR_SCAN);
-            QRCodeManage.goToPage(this,scanResult);
+            QRCodeManage.goToPage(this, scanResult);
 
         } else if (requestCode == SelectUserActivity.RET_CODE_SELECTUSR && resultCode == SelectUserActivity.RET_CODE_SELECTUSR) {
             Bundle bundle = data.getExtras();
@@ -347,6 +349,7 @@ public class MyselfQRCodeActivity extends AppActivity {
             startActivity(intent);
             //向服务器发送图片
             SocketData.send4Image(userInfo.getUid(), null, imageUrl, imgsize, -1);
+            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, userInfo.getUid(), "", CoreEnum.ERefreshType.SINGLE, null);
         }
     }
 

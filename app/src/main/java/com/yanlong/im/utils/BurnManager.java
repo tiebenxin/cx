@@ -5,16 +5,11 @@ import android.text.TextUtils;
 
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
 
 import net.cb.cb.library.CoreEnum;
-import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.utils.LogUtil;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -98,13 +93,13 @@ public class BurnManager {
                 //可能会有批量加入的，未录入msgID的
                 addHistoryId(historyMsgIds, bean.getMsg_id());
                 if (bean.getEndTime() <= DateUtils.getSystemTime()) {
-//                    LogUtil.getLog().i("SurvivalTime", "阅后即焚msg:" + bean.getMsg_id());
+                    LogUtil.getLog().i("SurvivalTime", "阅后即焚msg:" + bean.getMsg_id());
                     addTemp(tempList, bean);
                     addSession(bean);
                     it.remove();
                     needRefreshChat = true;
                 } else if (bean.getSurvival_time() == -1) {
-//                    LogUtil.getLog().i("SurvivalTime", "退出即焚删除msg:" + bean.getMsg_id());
+                    LogUtil.getLog().i("SurvivalTime", "退出即焚删除msg:" + bean.getMsg_id());
                     addTemp(tempList, bean);
                     addSession(bean);
                     it.remove();
@@ -112,7 +107,7 @@ public class BurnManager {
             }
             if (tempList.size() > 0) {
                 boolean result = msgDao.deleteMsgList(tempList);
-//                LogUtil.getLog().i("SurvivalTime", "批量删除size=" + tempList.size());
+                LogUtil.getLog().i("SurvivalTime", "批量删除size=" + tempList.size());
                 if (result) {
                     if (needRefreshChat) {
                         MessageManager.getInstance().notifyRefreshChat(tempList, CoreEnum.ERefreshType.DELETE);
@@ -120,14 +115,14 @@ public class BurnManager {
                     int gLen = gids.size();
                     int uLen = uids.size();
                     if (gLen + uLen == 1) {
-//                        LogUtil.getLog().i("SurvivalTime", "刷新单个会话:" + gLen + "--" + uLen);
+                        LogUtil.getLog().i("SurvivalTime", "刷新单个会话:" + gLen + "--" + uLen);
                         if (gLen > 0) {
                             MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gids.get(0), CoreEnum.ESessionRefreshTag.SINGLE, null);
                         } else if (uLen > 0) {
                             MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uids.get(0), "", CoreEnum.ESessionRefreshTag.SINGLE, null);
                         }
                     } else if (gLen + uLen > 0) {
-//                        LogUtil.getLog().i("SurvivalTime", "刷新所有会话:" + gLen + "--" + uLen);
+                        LogUtil.getLog().i("SurvivalTime", "刷新所有会话:" + gLen + "--" + uLen);
                         MessageManager.getInstance().notifyRefreshMsg();
                     }
                     gids.clear();
@@ -184,9 +179,9 @@ public class BurnManager {
 
     public synchronized void addMsgAllBean(MsgAllBean msgAllBean) {
         if (!historyMsgIds.contains(msgAllBean.getMsg_id())) {
-//            LogUtil.getLog().i("SurvivalTime", "addMsgAllBean");
+//            LogUtil.getLog().i("SurvivalTime", "addMsgAllBean--status==" + msgAllBean.getSend_state());
             msgAllBeans.add(msgAllBean);
-            if (historyMsgIds.size() >= 500){
+            if (historyMsgIds.size() >= 500) {
                 historyMsgIds.remove(0);
             }
             historyMsgIds.add(msgAllBean.getMsg_id());
@@ -200,10 +195,29 @@ public class BurnManager {
     }
 
     public boolean isContainMsg(MsgAllBean bean) {
-        return historyMsgIds.contains(bean.getMsg_id());
+        boolean isContainMsg=historyMsgIds.contains(bean.getMsg_id());
+        //已加入队列的，进行最初赋值
+        if(isContainMsg&&(bean.getStartTime()==0||bean.getEndTime()==0)){
+            int index=msgAllBeans.indexOf(bean);
+            if(index>=0){
+                MsgAllBean historyBean=msgAllBeans.get(index);
+                bean.setStartTime(historyBean.getStartTime());
+                bean.setEndTime(historyBean.getEndTime());
+            }
+        }
+        return isContainMsg;
     }
 
-
+    /**
+     * 用户退出登录需清除阅后即焚数据
+     */
+    public void clear(){
+        msgAllBeans.clear();
+        historyMsgIds.clear();
+        gids.clear();
+        uids.clear();
+        cancel();
+    }
     public void cancel() {
         if (timer != null) {
             timer.cancel();

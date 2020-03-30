@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.yanlong.im.chat.bean.MsgAllBean;
+
 import java.util.List;
 
 /**
@@ -19,7 +21,7 @@ import java.util.List;
  * @description Recycler共公适配器
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
-public abstract class CommonRecyclerViewAdapter <T, VB extends ViewDataBinding> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public abstract class CommonRecyclerViewAdapter<T, VB extends ViewDataBinding> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context mContext;
     private int mLayoutId;
@@ -44,19 +46,29 @@ public abstract class CommonRecyclerViewAdapter <T, VB extends ViewDataBinding> 
         int size = getItemCount();
 
         if (mList == null) {
-            mList =  list;
+            mList = list;
         } else {
             mList.addAll(list);
         }
         notifyItemRangeInserted(size, list.size());
     }
 
-    public void remove(int position) {
+    public void remove(MsgAllBean bean) {
+        if (mList != null) {
+            int position = mList.indexOf(bean);
+            if (position < 0 || position >= getItemCount()) return;
+            mList.remove(position);
+            notifyItemRemoved(position);
+        }
+    }
 
-        if (position < 0 || position > getItemCount()) return;
-
-        mList.remove(position);
-        notifyItemRemoved(position);
+    public void notifyItemChange(MsgAllBean bean) {
+        if (mList != null) {
+            int position = mList.indexOf(bean);
+            if (position < 0 || position >= getItemCount()) return;
+            mList.set(position, (T) bean);
+            notifyItemChanged(position);
+        }
     }
 
     @Override
@@ -71,13 +83,13 @@ public abstract class CommonRecyclerViewAdapter <T, VB extends ViewDataBinding> 
     public void onBindViewHolder(
             @NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
 
-        bind((VB)((CommonViewHolder)holder).getBinding(), mList.get(position), position, holder);
+        bind((VB) ((CommonViewHolder) holder).getBinding(), mList.get(position), position, holder);
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-        bind((VB)((CommonViewHolder)holder).getBinding(), mList.get(position), position, holder);
+        bind((VB) ((CommonViewHolder) holder).getBinding(), mList.get(position), position, holder);
     }
 
     @Override

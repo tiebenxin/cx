@@ -23,4 +23,7 @@ public class FileConfig {
 
     /** 应用表情图片缓存 */
     public static final String PATH_FACE_CACHE = PATH_CACHE + "face_image/";
+
+    /** 应用文件下载路径 */
+    public static final String PATH_DOWNLOAD = PATH_BASE + "download/";
 }

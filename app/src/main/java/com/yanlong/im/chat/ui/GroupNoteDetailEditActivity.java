@@ -1,11 +1,11 @@
 package com.yanlong.im.chat.ui;
 
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.EditText;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -14,21 +14,15 @@ import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.databinding.ActivityGroupNoteDetailBinding;
-import com.yanlong.im.databinding.ActivityGroupNoteDetailEditBinding;
 import com.yanlong.im.utils.socket.SocketData;
 
-import net.cb.cb.library.CoreEnum;
-import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
-
-import org.greenrobot.eventbus.EventBus;
+import net.cb.cb.library.view.HeadView;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -45,8 +39,10 @@ public class GroupNoteDetailEditActivity extends AppActivity {
     public final static String GID = "gid";//传回内容
     public final static String GROUP_NICK = "group_nick";//群主的群昵称
 
+    private HeadView headView;
+    private ActionbarView actionbar;
+    private EditText etTxt;
 
-    private ActivityGroupNoteDetailEditBinding ui;
     private String note;
     private String gid;
     private String groupNick;
@@ -54,32 +50,31 @@ public class GroupNoteDetailEditActivity extends AppActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ui = DataBindingUtil.setContentView(this, R.layout.activity_group_note_detail_edit);
+        setContentView(R.layout.activity_group_note_detail_edit);
+        headView = findViewById(R.id.headView);
+        etTxt = findViewById(R.id.et_txt);
+        actionbar = headView.getActionbar();
+
         Intent intent = getIntent();
         boolean isOwner = true;
         groupNick = intent.getStringExtra(GROUP_NICK);
         gid = intent.getStringExtra(GID);
         note = intent.getStringExtra(NOTE);
         if (isOwner) {
-            ui.etTxt.setVisibility(View.VISIBLE);
-            ui.tvContent.setVisibility(View.GONE);
-            ui.etTxt.setFilters(new InputFilter[]{new InputFilter.LengthFilter(500)});
+            etTxt.setVisibility(View.VISIBLE);
+            etTxt.setFilters(new InputFilter[]{new InputFilter.LengthFilter(500)});
             if (!TextUtils.isEmpty(note)) {
-                ui.etTxt.setText(note);
+                etTxt.setText(note);
             } else {
-                ui.etTxt.setHint("修改群公告");
+                etTxt.setHint("修改群公告");
             }
-            ui.headView.getActionbar().setTxtRight("完成");
-        } else {
-            ui.etTxt.setVisibility(View.GONE);
-            ui.tvContent.setVisibility(View.VISIBLE);
-            ui.tvContent.setText(note);
+            actionbar.setTxtRight("完成");
         }
         initEvent();
     }
 
     private void initEvent() {
-        ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+        actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
                 onBackPressed();
@@ -87,7 +82,7 @@ public class GroupNoteDetailEditActivity extends AppActivity {
 
             @Override
             public void onRight() {
-                String content = ui.etTxt.getText().toString();
+                String content = etTxt.getText().toString();
                 if (!TextUtils.isEmpty(content) && TextUtils.isEmpty(content.trim())) {
                     ToastUtil.show(GroupNoteDetailEditActivity.this, "不能用空字符");
                     return;

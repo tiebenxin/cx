@@ -46,7 +46,6 @@ import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
-import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
@@ -467,7 +466,7 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void taskUserInfo(Long id) {
-        if (id == 1L) {
+        if (id == 1L || id == 3L) {
             UserInfo info = userDao.findUserInfo(id);
             if (info != null) {
                 setData(info);
@@ -485,16 +484,27 @@ public class UserInfoActivity extends AppActivity {
                     if (response.body() == null || response.body().getData() == null) {
                         return;
                     }
-                    final UserInfo info = response.body().getData();
-                    setData(info);
-                    if (info != null) {
-                        Session session = new MsgDao().sessionGet("", info.getUid());
+                    UserInfo userInfo = response.body().getData();
+                    if (userInfo.getStat() == 0) {
+                        userInfo.setuType(ChatEnum.EUserType.FRIEND);
+                    } else if (userInfo.getStat() == 2) {
+                        userInfo.setuType(ChatEnum.EUserType.BLACK);
+                    } else if (userInfo.getStat() == 1) {
+                        userInfo.setuType(ChatEnum.EUserType.STRANGE);
+                    } else if (userInfo.getStat() == 9) {
+                        userInfo.setuType(ChatEnum.EUserType.ASSISTANT);
+                    }
+                    if (userInfoLocal == null) {
+                        userInfoLocal = userInfo;
+                    }
+                    setData(userInfo);
+                    if (userInfo != null) {
+                        Session session = new MsgDao().sessionGet("", userInfo.getUid());
                         if (session != null) {
                             MessageManager.getInstance().setMessageChange(true);
                             MessageManager.getInstance().notifyRefreshMsg();
                         }
                     }
-
 
                 }
             });
@@ -578,7 +588,7 @@ public class UserInfoActivity extends AppActivity {
                 mBtnAdd.setVisibility(View.GONE);
             } else {
                 //uType=2 表示是好友
-                if (userInfoLocal != null && userInfoLocal.getuType() != null && userInfoLocal.getuType() != 2) {
+                if (userInfoLocal != null && userInfoLocal.getuType() != null && userInfoLocal.getuType() != ChatEnum.EUserType.FRIEND && userInfoLocal.getuType() != ChatEnum.EUserType.BLACK) {
                     mBtnAdd.setVisibility(View.VISIBLE);
                 } else {
                     mBtnAdd.setVisibility(View.GONE);
@@ -715,7 +725,7 @@ public class UserInfoActivity extends AppActivity {
                 new MsgDao().sessionCreate("", id);
                 ToastUtil.show(context, response.body().getMsg());
                 notifyRefreshRoster(uid, CoreEnum.ERosterAction.BLACK);
-                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
+                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.BLACK, null);
             }
         });
     }
@@ -767,7 +777,7 @@ public class UserInfoActivity extends AppActivity {
                     updateUserInfo(mark);
                     notifyRefreshRoster(0, CoreEnum.ERosterAction.UPDATE_INFO);// TODO　id改成0 需要全部刷新，改变通讯录的位置
                     MessageManager.getInstance().setMessageChange(true);
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.BLACK, null);
                 }
                 taskUserInfo(id);
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());

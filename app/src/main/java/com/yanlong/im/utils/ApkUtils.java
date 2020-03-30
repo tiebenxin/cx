@@ -6,11 +6,12 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Bundle;
 import android.text.TextUtils;
+
 import com.google.gson.Gson;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
+
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;

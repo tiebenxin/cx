@@ -1,12 +1,15 @@
 package com.yanlong.im.view.function;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -15,9 +18,7 @@ import androidx.annotation.Nullable;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.view.face.adapter.ViewPagerAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -72,28 +73,29 @@ public class ChatExtendMenuView extends LinearLayout {
     }
 
     private void initPager() {
-        ArrayList<View> viewList = new ArrayList<>();
-        int size = mList.size();
-        for (int i = 0; i < pagerCount; i++) {
-            RecyclerView recyclerView = new RecyclerView(getContext());
-            GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 4);
-            recyclerView.setLayoutManager(layoutManager);
-            AdapterFunctionView adapterFunctionView = new AdapterFunctionView(getContext());
-            if (i == 0) {
-                if (size > 8) {
-                    adapterFunctionView.bindData(mList.subList(0, 8));
-                } else {
-                    adapterFunctionView.bindData(mList);
-                }
-                recyclerView.setAdapter(adapterFunctionView);
-            } else {
-                adapterFunctionView.bindData(mList.subList(8, mList.size()));
-                recyclerView.setAdapter(adapterFunctionView);
-            }
-            adapterFunctionView.setFunctionListner(listener);
-            viewList.add(recyclerView);
-        }
-        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(viewList);
+//        ArrayList<View> viewList = new ArrayList<>();
+//        int size = mList.size();
+//        for (int i = 0; i < pagerCount; i++) {
+//            FrameLayout frameLayout=new FrameLayout(getContext());
+//            RecyclerView recyclerView = new RecyclerView(getContext());
+//            GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 4);
+//            recyclerView.setLayoutManager(layoutManager);
+//            AdapterFunctionView adapterFunctionView = new AdapterFunctionView(getContext());
+//            if (i == 0) {
+//                if (size > 8) {
+//                    adapterFunctionView.bindData(mList.subList(0, 8));
+//                } else {
+//                    adapterFunctionView.bindData(mList);
+//                }
+//                recyclerView.setAdapter(adapterFunctionView);
+//            } else {
+//                adapterFunctionView.bindData(mList.subList(8, mList.size()));
+//                recyclerView.setAdapter(adapterFunctionView);
+//            }
+//            adapterFunctionView.setFunctionListner(listener);
+//            viewList.add(recyclerView);
+//        }
+        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getContext());
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOffscreenPageLimit(1);
 
@@ -120,7 +122,56 @@ public class ChatExtendMenuView extends LinearLayout {
 
 
     }
+    public class ViewPagerAdapter extends PagerAdapter {
+        private Context context;
+        public ViewPagerAdapter(Context context){
+            this.context=context;
 
+        }
+
+        @Override
+        public int getCount() {
+            return pagerCount;
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view == object;
+        }
+
+        @NonNull
+        @Override
+        public Object instantiateItem(@NonNull ViewGroup container, int position) {
+            View view = View.inflate(context, R.layout.view_pager_item_layout, null);
+
+            container.addView(view);
+
+            RecyclerView recyclerView =view.findViewById(R.id.recycler_view);
+            GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 4);
+            recyclerView.setLayoutManager(layoutManager);
+            AdapterFunctionView adapterFunctionView = new AdapterFunctionView(getContext());
+            if (position == 0) {
+                if (pagerCount > 8) {
+                    adapterFunctionView.bindData(mList.subList(0, 8));
+                } else {
+                    adapterFunctionView.bindData(mList);
+                }
+                recyclerView.setAdapter(adapterFunctionView);
+            } else {
+                adapterFunctionView.bindData(mList.subList(8, mList.size()));
+                recyclerView.setAdapter(adapterFunctionView);
+            }
+            adapterFunctionView.setFunctionListner(listener);
+            return view;
+        }
+
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            (container).removeView((View) object);
+        }
+
+    }
     private void initDots() {
         if (pagerCount > 1) {
             rgDots.setVisibility(VISIBLE);

@@ -22,6 +22,7 @@ import com.bumptech.glide.Glide;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.BankBean;
+import com.hm.cxpay.dailog.ChangeSelectDialog;
 import com.hm.cxpay.dailog.DialogErrorPassword;
 import com.hm.cxpay.databinding.ActivityBankDetailBinding;
 import com.hm.cxpay.net.FGObserver;
@@ -31,7 +32,6 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.payword.ForgetPswStepOneActivity;
 import com.hm.cxpay.widget.PswView;
 
-import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 
@@ -49,6 +49,8 @@ public class BankDetailActivity extends BasePayActivity {
     private AlertDialog checkPaywordDialog;
     private DialogErrorPassword dialogErrorPassword;
     private PswView pswView;
+    private ChangeSelectDialog.Builder builder;
+    private ChangeSelectDialog dialogOne;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +83,7 @@ public class BankDetailActivity extends BasePayActivity {
                 showBottomDialog();
             }
         });
+        builder = new ChangeSelectDialog.Builder(activity);
     }
 
     /**
@@ -138,48 +141,30 @@ public class BankDetailActivity extends BasePayActivity {
      * 提示弹框->是否确认删除
      */
     private void showDeleteBankcardDialog(){
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
-        dialogBuilder.setCancelable(false);
-        final AlertDialog dialog = dialogBuilder.create();
-        //获取界面
-        View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_delete_banckcard_notice, null);
-        //初始化控件
-        TextView tvSure = dialogView.findViewById(R.id.tv_sure);
-        TextView tvCancle = dialogView.findViewById(R.id.tv_cancle);
-        //显示和点击事件
-        tvSure.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showCheckPaywordDialog();
-                dialog.dismiss();
-            }
-        });
-        tvCancle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-        //展示界面
-        dialog.show();
-        //解决圆角shape背景无效问题
-        Window window = dialog.getWindow();
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //相关配置
-        WindowManager.LayoutParams lp = window.getAttributes();
-        window.setGravity(Gravity.CENTER);
-        WindowManager manager = window.getWindowManager();
-        DisplayMetrics metrics = new DisplayMetrics();
-        manager.getDefaultDisplay().getMetrics(metrics);
-        //设置宽高，高度自适应，宽度屏幕0.8
-        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels*0.8);
-        dialog.getWindow().setAttributes(lp);
-        dialog.setContentView(dialogView);
+        dialogOne = builder.setTitle("如果存在未结算的交易，24小时之内将\n无法绑定新的银行卡，确定继续解绑银\n行卡?")
+                  .setLeftText("取消")
+                  .setRightText("确认")
+                  .setLeftOnClickListener(new View.OnClickListener() {
+                      @Override
+                      public void onClick(View v) {
+                          //取消
+                          dialogOne.dismiss();
+                      }
+                  })
+                  .setRightOnClickListener(new View.OnClickListener() {
+                      @Override
+                      public void onClick(View v) {
+                          //确认
+                          dialogOne.dismiss();
+                          showCheckPaywordDialog();
+                      }
+                  })
+                  .build();
+        dialogOne.show();
     }
 
     /**
-     * 提示弹框->校验支付密码
+     * 提示弹框->校验支付密码(特殊样式，暂不复用)
      */
     private void showCheckPaywordDialog(){
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);

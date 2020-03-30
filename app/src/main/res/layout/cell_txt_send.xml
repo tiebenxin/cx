@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tool="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -18,36 +19,28 @@
         android:layout_marginBottom="10dp"
         android:text="shijian" />
 
-  <!--  <TextView
-        android:id="@+id/tv_broadcast"
-        style="@style/app_txt_title_2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:background="@drawable/bg_time"
-        android:gravity="center"
-        android:singleLine="false"
-        android:text="公告"
-        android:textColor="@color/white" />-->
 
     <LinearLayout
-        android:id="@+id/ll_root"
-        android:layout_width="wrap_content"
+        android:id="@+id/view_root"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
+        android:gravity="right"
         android:orientation="horizontal">
 
+
         <LinearLayout
+            android:id="@+id/ll_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/iv_avatar"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tv_name"
                 style="@style/app_txt_content_1"
                 android:layout_width="wrap_content"
+                android:layout_gravity="right"
                 android:layout_marginBottom="2dp"
-                android:gravity="right"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:text="name" />
@@ -67,28 +60,70 @@
                     android:visibility="gone" />
 
                 <LinearLayout
-                    android:id="@+id/ll_bubble"
+                    android:id="@+id/view_read"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/selector_chat_me_touch"
-                    android:gravity="right|center_vertical"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="5dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
                     android:visibility="visible">
 
-                    <android.support.v7.widget.AppCompatTextView
-                        android:id="@+id/tv_content"
+                    <TextView
+                        android:id="@+id/tv_read"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="normal"
-                        android:selectAllOnFocus="true"
-                        android:gravity="center_vertical"
-                        android:maxWidth="210dp"
-                        android:minHeight="30dp"
-                        android:text=""
-                        android:textColor="@color/black"
-                        android:textIsSelectable="false"
-                        android:textSize="15sp" />
+                        android:text="已读"
+                        android:textColor="@color/gray_500"
+                        android:textSize="12sp" />
 
+                    <TextView
+                        android:id="@+id/tv_read_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/gray_500"
+                        android:textSize="9sp"
+                        tool:text="12:20" />
                 </LinearLayout>
+
+                <FrameLayout
+                    android:id="@+id/view_bubble_root"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:id="@+id/view_bubble"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:background="@drawable/selector_chat_me_touch"
+                        android:gravity="right|center_vertical"
+                        android:visibility="visible">
+
+                        <android.support.v7.widget.AppCompatTextView
+                            android:id="@+id/tv_content"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="normal"
+                            android:gravity="center_vertical"
+                            android:maxWidth="200dp"
+                            android:selectAllOnFocus="true"
+                            android:text=""
+                            android:textColor="@color/black"
+                            android:textIsSelectable="false"
+                            android:textSize="15sp" />
+
+                    </LinearLayout>
+
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/iv_bell"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right|bottom"
+                        android:src="@mipmap/icon_st_1"
+                        android:visibility="visible" />
+
+                </FrameLayout>
             </LinearLayout>
 
 
@@ -99,7 +134,23 @@
             style="@style/app_img_head"
             android:layout_width="35dp"
             android:layout_height="35dp"
+            android:layout_alignParentRight="true"
             android:layout_marginLeft="10dp" />
+
+
+        <CheckBox
+            android:id="@+id/ck_select"
+            style="@style/app_check_green"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="10dp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:padding="5dp"
+            android:visibility="visible" />
+
 
     </LinearLayout>
 </LinearLayout>

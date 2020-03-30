@@ -145,7 +145,7 @@ public class QRCodeManage {
 
 
     private static void taskGroupInfo(final String gid, final String inviter, final String inviterName, final Activity activity) {
-        new MsgAction().groupInfo(gid, new CallBack<ReturnBean<Group>>() {
+        new MsgAction().groupInfo(gid, true, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
 
@@ -197,7 +197,7 @@ public class QRCodeManage {
             if (text.contains("qr.alipay.com") || text.contains("QR.ALIPAY.COM")) {
                 openAliPay2Pay(mContext, text);
             } else if (text.contains(DOWNLOAD_APP_URL)) {
-                openUri(mContext,text);
+                openUri(mContext, text);
             } else {
                 QRCodeBean bean = QRCodeManage.getQRCodeBean(mContext, text);
                 QRCodeManage.goToActivity((Activity) mContext, bean);
@@ -214,7 +214,7 @@ public class QRCodeManage {
             if (result.contains("qr.alipay.com") || result.contains("QR.ALIPAY.COM")) {
                 openAliPay2Pay(mContext, result);
             } else if (result.contains(DOWNLOAD_APP_URL)) {
-                openUri(mContext,result);
+                openUri(mContext, result);
             } else {
                 QRCodeBean bean = QRCodeManage.getQRCodeBean(mContext, result);
                 QRCodeManage.goToActivity((Activity) mContext, bean);

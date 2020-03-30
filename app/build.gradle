@@ -26,8 +26,8 @@ android {
         applicationId "com.yanlong.im"
         minSdkVersion 22
         targetSdkVersion 28
-        versionCode 218
-        versionName "1.3.8"
+        versionCode 240
+        versionName "1.4.20"
         //  versionName "0.9.0_${releaseTime()}"
         //---------------------------------------
         //升级的时候,如果数据库有改动,一定要升级数据库,具体在一些类中修改
@@ -53,7 +53,7 @@ android {
                 XIAOMI_APPKEY : "MI‐5411801194485",//小米平台注册的appkey
                 XIAOMI_APPID  : "MI‐2882303761518011485",//小米平台注册的appid
 
-                HUAWEI_APPID  : "101160415",
+//                HUAWEI_APPID  : "101160415",
 
                 MEIZU_APPKEY  : "MZ‐e5795872af0d4c77945971a05ad7ad1c",//魅族平台注册的appkey
                 MEIZU_APPID   : "MZ‐1007742",//魅族平台注册的appid
@@ -77,14 +77,6 @@ android {
 
 
     signingConfigs {
-        debug {
-            storeFile file("../doc/key.jks")
-            storePassword "yanglong123"
-            keyAlias "IM"
-            keyPassword "yanglong456"
-
-        }
-
         release {
             storeFile file("../doc/key.jks")
             storePassword "yanglong123"
@@ -106,7 +98,7 @@ android {
                                     , UMENG_WX_KEY      : "5233d54a59b3f9681742b0e"
 
             ]
-            signingConfig = signingConfigs.debug
+            signingConfig = signingConfigs.release
         }
         pre {
 
@@ -229,6 +221,8 @@ dependencies {
     //ali 路由
     implementation 'com.alibaba:arouter-api:1.3.1'
     annotationProcessor 'com.alibaba:arouter-compiler:1.1.4'
+    // 文件选择器
+    implementation 'me.rosuh:AndroidFilePicker:0.6.0'
 
 
 }

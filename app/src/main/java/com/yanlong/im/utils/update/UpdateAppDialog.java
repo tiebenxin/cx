@@ -155,7 +155,7 @@ public class UpdateAppDialog {
         //加限制条件，避免进度条偶现性错乱抖动
         if(progress > lastProgressValue){
             lastProgressValue = progress;
-            setPos();
+            setPos(progress);
         }
     }
 
@@ -188,14 +188,14 @@ public class UpdateAppDialog {
     /**
      * 设置顶部进度图标显示在对应的位置
      */
-    public void setPos() {
+    public void setPos(int progress) {
         int w = DensityUtil.dip2px(context, 200);
         LogUtil.getLog().i("w=====", "" + w);
         ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) tvUpdatePercent.getLayoutParams();
-        int pro = mProgressNum.getProgress();
-        if(pro>=0 && pro<=100){
+//        int pro = mProgressNum.getProgress();//进度是不断变化的，原来是1此时可能是2，又去从进度条获取则进度会忽大忽小
+        if(progress>=0 && progress<=100){
             //左侧距离： 进度滑动距离 + 左侧margin距离 (由于下标稍远，减5像素拼凑效果)
-            params.leftMargin = (w * pro / 100) + DensityUtil.dip2px(context,15)/2 - 5;
+            params.leftMargin = (w * progress / 100) + DensityUtil.dip2px(context,15)/2 - 5;
             tvUpdatePercent.setLayoutParams(params);
         }
     }

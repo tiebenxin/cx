@@ -8,6 +8,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.constant.AppHostUtil;
 
 import java.util.concurrent.TimeUnit;
 
@@ -46,10 +47,10 @@ public class NetUtil {
                         public void log(String message) {
                             if (AppConfig.DEBUG) {
 //                            Log.e("h===","收到响应1: " + message);
-                                if(message!=null){
-                                    if(message.contains("http")||message.contains("data")||message.contains("Data")
-                                            ||message.contains("=")||message.contains("{")){
-                                        Log.e("h===","收到响应2==="+message);
+                                if (message != null) {
+                                    if (message.contains("http") || message.contains("data") || message.contains("Data")
+                                            || message.contains("=") || message.contains("{")) {
+                                        Log.e("h===", "收到响应2===" + message);
                                     }
                                 }
                             }
@@ -69,10 +70,10 @@ public class NetUtil {
 
 
         retrofit = retrofit == null ? new Retrofit.Builder()
-                .baseUrl(AppConfig.getUrlHost())
+//                .baseUrl(AppConfig.getUrlHost())
+                .baseUrl(AppHostUtil.getHttpHost())
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(httpClient)
-
                 .build() : retrofit;
 
 
@@ -83,7 +84,8 @@ public class NetUtil {
      */
     public static void resetHost() {
         retrofit = new Retrofit.Builder()
-                .baseUrl(AppConfig.getUrlHost())
+//                .baseUrl(AppConfig.getUrlHost())
+                .baseUrl(AppHostUtil.getHttpHost())
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(httpClient)
 
@@ -193,24 +195,25 @@ public class NetUtil {
 
     /**
      * 判断网络连接类型
+     *
      * @param context
      * @return
      */
-    public static String getNetworkType(Context context){
+    public static String getNetworkType(Context context) {
         String netWorkState = "";
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
         ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(CONNECTIVITY_SERVICE));
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        if(networkInfo != null && networkInfo.isAvailable()){
-            if(networkInfo.getType() == ConnectivityManager.TYPE_WIFI){
+        if (networkInfo != null && networkInfo.isAvailable()) {
+            if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
                 //网络状态为wifi
                 netWorkState = "WIFI";
                 return netWorkState;
-            } else if(networkInfo.getType() == ConnectivityManager.TYPE_MOBILE){
+            } else if (networkInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
                 //网络状态为手机
                 //判断手机网络类型是2g , 3g, 以及4g
                 int type = telephonyManager.getNetworkType();
-                switch (type){
+                switch (type) {
                     case TelephonyManager.NETWORK_TYPE_GPRS:
                     case TelephonyManager.NETWORK_TYPE_EDGE:
                     case TelephonyManager.NETWORK_TYPE_CDMA:

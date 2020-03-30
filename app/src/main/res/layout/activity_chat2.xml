@@ -8,25 +8,36 @@
         android:layout_height="match_parent"
         app:headview_title="聊天">
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:splitMotionEvents="false">
 
-            <net.cb.cb.library.view.NewPullRefreshLayout
-                android:id="@+id/view_refresh"
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/recycler_view"
+                <net.cb.cb.library.view.NewPullRefreshLayout
+                    android:id="@+id/view_refresh"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fitsSystemWindows="true" />
+                    android:layout_weight="1">
 
-            </net.cb.cb.library.view.NewPullRefreshLayout>
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/recycler_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fitsSystemWindows="true" />
+
+                </net.cb.cb.library.view.NewPullRefreshLayout>
+
+                <include
+                    android:id="@+id/view_new_message"
+                    layout="@layout/layout_new_msg" />
+
+            </RelativeLayout>
 
             <LinearLayout
                 android:id="@+id/view_chat_bottom"
@@ -34,7 +45,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:splitMotionEvents="false"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <View style="@style/app_line" />
 
@@ -46,16 +57,16 @@
                         android:id="@+id/view_chat_bottom_c"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:paddingLeft="@dimen/app_margin_main"
-                        android:paddingRight="@dimen/app_margin_main">
+                        android:orientation="vertical">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical|bottom"
                             android:orientation="horizontal"
+                            android:paddingLeft="@dimen/app_margin_main"
                             android:paddingTop="8dp"
+                            android:paddingRight="@dimen/app_margin_main"
                             android:paddingBottom="8dp">
 
                             <ImageView
@@ -128,18 +139,24 @@
                             </FrameLayout>
                         </LinearLayout>
 
-                        <include
-                            android:id="@+id/view_func_root"
-                            layout="@layout/part_chat_func" />
 
-                        <!--<include-->
-                        <!--android:id="@+id/view_emoji"-->
-                        <!--layout="@layout/part_chat_emoji"-->
-                        <!--android:visibility="gone" />-->
+                        <!--  拓展功能-->
+                        <com.yanlong.im.view.function.ChatExtendMenuView
+                            android:id="@+id/view_extend_menu"
+                            android:layout_width="match_parent"
+                            android:layout_height="240dp"
+                            android:paddingLeft="@dimen/app_margin_main"
+                            android:paddingRight="@dimen/app_margin_main"
+                            android:visibility="gone" />
 
-<!--                        <include-->
-<!--                            android:id="@+id/view_emoji_pager"-->
-<!--                            layout="@layout/item_emoji_pager" />-->
+                        <!-- 表情-->
+                        <com.yanlong.im.view.face.FaceView
+                            android:id="@+id/view_face"
+                            android:layout_width="match_parent"
+                            android:layout_height="240dp"
+                            android:background="@null"
+                            android:paddingTop="10dp"
+                            android:visibility="gone" />
                     </LinearLayout>
 
                     <TextView

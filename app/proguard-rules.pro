@@ -220,6 +220,18 @@
 
 -dontwarn cn.jpush.android.**
 -keep class cn.jpush.android.**{*;}
+
+#华为 HMS
+-ignorewarnings
+-keepattributes *Annotation*
+-keepattributes Exceptions
+-keepattributes InnerClasses
+-keepattributes Signature
+-keepattributes SourceFile,LineNumberTable
+-keep class com.hianalytics.android.**{*;}
+-keep class com.huawei.updatesdk.**{*;}
+-keep class com.huawei.hms.**{*;}
+
 #=================激光推送=======================
 
 #=================pingyin4j=======================

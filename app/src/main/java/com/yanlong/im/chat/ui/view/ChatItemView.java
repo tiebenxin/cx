@@ -3,12 +3,12 @@ package com.yanlong.im.chat.ui.view;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Html;
@@ -52,26 +52,26 @@ import com.hm.cxpay.global.PayEnum;
 import com.luck.picture.lib.tools.StringUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.ChatEnum.EMessageType;
 import com.yanlong.im.chat.bean.BalanceAssistantMessage;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
+import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.ui.RoundTransform;
 import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
-import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.socket.MsgBean;
-import com.yanlong.im.view.CountDownView;
-import com.yanlong.im.view.face.AddFaceActivity;
 import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.utils.DensityUtil;
-import net.cb.cb.library.utils.GsonUtils;
+import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -81,13 +81,15 @@ import net.cb.cb.library.view.WebPageActivity;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import me.kareluo.ui.OptionMenu;
 
 public class ChatItemView extends LinearLayout {
     private final int DEFAULT_W = 120;
     private final int DEFAULT_H = 180;
+
+    private Context mContext;
+
 
     private TextView txtOtName;
     private TextView txtMeName;
@@ -187,8 +189,8 @@ public class ChatItemView extends LinearLayout {
     private LinearLayout viewRead;
     private TextView tvRead;
     private TextView tvReadTime;
-    private CountDownView viewOtSurvivalTime;
-    private CountDownView viewMeSurvivalTime;
+    public AppCompatImageView viewOtSurvivalTime;
+    public AppCompatImageView viewMeSurvivalTime;
 
     private int mHour, mMin, mSecond;
 
@@ -212,6 +214,21 @@ public class ChatItemView extends LinearLayout {
     private LinearLayout viewOtChild;
     private TextView tvNew;
     private CheckBox ckSelect;
+    //文件
+    private RelativeLayout viewFileOt;
+    private RelativeLayout viewFileMe;
+    private TextView tvFileNameOt;
+    private TextView tvFileNameMe;
+    private TextView tvFileSizeOt;
+    private TextView tvFileSizeMe;
+    private ImageView ivFileIconMe;
+    private ImageView ivFileIconOt;
+
+    private LinearLayout layoutFileProgress;
+    private TextView tvFileProgressValue;
+    private View viewOtUnread;
+    private TextView tvMeAppName;
+    private TextView tvOtAppName;
 
     public ChatItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -226,7 +243,7 @@ public class ChatItemView extends LinearLayout {
 
     //自动寻找控件
     private void findViews(View rootView) {
-
+        viewOtUnread = rootView.findViewById(R.id.view_ot_unread);
         txtMeName = rootView.findViewById(R.id.txt_me_name);
         txtOtName = rootView.findViewById(R.id.txt_ot_name);
         txtTime = rootView.findViewById(R.id.txt_time);
@@ -341,12 +358,16 @@ public class ChatItemView extends LinearLayout {
         tvOtGameInfo = rootView.findViewById(R.id.tv_ot_game_info);
         ivOtGameIcon = rootView.findViewById(R.id.iv_ot_game_icon);
         ivOtAppIcon = rootView.findViewById(R.id.iv_ot_app_icon);
+        tvOtAppName = rootView.findViewById(R.id.tv_ot_game_name);
+
 
         viewMeGameShare = rootView.findViewById(R.id.view_me_game_share);
         tvMeGameTitle = rootView.findViewById(R.id.tv_me_game_title);
         tvMeGameInfo = rootView.findViewById(R.id.tv_me_game_info);
         ivMeGameIcon = rootView.findViewById(R.id.iv_me_game_icon);
         ivMeAppIcon = rootView.findViewById(R.id.iv_me_app_icon);
+        tvMeAppName = rootView.findViewById(R.id.tv_me_game_name);
+
 
         //零钱助手消息，只有接收消息
 //        viewMeBalance = rootView.findViewById(R.id.view_me_balance);
@@ -361,6 +382,17 @@ public class ChatItemView extends LinearLayout {
         location_desc_you_tv = rootView.findViewById(R.id.location_desc_you_tv);
         location_name_me_tv = rootView.findViewById(R.id.location_name_me_tv);
         location_desc_me_tv = rootView.findViewById(R.id.location_desc_me_tv);
+        //文件
+        viewFileOt = rootView.findViewById(R.id.view_file_ot);
+        tvFileNameOt = rootView.findViewById(R.id.tv_filename_ot);
+        tvFileSizeOt = rootView.findViewById(R.id.tv_filesize_ot);
+        viewFileMe = rootView.findViewById(R.id.view_file_me);
+        tvFileNameMe = rootView.findViewById(R.id.tv_filename_me);
+        tvFileSizeMe = rootView.findViewById(R.id.tv_filesize_me);
+        ivFileIconMe = rootView.findViewById(R.id.iv_file_icon_me);
+        ivFileIconOt = rootView.findViewById(R.id.iv_file_icon_ot);
+        layoutFileProgress = rootView.findViewById(R.id.layout_file_progress);
+        tvFileProgressValue = rootView.findViewById(R.id.tv_file_progress_value);
 
         //新消息提醒
         tvNew = rootView.findViewById(R.id.tv_new);
@@ -439,6 +471,8 @@ public class ChatItemView extends LinearLayout {
         viewMeGameShare.setVisibility(GONE);
         viewOtGameShare.setVisibility(GONE);
         viewOtBalance.setVisibility(GONE);
+        viewFileOt.setVisibility(GONE);
+        viewFileMe.setVisibility(GONE);
 
         //位置
         location_you_ll.setVisibility(GONE);
@@ -448,57 +482,57 @@ public class ChatItemView extends LinearLayout {
 
 
         switch (type) {
-            case ChatEnum.EMessageType.MSG_CANCEL://撤回的消息
-            case ChatEnum.EMessageType.NOTICE://公告
+            case EMessageType.MSG_CANCEL://撤回的消息
+            case EMessageType.NOTICE://公告
                 viewBroadcast.setVisibility(VISIBLE);
                 viewMe.setVisibility(GONE);
                 viewOt.setVisibility(GONE);
                 break;
-            case ChatEnum.EMessageType.TEXT:
-            case ChatEnum.EMessageType.TRANSFER_NOTICE:
-            case ChatEnum.EMessageType.AT:
+            case EMessageType.TRANSFER_NOTICE:
+            case EMessageType.TEXT:
+            case EMessageType.AT:
                 viewMe1.setVisibility(VISIBLE);
                 viewOt1.setVisibility(VISIBLE);
                 break;
-            case 2:
+            case EMessageType.STAMP:
                 viewMe2.setVisibility(VISIBLE);
                 viewOt2.setVisibility(VISIBLE);
                 break;
-            case 3:
+            case EMessageType.RED_ENVELOPE:
                 viewMe3.setVisibility(VISIBLE);
                 viewOt3.setVisibility(VISIBLE);
                 break;
-            case 4:
+            case EMessageType.IMAGE:
                 viewMe4.setVisibility(VISIBLE);
                 viewOt4.setVisibility(VISIBLE);
                 break;
-            case 5:
+            case EMessageType.BUSINESS_CARD:
                 viewMe5.setVisibility(VISIBLE);
                 viewOt5.setVisibility(VISIBLE);
                 break;
-            case 6:
+            case EMessageType.TRANSFER:
                 viewMe6.setVisibility(VISIBLE);
                 viewOt6.setVisibility(VISIBLE);
                 break;
-            case 7:
+            case EMessageType.VOICE:
                 viewMe7.setVisibility(VISIBLE);
                 viewOt7.setVisibility(VISIBLE);
                 break;
-            case ChatEnum.EMessageType.ASSISTANT:
+            case EMessageType.ASSISTANT:
                 viewMe8.setVisibility(VISIBLE);
                 viewOt8.setVisibility(VISIBLE);
                 break;
-            case ChatEnum.EMessageType.LOCK:
+            case EMessageType.LOCK:
                 viewLock.setVisibility(VISIBLE);
                 viewMe.setVisibility(GONE);
                 viewOt.setVisibility(GONE);
                 break;
-            case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
+            case EMessageType.CHANGE_SURVIVAL_TIME:
                 viewReadDestroy.setVisibility(VISIBLE);
                 viewMe.setVisibility(GONE);
                 viewOt.setVisibility(GONE);
                 break;
-            case ChatEnum.EMessageType.MSG_VIDEO:
+            case EMessageType.MSG_VIDEO:
                 viewMe4.setVisibility(VISIBLE);
                 viewOt4.setVisibility(VISIBLE);
 //                img_me_4_time.setVisibility(View.VISIBLE);
@@ -506,17 +540,25 @@ public class ChatItemView extends LinearLayout {
                 img_ot_4_time.setVisibility(View.VISIBLE);
                 img_ot_4_play.setVisibility(View.VISIBLE);
                 break;
-            case ChatEnum.EMessageType.MSG_VOICE_VIDEO:
+            case EMessageType.MSG_VOICE_VIDEO:
                 viewMeVoiceVideo.setVisibility(VISIBLE);
                 viewOtVoiceVideo.setVisibility(VISIBLE);
                 break;
-            case ChatEnum.EMessageType.LOCATION:
+            case EMessageType.LOCATION:
                 location_you_ll.setVisibility(VISIBLE);
                 location_me_ll.setVisibility(VISIBLE);
                 break;
-            case ChatEnum.EMessageType.BALANCE_ASSISTANT:
+            case EMessageType.BALANCE_ASSISTANT:
                 setNoAvatarUI(isMe);
                 viewOtBalance.setVisibility(VISIBLE);
+                break;
+            case EMessageType.FILE:
+                viewFileOt.setVisibility(VISIBLE);
+                viewFileMe.setVisibility(VISIBLE);
+                break;
+            case EMessageType.WEB:
+                viewMeGameShare.setVisibility(VISIBLE);
+                viewOtGameShare.setVisibility(VISIBLE);
                 break;
         }
 
@@ -699,10 +741,12 @@ public class ChatItemView extends LinearLayout {
     }
 
     //设置阅后即焚消息显示
-    public void setDataSurvivalTimeShow(int type) {
-        LogUtil.getLog().d("CountDownView", type + "");
+    public void setDataSurvivalTimeShow(int type, boolean isRecovery) {
         //   timerCancel();
         if (isMe) {
+            if (isRecovery) {
+                viewMeSurvivalTime.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.mipmap.icon_st_1));
+            }
             if (type == -1) {
                 viewMeSurvivalTime.setVisibility(View.VISIBLE);
             } else if (type == 0) {
@@ -711,6 +755,8 @@ public class ChatItemView extends LinearLayout {
                 viewMeSurvivalTime.setVisibility(View.VISIBLE);
             }
         } else {
+            if (isRecovery)
+                viewOtSurvivalTime.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.mipmap.icon_st_1));
             if (type == -1) {
                 viewOtSurvivalTime.setVisibility(View.VISIBLE);
             } else if (type == 0) {
@@ -721,27 +767,6 @@ public class ChatItemView extends LinearLayout {
         }
 
     }
-
-
-    //阅后即焚倒计时
-    public void setDataSt(long startTime, long endTime) {
-        if (isMe) {
-            viewMeSurvivalTime.setRunTimer(startTime, endTime);
-        } else {
-            viewOtSurvivalTime.setRunTimer(startTime, endTime);
-        }
-
-    }
-
-    //阅后即焚倒计时销毁
-    public void timerCancel() {
-        if (isMe) {
-            viewMeSurvivalTime.timerStop();
-        } else {
-            viewOtSurvivalTime.timerStop();
-        }
-    }
-
 
     /**
      * 音视频消息
@@ -874,10 +899,19 @@ public class ChatItemView extends LinearLayout {
         }
     }
 
+    /**
+     * 恢复未读语音红点
+     */
+    public void recoveryOtUnreadView() {
+        viewOtUnread.setVisibility(View.GONE);
+    }
+
     //语音
     public void setData7(int second, boolean isRead, boolean isPlay, int playStatus, final OnClickListener onk) {
-        viewOt7.init(isMe, second, isRead, isPlay, playStatus);
-        viewMe7.init(isMe, second, isRead, isPlay, playStatus);
+        if (!isMe)
+            viewOtUnread.setVisibility(playStatus != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
+        viewOt7.initHideUnRead(isMe, second, isRead, isPlay, playStatus);
+        viewMe7.initHideUnRead(isMe, second, isRead, isPlay, playStatus);
         viewMeTouch.setOnClickListener(onk);
         viewOtTouch.setOnClickListener(onk);
     }
@@ -885,8 +919,10 @@ public class ChatItemView extends LinearLayout {
     public void updateVoice(MsgAllBean bean) {
         VoiceMessage voice = bean.getVoiceMessage();
         String url = bean.isMe() ? voice.getLocalUrl() : voice.getUrl();
-        viewOt7.init(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
-        viewMe7.init(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
+        if (!bean.isMe())
+            viewOtUnread.setVisibility(voice.getPlayStatus() != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
+        viewOt7.initHideUnRead(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
+        viewMe7.initHideUnRead(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
     }
 
     //常信小助手消息
@@ -1260,6 +1296,17 @@ public class ChatItemView extends LinearLayout {
         }
     }
 
+    //文件进度条显示
+    public void setFileProgress(Integer pg) {
+        if (pg != null && pg != 100 && pg != 0) {
+            layoutFileProgress.setVisibility(VISIBLE);
+            tvFileProgressValue.setText(pg + "%");
+            imgMeErr.setVisibility(GONE);
+        } else {
+            layoutFileProgress.setVisibility(GONE);
+        }
+    }
+
     public void setVideoIMGShow(boolean show) {
         if (show) {
             img_me_4_play.setVisibility(View.VISIBLE);
@@ -1328,7 +1375,45 @@ public class ChatItemView extends LinearLayout {
         viewOtTouch.setOnClickListener(onk);
     }
 
-    private Context mContext;
+    //文件消息
+    public void setDataFile(SendFileMessage fileMessage, OnClickListener listener) {
+        //文件名
+        if (!TextUtils.isEmpty(fileMessage.getFile_name())) {
+            tvFileNameMe.setText(fileMessage.getFile_name());
+            tvFileNameOt.setText(fileMessage.getFile_name());
+        }
+        //文件大小
+        if (fileMessage.getSize() != 0) {
+            tvFileSizeMe.setText(FileUtils.getFileSizeString(fileMessage.getSize()));
+            tvFileSizeOt.setText(FileUtils.getFileSizeString(fileMessage.getSize()));
+        }
+        //不同类型
+        if (fileMessage.getFormat().equals("txt")) {
+            ivFileIconMe.setImageResource(R.mipmap.ic_txt);
+            ivFileIconOt.setImageResource(R.mipmap.ic_txt);
+        } else if (fileMessage.getFormat().equals("xls") || fileMessage.getFormat().equals("xlsx")) {
+            ivFileIconMe.setImageResource(R.mipmap.ic_excel);
+            ivFileIconOt.setImageResource(R.mipmap.ic_excel);
+        } else if (fileMessage.getFormat().equals("ppt") || fileMessage.getFormat().equals("pptx") || fileMessage.getFormat().equals("pdf")) { //PDF暂用此图标
+            ivFileIconMe.setImageResource(R.mipmap.ic_ppt);
+            ivFileIconOt.setImageResource(R.mipmap.ic_ppt);
+        } else if (fileMessage.getFormat().equals("doc") || fileMessage.getFormat().equals("docx")) {
+            ivFileIconMe.setImageResource(R.mipmap.ic_word);
+            ivFileIconOt.setImageResource(R.mipmap.ic_word);
+        } else if (fileMessage.getFormat().equals("rar") || fileMessage.getFormat().equals("zip")) {
+            ivFileIconMe.setImageResource(R.mipmap.ic_zip);
+            ivFileIconOt.setImageResource(R.mipmap.ic_zip);
+        } else if (fileMessage.getFormat().equals("exe")) {
+            ivFileIconMe.setImageResource(R.mipmap.ic_exe);
+            ivFileIconOt.setImageResource(R.mipmap.ic_exe);
+        } else {
+            ivFileIconMe.setImageResource(R.mipmap.ic_unknow);
+            ivFileIconOt.setImageResource(R.mipmap.ic_unknow);
+        }
+
+        viewMeTouch.setOnClickListener(listener);
+        viewOtTouch.setOnClickListener(listener);
+    }
 
 
     public void setReadDestroy(MsgAllBean bean) {
@@ -1391,6 +1476,9 @@ public class ChatItemView extends LinearLayout {
                 imgMeErr.setImageResource(R.mipmap.ic_net_err);
                 if (viewMeUp != null && viewMeUp.getVisibility() == VISIBLE) {//隐藏进度
                     viewMeUp.setVisibility(GONE);
+                }
+                if (layoutFileProgress != null && layoutFileProgress.getVisibility() == VISIBLE) {//隐藏文件进度
+                    layoutFileProgress.setVisibility(GONE);
                 }
                 break;
             case 2://发送中
@@ -1478,5 +1566,63 @@ public class ChatItemView extends LinearLayout {
         ckSelect.setChecked(b);
     }
 
+
+    public void setShareWeb(MsgAllBean msgAllBean, OnClickListener listener) {
+        if (msgAllBean == null || msgAllBean.getWebMessage() == null) {
+            viewMeGameShare.setVisibility(GONE);
+            viewOtGameShare.setVisibility(GONE);
+            return;
+        }
+        WebMessage web = msgAllBean.getWebMessage();
+        if (msgAllBean.isMe()) {
+            initText(web.getTitle(), tvMeGameTitle);
+            initText(web.getDescription(), tvMeGameInfo);
+            initText(web.getAppName(), tvMeAppName);
+
+            Glide.with(this).load(web.getIconUrl())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(ivMeGameIcon);
+            Glide.with(this).load(web.getIconUrl())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(ivMeAppIcon);
+//            if (!TextUtils.isEmpty(web.getIconUrl())) {
+//                Glide.with(this).load(web.getIconUrl())
+//                        .apply(GlideOptionsUtil.headImageOptions()).into(ivMeGameIcon);
+//                Glide.with(this).load(web.getIconUrl())
+//                        .apply(GlideOptionsUtil.headImageOptions()).into(ivMeAppIcon);
+//            } else {
+//                ivMeGameIcon.setVisibility(GONE);
+//                ivMeAppIcon.setVisibility(GONE);
+//            }
+        } else {
+            initText(web.getTitle(), tvOtGameTitle);
+            initText(web.getDescription(), tvOtGameInfo);
+            initText(web.getAppName(), tvOtAppName);
+
+            if (!TextUtils.isEmpty(web.getIconUrl())) {
+                Glide.with(this).load(web.getIconUrl())
+                        .apply(GlideOptionsUtil.headImageOptions()).into(ivOtGameIcon);
+                Glide.with(this).load(web.getIconUrl())
+                        .apply(GlideOptionsUtil.headImageOptions()).into(ivOtAppIcon);
+            } else {
+                ivOtGameIcon.setVisibility(GONE);
+                ivOtAppIcon.setVisibility(GONE);
+            }
+        }
+
+        viewMeGameShare.setOnClickListener(listener);
+        viewOtGameShare.setOnClickListener(listener);
+    }
+
+    private void initText(String text, TextView tv) {
+        if (tv == null) {
+            return;
+        }
+        if (!TextUtils.isEmpty(text)) {
+            tv.setVisibility(VISIBLE);
+            tv.setText(text);
+        } else {
+            tv.setVisibility(GONE);
+        }
+
+    }
 
 }

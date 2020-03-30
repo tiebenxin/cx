@@ -432,33 +432,37 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
      */
     public void toTag() {
-        String name = StringUtil.isNotNull(this.mkName) ? this.mkName : this.name;
-        if (TextUtils.isEmpty(name)) {
-            setTag("#");
-        } else if (!("" + name.charAt(0)).matches("^[0-9a-zA-Z\\u4e00-\\u9fa5]+$")) {
-            setTag("#");
-        } else {
-            String[] n = PinyinHelper.toHanyuPinyinStringArray(name.charAt(0));
-            if (n == null) {
-                if (StringUtil.ifContainEmoji(name)) {
-                    setTag("#");
-                } else {
-                    setTag("" + (name.toUpperCase()).charAt(0));
-                }
+        try {
+            String name = StringUtil.isNotNull(this.mkName) ? this.mkName : this.name;
+            if (TextUtils.isEmpty(name)) {
+                setTag("#");
+            } else if (!("" + name.charAt(0)).matches("^[0-9a-zA-Z\\u4e00-\\u9fa5]+$")) {
+                setTag("#");
             } else {
-                String value = "";
-                // 判断是否为多音字
-                if (n.length > 1) {
-                    value = PinyinUtil.getUserName(name.charAt(0) + "");
-                    if (TextUtils.isEmpty(value)) {
-                        setTag("" + n[0].toUpperCase().charAt(0));
+                String[] n = PinyinHelper.toHanyuPinyinStringArray(name.charAt(0));
+                if (n == null) {
+                    if (StringUtil.ifContainEmoji(name)) {
+                        setTag("#");
                     } else {
-                        setTag(value);
+                        setTag("" + (name.toUpperCase()).charAt(0));
                     }
                 } else {
-                    setTag("" + n[0].toUpperCase().charAt(0));
+                    String value = "";
+                    // 判断是否为多音字
+                    if (n.length > 1) {
+                        value = PinyinUtil.getUserName(name.charAt(0) + "");
+                        if (TextUtils.isEmpty(value)) {
+                            setTag("" + n[0].toUpperCase().charAt(0));
+                        } else {
+                            setTag(value);
+                        }
+                    } else {
+                        setTag("" + n[0].toUpperCase().charAt(0));
+                    }
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -473,7 +477,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
     @Override
     public int compareTo(UserInfo o) {
-
+        if (TextUtils.isEmpty(getTag()) || (o == null || TextUtils.isEmpty(o.getTag()))) {
+            return -1;
+        }
         int last = getTag().charAt(0);
         if (getTag().equals("#")) {
             return 1;
@@ -547,7 +553,8 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
         if (uid == null) {
             return false;
         }
-        if (uid.equals(Constants.CX888_UID) || uid.equals(Constants.CX999_UID) || uid.equals(Constants.CX_HELPER_UID)) {
+        if (uid.equals(Constants.CX888_UID) || uid.equals(Constants.CX999_UID) || uid.equals(Constants.CX_HELPER_UID)
+                || uid.equals(Constants.CX_FILE_HELPER_UID)) {
             return true;
         }
         return false;

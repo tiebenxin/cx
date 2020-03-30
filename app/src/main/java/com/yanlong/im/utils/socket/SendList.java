@@ -39,7 +39,7 @@ public class SendList {
     public static void addSendList(String keyId, MsgBean.UniversalMessage.Builder msg) {
 
         LogUtil.getLog().d(TAG, "添加发送队列rid:" + keyId);
-        LogUtil.writeLog("添加发送队列keyId:" +keyId);
+        LogUtil.writeLog("添加发送队列keyId:" + keyId);
         if (SEND_LIST.containsKey(keyId)) {//已经在发送队列中了
             SendListBean sl = SEND_LIST.get(keyId);
             sl.setReSendNum(sl.getReSendNum() + 1);
@@ -65,7 +65,9 @@ public class SendList {
      * @param msg
      */
     public static void addSendList(String keyId, MsgBean.AckMessage.Builder msg) {
-
+        if (TextUtils.isEmpty(keyId) || msg == null) {
+            return;
+        }
         LogUtil.getLog().d(TAG, "添加发送队列rid:" + keyId);
 //        LogUtil.writeLog("添加发送队列keyId:" +keyId);
         if (SEND_LIST.containsKey(keyId)) {//已经在发送队列中了
@@ -97,7 +99,7 @@ public class SendList {
         if (!SEND_LIST.containsKey(keyId))
             return;
         LogUtil.getLog().e(TAG, "SocketUtil$移除队列[返回失败]" + keyId);
-        if(SEND_LIST.get(keyId).getMsg()!=null){
+        if (SEND_LIST.get(keyId).getMsg() != null) {
             SocketUtil.getSocketUtil().getEvent().onSendMsgFailure(SEND_LIST.get(keyId).getMsg());
         }
 //        else{
@@ -116,7 +118,7 @@ public class SendList {
         if (!SEND_LIST.containsKey(keyId))
             return;
         LogUtil.getLog().i(TAG, "SocketUtil$移除队列" + keyId);
-        LogUtil.writeLog("SocketUtil$移除队列:" +keyId);
+        LogUtil.writeLog("SocketUtil$移除队列:" + keyId);
         SEND_LIST.remove(keyId);
     }
 
@@ -138,12 +140,14 @@ public class SendList {
                     if (bean.getMsg() != null) {
                         SocketUtil.getSocketUtil().sendData4Msg(bean.getMsg());
                     } else {
-                        LogUtil.writeLog(">>>重新发送回执 RequestId:" + bean.getMsgAck().getRequestId()+
-                                " MsgId:"+bean.getMsgAck().getMsgIdList()+" MsgIdCount:"+bean.getMsgAck().getMsgIdCount());
+                        LogUtil.writeLog(">>>重新发送回执 RequestId:" + bean.getMsgAck().getRequestId() +
+                                " MsgId:" + bean.getMsgAck().getMsgIdList() + " MsgIdCount:" + bean.getMsgAck().getMsgIdCount());
                         // 添加到消息队中监听
                         addSendList(bean.getMsgAck().getRequestId(), bean.getMsgAck());
-                        SocketUtil.getSocketUtil().sendData(SocketPact.getPakage(SocketPact.DataType.ACK, bean.getMsgAck().build().toByteArray()),
-                                null,bean.getMsgAck().getRequestId());
+//                        SocketUtil.getSocketUtil().sendData(SocketPact.getPackage(SocketPact.DataType.ACK, bean.getMsgAck().build().toByteArray()),
+//                                null,bean.getMsgAck().getRequestId());
+                        SocketUtil.getSocketUtil().sendData(SocketPacket.getPackage(SocketPacket.DataType.ACK, bean.getMsgAck().build().toByteArray()),
+                                null, bean.getMsgAck().getRequestId());
                     }
                 } else {
                     LogUtil.getLog().e(TAG, ">>>>符合重发条件但时间不满足" + kid);

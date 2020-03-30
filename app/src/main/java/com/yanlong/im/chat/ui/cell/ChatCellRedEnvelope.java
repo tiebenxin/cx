@@ -5,22 +5,21 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.hm.cxpay.global.PayEnum;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
-import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.utils.socket.MsgBean;
 
 /*
- * 红包消息及转账消息
+ * 红包消息
  * */
 public class ChatCellRedEnvelope extends ChatCellBase {
 
     private TextView tv_rb_title, tv_rb_info, tv_rb_type;
     private ImageView iv_rb_state, iv_rb_icon;
     private RedEnvelopeMessage redEnvelopeMessage;
-    private TransferMessage transfer;
 
     protected ChatCellRedEnvelope(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
@@ -39,35 +38,23 @@ public class ChatCellRedEnvelope extends ChatCellBase {
     @Override
     protected void showMessage(MsgAllBean message) {
         super.showMessage(message);
-        boolean invalid = false;
+        boolean isInvalid = false;
         String title = "";
         String info = "";
         String typeName = "";
         int typeIcon = R.color.transparent;
-
         if (message.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE) {
             redEnvelopeMessage = message.getRed_envelope();
-            invalid = redEnvelopeMessage.getIsInvalid() == 0 ? false : true;
+            isInvalid = redEnvelopeMessage.getIsInvalid() == 0 ? false : true;
             title = redEnvelopeMessage.getComment();
-            if (invalid) {
-                info = "已领取";
-            } else {
-                info = "领取红包";
-            }
+            info = getEnvelopeInfo(redEnvelopeMessage.getEnvelopStatus());
             if (redEnvelopeMessage.getRe_type().intValue() == MsgBean.RedEnvelopeType.MFPAY_VALUE) {
                 typeName = "云红包";
             } else {
-                typeName = "支付宝";
+                typeName = "零钱红包";
             }
-        } else if (message.getMsg_type() == ChatEnum.EMessageType.TRANSFER) {
-            transfer = message.getTransfer();
-            invalid = false;
-            title = transfer.getTransaction_amount() + "元";
-            info = transfer.getComment();
-            typeName = "好友转账";
-
         }
-        setMessage(invalid, title, info, typeName, typeIcon);
+        setMessage(isInvalid, title, info, typeName, typeIcon);
     }
 
     @Override
@@ -76,8 +63,6 @@ public class ChatCellRedEnvelope extends ChatCellBase {
         if (mCellListener != null) {
             if (messageType == ChatEnum.EMessageType.RED_ENVELOPE) {
                 mCellListener.onEvent(ChatEnum.ECellEventType.RED_ENVELOPE_CLICK, model, redEnvelopeMessage);
-            } else if (messageType == ChatEnum.EMessageType.TRANSFER) {
-                mCellListener.onEvent(ChatEnum.ECellEventType.TRANSFER_CLICK, model, transfer);
             }
         }
     }
@@ -85,28 +70,33 @@ public class ChatCellRedEnvelope extends ChatCellBase {
     private void setMessage(boolean invalid, String title, String info, String typeName, int typeIcon) {
         if (invalid) {//失效
             iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_n);
-//            if (model.isMe()) {
-//                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_me_rp_h);
-//            } else {
-//                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_other_rp_h);
-//            }
             bubbleLayout.setBackgroundResource(model.isMe() ? R.drawable.selector_rp_h_me_touch : R.drawable.selector_rp_h_other_touch);
-
-
         } else {
             iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_un);
-//            if (model.isMe()) {
-//                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_me_rp);
-//            } else {
-//                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_other_rp);
-//            }
             bubbleLayout.setBackgroundResource(model.isMe() ? R.drawable.selector_rp_me_touch : R.drawable.selector_rp_other_touch);
-
         }
         tv_rb_title.setText(title);
         tv_rb_info.setText(info);
         tv_rb_type.setText(typeName);
         iv_rb_icon.setImageResource(typeIcon);
+    }
 
+    private String getEnvelopeInfo(@PayEnum.EEnvelopeStatus int envelopStatus) {
+        String info = "";
+        switch (envelopStatus) {
+            case PayEnum.EEnvelopeStatus.NORMAL:
+                info = "领取红包";
+                break;
+            case PayEnum.EEnvelopeStatus.RECEIVED:
+                info = "已领取";
+                break;
+            case PayEnum.EEnvelopeStatus.RECEIVED_FINISHED:
+                info = "已被领完";
+                break;
+            case PayEnum.EEnvelopeStatus.PAST:
+                info = "已过期";
+                break;
+        }
+        return info;
     }
 }

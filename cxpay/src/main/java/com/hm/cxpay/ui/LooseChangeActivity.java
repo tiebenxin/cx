@@ -2,18 +2,8 @@ package com.hm.cxpay.ui;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
-import android.util.DisplayMetrics;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -23,6 +13,7 @@ import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.controller.ControllerPaySetting;
+import com.hm.cxpay.dailog.ChangeSelectDialog;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
@@ -39,7 +30,6 @@ import com.hm.cxpay.ui.recharege.RechargeActivity;
 import com.hm.cxpay.ui.withdraw.WithdrawActivity;
 import com.hm.cxpay.utils.UIUtils;
 
-import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -64,6 +54,10 @@ public class LooseChangeActivity extends BasePayActivity {
     private LinearLayout layoutWithdrawDeposit;//提现
 
     private Activity activity;
+    private ChangeSelectDialog.Builder builder;
+    private ChangeSelectDialog dialogOne;//通用提示选择弹框：检测到未设置支付密码
+    private ChangeSelectDialog dialogTwo;//通用提示选择弹框：没有添加过银行卡
+    private ChangeSelectDialog dialogThree;//通用提示选择弹框：是否绑定手机号
 
     private int myCardListSize = 0;//我的银行卡个数 (判断是否添加过银行卡)
     private UserBean userBean;
@@ -133,6 +127,8 @@ public class LooseChangeActivity extends BasePayActivity {
                 startActivity(new Intent(activity, BillDetailListActivity.class));
             }
         });
+        builder = new ChangeSelectDialog.Builder(activity);
+        //显示余额
         userBean = PayEnvironment.getInstance().getUser();
         if (userBean != null) {
             //显示余额
@@ -201,10 +197,12 @@ public class LooseChangeActivity extends BasePayActivity {
                 layoutAuthRealName.setEnabled(false);
                 //1 已经绑定手机
                 if (userBean != null && userBean.getPhoneBindStat() == 1) {
-                    IntentUtil.gotoActivity(activity, IdentificationInfoActivity.class);
-                } else {
-                    //2 没有绑定手机
-                    showBindPhoneNumDialog();
+                    if (PayEnvironment.getInstance().getUser().getPhoneBindStat() == 1) {
+                        IntentUtil.gotoActivity(activity, IdentificationInfoActivity.class);
+                    } else {
+                        //2 没有绑定手机
+                        showBindPhoneNumDialog();
+                    }
                 }
             }
         });
@@ -226,7 +224,9 @@ public class LooseChangeActivity extends BasePayActivity {
             }
         });
         //支付密码管理
-        viewSettingOfPsw = new ControllerPaySetting(findViewById(R.id.viewSettingOfPsw));
+        viewSettingOfPsw = new
+
+                ControllerPaySetting(findViewById(R.id.viewSettingOfPsw));
         viewSettingOfPsw.init(R.mipmap.ic_paypsw_manage, R.string.settings_of_psw, "");
         viewSettingOfPsw.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
@@ -312,140 +312,80 @@ public class LooseChangeActivity extends BasePayActivity {
      * 检测到未设置支付密码弹框
      */
     private void showSetPaywordDialog() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
-        dialogBuilder.setCancelable(false);
-        final AlertDialog dialog = dialogBuilder.create();
-        //获取界面
-        View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_set_payword, null);
-        //初始化控件
-        TextView tvSet = dialogView.findViewById(R.id.tv_set);
-        TextView tvExit = dialogView.findViewById(R.id.tv_exit);
-        //去设置
-        tvSet.setOnClickListener(new android.view.View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-                startActivity(new Intent(activity, SetPaywordActivity.class));
-
-            }
-        });
-        //取消
-        tvExit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                resumeEnabled();
-            }
-        });
-        //展示界面
-        dialog.show();
-        //解决圆角shape背景无效问题
-        Window window = dialog.getWindow();
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //相关配置
-        WindowManager.LayoutParams lp = window.getAttributes();
-        window.setGravity(Gravity.CENTER);
-        WindowManager manager = window.getWindowManager();
-        DisplayMetrics metrics = new DisplayMetrics();
-        manager.getDefaultDisplay().getMetrics(metrics);
-        //设置宽高，高度自适应，宽度屏幕0.8
-        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels * 0.8);
-        dialog.getWindow().setAttributes(lp);
-        dialog.setContentView(dialogView);
+        dialogOne = builder.setTitle("您还没有设置支付密码\n请设置支付密码后再进行操作")
+                .setLeftText("取消")
+                .setRightText("设置支付密码")
+                .setLeftOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //取消
+                        dialogOne.dismiss();
+                        resumeEnabled();
+                    }
+                })
+                .setRightOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //去设置
+                        dialogOne.dismiss();
+                        startActivity(new Intent(activity, SetPaywordActivity.class));
+                    }
+                })
+                .build();
+        dialogOne.show();
     }
 
     /**
      * 是否绑定手机号弹框
      */
     private void showBindPhoneNumDialog() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
-        dialogBuilder.setCancelable(false);
-        final AlertDialog dialog = dialogBuilder.create();
-        //获取界面
-        View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_bind_phonenum, null);
-        //初始化控件
-        TextView tvBind = dialogView.findViewById(R.id.tv_bind);
-        TextView tvExit = dialogView.findViewById(R.id.tv_exit);
-        //去绑定
-        tvBind.setOnClickListener(new android.view.View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-                startActivity(new Intent(activity, BindPhoneNumActivity.class));
-
-            }
-        });
-        //取消
-        tvExit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                resumeEnabled();
-            }
-        });
-        //展示界面
-        dialog.show();
-        //解决圆角shape背景无效问题
-        Window window = dialog.getWindow();
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //相关配置
-        WindowManager.LayoutParams lp = window.getAttributes();
-        window.setGravity(Gravity.CENTER);
-        WindowManager manager = window.getWindowManager();
-        DisplayMetrics metrics = new DisplayMetrics();
-        manager.getDefaultDisplay().getMetrics(metrics);
-        //设置宽高，高度自适应，宽度屏幕0.8
-        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels * 0.8);
-        dialog.getWindow().setAttributes(lp);
-        dialog.setContentView(dialogView);
+        dialogThree = builder.setTitle("您还没有绑定手机号码\n请先绑定后再进行操作")
+                .setLeftText("取消")
+                .setRightText("去绑定")
+                .setLeftOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //取消
+                        dialogThree.dismiss();
+                        resumeEnabled();
+                    }
+                })
+                .setRightOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //去绑定
+                        dialogThree.dismiss();
+                        startActivity(new Intent(activity, BindPhoneNumActivity.class));
+                    }
+                })
+                .build();
+        dialogThree.show();
     }
 
     /**
      * 没有添加过银行卡弹框
      */
     private void showAddBankCardDialog() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
-        dialogBuilder.setCancelable(false);
-        final AlertDialog dialog = dialogBuilder.create();
-        //获取界面
-        View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_bind_bankcard, null);
-        //初始化控件
-        TextView tvAdd = dialogView.findViewById(R.id.tv_add);
-        TextView tvExit = dialogView.findViewById(R.id.tv_exit);
-        //去添加银行卡
-        tvAdd.setOnClickListener(new android.view.View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-                startActivity(new Intent(activity, BindBankActivity.class));
-            }
-        });
-        //取消
-        tvExit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-        //展示界面
-        dialog.show();
-        //解决圆角shape背景无效问题
-        Window window = dialog.getWindow();
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //相关配置
-        WindowManager.LayoutParams lp = window.getAttributes();
-        window.setGravity(Gravity.CENTER);
-        WindowManager manager = window.getWindowManager();
-        DisplayMetrics metrics = new DisplayMetrics();
-        manager.getDefaultDisplay().getMetrics(metrics);
-        //设置宽高，高度自适应，宽度屏幕0.8
-        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels * 0.8);
-        dialog.getWindow().setAttributes(lp);
-        dialog.setContentView(dialogView);
+        dialogTwo = builder.setTitle("您尚未绑定银行卡，无法使用该功能")
+                .setLeftText("取消")
+                .setRightText("去绑卡")
+                .setLeftOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //取消
+                        dialogTwo.dismiss();
+                    }
+                })
+                .setRightOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //去添加银行卡
+                        dialogTwo.dismiss();
+                        startActivity(new Intent(activity, BindBankActivity.class));
+                    }
+                })
+                .build();
+        dialogTwo.show();
     }
-
 
 }

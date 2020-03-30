@@ -66,6 +66,8 @@ public class VoiceView extends LinearLayout {
 
     }
 
+
+
     public void init(final boolean isMe, final int second, boolean isRead, boolean isPlay, int playStatus) {
         LogUtil.getLog().i(VoiceView.class.getSimpleName(), "初始化View--" + "isRead=" + isRead + "--isPlay=" + isPlay + "--isMe=" + isMe + "--playStatus=" + playStatus);
         if (isMe) {
@@ -120,7 +122,59 @@ public class VoiceView extends LinearLayout {
 
 
     }
+    public void initHideUnRead(final boolean isMe, final int second, boolean isRead, boolean isPlay, int playStatus) {
+        LogUtil.getLog().i(VoiceView.class.getSimpleName(), "初始化View--" + "isRead=" + isRead + "--isPlay=" + isPlay + "--isMe=" + isMe + "--playStatus=" + playStatus);
+        if (isMe) {
+            viewMeVoice.setVisibility(VISIBLE);
+            viewOtVoice.setVisibility(GONE);
+        } else {
+            viewMeVoice.setVisibility(GONE);
+            viewOtVoice.setVisibility(VISIBLE);
+            imgOtLoad.setVisibility(GONE);
+        }
+        txtOtVoice.setText(second + "''");
+        txtMeVoice.setText(second + "''");
+        if (isPlay && playStatus == ChatEnum.EPlayStatus.PLAYING) {
+            LogUtil.getLog().i(VoiceView.class.getSimpleName(), "播放语音动画");
+            ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(2);
+            ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(2);
+            ((AnimationDrawable) imgMeIcon.getDrawable()).start();
+            ((AnimationDrawable) imgOtIcon.getDrawable()).start();
+        } else {
+//            if (!isMe && isRead && playStatus == ChatEnum.EPlayStatus.NO_DOWNLOADED) {
+//                LogUtil.getLog().i(VoiceView.class.getSimpleName(), "播放语音动画");
+//                ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(2);
+//                ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(2);
+//                ((AnimationDrawable) imgMeIcon.getDrawable()).start();
+//                ((AnimationDrawable) imgOtIcon.getDrawable()).start();
+//            } else {
+            LogUtil.getLog().i(VoiceView.class.getSimpleName(), "终止语音动画");
+            ((AnimationDrawable) imgMeIcon.getDrawable()).stop();
+            ((AnimationDrawable) imgOtIcon.getDrawable()).stop();
+            ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(0);
+            ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(0);
+//            }
+        }
+        if (!isMe && !isRead) {
+            setDownloadStatus(playStatus, isRead);
+        }
 
+        //语音部分宽度太宽，会造成未读红点不能正常显示，所以增大了x, 60-->84
+        int s = second > 60 ? 60 : second;
+        int wsum = getScreenWidth() - DensityUtil.dip2px(getContext(), 74) * 2;//-DensityUtil.dip2px(getContext(),35);
+        float x = DensityUtil.dip2px(getContext(), 94);//viewOtP.getX();//原始值60
+        int w = new Float((wsum - x) / 60 * (s)).intValue();
+        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) viewMeP.getLayoutParams();
+        lp.width = w;
+        lp.weight = 1;
+        viewMeP.setLayoutParams(lp);
+
+        lp = (LinearLayout.LayoutParams) viewOtP.getLayoutParams();
+        lp.width = w;
+        viewOtP.setLayoutParams(lp);
+
+
+    }
     public void setDownloadStatus(@ChatEnum.EPlayStatus int state, boolean isRead) {
 //        LogUtil.getLog().i("setDownloadStatus", "playStatus=" + state + "--isRead=" + isRead);
         switch (state) {

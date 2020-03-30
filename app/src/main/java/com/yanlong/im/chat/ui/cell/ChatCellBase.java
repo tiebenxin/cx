@@ -2,10 +2,12 @@ package com.yanlong.im.chat.ui.cell;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,6 +21,7 @@ import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.TimeToString;
 
 import java.util.ArrayList;
@@ -54,6 +57,12 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     int messageType;
 
     boolean isMe;
+    private CheckBox ckSelect;
+    private AppCompatImageView ivBell;
+    private int newMsgPosition;
+    private View viewRead;
+    private TextView tvRead;
+    private TextView tvReadTime;
 
     protected ChatCellBase(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(view);
@@ -109,7 +118,13 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         iv_avatar = viewRoot.findViewById(R.id.iv_avatar);
         tv_name = viewRoot.findViewById(R.id.tv_name);
         iv_error = viewRoot.findViewById(R.id.iv_error);
-        bubbleLayout = viewRoot.findViewById(R.id.ll_bubble);
+        bubbleLayout = viewRoot.findViewById(R.id.view_bubble);
+        ckSelect = viewRoot.findViewById(R.id.ck_select);
+        ivBell = viewRoot.findViewById(R.id.iv_bell);
+
+        viewRead = viewRoot.findViewById(R.id.view_read);
+        tvRead = viewRoot.findViewById(R.id.tv_read);
+        tvReadTime = viewRoot.findViewById(R.id.tv_read_time);
 
     }
 
@@ -140,12 +155,16 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         messageType = message.getMsg_type();
         isMe = message.isMe();
         initListener();
-        setSendStatus();
+        setSendStatus(false);
         loadAvatar();
         setName();
         setTime();
         initMenu();
+        setCheckView();
+        initBell();
+        initRead();
     }
+
 
     private void initMenu() {
         menus = new ArrayList<>();
@@ -153,38 +172,29 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
             case ChatEnum.EMessageType.NOTICE:
                 break;
             case ChatEnum.EMessageType.TEXT:
+            case ChatEnum.EMessageType.AT:
                 menus.add(new OptionMenu("复制"));
                 menus.add(new OptionMenu("转发"));
                 menus.add(new OptionMenu("删除"));
                 break;
             case ChatEnum.EMessageType.STAMP:
-                menus.add(new OptionMenu("删除"));
-                break;
+            case ChatEnum.EMessageType.BUSINESS_CARD:
             case ChatEnum.EMessageType.RED_ENVELOPE:
+            case ChatEnum.EMessageType.ASSISTANT:
                 menus.add(new OptionMenu("删除"));
                 break;
             case ChatEnum.EMessageType.IMAGE:
                 menus.add(new OptionMenu("转发"));
                 menus.add(new OptionMenu("删除"));
                 break;
-            case ChatEnum.EMessageType.BUSINESS_CARD:
-                menus.add(new OptionMenu("删除"));
-                break;
             case ChatEnum.EMessageType.VOICE:
-                menus.add(new OptionMenu("删除"));
                 MsgDao msgDao = new MsgDao();
                 if (msgDao.userSetingGet().getVoicePlayer() == 0) {
                     menus.add(0, new OptionMenu("听筒播放"));
                 } else {
                     menus.add(0, new OptionMenu("扬声器播放"));
                 }
-                break;
-            case ChatEnum.EMessageType.AT:
-                menus.add(new OptionMenu("复制"));
-                menus.add(new OptionMenu("转发"));
                 menus.add(new OptionMenu("删除"));
-                break;
-            case ChatEnum.EMessageType.ASSISTANT:
                 break;
 
         }
@@ -212,7 +222,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     /*
      * 设置发送状态
      * */
-    public void setSendStatus() {
+    public void setSendStatus(boolean isShowLoad) {
         if (iv_error != null && model.isMe()) {
             switch (model.getSend_state()) {
                 case ChatEnum.ESendStatus.ERROR:
@@ -221,8 +231,15 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                     iv_error.setVisibility(VISIBLE);
                     break;
                 case ChatEnum.ESendStatus.PRE_SEND:
-                    iv_error.clearAnimation();
-                    iv_error.setVisibility(View.GONE);
+                    if (isShowLoad) {
+                        iv_error.setImageResource(R.mipmap.ic_net_load);
+                        Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
+                        iv_error.startAnimation(rotateAnimation);
+                        iv_error.setVisibility(View.VISIBLE);
+                    } else {
+                        iv_error.clearAnimation();
+                        iv_error.setVisibility(View.GONE);
+                    }
                     break;
                 case ChatEnum.ESendStatus.NORMAL:
                     iv_error.clearAnimation();
@@ -279,14 +296,6 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         if (mContext == null || iv_avatar == null) {
             return;
         }
-//        RequestOptions options = new RequestOptions();
-//        options.centerCrop();
-//        options.error(R.drawable.ic_info_head);
-//        Glide.with(mContext)
-//                .load(model.getFrom_avatar())
-//                .apply(options)
-//                .into(iv_avatar);
-
         Glide.with(mContext).load(model.getFrom_avatar())
                 .apply(GlideOptionsUtil.headImageOptions()).into(iv_avatar);
 
@@ -338,6 +347,80 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     private void updateSelectedBG(boolean flag) {
         if (bubbleLayout != null) {
             bubbleLayout.setSelected(flag);
+        }
+    }
+
+    private void initBell() {
+        if (model.getSurvival_time() > 0 && model.getStartTime() > 0 && model.getEndTime() > 0) {
+            //阅后即焚
+//            bindTimer(msgbean.getMsg_id(), msgbean.isMe(), msgbean.getStartTime(), msgbean.getEndTime());
+            setBellUI(model.getSurvival_time(), false, isMe);
+        } else {
+            setBellUI(model.getSurvival_time(), true, isMe);
+        }
+
+
+    }
+
+    //设置阅后即焚时钟UI
+    private void setBellUI(int type, boolean isRecovery, boolean isMe) {
+        if (ivBell == null) {
+            return;
+        }
+        if (isMe) {
+            if (isRecovery) {
+                ivBell.setBackgroundResource(R.mipmap.icon_st_1);
+            }
+            if (type == -1) {
+                ivBell.setVisibility(View.VISIBLE);
+            } else if (type == 0) {
+                ivBell.setVisibility(View.GONE);
+            } else {
+                ivBell.setVisibility(View.VISIBLE);
+            }
+        } else {
+            if (isRecovery) {
+                ivBell.setBackgroundResource(R.mipmap.icon_st_1);
+            }
+            if (type == -1) {
+                ivBell.setVisibility(View.VISIBLE);
+            } else if (type == 0) {
+                ivBell.setVisibility(View.GONE);
+            } else {
+                ivBell.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    private void setCheckView() {
+        if (ckSelect == null) {
+            return;
+        }
+        if (mAdapter.isShowCheckBox()) {
+            ckSelect.setVisibility(VISIBLE);
+        } else {
+            ckSelect.setVisibility(View.GONE);
+        }
+    }
+
+    private void setNewMsgPostion(int position) {
+        newMsgPosition = position;
+
+    }
+
+    //初始化已读及已读时间
+    private void initRead() {
+        if (viewRead == null) {
+            return;
+        }
+        if (isMe && model.getSend_state() == ChatEnum.ESendStatus.NORMAL && model.getRead() == 1 && model.getReadTime() > 0) {
+            LogUtil.getLog().i("ChatCellBase", "显示已读 msgId--" + model.getMsg_id());
+            viewRead.setVisibility(VISIBLE);
+            tvRead.setText("已读");
+            tvReadTime.setText(TimeToString.HH_MM(model.getReadTime()));
+        } else {
+            LogUtil.getLog().i("ChatCellBase", "隐藏已读 msgId--" + model.getMsg_id());
+            viewRead.setVisibility(View.GONE);
         }
     }
 

@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.action;
 
+import android.text.TextUtils;
+
 import com.google.gson.Gson;
 import com.yanlong.im.chat.bean.ExitGroupUser;
 import com.yanlong.im.chat.bean.Group;
@@ -210,9 +212,12 @@ public class MsgAction {
      * @param gid
      * @param callback
      */
-    public void groupInfo(final String gid, final Callback<ReturnBean<Group>> callback) {
+    public void groupInfo(final String gid, boolean isShow, final Callback<ReturnBean<Group>> callback) {
+        if (TextUtils.isEmpty(gid)) {
+            return;
+        }
         if (NetUtil.isNetworkConnected()) {
-            NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>() {
+            NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>(isShow) {
                 @Override
                 public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                     if (response.body() == null) {
@@ -277,8 +282,11 @@ public class MsgAction {
      * @param callback
      */
     public void loadGroupMember(final String gid, final Callback<ReturnBean<Group>> callback) {
+        if (TextUtils.isEmpty(gid)) {
+            return;
+        }
         if (NetUtil.isNetworkConnected()) {
-            NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>() {
+            NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>(false) {
                 @Override
                 public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                     if (response.body() == null) {
@@ -451,7 +459,7 @@ public class MsgAction {
      * @param uidJson
      * @param callback
      */
-    public void getUserInfo(final String uidJson, Callback<ReturnBean<UserInfo>> callback) {
+    public void getUserInfo(final String uidJson, Callback<ReturnBean<List<UserInfo>>> callback) {
         NetUtil.getNet().exec(server.getUserInfo(uidJson), callback);
     }
 
@@ -515,7 +523,7 @@ public class MsgAction {
                             group.setUsers(dao.getGroup4Id(ginfo.getGid()).getUsers());
 
                         } else {
-                            groupInfo(ginfo.getGid(), new CallBack<ReturnBean<Group>>() {
+                            groupInfo(ginfo.getGid(), true, new CallBack<ReturnBean<Group>>() {
                                 @Override
                                 public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                                     if (response.body().isOk()) {
@@ -528,7 +536,7 @@ public class MsgAction {
                         dao.groupSave(group);
                         groupList.add(group);
                     } else {
-                        groupInfo(ginfo.getGid(), new CallBack<ReturnBean<Group>>() {
+                        groupInfo(ginfo.getGid(), true, new CallBack<ReturnBean<Group>>() {
                             @Override
                             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> responseInner) {
                                 if (responseInner.body().isOk()) {

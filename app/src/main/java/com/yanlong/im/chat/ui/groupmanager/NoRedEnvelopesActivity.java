@@ -243,7 +243,7 @@ public class NoRedEnvelopesActivity extends BaseBindActivity<ActivityNoredEnvelo
      * @param gid
      */
     private void taskGroupInfo(String gid) {
-        mMsgAction.groupInfo(gid, new CallBack<ReturnBean<Group>>() {
+        mMsgAction.groupInfo(gid,true, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {

@@ -45,12 +45,12 @@
                 android:id="@+id/txt_alert_msg"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
+                android:layout_marginLeft="37dp"
+                android:layout_marginRight="37dp"
                 android:textColor="@color/black_3e"
                 android:textSize="12sp"
                 android:lineSpacingExtra="2dp"
-                android:text=""
+                android:text="1 新版本新版本新版新版本\n2 新版本新版本新版本新\n3 版本新版本新版本"
                 android:background="@color/transparent"/>
             <TextView
                 android:id="@+id/tv_finish_notice"

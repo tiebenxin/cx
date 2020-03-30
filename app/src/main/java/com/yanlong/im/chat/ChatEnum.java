@@ -47,19 +47,12 @@ public class ChatEnum {
         VOICE_SEND(R.layout.cell_voice_send),
 
         //视频消息
-//        VIDEO_RECEIVED(R.layout.cell_txt_received),
-//        VIDEO_SEND(R.layout.cell_txt_send),
+        VIDEO_RECEIVED(R.layout.cell_video_received),
+        VIDEO_SEND(R.layout.cell_video_send),
 
         //位置消息
-//        MAP_RECEIVED(R.layout.cell_txt_received),
-//        MAP_SEND(R.layout.cell_txt_send),
-
-//        VOTE_RECEIVED(R.layout.cell_txt_received),
-//        VOTE_SEND(R.layout.cell_txt_send),
-
-        //动态表情消息
-//        EMOTICON_RECEIVED(R.layout.cell_txt_received),
-//        EMOTICON_SEND(R.layout.cell_txt_send),
+        MAP_RECEIVED(R.layout.cell_location_received),
+        MAP_SEND(R.layout.cell_location_send),
 
         //名片消息
         CARD_RECEIVED(R.layout.cell_card_received),
@@ -70,7 +63,7 @@ public class ChatEnum {
         RED_ENVELOPE_SEND(R.layout.cell_redenvelope_send),
 
 
-        //转账消息
+        //转账消息，共用红包布局
         TRANSFER_RECEIVED(R.layout.cell_redenvelope_received),
         TRANSFER_SEND(R.layout.cell_redenvelope_send),
 
@@ -82,18 +75,29 @@ public class ChatEnum {
         AT_RECEIVED(R.layout.cell_txt_received),
         AT_SEND(R.layout.cell_txt_send),
 
+        //文件消息
+        FILE_RECEIVED(R.layout.cell_file_received),
+        FILE_SEND(R.layout.cell_file_send),
+
+        //分享 web 或 游戏消息
+        WEB_RECEIVED(R.layout.cell_web_received),
+        WEB_SEND(R.layout.cell_web_send),
+
 
         //合并转发
-//        MULTI_RECEIVED(R.layout.cell_txt_received),
-//        MULTI_SEND(R.layout.cell_txt_send),
+        MULTI_RECEIVED(R.layout.cell_txt_received),
+        MULTI_SEND(R.layout.cell_txt_send),
 
         //通知消息
         NOTICE(R.layout.cell_notice),
 
-        //小助手消息
+        //零钱助手消息
+        BALANCE_ASSISTANT(R.layout.cell_notice),
+
+        //常信小助手消息
         ASSISTANT(R.layout.cell_txt_received),
 
-        //小助手消息
+        //端到端加密消息
         LOCK(R.layout.cell_lock),
 
         //未知消息
@@ -143,7 +147,8 @@ public class ChatEnum {
      * cell 点击事件类型
      * */
     @IntDef({ECellEventType.TXT_CLICK, ECellEventType.IMAGE_CLICK, ECellEventType.CARD_CLICK, ECellEventType.RED_ENVELOPE_CLICK, ECellEventType.LONG_CLICK, ECellEventType.TRANSFER_CLICK,
-            ECellEventType.AVATAR_CLICK, ECellEventType.RESEND_CLICK, ECellEventType.AVATAR_LONG_CLICK, ECellEventType.VOICE_CLICK, ECellEventType.VIDEO_CLICK})
+            ECellEventType.AVATAR_CLICK, ECellEventType.RESEND_CLICK, ECellEventType.AVATAR_LONG_CLICK, ECellEventType.VOICE_CLICK, ECellEventType.VIDEO_CLICK, ECellEventType.FILE_CLICK,
+            ECellEventType.BALANCE_ASSISTANT_CLICK, ECellEventType.WEB_CLICK, ECellEventType.MULTI_CLICK, ECellEventType.MAP_CLICK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ECellEventType {
         int TXT_CLICK = 0; //点击文本消息
@@ -157,6 +162,11 @@ public class ChatEnum {
         int AVATAR_LONG_CLICK = 8;//头像长按事件
         int VOICE_CLICK = 9;//语音消息
         int VIDEO_CLICK = 10;//视屏消息
+        int FILE_CLICK = 11;//文件消息
+        int BALANCE_ASSISTANT_CLICK = 12;//零钱助手消息
+        int WEB_CLICK = 13;//分享web消息
+        int MULTI_CLICK = 14;//合并消息
+        int MAP_CLICK = 15;//位置消息
     }
 
 
@@ -165,8 +175,8 @@ public class ChatEnum {
      * */
     @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CANCEL,
             UNRECOGNIZED, EMessageType.MSG_VIDEO, EMessageType.MSG_VOICE_VIDEO, EMessageType.LOCK, EMessageType.CHANGE_SURVIVAL_TIME,
-            EMessageType.READ, EMessageType.MSG_VOICE_VIDEO_NOTICE, EMessageType.LOCATION, EMessageType.BALANCE_ASSISTANT,EMessageType.SHIPPED_EXPRESSION,
-            EMessageType.TRANSFER_NOTICE})
+            EMessageType.READ, EMessageType.MSG_VOICE_VIDEO_NOTICE, EMessageType.LOCATION, EMessageType.BALANCE_ASSISTANT, EMessageType.SHIPPED_EXPRESSION,
+            EMessageType.FILE, EMessageType.WEB, EMessageType.TRANSFER_NOTICE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMessageType {
         int UNRECOGNIZED = -1; //未识别
@@ -187,11 +197,15 @@ public class ChatEnum {
         int LOCATION = 14; //位置消息
         int BALANCE_ASSISTANT = 15; //零钱助手消息
         int SHIPPED_EXPRESSION = 16;// 大表情
-        int TRANSFER_NOTICE = 17; //转账提醒
+        int FILE = 17;//文件
+        int WEB = 18;//web消息
+        int TRANSFER_NOTICE = 19; //转账提醒
+
+        int LOCK = 100; //端到端加密提示消息,本地自定义消息
+
         int CHANGE_SURVIVAL_TIME = 113;//阅后即焚
         int READ = 120;//已读消息
 
-        int LOCK = 100; //端到端加密提示消息,本地自定义消息
     }
 
     /*
@@ -363,13 +377,29 @@ public class ChatEnum {
 
 
     /*
-     *聊天拓展功能id
+     *聊天转发功能id
      * */
-    @IntDef({EForwardMode.DEFAULT, EForwardMode.ONE_BY_ONE,EForwardMode.MERGE})
+    @IntDef({EForwardMode.DEFAULT, EForwardMode.ONE_BY_ONE, EForwardMode.MERGE, EForwardMode.SHARE, EForwardMode.SYS_SEND, EForwardMode.SYS_SEND_MULTI})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EForwardMode {
-        int DEFAULT = 0; // 默认，单条转发
+        int DEFAULT = 0; // 默认，普通单条转发
         int ONE_BY_ONE = 1; // 逐条转发
         int MERGE = 2; // 合并
+        int SHARE = 3; // 第三方分享
+        int SYS_SEND = 4; // 系统分享或发送
+        int SYS_SEND_MULTI = 5; // 系统批量分享或发送
+    }
+
+
+    /*
+     *服务器类型
+     * */
+    @IntDef({EServiceType.DEFAULT, EServiceType.DEBUG, EServiceType.BETA, EServiceType.RELEASE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EServiceType {
+        int DEFAULT = 0; // 默认，跟随编译环境
+        int DEBUG = 1; // 测试服
+        int BETA = 2; // 预发布服
+        int RELEASE = 3; // 生产服
     }
 }

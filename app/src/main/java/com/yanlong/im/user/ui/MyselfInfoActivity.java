@@ -15,6 +15,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventMyUserInfo;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -65,7 +66,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_myself_info);
-        if(!EventBus.getDefault().isRegistered(this)){
+        if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
         initView();
@@ -174,12 +175,15 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.view_nickname:
+                if (isSystemUser()){
+                    return;
+                }
                 Intent nicknameIntent = new Intent(MyselfInfoActivity.this, CommonSetingActivity.class);
                 nicknameIntent.putExtra(CommonSetingActivity.TITLE, "昵称");
                 nicknameIntent.putExtra(CommonSetingActivity.REMMARK, "设置昵称");
                 nicknameIntent.putExtra(CommonSetingActivity.HINT, "昵称");
-                nicknameIntent.putExtra(CommonSetingActivity.SIZE,16);
-                nicknameIntent.putExtra(CommonSetingActivity.SETING,nickName);
+                nicknameIntent.putExtra(CommonSetingActivity.SIZE, 16);
+                nicknameIntent.putExtra(CommonSetingActivity.SETING, nickName);
                 startActivityForResult(nicknameIntent, NICENAME);
                 break;
             case R.id.view_product_number:
@@ -188,8 +192,8 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 productIntent.putExtra(CommonSetingActivity.REMMARK, "常信号");
                 productIntent.putExtra(CommonSetingActivity.HINT, "可以使用6~16个字符 数字(必须以字母开头)");
                 productIntent.putExtra(CommonSetingActivity.REMMARK1, "常信号只能设置一次");
-                productIntent.putExtra(CommonSetingActivity.SIZE,16);
-                productIntent.putExtra(CommonSetingActivity.SPECIAL,1);
+                productIntent.putExtra(CommonSetingActivity.SIZE, 16);
+                productIntent.putExtra(CommonSetingActivity.SPECIAL, 1);
                 startActivityForResult(productIntent, PRODUCT);
                 break;
             case R.id.view_sex:
@@ -208,6 +212,9 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
 //                }
                 break;
             case R.id.view_head:
+                if (isSystemUser()){
+                    return;
+                }
                 Intent headIntent = new Intent(MyselfInfoActivity.this, ImageHeadActivity.class);
                 headIntent.putExtra(ImageHeadActivity.IMAGE_HEAD, imageHead);
                 startActivityForResult(headIntent, IMAGE_HEAD);
@@ -296,6 +303,17 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
             Glide.with(this).load(userInfo.getHead())
                     .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
         }
+    }
+
+    //是否是系统用户，系统用户不可修改用户信息
+    private boolean isSystemUser() {
+        if (userInfo == null) {
+            return false;
+        }
+        if (UserUtil.isSystemUser(userInfo.getUid())) {
+            return true;
+        }
+        return false;
     }
 
 

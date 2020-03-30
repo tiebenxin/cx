@@ -1,7 +1,8 @@
 package com.yanlong.im.chat.ui;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -29,18 +30,18 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MainActivity;
+import com.yanlong.im.MainViewModel;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendAddAcitvity;
 import com.yanlong.im.user.ui.HelpActivity;
@@ -50,7 +51,6 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.wight.avatar.MultiImageView;
-import com.zhaoss.weixinrecorded.util.RxJavaUtil;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
@@ -71,14 +71,11 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
+import io.realm.RealmChangeListener;
+import io.realm.RealmResults;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -106,8 +103,12 @@ public class MsgMainFragment extends Fragment {
     private LinearLayout viewPopHelp;
     private View mHeadView;
     private boolean onlineState = true;//判断网络状态 true在线 false离线
-    private final String TYPE_FACE = "[动画表情]";
 
+    private MsgDao msgDao = new MsgDao();
+    private UserDao userDao = new UserDao();
+    //    private MsgAction msgAction = new MsgAction();
+//    private List<Session> listData = new ArrayList<>();
+    private MainViewModel viewModel;
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -263,7 +264,6 @@ public class MsgMainFragment extends Fragment {
             }
             switch (status) {
                 case CoreEnum.ENetStatus.ERROR_ON_NET:
-//                viewNetwork.setVisibility(View.VISIBLE);
                     if (mAdapter.viewNetwork.getVisibility() == View.GONE) {
                         mAdapter.viewNetwork.postDelayed(showRunnable, 15 * 1000);
                     }
@@ -290,7 +290,7 @@ public class MsgMainFragment extends Fragment {
 
             }
         } catch (NullPointerException e) {
-
+            e.printStackTrace();
         }
     }
 
@@ -327,13 +327,53 @@ public class MsgMainFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(getActivity(), ViewModelProvider.AndroidViewModelFactory.getInstance(MyAppLication.getInstance())).get(MainViewModel.class);
         EventBus.getDefault().register(this);
-        taskListData();
+        //初始化观察器
+        initObserver();
+    }
+
+    /**
+     * 初始化观察器
+     */
+    private void initObserver() {
+        //监听列表数据变化
+        viewModel.sessionMores.addChangeListener(new RealmChangeListener<RealmResults<SessionDetail>>() {
+            @Override
+            public void onChange(RealmResults<SessionDetail> sessionMore) {
+                if (sessionMore != null) {
+                    Log.e("raleigh_test", "sessionMore.observe" + sessionMore.size());
+                    mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                }
+//                checkSessionData(list);
+            }
+        });
+        //监听删除操作项
+        viewModel.currentDeletePosition.observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer position) {
+                long uid = viewModel.sessions.get(position).getFrom_uid();
+                String gid = viewModel.sessions.get(position).getGid();
+                //数据库中删除数据项
+                viewModel.deleteItem(position);
+                //通知更新
+                MessageManager.getInstance().deleteSessionAndMsg(uid, gid);
+                MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
+                getView().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mtListView.getListView().getAdapter().notifyItemRemoved(position + 1);//范围刷新
+                    }
+                }, 50);
+            }
+        });
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        //释放数据对象
+        viewModel.onDestory();
         SocketUtil.getSocketUtil().removeEvent(socketEvent);
         EventBus.getDefault().unregister(this);
     }
@@ -343,201 +383,19 @@ public class MsgMainFragment extends Fragment {
         if (MessageManager.getInstance().isMessageChange()) {
             MessageManager.getInstance().setMessageChange(false);
             int refreshTag = event.getRefreshTag();
-            if (refreshTag == CoreEnum.ESessionRefreshTag.ALL) {
-                LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
-                taskListData();
-            } else if (refreshTag == CoreEnum.ESessionRefreshTag.SINGLE) {
-                refreshPosition(event.getGid(), event.getUid(), event.getMsgAllBean(), event.getSession(), event.isRefreshTop());
-                LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
-            } else if (refreshTag == CoreEnum.ESessionRefreshTag.DELETE) {
-                LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "-- 刷新Session-DELETE");
-                taskDelSession(event.getUid(), event.getGid());
-            } else if (refreshTag == CoreEnum.ESessionRefreshTag.BLACK) {
-                LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "-- 刷新Session-BLACK");
-                int index = getSessionPosition(event.getGid(), event.getUid());
-                if (index >= 0) {
-                    mtListView.getListView().getAdapter().notifyItemRemoved(index + 1);//删除刷新
-                } else {
-                    taskListData();
-                }
-            }
+           if (refreshTag == CoreEnum.ESessionRefreshTag.DELETE) {
+                //阅后即焚 -更新
+                viewModel.updateItemSessionDetail();
+                LogUtil.getLog().d("a==", "MsgMainFragment --删除session");
+                MessageManager.getInstance().deleteSessionAndMsg(event.getUid(), event.getGid());
+                MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
+            }else if(refreshTag == CoreEnum.ESessionRefreshTag.BLACK){
+               //阅后即焚 -更新
+               viewModel.updateItemSessionDetail();
+           }
         }
     }
 
-    private int getSessionPosition(String gid, Long uid) {
-        int index = -1;
-        Session session = msgDao.sessionGet(gid, uid);
-        if (session != null && listData != null) {
-            index = listData.indexOf(session);
-        }
-        return index;
-
-    }
-
-    /*
-     * 刷新单一位置
-     * TODO　增加文件头，默认的位置都需要加1
-     * */
-    @SuppressLint("CheckResult")
-    private void refreshPosition(String gid, Long uid, MsgAllBean bean, Session s, boolean isRefreshTop) {
-        Observable.just(0)
-                .map(new Function<Integer, Session>() {
-                    @Override
-                    public Session apply(Integer integer) throws Exception {
-                        if (s == null) {
-                            Session session = msgDao.sessionGet(gid, uid);
-                            if (bean != null) {
-                                session.setMessage(bean);
-                            }
-                            prepareSession(session, false);
-                            return session;
-                        } else {
-                            if (bean != null) {
-                                s.setMessage(bean);
-                            }
-                            prepareSession(s, true);
-                            return s;
-                        }
-
-                    }
-                }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .onErrorResumeNext(Observable.<Session>empty())
-                .subscribe(new Consumer<Session>() {
-                    @Override
-                    public void accept(Session session) throws Exception {
-                        if (listData != null) {
-                            int index = listData.indexOf(session);
-                            if (index >= 0) {
-                                Session s = listData.get(index);
-                                if (isRefreshTop /*|| session.getIsTop() == 1*/) {//是否刷新置顶
-                                    if (session.getIsTop() == 1) {//修改了置顶状态
-                                        listData.remove(index);
-                                        listData.add(0, session);//放在首位
-                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(1, index + 1);//范围刷新
-//                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "置顶刷新--session=" + session.getSid());
-                                    } else {//取消置顶
-                                        listData.set(index, session);
-                                        sortSession(index == 0);
-                                        int newIndex = listData.indexOf(session);//获取重排后新位置
-                                        int start = index > newIndex ? newIndex : index;//谁小，取谁
-                                        int count = Math.abs(newIndex - index) + 1;
-                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(start + 1, count);////范围刷新,刷新旧位置和新位置之间即可
-//                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "取消置顶刷新--session=" + session.getSid());
-
-                                    }
-                                } else {
-                                    listData.set(index, session);
-                                    if (s != null && s.getUp_time().equals(session.getUp_time())) {//时间未更新，所以不要重新排序
-                                        mtListView.getListView().getAdapter().notifyItemChanged(index + 1, index);
-//                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "时间未更新--session=" + session.getSid());
-                                    } else {//有时间更新,需要重排
-                                        sortSession(index == 0);
-                                        int newIndex = listData.indexOf(session);
-                                        int start = index > newIndex ? newIndex : index;//谁小，取谁
-                                        int count = Math.abs(newIndex - index) + 1;
-                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(start + 1, count);//范围刷新
-//                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "时间更新重排--session=" + session.getSid());
-                                    }
-                                }
-                            } else {
-                                int position = insertSession(session);
-                                LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "新session--session=" + session.getSid());
-                                if (position == 0) {
-                                    mtListView.notifyDataSetChange();
-                                } else {
-                                    mtListView.getListView().getAdapter().notifyItemRangeInserted(position + 1, 1);
-                                    mtListView.getListView().scrollToPosition(0);
-                                }
-                            }
-                        } else {
-                            int position = insertSession(session);
-//                            LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "新session--session=" + session.getSid());
-                            if (position == 0) {
-                                mtListView.notifyDataSetChange();
-                            } else {
-                                mtListView.getListView().getAdapter().notifyItemRangeInserted(position + 1, 1);
-                                mtListView.getListView().scrollToPosition(0);
-                            }
-                        }
-                    }
-                });
-    }
-
-    /*
-     * 重新排序,置顶和非置顶分别重排
-     * @param isTop 当前要更新的session 是否在列表第一位置（置顶）
-     * */
-    private void sortSession(boolean isTop) {
-        if (listData != null) {
-            int len = listData.size();
-            if (len > 0) {
-                Session first = null;
-                if (!isTop) {
-                    first = listData.get(0);
-                } else {
-                    if (len >= 2) {
-                        first = listData.get(1);
-                    }
-                }
-                if (first != null && first.getIsTop() == 1) {//有置顶
-                    List<Session> topList = new ArrayList<>();
-                    List<Session> list = new ArrayList<>();
-                    for (int i = 0; i < len; i++) {
-                        Session session = listData.get(i);
-                        if (session.getIsTop() == 1) {
-                            topList.add(session);
-                        } else {
-                            list.add(session);
-                        }
-                    }
-                    listData.clear();
-                    if (topList.size() > 0) {
-                        Collections.sort(topList);
-                        listData.addAll(topList);
-                    }
-                    if (list.size() > 0) {
-                        Collections.sort(list);
-                        listData.addAll(list);
-                    }
-                } else {//无置顶
-                    Collections.sort(listData);
-                }
-            }
-        }
-    }
-
-    /*
-     * 插入位置需要考虑置顶
-     * */
-    private int insertSession(Session s) {
-        int position = 0;//需要插入位置
-        if (listData != null) {
-            int len = listData.size();
-            boolean hasTop = false;
-            if (s.getIsTop() == 1) {
-                listData.add(0, s);
-            } else {
-                for (int i = 0; i < len; i++) {
-                    Session session = listData.get(i);
-                    if (session.getIsTop() != 1) {
-                        position = i;
-                        break;//结束循环
-                    } else {
-                        hasTop = true;
-                    }
-                }
-                if (hasTop && position == 0) {//全是置顶
-                    position = len;
-                }
-                listData.add(position, s);
-            }
-        } else {
-            listData = new ArrayList<>();
-            listData.add(s);
-        }
-        return position;
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -556,7 +414,6 @@ public class MsgMainFragment extends Fragment {
 
         //  initEvent();
     }
-
 
     @Override
     public void onDetach() {
@@ -614,7 +471,7 @@ public class MsgMainFragment extends Fragment {
 
         @Override
         public int getItemCount() { // TODO　增加文件头，默认的位置加1
-            return listData == null ? 1 : listData.size() + 1;
+            return viewModel.sessions == null ? 1 : viewModel.sessions.size() + 1;
         }
 
         @Override
@@ -636,15 +493,30 @@ public class MsgMainFragment extends Fragment {
         //自动生成控件事件
         @Override
         public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, int position) {
-
             if (viewHolder instanceof RCViewHolder) {
                 RCViewHolder holder = (RCViewHolder) viewHolder;
-                final Session bean = listData.get(position - 1);
-//                LogUtil.getLog().e("=session==="+ GsonUtils.optObject(bean));
-                String icon = bean.getAvatar();
-                String title = bean.getName();
-                MsgAllBean msginfo = bean.getMessage();
-                String name = bean.getSenderName();
+                final Session bean = viewModel.sessions.get(position - 1);
+                String icon = "";
+                String title = "";
+                MsgAllBean msginfo = null;
+                String name = "";
+                List<String> avatarList = null;
+                if (viewModel.sessionMoresPositions.containsKey(bean.getSid())) {
+                    Integer index = viewModel.sessionMoresPositions.get(bean.getSid());
+                    if (index != null && index >= 0) {
+                        //从session详情对象中获取
+                        icon = viewModel.sessionMores.get(index).getAvatar();
+                        title = viewModel.sessionMores.get(index).getName();
+                        msginfo = viewModel.sessionMores.get(index).getMessage();
+                        name = viewModel.sessionMores.get(index).getSenderName();
+                        String avatarListString = viewModel.sessionMores.get(index).getAvatarList();
+                        if (avatarListString != null) {
+                            avatarList = Arrays.asList(avatarListString.split(","));
+                        }
+
+                    }
+                }
+
                 // 头像集合
                 List<String> headList = new ArrayList<>();
 
@@ -666,12 +538,7 @@ public class MsgMainFragment extends Fragment {
                             style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             showMessage(holder.txtInfo, bean.getDraft(), style);
                         } else {
-                            // 判断是否是动画表情
-                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
-                                holder.txtInfo.setText(TYPE_FACE);
-                            } else {
-                                showMessage(holder.txtInfo, info, null);
-                            }
+                            showMessage(holder.txtInfo, info, null);
                         }
                     }
                     headList.add(icon);
@@ -746,12 +613,8 @@ public class MsgMainFragment extends Fragment {
                                 style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 showMessage(holder.txtInfo, bean.getDraft(), style);
                             } else {
-                                // 判断是否是动画表情
-                                if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
-                                    holder.txtInfo.setText(msginfo.getFrom_nickname() + ":" + TYPE_FACE);
-                                } else {
-                                    showMessage(holder.txtInfo, info, null);
-                                }
+                                showMessage(holder.txtInfo, info, null);
+
                             }
                             break;
                         case 3:
@@ -761,21 +624,17 @@ public class MsgMainFragment extends Fragment {
                             showMessage(holder.txtInfo, info, style);
                             break;
                         default:
-                            // 判断是否是动画表情
-                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
-                                holder.txtInfo.setText(msginfo.getFrom_nickname() + ":" + TYPE_FACE);
-                            } else {
-                                showMessage(holder.txtInfo, info, null);
-                            }
+                            showMessage(holder.txtInfo, info, null);
                             break;
+
                     }
 
                     if (StringUtil.isNotNull(icon)) {
                         headList.add(icon);
                         holder.imgHead.setList(headList);
                     } else {
-                        if (bean.getAvatarList() != null && bean.getAvatarList().size() > 0) {
-                            holder.imgHead.setList(bean.getAvatarList());
+                        if (avatarList != null && avatarList.size() > 0) {
+                            holder.imgHead.setList(avatarList);
                         } else {
                             loadGroupHeads(bean, holder.imgHead);
                         }
@@ -804,23 +663,18 @@ public class MsgMainFragment extends Fragment {
                                 .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
                                 .putExtra(ChatActivity.ONLINE_STATE, onlineState)
                         );
-//                    if (bean.getUnread_count() > 0) {
-//                        MessageManager.getInstance().setMessageChange(true);
-//                    }
-
                     }
                 });
                 holder.btnDel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         holder.swipeLayout.quickClose();
-//                        taskDelSession(bean.getFrom_uid(), bean.getGid());
-                        deleteSession(bean);
+                        //删除数据
+                        viewModel.currentDeletePosition.setValue(position - 1);
                     }
                 });
-//            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#f1f1f1"));
                 holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#ececec"));
-                holder.iv_disturb.setVisibility(bean.getIsMute() == 0 ? View.GONE : View.VISIBLE);
+                holder.iv_disturb.setVisibility(bean.getIsMute() == 0 ? View.INVISIBLE : View.VISIBLE);
             } else if (viewHolder instanceof HeadViewHolder) {
                 HeadViewHolder headHolder = (HeadViewHolder) viewHolder;
                 headHolder.edtSearch.setOnClickListener(new View.OnClickListener() {
@@ -828,12 +682,13 @@ public class MsgMainFragment extends Fragment {
                     public void onClick(View view) {
                         Intent intent = new Intent(getContext(), MsgSearchActivity.class);
                         intent.putExtra("online_state", onlineState);
-                        intent.putExtra("conversition_data", new Gson().toJson(listData));
+                        intent.putExtra("conversition_data", new Gson().toJson(viewModel.sessions));
                         startActivity(intent);
                     }
                 });
                 viewNetwork = headHolder.viewNetwork;
             }
+
         }
 
         private void setUnreadCountOrDisturb(RCViewHolder holder, Session bean, MsgAllBean msg) {
@@ -872,6 +727,7 @@ public class MsgMainFragment extends Fragment {
                 spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, spannableString);
             }
             txtInfo.setText(spannableString, TextView.BufferType.SPANNABLE);
+            txtInfo.invalidate();
         }
 
         /**
@@ -942,184 +798,5 @@ public class MsgMainFragment extends Fragment {
         }
 
     }
-
-    private MsgDao msgDao = new MsgDao();
-    private UserDao userDao = new UserDao();
-    private MsgAction msgAction = new MsgAction();
-    private List<Session> listData = new ArrayList<>();
-
-    @SuppressLint("CheckResult")
-    private void taskListData() {
-//        if (isSearchMode) {
-//            return;
-//        }
-//        LogUtil.getLog().d("a=", "MsgMainFragment --开始获取session数据" + System.currentTimeMillis());
-        Observable.just(0)
-                .map(new Function<Integer, List<Session>>() {
-                    @Override
-                    public List<Session> apply(Integer integer) throws Exception {
-                        listData = msgDao.sessionGetAll(true);
-//                        LogUtil.getLog().d("a=", "MsgMainFragment --结束获取session数据" + System.currentTimeMillis());
-                        doListDataSort();
-//                        LogUtil.getLog().d("a=", "MsgMainFragment --结束准备session数据" + System.currentTimeMillis());
-                        return listData;
-                    }
-                }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .onErrorResumeNext(Observable.<List<Session>>empty())
-                .subscribe(new Consumer<List<Session>>() {
-                    @Override
-                    public void accept(List<Session> list) throws Exception {
-                        mtListView.notifyDataSetChange();
-                        checkSessionData(list);
-//                        LogUtil.getLog().d("a=", "MsgMainFragment --获取session数据后刷新" + System.currentTimeMillis());
-                    }
-                });
-
-    }
-
-    /**
-     * TODO　临时处理办法 异步检查Sessiong列表是否有异常数据，比如头像、群名称没有,如果有则重新拉取在刷新列表
-     *
-     * @param list
-     */
-    private void checkSessionData(List<Session> list) {
-        RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<Object>() {
-
-            @Override
-            public Object doInBackground() throws Throwable {
-                if (list != null && list.size() > 0) {
-                    for (Session session : list) {
-                        if (session.getType() == 1 && !TextUtils.isEmpty(session.getGid())) {
-                            Group gginfo = msgDao.getGroup4Id(session.getGid());
-                            if (gginfo != null) {
-                                // 群聊的时候 检查头像跟群名是否存在
-                                if (gginfo.getUsers() == null || gginfo.getUsers().size() == 0 ||
-                                        (TextUtils.isEmpty(gginfo.getName()) && TextUtils.isEmpty(session.getName()))) {
-//                                    Log.i("1212", "checkSessionData:" + session.getGid());
-                                    MessageManager.getInstance().refreshGroupInfo(session.getGid());
-                                }
-                            }
-                        }
-                    }
-                }
-                return null;
-            }
-
-            @Override
-            public void onFinish(Object result) {
-
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-        });
-    }
-
-    private void doListDataSort() {
-        if (listData != null) {
-            int len = listData.size();
-            for (int i = 0; i < len; i++) {
-                Session session = listData.get(i);
-                prepareSession(session, false);
-
-            }
-        }
-    }
-
-    /*
-     * 准备session
-     * @param isNew 是否是新数据，（主要针对置顶，免打扰）
-     * */
-    private void prepareSession(Session session, boolean isNew) {
-        if (session == null) {
-            return;
-        }
-        if (session.getType() == 1) {
-            Group group = msgDao.getGroup4Id(session.getGid());
-            if (group != null) {
-                session.setName(msgDao.getGroupName(group));
-                session.setIsMute(group.getNotNotify());
-                if (!TextUtils.isEmpty(group.getAvatar())) {
-                    session.setAvatar(group.getAvatar());
-                } else {
-                    if (group.getUsers() != null) {
-                        int i = group.getUsers().size();
-                        i = i > 9 ? 9 : i;
-                        //头像地址
-                        List<String> headList = new ArrayList<>();
-                        for (int j = 0; j < i; j++) {
-                            MemberUser userInfo = group.getUsers().get(j);
-                            headList.add(userInfo.getHead());
-                        }
-                        session.setAvatarList(headList);
-                    }
-                }
-            } else {
-                session.setName(msgDao.getGroupName(session.getGid()));
-            }
-            MsgAllBean msg = session.getMessage();
-            if (msg == null) {
-                msg = msgDao.msgGetLast4Gid(session.getGid());
-            }
-            if (msg != null) {
-                session.setMessage(msg);
-                if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {//通知不要加谁发的消息
-                    session.setSenderName("");
-                } else {
-                    if (msg.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
-                        //8.9 处理群昵称
-                        String name = msgDao.getUsername4Show(msg.getGid(), msg.getFrom_uid(), msg.getFrom_nickname(), msg.getFrom_group_nickname()) + " : ";
-                        session.setSenderName(name);
-                    }
-                }
-            }
-        } else {
-            UserInfo info = userDao.findUserInfo(session.getFrom_uid());
-            if (info != null) {
-                session.setName(info.getName4Show());
-                session.setIsMute(info.getDisturb());
-                session.setAvatar(info.getHead());
-            }
-            MsgAllBean msg = session.getMessage();
-            if (msg == null) {
-                msg = msgDao.msgGetLast4FUid(session.getFrom_uid());
-            }
-            if (msg != null) {
-                session.setMessage(msg);
-            }
-        }
-
-    }
-
-    private void taskDelSession(Long from_uid, String gid) {
-        LogUtil.getLog().d("a==", "MsgMainFragment --删除session");
-        MessageManager.getInstance().deleteSessionAndMsg(from_uid, gid);
-        MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
-        taskListData();
-    }
-
-    private void deleteSession(Session session) {
-        if (listData == null) {
-            return;
-        }
-        int position = listData.indexOf(session);
-        if (position < 0) {
-            return;
-        }
-        listData.remove(session);
-        MessageManager.getInstance().deleteSessionAndMsg(session.getFrom_uid(), session.getGid());
-        MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
-        getView().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mtListView.getListView().getAdapter().notifyItemRemoved(position + 1);//范围刷新
-            }
-        }, 50);
-
-    }
-
 
 }

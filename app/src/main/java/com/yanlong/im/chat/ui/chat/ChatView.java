@@ -17,7 +17,7 @@ public interface ChatView extends IView {
 
     void initUIAndListener();
 
-    void initUnreadCount(String s);
+    void initLeftUnreadCount(String s);
 
     void replaceListDataAndNotify(MsgAllBean bean);
 
@@ -27,7 +27,7 @@ public interface ChatView extends IView {
 
     void notifyDataAndScrollBottom(boolean isScrollBottom);
 
-    void bindData(List<MsgAllBean> l);
+    void bindData(List<MsgAllBean> l,boolean isMore);
 
     void scrollToPositionWithOff(int position, int offset);
 
@@ -43,7 +43,18 @@ public interface ChatView extends IView {
 
     void addAndShowSendMessage(MsgAllBean bean);
 
-
     void startUploadService();
+
+    void startVoiceUI(Boolean b);
+
+    void hideBt();
+
+    void insertEditContent(CharSequence charSequence);
+
+    void changeEmojiLevel(int level);
+
+    void addAtSpan(String maskText, String showText, long uid);
+
+    String getEtText();
 
 }

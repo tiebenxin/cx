@@ -70,59 +70,20 @@ public class MyAppLication extends MainApplication {
         if (!getApplicationContext().getPackageName().equals(getCurrentProcessName())) {
             return;
         }
-
-        //如果需要调试切换版本,请直接修改debug中的ip等信息
-        switch (BuildConfig.BUILD_TYPE) {
-            case "debug"://测试服
-                AppConfig.DEBUG = true;
-                //---------------------------
-//                AppConfig.SOCKET_IP = "beta.zhixun6.com";
-                AppConfig.SOCKET_IP = "inner.zhixun6.com";
-                AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
-                AppConfig.SOCKET_PORT = 19991;
-                AppConfig.UP_PATH = "test-environment";
-
-//                AppConfig.SOCKET_IP = "beta.zhixun6.com";
-                AppConfig.SOCKET_IP = "im-app.zhixun6.com";
-                AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
-                AppConfig.SOCKET_PORT = 19991;
-                AppConfig.UP_PATH = "product-environment";
-                break;
-            case "pre": //预发布服  美国 usa-test.1616d.top    香港 hk-test.1616d.top
-                AppConfig.DEBUG = false;
-                //---------------------------
-                AppConfig.SOCKET_IP = "beta.zhixun6.com";
-                AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
-                AppConfig.SOCKET_PORT = 19991;
-                AppConfig.UP_PATH = "development";
-                break;
-            case "release"://正式服
-                AppConfig.DEBUG = false; // false true
-                //---------------------------
-                AppConfig.SOCKET_IP = "im-app.zhixun6.com";
-//                AppConfig.SOCKET_IP = "beta.zhixun6.com";
-                AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
-                AppConfig.SOCKET_PORT = 19991;
-                AppConfig.UP_PATH = "product-environment";
-                break;
-        }
+        initBuildType();
         //初始化日志
-        LogUtil.getLog().init(AppConfig.DEBUG);
-        LSLog.TAG = "a===LanSongSDK=";
+//        LogUtil.getLog().init(AppConfig.DEBUG);
 
         //初始化数据库
         Realm.init(getApplicationContext());
 
-        // initUPush();
-
-        //--------------------------
         initWeixinConfig();
         initRunstate();
         initRedPacket();
         LogcatHelper.getInstance(this).start();
-//        initException();
+        initException();
         initUploadUtils();
-        if("release".equals(BuildConfig.BUILD_TYPE)){
+        if ("release".equals(BuildConfig.BUILD_TYPE)) {
             initBugly();
         }
         initCache();
@@ -131,6 +92,18 @@ public class MyAppLication extends MainApplication {
         initLocation();//初始化定位
         initARouter();//初始化路由
         initVolley();
+    }
+
+    private void initBuildType() {
+        switch (BuildConfig.BUILD_TYPE) {
+            case "debug":
+                AppConfig.DEBUG = true;
+                break;
+            case "pre":
+            case "release":
+                AppConfig.DEBUG = false;
+                break;
+        }
     }
 
     /**
@@ -169,7 +142,7 @@ public class MyAppLication extends MainApplication {
 
     }
 
-    private void initVolley(){
+    private void initVolley() {
         // 初始化新网络框架请求 用于文件断点续传
         NetRequestHelper.getInstance().init(this, new IVolleyInitImp());
     }

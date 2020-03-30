@@ -7,7 +7,7 @@
     <GridLayout
         android:id="@+id/view_func"
         android:layout_width="match_parent"
-        android:layout_height="240dp"
+        android:layout_height="@dimen/chat_fuction_panel_height"
         android:columnCount="4"
         android:rowCount="4"
         android:paddingTop="20dp"

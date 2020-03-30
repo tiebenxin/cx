@@ -1,6 +1,7 @@
 package com.hm.cxpay.rx;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.constant.AppHostUtil;
 
 /**
  * @author Liszt
@@ -20,7 +21,7 @@ public class PayHostUtils {
 
     //外网正式服  https
     public static String getHttpsUrl() {
-        return AppConfig.URL_HOST;
+        return AppHostUtil.getHttpHost();
     }
 
 }

@@ -73,7 +73,24 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private LocationMessage locationMessage;
     private TransferNoticeMessage transferNoticeMessage;
     private ShippedExpressionMessage shippedExpressionMessage;
+    private SendFileMessage sendFileMessage;
+    private WebMessage webMessage;
 
+    public WebMessage getWebMessage() {
+        return webMessage;
+    }
+
+    public void setWebMessage(WebMessage webMessage) {
+        this.webMessage = webMessage;
+    }
+
+    public SendFileMessage getSendFileMessage() {
+        return sendFileMessage;
+    }
+
+    public void setSendFileMessage(SendFileMessage sendFileMessage) {
+        this.sendFileMessage = sendFileMessage;
+    }
 
     public long getServerTime() {
         return serverTime;
@@ -383,6 +400,12 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             str = "[位置]";
         } else if (msg_type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {//阅后即焚
             str = "[零钱小助手消息]";
+        } else if (msg_type == ChatEnum.EMessageType.FILE) {//文件
+            str = "[文件]";
+        } else if (msg_type == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+            str = "[动态表情]";
+        } else if (msg_type == ChatEnum.EMessageType.WEB) {
+            str = "[链接]" + getWebMessage().getTitle();
         } else if (msg_type == ChatEnum.EMessageType.TRANSFER_NOTICE) {//转账提醒消息
             str = "你有一笔等待收款的转账";
         }
@@ -590,6 +613,13 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     layout = ChatEnum.EChatCellLayout.IMAGE_SEND;
                 } else {
                     layout = ChatEnum.EChatCellLayout.IMAGE_RECEIVED;
+                }
+                break;
+            case ChatEnum.EMessageType.MSG_VIDEO://视频
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.VIDEO_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.VIDEO_RECEIVED;
                 }
                 break;
             case ChatEnum.EMessageType.BUSINESS_CARD://名片

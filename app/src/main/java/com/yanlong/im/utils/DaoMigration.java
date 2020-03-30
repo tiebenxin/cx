@@ -100,6 +100,26 @@ public class DaoMigration implements RealmMigration {
                 updateV20(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 20) {
+                updateV21(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 21) {
+                updateV22(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 22) {
+                updateV23(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 23) {
+                updateV24(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 24) {
+                updateV25(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -359,6 +379,7 @@ public class DaoMigration implements RealmMigration {
 
     /**
      * 添加是否能领取零钱红包
+     *
      * @param schema
      */
     private void updateV18(RealmSchema schema) {
@@ -368,6 +389,7 @@ public class DaoMigration implements RealmMigration {
 
     /**
      * 添加动画表情
+     *
      * @param schema
      */
     private void updateV19(RealmSchema schema) {
@@ -380,11 +402,56 @@ public class DaoMigration implements RealmMigration {
     }
 
     //更新截屏通知开关
-    private void updateV20(RealmSchema schema){
+    private void updateV20(RealmSchema schema) {
         schema.get("UserInfo")
                 .addField("screenshotNotification", int.class);//单聊截屏通知
         schema.get("Group")
                 .addField("screenshotNotification", int.class);//群聊截屏通知
+    }
+
+    //文件消息类型 新建表
+    private void updateV21(RealmSchema schema) {
+        schema.create("SendFileMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("url", String.class)
+                .addField("file_name", String.class)
+                .addField("format", String.class)
+                .addField("size", long.class)
+                .addField("localPath", String.class);
+
+        schema.get("MsgAllBean")
+                .addRealmObjectField("sendFileMessage", schema.get("SendFileMessage"));
+    }
+
+    //文件消息类型 新建表
+    private void updateV22(RealmSchema schema) {
+        schema.create("WebMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("appName", String.class)
+                .addField("title", String.class)
+                .addField("description", String.class)
+                .addField("webUrl", String.class)
+                .addField("iconUrl", String.class);
+
+        schema.get("MsgAllBean")
+                .addRealmObjectField("webMessage", schema.get("WebMessage"));
+    }
+    private void updateV23(RealmSchema schema) {
+        schema.get("SendFileMessage")
+                .addField("isFromOther", boolean.class);
+    }
+    private void updateV24(RealmSchema schema) {
+        schema.get("SendFileMessage")
+                .addField("realFileRename", String.class);
+    }
+    private void updateV25(RealmSchema schema) {
+        schema.create("SessionDetail")
+                .addField("sid", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("name", String.class)
+                .addField("avatar", String.class)
+                .addField("avatarList", String.class)
+                .addField("senderName", String.class)
+                .addRealmObjectField("message", schema.get("MsgAllBean"));
     }
 
     @Override

@@ -9,6 +9,8 @@ import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.yanlong.im.user.bean.PhoneBean;
+
 import net.cb.cb.library.utils.CheckPermissionUtils;
 import net.cb.cb.library.utils.LogUtil;
 
@@ -48,7 +50,7 @@ public class PhoneListUtil {
             //获取联系人姓名
             String name = cursor.getString(cursor
                     .getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-            temp.phoneremark = name;
+            temp.setName(name);
 
             //获取联系人电话号码
             Cursor phoneCursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -57,7 +59,7 @@ public class PhoneListUtil {
                 String phone = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                 phone = phone.replace("-", "");
                 phone = phone.replace(" ", "");
-                temp.phone = phone;
+                temp.setPhone(phone);
             }
 
             //获取联系人备注信息
@@ -168,26 +170,6 @@ public class PhoneListUtil {
         }, activity.getApplicationContext(), permission, grantResults);
     }
 
-    public class PhoneBean {
-        private String phoneremark;
-        private String phone;
-
-        public String getName() {
-            return phoneremark;
-        }
-
-        public void setName(String phoneremark) {
-            this.phoneremark = phoneremark;
-        }
-
-        public String getPhone() {
-            return phone;
-        }
-
-        public void setPhone(String phone) {
-            this.phone = phone;
-        }
-    }
 
     public interface Event {
         void onList(List<PhoneBean> list);

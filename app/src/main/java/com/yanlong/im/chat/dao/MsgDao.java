@@ -53,6 +53,7 @@ import java.util.UUID;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -618,29 +619,6 @@ public class MsgDao {
         }
     }
 
-//    private void deleteRealmMsg(MsgAllBean msg) {
-//        if (msg.getReceive_red_envelope() != null)
-//            msg.getReceive_red_envelope().deleteFromRealm();
-//        if (msg.getMsgNotice() != null)
-//            msg.getMsgNotice().deleteFromRealm();
-//        if (msg.getBusiness_card() != null)
-//            msg.getBusiness_card().deleteFromRealm();
-//        if (msg.getStamp() != null)
-//            msg.getStamp().deleteFromRealm();
-//        if (msg.getChat() != null)
-//            msg.getChat().deleteFromRealm();
-//        if (msg.getImage() != null)
-//            msg.getImage().deleteFromRealm();
-//        if (msg.getRed_envelope() != null)
-//            msg.getRed_envelope().deleteFromRealm();
-//        if (msg.getTransfer() != null)
-//            msg.getTransfer().deleteFromRealm();
-//        if (msg.getMsgCancel() != null)
-//            msg.getMsgCancel().deleteFromRealm();
-//        if (msg.getVoiceMessage() != null)
-//            msg.getVoiceMessage().deleteFromRealm();
-//    }
-
 
     /**
      * 撤回消息
@@ -648,7 +626,8 @@ public class MsgDao {
      * @param msgid       消息ID
      * @param msgCancelId
      */
-    public void msgDel4Cancel(String msgid, String msgCancelId) {
+    public MsgAllBean msgDel4Cancel(String msgid, String msgCancelId) {
+        MsgAllBean msgAllBean = null;
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -659,7 +638,7 @@ public class MsgDao {
             if (cancel == null && list != null && list.size() > 0) {
                 MsgAllBean bean = list.get(0);
                 if (TextUtils.isEmpty(bean.getMsg_id())) {
-                    return;
+                    return null;
                 }
 
                 cancel = new MsgAllBean();
@@ -690,8 +669,9 @@ public class MsgDao {
                 }
                 list.deleteAllFromRealm();
             }
-
-
+            if (cancel != null) {
+                msgAllBean = realm.copyFromRealm(cancel);
+            }
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
@@ -699,6 +679,7 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
+        return msgAllBean;
     }
 
 
@@ -1920,6 +1901,7 @@ public class MsgDao {
                 if (envelopeMessage.getIsInvalid() == 0) {//没拆才更新，已经拆过了不更新
                     envelopeMessage.setIsInvalid(envelopeStatus != PayEnum.EEnvelopeStatus.NORMAL ? 1 : 0);
                 }
+                envelopeMessage.setEnvelopStatus(envelopeStatus);
                 realm.insertOrUpdate(envelopeMessage);
             }
             realm.commitTransaction();
@@ -3148,7 +3130,9 @@ public class MsgDao {
         if (time <= 0) {
             time = System.currentTimeMillis();
         }
+        //超过10分钟未领取，且未超过24小时
         long diff = TimeToString.DAY;
+        long ten = TimeToString.MINUTE * 10;
         try {
             List<MsgAllBean> msgAllBeans = new ArrayList<>();
             RealmResults<RedEnvelopeMessage> envelopeList = realm.where(RedEnvelopeMessage.class)
@@ -3163,6 +3147,8 @@ public class MsgDao {
                     .beginGroup().isNotNull("red_envelope").endGroup()
                     .and()
                     .beginGroup().greaterThan("timestamp", time - diff).endGroup()
+                    .and()
+                    .beginGroup().lessThan("timestamp", time - ten).endGroup()
                     .sort("timestamp")
                     .findAll();
             if (realmResults != null && envelopeList != null) {
@@ -3252,6 +3238,28 @@ public class MsgDao {
             msg.getMsgCancel().deleteFromRealm();
         if (msg.getVoiceMessage() != null)
             msg.getVoiceMessage().deleteFromRealm();
+        if (msg.getAtMessage() != null)
+            msg.getAtMessage().deleteFromRealm();
+        if (msg.getAssistantMessage() != null)
+            msg.getAssistantMessage().deleteFromRealm();
+        if (msg.getChangeSurvivalTimeMessage() != null)
+            msg.getChangeSurvivalTimeMessage().deleteFromRealm();
+        if (msg.getP2PAuVideoDialMessage() != null)
+            msg.getP2PAuVideoDialMessage().deleteFromRealm();
+        if (msg.getP2PAuVideoMessage() != null)
+            msg.getP2PAuVideoMessage().deleteFromRealm();
+        if (msg.getBalanceAssistantMessage() != null)
+            msg.getBalanceAssistantMessage().deleteFromRealm();
+        if (msg.getLocationMessage() != null)
+            msg.getLocationMessage().deleteFromRealm();
+        if (msg.getTransferNoticeMessage() != null)
+            msg.getTransferNoticeMessage().deleteFromRealm();
+        if (msg.getShippedExpressionMessage() != null)
+            msg.getShippedExpressionMessage().deleteFromRealm();
+        if (msg.getSendFileMessage() != null)
+            msg.getSendFileMessage().deleteFromRealm();
+        if (msg.getWebMessage() != null)
+            msg.getWebMessage().deleteFromRealm();
     }
 
     //判断当前用户是否群主或者群管理员
@@ -3279,6 +3287,93 @@ public class MsgDao {
             DaoUtil.reportException(e);
         }
         return result;
+    }
+
+    //3天以内的消息
+    public List<MsgAllBean> getMsgIn3Day() {
+        List<MsgAllBean> list = new ArrayList<>();
+        Realm realm = DaoUtil.open();
+        long time = SocketData.getFixTime() - TimeToString.DAY * 3;
+        try {
+            //群聊消息,1000
+            RealmResults<MsgAllBean> groupMsgs = realm.where(MsgAllBean.class)
+                    .beginGroup().isNotEmpty("gid").and().isNotNull("gid").endGroup()
+                    .and()
+                    .beginGroup().greaterThan("timestamp", time).endGroup()
+                    .limit(1000)
+                    .sort("timestamp", Sort.DESCENDING)
+                    .findAll();
+            //单聊消息,3000
+            RealmResults<MsgAllBean> privateMsgs = realm.where(MsgAllBean.class)
+                    .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup().greaterThan("timestamp", time).endGroup()
+                    .limit(3000)
+                    .sort("timestamp", Sort.DESCENDING)
+                    .findAll();
+
+            //TODO：无法控制单聊和群聊数据长度
+//            RealmResults<MsgAllBean> totalMsgs = realm.where(MsgAllBean.class)
+//                    //群聊
+//                    .beginGroup()
+//                    .beginGroup().isNotEmpty("gid").and().isNotNull("gid").endGroup()
+//                    .and()
+//                    .beginGroup().greaterThan("timestamp", time).endGroup()
+//                    .and()
+//                    .endGroup()
+//                    .or()
+//                    //单聊
+//                    .beginGroup()
+//                    .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
+//                    .and()
+//                    .beginGroup().greaterThan("timestamp", time).endGroup()
+//                    .and()
+//                    .endGroup()
+//                    .limit(1000)
+//                    .sort("timestamp", Sort.DESCENDING)
+//                    .findAll();
+
+            RealmList<MsgAllBean> results = new RealmList<>();
+            if (groupMsgs != null) {
+                results.addAll(groupMsgs);
+            }
+            if (privateMsgs != null) {
+                results.addAll(privateMsgs);
+            }
+
+//            if (totalMsgs != null) {
+//
+//            }
+//            results.sort("timestamp", Sort.DESCENDING);
+            list = realm.copyFromRealm(results);
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return list;
+
+    }
+
+    //更新新的群邀请
+    public void updateNewApply(String gid, long inviter, int status) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            ApplyBean bean = realm.where(ApplyBean.class)
+                    .beginGroup().equalTo("gid", gid).endGroup()
+                    .and()
+                    .beginGroup().equalTo("uid", inviter).endGroup()
+                    .findFirst();
+            if (bean != null && bean.getStat() == 1) {
+                bean.setStat(status);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
     }
 
 }

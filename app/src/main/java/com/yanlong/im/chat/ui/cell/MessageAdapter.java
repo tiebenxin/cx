@@ -28,6 +28,9 @@ public class MessageAdapter extends RecyclerView.Adapter {
     private final boolean isGroup;//是否群聊
 
     private Map<Integer, View> viewMap = new HashMap<>();
+    private boolean isShowCheckBox;
+    private int unreadCount;
+
 
     public MessageAdapter(Context c, ICellEventListener l, boolean isG) {
         context = c;
@@ -42,7 +45,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         return this;
     }
 
-    public void bindData(List<MsgAllBean> list) {
+    public void bindData(List<MsgAllBean> list, boolean isMore) {
 //        if (mList == null) {
 //            mList = list;
 //        } else {
@@ -52,7 +55,12 @@ public class MessageAdapter extends RecyclerView.Adapter {
 //            mList.addAll(0, list);
 //            mList = list;
 //        }
-        mList = list;
+        if (isMore) {
+            mList.addAll(0, list);
+        } else {
+            mList = list;
+
+        }
         this.notifyDataSetChanged();
     }
 
@@ -91,13 +99,12 @@ public class MessageAdapter extends RecyclerView.Adapter {
             } else if (msg.getMsg_type() == ChatEnum.EMessageType.VOICE) {
                 ChatCellVoice voiceCell = (ChatCellVoice) viewHolder;
                 voiceCell.updateVoice();
-            } else if(msg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO){
-                ChatCellVideo videoCell=(ChatCellVideo) viewHolder;
+            } else if (msg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                ChatCellVideo videoCell = (ChatCellVideo) viewHolder;
                 videoCell.updateMessage(msg);
                 int progress = UpLoadService.getProgress(msg.getMsg_id());
                 videoCell.updateProgress(msg.getSend_state(), progress);
-            }
-            else {
+            } else {
                 onBindViewHolder(viewHolder, position);
             }
         }
@@ -141,6 +148,36 @@ public class MessageAdapter extends RecyclerView.Adapter {
             return viewMap.get(position);
         }
         return null;
+    }
+
+    public void addMessage(MsgAllBean msg) {
+        if (mList == null) {
+            mList = new ArrayList<>();
+        }
+        mList.add(msg);
+    }
+
+    public void addMessageList(List<MsgAllBean> msg) {
+        if (mList == null) {
+            mList = new ArrayList<>();
+        }
+        mList.addAll(msg);
+    }
+
+    public void setUnreadCount(int position) {
+        unreadCount = position;
+    }
+
+
+    public void showCheckBox(boolean flag, boolean update) {
+        isShowCheckBox = flag;
+        if (update) {
+            notifyDataSetChanged();
+        }
+    }
+
+    public boolean isShowCheckBox() {
+        return isShowCheckBox;
     }
 
 }

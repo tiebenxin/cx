@@ -20,12 +20,14 @@ import android.widget.TextView;
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.eventbus.IdentifyUserEvent;
+import com.hm.cxpay.dailog.ChangeSelectDialog;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.identification.IdentificationUserActivity;
+import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.ui.payword.SetPaywordActivity;
 
 import net.cb.cb.library.utils.CheckUtil;
@@ -57,6 +59,9 @@ public class BindPhoneNumActivity extends AppActivity {
     private EditText etCode;//验证码输入框
     private TextView tvGetCode;//点击获取验证码
     private TextView tvSubmit;
+    private ChangeSelectDialog.Builder builder;
+    private ChangeSelectDialog dialogOne;//通用提示选择弹框：确认是否退出
+
     private boolean hadPhoneNum = false;//是否存在手机号码  若存在则取已存在的值，若不存在手机号则取输入框的值
 
     private Context activity;
@@ -86,6 +91,7 @@ public class BindPhoneNumActivity extends AppActivity {
         if(getIntent()!=null){
             fromShop = getIntent().getStringExtra("from_shop");
         }
+        builder = new ChangeSelectDialog.Builder(activity);
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -256,45 +262,26 @@ public class BindPhoneNumActivity extends AppActivity {
      * 确认是否退出弹框
      */
     private void showExitDialog(){
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
-        dialogBuilder.setCancelable(false);
-        final AlertDialog dialog = dialogBuilder.create();
-        //获取界面
-        View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_if_exit, null);
-        //初始化控件
-        TextView tvKeepOn = dialogView.findViewById(R.id.tv_keep_on);
-        TextView tvExit = dialogView.findViewById(R.id.tv_exit);
-        //继续认证
-        tvKeepOn.setOnClickListener(new android.view.View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
-        //退出
-        tvExit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                finish();
-            }
-        });
-        //展示界面
-        dialog.show();
-        //解决圆角shape背景无效问题
-        Window window = dialog.getWindow();
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //相关配置
-        WindowManager.LayoutParams lp = window.getAttributes();
-        window.setGravity(Gravity.CENTER);
-        WindowManager manager = window.getWindowManager();
-        DisplayMetrics metrics = new DisplayMetrics();
-        manager.getDefaultDisplay().getMetrics(metrics);
-        //设置宽高，高度自适应，宽度屏幕0.8
-        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels*0.8);
-        dialog.getWindow().setAttributes(lp);
-        dialog.setContentView(dialogView);
+        dialogOne = builder.setTitle("需要验证手机号码，才能完成实名认证，\n是否继续实名认证?")
+                .setLeftText("退出")
+                .setRightText("继续实名认证")
+                .setLeftOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //退出
+                        dialogOne.dismiss();
+                        finish();
+                    }
+                })
+                .setRightOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //继续认证
+                        dialogOne.dismiss();
+                    }
+                })
+                .build();
+        dialogOne.show();
     }
 
 

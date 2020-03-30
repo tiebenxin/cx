@@ -1,5 +1,6 @@
 package com.yanlong.im;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
@@ -8,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -18,6 +20,9 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.baidu.location.BDAbstractLocationListener;
+import com.baidu.location.BDLocation;
+import com.baidu.location.LocationClientOption;
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
@@ -32,6 +37,8 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.utils.DateUtils;
+import com.jrmf360.tools.utils.ThreadUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthService;
@@ -48,8 +55,10 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.task.TaskLoadSavedGroup;
 import com.yanlong.im.chat.ui.MsgMainFragment;
+import com.yanlong.im.location.LocationPersimmions;
+import com.yanlong.im.location.LocationService;
+import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.notify.NotifySettingDialog;
-import com.yanlong.im.shop.ShopFragemnt;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
 import com.yanlong.im.user.bean.NewVersionBean;
@@ -62,6 +71,7 @@ import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
 import com.yanlong.im.utils.BurnManager;
+import com.yanlong.im.utils.socket.ExecutorManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.update.UpdateManage;
@@ -79,6 +89,7 @@ import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
+import net.cb.cb.library.manager.FileManager;
 import net.cb.cb.library.manager.TokenManager;
 import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.net.NetworkReceiver;
@@ -93,6 +104,8 @@ import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.UpFileAction;
+import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
@@ -104,11 +117,21 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ThreadPoolExecutor;
 
-import cn.jpush.android.api.JPluginPlatformInterface;
 import cn.jpush.android.api.JPushInterface;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -128,6 +151,7 @@ public class MainActivity extends AppActivity {
     private StrikeButton sbmsg;
     private StrikeButton sbfriend;
     private StrikeButton sbme;
+    //    private StrikeButton sbshop;
     private NotifySettingDialog notifyDialog;
     private NetworkReceiver mNetworkReceiver;
     private MsgMainFragment mMsgMainFragment;
@@ -140,9 +164,14 @@ public class MainActivity extends AppActivity {
     private int mHour, mMin, mSecond;
     private EventFactory.VoiceMinimizeEvent mVoiceMinimizeEvent;
     private boolean isActivityStop;
+    //定位相关
+    private LocationService locService;
+    private BDAbstractLocationListener listener;
 
     private UserAction userAction = new UserAction();
     private boolean testMe = true;
+    private String lastPostLocationTime = "";//最近一次上传用户位置的时间
+    private boolean isCreate = false;
 
 
     @Override
@@ -152,18 +181,37 @@ public class MainActivity extends AppActivity {
         EventBus.getDefault().register(this);
         findViews();
         initEvent();
-        uploadApp();
-        getSurvivalTimeData();
-        checkRosters();
+        isCreate = true;
         doRegisterNetReceiver();
-        checkNeteaseLogin();
+
+    }
+
+    private void checkPermission() {
         SpUtil spUtil = SpUtil.getSpUtil();
         boolean isFist = spUtil.getSPValue(Preferences.IS_FIRST_DIALOG, false);
         if (!isFist) {
-            String brand = android.os.Build.BRAND;
+            String brand = Build.BRAND;
             brand = brand.toUpperCase();
             if (brand.contains("OPPO")) {
                 permissionCheck();
+            }
+        }
+    }
+
+
+    private void initLocation() {
+        lastPostLocationTime = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.POST_LOCATION_TIME).get4Json(String.class);
+        //无缓存则直接定位，记录本次上传位置的时间
+        if (TextUtils.isEmpty(lastPostLocationTime)) {
+            getLocation();
+        } else {
+            //有缓存则按需求规则，超过24小时再上报用户地理位置信息
+            try {
+                if (!DateUtils.judgmentDate(lastPostLocationTime, DateUtils.getNowFormatTime(), 24)) {
+                    getLocation();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
@@ -204,6 +252,16 @@ public class MainActivity extends AppActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        if (isCreate) {
+            LogUtil.getLog().i("MainActivity", "isCreate=" + isCreate);
+            uploadApp();
+            getSurvivalTimeData();
+            checkRosters();
+            checkNeteaseLogin();
+            checkPermission();
+            initLocation();
+//            getMsgToPC();
+        }
     }
 
     @Override
@@ -232,10 +290,10 @@ public class MainActivity extends AppActivity {
     //自动生成的控件事件
     private void initEvent() {
         mMsgMainFragment = MsgMainFragment.newInstance();
-        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), ShopFragemnt.newInstance(), MyFragment.newInstance()};
-        tabs = new String[]{"消息", "通讯录", "商城", "我"};
-        iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_shop, R.mipmap.ic_me};
-        iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_shop_h, R.mipmap.ic_me_h};
+        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), /*ShopFragemnt.newInstance(),*/ MyFragment.newInstance()};
+        tabs = new String[]{"消息", "通讯录", /*"商城", */"我"};
+        iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, /*R.mipmap.ic_shop,*/ R.mipmap.ic_me};
+        iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, /*R.mipmap.ic_shop_h,*/ R.mipmap.ic_me_h};
         viewPage.setOffscreenPageLimit(2);
         viewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -267,12 +325,12 @@ public class MainActivity extends AppActivity {
                     }
                 }
 
-                if (tab.getPosition() == 3) {
+                if (tab.getPosition() == EMainTab.ME) {
                     //每次点击检查新版泵
                     EventBus.getDefault().post(new EventCheckVersionBean());
                 }
                 // 同时点击导航栏跟气泡时，延迟关闭气泡
-                if (tab.getPosition() == 1 || tab.getPosition() == 3) {
+                if (tab.getPosition() == EMainTab.CONTACT || tab.getPosition() == EMainTab.ME) {
                     if (!isFinishing()) {
                         new Handler().postDelayed(new Runnable() {
                             @Override
@@ -301,24 +359,24 @@ public class MainActivity extends AppActivity {
             View rootView = getLayoutInflater().inflate(R.layout.tab_item, null);
             TextView txt = rootView.findViewById(R.id.txt);
             StrikeButton sb = rootView.findViewById(R.id.sb);
-            if (i == 3) {
+            /*if (i == EMainTab.SHOP) {
+                sb.setSktype(1);
+                //设置值
+                sb.setNum(0, true);
+//                sbshop = sb;
+            }*/
+            if (i == EMainTab.ME) {
                 sb.setSktype(1);
                 //设置值
                 sb.setNum(0, true);
                 sbme = sb;
             }
-            if (i == 2) {
-                sb.setSktype(1);
-                //设置值
-                sb.setNum(0, true);
-                sbme = sb;
-            }
-            if (i == 1) {
+            if (i == EMainTab.CONTACT) {
                 sb.setSktype(1);
                 sb.setNum(0, true);
                 sbfriend = sb;
             }
-            if (i == 0) {//消息数量
+            if (i == EMainTab.MSG) {//消息数量
                 sbmsg = sb;
             }
 
@@ -371,30 +429,27 @@ public class MainActivity extends AppActivity {
 
     //检测通讯录问题
     private void checkRosters() {
-//        //延时操作，等待数据库初始化
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-        try {
-            Intent intent = getIntent();
-            boolean isFromLogin = intent.getBooleanExtra(IS_LOGIN, false);
-            if (isFromLogin) {//从登陆页面过来，从网络获取最新数据
-                taskLoadFriends();
+        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Intent intent = getIntent();
+                    boolean isFromLogin = intent.getBooleanExtra(IS_LOGIN, false);
+                    if (isFromLogin) {//从登陆页面过来，从网络获取最新数据
+                        taskLoadFriends();
 //                    taskLoadSavedGroups();
-            } else {
-                UserDao userDao = new UserDao();
-                boolean hasInit = userDao.isRosterInit();
-                if (!hasInit) {//未初始化，初始化本地通讯录
-                    taskLoadFriends();
+                    } else {
+                        UserDao userDao = new UserDao();
+                        boolean hasInit = userDao.isRosterInit();
+                        if (!hasInit) {//未初始化，初始化本地通讯录
+                            taskLoadFriends();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-//            }
-//        }, 1000);
-
+        });
     }
 
     private void taskLoadSavedGroups() {
@@ -430,14 +485,15 @@ public class MainActivity extends AppActivity {
         super.onStop();
         updateNetStatus();
         isActivityStop = true;
+        isCreate = false;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == JPluginPlatformInterface.JPLUGIN_REQUEST_CODE) {
-
-        }
+//        if (requestCode == JPluginPlatformInterface.JPLUGIN_REQUEST_CODE) {
+//
+//        }
     }
 
     private void updateNetStatus() {
@@ -460,6 +516,13 @@ public class MainActivity extends AppActivity {
         mHandler.removeCallbacks(runnable);
         BurnManager.getInstance().cancel();
         super.onDestroy();
+        // 在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
+        if (listener != null) {
+            locService.unregisterListener(listener);
+        }
+        if (locService != null) {
+            locService.stop();
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -799,7 +862,7 @@ public class MainActivity extends AppActivity {
                     UpdateManage updateManage = new UpdateManage(context, MainActivity.this);
                     //强制更新
                     if (response.body().getData().getForceUpdate() != 0) {
-                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
+                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
                     } else {
                         //缓存最新版本
                         SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
@@ -808,9 +871,9 @@ public class MainActivity extends AppActivity {
                         preferencesUtil.save2Json(versionBean);
                         //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
                         if (VersionUtil.isBigVersion(context, bean.getVersion())) {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
                         } else {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
                         }
                         //如有新版本，首页底部提示红点
                         if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
@@ -920,21 +983,22 @@ public class MainActivity extends AppActivity {
 
     private void getSurvivalTimeData() {
         //延时操作，等待数据库初始化
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-        try {
-            //子线程延时 等待myapplication初始化完成
-            //查询所有阅后即焚消息加入定时器
-            List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
-            if (list != null && list.size() > 0) {
-                BurnManager.getInstance().addMsgAllBeans(list);
+        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    //子线程延时 等待myapplication初始化完成
+                    //查询所有阅后即焚消息加入定时器
+                    List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
+                    if (list != null && list.size() > 0) {
+                        BurnManager.getInstance().addMsgAllBeans(list);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-//            }
-//        }, 1000);
+        });
+
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
@@ -978,7 +1042,7 @@ public class MainActivity extends AppActivity {
     public void posting(CanStampEvent event) {
         if (!isFinishing()) {
             //允许
-            MessageManager.setCanStamp(event.canStamp);
+            MessageManager.getInstance().setCanStamp(event.canStamp);
         }
     }
 
@@ -986,7 +1050,7 @@ public class MainActivity extends AppActivity {
     public void posting(CanStampEventWX event) {
         if (!isFinishing()) {
             //允许
-            MessageManager.setCanStamp(event.canStamp);
+            MessageManager.getInstance().setCanStamp(event.canStamp);
         }
     }
 
@@ -1054,5 +1118,163 @@ public class MainActivity extends AppActivity {
                     public void onHandleError(BaseResponse<UserBean> baseResponse) {
                     }
                 });
+    }
+
+    /*
+     *from
+     * */
+    @IntDef({EMainTab.MSG, EMainTab.CONTACT, /*EMainTab.SHOP,*/ EMainTab.ME})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EMainTab {
+        int MSG = 0; // 消息界面
+        int CONTACT = 1; // 好友界面
+        //        int SHOP = 2; // 商城界面
+        int ME = 2; // 我的界面
+    }
+
+    /**
+     * 百度地图获取定位信息
+     */
+    private void getLocation() {
+        if (!LocationPersimmions.checkPermissions(this)) {
+            return;
+        }
+        if (!LocationUtils.isLocationEnabled(this)) {
+            ToastUtil.show("请打开定位服务");
+            return;
+        }
+        locService = ((MyAppLication) getApplication()).locationService;
+        LocationClientOption mOption = locService.getDefaultLocationClientOption();
+        mOption.setLocationMode(LocationClientOption.LocationMode.Battery_Saving);
+        mOption.setCoorType("bd09ll");
+        locService.setLocationOption(mOption);
+        listener = new BDAbstractLocationListener() {
+            @Override
+            public void onReceiveLocation(BDLocation bdLocation) {
+
+                try {
+                    if (bdLocation != null && bdLocation.getPoiList() != null) {
+                        String city = bdLocation.getCity();
+                        String country = bdLocation.getCountry();
+                        String lat = bdLocation.getLatitude() + "";
+                        String lon = bdLocation.getLongitude() + "";
+                        locService.stop();//定位成功后停止定位
+                        //请求——>上报用户地理位置信息
+                        userAction.postLocation(city, country, lat, lon, new CallBack<ReturnBean>() {
+                            @Override
+                            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                                super.onResponse(call, response);
+                                if (response != null && response.body() != null && response.body().isOk()) {
+                                    LogUtil.getLog().i("TAG", "位置信息上报成功");
+                                    //缓存本次调用的时间，24小时以内只需要发一次请求
+                                    new SharedPreferencesUtil(SharedPreferencesUtil.SPName.POST_LOCATION_TIME).save2Json(DateUtils.getNowFormatTime());
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                                super.onFailure(call, t);
+                                LogUtil.getLog().i("TAG", "位置信息上报失败");
+                            }
+                        });
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        locService.registerListener(listener);
+        locService.start();
+    }
+
+    @SuppressLint("CheckResult")
+    private void getMsgToPC() {
+//        Observable.just(0)
+//                .map(new Function<Integer, List<MsgAllBean>>() {
+//                    @Override
+//                    public List<MsgAllBean> apply(Integer integer) throws Exception {
+//                        List<MsgAllBean> msgList = msgDao.getMsgIn3Day();
+//                        Collections.sort(msgList, new Comparator<MsgAllBean>() {
+//                            @Override
+//                            public int compare(MsgAllBean o1, MsgAllBean o2) {
+//                                if (o1 == null || o2 == null || o1.getTimestamp() == null || o2.getTimestamp() == null) {
+//                                    return -1;
+//                                }
+//                                if (o1.getTimestamp().longValue() > o2.getTimestamp().longValue()) {
+//                                    return 1;
+//                                } else if (o1.getTimestamp().longValue() < o2.getTimestamp().longValue()) {
+//                                    return -1;
+//                                } else {
+//                                    return 0;
+//                                }
+//                            }
+//                        });
+//                        return msgList;
+//                    }
+//                }).subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .onErrorResumeNext(Observable.<List<MsgAllBean>>empty())
+//                .subscribe(new Consumer<List<MsgAllBean>>() {
+//                    @Override
+//                    public void accept(List<MsgAllBean> list) throws Exception {
+//                        if (list != null) {
+//                            LogUtil.getLog().i("a==", list.size() + "");
+//                            MsgBean.UniversalMessage message = SocketData.createUniversalMessage(list);
+//                            if (message != null) {
+//                                byte[] bytes = message.toByteArray();
+//                            }
+//                        }
+//                    }
+//                });
+
+        ThreadUtil.getInstance().execute(new Runnable() {
+            @Override
+            public void run() {
+                List<MsgAllBean> msgList = msgDao.getMsgIn3Day();
+                Collections.sort(msgList, new Comparator<MsgAllBean>() {
+                    @Override
+                    public int compare(MsgAllBean o1, MsgAllBean o2) {
+                        if (o1 == null || o2 == null || o1.getTimestamp() == null || o2.getTimestamp() == null) {
+                            return -1;
+                        }
+                        if (o1.getTimestamp().longValue() > o2.getTimestamp().longValue()) {
+                            return 1;
+                        } else if (o1.getTimestamp().longValue() < o2.getTimestamp().longValue()) {
+                            return -1;
+                        } else {
+                            return 0;
+                        }
+                    }
+                });
+                MsgBean.UniversalMessage message = SocketData.createUniversalMessage(msgList);
+                if (message != null) {
+                    byte[] bytes = message.toByteArray();
+                    if (bytes != null) {
+                        File file = FileManager.getInstance().saveMsgFile(bytes);
+                        if (file != null) {
+                            UpFileAction upFileAction = new UpFileAction();
+                            upFileAction.upFile(UpFileAction.PATH.FILE, MainActivity.this, new UpFileUtil.OssUpCallback() {
+                                @Override
+                                public void success(String url) {
+                                    LogUtil.getLog().i("PC同步消息", "文件上传成功--" + url);
+                                }
+
+                                @Override
+                                public void fail() {
+                                    LogUtil.getLog().i("PC同步消息", "文件上传失败");
+                                }
+
+                                @Override
+                                public void inProgress(long progress, long zong) {
+
+                                }
+                            }, file.getAbsolutePath());
+                        }
+                    }
+                }
+
+            }
+        });
+
     }
 }

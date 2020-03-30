@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <com.mcxtzhang.swipemenulib.SwipeMenuLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <com.mcxtzhang.swipemenulib.SwipeMenuLayout
         android:id="@+id/swipeLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -34,14 +34,14 @@
 
                 <ImageView
                     style="@style/app_img_head"
-                    android:visibility="gone"
-                    android:layout_gravity="center|left" />
+                    android:layout_gravity="center|left"
+                    android:visibility="gone" />
 
                 <com.yanlong.im.wight.avatar.MultiImageView
                     android:id="@+id/img_head"
                     style="@style/app_img_head"
-                    android:background="@drawable/bg_head_gray_shape"
-                    android:layout_gravity="center|left"/>
+                    android:layout_gravity="center|left"
+                    android:background="@drawable/bg_head_gray_shape" />
 
                 <net.cb.cb.library.view.StrikeButton
                     android:id="@+id/sb"
@@ -86,21 +86,20 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     android:paddingRight="@dimen/app_margin_main">
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:orientation="horizontal"
+                        android:paddingTop="8dp">
 
                         <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="0dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:paddingTop="8dp"
                             android:orientation="horizontal">
 
                             <TextView
@@ -108,59 +107,143 @@
                                 style="@style/app_txt_title_2"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
-                                android:layout_weight="1"
-                                android:text="xxxx" />
+                                android:text="" />
 
                             <TextView
-                                android:visibility="gone"
                                 android:id="@+id/usertype_tv"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_margin="5dp"
-                                android:paddingTop="2dp"
-                                android:paddingBottom="2dp"
-                                android:paddingLeft="5dp"
-                                android:paddingRight="5dp"
                                 android:background="@drawable/shape_stroke_bule5"
-                                android:textSize="@dimen/font_size8"
+                                android:paddingLeft="5dp"
+                                android:paddingTop="2dp"
+                                android:paddingRight="5dp"
+                                android:paddingBottom="2dp"
+                                android:text="官方"
                                 android:textColor="@color/blue_title"
-                                android:text="官方" />
+                                android:textSize="@dimen/font_size8"
+                                android:visibility="gone" />
 
                         </LinearLayout>
-
-                        <net.cb.cb.library.view.EllipsizedTextView
-                            android:id="@+id/txt_info"
-                            style="@style/app_txt_content_1"
-                            android:layout_height="0dp"
-                            android:layout_gravity="center_vertical"
-                            android:layout_weight="1"
-                            android:fontFamily="normal"
-                            android:layout_width="match_parent"
-                            android:text="xxx" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/txt_time"
                             style="@style/app_txt_content_1"
-                            android:layout_marginTop="8dp"
-                            android:text="xxxx"
+                            android:layout_marginTop="0dp"
+                            android:text=""
                             android:textColor="@color/gray_400" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                        <net.cb.cb.library.view.EllipsizedTextView
+                            android:id="@+id/txt_info"
+                            style="@style/app_txt_content_1"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center_vertical"
+                            android:layout_weight="1"
+                            android:fontFamily="normal"
+                            android:text="" />
 
                         <ImageView
                             android:id="@+id/iv_disturb"
                             android:layout_width="12dp"
                             android:layout_height="12dp"
-                            android:layout_gravity="center_vertical|right"
-                            android:layout_marginTop="5dp"
+                            android:layout_gravity="right"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginTop="3dp"
                             android:src="@mipmap/ic_disturb" />
                     </LinearLayout>
                 </LinearLayout>
+
+                <!--                <LinearLayout-->
+                <!--                    android:layout_width="match_parent"-->
+                <!--                    android:layout_height="match_parent"-->
+                <!--                    android:layout_weight="1"-->
+                <!--                    android:orientation="horizontal"-->
+                <!--                    android:paddingRight="@dimen/app_margin_main">-->
+
+                <!--                    <LinearLayout-->
+                <!--                        android:layout_width="match_parent"-->
+                <!--                        android:layout_height="match_parent"-->
+                <!--                        android:layout_marginRight="@dimen/app_margin_item"-->
+                <!--                        android:layout_weight="1"-->
+                <!--                        android:background="@color/yellow_200"-->
+                <!--                        android:orientation="vertical">-->
+
+                <!--                        <LinearLayout-->
+                <!--                            android:layout_width="match_parent"-->
+                <!--                            android:layout_height="0dp"-->
+                <!--                            android:layout_weight="1"-->
+                <!--                            android:orientation="horizontal"-->
+                <!--                            android:paddingTop="8dp">-->
+
+                <!--                            <TextView-->
+                <!--                                android:id="@+id/txt_name"-->
+                <!--                                style="@style/app_txt_title_2"-->
+                <!--                                android:layout_height="wrap_content"-->
+                <!--                                android:layout_gravity="center_vertical"-->
+                <!--                                android:layout_weight="1"-->
+                <!--                                android:text="xxxx" />-->
+
+                <!--                            <TextView-->
+                <!--                                android:id="@+id/usertype_tv"-->
+                <!--                                android:layout_width="wrap_content"-->
+                <!--                                android:layout_height="wrap_content"-->
+                <!--                                android:layout_margin="5dp"-->
+                <!--                                android:background="@drawable/shape_stroke_bule5"-->
+                <!--                                android:paddingLeft="5dp"-->
+                <!--                                android:paddingTop="2dp"-->
+                <!--                                android:paddingRight="5dp"-->
+                <!--                                android:paddingBottom="2dp"-->
+                <!--                                android:text="官方"-->
+                <!--                                android:textColor="@color/blue_title"-->
+                <!--                                android:textSize="@dimen/font_size8"-->
+                <!--                                android:visibility="gone" />-->
+
+                <!--                        </LinearLayout>-->
+
+                <!--                        <net.cb.cb.library.view.EllipsizedTextView-->
+                <!--                            android:id="@+id/txt_info"-->
+                <!--                            style="@style/app_txt_content_1"-->
+                <!--                            android:layout_width="match_parent"-->
+                <!--                            android:layout_height="0dp"-->
+                <!--                            android:layout_gravity="center_vertical"-->
+                <!--                            android:layout_weight="1"-->
+                <!--                            android:background="@color/green_100"-->
+                <!--                            android:fontFamily="normal"-->
+                <!--                            android:text="" />-->
+
+                <!--                    </LinearLayout>-->
+
+                <!--                    <LinearLayout-->
+                <!--                        android:layout_width="wrap_content"-->
+                <!--                        android:layout_height="match_parent"-->
+                <!--                        android:orientation="vertical">-->
+
+                <!--                        <TextView-->
+                <!--                            android:id="@+id/txt_time"-->
+                <!--                            style="@style/app_txt_content_1"-->
+                <!--                            android:layout_marginTop="8dp"-->
+                <!--                            android:text="xxxx"-->
+                <!--                            android:textColor="@color/gray_400" />-->
+
+                <!--                        <ImageView-->
+                <!--                            android:id="@+id/iv_disturb"-->
+                <!--                            android:layout_width="12dp"-->
+                <!--                            android:layout_height="12dp"-->
+                <!--                            android:layout_gravity="center_vertical|right"-->
+                <!--                            android:layout_marginTop="5dp"-->
+                <!--                            android:src="@mipmap/ic_disturb" />-->
+                <!--                    </LinearLayout>-->
+                <!--                </LinearLayout> -->
 
                 <View style="@style/app_line" />
 

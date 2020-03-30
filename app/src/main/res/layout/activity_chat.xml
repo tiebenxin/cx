@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<net.cb.cb.library.view.HeadView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.yanlong.im.view.HeadView2 xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/headView"
     android:layout_width="match_parent"
+    android:fitsSystemWindows="false"
     android:layout_height="match_parent"
     app:headview_title="聊天">
 
@@ -59,58 +60,79 @@
                         android:gravity="center_vertical|bottom"
                         android:orientation="horizontal"
                         android:paddingLeft="@dimen/app_margin_main"
-                        android:paddingTop="8dp"
-                        android:paddingRight="@dimen/app_margin_main"
-                        android:paddingBottom="8dp">
+                        android:paddingRight="@dimen/app_margin_main">
 
                         <ImageView
                             android:id="@+id/btn_voice"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="6dp"
+                            android:layout_gravity="center_vertical"
                             android:src="@mipmap/ic_chat_vio" />
 
-                        <FrameLayout
+                        <android.support.constraint.ConstraintLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="@dimen/app_margin_item"
                             android:layout_marginRight="@dimen/app_margin_item"
                             android:layout_weight="1">
 
+                            <View
+                                android:id="@+id/edit_chat_shape"
+                                android:layout_width="0dip"
+                                android:layout_height="0dip"
+                                android:layout_marginTop="8dip"
+                                android:layout_marginBottom="8dip"
+                                android:background="@drawable/bg_edt_chat"
+                                app:layout_constraintBottom_toBottomOf="@+id/edit_chat"
+                                app:layout_constraintLeft_toLeftOf="@+id/edit_chat"
+                                app:layout_constraintRight_toRightOf="@+id/edit_chat"
+                                app:layout_constraintTop_toTopOf="@+id/edit_chat" />
+
                             <com.yanlong.im.view.CustomerEditText
                                 android:id="@+id/edit_chat"
                                 style="@style/app_txt_title_2"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:background="@drawable/bg_edt_chat"
                                 android:fontFamily="normal"
                                 android:maxLines="3"
                                 android:minHeight="34dp"
+                                android:paddingLeft="5dip"
+                                android:paddingTop="16dip"
+                                android:paddingRight="5dip"
+                                android:paddingBottom="16dip"
                                 android:singleLine="false"
-                                android:textSize="15sp" />
-
-                            <!--android:maxLength="200""-->
+                                android:textSize="15sp"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintLeft_toLeftOf="parent"
+                                app:layout_constraintRight_toRightOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
 
                             <Button
                                 android:id="@+id/txt_voice"
                                 style="@style/app_edt1"
+                                android:layout_width="0dip"
+                                android:layout_height="0dip"
                                 android:background="@drawable/bg_edt_chat"
                                 android:gravity="center"
                                 android:text="按住 说话"
-                                android:visibility="gone" />
-                        </FrameLayout>
+                                android:visibility="gone"
+                                app:layout_constraintBottom_toBottomOf="@+id/edit_chat_shape"
+                                app:layout_constraintLeft_toLeftOf="@+id/edit_chat_shape"
+                                app:layout_constraintRight_toRightOf="@+id/edit_chat_shape"
+                                app:layout_constraintTop_toTopOf="@+id/edit_chat_shape" />
+                        </android.support.constraint.ConstraintLayout>
 
                         <ImageView
                             android:id="@+id/btn_emj"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="6dp"
+                            android:layout_gravity="center_vertical"
                             android:src="@drawable/ic_lv_emoji" />
 
                         <FrameLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-
+                            android:layout_gravity="center_vertical"
                             android:layout_marginBottom="0dp">
 
                             <ImageView
@@ -118,7 +140,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginLeft="@dimen/app_margin_item"
-                                android:layout_marginBottom="8dp"
+
                                 android:src="@mipmap/ic_chat_fun" />
 
                             <Button
@@ -126,6 +148,7 @@
                                 style="@style/app_btn_green_s"
                                 android:layout_width="70dp"
                                 android:layout_height="37dp"
+                                android:layout_gravity="center_vertical"
                                 android:layout_marginLeft="8dp"
                                 android:text="发送"
                                 android:textSize="15sp"
@@ -143,7 +166,7 @@
                     <com.yanlong.im.view.function.ChatExtendMenuView
                         android:id="@+id/view_extend_menu"
                         android:layout_width="match_parent"
-                        android:layout_height="240dp"
+                        android:layout_height="@dimen/chat_fuction_panel_height"
                         android:paddingLeft="@dimen/app_margin_main"
                         android:paddingRight="@dimen/app_margin_main"
                         android:visibility="gone" />
@@ -152,7 +175,7 @@
                     <com.yanlong.im.view.face.FaceView
                         android:id="@+id/chat_view_faceview"
                         android:layout_width="match_parent"
-                        android:layout_height="240dp"
+                        android:layout_height="@dimen/chat_fuction_panel_height"
                         android:background="@null"
                         android:paddingTop="10dp"
                         android:visibility="gone" />
@@ -199,4 +222,4 @@
 
         </LinearLayout>
     </LinearLayout>
-</net.cb.cb.library.view.HeadView>
+</com.yanlong.im.view.HeadView2>

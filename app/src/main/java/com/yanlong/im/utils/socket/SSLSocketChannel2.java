@@ -181,7 +181,7 @@ public class SSLSocketChannel2 {
 
     }
 
-    public int write(ByteBuffer src) throws IOException {
+    public synchronized int write(ByteBuffer src) throws IOException {
         if (SSL == 4) {
             return sc.write(wrap(src));
         }

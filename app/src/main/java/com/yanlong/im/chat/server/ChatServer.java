@@ -1,15 +1,11 @@
 package com.yanlong.im.chat.server;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -17,11 +13,8 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
-import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,23 +25,25 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ChatServer extends Service {
     private static final String TAG = "ChatServer";
     private MsgDao msgDao = new MsgDao();
+    boolean canDestroy = true;
+    private boolean isRuning = false;
+
 
     //撤回消息
-    private static Map<String, MsgAllBean> cancelList = new ConcurrentHashMap<>();
+//    private static Map<String, MsgAllBean> cancelList = new ConcurrentHashMap<>();
 
-    public static Map<String, MsgAllBean> getCancelList() {
-        return cancelList;
-    }
+//    public static Map<String, MsgAllBean> getCancelList() {
+//        return cancelList;
+//    }
 
     /***
      * 添加测试消息
      * @param msg_id 返回的消息id
      * @param msgBean 要撤回的消息
      */
-    public static void addCanceLsit(String msg_id, MsgAllBean msgBean) {
-        cancelList.put(msg_id, msgBean);
-    }
-
+//    public static void addCanceLsit(String msg_id, MsgAllBean msgBean) {
+//        cancelList.put(msg_id, msgBean);
+//    }
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -62,18 +57,16 @@ public class ChatServer extends Service {
 
         @Override
         public void onACK(MsgBean.AckMessage bean) {
-
-            for (String msgid : bean.getMsgIdList()) {
-                //处理撤回消息
-                if (cancelList.containsKey(msgid)) {
-                    MsgAllBean msgAllBean = cancelList.get(msgid);
-                    msgDao.msgDel4Cancel(msgid, msgAllBean.getMsgCancel().getMsgidCancel());
-
-                    LogUtil.getLog().i(TAG, "onACK: 收到取消回执,手动刷新列表");
-                    EventBus.getDefault().post(new EventRefreshChat());
-                    cancelList.remove(msgid);
-                }
-            }
+//            for (String msgid : bean.getMsgIdList()) {
+//                //处理撤回消息
+//                if (cancelList.containsKey(msgid)) {
+//                    MsgAllBean msgAllBean = cancelList.get(msgid);
+//                    msgDao.msgDel4Cancel(msgid, msgAllBean.getMsgCancel().getMsgidCancel());
+//                    LogUtil.getLog().i(TAG, "onACK: 收到取消回执,手动刷新列表");
+//                    EventBus.getDefault().post(new EventRefreshChat());
+//                    cancelList.remove(msgid);
+//                }
+//            }
         }
 
         @Override
@@ -87,21 +80,21 @@ public class ChatServer extends Service {
 
         @Override
         public void onLine(boolean state) {
-
+            //连接成功后才可以
+            if (state) {
+                LogUtil.getLog().i(TAG, "在线状态改变--" + state);
+                canDestroy = true;
+            }
         }
     };
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-
         LogUtil.getLog().e(TAG, ">>>启动socket,服务已经开启-----------------------------------");
-
+        isRuning = true;
         taskFixSendstate();
-
         SocketUtil.getSocketUtil().startSocket();
-
-
+        canDestroy = false;
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -114,10 +107,14 @@ public class ChatServer extends Service {
 
     @Override
     public void onDestroy() {
+        unregisterReceiver(mNetworkChangeReceiver);
+        if (!canDestroy) {
+            return;
+        }
+        isRuning = false;
         super.onDestroy();
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         SocketUtil.getSocketUtil().endSocket();
-        unregisterReceiver(mNetworkChangeReceiver);
         LogUtil.getLog().e(TAG, ">>>>>网路状态取消,服务已经关闭-----------------------------------");
     }
 
@@ -146,7 +143,9 @@ public class ChatServer extends Service {
             public void onReceive(Context context, Intent intent) {
                 LogUtil.getLog().d(TAG, ">>>>>网路状态改变" + NetUtil.isNetworkConnected());
                 if (NetUtil.isNetworkConnected()) {//链接成功
-                    onStartCommand(null, 0, 0);
+                    if (!isRuning) {
+                        onStartCommand(null, 0, 0);
+                    }
                 } else {//链接失败
                     SocketUtil.getSocketUtil().stop(true);
 

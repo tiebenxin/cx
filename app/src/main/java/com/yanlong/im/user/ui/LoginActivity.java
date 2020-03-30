@@ -1,30 +1,42 @@
 package com.yanlong.im.user.ui;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PasswordTextWather;
 
+import net.cb.cb.library.BuildConfig;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.constant.AppHostUtil;
 import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.SoftKeyBoardListener;
+import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AlertYesNo;
@@ -49,6 +61,15 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
     private String[] strings = {"切换账号", "注册", "取消"};
     private String phone;
     private int count = 0;
+    //记录软键盘高度
+    private String KEY_BOARD = "keyboard_setting";
+    //软键盘高度
+    private int mKeyboardHeight = 0;
+    private LinearLayout llIP;
+    private TextView tvIP, tvIPName;
+    private Spinner spinner;
+    private long[] mHits;
+    private boolean isShowIPSelector;//是否显示ip选择器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +90,67 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         mTvForgetPassword = findViewById(R.id.tv_forget_password);
         mTvMore = findViewById(R.id.tv_more);
 
+        llIP = findViewById(R.id.ll_ip);
+        tvIP = findViewById(R.id.tv_ip);
+        tvIPName = findViewById(R.id.tv_ip_name);
+        spinner = findViewById(R.id.spinner);
+        if (BuildConfig.BUILD_TYPE.equals("debug") || BuildConfig.BUILD_TYPE.equals("pre")) {
+            initSpinner();
+            SpUtil spUtil = SpUtil.getSpUtil();
+            isShowIPSelector = spUtil.getSPValue("isConfigIP", false);
+            showIPUI();
+        } else {
+            llIP.setVisibility(View.GONE);
+        }
+    }
+
+    private void initSpinner() {
+        final String[] spinnerItems = {"测试服", "预发布服", "生产服"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.item_text, spinnerItems);
+        spinner.setAdapter(adapter);
+        spinner.setSelection(0, true);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                SpUtil spUtil = SpUtil.getSpUtil();
+                int type = position + 1;
+                spUtil.putSPValue("ipType", type);
+                switchService(type);
+                showIPUI();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    private void switchService(@ChatEnum.EServiceType int type) {
+        String host;
+        switch (type) {
+            case ChatEnum.EServiceType.DEBUG:
+                host = BuildConfig.HOST_DEV;
+                break;
+            case ChatEnum.EServiceType.BETA:
+                host = BuildConfig.HOST_PRE;
+                break;
+            case ChatEnum.EServiceType.RELEASE:
+                host = BuildConfig.HOST_RELEASE;
+                break;
+            default:
+                host = BuildConfig.API_HOST;
+                break;
+        }
+        AppHostUtil.setHostUrl(host);
+    }
+
+    private void showIPUI() {
+        llIP.setVisibility(isShowIPSelector ? View.VISIBLE : View.GONE);
+        if (isShowIPSelector) {
+            tvIPName.setText(getServiceName());
+            tvIP.setText(AppHostUtil.getTcpHost());
+        }
     }
 
 
@@ -90,6 +172,34 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                 login();
             }
         });
+        //处理键盘
+        SoftKeyBoardListener kbLinst = new SoftKeyBoardListener(this);
+        kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
+            @Override
+            public void keyBoardShow(int h) {
+                int maxHeigh = getResources().getDimensionPixelSize(R.dimen.chat_fuction_panel_max_height);
+                //每次保存软键盘的高度
+                if (mKeyboardHeight != h && h <= maxHeigh) {
+                    SharedPreferences sharedPreferences = getSharedPreferences(KEY_BOARD, Context.MODE_PRIVATE);
+                    sharedPreferences.edit().putInt(KEY_BOARD, h).apply();
+                    mKeyboardHeight = h;
+                }
+            }
+
+            @Override
+            public void keyBoardHide(int h) {
+            }
+        });
+
+        //点击头像五次
+        if (BuildConfig.BUILD_TYPE.equals("debug") || BuildConfig.BUILD_TYPE.equals("pre")) {
+            mImgHead.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onDisplaySettingButton();
+                }
+            });
+        }
     }
 
     private void initData() {
@@ -97,8 +207,8 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         String imageHead = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).get4Json(String.class);
 
         String imid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).get4Json(String.class);
-        if(StringUtil.isNotNull(imid)){
-            phone=imid;
+        if (StringUtil.isNotNull(imid)) {
+            phone = imid;
         }
         mTvPhoneNumber.setText(phone);
         Glide.with(this).load(imageHead).apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
@@ -191,7 +301,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
 
             @Override
             public void onMain() {
-                UserAction userAction=new UserAction();
+                UserAction userAction = new UserAction();
                 if (CheckUtil.isMobileNO(phone)) {
                     userAction.login(phone, password, devId, new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
                         @Override
@@ -214,6 +324,9 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                                     initDialog();
                                 }
                                 count += 1;
+                            }
+                            if (response.body().getCode().longValue() == 10004) {//账号未注册
+                                ToastUtil.show(getContext(), response.body().getMsg());
                             } else {
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             }
@@ -225,7 +338,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                             LogUtil.getLog().i("youmeng", "LoginActivity------->login-------->onFail");
                         }
                     });
-                }else {
+                } else {
                     userAction.login4Imid(phone, password, devId, new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
 
                         @Override
@@ -248,6 +361,9 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                                     initDialog();
                                 }
                                 count += 1;
+                            }
+                            if (response.body().getCode().longValue() == 10004) {//账号不存在
+                                ToastUtil.show(getContext(), response.body().getMsg());
                             } else {
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             }
@@ -263,6 +379,47 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
 
             }
         }).run();
+    }
+
+    private String getServiceName() {
+        SpUtil spUtil = SpUtil.getSpUtil();
+        int type = spUtil.getSPValue("ipType", ChatEnum.EServiceType.DEFAULT);
+        if (type == ChatEnum.EServiceType.DEFAULT) {
+            switch (BuildConfig.BUILD_TYPE) {
+                case "debug":
+                    return "测试服";
+                case "pre":
+                    return "预发布服";
+                case "release":
+                    return "生产服";
+            }
+        } else {
+            switchService(type);
+            switch (type) {
+                case ChatEnum.EServiceType.DEBUG:
+                    return "测试服";
+                case ChatEnum.EServiceType.BETA:
+                    return "预发布服";
+                case ChatEnum.EServiceType.RELEASE:
+                    return "生产服";
+            }
+        }
+        return "";
+    }
+
+    public void onDisplaySettingButton() {
+        if (mHits == null) {
+            mHits = new long[5];
+        }
+        System.arraycopy(mHits, 1, mHits, 0, mHits.length - 1);//把从第二位至最后一位之间的数字复制到第一位至倒数第一位
+        mHits[mHits.length - 1] = SystemClock.uptimeMillis();//记录一个时间
+        if (SystemClock.uptimeMillis() - mHits[0] <= 1000) {//一秒内连续点击。
+            mHits = null;    //这里说明一下，我们在进来以后需要还原状态，否则如果点击过快，第六次，第七次 都会不断进来触发该效果。重新开始计数即可
+            isShowIPSelector = !isShowIPSelector;
+            showIPUI();
+            SpUtil spUtil = SpUtil.getSpUtil();
+            spUtil.putSPValue("isConfigIP", isShowIPSelector);
+        }
     }
 }
 

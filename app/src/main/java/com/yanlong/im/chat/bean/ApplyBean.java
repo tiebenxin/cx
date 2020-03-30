@@ -1,5 +1,9 @@
 package com.yanlong.im.chat.bean;
 
+import android.text.TextUtils;
+
+import androidx.annotation.Nullable;
+
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.StringUtil;
 
@@ -17,7 +21,7 @@ public class ApplyBean extends RealmObject {
     private String aid;//主键
 
     @CoreEnum.EChatType
-    private int chatType=0;//申请类似 个人 进群
+    private int chatType = 0;//申请类似 个人 进群
 
     //个人
     private long uid; //
@@ -25,7 +29,7 @@ public class ApplyBean extends RealmObject {
     private String alias;   //好友备注
     private String avatar; // 头像
     private String sayHi;// 申请说明
-    private int stat=1; //好友状态 或 群状态 1申请 2同意 3拒绝 即隐藏删除
+    private int stat = 1; //好友状态 或 群状态 1申请 2同意 3拒绝 即隐藏删除
 
     //群
     private String gid; // 群gid
@@ -34,8 +38,6 @@ public class ApplyBean extends RealmObject {
     private long inviter; // 被要求人 id
     private String inviterName; // 邀请人昵称
     private long time; //
-
-
 
 
     public String getInviterName() {
@@ -71,16 +73,14 @@ public class ApplyBean extends RealmObject {
     }
 
 
-
     public String getGroupName() {
-        groupName=groupName==null?"":groupName;
+        groupName = groupName == null ? "" : groupName;
         return groupName;
     }
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
     }
-
 
 
     public String getAid() {
@@ -155,6 +155,22 @@ public class ApplyBean extends RealmObject {
         this.avatar = avatar;
     }
 
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof ApplyBean) {
+            ApplyBean objBean = (ApplyBean) obj;
+            if (TextUtils.isEmpty(aid) || TextUtils.isEmpty(objBean.getAid())) {
+                return false;
+            }
+            if (aid.equals(objBean.getAid())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     public String toString() {

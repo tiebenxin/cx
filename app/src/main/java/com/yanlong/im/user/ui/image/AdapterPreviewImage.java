@@ -491,7 +491,11 @@ public class AdapterPreviewImage extends PagerAdapter {
     private void showViewOrigin(boolean isHttp, boolean isOrigin, boolean hasRead, TextView tvViewOrigin, long size) {
         if (isHttp && isOrigin && !hasRead) {
             tvViewOrigin.setVisibility(View.VISIBLE);
-            tvViewOrigin.setText("查看原图(" + ImgSizeUtil.formatFileSize(size) + ")");
+            if (size > 0) {
+                tvViewOrigin.setText("查看原图(" + ImgSizeUtil.formatFileSize(size) + ")");
+            } else {
+                tvViewOrigin.setText("查看原图");
+            }
         } else {
             tvViewOrigin.setVisibility(View.GONE);
         }

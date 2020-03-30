@@ -132,7 +132,7 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
                             bean.setSelect(false);
                             ivSelect.setSelected(false);
 
-                            MsgForwardActivity.addOrDelectMoreSessionBeanList(false,finalIsGroup ? -1L : bean.getFrom_uid(), bean.getGid(), finalIcon, finalTitle);
+                            MsgForwardActivity.addOrDeleteMoreSessionBeanList(false,finalIsGroup ? -1L : bean.getFrom_uid(), bean.getGid(), finalIcon, finalTitle);
                         }else {
 
                             if(MsgForwardActivity.moreSessionBeanList.size()>=MsgForwardActivity.maxNumb){
@@ -142,7 +142,7 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
 
                             bean.setSelect(true);
                             ivSelect.setSelected(true);
-                            MsgForwardActivity.addOrDelectMoreSessionBeanList(true,finalIsGroup ? -1L : bean.getFrom_uid(), bean.getGid(), finalIcon, finalTitle);
+                            MsgForwardActivity.addOrDeleteMoreSessionBeanList(true,finalIsGroup ? -1L : bean.getFrom_uid(), bean.getGid(), finalIcon, finalTitle);
                         }
 
 //                        LogUtil.getLog().e(getAdapterPosition()+"=信息==="+(finalIsGroup? -1L : bean.getFrom_uid())+"==0=="+ bean.getGid()+ "==0="+finalIcon+"=0===="+ finalTitle);
