@@ -167,42 +167,8 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
     private boolean doPendingData() {
         System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--requestId=" + requestId + "--doPendingData--" /*+ Log.getStackTraceString(new Throwable())*/);
         try {
-            Map<Long, Integer> mapUSession = /*MessageManager.getInstance().*/getPendingUserUnreadMap();
-            if (mapUSession != null && mapUSession.size() > 0) {
-                System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--doPendingData--更新单聊session" + mapUSession.size());
-                Iterator iterator = mapUSession.keySet().iterator();
-                while (iterator.hasNext()) {
-                    Long uid = (Long) iterator.next();
-                    if (uid != null) {
-                        Integer count = mapUSession.get(uid);
-                        if (count != null) {
-                            MessageManager.getInstance().updateSessionUnread("", uid, count.intValue());
-                        }
-                    }
-                }
-//                for (Map.Entry<Long, Integer> entry : mapUSession.entrySet()) {
-//                    MessageManager.getInstance().updateSessionUnread("", entry.getKey(), entry.getValue());
-//                }
-            }
 
-            Map<String, Integer> mapGSession = /*MessageManager.getInstance().*/getPendingGroupUnreadMap();
-            if (mapGSession != null && mapGSession.size() > 0) {
-                System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--doPendingData--更新群聊session" + mapGSession.size());
-                Iterator iterator = mapGSession.keySet().iterator();
-                while (iterator.hasNext()) {
-                    String gid = iterator.next().toString();
-                    if (!TextUtils.isEmpty(gid)) {
-                        Integer count = mapGSession.get(gid);
-                        if (count != null) {
-                            MessageManager.getInstance().updateSessionUnread(gid, -1L, count.intValue());
-                        }
-                    }
-                }
-//                for (Map.Entry<String, Integer> entry : mapGSession.entrySet()) {
-//                    MessageManager.getInstance().updateSessionUnread(entry.getKey(), -1L, entry.getValue());
-//                }
-            }
-
+            //先存Message
             List<UserInfo> userInfos = /*MessageManager.getInstance().*/getPendingUserList();
             if (userInfos != null) {
                 int len = userInfos.size();
@@ -249,6 +215,42 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
                     MsgAllBean bean = mapCancel.get(iterator.next().toString());
                     msgDao.msgDel4Cancel(bean.getMsg_id(), bean.getMsgCancel().getMsgidCancel());
                 }
+            }
+
+            Map<Long, Integer> mapUSession = /*MessageManager.getInstance().*/getPendingUserUnreadMap();
+            if (mapUSession != null && mapUSession.size() > 0) {
+                System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--doPendingData--更新单聊session" + mapUSession.size());
+                Iterator iterator = mapUSession.keySet().iterator();
+                while (iterator.hasNext()) {
+                    Long uid = (Long) iterator.next();
+                    if (uid != null) {
+                        Integer count = mapUSession.get(uid);
+                        if (count != null) {
+                            MessageManager.getInstance().updateSessionUnread("", uid, count.intValue());
+                        }
+                    }
+                }
+//                for (Map.Entry<Long, Integer> entry : mapUSession.entrySet()) {
+//                    MessageManager.getInstance().updateSessionUnread("", entry.getKey(), entry.getValue());
+//                }
+            }
+
+            Map<String, Integer> mapGSession = /*MessageManager.getInstance().*/getPendingGroupUnreadMap();
+            if (mapGSession != null && mapGSession.size() > 0) {
+                System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--doPendingData--更新群聊session" + mapGSession.size());
+                Iterator iterator = mapGSession.keySet().iterator();
+                while (iterator.hasNext()) {
+                    String gid = iterator.next().toString();
+                    if (!TextUtils.isEmpty(gid)) {
+                        Integer count = mapGSession.get(gid);
+                        if (count != null) {
+                            MessageManager.getInstance().updateSessionUnread(gid, -1L, count.intValue());
+                        }
+                    }
+                }
+//                for (Map.Entry<String, Integer> entry : mapGSession.entrySet()) {
+//                    MessageManager.getInstance().updateSessionUnread(entry.getKey(), -1L, entry.getValue());
+//                }
             }
             clearPendingList();
             MessageManager.getInstance().removeMsgTask(requestId);
