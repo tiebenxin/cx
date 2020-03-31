@@ -114,17 +114,20 @@ public class BurnManager {
                     }
                     int gLen = gids.size();
                     int uLen = uids.size();
-                    if (gLen + uLen == 1) {
-                        LogUtil.getLog().i("SurvivalTime", "刷新单个会话:" + gLen + "--" + uLen);
-                        if (gLen > 0) {
-                            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gids.get(0), CoreEnum.ESessionRefreshTag.SINGLE, null);
-                        } else if (uLen > 0) {
-                            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uids.get(0), "", CoreEnum.ESessionRefreshTag.SINGLE, null);
-                        }
-                    } else if (gLen + uLen > 0) {
-                        LogUtil.getLog().i("SurvivalTime", "刷新所有会话:" + gLen + "--" + uLen);
-                        MessageManager.getInstance().notifyRefreshMsg();
-                    }
+//                    if (gLen + uLen == 1) {
+//                        LogUtil.getLog().i("SurvivalTime", "刷新单个会话:" + gLen + "--" + uLen);
+//                        if (gLen > 0) {
+//                            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gids.get(0), CoreEnum.ESessionRefreshTag.ALL, null);
+//                        } else if (uLen > 0) {
+//                            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uids.get(0), "", CoreEnum.ESessionRefreshTag.SINGLE, null);
+//                        }
+//
+//                    } else if (gLen + uLen > 0) {
+//                        LogUtil.getLog().i("SurvivalTime", "刷新所有会话:" + gLen + "--" + uLen);
+//                        MessageManager.getInstance().notifyRefreshMsg();
+//                    }
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
+
                     gids.clear();
                     uids.clear();
                 }
