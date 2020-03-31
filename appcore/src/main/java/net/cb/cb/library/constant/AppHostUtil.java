@@ -21,7 +21,7 @@ public class AppHostUtil {
     private final static String getConnectHostApi() {
         if (isEmpty()) {
 //            connectHostApi = BuildConfig.API_HOST;
-//            connectHostApi = BuildConfig.HOST_RELEASE;
+            connectHostApi = BuildConfig.HOST_RELEASE;
             switch (BuildConfig.BUILD_TYPE) {
                 case "debug":
                     connectHostApi = BuildConfig.HOST_DEV;

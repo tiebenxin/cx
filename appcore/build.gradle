@@ -29,7 +29,7 @@ android {
                 XIAOMI_APPKEY : "MI‐5411801194485",//小米平台注册的appkey
                 XIAOMI_APPID  : "MI‐2882303761518011485",//小米平台注册的appid
 
-                HUAWEI_APPID  : "101160415", //华为
+//                HUAWEI_APPID  : "101160415", //华为
 
                 MEIZU_APPKEY  : "MZ‐e5795872af0d4c77945971a05ad7ad1c",//魅族平台注册的appkey
                 MEIZU_APPID   : "MZ‐1007742",//魅族平台注册的appid
@@ -136,11 +136,7 @@ dependencies {
     //上传
     api 'com.aliyun.dpa:oss-android-sdk:+'
 
-    //胶水
-
-    //    api 'io.reactivex.rxjava2:rxjava:2.1.1'
-
-    //    api 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    //rxjava
     api 'io.reactivex.rxjava2:rxjava:2.1.1'
     api 'io.reactivex.rxjava2:rxandroid:2.0.1'
     api 'org.greenrobot:eventbus:3.0.0'
@@ -148,7 +144,7 @@ dependencies {
     //图片
     api project(':picture_library')
 
-    //    // Bugly
+    // Bugly
     api 'com.tencent.bugly:crashreport:latest.release'
     api 'com.tencent.bugly:nativecrashreport:latest.release'
 
@@ -168,12 +164,6 @@ dependencies {
     api 'com.android.support:support-emoji-appcompat:28.+'
     api 'com.android.support:support-emoji-bundled:28.+'
 
-    // 拼音库、支持姓名多音字、比pinyin4j效率高
-
-    //    api 'com.github.promeg:tinypinyin:2.0.3' // TinyPinyin核心包，约80KB
-
-    //    api 'com.github.promeg:tinypinyin-lexicons-android-cncity:2.0.3' // 可选，适用于Android的中国地区词典
-
     //友盟
     api 'com.umeng.umsdk:common:+'
     api 'com.umeng.umsdk:utdid:+'
@@ -189,7 +179,7 @@ dependencies {
     api 'cn.jiguang.sdk.plugin:xiaomi:3.5.8'
     //华为
     api 'cn.jiguang.sdk.plugin:huawei:3.5.8'
-    implementation 'com.huawei.hms:push:4.0.2.300'
+    api 'com.huawei.hms:push:4.0.2.300'
     //魅族
     api 'cn.jiguang.sdk.plugin:meizu:3.5.8'
     // oppo

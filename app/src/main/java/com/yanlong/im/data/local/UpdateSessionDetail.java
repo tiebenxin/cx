@@ -173,7 +173,10 @@ public class UpdateSessionDetail {
      * 动态获取群名
      * */
     public String getGroupName(Group group) {
-        String result = group.getName();
+        String result="";
+        if (group == null) {
+             result = group.getName();
+        }
         if (TextUtils.isEmpty(result)) {
             List<MemberUser> users = group.getUsers();
             if (users != null && users.size() > 0) {
