@@ -129,6 +129,8 @@
 # 保持 MsgBean下面的内部类不被混淆
 -keep public class com.yanlong.im.utils.socket.MsgBean$*{*;}
 
+# 保持 BaseResponse 不被混淆
+-keep public class com.hm.cxpay.rx.data.BaseResponse{*;}
 
 #webview
 -keepclassmembers class fqcn.of.javascript.interface.for.webview {

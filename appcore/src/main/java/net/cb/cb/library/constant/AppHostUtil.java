@@ -21,21 +21,21 @@ public class AppHostUtil {
     private final static String getConnectHostApi() {
         if (isEmpty()) {
 //            connectHostApi = BuildConfig.API_HOST;
-            connectHostApi = BuildConfig.HOST_RELEASE;
-//            switch (BuildConfig.BUILD_TYPE) {
-//                case "debug":
-//                    connectHostApi = BuildConfig.HOST_DEV;
-//                    break;
-//                case "pre":
-//                    connectHostApi = BuildConfig.HOST_PRE;
-//                    break;
-//                case "release":
-//                    connectHostApi = BuildConfig.HOST_RELEASE;
-//                    break;
-//                default:
-//                    connectHostApi = BuildConfig.API_HOST;
-//                    break;
-//            }
+//            connectHostApi = BuildConfig.HOST_RELEASE;
+            switch (BuildConfig.BUILD_TYPE) {
+                case "debug":
+                    connectHostApi = BuildConfig.HOST_DEV;
+                    break;
+                case "pre":
+                    connectHostApi = BuildConfig.HOST_PRE;
+                    break;
+                case "release":
+                    connectHostApi = BuildConfig.HOST_RELEASE;
+                    break;
+                default:
+                    connectHostApi = BuildConfig.API_HOST;
+                    break;
+            }
         }
         if (isEmpty()) {
             throw new NullPointerException("请检查config.gradle#host配置");
