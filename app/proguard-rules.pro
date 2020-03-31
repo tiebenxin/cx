@@ -273,6 +273,8 @@
 -keepnames class com.yanlong.im.pay.ui.record.RedpacketRecordActivity
 -keepnames class com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity
 -keepnames class com.yanlong.im.user.ui.HelpActivity
+-keepnames class com.yanlong.im.MainActivity
+-keepnames class com.zhaoss.weixinrecorded.activity.ImageShowActivity
 #=================arouter=======================
 
 
