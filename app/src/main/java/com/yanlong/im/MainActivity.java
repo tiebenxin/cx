@@ -1141,7 +1141,7 @@ public class MainActivity extends AppActivity {
             return;
         }
         if (!LocationUtils.isLocationEnabled(this)) {
-            ToastUtil.show("请打开定位服务");
+//            ToastUtil.show("请打开定位服务");
             return;
         }
         locService = ((MyAppLication) getApplication()).locationService;
@@ -1190,44 +1190,6 @@ public class MainActivity extends AppActivity {
 
     @SuppressLint("CheckResult")
     private void getMsgToPC() {
-//        Observable.just(0)
-//                .map(new Function<Integer, List<MsgAllBean>>() {
-//                    @Override
-//                    public List<MsgAllBean> apply(Integer integer) throws Exception {
-//                        List<MsgAllBean> msgList = msgDao.getMsgIn3Day();
-//                        Collections.sort(msgList, new Comparator<MsgAllBean>() {
-//                            @Override
-//                            public int compare(MsgAllBean o1, MsgAllBean o2) {
-//                                if (o1 == null || o2 == null || o1.getTimestamp() == null || o2.getTimestamp() == null) {
-//                                    return -1;
-//                                }
-//                                if (o1.getTimestamp().longValue() > o2.getTimestamp().longValue()) {
-//                                    return 1;
-//                                } else if (o1.getTimestamp().longValue() < o2.getTimestamp().longValue()) {
-//                                    return -1;
-//                                } else {
-//                                    return 0;
-//                                }
-//                            }
-//                        });
-//                        return msgList;
-//                    }
-//                }).subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .onErrorResumeNext(Observable.<List<MsgAllBean>>empty())
-//                .subscribe(new Consumer<List<MsgAllBean>>() {
-//                    @Override
-//                    public void accept(List<MsgAllBean> list) throws Exception {
-//                        if (list != null) {
-//                            LogUtil.getLog().i("a==", list.size() + "");
-//                            MsgBean.UniversalMessage message = SocketData.createUniversalMessage(list);
-//                            if (message != null) {
-//                                byte[] bytes = message.toByteArray();
-//                            }
-//                        }
-//                    }
-//                });
-
         ThreadUtil.getInstance().execute(new Runnable() {
             @Override
             public void run() {
