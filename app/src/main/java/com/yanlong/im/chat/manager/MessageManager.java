@@ -488,6 +488,7 @@ public class MessageManager {
             case READ://已读消息
 //                msgDao.setUpdateRead(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), wrapMessage.getRead().getTimestamp());
 //                LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getRead().getTimestamp());
+
                 long uids = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
                 msgDao.setUpdateRead(uids, wrapMessage.getTimestamp());
                 LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getTimestamp());
