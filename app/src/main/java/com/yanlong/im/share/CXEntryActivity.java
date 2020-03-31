@@ -7,11 +7,13 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.server.ChatServer;
+import com.yanlong.im.chat.manager.TcpConnection;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.ui.LoginActivity;
 
+import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AppActivity;
@@ -110,9 +112,17 @@ public class CXEntryActivity extends AppActivity {
         dismissLoadingDialog();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LogUtil.getLog().i("跟踪--CXEntry", "onDestroy");
+        TcpConnection.getInstance(AppConfig.getContext()).updateFrom(TcpConnection.EFrom.DEFAULT);
+    }
+
     private void startChatServer() {
         // 启动聊天服务
-        startService(new Intent(getContext(), ChatServer.class));
+//        startService(new Intent(getContext(), ChatServer.class));
+        TcpConnection.getInstance(AppConfig.getContext()).startConnect(TcpConnection.EFrom.OTHER);
     }
 
     public boolean checkTokenValid() {

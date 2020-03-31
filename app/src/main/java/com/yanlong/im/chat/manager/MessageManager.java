@@ -328,15 +328,15 @@ public class MessageManager {
                 notifyGroupChange(true);
                 break;
             case REQUEST_GROUP://群主会收到成员进群的请求的通知
-//                LogUtil.getLog().e("==wrapMessage=json="+GsonUtils.optObject(wrapMessage));
+                //自己邀请的，不需要显示
+                if (UserAction.getMyId() != null && wrapMessage.getRequestGroup().getInviter() > 0 && wrapMessage.getRequestGroup().getInviter() == UserAction.getMyId().longValue()) {
+                    return true;
+                }
                 for (MsgBean.GroupNoticeMessage ntm : wrapMessage.getRequestGroup().getNoticeMessageList()) {
-
                     ApplyBean applyBean = new ApplyBean();
                     applyBean.setAid(wrapMessage.getGid() + ntm.getUid());
                     applyBean.setChatType(CoreEnum.EChatType.GROUP);
-
                     applyBean.setGid(wrapMessage.getGid());
-
                     Realm realm = DaoUtil.open();
                     realm.beginTransaction();
                     Group group = realm.where(Group.class).equalTo("gid", wrapMessage.getGid()).findFirst();
