@@ -2,6 +2,8 @@ import java.text.SimpleDateFormat
 
 apply plugin: 'com.android.application'
 apply plugin: 'realm-android'
+apply plugin: 'com.huawei.agconnect'
+
 
 def releaseTime() {
     SimpleDateFormat format = new SimpleDateFormat("MMdd_hms")
@@ -46,7 +48,7 @@ android {
         vectorDrawables.useSupportLibrary = true
 
         manifestPlaceholders = [
-                JPUSH_PKGNAME : "com.yanlong.im",
+                JPUSH_PKGNAME : applicationId,
                 JPUSH_APPKEY  : "2a3d16e42d0191a255028864", //JPush 上注册的包名对应的 Appkey.
                 JPUSH_CHANNEL : "developer-default", //暂时填写默认值即可.
 
@@ -156,57 +158,12 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
-    /*
-    *
-    * 打包渠道
-    * */
-//    productFlavors {
-//
-//        defaultAndroid {
-//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "default_android"]
-//        }
-//
-//        xiaomi {
-//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "xiaomi"]
-//        }
-//        qh360 {
-//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "qh360"]
-//        }
-//
-//        huawei {
-//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "huawei"]
-//        }
-//
-//        vivo {
-//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "vivo"]
-//        }
-//        oppo {
-//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "oppo"]
-//        }
-//        baidu {
-//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "baidu"]
-//        }
-//
-//        yingyongbao {
-//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "yingyongbao"]
-//        }
-//
-//        meizu {
-//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "meizu"]
-//        }
-//
-//        samsung {
-//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "samsung"]
-//        }
-//
-//    }
 }
 
 
 dependencies {
-    api fileTree(include: ['*.jar'], dir: 'libs')
-    api fileTree(include: ['*.aar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.aar'], dir: 'libs')
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
