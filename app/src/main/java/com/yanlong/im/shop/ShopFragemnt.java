@@ -341,6 +341,12 @@ public class ShopFragemnt extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
+            if(PayEnvironment.getInstance().getUserId()<=0){
+                UserInfo info = UserAction.getMyInfo();
+                if (info!=null && info.getUid() != null) {
+                    PayEnvironment.getInstance().setUserId(info.getUid().longValue());
+                }
+            }
             httpGetUrl();
         }
     }

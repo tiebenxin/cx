@@ -147,12 +147,8 @@ public class MyFragment extends Fragment {
 
     //自动生成的控件事件
     private void initEvent() {
-        //TODO 零钱显示开关，release不显示/debug显示，功能开放后删除这里
-        if (BuildConfig.BUILD_TYPE.equals("debug")) {
-            viewMoney.setVisibility(View.VISIBLE);
-        } else {
-            viewMoney.setVisibility(View.GONE);
-        }
+        viewMoney.setVisibility(View.GONE);//关闭零钱
+
         builder = new ChangeSelectDialog.Builder(context);
         viewHead.setOnClickListener(new View.OnClickListener() {
             @Override

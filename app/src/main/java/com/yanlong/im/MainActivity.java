@@ -151,7 +151,7 @@ public class MainActivity extends AppActivity {
     private StrikeButton sbmsg;
     private StrikeButton sbfriend;
     private StrikeButton sbme;
-    //    private StrikeButton sbshop;
+    private StrikeButton sbshop;
     private NotifySettingDialog notifyDialog;
     private NetworkReceiver mNetworkReceiver;
     private MsgMainFragment mMsgMainFragment;
@@ -359,12 +359,12 @@ public class MainActivity extends AppActivity {
             View rootView = getLayoutInflater().inflate(R.layout.tab_item, null);
             TextView txt = rootView.findViewById(R.id.txt);
             StrikeButton sb = rootView.findViewById(R.id.sb);
-            /*if (i == EMainTab.SHOP) {
+            if (i == EMainTab.SHOP) {
                 sb.setSktype(1);
                 //设置值
                 sb.setNum(0, true);
-//                sbshop = sb;
-            }*/
+                sbshop = sb;
+            }
             if (i == EMainTab.ME) {
                 sb.setSktype(1);
                 //设置值
@@ -1123,12 +1123,12 @@ public class MainActivity extends AppActivity {
     /*
      *from
      * */
-    @IntDef({EMainTab.MSG, EMainTab.CONTACT, /*EMainTab.SHOP,*/ EMainTab.ME})
+    @IntDef({EMainTab.MSG, EMainTab.CONTACT, EMainTab.SHOP, EMainTab.ME})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMainTab {
         int MSG = 0; // 消息界面
         int CONTACT = 1; // 好友界面
-        //        int SHOP = 2; // 商城界面
+        int SHOP = 3; // 商城界面
         int ME = 2; // 我的界面
     }
 
