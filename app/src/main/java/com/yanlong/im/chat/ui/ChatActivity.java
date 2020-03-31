@@ -3568,7 +3568,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                 }
                 itemLongClick(holder, msgbean, menus);
-                itemClickListener(holder, msgbean);
+//                itemClickListener(holder, msgbean);
 
             }
         }
@@ -4191,7 +4191,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
             itemLongClick(holder, msgbean, menus);
-            itemClickListener(holder, msgbean);
+//            itemClickListener(holder, msgbean);
 
         }
 
