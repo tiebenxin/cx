@@ -1141,7 +1141,7 @@ public class MainActivity extends AppActivity {
             return;
         }
         if (!LocationUtils.isLocationEnabled(this)) {
-            ToastUtil.show("请打开定位服务");
+//            ToastUtil.show("请打开定位服务");
             return;
         }
         locService = ((MyAppLication) getApplication()).locationService;
