@@ -1,8 +1,10 @@
 package com.yanlong.im.chat.dao;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.hm.cxpay.global.PayEnum;
+import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.AssistantMessage;
@@ -53,7 +55,6 @@ import java.util.UUID;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmList;
-import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -1560,27 +1561,48 @@ public class MsgDao {
      */
     public void setUpdateRead(long uid, long timestamp) {
         Realm realm = DaoUtil.open();
-        realm.beginTransaction();
+//        // 异步事务处理已读状态
+//        realm.executeTransactionAsync(new Realm.Transaction() {
+//            @Override
+//            public void execute(Realm realm) {
         try {
-            List<MsgAllBean> list = realm.where(MsgAllBean.class)
+            //查询出单聊和未读状态的消息
+            RealmResults<MsgAllBean> friendChatMessages = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                     .and()
                     .beginGroup().equalTo("to_uid", uid).endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("read", 1).endGroup()
                     .findAll();
-            if (list != null) {
-                for (int i = 0; i < list.size(); i++) {
-                    MsgAllBean msgAllBean = list.get(i);
-                    if (msgAllBean.getRead() == 0) {//msgAllBean.getTimestamp() <= timestamp &&
+            if (friendChatMessages != null) {
+                //每次修改后，friendChatMessages的size 会变化，直到全部修改完，friendChatMessages的size 为0
+                while (friendChatMessages.size() != 0) {
+                    Log.e("raleigh_test", "friendChatMessages=" + friendChatMessages.size());
+                    MsgAllBean msgAllBean = friendChatMessages.get(0);
+                    long endTime = timestamp + msgAllBean.getSurvival_time() * 1000;
+                    realm.beginTransaction();
+                    if (msgAllBean.getServerTime() > 0) {//有设置阅后即焚
+                        if (endTime > DateUtils.getSystemTime()) {//还未到阅后即焚时间点，记录已读
+                            msgAllBean.setRead(1);
+                            msgAllBean.setReadTime(timestamp);
+                            /**处理需要阅后即焚的消息***********************************/
+                            msgAllBean.setStartTime(timestamp);
+                            msgAllBean.setEndTime(endTime);
+                        } else {//已经到阅后即焚时间点，删除消息
+                            msgAllBean.deleteFromRealm();
+                            Log.e("raleigh_test", "deleteFromRealm");
+                        }
+                    } else {//普通消息，记录已读状态和时间
                         msgAllBean.setRead(1);
                         msgAllBean.setReadTime(timestamp);
                     }
+                    realm.commitTransaction();
                 }
-                realm.insertOrUpdate(list);
             }
-            realm.commitTransaction();
-            realm.close();
         } catch (Exception e) {
             e.printStackTrace();
+            DaoUtil.reportException(e);
+        } finally {
             DaoUtil.close(realm);
         }
     }
