@@ -44,17 +44,18 @@ public class UpdateSessionDetail {
             realm.executeTransactionAsync(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {//异步线程更新更新
-                    //获取session列表-本地数据
-                    RealmResults<Session> sessions = realm.where(Session.class).sort("up_time", Sort.DESCENDING).findAll();
-                    for (int i = 0; i < sessions.size(); i++) {
-                        Session session = sessions.get(i);
+                        //获取session列表-本地数据
+                        RealmResults<Session> sessions = realm.where(Session.class).sort("up_time", Sort.DESCENDING).findAll();
+                        for (int i = 0; i < sessions.size(); i++) {
+                            Session session = sessions.get(i);
 //                        realm.beginTransaction();
-                        if (session.getType() == 1) {//群聊
-                            synchGroupMsgSession(realm, session);
-                        } else {//单聊
-                            synchFriendMsgSession(realm, session);
+                            if (session.getType() == 1) {//群聊
+                                synchGroupMsgSession(realm, session);
+                            } else {//单聊
+                                synchFriendMsgSession(realm, session);
+                            }
                         }
-                    }
+
                 }
             }, new Realm.Transaction.OnSuccess() {
                 @Override
@@ -65,7 +66,6 @@ public class UpdateSessionDetail {
                 @Override
                 public void onError(Throwable error) {
                     LogUtil.writeLog("UpdateSessionDetail error");
-                    LogUtil.writeError(error);
                 }
             });
         } catch (Exception e) {
@@ -78,48 +78,52 @@ public class UpdateSessionDetail {
      * 同步群聊数据
      */
     private void synchGroupMsgSession(Realm realm, Session session) {
-        Group group = realm.where(Group.class).equalTo("gid", session.getGid()).findFirst();
-        SessionDetail sessionMore = new SessionDetail();
-        sessionMore.setSid(session.getSid());
-        if (group != null) {
-            sessionMore.setName(getGroupName(group));
-            if (!TextUtils.isEmpty(group.getAvatar())) {
-                sessionMore.setAvatar(group.getAvatar());
-            } else {
-                if (group.getUsers() != null) {
-                    int i = group.getUsers().size();
-                    i = i > 9 ? 9 : i;
-                    //头像地址
-                    List<String> headList = new RealmList<>();
-                    for (int j = 0; j < i; j++) {
-                        MemberUser userInfo = group.getUsers().get(j);
-                        headList.add(userInfo.getHead());
+        try {
+            Group group = realm.where(Group.class).equalTo("gid", session.getGid()).findFirst();
+            SessionDetail sessionMore = new SessionDetail();
+            sessionMore.setSid(session.getSid());
+            if (group != null) {
+                sessionMore.setName(getGroupName(group));
+                if (!TextUtils.isEmpty(group.getAvatar())) {
+                    sessionMore.setAvatar(group.getAvatar());
+                } else {
+                    if (group.getUsers() != null) {
+                        int i = group.getUsers().size();
+                        i = i > 9 ? 9 : i;
+                        //头像地址
+                        List<String> headList = new RealmList<>();
+                        for (int j = 0; j < i; j++) {
+                            MemberUser userInfo = group.getUsers().get(j);
+                            headList.add(userInfo.getHead());
+                        }
+                        //将list转string,逗号分隔的字符串
+                        sessionMore.setAvatarList(Joiner.on(",").join(headList));
                     }
-                    //将list转string,逗号分隔的字符串
-                    sessionMore.setAvatarList(Joiner.on(",").join(headList));
                 }
-            }
-        } else {
-//            sessionMore.setName(getGroupName(group));
-        }
-        MsgAllBean msg = session.getMessage();
-        if (msg == null) {
-            msg = realm.where(MsgAllBean.class).equalTo("gid", session.getGid())
-                    .sort("timestamp", Sort.DESCENDING).findFirst();
-        }
-        if (msg != null) {
-            sessionMore.setMessage(msg);
-            if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {//通知不要加谁发的消息
-                sessionMore.setSenderName("");
             } else {
-                if (msg.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
-                    //8.9 处理群昵称
-                    String name = getUsername4Show(msg.getGid(), msg.getFrom_uid(), msg.getFrom_nickname(), msg.getFrom_group_nickname()) + " : ";
-                    sessionMore.setSenderName(name);
+//            sessionMore.setName(getGroupName(group));
+            }
+            MsgAllBean msg = session.getMessage();
+            if (msg == null) {
+                msg = realm.where(MsgAllBean.class).equalTo("gid", session.getGid())
+                        .sort("timestamp", Sort.DESCENDING).findFirst();
+            }
+            if (msg != null) {
+                sessionMore.setMessage(msg);
+                if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {//通知不要加谁发的消息
+                    sessionMore.setSenderName("");
+                } else {
+                    if (msg.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
+                        //8.9 处理群昵称
+                        String name = getUsername4Show(msg.getGid(), msg.getFrom_uid(), msg.getFrom_nickname(), msg.getFrom_group_nickname()) + " : ";
+                        sessionMore.setSenderName(name);
+                    }
                 }
             }
+            realm.copyToRealmOrUpdate(sessionMore);
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        realm.copyToRealmOrUpdate(sessionMore);
     }
 
     /***
