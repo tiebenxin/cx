@@ -100,7 +100,7 @@ public class UpdateSessionDetail {
                 }
             }
         } else {
-            sessionMore.setName(getGroupName(group));
+//            sessionMore.setName(getGroupName(group));
         }
         MsgAllBean msg = session.getMessage();
         if (msg == null) {
@@ -173,10 +173,8 @@ public class UpdateSessionDetail {
      * 动态获取群名
      * */
     public String getGroupName(Group group) {
-        String result="";
-        if (group == null) {
-             result = group.getName();
-        }
+        String result = "";
+        result = group.getName();
         if (TextUtils.isEmpty(result)) {
             List<MemberUser> users = group.getUsers();
             if (users != null && users.size() > 0) {
