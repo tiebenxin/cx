@@ -98,7 +98,7 @@ android {
                                     , UMENG_WX_KEY      : "5233d54a59b3f9681742b0e"
 
             ]
-            signingConfig = signingConfigs.release
+            signingConfig signingConfigs.release
         }
         pre {
 
@@ -111,7 +111,7 @@ android {
 
             ]
 
-            signingConfig = signingConfigs.release
+            signingConfig signingConfigs.release
         }
         release {
             // 开启调试
@@ -132,7 +132,7 @@ android {
 
             ]
 
-            signingConfig = signingConfigs.release
+            signingConfig signingConfigs.release
         }
     }
     android.applicationVariants.all { variant ->
