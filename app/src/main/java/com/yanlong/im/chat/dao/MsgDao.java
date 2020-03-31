@@ -579,24 +579,7 @@ public class MsgDao {
             //删除前先把子表数据干掉!!切记
             if (list != null) {
                 for (MsgAllBean msg : list) {
-                    if (msg.getReceive_red_envelope() != null)
-                        msg.getReceive_red_envelope().deleteFromRealm();
-                    if (msg.getMsgNotice() != null)
-                        msg.getMsgNotice().deleteFromRealm();
-                    if (msg.getBusiness_card() != null)
-                        msg.getBusiness_card().deleteFromRealm();
-                    if (msg.getStamp() != null)
-                        msg.getStamp().deleteFromRealm();
-                    if (msg.getChat() != null)
-                        msg.getChat().deleteFromRealm();
-                    if (msg.getImage() != null)
-                        msg.getImage().deleteFromRealm();
-                    if (msg.getRed_envelope() != null)
-                        msg.getRed_envelope().deleteFromRealm();
-                    if (msg.getTransfer() != null)
-                        msg.getTransfer().deleteFromRealm();
-                    if (msg.getVoiceMessage() != null)
-                        msg.getVoiceMessage().deleteFromRealm();
+                    deleteRealmMsg(msg);
                 }
                 list.deleteAllFromRealm();
             }
@@ -623,27 +606,7 @@ public class MsgDao {
             //删除前先把子表数据干掉!!切记
             if (list != null) {
                 for (MsgAllBean msg : list) {
-                    if (msg.getReceive_red_envelope() != null)
-                        msg.getReceive_red_envelope().deleteFromRealm();
-                    if (msg.getMsgNotice() != null)
-                        msg.getMsgNotice().deleteFromRealm();
-                    if (msg.getBusiness_card() != null)
-                        msg.getBusiness_card().deleteFromRealm();
-                    if (msg.getStamp() != null)
-                        msg.getStamp().deleteFromRealm();
-                    if (msg.getChat() != null)
-                        msg.getChat().deleteFromRealm();
-                    if (msg.getImage() != null)
-                        msg.getImage().deleteFromRealm();
-                    if (msg.getRed_envelope() != null)
-                        msg.getRed_envelope().deleteFromRealm();
-                    if (msg.getTransfer() != null)
-                        msg.getTransfer().deleteFromRealm();
-                    if (msg.getMsgCancel() != null)
-                        msg.getMsgCancel().deleteFromRealm();
-                    if (msg.getVoiceMessage() != null)
-                        msg.getVoiceMessage().deleteFromRealm();
-
+                    deleteRealmMsg(msg);
                 }
                 list.deleteAllFromRealm();
             }
@@ -698,25 +661,7 @@ public class MsgDao {
             //删除前先把子表数据干掉!!切记
             if (list != null) {
                 for (MsgAllBean msg : list) {
-                    if (msg.getReceive_red_envelope() != null)
-                        msg.getReceive_red_envelope().deleteFromRealm();
-                    if (msg.getMsgNotice() != null)
-                        msg.getMsgNotice().deleteFromRealm();
-                    if (msg.getBusiness_card() != null)
-                        msg.getBusiness_card().deleteFromRealm();
-                    if (msg.getStamp() != null)
-                        msg.getStamp().deleteFromRealm();
-                    if (msg.getChat() != null)
-                        msg.getChat().deleteFromRealm();
-                    if (msg.getImage() != null)
-                        msg.getImage().deleteFromRealm();
-                    if (msg.getRed_envelope() != null)
-                        msg.getRed_envelope().deleteFromRealm();
-                    if (msg.getTransfer() != null)
-                        msg.getTransfer().deleteFromRealm();
-                    if (msg.getMsgCancel() != null)
-                        msg.getMsgCancel().deleteFromRealm();
-
+                    deleteRealmMsg(msg);
                     if (cancel != null) {
                         cancel.setTimestamp(msg.getTimestamp());
                         realm.insertOrUpdate(cancel);
@@ -1430,8 +1375,6 @@ public class MsgDao {
         List<Session> rts = null;
         Realm realm = DaoUtil.open();
         try {
-
-//            realm.beginTransaction();
             RealmResults<Session> list;
             if (isAll) {
                 list = realm.where(Session.class).sort("up_time", Sort.DESCENDING).findAll();
@@ -1439,27 +1382,8 @@ public class MsgDao {
                 list = realm.where(Session.class).beginGroup().notEqualTo("from_uid", 1L).and().isNotNull("from_uid").endGroup().
                         or().isNotNull("gid").sort("up_time", Sort.DESCENDING).findAll();
             }
-            //6.5 优先读取单独表的配置
-//            for (Session l : list) {
-//                int top = 0;
-//                if (l.getType() == 1) {
-//                    Group group = realm.where(Group.class).equalTo("gid", l.getGid()).findFirst();
-//                    if (group != null) {
-//                        top = group.getIsTop();
-//                    }
-//                } else {
-//                    UserInfo info = realm.where(UserInfo.class).equalTo("uid", l.getFrom_uid()).findFirst();
-//                    if (info != null) {
-//                        top = info.getIstop();
-//                    }
-//                }
-//                l.setIsTop(top);
-//            }
-//            realm.copyToRealmOrUpdate(list);
             list = list.sort("isTop", Sort.DESCENDING);
             rts = realm.copyFromRealm(list);
-
-//            realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();

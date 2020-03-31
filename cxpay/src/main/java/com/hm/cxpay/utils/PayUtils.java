@@ -1,8 +1,12 @@
 package com.hm.cxpay.utils;
 
+import android.text.TextUtils;
 import android.util.Base64;
 
+import com.google.common.io.BaseEncoding;
 import com.hm.cxpay.global.PayEnvironment;
+
+import net.cb.cb.library.utils.LogUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -17,9 +21,8 @@ import javax.crypto.spec.SecretKeySpec;
  * @类名：金融相关支付/签名工具类
  * @Date：2019/12/27
  * @by zjy
- * @备注：
- *          1 生成随机数
- *          2 HmacSHA256签名+ Base64编码+ URL编码
+ * @备注： 1 生成随机数
+ * 2 HmacSHA256签名+ Base64编码+ URL编码
  */
 public class PayUtils {
 
@@ -29,8 +32,7 @@ public class PayUtils {
      * @return
      */
     public static int getRandomNumber() {
-        Random rd = new Random();
-        return rd.nextInt(100);
+        return (int) ((Math.random() * 9 + 1) * 100000);
     }
 
     /**
@@ -39,19 +41,22 @@ public class PayUtils {
      * secretKey : 密钥
      */
     public static String getSignature(String signatureReqStr, String secretKey) {
+        LogUtil.getLog().i("支付签名", signatureReqStr);
+        if (TextUtils.isEmpty(secretKey)) {
+            return "";
+        }
         Mac sha256_HMAC;
         String result = "";
         try {
             sha256_HMAC = Mac.getInstance("HmacSHA256");
             SecretKeySpec secret_key = new SecretKeySpec(secretKey.getBytes(), "HmacSHA256");
             sha256_HMAC.init(secret_key);
-            result = Base64.encodeToString(sha256_HMAC.doFinal(signatureReqStr.getBytes()),Base64.DEFAULT);
-            result = URLEncoder.encode(result,"UTF-8");
+//            result = Base64.encodeToString(sha256_HMAC.doFinal(signatureReqStr.getBytes()), Base64.DEFAULT);
+            result = BaseEncoding.base16().encode(sha256_HMAC.doFinal(signatureReqStr.getBytes())).toLowerCase();
+//            result = URLEncoder.encode(result, "UTF-8");
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         return result;

@@ -9,6 +9,8 @@ public class TokenBean extends BaseBean {
     private String neteaseAccid;// 网易id
     private String neteaseToken;// 网易token
     public long validTime;//有效时间，有效时间= token获取时间+ 有效期7天的毫秒值
+    private String bankReqSignKey;//支付签名
+
 
     public void setUid(Long uid) {
         this.uid = uid;
@@ -48,6 +50,14 @@ public class TokenBean extends BaseBean {
 
     public void setValidTime(long validTime) {
         this.validTime = validTime;
+    }
+
+    public String getBankReqSignKey() {
+        return bankReqSignKey;
+    }
+
+    public void setBankReqSignKey(String bankReqSignKey) {
+        this.bankReqSignKey = bankReqSignKey;
     }
 
     /**

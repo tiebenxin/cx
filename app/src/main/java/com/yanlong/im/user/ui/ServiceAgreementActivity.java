@@ -48,6 +48,7 @@ public class ServiceAgreementActivity extends AppActivity {
     private ActivityServiceAgreementBinding mBinding;
     private final String USER_SERICE = "《用户服务协议》";
     private final String SERCICE_SERICE = "《隐私政策》";
+    private String fromShop = "";
 
     private String mValue = "        尊敬的常信用户，为了更好地保障您的合法权益，正常使用云红包服务，广州之讯网络科技有限公司依照国家法律法规，对支付账户进行实名管理、履行反洗钱职责并采取风险防控措施。您需要提交身份信息、联系方式、交易信息。\n" +
             "        广州之讯网络科技有限公司将严格按照国家法律法规收集、存储、使用您的个人信息，确保信息安全。\n" +
@@ -114,6 +115,9 @@ public class ServiceAgreementActivity extends AppActivity {
     }
 
     protected void onEvent() {
+        if(getIntent()!=null){
+            fromShop = getIntent().getStringExtra("from_shop");
+        }
         mBinding.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -129,7 +133,7 @@ public class ServiceAgreementActivity extends AppActivity {
             @Override
             public void onClick(View v) {
 //                taskWallet();
-                go(IdentificationUserActivity.class);
+                startActivity(new Intent(ServiceAgreementActivity.this,IdentificationUserActivity.class).putExtra("from_shop",fromShop));
                 finish();
             }
         });

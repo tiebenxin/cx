@@ -318,6 +318,34 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                             holder.tvStatus.setText("处理中");
                             holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(1)));
                         }
+                    }else if(bean.getTradeType()==6){
+                        holder.tvContent.setText("购物-付款");
+                        if(bean.getStat()==1){
+                            holder.tvStatus.setText("支付成功");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(1)));
+                        }else if(bean.getStat()==2){
+                            holder.tvStatus.setText("支付失败");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(0)));
+                        }else if(bean.getStat()==99){
+                            holder.tvStatus.setText("处理中");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(1)));
+                        }
+                    }else if(bean.getTradeType()==12){
+                        holder.tvContent.setText("购物-退款");
+                        if(bean.getStat()==1){
+                            if(bean.getRefundType()==1){
+                                holder.tvStatus.setText("已部分退款");
+                            }else {
+                                holder.tvStatus.setText("已全额退款");
+                            }
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(0)));
+                        }else if(bean.getStat()==2){
+                            holder.tvStatus.setText("退款失败");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(0)));
+                        }else if(bean.getStat()==99){
+                            holder.tvStatus.setText("处理中");
+                            holder.tvStatus.setTextColor(activity.getResources().getColor(changeGreenOrRed(1)));
+                        }
                     }
                     //点击跳转账单详情
                     holder.itemLayout.setOnClickListener(new View.OnClickListener() {
@@ -444,7 +472,9 @@ public class BillDetailListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             case 4:
             case 10:
                 return R.mipmap.ic_withdraw_trade;
-
+            case 6:
+            case 12:
+                return R.mipmap.ic_pay_shop;
             default:
                 return R.mipmap.ic_transfer;
         }

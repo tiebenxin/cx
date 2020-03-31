@@ -1,6 +1,7 @@
 package com.hm.cxpay.global;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.bean.BankBean;
@@ -8,6 +9,8 @@ import com.hm.cxpay.eventbus.NoticeReceiveEvent;
 import com.hm.cxpay.eventbus.RefreshBalanceEvent;
 
 import net.cb.cb.library.bean.CanStampEvent;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.encrypt.EncrypUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -26,6 +29,10 @@ public class PayEnvironment {
     private List<BankBean> banks;//绑定银行卡
     private String phone;//用户手机号
     private String nick;//用户昵称
+    private String bankSign;//银行签名
+    private long userId = 0;
+    private long serverTime;//初始服务器时间
+    private long localTime;//初始本地时间
 
     public static PayEnvironment getInstance() {
         if (INSTANCE == null) {
@@ -91,6 +98,20 @@ public class PayEnvironment {
         this.nick = nick;
     }
 
+    public String getBankSign() {
+        if (TextUtils.isEmpty(bankSign)) {
+            String json = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.BANK_SIGN).get4Json(String.class);
+            if (!TextUtils.isEmpty(json)) {
+                bankSign = EncrypUtil.aesDecode(json);
+            }
+        }
+        return bankSign;
+    }
+
+    public void setBankSign(String bankSign) {
+        this.bankSign = bankSign;
+    }
+
     //账号退出的时候，需要清除缓存
     public void clear() {
         user = null;
@@ -98,6 +119,9 @@ public class PayEnvironment {
         token = null;
         phone = null;
         nick = null;
+        bankSign = null;
+        userId = 0;
+        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.BANK_SIGN).clear();
     }
 
     //通知刷新余额，发出红包，拆红包成功，转账成功，都需要及时刷新
@@ -115,4 +139,30 @@ public class PayEnvironment {
         EventBus.getDefault().post(new NoticeReceiveEvent(rid));
     }
 
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
+
+    //tcp认证的时候，初始化服务器时间，及本地时间
+    public void initTime(long serverTime, long localTime) {
+        this.serverTime = serverTime;
+        this.localTime = localTime;
+    }
+
+    //获取当前的服务器时间,单位：s
+    public long getFixTime() {
+        long result = 0;
+        if (serverTime > 0 && localTime > 0) {
+            result = serverTime + (System.currentTimeMillis() - localTime);
+        }
+        if (result <= 0) {
+            result = System.currentTimeMillis();
+        }
+        result = result / 1000;
+        return result;
+    }
 }

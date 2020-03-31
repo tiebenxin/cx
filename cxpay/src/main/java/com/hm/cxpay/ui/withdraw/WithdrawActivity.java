@@ -269,12 +269,13 @@ public class WithdrawActivity extends AppActivity {
                         } else {
                             ToastUtil.show(context, baseResponse.getMessage());
                         }
+                        dismissLoadingDialog();
                     }
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(context, baseResponse.getMessage());
+                        dismissLoadingDialog();
                     }
                 });
 
@@ -325,7 +326,6 @@ public class WithdrawActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(activity, baseResponse.getMessage());
                     }
                 });
@@ -358,7 +358,6 @@ public class WithdrawActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse<CommonBean> baseResponse) {
-                        super.onHandleError(baseResponse);
                         showFailDialog();
                     }
                 });
@@ -393,6 +392,7 @@ public class WithdrawActivity extends AppActivity {
                 break;
             case WITHDRAW:
                 if (resultCode == RESULT_OK) {
+                    showLoadingDialog();
                     if (data.getStringExtra("payword") != null) {
                         httpWithdraw(data.getStringExtra("payword"), selectBankcard.getId());
                     }

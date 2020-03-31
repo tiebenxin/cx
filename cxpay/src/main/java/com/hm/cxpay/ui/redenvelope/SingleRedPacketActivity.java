@@ -33,6 +33,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.ui.bank.BankSettingActivity;
 import com.hm.cxpay.ui.bank.BindBankActivity;
+import com.hm.cxpay.ui.payword.ForgetPswStepOneActivity;
 import com.hm.cxpay.utils.BankUtils;
 import com.hm.cxpay.utils.UIUtils;
 
@@ -216,7 +217,7 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
     /**
      * 发送单个红包
      */
-    private void sendRedEnvelope(String actionId, long money, String psw, final String note, long bankCardId) {
+    private void sendRedEnvelope(String actionId, long money, String psw, final String note, final long bankCardId) {
         if (uid <= 0) {
             return;
         }
@@ -235,7 +236,7 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                             if (sendBean != null) {
                                 envelopeBean = convertToEnvelopeBean(sendBean, PayEnum.ERedEnvelopeType.NORMAL, note, 1);
                                 if (sendBean.getCode() == 1) {//成功
-                                    dismissLoadingDialog();
+                                    payFailed();
                                     setResultOk();
                                     PayEnvironment.getInstance().notifyRefreshBalance();
                                 } else if (sendBean.getCode() == 2) {//失败
@@ -260,10 +261,11 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         payFailed();
                         if (baseResponse.getCode() == -21000) {//密码错误
-                            showPswErrorDialog();
+                            showPswErrorDialog(true, baseResponse.getMessage());
+                        } else if (baseResponse.getCode() == -21001) {//密码错误
+                            showPswErrorDialog(false, baseResponse.getMessage());
                         } else if (baseResponse.getCode() == 40014) {//余额不足
                             showBalanceOfBankNoEnough();
                         } else {
@@ -347,12 +349,16 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
 
     }
 
-    private void showPswErrorDialog() {
+    //显示密码错误弹窗
+    private void showPswErrorDialog(boolean canRetry, String msg) {
         dialogErrorPassword = new DialogErrorPassword(this, R.style.MyDialogTheme);
+        dialogErrorPassword.setCanceledOnTouchOutside(false);
+        dialogErrorPassword.setCanRetry(canRetry);
+        dialogErrorPassword.setContent(msg);
         dialogErrorPassword.setListener(new DialogErrorPassword.IErrorPasswordListener() {
             @Override
             public void onForget() {
-
+                startActivity(new Intent(SingleRedPacketActivity.this, ForgetPswStepOneActivity.class).putExtra("from", 1));
             }
 
             @Override

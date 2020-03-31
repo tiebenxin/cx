@@ -192,9 +192,8 @@ public class TransferActivity extends BasePayActivity {
                             SendResultBean sendBean = baseResponse.getData();
                             if (sendBean != null) {
                                 cxTransferBean = createTransferBean(sendBean, money, PayEnum.ETransferOpType.TRANS_SEND, note);
-                                if (sendBean.getCode() == 1) {//成功\
-                                    dismissLoadingDialog();
-                                    isSending = false;
+                                if (sendBean.getCode() == 1) {//成功
+                                    payFailed();
                                     eventTransferSuccess();
                                     ThreadUtil.getInstance().runMainThread(new Runnable() {
                                         @Override
@@ -221,7 +220,6 @@ public class TransferActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         payFailed();
                         if (baseResponse.getCode() == -21000) {//密码错误
                             showPswErrorDialog();

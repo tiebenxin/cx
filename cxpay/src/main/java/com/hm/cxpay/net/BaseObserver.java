@@ -3,6 +3,8 @@ package com.hm.cxpay.net;
 import android.util.Log;
 
 
+import com.hm.cxpay.rx.data.BaseResponse;
+
 import net.cb.cb.library.net.NetWorkUtils;
 
 import java.net.ConnectException;
@@ -84,6 +86,10 @@ public abstract class BaseObserver<T> implements Observer<T> {
         if (listener != null) {
             listener.end();
         }
+        BaseResponse response = new BaseResponse();
+        response.setMessage(e.getMessage());
+        response.setCode(-1);
+        onNext((T) response);
     }
 
     @Override

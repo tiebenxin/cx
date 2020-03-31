@@ -31,13 +31,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hm.cxpay.bean.CommonBean;
+import com.hm.cxpay.bean.UserBean;
+import com.hm.cxpay.dailog.ChangeSelectDialog;
+import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.BindPhoneNumActivity;
+import com.hm.cxpay.ui.LooseChangeActivity;
+import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.widget.PswView;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.ui.ServiceAgreementActivity;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -60,10 +68,15 @@ public class ShopFragemnt extends Fragment {
     private WebView webView;
     private Activity activity;
     private AlertDialog checkPaywordDialog;
+    private ChangeSelectDialog.Builder builder;
+    private ChangeSelectDialog dialogOne;//通用提示选择弹框：实名认证
+    private ChangeSelectDialog dialogTwo;//通用提示选择弹框：是否绑定手机号
 
     private String url = "";//商城地址
     private String payMoney = "";//需要支付的钱
     private String payStatus = "1";// 1 无操作  0 关闭密码框/用户支付失败  含http，即为成功，返回url
+    private String authAll = "1";// 来自商城的认证流程： 1 需要完成全部三层认证
+    private String authOnce = "0";// 来自商城的认证流程：0 仅认证一次
 
     public static ShopFragemnt newInstance() {
         ShopFragemnt fragment = new ShopFragemnt();
@@ -83,12 +96,15 @@ public class ShopFragemnt extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         webView = getView().findViewById(R.id.web_view);
         activity = getActivity();
-        httpGetUrl();
+        builder = new ChangeSelectDialog.Builder(activity);
+        initContentWeb(webView);
     }
 
-    private void initContentWeb(WebView webView, String url) {
+    private void initContentWeb(WebView webView) {
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);// 设置允许JS弹窗
+        webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setTextZoom(100);//适配某些手机网页显示不全
         webView.addJavascriptInterface(new JavascriptInterface(), "JsToAndroid");//name需要和JS一致
         webView.addJavascriptInterface(new JavascriptInterface(), "JsGetValue");//name需要和JS一致
         webView.setWebViewClient(new MyWebViewClient());
@@ -106,7 +122,6 @@ public class ShopFragemnt extends Fragment {
                 return true;
             }
         });
-        webView.loadUrl(url);
         //返回键支持网页内回退
         webView.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -128,7 +143,13 @@ public class ShopFragemnt extends Fragment {
         public void callAndroidMethod(String money) {
             if (!TextUtils.isEmpty(money)) {
                 payMoney = money;
-                showCheckPaywordDialog();
+                payStatus = "1";
+                //支付条件：实名认证+绑定手机+设置支付密码
+                if (PayEnvironment.getInstance().getUser() != null) {
+                    checkUserStatus(PayEnvironment.getInstance().getUser());
+                } else {
+                    httpGetUserInfo();
+                }
             } else {
                 ToastUtil.show("支付金额不能为空");
             }
@@ -136,8 +157,8 @@ public class ShopFragemnt extends Fragment {
         }
 
         @android.webkit.JavascriptInterface
-        public String getReturnValue(){
-            LogUtil.getLog().i("TAGG","查询了1次!  "+payStatus);
+        public String getReturnValue() {
+//            LogUtil.getLog().i("TAGG", "查询了1次!  " + payStatus);
             return payStatus;
         }
 
@@ -190,7 +211,8 @@ public class ShopFragemnt extends Fragment {
                     public void onHandleSuccess(BaseResponse baseResponse) {
                         if (!TextUtils.isEmpty(baseResponse.getData().toString())) {
                             url = baseResponse.getData().toString();
-                            initContentWeb(webView, url);
+                            webView.loadUrl(url);
+//                            LogUtil.getLog().i("QQ", "重新加载了一次新的url");
                         } else {
                             ToastUtil.show("商城url地址为空，请联系客服！");
                         }
@@ -205,7 +227,7 @@ public class ShopFragemnt extends Fragment {
     }
 
     /**
-     * 提示弹框->校验支付密码(特殊样式，暂不复用)
+     * 提示弹框->校验支付密码
      */
     private void showCheckPaywordDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
@@ -289,12 +311,12 @@ public class ShopFragemnt extends Fragment {
                     @Override
                     public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
                         ToastUtil.show("支付成功！");
-                        if(checkPaywordDialog.isShowing()){
+                        if (checkPaywordDialog.isShowing()) {
                             checkPaywordDialog.dismiss();
                         }
-                        if(baseResponse.getData()!=null){
+                        if (baseResponse.getData() != null) {
                             CommonBean bean = baseResponse.getData();
-                            if(!TextUtils.isEmpty(bean.getUrl())){
+                            if (!TextUtils.isEmpty(bean.getUrl())) {
                                 payStatus = bean.getUrl();
                             }
                         }
@@ -305,7 +327,7 @@ public class ShopFragemnt extends Fragment {
                         super.onHandleError(baseResponse);
                         if (baseResponse.getCode() == (-21000)) {
                             ToastUtil.show(activity, "支付密码错误！");
-                        }else {
+                        } else {
                             ToastUtil.show(activity, baseResponse.getMessage());
                         }
                         //传失败状态给JS
@@ -313,5 +335,178 @@ public class ShopFragemnt extends Fragment {
                         pswView.clear();
                     }
                 });
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            if(PayEnvironment.getInstance().getUserId()<=0){
+                UserInfo info = UserAction.getMyInfo();
+                if (info!=null && info.getUid() != null) {
+                    PayEnvironment.getInstance().setUserId(info.getUid().longValue());
+                }
+            }
+            httpGetUrl();
+        }
+    }
+
+    /**
+     * 三层判断：是否实名认证->是否绑定手机号->是否设置支付密码
+     */
+    private void checkUserStatus(UserBean userBean) {
+        //1 已实名认证
+        if (userBean.getRealNameStat() == 1) {
+            //2 已完成绑定手机号
+            if (userBean.getPhoneBindStat() == 1) {
+                //3 已设置支付密码
+                if(userBean.getPayPwdStat() == 1){
+                    showCheckPaywordDialog();
+                }else {
+                    //未设置支付密码
+                    showSetPaywordDialog();
+                }
+            } else {
+                //未绑定手机号
+                showBindPhoneNumDialog();
+            }
+        } else {
+            //未实名认证->分三步走流程(1 同意->2 实名认证->3 绑定手机号->4 新增一个步骤设置支付密码)
+            showIdentifyDialog();
+        }
+    }
+
+    /**
+     * 请求->获取用户信息
+     */
+    private void httpGetUserInfo() {
+        UserInfo info = UserAction.getMyInfo();
+        if (info == null) {
+            return;
+        }
+        PayHttpUtils.getInstance().getUserInfo(info.getUid())
+                .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<UserBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<UserBean> baseResponse) {
+                        if (baseResponse.isSuccess()) {
+                            UserBean userBean = null;
+                            if (baseResponse.getData() != null) {
+                                userBean = baseResponse.getData();
+                            } else {
+                                userBean = new UserBean();
+                            }
+                            PayEnvironment.getInstance().setUser(userBean);
+                            checkUserStatus(userBean);
+                        } else {
+                            ToastUtil.show(activity, baseResponse.getMessage());
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse<UserBean> baseResponse) {
+                        ToastUtil.show(activity, baseResponse.getMessage());
+                    }
+                });
+    }
+
+    /**
+     * 实名认证提示弹框
+     */
+    private void showIdentifyDialog() {
+        dialogOne = builder.setTitle("根据国家法律法规要求，你需要进行身份认证后，才能继续使用该功能。")
+                .setLeftText("取消")
+                .setRightText("去认证")
+                .setLeftOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //取消
+                        dialogOne.dismiss();
+                    }
+                })
+                .setRightOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //从商城跳转到认证，需要额外增加一个步骤，即设置支付密码
+                        startActivity(new Intent(activity, ServiceAgreementActivity.class).putExtra("from_shop",authAll));
+                        dialogOne.dismiss();
+                    }
+                })
+                .build();
+        dialogOne.show();
+    }
+
+    /**
+     * 是否绑定手机号弹框
+     */
+    private void showBindPhoneNumDialog() {
+        dialogTwo = builder.setTitle("您还没有绑定手机号码\n请先绑定后再进行操作。")
+                .setLeftText("取消")
+                .setRightText("去绑定")
+                .setLeftOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //取消
+                        dialogTwo.dismiss();
+                    }
+                })
+                .setRightOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //去绑定
+                        startActivity(new Intent(activity, BindPhoneNumActivity.class).putExtra("from_shop",authOnce));
+                        dialogTwo.dismiss();
+                    }
+                })
+                .build();
+        dialogTwo.show();
+    }
+
+    /**
+     * 检测到未设置支付密码弹框 (特殊样式，暂不复用)
+     */
+    private void showSetPaywordDialog() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+        dialogBuilder.setCancelable(false);
+        final AlertDialog dialog = dialogBuilder.create();
+        //获取界面
+        View dialogView = LayoutInflater.from(activity).inflate(com.hm.cxpay.R.layout.dialog_set_payword, null);
+        //初始化控件
+        TextView tvSet = dialogView.findViewById(com.hm.cxpay.R.id.tv_set);
+        TextView tvExit = dialogView.findViewById(com.hm.cxpay.R.id.tv_exit);
+        //去设置
+        tvSet.setOnClickListener(new android.view.View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                startActivity(new Intent(activity, SetPaywordActivity.class).putExtra("from_shop",authOnce));
+
+            }
+        });
+        //取消
+        tvExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        //展示界面
+        dialog.show();
+        //解决圆角shape背景无效问题
+        Window window = dialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        //相关配置
+        WindowManager.LayoutParams lp = window.getAttributes();
+        window.setGravity(Gravity.CENTER);
+        WindowManager manager = window.getWindowManager();
+        DisplayMetrics metrics = new DisplayMetrics();
+        manager.getDefaultDisplay().getMetrics(metrics);
+        //设置宽高，高度自适应，宽度屏幕0.8
+        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        lp.width = (int) (metrics.widthPixels * 0.8);
+        dialog.getWindow().setAttributes(lp);
+        dialog.setContentView(dialogView);
     }
 }

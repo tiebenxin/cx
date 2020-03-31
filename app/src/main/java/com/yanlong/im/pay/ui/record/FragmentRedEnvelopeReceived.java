@@ -135,7 +135,6 @@ public class FragmentRedEnvelopeReceived extends Fragment {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(getActivity(), baseResponse.getMessage());
                     }
                 });

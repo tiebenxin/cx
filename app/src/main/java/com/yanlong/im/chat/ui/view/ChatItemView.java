@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Html;
 import android.text.Spannable;
@@ -400,24 +401,17 @@ public class ChatItemView extends LinearLayout {
     }
 
     public void setOnLongClickListener(OnLongClickListener onLongClick) {
-
-
         viewOtTouch.setOnLongClickListener(onLongClick);
         viewMeTouch.setOnLongClickListener(onLongClick);
-       /* imgMe4.setOnLongClickListener(onLongClick);
-        imgMe4.setOnLongClickListener(onLongClick);
+    }
 
-        viewMe7.setOnLongClickListener(onLongClick);*/
-
+    public void setOnClickListener(OnClickListener onClick) {
+        viewOtTouch.setOnClickListener(onClick);
+        viewMeTouch.setOnClickListener(onClick);
     }
 
     public void setHeadOnLongClickListener(OnLongClickListener onLongClick) {
-
-
-        //  imgMeHead.setOnLongClickListener(onLongClick);
         imgOtHead.setOnLongClickListener(onLongClick);
-
-
     }
 
 
@@ -494,6 +488,7 @@ public class ChatItemView extends LinearLayout {
                 viewMe.setVisibility(GONE);
                 viewOt.setVisibility(GONE);
                 break;
+            case EMessageType.TRANSFER_NOTICE:
             case EMessageType.TEXT:
             case EMessageType.AT:
                 viewMe1.setVisibility(VISIBLE);
@@ -607,8 +602,8 @@ public class ChatItemView extends LinearLayout {
             viewOt.setPadding(10, 0, 10, 0);
             viewOtTouch.setPadding(0, 0, 0, 0);
         }
-//        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//        viewOtChild.setLayoutParams(params);
+        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        viewOtChild.setLayoutParams(params);
     }
 
     //公告
@@ -621,6 +616,13 @@ public class ChatItemView extends LinearLayout {
         imgBroadcast.setVisibility(GONE);
         txtBroadcast.setText(string);
         txtBroadcast.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    public void setTransferNotice(Spanned string) {
+        txtMe1.setText(string);
+        txtOt1.setText(string);
+        txtOt1.setMovementMethod(LinkMovementMethod.getInstance());
+        txtMe1.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     public void setData0(SpannableStringBuilder stringBuilder) {
@@ -717,6 +719,7 @@ public class ChatItemView extends LinearLayout {
         menus.add(new OptionMenu("复制"));
         menus.add(new OptionMenu("转发"));
         menus.add(new OptionMenu("删除"));
+        menus.add(new OptionMenu("多选"));
     }
 
     //AT消息
@@ -922,7 +925,7 @@ public class ChatItemView extends LinearLayout {
         viewMe7.initHideUnRead(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
     }
 
-    //普通消息
+    //常信小助手消息
     public void setDataAssistant(String msg) {
 //        msg = "http://baidu.com\n回复报告白拿的\nhttp://baidu.com\n发改委复合物号单位自己\nhttp://baidu.com";
         if (!StringUtil.isNotNull(msg)) {
@@ -1557,6 +1560,10 @@ public class ChatItemView extends LinearLayout {
 
     public void isSelectedShow(boolean b) {
         ckSelect.setVisibility(b ? VISIBLE : GONE);
+    }
+
+    public void select(boolean b) {
+        ckSelect.setChecked(b);
     }
 
 

@@ -24,6 +24,7 @@ import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
+import com.yanlong.im.chat.bean.TransferNoticeMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.bean.WebMessage;
@@ -238,7 +239,7 @@ public class SocketData {
                     //时间要和ack一起返回
                     // .setTimestamp(System.currentTimeMillis())
                     .build();
-//            LogUtil.getLog().d(TAG, "msgSave4Me1: msg" + msg.toString());
+            LogUtil.getLog().d(TAG, "msgSave4Me1: msg" + msg.toString());
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             //时间戳
@@ -971,8 +972,8 @@ public class SocketData {
         } else {
             note.setMsgType(ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE);
             String name = msgDao.getUsername4Show(gid, uid);
-            String n = "<user id='" + uid + "'>" + name + "</user>";
-            note.setNote("你领取了\"" + n + "\"的" + "<envelope id=\" + rid + \">零钱红包</envelope>");
+            String user = "<user id='" + uid + "' gid= " + gid + ">" + name + "</user>";
+            note.setNote("你领取了\"" + user + "\"的" + "<envelope id=" + rid + ">零钱红包</envelope>");
         }
         return note;
     }
@@ -1187,6 +1188,13 @@ public class SocketData {
             case ChatEnum.EMessageType.WEB:
                 if (obj instanceof WebMessage) {
                     msg.setWebMessage((WebMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.TRANSFER_NOTICE:
+                if (obj instanceof TransferNoticeMessage) {
+                    msg.setTransferNoticeMessage((TransferNoticeMessage) obj);
                 } else {
                     return null;
                 }
@@ -1546,6 +1554,15 @@ public class SocketData {
         return message;
     }
 
+    //创建转账提醒消息
+    public static TransferNoticeMessage createTransferNoticeMessage(String msgId, String traceId) {
+        TransferNoticeMessage message = new TransferNoticeMessage();
+        message.setMsgId(msgId);
+        message.setRid(traceId);
+        message.setContent("你有一笔等待收款的<transfer id=" + traceId + ">转账</transfer>");
+        return message;
+    }
+
     public static MsgNotice createMsgNoticeOfSnapshot(String msgId) {
         MsgNotice note = new MsgNotice();
         note.setMsgid(msgId);
@@ -1800,6 +1817,15 @@ public class SocketData {
                     value = fileBuilder.build();
                     type = MsgBean.MessageType.SEND_FILE;
                     break;
+                case ChatEnum.EMessageType.TRANSFER_NOTICE://转发提醒
+                    TransferNoticeMessage noticeMessage = bean.getTransferNoticeMessage();
+                    long tradeId = StringUtil.getLong(noticeMessage.getRid());
+                    if (tradeId > 0) {
+                        MsgBean.TransNotifyMessage.Builder noticeBuilder = MsgBean.TransNotifyMessage.newBuilder();
+                        noticeBuilder.setTradeId(tradeId);
+                        value = noticeBuilder.build();
+                        type = MsgBean.MessageType.TRANS_NOTIFY;
+                    }
             }
             return this;
         }

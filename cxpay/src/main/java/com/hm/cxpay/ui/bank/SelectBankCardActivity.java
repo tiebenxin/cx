@@ -41,7 +41,7 @@ public class SelectBankCardActivity extends BasePayActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_select_bankcard);
-        adapter = new AdapterBankList(this);
+        adapter = new AdapterBankList(this,0);
         LinearLayoutManager manager = new LinearLayoutManager(this);
         manager.setOrientation(LinearLayoutManager.VERTICAL);
         ui.rcBankcardList.setLayoutManager(manager);
@@ -105,7 +105,6 @@ public class SelectBankCardActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                     }
                 });
     }

@@ -406,6 +406,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             str = "[动态表情]";
         } else if (msg_type == ChatEnum.EMessageType.WEB) {
             str = "[链接]" + getWebMessage().getTitle();
+        } else if (msg_type == ChatEnum.EMessageType.TRANSFER_NOTICE) {//转账提醒消息
+            str = "你有一笔等待收款的转账";
         }
 
         return str;

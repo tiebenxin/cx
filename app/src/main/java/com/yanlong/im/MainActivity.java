@@ -23,6 +23,7 @@ import android.widget.TextView;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClientOption;
+import com.alibaba.android.arouter.facade.annotation.Route;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
@@ -58,6 +59,7 @@ import com.yanlong.im.location.LocationPersimmions;
 import com.yanlong.im.location.LocationService;
 import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.notify.NotifySettingDialog;
+import com.yanlong.im.shop.ShopFragemnt;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
 import com.yanlong.im.user.bean.NewVersionBean;
@@ -137,6 +139,7 @@ import retrofit2.Response;
 import static net.cb.cb.library.utils.SharedPreferencesUtil.SPName.NOTIFICATION;
 
 
+@Route(path = "/app/MainActivity")
 public class MainActivity extends AppActivity {
     public final static String IS_LOGIN = "is_from_login";
     private ViewPagerSlide viewPage;
@@ -149,7 +152,7 @@ public class MainActivity extends AppActivity {
     private StrikeButton sbmsg;
     private StrikeButton sbfriend;
     private StrikeButton sbme;
-    //    private StrikeButton sbshop;
+    private StrikeButton sbshop;
     private NotifySettingDialog notifyDialog;
     private NetworkReceiver mNetworkReceiver;
     private MsgMainFragment mMsgMainFragment;
@@ -288,10 +291,10 @@ public class MainActivity extends AppActivity {
     //自动生成的控件事件
     private void initEvent() {
         mMsgMainFragment = MsgMainFragment.newInstance();
-        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), /*ShopFragemnt.newInstance(),*/ MyFragment.newInstance()};
-        tabs = new String[]{"消息", "通讯录", /*"商城", */"我"};
-        iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, /*R.mipmap.ic_shop,*/ R.mipmap.ic_me};
-        iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, /*R.mipmap.ic_shop_h,*/ R.mipmap.ic_me_h};
+        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), ShopFragemnt.newInstance(), MyFragment.newInstance()};
+        tabs = new String[]{"消息", "通讯录", "商城", "我"};
+        iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_shop, R.mipmap.ic_me};
+        iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_shop_h, R.mipmap.ic_me_h};
         viewPage.setOffscreenPageLimit(2);
         viewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -357,12 +360,12 @@ public class MainActivity extends AppActivity {
             View rootView = getLayoutInflater().inflate(R.layout.tab_item, null);
             TextView txt = rootView.findViewById(R.id.txt);
             StrikeButton sb = rootView.findViewById(R.id.sb);
-            /*if (i == EMainTab.SHOP) {
+            if (i == EMainTab.SHOP) {
                 sb.setSktype(1);
                 //设置值
                 sb.setNum(0, true);
-//                sbshop = sb;
-            }*/
+                sbshop = sb;
+            }
             if (i == EMainTab.ME) {
                 sb.setSktype(1);
                 //设置值
@@ -537,7 +540,7 @@ public class MainActivity extends AppActivity {
         taskGetMsgNum();
         //taskClearNotification();
         checkNotificationOK();
-//        checkPayEnvironmentInit();
+        checkPayEnvironmentInit();
         if (AppConfig.isOnline()) {
             checkHasEnvelopeSendFailed();
         }
@@ -550,9 +553,12 @@ public class MainActivity extends AppActivity {
         if (info != null) {
             PayEnvironment.getInstance().setPhone(info.getPhone());
             PayEnvironment.getInstance().setNick(info.getName());
+            if (info.getUid() != null) {
+                PayEnvironment.getInstance().setUserId(info.getUid().longValue());
+            }
             UserBean bean = PayEnvironment.getInstance().getUser();
             if (bean == null || (bean != null && bean.getUid() != info.getUid().intValue())) {
-                httpGetUserInfo();
+                httpGetUserInfo(info.getUid());
             }
         }
         PayEnvironment.getInstance().setContext(AppConfig.getContext());
@@ -592,7 +598,7 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshBalance(RefreshBalanceEvent event) {
-        httpGetUserInfo();
+        httpGetUserInfo(PayEnvironment.getInstance().getUser().getUid());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -608,7 +614,7 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventIdentifyUser(IdentifyUserEvent event) {
-        httpGetUserInfo();
+        httpGetUserInfo(PayEnvironment.getInstance().getUser().getUid());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -1087,7 +1093,6 @@ public class MainActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                     }
                 });
     }
@@ -1095,8 +1100,8 @@ public class MainActivity extends AppActivity {
     /**
      * 请求零钱红包用户信息,刷新用户余额
      */
-    private void httpGetUserInfo() {
-        PayHttpUtils.getInstance().getUserInfo()
+    private void httpGetUserInfo(long uid) {
+        PayHttpUtils.getInstance().getUserInfo(uid)
                 .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<UserBean>>() {
@@ -1112,7 +1117,6 @@ public class MainActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse<UserBean> baseResponse) {
-                        super.onHandleError(baseResponse);
                     }
                 });
     }
@@ -1120,12 +1124,12 @@ public class MainActivity extends AppActivity {
     /*
      *from
      * */
-    @IntDef({EMainTab.MSG, EMainTab.CONTACT, /*EMainTab.SHOP,*/ EMainTab.ME})
+    @IntDef({EMainTab.MSG, EMainTab.CONTACT, EMainTab.SHOP, EMainTab.ME})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMainTab {
         int MSG = 0; // 消息界面
         int CONTACT = 1; // 好友界面
-        //        int SHOP = 2; // 商城界面
+        int SHOP = 3; // 商城界面
         int ME = 2; // 我的界面
     }
 

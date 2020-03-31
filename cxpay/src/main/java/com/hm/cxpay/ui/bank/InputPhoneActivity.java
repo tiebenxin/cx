@@ -177,7 +177,6 @@ public class InputPhoneActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         ui.tvNext.setEnabled(true);
                         ToastUtil.show(InputPhoneActivity.this, baseResponse.getMessage());
                     }

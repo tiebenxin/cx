@@ -77,7 +77,10 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
      * 请求->获取用户信息
      */
     public void httpGetUserInfo() {
-        PayHttpUtils.getInstance().getUserInfo()
+        if (PayEnvironment.getInstance().getUser() == null) {
+            return;
+        }
+        PayHttpUtils.getInstance().getUserInfo(PayEnvironment.getInstance().getUser().getUid())
                 .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<UserBean>>() {
@@ -99,7 +102,6 @@ public class BaseSendRedEnvelopeActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse<UserBean> baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });

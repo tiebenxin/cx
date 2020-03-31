@@ -124,7 +124,6 @@ public class FragmentRedEnvelopeSend extends Fragment {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(getActivity(), baseResponse.getMessage());
                         if (currentPage > 1) {
                             currentPage--;

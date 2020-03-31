@@ -128,7 +128,6 @@ public class BindBankFinishActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(BindBankFinishActivity.this, baseResponse.getMessage());
                     }
                 });
@@ -164,7 +163,6 @@ public class BindBankFinishActivity extends BasePayActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         ui.tvNext.setEnabled(true);
                         ToastUtil.show(BindBankFinishActivity.this, baseResponse.getMessage());
                     }

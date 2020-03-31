@@ -219,6 +219,7 @@ public class MessageManager {
             case SHIPPED_EXPRESSION:// 动画表情
             case TAKE_SCREENSHOT:// 截屏通知
             case SEND_FILE:// 文件消息
+            case TRANS_NOTIFY:// 转账提醒通知
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }
@@ -1225,6 +1226,7 @@ public class MessageManager {
         if (message == null) {
             return;
         }
+        LogUtil.getLog().d(TAG, ">>>在线状态改变---uid=" + msg.getFromUid() + "--onlineType=" + message.getActiveTypeValue());
         fetchTimeDiff(message.getTimestamp());
         if (message.getActiveTypeValue() == 1) {
             SocketData.setPreServerAckTime(message.getTimestamp());

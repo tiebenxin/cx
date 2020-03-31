@@ -14,7 +14,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.recharege.RechargeActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.recharege.RechargeSuccessActivity"
             android:screenOrientation="portrait" />
@@ -30,10 +31,12 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.bank.BankSettingActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.bank.BankDetailActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ui.bank.BindBankFinishActivity"
             android:screenOrientation="portrait" />

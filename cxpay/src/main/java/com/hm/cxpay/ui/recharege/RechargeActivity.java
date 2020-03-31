@@ -28,6 +28,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CommonBean;
+import com.hm.cxpay.dailog.DialogErrorPassword;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
@@ -36,6 +37,8 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.ui.bank.BindBankActivity;
 import com.hm.cxpay.ui.bank.SelectBankCardActivity;
+import com.hm.cxpay.ui.payword.ForgetPswStepOneActivity;
+import com.hm.cxpay.ui.redenvelope.MultiRedPacketActivity;
 import com.hm.cxpay.utils.UIUtils;
 import com.hm.cxpay.widget.PswView;
 
@@ -78,6 +81,8 @@ public class RechargeActivity extends AppActivity {
     private ImageView ivBankIconTwo;//已有银行卡切换->显示银行卡头像
     private TextView tvNotice;//低于10元顶部提示
     private TextView tvQuestion;//常见问题
+    private PswView pswView;//密码输入框
+    private DialogErrorPassword dialogErrorPassword;
 
     public static final int SELECT_BANKCARD = 99;
     private BankBean selectBankcard;//选中的银行卡
@@ -98,6 +103,10 @@ public class RechargeActivity extends AppActivity {
     protected void onResume() {
         super.onResume();
         getBankList();
+        if(dialogTwo!=null && dialogTwo.isShowing()){
+            //强制唤起软键盘
+            showSoftKeyword(pswView);
+        }
     }
 
 
@@ -105,6 +114,10 @@ public class RechargeActivity extends AppActivity {
     protected void onDestroy() {
         super.onDestroy();
         PayEnvironment.getInstance().notifyStampUpdate(true);
+        if (dialogErrorPassword != null) {
+            dialogErrorPassword.dismiss();
+            dialogErrorPassword = null;
+        }
     }
 
     private void initView() {
@@ -145,7 +158,7 @@ public class RechargeActivity extends AppActivity {
             public void onClick(View v) {
                 //1 充值金额不能为空
                 if (!TextUtils.isEmpty(etRecharge.getText().toString())) {
-                    //2 最低充值1元
+                    //2 最低充值10元
                     if (Integer.valueOf(etRecharge.getText().toString()) >= 10) {
                         //3-1 已经添加过银行卡
                         if (ifAddBankcard) {
@@ -387,7 +400,7 @@ public class RechargeActivity extends AppActivity {
             tvBankNameTwo = dialogView.findViewById(R.id.tv_bank_name);
             ivBankIconTwo = dialogView.findViewById(R.id.iv_bank_icon);
             LinearLayout layoutChangeBankcard = dialogView.findViewById(R.id.layout_change_bankcard);
-            final PswView pswView = dialogView.findViewById(R.id.psw_view);
+            pswView = dialogView.findViewById(R.id.psw_view);
             //充值金额
             tvRechargeValue.setText("¥" + etRecharge.getText().toString());
             builder = new StringBuilder();
@@ -420,7 +433,9 @@ public class RechargeActivity extends AppActivity {
             pswView.setOnPasswordChangedListener(new PswView.onPasswordChangedListener() {
                 @Override
                 public void setPasswordChanged(String payword) {
+                    showLoadingDialog();
                     httpRecharge(payword, selectBankcard.getId());
+
                     if (dialogTwo != null) {
                         dialogTwo.dismiss();
                     }
@@ -480,7 +495,6 @@ public class RechargeActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(activity, baseResponse.getMessage());
                     }
                 });
@@ -508,12 +522,19 @@ public class RechargeActivity extends AppActivity {
                                 ToastUtil.showLong(context, baseResponse.getMessage());
                             }
                         }
+                        dismissLoadingDialog();
                     }
 
                     @Override
                     public void onHandleError(BaseResponse<CommonBean> baseResponse) {
-                        super.onHandleError(baseResponse);
-                        ToastUtil.showLong(context, baseResponse.getMessage());
+                        if (baseResponse.getCode() == -21000) {
+                            showPswErrorDialog(true, baseResponse.getMessage());
+                        } else if (baseResponse.getCode() == -21001) {
+                            showPswErrorDialog(false, baseResponse.getMessage());
+                        } else {
+                            ToastUtil.show(context, baseResponse.getMessage());
+                        }
+                        dismissLoadingDialog();
                     }
                 });
 
@@ -543,6 +564,28 @@ public class RechargeActivity extends AppActivity {
                 }
             }
         }
+    }
+
+    //显示密码错误弹窗
+    private void showPswErrorDialog(boolean canRetry, String msg) {
+        dialogErrorPassword = new DialogErrorPassword(this, R.style.MyDialogTheme);
+        dialogErrorPassword.setCanceledOnTouchOutside(false);
+        dialogErrorPassword.setCanRetry(canRetry);
+        dialogErrorPassword.setContent(msg);
+        dialogErrorPassword.setListener(new DialogErrorPassword.IErrorPasswordListener() {
+            @Override
+            public void onForget() {
+                startActivity(new Intent(activity, ForgetPswStepOneActivity.class).putExtra("from", 3));
+            }
+
+            @Override
+            public void onTry() {
+                if(dialogTwo!=null){
+                    dialogTwo.show();
+                }
+            }
+        });
+        dialogErrorPassword.show();
     }
 
 }

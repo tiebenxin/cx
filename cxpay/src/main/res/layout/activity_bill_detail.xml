@@ -810,6 +810,146 @@
                         android:textSize="13sp" />
 
                 </RelativeLayout>
+                <!--消费-->
+                <RelativeLayout
+                    android:id="@+id/layout_pay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="48dp"
+                    android:layout_marginTop="20dp"
+                    android:visibility="gone"
+                    android:layout_marginBottom="20dp">
+
+                    <TextView
+                        android:id="@+id/tv_pay_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="交易状态："
+                        android:textColor="@color/c_868686"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_pay_goods"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tv_pay_status"
+                        android:layout_marginTop="15dp"
+                        android:text="商品订单："
+                        android:textColor="@color/c_868686"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_pay_shop"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tv_pay_goods"
+                        android:layout_marginTop="15dp"
+                        android:text="商户名称："
+                        android:textColor="@color/c_868686"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_pay_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tv_pay_shop"
+                        android:layout_marginTop="15dp"
+                        android:text="支付时间："
+                        android:textColor="@color/c_868686"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_pay_style"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tv_pay_time"
+                        android:layout_marginTop="15dp"
+                        android:text="支付方式："
+                        android:textColor="@color/c_868686"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_pay_number"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tv_pay_style"
+                        android:layout_marginTop="15dp"
+                        android:text="交易单号："
+                        android:textColor="@color/c_868686"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_pay_status_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:layout_toRightOf="@+id/tv_pay_status"
+                        android:text=""
+                        android:textColor="@color/c_000000"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_pay_goods_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tv_pay_status_value"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_toRightOf="@+id/tv_pay_goods"
+                        android:text=""
+                        android:textColor="@color/c_000000"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_pay_shop_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tv_pay_goods_value"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_toRightOf="@+id/tv_pay_shop"
+                        android:text=""
+                        android:textColor="@color/c_000000"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_pay_time_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tv_pay_shop_value"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_toRightOf="@+id/tv_pay_time"
+                        android:text=""
+                        android:textColor="@color/c_000000"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_pay_style_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tv_pay_time_value"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_toRightOf="@+id/tv_pay_style"
+                        android:text=""
+                        android:textColor="@color/c_000000"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tv_pay_number_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tv_pay_style_value"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_toRightOf="@+id/tv_pay_number"
+                        android:text=""
+                        android:textColor="@color/c_000000"
+                        android:textSize="13sp" />
+
+
+                </RelativeLayout>
 
 
                 <View

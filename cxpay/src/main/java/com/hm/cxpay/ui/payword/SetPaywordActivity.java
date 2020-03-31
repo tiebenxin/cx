@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.alibaba.android.arouter.launcher.ARouter;
 import com.hm.cxpay.R;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
@@ -42,6 +43,7 @@ public class SetPaywordActivity extends AppActivity {
     private ImageView ivClearPaywordOne;//清除支付密码
     private ImageView ivClearPaywordTwo;//清除确认支付密码
     private Context activity;
+    private String fromShop = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,9 @@ public class SetPaywordActivity extends AppActivity {
     }
 
     private void initData() {
+        if(getIntent()!=null){
+            fromShop = getIntent().getStringExtra("from_shop");
+        }
         //密码、确认密码默认隐藏明文
         TransformationMethod method =  PasswordTransformationMethod.getInstance();
         etPassword.setTransformationMethod(method);
@@ -172,7 +177,15 @@ public class SetPaywordActivity extends AppActivity {
                         if(baseResponse.isSuccess()){
                             ToastUtil.show(activity, "设置成功!");
                             PayEnvironment.getInstance().getUser().setPayPwdStat(1);
-                            go(LooseChangeActivity.class);
+                            //如果从商城跳转到认证，需要额外增加一个步骤，即设置支付密码
+                            if(!TextUtils.isEmpty(fromShop)){
+                                if(fromShop.equals("1")){
+                                    ARouter.getInstance().build("/app/MainActivity").navigation();
+                                }else {
+                                }
+                            }else {
+                                go(LooseChangeActivity.class);
+                            }
                             finish();
                         }else {
                             ToastUtil.show(context, baseResponse.getMessage());
@@ -182,7 +195,6 @@ public class SetPaywordActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });

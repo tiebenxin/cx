@@ -39,6 +39,7 @@ public class ForgetPswStepThreeActivity extends AppActivity {
     private TextView tvSubmit;
     private ImageView ivCheck;
     private TextView tvViewSupport;
+    private TextView tvAgreement;//用户协议
 
     private Activity activity;
     private String token;//得到认证需要的token
@@ -64,6 +65,7 @@ public class ForgetPswStepThreeActivity extends AppActivity {
         tvSubmit = findViewById(R.id.tv_submit);
         ivCheck = findViewById(R.id.iv_check);
         tvViewSupport = findViewById(R.id.tv_view_support);
+        tvAgreement = findViewById(R.id.tv_agreement);
     }
 
     private void initData() {
@@ -115,6 +117,14 @@ public class ForgetPswStepThreeActivity extends AppActivity {
                 startActivity(intent);
             }
         });
+        tvAgreement.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(activity, WebPageActivity.class);
+                intent.putExtra(WebPageActivity.AGM_URL, Route.USER_AGREEMENT_OF_PAY);
+                startActivity(intent);
+            }
+        });
     }
 
     /**
@@ -148,7 +158,6 @@ public class ForgetPswStepThreeActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse<CommonBean> baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });

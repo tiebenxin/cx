@@ -90,6 +90,7 @@ android {
             buildConfigField("String", "API_HOST", "\"${rootProject.ext.host_release}\"")
             buildConfigField("String", "UP_PATH", "\"${rootProject.ext.upload_release}\"")
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
         }
     }
 }
@@ -190,4 +191,7 @@ dependencies {
     implementation files('libs/volley.jar')
     //分享SDK
     implementation files('libs/cxShare.jar')
+
+    //guava
+    api("com.google.guava:guava:28.2-android")
 }

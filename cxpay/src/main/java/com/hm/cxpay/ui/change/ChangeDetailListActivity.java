@@ -158,7 +158,6 @@ public class ChangeDetailListActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse<BillBean> baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });

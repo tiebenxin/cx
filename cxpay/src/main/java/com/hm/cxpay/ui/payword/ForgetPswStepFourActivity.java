@@ -120,7 +120,6 @@ public class ForgetPswStepFourActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse<CommonBean> baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });
@@ -181,7 +180,6 @@ public class ForgetPswStepFourActivity extends AppActivity {
 
                     @Override
                     public void onHandleError(BaseResponse<CommonBean> baseResponse) {
-                        super.onHandleError(baseResponse);
                     }
                 });
     }

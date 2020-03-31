@@ -93,6 +93,7 @@ public class MyFragment extends Fragment {
     private Context context;
     private ChangeSelectDialog.Builder builder;
     private ChangeSelectDialog dialogOne;//通用提示选择弹框：实名认证提示
+    private ChangeSelectDialog dialogTwo;//通用提示选择弹框：绑定手机号
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -146,12 +147,8 @@ public class MyFragment extends Fragment {
 
     //自动生成的控件事件
     private void initEvent() {
-        //TODO 零钱显示开关，release不显示/debug显示，功能开放后删除这里
-        if (BuildConfig.BUILD_TYPE.equals("debug")) {
-            viewMoney.setVisibility(View.VISIBLE);
-        } else {
-            viewMoney.setVisibility(View.GONE);
-        }
+        viewMoney.setVisibility(View.GONE);//关闭零钱
+
         builder = new ChangeSelectDialog.Builder(context);
         viewHead.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -416,7 +413,11 @@ public class MyFragment extends Fragment {
      * 请求->获取用户信息
      */
     private void httpGetUserInfo() {
-        PayHttpUtils.getInstance().getUserInfo()
+        UserInfo info = UserAction.getMyInfo();
+        if (info == null) {
+            return;
+        }
+        PayHttpUtils.getInstance().getUserInfo(info.getUid())
                 .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<UserBean>>() {
@@ -439,7 +440,6 @@ public class MyFragment extends Fragment {
 
                     @Override
                     public void onHandleError(BaseResponse<UserBean> baseResponse) {
-                        super.onHandleError(baseResponse);
                         ToastUtil.show(context, baseResponse.getMessage());
                     }
                 });
@@ -451,20 +451,43 @@ public class MyFragment extends Fragment {
     private void checkUserStatus(UserBean userBean) {
         //1 已实名认证
         if (userBean.getRealNameStat() == 1) {
-            //1-1 是否完成绑定手机号流程
+            //1-1 已完成绑定手机号
             if (userBean.getPhoneBindStat() == 1) {
-                if (getActivity() != null && !getActivity().isFinishing()) {
-                    startActivity(new Intent(getActivity(), LooseChangeActivity.class));
-                }
+                startActivity(new Intent(getActivity(), LooseChangeActivity.class));
             } else {
-                if (getActivity() != null && !getActivity().isFinishing()) {
-                    ToastUtil.show(context, "请继续完成绑定手机号的流程");
-                    startActivity(new Intent(getActivity(), BindPhoneNumActivity.class));
-                }
+                //1-2 未完成绑定手机号
+                showBindPhoneNumDialog();
             }
         } else {
             //2 未实名认证->分三步走流程(1 同意->2 实名认证->3 绑定手机号)
             showIdentifyDialog();
         }
     }
+
+    /**
+     * 是否绑定手机号弹框
+     */
+    private void showBindPhoneNumDialog() {
+        dialogTwo = builder.setTitle("您还没有绑定手机号码\n请先绑定后再进行操作。")
+                .setLeftText("取消")
+                .setRightText("去绑定")
+                .setLeftOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //取消
+                        dialogTwo.dismiss();
+                    }
+                })
+                .setRightOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //去绑定
+                        startActivity(new Intent(context, BindPhoneNumActivity.class));
+                        dialogTwo.dismiss();
+                    }
+                })
+                .build();
+        dialogTwo.show();
+    }
+
 }

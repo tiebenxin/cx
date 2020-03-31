@@ -3,6 +3,7 @@ package com.yanlong.im.utils.socket;
 import android.accounts.NetworkErrorException;
 
 import com.tencent.bugly.crashreport.BuglyLog;
+import com.hm.cxpay.global.PayEnvironment;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -672,9 +673,9 @@ public class SocketUtil {
                         EventBus.getDefault().post(new EventLoginOut());
                     } else {
                         setRunState(2);
-
                         //开始心跳
                         heartbeatTime = System.currentTimeMillis();
+                        PayEnvironment.getInstance().initTime(ruthmsg.getTimestamp(), heartbeatTime);
                         heartbeatThread();
                         sendRequestForOffline();
                         //开始启动消息重发队列
