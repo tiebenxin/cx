@@ -13,7 +13,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,7 +23,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -42,7 +40,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -86,23 +83,6 @@ import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
 import com.hm.cxpay.ui.transfer.TransferActivity;
 import com.hm.cxpay.ui.transfer.TransferDetailActivity;
 import com.hm.cxpay.utils.UIUtils;
-import com.jrmf360.tools.utils.ThreadUtil;
-import com.yanlong.im.chat.MsgTagHandler;
-import com.yanlong.im.chat.bean.TransferNoticeMessage;
-import com.yanlong.im.chat.interf.IActionTagClickListener;
-import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
-import com.yanlong.im.dialog.ForwardDialog;
-import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
-import com.hm.cxpay.ui.redenvelope.SingleRedPacketActivity;
-import com.hm.cxpay.bean.EnvelopeDetailBean;
-import com.hm.cxpay.bean.GrabEnvelopeBean;
-
-import com.jrmf360.tools.utils.ThreadUtil;
-import com.yanlong.im.chat.MsgTagHandler;
-import com.yanlong.im.chat.bean.ShippedExpressionMessage;
-import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
-import com.yanlong.im.chat.interf.IActionTagClickListener;
-import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
 import com.jrmf360.rplib.bean.GrabRpBean;
@@ -148,6 +128,7 @@ import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
+import com.yanlong.im.chat.bean.TransferNoticeMessage;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
@@ -157,13 +138,13 @@ import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
 import com.yanlong.im.chat.ui.chat.ChatViewModel;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.chat.ui.view.ControllerLinearList;
+import com.yanlong.im.dialog.ForwardDialog;
 import com.yanlong.im.location.LocationActivity;
 import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.action.PayAction;
@@ -3498,16 +3479,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 //菜单
                 final List<OptionMenu> menus = new ArrayList<>();
                 LogUtil.getLog().d("SurvivalTime", "单条刷新");
+                addSurvivalTime(msgbean);
 
-                if (!isGroup()) {
-                    if (msgbean.isMe()) {
-                        addSurvivalTimeAndRead(msgbean);
-                    } else {
-                        addSurvivalTime(msgbean);
-                    }
-                } else {
-                    addSurvivalTime(msgbean);
-                }
 
                 //如果是群聊不打开阅读
                 if (!isGroup()) {
@@ -3595,7 +3568,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                 }
                 itemLongClick(holder, msgbean, menus);
-                itemClickListener(holder, msgbean);
+//                itemClickListener(holder, msgbean);
 
             }
         }
@@ -3636,16 +3609,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             holder.viewChatItem.recoveryOtUnreadView();
             final MsgAllBean msgbean = msgListData.get(position);
             savePositions(msgbean.getMsg_id(), position, msgbean.isMe(), holder.viewChatItem);
-            if (!isGroup()) {
-                if (msgbean.isMe()) {
-                    addSurvivalTimeAndRead(msgbean);
-                } else {
-                    addSurvivalTime(msgbean);
-                }
-            } else {
-                addSurvivalTime(msgbean);
-            }
-
+            addSurvivalTime(msgbean);
 
             //时间戳合并
             String time = null;
@@ -4227,7 +4191,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
             itemLongClick(holder, msgbean, menus);
-            itemClickListener(holder, msgbean);
+//            itemClickListener(holder, msgbean);
 
         }
 
@@ -5807,11 +5771,22 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 添加阅读即焚消息到队列
      */
     public void addSurvivalTime(MsgAllBean msgbean) {
-        if (msgbean == null || BurnManager.getInstance().isContainMsg(msgbean) || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL) {
+        boolean isGroup=isGroup();
+        boolean isMe=msgbean.isMe();
+        //单聊 自己发的消息，需等待对方已读
+        boolean checkNotGroupAndNotRead=!isGroup&&isMe&&msgbean.getRead()!=1;
+        if (msgbean == null || BurnManager.getInstance().isContainMsg(msgbean) || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL
+        ||checkNotGroupAndNotRead) {
             return;
         }
+        //单聊使用已读时间作为焚开始时间
+        long date=msgbean.getReadTime();
+
+        //群聊暂时不处理（待后期策略）
+        if(isGroup||date==0){
+            date = DateUtils.getSystemTime();
+        }
         if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0) {
-            long date = DateUtils.getSystemTime();
             msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000), date, msgbean.getMsg_id());
             msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
             msgbean.setStartTime(date);

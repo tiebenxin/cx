@@ -389,7 +389,7 @@ public class MsgMainFragment extends Fragment {
                 LogUtil.getLog().d("a==", "MsgMainFragment --删除session");
                 MessageManager.getInstance().deleteSessionAndMsg(event.getUid(), event.getGid());
                 MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
-            }else if(refreshTag == CoreEnum.ESessionRefreshTag.BLACK){
+            }else if(refreshTag == CoreEnum.ESessionRefreshTag.ALL){
                //阅后即焚 -更新
                viewModel.updateItemSessionDetail();
            }
