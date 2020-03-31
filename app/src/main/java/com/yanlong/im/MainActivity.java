@@ -20,10 +20,10 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.alibaba.android.arouter.facade.annotation.Route;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClientOption;
-import com.alibaba.android.arouter.facade.annotation.Route;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
@@ -52,7 +52,7 @@ import com.yanlong.im.chat.bean.NotificationConfig;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.server.ChatServer;
+import com.yanlong.im.chat.manager.TcpConnection;
 import com.yanlong.im.chat.task.TaskLoadSavedGroup;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.location.LocationPersimmions;
@@ -125,14 +125,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import cn.jpush.android.api.JPushInterface;
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -506,7 +500,8 @@ public class MainActivity extends AppActivity {
 
     @Override
     protected void onDestroy() {
-        stopService(new Intent(getContext(), ChatServer.class));
+        LogUtil.getLog().i("跟踪--Main", "onDestroy");
+        stopChatService();
         if (mNetworkReceiver != null) {
             unregisterReceiver(mNetworkReceiver);
         }
@@ -525,6 +520,7 @@ public class MainActivity extends AppActivity {
             locService.stop();
         }
     }
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventNetStatus(EventNetStatus event) {
@@ -586,7 +582,14 @@ public class MainActivity extends AppActivity {
 //        } else {
 //            startService(new Intent(getContext(), ChatServer.class));
 //        }
-        startService(new Intent(getContext(), ChatServer.class));
+//        startService(new Intent(getContext(), ChatServer.class));
+        TcpConnection.getInstance(AppConfig.getContext()).startConnect();
+
+    }
+
+    private void stopChatService() {
+//        stopService(new Intent(getContext(), ChatServer.class));
+        TcpConnection.getInstance(AppConfig.getContext()).destroyConnect();
     }
 
 
@@ -649,7 +652,7 @@ public class MainActivity extends AppActivity {
         if (event.getRun()) {
             startChatServer();
         } else {
-            stopService(new Intent(getContext(), ChatServer.class));
+            stopChatService();
         }
 
     }
