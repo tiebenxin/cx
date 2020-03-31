@@ -32,6 +32,7 @@ import android.widget.TextView;
 
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.bean.UserBean;
+import com.hm.cxpay.dailog.ChangeSelectDialog;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
@@ -67,6 +68,9 @@ public class ShopFragemnt extends Fragment {
     private WebView webView;
     private Activity activity;
     private AlertDialog checkPaywordDialog;
+    private ChangeSelectDialog.Builder builder;
+    private ChangeSelectDialog dialogOne;//通用提示选择弹框：实名认证
+    private ChangeSelectDialog dialogTwo;//通用提示选择弹框：是否绑定手机号
 
     private String url = "";//商城地址
     private String payMoney = "";//需要支付的钱
@@ -92,6 +96,7 @@ public class ShopFragemnt extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         webView = getView().findViewById(R.id.web_view);
         activity = getActivity();
+        builder = new ChangeSelectDialog.Builder(activity);
         initContentWeb(webView);
     }
 
@@ -207,7 +212,7 @@ public class ShopFragemnt extends Fragment {
                         if (!TextUtils.isEmpty(baseResponse.getData().toString())) {
                             url = baseResponse.getData().toString();
                             webView.loadUrl(url);
-                            LogUtil.getLog().i("QQ", "重新加载了一次新的url");
+//                            LogUtil.getLog().i("QQ", "重新加载了一次新的url");
                         } else {
                             ToastUtil.show("商城url地址为空，请联系客服！");
                         }
@@ -405,93 +410,56 @@ public class ShopFragemnt extends Fragment {
      * 实名认证提示弹框
      */
     private void showIdentifyDialog() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
-        dialogBuilder.setCancelable(false);//取消点击外部消失弹窗
-        final AlertDialog dialog = dialogBuilder.create();
-        View dialogView = LayoutInflater.from(activity).inflate(com.hm.cxpay.R.layout.dialog_identify, null);
-        TextView tvCancel = dialogView.findViewById(com.hm.cxpay.R.id.tv_cancel);
-        TextView tvIdentify = dialogView.findViewById(com.hm.cxpay.R.id.tv_identify);
-        //取消
-        tvCancel.setOnClickListener(new android.view.View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
-        //去认证(需要先同意协议)
-        tvIdentify.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //从商城跳转到认证，需要额外增加一个步骤，即设置支付密码
-                startActivity(new Intent(activity, ServiceAgreementActivity.class).putExtra("from_shop",authAll));
-                dialog.dismiss();
-            }
-        });
-        //展示界面
-        dialog.show();
-        //解决圆角shape背景无效问题
-        Window window = dialog.getWindow();
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //相关配置
-        WindowManager.LayoutParams lp = window.getAttributes();
-        window.setGravity(Gravity.CENTER);
-        WindowManager manager = window.getWindowManager();
-        DisplayMetrics metrics = new DisplayMetrics();
-        manager.getDefaultDisplay().getMetrics(metrics);
-        //设置宽高，高度自适应，宽度屏幕0.8
-        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels * 0.8);
-        dialog.getWindow().setAttributes(lp);
-        dialog.setContentView(dialogView);
+        dialogOne = builder.setTitle("根据国家法律法规要求，你需要进行身份认证后，才能继续使用该功能。")
+                .setLeftText("取消")
+                .setRightText("去认证")
+                .setLeftOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //取消
+                        dialogOne.dismiss();
+                    }
+                })
+                .setRightOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //从商城跳转到认证，需要额外增加一个步骤，即设置支付密码
+                        startActivity(new Intent(activity, ServiceAgreementActivity.class).putExtra("from_shop",authAll));
+                        dialogOne.dismiss();
+                    }
+                })
+                .build();
+        dialogOne.show();
     }
 
     /**
      * 是否绑定手机号弹框
      */
     private void showBindPhoneNumDialog() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
-        final AlertDialog dialog = dialogBuilder.create();
-        //获取界面
-        View dialogView = LayoutInflater.from(activity).inflate(com.hm.cxpay.R.layout.dialog_bind_phonenum, null);
-        //初始化控件
-        TextView tvBind = dialogView.findViewById(com.hm.cxpay.R.id.tv_bind);
-        TextView tvExit = dialogView.findViewById(com.hm.cxpay.R.id.tv_exit);
-        //去绑定
-        tvBind.setOnClickListener(new android.view.View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-                startActivity(new Intent(activity, BindPhoneNumActivity.class).putExtra("from_shop",authOnce));
-
-            }
-        });
-        //取消
-        tvExit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-        //展示界面
-        dialog.show();
-        //解决圆角shape背景无效问题
-        Window window = dialog.getWindow();
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //相关配置
-        WindowManager.LayoutParams lp = window.getAttributes();
-        window.setGravity(Gravity.CENTER);
-        WindowManager manager = window.getWindowManager();
-        DisplayMetrics metrics = new DisplayMetrics();
-        manager.getDefaultDisplay().getMetrics(metrics);
-        //设置宽高，高度自适应，宽度屏幕0.8
-        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels * 0.8);
-        dialog.getWindow().setAttributes(lp);
-        dialog.setContentView(dialogView);
+        dialogTwo = builder.setTitle("您还没有绑定手机号码\n请先绑定后再进行操作。")
+                .setLeftText("取消")
+                .setRightText("去绑定")
+                .setLeftOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //取消
+                        dialogTwo.dismiss();
+                    }
+                })
+                .setRightOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //去绑定
+                        startActivity(new Intent(activity, BindPhoneNumActivity.class).putExtra("from_shop",authOnce));
+                        dialogTwo.dismiss();
+                    }
+                })
+                .build();
+        dialogTwo.show();
     }
 
     /**
-     * 检测到未设置支付密码弹框
+     * 检测到未设置支付密码弹框 (特殊样式，暂不复用)
      */
     private void showSetPaywordDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);

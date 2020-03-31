@@ -93,6 +93,7 @@ public class MyFragment extends Fragment {
     private Context context;
     private ChangeSelectDialog.Builder builder;
     private ChangeSelectDialog dialogOne;//通用提示选择弹框：实名认证提示
+    private ChangeSelectDialog dialogTwo;//通用提示选择弹框：绑定手机号
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -471,45 +472,26 @@ public class MyFragment extends Fragment {
      * 是否绑定手机号弹框
      */
     private void showBindPhoneNumDialog() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
-        final AlertDialog dialog = dialogBuilder.create();
-        //获取界面
-        View dialogView = LayoutInflater.from(context).inflate(com.hm.cxpay.R.layout.dialog_bind_phonenum, null);
-        //初始化控件
-        TextView tvBind = dialogView.findViewById(com.hm.cxpay.R.id.tv_bind);
-        TextView tvExit = dialogView.findViewById(com.hm.cxpay.R.id.tv_exit);
-        //去绑定
-        tvBind.setOnClickListener(new android.view.View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-                startActivity(new Intent(context, BindPhoneNumActivity.class));
-
-            }
-        });
-        //取消
-        tvExit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-        //展示界面
-        dialog.show();
-        //解决圆角shape背景无效问题
-        Window window = dialog.getWindow();
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        //相关配置
-        WindowManager.LayoutParams lp = window.getAttributes();
-        window.setGravity(Gravity.CENTER);
-        WindowManager manager = window.getWindowManager();
-        DisplayMetrics metrics = new DisplayMetrics();
-        manager.getDefaultDisplay().getMetrics(metrics);
-        //设置宽高，高度自适应，宽度屏幕0.8
-        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        lp.width = (int) (metrics.widthPixels * 0.8);
-        dialog.getWindow().setAttributes(lp);
-        dialog.setContentView(dialogView);
+        dialogTwo = builder.setTitle("您还没有绑定手机号码\n请先绑定后再进行操作。")
+                .setLeftText("取消")
+                .setRightText("去绑定")
+                .setLeftOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //取消
+                        dialogTwo.dismiss();
+                    }
+                })
+                .setRightOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //去绑定
+                        startActivity(new Intent(context, BindPhoneNumActivity.class));
+                        dialogTwo.dismiss();
+                    }
+                })
+                .build();
+        dialogTwo.show();
     }
 
 }
