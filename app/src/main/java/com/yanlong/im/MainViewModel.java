@@ -60,6 +60,10 @@ public class MainViewModel extends ViewModel {
             }
         });
     }
+
+    public String getSessionJson(){
+        return repository.getSessionJson(sessions);
+    }
     /**
      * 获取群信息
      * @param gid
