@@ -2903,6 +2903,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (type == CoreEnum.ERefreshType.ALL) {
             taskRefreshMessage(event.isScrollBottom);
         } else if (type == CoreEnum.ERefreshType.DELETE) {
+            dismissPop();
             if (event.getObject() != null && event.getObject() instanceof MsgAllBean) {
                 Log.e("raleigh_test","deleteMsg");
                 deleteMsg((MsgAllBean) event.getObject());
