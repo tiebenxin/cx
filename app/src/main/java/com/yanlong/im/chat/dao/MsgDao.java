@@ -2425,7 +2425,7 @@ public class MsgDao {
                         result += StringUtil.getUserName(/*info.getMkName()*/"", info.getMembername(), info.getName(), info.getUid()) + "、";
                     }
                 }
-                result = result.length() > 14 ? StringUtil.splitEmojiString(result, 0, 14) : result;
+                result = result.length() > 14 ? StringUtil.splitEmojiString2(result, 0, 14) : result;
                 result += "的群";
             }
         }
@@ -2454,7 +2454,7 @@ public class MsgDao {
                     }
 
                 }
-                result = result.length() > 14 ? StringUtil.splitEmojiString(result, 0, 14) : result;
+                result = result.length() > 14 ? StringUtil.splitEmojiString2(result, 0, 14) : result;
                 result += "的群";
             }
         }

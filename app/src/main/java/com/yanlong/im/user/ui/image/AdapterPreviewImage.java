@@ -149,9 +149,9 @@ public class AdapterPreviewImage extends PagerAdapter {
     private void loadAndShowImage(LocalMedia media, ZoomImageView ivZoom, LargeImageView ivLarge, /*SubsamplingScaleImageView ivLong,*/ ImageView ivDownload, TextView tvViewOrigin) {
         String path = media.getCompressPath();//缩略图路径
         String originUrl = media.getPath();//原图路径
-        boolean isGif = FileUtils.isGif(path);//是否是gif图片
         boolean isOriginal = StringUtil.isNotNull(originUrl);//是否有原图
         boolean isHttp = PictureMimeType.isHttp(path);
+        boolean isGif = isGif(media, isHttp, isOriginal);
         boolean isLong = PictureMimeType.isLongImg(media);
         boolean hasRead = false;
         if (!TextUtils.isEmpty(originUrl)) {
@@ -422,9 +422,6 @@ public class AdapterPreviewImage extends PagerAdapter {
 
     private void showImage(ZoomImageView ivZoom, LargeImageView ivLarge, /*SubsamplingScaleImageView ivLong,*/ TextView tvViewOrigin, ImageView ivDownload, LocalMedia media, boolean isOrigin, boolean hasRead, boolean isHttp, boolean isLong) {
         tvViewOrigin.setTag(media.getSize());
-//        ivZoom.setVisibility(isLong ? View.GONE : View.VISIBLE);
-//        ivLarge.setVisibility(isLong ? View.GONE : View.VISIBLE);
-//        ivLong.setVisibility(isLong ? View.GONE : View.GONE);
         showViewOrigin(isHttp, isOrigin, hasRead, tvViewOrigin, media.getSize());
         if (isHttp) {
             if (isOrigin) {
@@ -995,6 +992,28 @@ public class AdapterPreviewImage extends PagerAdapter {
             iv.setAlpha(1);
             iv.setVisibility(View.GONE);
         }
+    }
+
+    private boolean isGif(LocalMedia media, boolean isHttp, boolean isOrigin) {
+        String path = media.getCompressPath();//缩略图路径
+        String originUrl = media.getPath();//原图路径
+        boolean isGif = false;
+        if (isOrigin) {
+            isGif = FileUtils.isGif(originUrl);
+        } else {
+            if (isHttp) {
+                if (path.contains("below-200k")) {
+                    int index = path.lastIndexOf("/");
+                    String url = path.substring(0, index);
+                    if (!TextUtils.isEmpty(url)) {
+                        isGif = FileUtils.isGif(url);
+                    }
+                }
+            } else {
+                isGif = FileUtils.isGif(path);
+            }
+        }
+        return isGif;
     }
 
 

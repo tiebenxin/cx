@@ -100,6 +100,28 @@ public class StringUtil {
      * @param end
      * @return
      */
+    public static String splitEmojiString2(String content, int start, int end) {
+        Pattern pattern = EMOJI; // 通过传入的正则表达式来生成一个pattern
+        Matcher matcher = pattern.matcher(content);
+        while (matcher.find()) {
+            int first = matcher.start();
+            int last = matcher.end();
+            if (first < start && last > start) {
+                start = first;
+            } else if (first < end && last > end) {
+                end = first;//只能少，不能多，左闭右开
+            }
+        }
+        return content.substring(start, end);
+    }
+    /**
+     * 截取之前，检测是否包含emoji
+     *
+     * @param content
+     * @param start
+     * @param end
+     * @return
+     */
     public static String splitEmojiString(String content, int start, int end) {
         Pattern pattern = Pattern.compile(PATTERN_FACE_EMOJI, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
         Matcher matcher = pattern.matcher(content);
@@ -112,7 +134,8 @@ public class StringUtil {
                 end = first;//只能少，不能多，左闭右开
             }
         }
-        return content.substring(start, end);
+        String emoj=(content.substring(start, end));
+        return splitEmojiString2(emoj,0,emoj.length());
     }
 
     /**

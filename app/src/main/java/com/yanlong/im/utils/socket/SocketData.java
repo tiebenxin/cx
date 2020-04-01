@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hm.cxpay.global.PayEnum;
+import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.AssistantMessage;
 import com.yanlong.im.chat.bean.AtMessage;
@@ -749,10 +750,17 @@ public class SocketData {
         ImageMessage image = new ImageMessage();
         String extTh = "/below-20k";
         String extPv = "/below-200k";
+        boolean isGif = FileUtils.isGif(originUrl);
         image.setLocalimg(local);
+        //gif未被压缩
         if (!TextUtils.isEmpty(originUrl)) {
-            image.setPreview(originUrl + extPv);
-            image.setThumbnail(originUrl + extTh);
+            if (isGif) {
+                image.setPreview(originUrl);
+                image.setThumbnail(originUrl);
+            } else {
+                image.setPreview(originUrl + extPv);
+                image.setThumbnail(originUrl + extTh);
+            }
             if (isOriginal) {
                 image.setOrigin(originUrl);
             }

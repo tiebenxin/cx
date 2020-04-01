@@ -94,7 +94,7 @@ public class UpdateSessionDetail {
                         List<String> headList = new RealmList<>();
                         for (int j = 0; j < i; j++) {
                             MemberUser userInfo = group.getUsers().get(j);
-                            headList.add(userInfo.getHead());
+                            headList.add(userInfo.getHead().length()==0?"-":userInfo.getHead());
                         }
                         //将list转string,逗号分隔的字符串
                         sessionMore.setAvatarList(Joiner.on(",").join(headList));
@@ -191,7 +191,7 @@ public class UpdateSessionDetail {
                         result += StringUtil.getUserName(/*info.getMkName()*/"", info.getMembername(), info.getName(), info.getUid()) + "、";
                     }
                 }
-                result = result.length() > 14 ? StringUtil.splitEmojiString(result, 0, 14) : result;
+                result = result.length() > 14 ? StringUtil.splitEmojiString2(result, 0, 14) : result;
                 result += "的群";
             }
         }
