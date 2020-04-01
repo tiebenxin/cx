@@ -100,6 +100,7 @@ public class TcpConnection {
         isRunning = false;
         if (context != null && mNetworkChangeReceiver != null) {
             context.unregisterReceiver(mNetworkChangeReceiver);
+            mNetworkChangeReceiver = null;
         }
     }
 
