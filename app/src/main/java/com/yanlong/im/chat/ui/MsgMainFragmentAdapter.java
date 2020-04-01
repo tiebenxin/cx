@@ -17,7 +17,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MainViewModel;
 import com.yanlong.im.R;
@@ -293,7 +292,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 public void onClick(View view) {
                     Intent intent = new Intent(context, MsgSearchActivity.class);
                     intent.putExtra("online_state", viewModel.onlineState.getValue());
-                    intent.putExtra("conversition_data", new Gson().toJson(viewModel.sessions));
+                    intent.putExtra("conversition_data", viewModel.getSessionJson());
                     context.startActivity(intent);
                 }
             });

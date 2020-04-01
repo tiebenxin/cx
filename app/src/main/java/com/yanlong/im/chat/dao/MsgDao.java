@@ -25,6 +25,7 @@ import com.yanlong.im.chat.bean.ReceiveRedEnvelopeMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.Remind;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.UserSeting;
@@ -64,6 +65,16 @@ public class MsgDao {
 
     public Group getGroup4Id(String gid) {
         return DaoUtil.findOne(Group.class, "gid", gid);
+    }
+    public List<SessionDetail> getSessionDetail(){
+        Realm realm = DaoUtil.open();
+        List<SessionDetail> sessionDetails=null;
+        try{
+          sessionDetails=realm.copyFromRealm( realm.where(SessionDetail.class).findAll());
+        }finally {
+            DaoUtil.close(realm);
+        }
+        return sessionDetails;
     }
 
     /***

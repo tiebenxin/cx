@@ -43,6 +43,9 @@ public class MainRepository {
         return localDataSource.getSessionMore();
     }
 
+    public String getSessionJson(RealmResults<Session> sessions){
+        return localDataSource.getSessionJson(sessions);
+    }
     /**
      * 更新详情
      */
