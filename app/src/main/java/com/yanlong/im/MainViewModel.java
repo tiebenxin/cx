@@ -28,12 +28,12 @@ public class MainViewModel extends ViewModel {
     //保存session 位置
     public Map<String, Integer> sessionMoresPositions = new HashMap<>();
     //保存session数量
-    private int sessionOriginalSize=0;
+    public int sessionOriginalSize = 0;
 
     public MainViewModel() {
         repository = new MainRepository();
         sessions = repository.getSesisons();
-        sessionOriginalSize=sessions.size();
+        sessionOriginalSize = sessions.size();
         //session数据变化时，更新session详情
         sessionMores = repository.getSessionMore();
         sessions.addChangeListener(new RealmChangeListener<RealmResults<Session>>() {
@@ -41,29 +41,24 @@ public class MainViewModel extends ViewModel {
             public void onChange(RealmResults<Session> sessions) {
                 Log.e("raleigh_test", "sessions" + sessions.size());
 //                if(sessionOriginalSize<sessions.size()){
-                    //session数据变化时，更新session详情：旧数据收到/发送消息，删除，新数据收到/发送消息
-                   repository.updateSessionDetail();
+                //session数据变化时，更新session详情：旧数据收到/发送消息，删除，新数据收到/发送消息
+                repository.updateSessionDetail();
 //                }
-                sessionOriginalSize=sessions.size();
             }
         });
         sessionMores.addChangeListener(new RealmChangeListener<RealmResults<SessionDetail>>() {
             @Override
             public void onChange(RealmResults<SessionDetail> sessionMores) {
-                try {
-                    Log.e("raleigh_test", "sessionMores=" + sessionMores.size());
-                    for (int i = 0; i < sessionMores.size(); i++) {
-                        sessionMoresPositions.put(sessionMores.get(i).getSid(), i);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.e("raleigh_test", "sessionMores=" + e.getMessage());
+                Log.e("raleigh_test", "sessionMores=" + sessionMores.size());
+                sessionMoresPositions.clear();
+                for (int i = 0; i < sessionMores.size(); i++) {
+                    sessionMoresPositions.put(sessionMores.get(i).getSid(), i);
                 }
             }
         });
     }
 
-    public void updateItemSessionDetail(){
+    public void updateItemSessionDetail() {
         repository.updateSessionDetail();
     }
 

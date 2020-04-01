@@ -18,7 +18,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -333,19 +332,29 @@ public class MsgMainFragment extends Fragment {
         initObserver();
     }
 
+    @Override
+    public void onResume() {
+        if (mAdapter != null) {
+            mAdapter.isNeedCloseSwipe = true;
+            mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+        }
+        super.onResume();
+    }
+
     /**
      * 初始化观察器
      */
     private void initObserver() {
         //监听列表数据变化
+
         viewModel.sessionMores.addChangeListener(new RealmChangeListener<RealmResults<SessionDetail>>() {
             @Override
             public void onChange(RealmResults<SessionDetail> sessionMore) {
                 if (sessionMore != null) {
-                    Log.e("raleigh_test", "sessionMore.observe" + sessionMore.size());
+                    mAdapter.isNeedCloseSwipe = viewModel.sessionOriginalSize != viewModel.sessions.size();
                     mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                    viewModel.sessionOriginalSize = viewModel.sessions.size();
                 }
-//                checkSessionData(list);
             }
         });
         //监听删除操作项
@@ -362,7 +371,10 @@ public class MsgMainFragment extends Fragment {
                 getView().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        mtListView.getListView().getAdapter().notifyItemRemoved(position + 1);//范围刷新
+//                        mtListView.getListView().getAdapter().notifyItemRemoved(position + 1);//范围刷新
+                        if (viewModel.sessions != null && viewModel.sessions.size() > 0) {
+                            mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                        }
                     }
                 }, 50);
             }
@@ -383,16 +395,16 @@ public class MsgMainFragment extends Fragment {
         if (MessageManager.getInstance().isMessageChange()) {
             MessageManager.getInstance().setMessageChange(false);
             int refreshTag = event.getRefreshTag();
-           if (refreshTag == CoreEnum.ESessionRefreshTag.DELETE) {
+            if (refreshTag == CoreEnum.ESessionRefreshTag.DELETE) {
                 //阅后即焚 -更新
                 viewModel.updateItemSessionDetail();
                 LogUtil.getLog().d("a==", "MsgMainFragment --删除session");
                 MessageManager.getInstance().deleteSessionAndMsg(event.getUid(), event.getGid());
                 MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
-            }else if(refreshTag == CoreEnum.ESessionRefreshTag.ALL){
-               //阅后即焚 -更新
-               viewModel.updateItemSessionDetail();
-           }
+            } else if (refreshTag == CoreEnum.ESessionRefreshTag.ALL) {
+                //阅后即焚 -更新
+                viewModel.updateItemSessionDetail();
+            }
         }
     }
 
@@ -448,6 +460,10 @@ public class MsgMainFragment extends Fragment {
         public static final int TYPE_NORMAL = 1;
         private View mHeaderView;
         public View viewNetwork;
+        //记录当前要删除的项
+        private SwipeMenuLayout currentDelSwipeLayout = null;
+        //是否关闭右侧删除
+        public boolean isNeedCloseSwipe = false;
 
         public RecyclerViewAdapter(View headerView) {
             mHeaderView = headerView;
@@ -495,6 +511,9 @@ public class MsgMainFragment extends Fragment {
         public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, int position) {
             if (viewHolder instanceof RCViewHolder) {
                 RCViewHolder holder = (RCViewHolder) viewHolder;
+                if (isNeedCloseSwipe) {
+                    holder.swipeLayout.quickClose();
+                }
                 final Session bean = viewModel.sessions.get(position - 1);
                 String icon = "";
                 String title = "";
