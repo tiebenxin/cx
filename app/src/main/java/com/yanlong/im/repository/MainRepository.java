@@ -1,5 +1,6 @@
 package com.yanlong.im.repository;
 
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.data.local.MainLocalDataSource;
@@ -17,7 +18,14 @@ public class MainRepository {
     public MainRepository() {
         localDataSource = new MainLocalDataSource();
     }
-
+    /**
+     * 获取群信息
+     * @param gid
+     * @return
+     */
+    public Group getGroup4Id(String gid){
+        return localDataSource.getGroup4Id(gid);
+    }
     /**
      * 获取session 列表
      *

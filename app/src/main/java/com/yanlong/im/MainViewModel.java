@@ -4,6 +4,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.repository.MainRepository;
@@ -29,6 +30,8 @@ public class MainViewModel extends ViewModel {
     public Map<String, Integer> sessionMoresPositions = new HashMap<>();
     //保存session数量
     public int sessionOriginalSize = 0;
+    //判断网络状态 true在线 false离线
+    public MutableLiveData<Boolean> onlineState = new MutableLiveData<>();
 
     public MainViewModel() {
         repository = new MainRepository();
@@ -57,7 +60,14 @@ public class MainViewModel extends ViewModel {
             }
         });
     }
-
+    /**
+     * 获取群信息
+     * @param gid
+     * @return
+     */
+    public Group getGroup4Id(String gid){
+        return repository.getGroup4Id(gid);
+    }
     public void updateItemSessionDetail() {
         repository.updateSessionDetail();
     }
