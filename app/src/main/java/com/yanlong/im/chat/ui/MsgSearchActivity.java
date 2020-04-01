@@ -279,7 +279,7 @@ public class MsgSearchActivity extends AppActivity {
                         break;
                     case 1:
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            if (msginfo == null || msginfo.getMsg_type() == null) {
+                            if (msginfo == null || msginfo.getMsg_type() == null || info==null) {
                                 return;
                             }
                             if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
