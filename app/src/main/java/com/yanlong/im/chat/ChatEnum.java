@@ -148,7 +148,7 @@ public class ChatEnum {
      * */
     @IntDef({ECellEventType.TXT_CLICK, ECellEventType.IMAGE_CLICK, ECellEventType.CARD_CLICK, ECellEventType.RED_ENVELOPE_CLICK, ECellEventType.LONG_CLICK, ECellEventType.TRANSFER_CLICK,
             ECellEventType.AVATAR_CLICK, ECellEventType.RESEND_CLICK, ECellEventType.AVATAR_LONG_CLICK, ECellEventType.VOICE_CLICK, ECellEventType.VIDEO_CLICK, ECellEventType.FILE_CLICK,
-            ECellEventType.BALANCE_ASSISTANT_CLICK, ECellEventType.WEB_CLICK, ECellEventType.MULTI_CLICK, ECellEventType.MAP_CLICK})
+            ECellEventType.BALANCE_ASSISTANT_CLICK, ECellEventType.WEB_CLICK, ECellEventType.MULTI_CLICK, ECellEventType.MAP_CLICK, ECellEventType.VOICE_VIDEO_CALL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ECellEventType {
         int TXT_CLICK = 0; //点击文本消息
@@ -161,12 +161,13 @@ public class ChatEnum {
         int RESEND_CLICK = 7;//点击重新发送
         int AVATAR_LONG_CLICK = 8;//头像长按事件
         int VOICE_CLICK = 9;//语音消息
-        int VIDEO_CLICK = 10;//视屏消息
+        int VIDEO_CLICK = 10;//视频消息
         int FILE_CLICK = 11;//文件消息
         int BALANCE_ASSISTANT_CLICK = 12;//零钱助手消息
         int WEB_CLICK = 13;//分享web消息
         int MULTI_CLICK = 14;//合并消息
         int MAP_CLICK = 15;//位置消息
+        int VOICE_VIDEO_CALL = 16;//点击音视频电话消息
     }
 
 

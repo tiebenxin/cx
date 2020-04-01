@@ -63,7 +63,6 @@ public class ChatCellVoice extends ChatCellBase {
         voiceMessage = model.getVoiceMessage();
         if (voiceMessage != null) {
             uri = Uri.parse(voiceMessage.getUrl());
-//            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri), voiceMessage.getPlayStatus());
         }
     }
 

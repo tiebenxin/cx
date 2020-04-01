@@ -157,7 +157,7 @@ public class ChatCellImage extends ChatCellFileBase {
     public void onBubbleClick() {
         super.onBubbleClick();
         if (mCellListener != null && model != null) {
-            mCellListener.onEvent(ChatEnum.ECellEventType.IMAGE_CLICK, model, new Object());
+            mCellListener.onEvent(ChatEnum.ECellEventType.IMAGE_CLICK, model, model.getImage());
         }
     }
 

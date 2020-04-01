@@ -30,6 +30,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
     private Map<Integer, View> viewMap = new HashMap<>();
     private boolean isShowCheckBox;
     private int unreadCount;
+    private List<MsgAllBean> selectedList = new ArrayList<>();
 
 
     public MessageAdapter(Context c, ICellEventListener l, boolean isG) {
@@ -125,7 +126,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
     }
 
     //获取某位置消息
-    public MsgAllBean getPositionMessage(int position) {
+    public MsgAllBean getMessage(int position) {
         if (mList != null && mList.size() > position) {
             return mList.get(position);
         }
@@ -157,11 +158,15 @@ public class MessageAdapter extends RecyclerView.Adapter {
         mList.add(msg);
     }
 
-    public void addMessageList(List<MsgAllBean> msg) {
+    public void setMessageList(List<MsgAllBean> msg) {
+        mList = msg;
+    }
+
+    public void addMessageList(int position, List<MsgAllBean> msg) {
         if (mList == null) {
             mList = new ArrayList<>();
         }
-        mList.addAll(msg);
+        mList.addAll(position, msg);
     }
 
     public void setUnreadCount(int position) {
@@ -179,5 +184,48 @@ public class MessageAdapter extends RecyclerView.Adapter {
     public boolean isShowCheckBox() {
         return isShowCheckBox;
     }
+
+    public List<MsgAllBean> getSelectedMsg() {
+        return selectedList;
+    }
+
+    public List<MsgAllBean> getMsgList() {
+        return mList;
+    }
+
+    public int getPosition(MsgAllBean bean) {
+        int index = -1;
+        if (bean != null && mList != null) {
+            index = mList.indexOf(bean);
+        }
+        return index;
+    }
+
+    public void removeItem(MsgAllBean bean) {
+        if (mList != null && bean != null) {
+            mList.remove(bean);
+        }
+    }
+
+    public void removeMsgList(List<MsgAllBean> list) {
+        if (mList != null && list != null) {
+            mList.removeAll(list);
+        }
+    }
+
+    //更新数据
+    public int updateMessage(MsgAllBean bean) {
+        int index = -1;
+        if (bean == null || mList == null) {
+            return index;
+        }
+        index = mList.indexOf(bean);
+        if (index >= 0) {
+            mList.set(index, bean);
+        }
+        return index;
+
+    }
+
 
 }
