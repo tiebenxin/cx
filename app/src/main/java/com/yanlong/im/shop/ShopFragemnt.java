@@ -543,10 +543,9 @@ public class ShopFragemnt extends Fragment {
 
     }
 
-    public void check(){
+    public void check() {
         TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-//        if (token == null || TextUtils.isEmpty(token.getBankReqSignKey())) {
-        if (true) {
+        if (token == null || TextUtils.isEmpty(token.getBankReqSignKey())) {
             showLoginDialog();
             return;
         }
