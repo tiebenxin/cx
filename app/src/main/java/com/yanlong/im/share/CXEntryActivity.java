@@ -151,7 +151,7 @@ public class CXEntryActivity extends AppActivity {
 
     private boolean isSupportType(String type) {
         if (!TextUtils.isEmpty(type)) {
-            if (type.startsWith("image/") || type.startsWith("text/")) {
+            if (type.startsWith("image/") || type.startsWith("text/")|| type.startsWith("application/")) {
                 return true;
             }
         }
