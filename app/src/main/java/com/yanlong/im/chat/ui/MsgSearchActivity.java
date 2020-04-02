@@ -215,9 +215,6 @@ public class MsgSearchActivity extends AppActivity {
                     if(name==null)name="";
                 }
             }
-            if(title.equals("5666")){
-
-            }
 
             // 头像集合
             List<String> headList = new ArrayList<>();
