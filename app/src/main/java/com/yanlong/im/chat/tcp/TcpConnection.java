@@ -1,4 +1,4 @@
-package com.yanlong.im.chat.manager;
+package com.yanlong.im.chat.tcp;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.annotation.IntDef;
 
-import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.socket.SocketUtil;
 
@@ -21,7 +20,7 @@ import java.lang.annotation.RetentionPolicy;
  * @date 2020/3/31
  * Description tcp封装类
  */
-public class TcpConnection {
+public class TcpConnection implements Connection {
     private final String TAG = TcpConnection.class.getSimpleName();
 
     private static TcpConnection INSTANCE;
@@ -64,7 +63,7 @@ public class TcpConnection {
         context.registerReceiver(mNetworkChangeReceiver, intentFilter);
     }
 
-    //开始链接
+    @Override
     public void startConnect() {
         LogUtil.getLog().d(TAG, "开始连接--" + NetUtil.isNetworkConnected());
         this.from = EFrom.DEFAULT;
@@ -85,12 +84,14 @@ public class TcpConnection {
     }
 
     //停止链接
-    private void stopConnect() {
+    @Override
+    public void stopConnect() {
         LogUtil.getLog().d(TAG, "暂停连接--" + NetUtil.isNetworkConnected());
         SocketUtil.getSocketUtil().stop(true);
     }
 
     //销毁链接
+    @Override
     public void destroyConnect() {
         if (from == EFrom.OTHER) {
             return;
