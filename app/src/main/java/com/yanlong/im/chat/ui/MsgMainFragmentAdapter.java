@@ -126,7 +126,6 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
                 }
             }
-
             // 头像集合
             List<String> headList = new ArrayList<>();
 
@@ -164,7 +163,9 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     }
                 } else if (type == 1) {
                     if (!TextUtils.isEmpty(bean.getAtMessage()) && !TextUtils.isEmpty(name)) {
-                        info = bean.getAtMessage();
+                        if(TextUtils.isEmpty(info)){
+                            info = bean.getAtMessage();
+                        }
 //                        if (StringUtil.isNotNull(info) && info.startsWith("@所有人")) {
 //                            info = info.replace("@所有人", "");
 //                        }
@@ -203,17 +204,22 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                         break;
                     case 1:
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
-                                SpannableString style = new SpannableString("[有人@我]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
-                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                showMessage(holder.txtInfo, info, style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
-                            } else {
-                                SpannableString style = new SpannableString("[@所有人]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
-                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                showMessage(holder.txtInfo, info, style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
-                            }
+                            SpannableString style = new SpannableString("[有人@我]" + info);
+                            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
+                            style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            showMessage(holder.txtInfo, info, style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
+                            //原2020/4/1前
+//                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
+//                                SpannableString style = new SpannableString("[有人@我]" + info);
+//                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
+//                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//                                showMessage(holder.txtInfo, info, style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
+//                            } else {
+//                                SpannableString style = new SpannableString("[@所有人]" + info);
+//                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
+//                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//                                showMessage(holder.txtInfo, info, style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
+//                            }
                         }
                         break;
                     case 2:
