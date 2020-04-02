@@ -227,7 +227,7 @@ public class SplashActivity extends AppActivity {
         Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
 //        String imId = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).get4Json(String.class);
         if (token != null) {
-            if ((!token.isTokenValid(uid) || token.getBankReqSignKey()==null) && NetUtil.isNetworkConnected()) {
+            if ((!token.isTokenValid(uid) /*|| token.getBankReqSignKey()==null*/) && NetUtil.isNetworkConnected()) {
                 updateToken(isFirst);
             } else {
                 userAction.login4tokenNotNet(token);
