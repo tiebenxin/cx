@@ -518,40 +518,4 @@ public class ShopFragemnt extends Fragment {
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
     }
-
-    private void showLoginDialog() {
-        if (getActivity() == null) {
-            return;
-        }
-        DialogCommon dialogLogin = new DialogCommon(getActivity());
-        dialogLogin.setContent("请退出重登后使用此功能", true)
-                .setTitleAndSure(false, true)
-                .setRight("开启")
-                .setLeft("拒绝")
-                .setListener(new DialogCommon.IDialogListener() {
-                    @Override
-                    public void onSure() {
-                        if (getActivity() != null) {
-                            ((MainActivity) getActivity()).loginoutComment();
-                            Intent loginIntent = new Intent(getActivity(), LoginActivity.class);
-                            startActivity(loginIntent);
-                            getActivity().finish();
-                        }
-                    }
-
-                    @Override
-                    public void onCancel() {
-
-                    }
-                }).show();
-
-    }
-
-    public void check() {
-        TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-        if (token == null || TextUtils.isEmpty(token.getBankReqSignKey())) {
-            showLoginDialog();
-            return;
-        }
-    }
 }

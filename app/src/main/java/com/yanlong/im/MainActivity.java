@@ -89,6 +89,7 @@ import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.manager.FileManager;
 import net.cb.cb.library.manager.TokenManager;
@@ -168,6 +169,8 @@ public class MainActivity extends AppActivity {
     private String lastPostLocationTime = "";//最近一次上传用户位置的时间
     private boolean isCreate = false;
     private ShopFragemnt mShowFragment;
+    @EMainTab
+    private int currentTab = EMainTab.MSG;
 
 
     @Override
@@ -291,6 +294,7 @@ public class MainActivity extends AppActivity {
         tabs = new String[]{"消息", "通讯录", "商城", "我"};
         iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_shop, R.mipmap.ic_me};
         iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_shop_h, R.mipmap.ic_me_h};
+        viewPage.setCurrentItem(currentTab);
         viewPage.setOffscreenPageLimit(2);
         viewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -307,6 +311,15 @@ public class MainActivity extends AppActivity {
         bottomTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == EMainTab.SHOP) {
+                    viewPage.setCurrentItem(currentTab);
+                    boolean hasToken = check();
+                    if (!hasToken) {
+                        showLoginDialog();
+//                        return;
+                    }
+                }
+                currentTab = tab.getPosition();
                 viewPage.setCurrentItem(tab.getPosition());
                 for (int i = 0; i < bottomTab.getTabCount(); i++) {
                     View rootView = bottomTab.getTabAt(i).getCustomView();
@@ -337,12 +350,6 @@ public class MainActivity extends AppActivity {
                                 }
                             }
                         }, 100);
-                    }
-                }
-
-                if (tab.getPosition() == EMainTab.SHOP) {
-                    if (mShowFragment != null) {
-                        mShowFragment.check();
                     }
                 }
             }
@@ -1250,5 +1257,42 @@ public class MainActivity extends AppActivity {
             }
         });
 
+    }
+
+    private void showLoginDialog() {
+        if (isFinishing()) {
+            return;
+        }
+        DialogCommon dialogLogin = new DialogCommon(this);
+//        dialogLogin.setCanceledOnTouchOutside(false);
+        dialogLogin.setContent("请退出重登后使用此功能", true)
+                .setTitleAndSure(false, true)
+                .setRight("开启")
+                .setLeft("拒绝")
+                .setListener(new DialogCommon.IDialogListener() {
+                    @Override
+                    public void onSure() {
+                        if (!isFinishing()) {
+                            loginoutComment();
+                            Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
+                            startActivity(loginIntent);
+                            finish();
+                        }
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        viewPage.setCurrentItem(EMainTab.MSG);
+                    }
+                }).show();
+
+    }
+
+    public boolean check() {
+        TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+        if (token == null || TextUtils.isEmpty(token.getBankReqSignKey())) {
+            return false;
+        }
+        return false;
     }
 }
