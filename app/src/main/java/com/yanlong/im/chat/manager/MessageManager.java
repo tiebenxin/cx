@@ -415,8 +415,12 @@ public class MessageManager {
                 updateAtMessage(wrapMessage);
                 break;
             case ACTIVE_STAT_CHANGE://在线状态改变
-                updateUserOnlineStatus(wrapMessage);
-                notifyRefreshFriend(true, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.UPDATE_INFO);
+                UserInfo user = updateUserOnlineStatus(wrapMessage);
+                if (user != null) {
+                    notifyRefreshFriend(true, user, CoreEnum.ERosterAction.UPDATE_INFO);
+                } else {
+                    notifyRefreshFriend(true, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.UPDATE_INFO);
+                }
                 notifyOnlineChange(wrapMessage.getFromUid());
                 break;
             case CANCEL://撤销消息
@@ -1080,6 +1084,17 @@ public class MessageManager {
         EventBus.getDefault().post(event);
     }
 
+
+    public void notifyRefreshFriend(boolean isLocal, UserInfo info, @CoreEnum.ERosterAction int action) {
+        EventRefreshFriend event = new EventRefreshFriend();
+        event.setLocal(isLocal);
+        if (action != CoreEnum.ERosterAction.DEFAULT) {
+            event.setUser(info);
+            event.setRosterAction(action);
+        }
+        EventBus.getDefault().post(event);
+    }
+
     /*
      * 获取缓存信息中用户信息
      * */
@@ -1221,19 +1236,19 @@ public class MessageManager {
         MediaBackUtil.palydingdong(AppConfig.getContext());
     }
 
-    private void updateUserOnlineStatus(MsgBean.UniversalMessage.WrapMessage msg) {
+    private UserInfo updateUserOnlineStatus(MsgBean.UniversalMessage.WrapMessage msg) {
         long fromUid = msg.getFromUid();
         MsgBean.ActiveStatChangeMessage message = msg.getActiveStatChange();
         if (message == null) {
-            return;
+            return null;
         }
         LogUtil.getLog().d(TAG, ">>>在线状态改变---uid=" + msg.getFromUid() + "--onlineType=" + message.getActiveTypeValue());
         fetchTimeDiff(message.getTimestamp());
         if (message.getActiveTypeValue() == 1) {
             SocketData.setPreServerAckTime(message.getTimestamp());
         }
-        userDao.updateUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
-        MessageManager.getInstance().updateCacheUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
+        return userDao.updateUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
+//        MessageManager.getInstance().updateCacheUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
     }
 
     /*

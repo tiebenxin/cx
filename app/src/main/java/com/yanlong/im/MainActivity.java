@@ -52,7 +52,7 @@ import com.yanlong.im.chat.bean.NotificationConfig;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.manager.TcpConnection;
+import com.yanlong.im.chat.tcp.TcpConnection;
 import com.yanlong.im.chat.task.TaskLoadSavedGroup;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.location.LocationPersimmions;
