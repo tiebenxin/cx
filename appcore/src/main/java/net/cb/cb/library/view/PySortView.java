@@ -251,7 +251,8 @@ public class PySortView extends LinearLayout {
                         txtSelectView.setText(txt);
                     }
                     //动态设置文字位置
-                    float y = event.getY();
+//                    float y = event.getY();
+                    float y = view.getY()-view.getHeight();
                     y = y < 0 ? 0 : y;
                     y = y > maxheight ? maxheight : y;
                     txtSelectView.setY(y);
