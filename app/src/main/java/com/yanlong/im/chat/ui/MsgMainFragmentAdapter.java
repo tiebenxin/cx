@@ -123,6 +123,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     if (avatarListString != null) {
                         avatarList = Arrays.asList(avatarListString.split(","));
                     }
+                    if(name==null)name="";
 
                 }
             }

@@ -212,7 +212,7 @@ public class MsgSearchActivity extends AppActivity {
                     if (avatarListString != null) {
                         avatarList = Arrays.asList(avatarListString.split(","));
                     }
-
+                    if(name==null)name="";
                 }
             }
             if(title.equals("5666")){
