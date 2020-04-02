@@ -764,6 +764,7 @@ public class MsgDao {
             RealmResults<Session> sessions = realm.where(Session.class).findAll();
             for (Session session : sessions) {
                 session.setUnread_count(0);
+                session.setAtMessage(null);
                 realm.insertOrUpdate(session);
             }
             realm.commitTransaction();
