@@ -316,7 +316,6 @@ public class MainActivity extends AppActivity {
                     boolean hasToken = check();
                     if (!hasToken) {
                         showLoginDialog();
-//                        return;
                     }
                 }
                 currentTab = tab.getPosition();
@@ -1293,6 +1292,6 @@ public class MainActivity extends AppActivity {
         if (token == null || TextUtils.isEmpty(token.getBankReqSignKey())) {
             return false;
         }
-        return false;
+        return true;
     }
 }
