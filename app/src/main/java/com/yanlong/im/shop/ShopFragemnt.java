@@ -352,6 +352,10 @@ public class ShopFragemnt extends Fragment {
                     PayEnvironment.getInstance().setUserId(info.getUid().longValue());
                 }
             }
+            TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+            if (token == null || TextUtils.isEmpty(token.getBankReqSignKey())) {
+                return;
+            }
             httpGetUrl();
         }
     }
