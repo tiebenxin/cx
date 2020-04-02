@@ -759,11 +759,12 @@ public class MsgDao {
             realm.where(AtMessage.class).findAll().deleteAllFromRealm();
             realm.where(AssistantMessage.class).findAll().deleteAllFromRealm();
             realm.where(VideoMessage.class).findAll().deleteAllFromRealm();
-
+            realm.where(SessionDetail.class).findAll().deleteAllFromRealm();
             //清理角标
             RealmResults<Session> sessions = realm.where(Session.class).findAll();
             for (Session session : sessions) {
                 session.setUnread_count(0);
+                session.setAtMessage(null);
                 realm.insertOrUpdate(session);
             }
             realm.commitTransaction();
@@ -1193,6 +1194,7 @@ public class MsgDao {
                 DaoUtil.findOne(Session.class, "from_uid", from_uid);
         if (session != null) {
             session.setUnread_count(0);
+            session.setAtMessage(null);
             //  session.setUp_time(System.currentTimeMillis());
             DaoUtil.update(session);
         }

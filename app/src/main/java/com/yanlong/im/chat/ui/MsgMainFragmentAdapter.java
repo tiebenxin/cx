@@ -123,10 +123,10 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     if (avatarListString != null) {
                         avatarList = Arrays.asList(avatarListString.split(","));
                     }
+                    if(name==null)name="";
 
                 }
             }
-
             // 头像集合
             List<String> headList = new ArrayList<>();
 
@@ -140,15 +140,15 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     SpannableString style = new SpannableString("[红包发送失败]" + info);
                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
                     style.setSpan(protocolColorSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    showMessage(holder.txtInfo, info, style);
+                    showMessage(holder.txtInfo, info, style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
                 } else {
                     if (StringUtil.isNotNull(bean.getDraft())) {
                         SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
                         ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
                         style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        showMessage(holder.txtInfo, bean.getDraft(), style);
+                        showMessage(holder.txtInfo, bean.getDraft(), style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
                     } else {
-                        showMessage(holder.txtInfo, info, null);
+                        showMessage(holder.txtInfo, info, null,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
                     }
                 }
                 headList.add(icon);
@@ -164,10 +164,12 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     }
                 } else if (type == 1) {
                     if (!TextUtils.isEmpty(bean.getAtMessage()) && !TextUtils.isEmpty(name)) {
-                        info = bean.getAtMessage();
-                        if (StringUtil.isNotNull(info) && info.startsWith("@所有人")) {
-                            info = info.replace("@所有人", "");
+                        if(TextUtils.isEmpty(info)){
+                            info = bean.getAtMessage();
                         }
+//                        if (StringUtil.isNotNull(info) && info.startsWith("@所有人")) {
+//                            info = info.replace("@所有人", "");
+//                        }
                         info = name + info;
                     } else {
                         info = name + info;
@@ -176,10 +178,10 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     //阅后即焚不通知 不显示谁发的 肯定是群主修改的
                     // info=info;
                 } else if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {//草稿除外
-                    if (msginfo != null && (ChatEnum.EMessageType.AT + "").equals(msginfo.getMsg_type() + "")
-                            && StringUtil.isNotNull(info) && info.startsWith("@所有人")) {
-                        info = info.replace("@所有人", "");
-                    }
+//                    if (msginfo != null && (ChatEnum.EMessageType.AT + "").equals(msginfo.getMsg_type() + "")
+//                            && StringUtil.isNotNull(info) && info.startsWith("@所有人")) {
+//                        info = info.replace("@所有人", "");
+//                    }
                     info = name + info;
                 }
                 // 处理公告...问题
@@ -187,33 +189,26 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
                 switch (type) {
                     case 0:
-                        if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
-                                SpannableString style = new SpannableString("[有人@我]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
-                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                showMessage(holder.txtInfo, info, style);
-                            } else {
-                                SpannableString style = new SpannableString("[有人@我]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
-                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                showMessage(holder.txtInfo, info, style);
-                            }
-                        }
-                        break;
                     case 1:
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
-                                SpannableString style = new SpannableString("[有人@我]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
-                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                showMessage(holder.txtInfo, info, style);
-                            } else {
-                                SpannableString style = new SpannableString("[@所有人]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
-                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                showMessage(holder.txtInfo, info, style);
-                            }
+                            SpannableString style = new SpannableString("[有人@我]" + info);
+                            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
+                            style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            showMessage(holder.txtInfo, info, style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
+                            //原2020/4/1前
+//                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
+//                                SpannableString style = new SpannableString("[有人@我]" + info);
+//                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
+//                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//                                showMessage(holder.txtInfo, info, style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
+//                            } else {
+//                                SpannableString style = new SpannableString("[@所有人]" + info);
+//                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
+//                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//                                showMessage(holder.txtInfo, info, style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
+//                            }
+                        }else{
+                            showMessage(holder.txtInfo, info, null,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
                         }
                         break;
                     case 2:
@@ -221,9 +216,9 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                             SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
                             ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
                             style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            showMessage(holder.txtInfo, bean.getDraft(), style);
+                            showMessage(holder.txtInfo, bean.getDraft(), style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
                         } else {
-                            showMessage(holder.txtInfo, info, null);
+                            showMessage(holder.txtInfo, info, null,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
 
                         }
                         break;
@@ -231,10 +226,10 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                         SpannableString style = new SpannableString("[红包发送失败]" + info);
                         ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
                         style.setSpan(protocolColorSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        showMessage(holder.txtInfo, info, style);
+                        showMessage(holder.txtInfo, info, style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
                         break;
                     default:
-                        showMessage(holder.txtInfo, info, null);
+                        showMessage(holder.txtInfo, info, null,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
                         break;
 
                 }
@@ -327,17 +322,21 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
      * @param message
      * @param spannableString
      */
-    protected void showMessage(TextView txtInfo, String message, SpannableString spannableString) {
-        if (spannableString == null) {
-            if (StringUtil.isNotNull(message) && message.startsWith("@所有人  ")) {
-                message = message.replace("@所有人  ", "");
+    protected void showMessage(TextView txtInfo, String message, SpannableString spannableString,boolean msgIsClear) {
+        if(msgIsClear){
+            txtInfo.setText("");
+        }else{
+            if (spannableString == null) {
+                if (StringUtil.isNotNull(message) && message.startsWith("@所有人  ")) {
+                    message = message.replace("@所有人  ", "");
+                }
+                spannableString = ExpressionUtil.getExpressionString(context, ExpressionUtil.DEFAULT_SMALL_SIZE, message);
+            } else {
+                spannableString = ExpressionUtil.getExpressionString(context, ExpressionUtil.DEFAULT_SMALL_SIZE, spannableString);
             }
-            spannableString = ExpressionUtil.getExpressionString(context, ExpressionUtil.DEFAULT_SMALL_SIZE, message);
-        } else {
-            spannableString = ExpressionUtil.getExpressionString(context, ExpressionUtil.DEFAULT_SMALL_SIZE, spannableString);
+            txtInfo.setText(spannableString, TextView.BufferType.SPANNABLE);
+            txtInfo.invalidate();
         }
-        txtInfo.setText(spannableString, TextView.BufferType.SPANNABLE);
-        txtInfo.invalidate();
     }
 
     /**
