@@ -1193,6 +1193,7 @@ public class MsgDao {
                 DaoUtil.findOne(Session.class, "from_uid", from_uid);
         if (session != null) {
             session.setUnread_count(0);
+            session.setAtMessage(null);
             //  session.setUp_time(System.currentTimeMillis());
             DaoUtil.update(session);
         }

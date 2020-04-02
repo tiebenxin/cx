@@ -2,7 +2,6 @@ package com.yanlong.im;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
-import android.util.Log;
 
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.Session;
@@ -42,7 +41,6 @@ public class MainViewModel extends ViewModel {
         sessions.addChangeListener(new RealmChangeListener<RealmResults<Session>>() {
             @Override
             public void onChange(RealmResults<Session> sessions) {
-                Log.e("raleigh_test", "sessions" + sessions.size());
 //                if(sessionOriginalSize<sessions.size()){
                 //session数据变化时，更新session详情：旧数据收到/发送消息，删除，新数据收到/发送消息
                 repository.updateSessionDetail();
@@ -52,7 +50,6 @@ public class MainViewModel extends ViewModel {
         sessionMores.addChangeListener(new RealmChangeListener<RealmResults<SessionDetail>>() {
             @Override
             public void onChange(RealmResults<SessionDetail> sessionMores) {
-                Log.e("raleigh_test", "sessionMores=" + sessionMores.size());
                 sessionMoresPositions.clear();
                 for (int i = 0; i < sessionMores.size(); i++) {
                     sessionMoresPositions.put(sessionMores.get(i).getSid(), i);

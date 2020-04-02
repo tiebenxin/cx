@@ -188,20 +188,6 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
                 switch (type) {
                     case 0:
-                        if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
-                                SpannableString style = new SpannableString("[有人@我]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
-                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                showMessage(holder.txtInfo, info, style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
-                            } else {
-                                SpannableString style = new SpannableString("[有人@我]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
-                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                showMessage(holder.txtInfo, info, style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
-                            }
-                        }
-                        break;
                     case 1:
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
                             SpannableString style = new SpannableString("[有人@我]" + info);
@@ -220,6 +206,8 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 //                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 //                                showMessage(holder.txtInfo, info, style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
 //                            }
+                        }else{
+                            showMessage(holder.txtInfo, info, null,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
                         }
                         break;
                     case 2:
