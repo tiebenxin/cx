@@ -167,6 +167,7 @@ public class MainActivity extends AppActivity {
     private boolean testMe = true;
     private String lastPostLocationTime = "";//最近一次上传用户位置的时间
     private boolean isCreate = false;
+    private ShopFragemnt mShowFragment;
 
 
     @Override
@@ -285,7 +286,8 @@ public class MainActivity extends AppActivity {
     //自动生成的控件事件
     private void initEvent() {
         mMsgMainFragment = MsgMainFragment.newInstance();
-        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), ShopFragemnt.newInstance(), MyFragment.newInstance()};
+        mShowFragment = ShopFragemnt.newInstance();
+        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), mShowFragment, MyFragment.newInstance()};
         tabs = new String[]{"消息", "通讯录", "商城", "我"};
         iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_shop, R.mipmap.ic_me};
         iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_shop_h, R.mipmap.ic_me_h};
@@ -335,6 +337,12 @@ public class MainActivity extends AppActivity {
                                 }
                             }
                         }, 100);
+                    }
+                }
+
+                if (tab.getPosition() == EMainTab.SHOP) {
+                    if (mShowFragment != null) {
+                        mShowFragment.check();
                     }
                 }
             }
@@ -810,7 +818,7 @@ public class MainActivity extends AppActivity {
         }
     };
 
-    private void loginoutComment() {
+    public void loginoutComment() {
         UserInfo userInfo = UserAction.getMyInfo();
         if (userInfo != null) {
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead() + "");
@@ -1132,8 +1140,8 @@ public class MainActivity extends AppActivity {
     public @interface EMainTab {
         int MSG = 0; // 消息界面
         int CONTACT = 1; // 好友界面
-        int SHOP = 3; // 商城界面
-        int ME = 2; // 我的界面
+        int SHOP = 2; // 商城界面
+        int ME = 3; // 我的界面
     }
 
     /**
