@@ -2,7 +2,9 @@ package com.yanlong.im.data.local;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.luck.picture.lib.tools.DateUtils;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.utils.DaoUtil;
@@ -26,6 +28,19 @@ public class MainLocalDataSource {
     }
     public void updateSessionDetail(){
         updateSessionDetail.update();
+    }
+
+    public String getSessionJson(RealmResults<Session> sessions){
+       return  new Gson().toJson(realm.copyFromRealm(sessions));
+    }
+
+    /**
+     * 获取群信息
+     * @param gid
+     * @return
+     */
+    public Group getGroup4Id(String gid){
+        return DaoUtil.findOne(Group.class, "gid", gid);
     }
 
     /**
