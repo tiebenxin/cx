@@ -759,7 +759,7 @@ public class MsgDao {
             realm.where(AtMessage.class).findAll().deleteAllFromRealm();
             realm.where(AssistantMessage.class).findAll().deleteAllFromRealm();
             realm.where(VideoMessage.class).findAll().deleteAllFromRealm();
-
+            realm.where(SessionDetail.class).findAll().deleteAllFromRealm();
             //清理角标
             RealmResults<Session> sessions = realm.where(Session.class).findAll();
             for (Session session : sessions) {
