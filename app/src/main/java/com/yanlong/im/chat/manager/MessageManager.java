@@ -1063,8 +1063,8 @@ public class MessageManager {
     }
 
 
-    public void deleteSessionAllMsg(Long uid, String gid) {
-        msgDao.msgDel(uid, gid);
+    public void deleteSessionAndMsg(Long uid, String gid) {
+        msgDao.sessionDel(uid, gid);
         Realm realm = DaoUtil.open();
         //异步线程删除
         realm.executeTransactionAsync(new Realm.Transaction() {

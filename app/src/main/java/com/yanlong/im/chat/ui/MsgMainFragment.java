@@ -334,22 +334,24 @@ public class MsgMainFragment extends Fragment {
         viewModel.currentDeletePosition.observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(@Nullable Integer position) {
-                long uid = viewModel.sessions.get(position).getFrom_uid();
-                String gid = viewModel.sessions.get(position).getGid();
-                //数据库中删除数据项
-                viewModel.deleteItem(position);
-                //通知更新
-                MessageManager.getInstance().deleteSessionAllMsg(uid, gid);
-                MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
-                getView().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
+                if(position>=0&&position<viewModel.sessions.size()){
+                    long uid = viewModel.sessions.get(position).getFrom_uid();
+                    String gid = viewModel.sessions.get(position).getGid();
+                    //数据库中删除数据项
+                    viewModel.deleteItem(position);
+                    //通知更新
+                    MessageManager.getInstance().deleteSessionAndMsg(uid, gid);
+                    MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
+                    getView().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
 //                        mtListView.getListView().getAdapter().notifyItemRemoved(position + 1);//范围刷新
-                        if (viewModel.sessions != null && viewModel.sessions.size() > 0) {
-                            mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                            if (viewModel.sessions != null && viewModel.sessions.size() > 0) {
+                                mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                            }
                         }
-                    }
-                }, 50);
+                    }, 50);
+                }
             }
         });
     }
@@ -372,7 +374,7 @@ public class MsgMainFragment extends Fragment {
 //                //阅后即焚 -更新
 //                viewModel.updateItemSessionDetail();
 //                LogUtil.getLog().d("a==", "MsgMainFragment --删除session");
-//                MessageManager.getInstance().deleteSessionAllMsg(event.getUid(), event.getGid());
+//                MessageManager.getInstance().deleteSessionAndMsg(event.getUid(), event.getGid());
 //                MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
 //            } else
 //
