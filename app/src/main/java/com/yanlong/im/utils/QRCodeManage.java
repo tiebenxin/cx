@@ -28,6 +28,7 @@ import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,6 +37,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import io.realm.RealmList;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -53,6 +57,8 @@ public class QRCodeManage {
     public static final String ADD_GROUP_FUNCHTION = "ADDGROUP"; //添加群
 
     public static final String DOWNLOAD_APP_URL = "https://www.zln365.com"; //下载地址
+    public static final String PC_LOGIN_URL = "xc://login/"; //扫码登录地址
+
 
     /**
      * 扫描二维码转换bean
@@ -215,6 +221,8 @@ public class QRCodeManage {
                 openAliPay2Pay(mContext, result);
             } else if (result.contains(DOWNLOAD_APP_URL)) {
                 openUri(mContext, result);
+            } else if (result.contains(PC_LOGIN_URL)){
+                httpSweepCodeLoginCommit(result);
             } else {
                 QRCodeBean bean = QRCodeManage.getQRCodeBean(mContext, result);
                 QRCodeManage.goToActivity((Activity) mContext, bean);
@@ -262,6 +270,35 @@ public class QRCodeManage {
         time = DateUtils.date2TimeStamp(changeTime, "yyyy-MM-dd HH:mm:ss");
         LogUtil.getLog().e(TAG, "生成时间戳------>" + time);
         return time;
+    }
+
+    /**
+     * 二维码登录 - 扫描提交
+     * @param result
+     */
+    private static void httpSweepCodeLoginCommit(String result){
+        result = result.substring(result.lastIndexOf("/")+1);//截取参数
+        new UserAction().sweepCodeLoginCommit(result, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                if(response.code()==200){
+                    ToastUtil.show("扫码成功");
+                }else if(response.code()==101 || response.code()==102){
+                    ToastUtil.show("二维码已失效");
+                }else {
+                    ToastUtil.show("扫码失败");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show(t.toString());
+            }
+        });
     }
 
 

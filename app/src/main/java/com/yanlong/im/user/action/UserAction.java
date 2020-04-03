@@ -907,5 +907,11 @@ public class UserAction {
         NetUtil.getNet().exec(server.postLocation(city, country, lat, lon), callback);
     }
 
+    /**
+     * 二维码登录 - 扫描提交
+     */
+    public void sweepCodeLoginCommit(String code, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.sweepCodeLoginCommit(code), callback);
+    }
 
 }
