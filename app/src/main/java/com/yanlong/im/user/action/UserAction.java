@@ -914,4 +914,22 @@ public class UserAction {
         NetUtil.getNet().exec(server.sweepCodeLoginCommit(code), callback);
     }
 
+
+    /**
+     * 二维码登录 - 确认登录
+     * @param code
+     * @param sync  1 同步 0 不同步
+     * @param callback
+     */
+    public void sweepCodeLoginSure(String code,String sync, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.sweepCodeLoginSure(code,sync), callback);
+    }
+
+    /**
+     * 二维码登录 - 取消登录
+     */
+    public void sweepCodeLoginCancel(String code, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.sweepCodeLoginCancel(code), callback);
+    }
+
 }

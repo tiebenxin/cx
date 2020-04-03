@@ -36,7 +36,7 @@ public class AppHostUtil {
             }
             //            connectHostApi = BuildConfig.API_HOST;
 //            connectHostApi = BuildConfig.HOST_PRE;
-            connectHostApi = BuildConfig.HOST_RELEASE;
+//            connectHostApi = BuildConfig.HOST_RELEASE;
 
         }
         if (isEmpty()) {
