@@ -3252,7 +3252,7 @@ public class MsgDao {
 
     }
 
-    private void deleteRealmMsg(MsgAllBean msg) {
+    public void deleteRealmMsg(MsgAllBean msg) {
         if (msg.getReceive_red_envelope() != null)
             msg.getReceive_red_envelope().deleteFromRealm();
         if (msg.getMsgNotice() != null)

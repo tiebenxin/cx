@@ -339,7 +339,7 @@ public class MsgMainFragment extends Fragment {
                 //数据库中删除数据项
                 viewModel.deleteItem(position);
                 //通知更新
-                MessageManager.getInstance().deleteSessionAndMsg(uid, gid);
+                MessageManager.getInstance().deleteSessionAllMsg(uid, gid);
                 MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
                 getView().postDelayed(new Runnable() {
                     @Override
@@ -368,13 +368,15 @@ public class MsgMainFragment extends Fragment {
         if (MessageManager.getInstance().isMessageChange()) {
             MessageManager.getInstance().setMessageChange(false);
             int refreshTag = event.getRefreshTag();
-            if (refreshTag == CoreEnum.ESessionRefreshTag.DELETE) {
-                //阅后即焚 -更新
-                viewModel.updateItemSessionDetail();
-                LogUtil.getLog().d("a==", "MsgMainFragment --删除session");
-                MessageManager.getInstance().deleteSessionAndMsg(event.getUid(), event.getGid());
-                MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
-            } else if (refreshTag == CoreEnum.ESessionRefreshTag.ALL) {
+//            if (refreshTag == CoreEnum.ESessionRefreshTag.DELETE) {
+//                //阅后即焚 -更新
+//                viewModel.updateItemSessionDetail();
+//                LogUtil.getLog().d("a==", "MsgMainFragment --删除session");
+//                MessageManager.getInstance().deleteSessionAllMsg(event.getUid(), event.getGid());
+//                MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
+//            } else
+//
+                if (refreshTag == CoreEnum.ESessionRefreshTag.ALL) {
                 //阅后即焚 -更新
                 viewModel.updateItemSessionDetail();
             }
