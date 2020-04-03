@@ -13,7 +13,6 @@ import com.example.nim_lib.controll.AVChatSoundPlayer;
 import com.example.nim_lib.ui.VideoActivity;
 import com.jrmf360.tools.JrmfClient;
 import com.kye.net.NetRequestHelper;
-import com.lansosdk.box.LSLog;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.SDKOptions;
 import com.netease.nimlib.sdk.auth.LoginInfo;
@@ -24,6 +23,7 @@ import com.umeng.socialize.PlatformConfig;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yanlong.im.controll.AVChatKit;
 import com.yanlong.im.location.LocationService;
+import com.yanlong.im.utils.EmojBitmapCache;
 import com.yanlong.im.utils.IVolleyInitImp;
 import com.yanlong.im.utils.LogcatHelper;
 import com.yanlong.im.utils.MyDiskCacheController;
@@ -301,6 +301,13 @@ public class MyAppLication extends MainApplication {
         }
         ARouter.init(this);
 
+    }
+
+    @Override
+    public void onTerminate() {
+        //清除表情缓存
+        EmojBitmapCache.getInstance().clear();
+        super.onTerminate();
     }
 
     //初始化定位sdk，建议在Application中创建

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -13,6 +14,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClientOption;
@@ -53,6 +55,8 @@ import com.yanlong.im.dialog.MapDialog;
 import com.yanlong.im.listener.BaseListener;
 import com.yanlong.im.utils.DataUtils;
 import com.yanlong.im.view.MaxHeightRecyclerView;
+
+import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -62,7 +66,9 @@ import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.ClearEditText;
+
 import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -119,10 +125,10 @@ public class LocationActivity extends AppActivity {
         if (!LocationPersimmions.checkPermissions(activity)) {
             return;
         }
-        if (!LocationUtils.isLocationEnabled(activity)) {
-            ToastUtil.show(activity, "请打开定位服务");
-            return;
-        }
+//        if (!LocationUtils.isLocationEnabled(activity)) {
+//            ToastUtil.show(activity, "请打开定位服务");
+//            return;
+//        }
         Intent intent = new Intent(activity, LocationActivity.class);
         intent.putExtra("isShow", isShow);
         if (bean != null) {
@@ -139,6 +145,7 @@ public class LocationActivity extends AppActivity {
 
         findViews();
         initEvent();
+
     }
 
 
@@ -147,6 +154,43 @@ public class LocationActivity extends AppActivity {
         super.onResume();
         // 在activity执行onResume时执行mMapView. onResume ()，实现地图生命周期管理
         mapview.onResume();
+        if(!isShow)checkLocationEnabled();
+    }
+
+    private DialogCommon dialogCommon = null;
+
+    /**
+     * 检查位置信息
+     */
+    private void checkLocationEnabled() {
+        if (!LocationUtils.isLocationEnabled(this)) {
+            if (dialogCommon == null) {
+                dialogCommon = new DialogCommon(this);
+                dialogCommon.setCanceledOnTouchOutside(false);
+                dialogCommon.setTitleAndSure(true, true)
+                        .setTitle("提示")
+                        .setContent("请在手机设置中打开GPS和无线网络获取最新位置", false)
+                        .setLeft("取消")
+                        .setRight("去设置")
+                        .setListener(new DialogCommon.IDialogListener() {
+                            @Override
+                            public void onSure() {
+                                //跳转到位置设置
+                                Intent intent =  new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
+                                context.startActivity(intent);
+                            }
+
+                            @Override
+                            public void onCancel() {
+                                dialogCommon.dismiss();
+                            }
+                        });
+            }
+            dialogCommon.show();
+        }else{
+            if(dialogCommon!=null&&dialogCommon.isShowing())dialogCommon.dismiss();
+        }
     }
 
     @Override
@@ -158,6 +202,7 @@ public class LocationActivity extends AppActivity {
 
     @Override
     protected void onDestroy() {
+        if (dialogCommon != null) dialogCommon.dismiss();
         super.onDestroy();
         // 在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
         locService.unregisterListener(listener);
@@ -300,7 +345,7 @@ public class LocationActivity extends AppActivity {
             public void onMapStatusChangeStart(MapStatus mapStatus) {
                 dragging = true;
                 if (mapStatus != null) {
-                    if(!isShow&&zoom==mapStatus.zoom){
+                    if (!isShow && zoom == mapStatus.zoom) {
 //                        center_location_iv.setVisibility(View.VISIBLE);
                     }
                     zoom = mapStatus.zoom;
@@ -324,7 +369,7 @@ public class LocationActivity extends AppActivity {
 //                            fanSearch(mapStatus.target.latitude, mapStatus.target.longitude);
                             searchNeayBy(mapStatus.target.latitude, mapStatus.target.longitude);
                         }
-                    }else {
+                    } else {
                         //缩放地图 不做改变
                     }
 //                    zoom = mapStatus.zoom;
@@ -517,7 +562,7 @@ public class LocationActivity extends AppActivity {
         LogUtil.getLog().e("===location====" + latitude + "====" + longitude);
         LatLng point = new LatLng(latitude, longitude);
 
-        if(isShow){
+        if (isShow) {
             // 构建Marker图标
             BitmapDescriptor bitmap = null;
             if (isMyLocation) {
@@ -740,7 +785,7 @@ public class LocationActivity extends AppActivity {
                 Collections.sort(locationList, new Comparator<LocationMessage>() {
                     @Override
                     public int compare(LocationMessage o1, LocationMessage o2) {
-                        return (int)(o1.getDistance()-o2.getDistance());
+                        return (int) (o1.getDistance() - o2.getDistance());
                     }
                 });
                 recyclerview.getAdapter().notifyDataSetChanged();

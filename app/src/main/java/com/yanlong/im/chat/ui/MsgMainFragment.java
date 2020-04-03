@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -314,18 +315,25 @@ public class MsgMainFragment extends Fragment {
         super.onResume();
     }
 
+    private long lastRefreshTime=0;
     /**
      * 初始化观察器
      */
     private void initObserver() {
         //监听列表数据变化
-
         viewModel.sessionMores.addChangeListener(new RealmChangeListener<RealmResults<SessionDetail>>() {
             @Override
             public void onChange(RealmResults<SessionDetail> sessionMore) {
                 if (sessionMore != null) {
-                    mAdapter.isNeedCloseSwipe = viewModel.sessionOriginalSize != viewModel.sessions.size();
-                    mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                    Log.e("raleigh_test","sessionMores Changes");
+                     boolean isNeedCloseSwipe= viewModel.sessionOriginalSize != viewModel.sessions.size();
+                    if(System.currentTimeMillis()-lastRefreshTime>1*1000){//1秒之内不刷新
+                        if(!mAdapter.isNeedCloseSwipe)mAdapter.isNeedCloseSwipe=isNeedCloseSwipe;
+                        lastRefreshTime=System.currentTimeMillis();
+                        mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                    }else {// 1秒之内
+                        if(isNeedCloseSwipe) mAdapter.isNeedCloseSwipe=isNeedCloseSwipe;
+                    }
                     viewModel.sessionOriginalSize = viewModel.sessions.size();
                 }
             }
@@ -334,22 +342,24 @@ public class MsgMainFragment extends Fragment {
         viewModel.currentDeletePosition.observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(@Nullable Integer position) {
-                long uid = viewModel.sessions.get(position).getFrom_uid();
-                String gid = viewModel.sessions.get(position).getGid();
-                //数据库中删除数据项
-                viewModel.deleteItem(position);
-                //通知更新
-                MessageManager.getInstance().deleteSessionAndMsg(uid, gid);
-                MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
-                getView().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
+                if(position>=0&&position<viewModel.sessions.size()){
+                    long uid = viewModel.sessions.get(position).getFrom_uid();
+                    String gid = viewModel.sessions.get(position).getGid();
+                    //数据库中删除数据项
+                    viewModel.deleteItem(position);
+                    //通知更新
+                    MessageManager.getInstance().deleteSessionAndMsg(uid, gid);
+                    MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
+                    getView().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
 //                        mtListView.getListView().getAdapter().notifyItemRemoved(position + 1);//范围刷新
-                        if (viewModel.sessions != null && viewModel.sessions.size() > 0) {
-                            mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                            if (viewModel.sessions != null && viewModel.sessions.size() > 0) {
+                                mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                            }
                         }
-                    }
-                }, 50);
+                    }, 50);
+                }
             }
         });
     }
@@ -368,13 +378,15 @@ public class MsgMainFragment extends Fragment {
         if (MessageManager.getInstance().isMessageChange()) {
             MessageManager.getInstance().setMessageChange(false);
             int refreshTag = event.getRefreshTag();
-            if (refreshTag == CoreEnum.ESessionRefreshTag.DELETE) {
-                //阅后即焚 -更新
-                viewModel.updateItemSessionDetail();
-                LogUtil.getLog().d("a==", "MsgMainFragment --删除session");
-                MessageManager.getInstance().deleteSessionAndMsg(event.getUid(), event.getGid());
-                MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
-            } else if (refreshTag == CoreEnum.ESessionRefreshTag.ALL) {
+//            if (refreshTag == CoreEnum.ESessionRefreshTag.DELETE) {
+//                //阅后即焚 -更新
+//                viewModel.updateItemSessionDetail();
+//                LogUtil.getLog().d("a==", "MsgMainFragment --删除session");
+//                MessageManager.getInstance().deleteSessionAndMsg(event.getUid(), event.getGid());
+//                MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
+//            } else
+//
+                if (refreshTag == CoreEnum.ESessionRefreshTag.ALL) {
                 //阅后即焚 -更新
                 viewModel.updateItemSessionDetail();
             }
