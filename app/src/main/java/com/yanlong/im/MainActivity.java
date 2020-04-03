@@ -28,6 +28,7 @@ import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.example.nim_lib.util.PermissionsUtil;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.eventbus.IdentifyUserEvent;
@@ -259,7 +260,7 @@ public class MainActivity extends AppActivity {
             checkNeteaseLogin();
             checkPermission();
             initLocation();
-//            getMsgToPC();
+            getMsgToPC();
         }
     }
 
@@ -1230,32 +1231,39 @@ public class MainActivity extends AppActivity {
                 if (message != null) {
                     byte[] bytes = message.toByteArray();
                     if (bytes != null) {
+                        String result = FileManager.getInstance().bytesToHex(bytes);
+                        System.out.println("PC同步--1--" + result);
+//                        String content = "hello Liszt, 清明时节雨纷纷，路上行人欲断魂";
+                        bytes = result.getBytes();
                         File file = FileManager.getInstance().saveMsgFile(bytes);
                         if (file != null) {
-                            UpFileAction upFileAction = new UpFileAction();
-                            upFileAction.upFile(UpFileAction.PATH.FILE, MainActivity.this, new UpFileUtil.OssUpCallback() {
-                                @Override
-                                public void success(String url) {
-                                    LogUtil.getLog().i("PC同步消息", "文件上传成功--" + url);
-                                }
-
-                                @Override
-                                public void fail() {
-                                    LogUtil.getLog().i("PC同步消息", "文件上传失败");
-                                }
-
-                                @Override
-                                public void inProgress(long progress, long zong) {
-
-                                }
-                            }, file.getAbsolutePath());
+                            parseFile(file);
+//                            uploadMsgFile(file);
                         }
                     }
                 }
-
             }
         });
+    }
 
+    private void uploadMsgFile(File file) {
+        UpFileAction upFileAction = new UpFileAction();
+        upFileAction.upFile(UpFileAction.PATH.FILE, MainActivity.this, new UpFileUtil.OssUpCallback() {
+            @Override
+            public void success(String url) {
+                LogUtil.getLog().i("PC同步消息", "文件上传成功--" + url);
+            }
+
+            @Override
+            public void fail() {
+                LogUtil.getLog().i("PC同步消息", "文件上传失败");
+            }
+
+            @Override
+            public void inProgress(long progress, long zong) {
+
+            }
+        }, file.getAbsolutePath());
     }
 
     private void showLoginDialog() {
@@ -1293,5 +1301,23 @@ public class MainActivity extends AppActivity {
             return false;
         }
         return true;
+    }
+
+    public void parseFile(File file) {
+        byte[] bytes = FileManager.getInstance().getFileToByte(file);
+        if (bytes != null) {
+            String result = FileManager.getInstance().bytesToHex(bytes);
+            System.out.println("PC同步--3--" + result);
+            if (bytes != null) {
+                try {
+                    MsgBean.UniversalMessage message = MsgBean.UniversalMessage.parseFrom(bytes);
+                    if (message != null) {
+
+                    }
+                } catch (InvalidProtocolBufferException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
