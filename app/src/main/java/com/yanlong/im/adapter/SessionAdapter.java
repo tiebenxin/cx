@@ -10,6 +10,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -312,6 +313,7 @@ public class SessionAdapter extends AbstractRecyclerAdapter<Session> {
         }
 
         private void setUnreadCountOrDisturb(RCViewHolder holder, Session bean, MsgAllBean msg) {
+            Log.e("raleigh_test","test");
             holder.sb.setButtonBackground(R.color.transparent);
             if (bean.getIsMute() == 1) {
                 if (msg != null && !msg.isRead()) {
