@@ -75,6 +75,12 @@ public class MainRepository {
     public void onDestory() {
         localDataSource.onDestory();
     }
+    /**
+     * onResume检查realm状态,避免系统奔溃后，主页重新启动realm对象已被关闭，需重新连接
+     */
+    public boolean checkRealmStatus(){
+        return localDataSource.checkRealmStatus();
+    }
 
     public void deleteAllMsg(Long uid, String gid) {
         localDataSource.deleteAllMsg(uid, gid);

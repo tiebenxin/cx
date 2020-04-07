@@ -34,6 +34,10 @@ public class MainViewModel extends ViewModel {
 
     public MainViewModel() {
         repository = new MainRepository();
+        init();
+    }
+
+    private void init() {
         sessions = repository.getSesisons();
         sessionOriginalSize = sessions.size();
         //session数据变化时，更新session详情
@@ -101,6 +105,15 @@ public class MainViewModel extends ViewModel {
             repository.commitTransaction();
             repository.deleteAllMsg(uid, gid);
         } catch (Exception e) {
+        }
+    }
+
+    /**
+     * onResume检查realm状态,避免系统奔溃后，主页重新启动realm对象已被关闭，需重新连接
+     */
+    public void checkRealmStatus() {
+        if (!repository.checkRealmStatus()) {
+            init();
         }
     }
 

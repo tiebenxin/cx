@@ -3409,14 +3409,17 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         private void updateSurvivalTimeImage(String msgId, int id, boolean isMe) {
             if (mMsgIdPositions.containsKey(msgId)) {
                 int position = mMsgIdPositions.get(msgId);
-                ChatItemView chatItemView = ((ChatItemView) mtListView.getListView().getLayoutManager().findViewByPosition(position));
-                if (chatItemView != null) {
-                    if (isMe)
-                        chatItemView.viewMeSurvivalTime
-                                .setImageResource(id);
-                    else
-                        chatItemView.viewOtSurvivalTime
-                                .setImageResource(id);
+                View view=mtListView.getListView().getLayoutManager().findViewByPosition(position);
+                if(view instanceof ChatItemView) {
+                    ChatItemView chatItemView = ((ChatItemView) mtListView.getListView().getLayoutManager().findViewByPosition(position));
+                    if (chatItemView != null) {
+                        if (isMe)
+                            chatItemView.viewMeSurvivalTime
+                                    .setImageResource(id);
+                        else
+                            chatItemView.viewOtSurvivalTime
+                                    .setImageResource(id);
+                    }
                 }
             }
         }

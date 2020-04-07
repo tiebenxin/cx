@@ -308,6 +308,7 @@ public class MsgMainFragment extends Fragment {
 
     @Override
     public void onResume() {
+        viewModel.checkRealmStatus();
         if (mAdapter != null) {
             mAdapter.isNeedCloseSwipe = true;
             mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
@@ -370,6 +371,7 @@ public class MsgMainFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         //释放数据对象
+        viewModel.currentDeletePosition.removeObservers(this);
         viewModel.onDestory();
         SocketUtil.getSocketUtil().removeEvent(socketEvent);
         EventBus.getDefault().unregister(this);
