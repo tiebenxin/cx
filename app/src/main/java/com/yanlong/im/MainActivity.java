@@ -51,6 +51,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.NotificationConfig;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventMsgSync;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.tcp.TcpConnection;
@@ -260,7 +261,6 @@ public class MainActivity extends AppActivity {
             checkNeteaseLogin();
             checkPermission();
             initLocation();
-            getMsgToPC();
         }
     }
 
@@ -774,6 +774,11 @@ public class MainActivity extends AppActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void videoActivityEvent(EventFactory.VideoActivityEvent event) {
         IntentUtil.gotoActivity(MainActivity.this, VideoActivity.class);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void msgSync(EventMsgSync event) {
+        getMsgToPC();
     }
 
     /**

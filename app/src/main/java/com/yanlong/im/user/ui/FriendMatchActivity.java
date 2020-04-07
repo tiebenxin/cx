@@ -13,6 +13,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -21,6 +22,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.PhoneBean;
+import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PhoneListUtil;
 import com.yanlong.im.utils.UserUtil;
@@ -57,6 +59,11 @@ public class FriendMatchActivity extends AppActivity {
     private List<FriendInfoBean> listData = new ArrayList<>();
     private List<FriendInfoBean> seacchData = new ArrayList<>();
     private RecyclerViewAdapter adapter;
+    private ProgressBar progressBar;//批次上传等待框
+    private int numberLimit = 500;//通讯录上传数量限制，手机联系人数量超过这个数，则分批次上传，显示等待框，加载完成后等待框消失
+    private int needUploadTimes = 0;//批次上传-需要上传的次数
+    private int hadUploadTimes = 0;//批次上传-已经上传的次数
+    private boolean ifSub = false;//是否存在批次上传
 
 
     @Override
@@ -76,6 +83,7 @@ public class FriendMatchActivity extends AppActivity {
         mtListView = findViewById(R.id.mtListView);
         viewType = findViewById(R.id.view_type);
         mCeSearch = findViewById(R.id.ce_search);
+        progressBar = findViewById(R.id.pb_wait);
         mCeSearch.setHint("输入联系人昵称搜索");
     }
 
@@ -145,19 +153,27 @@ public class FriendMatchActivity extends AppActivity {
                 phoneListUtil.getPhones(FriendMatchActivity.this, new PhoneListUtil.Event() {
                     @Override
                     public void onList(final List<PhoneBean> list) {
-
                         if (list == null)
                             return;
-
-                        taskUserMatchPhone(list);
-
+                        //分批次上传请求
+                        if (list.size() > numberLimit){
+                            ifSub = true;
+                            progressBar.setVisibility(View.VISIBLE);
+                            List<List<PhoneBean>> finalList = new ArrayList<>();
+                            finalList.addAll(CommonUtils.subWithLen(list,numberLimit));//拆分成多个List按批次上传
+                            needUploadTimes = finalList.size();
+                            for(int i=0;i<needUploadTimes;i++){
+                                taskUserMatchPhone(finalList.get(i));
+                            }
+                        }else {
+                            ifSub = false;
+                            progressBar.setVisibility(View.GONE);
+                            taskUserMatchPhone(list);
+                        }
                     }
                 });
-
             }
         }).start();
-
-
     }
 
 
@@ -320,17 +336,33 @@ public class FriendMatchActivity extends AppActivity {
                     adapter.setList(listData);
                     initViewTypeData();
                     mtListView.notifyDataSetChange();
-                    if (listData == null || listData.size() == 0) {
-                        ToastUtil.show(context, "没有匹配的手机联系人");
+                    hadUploadTimes++;
+                    if(ifSub){
+                        if(hadUploadTimes == needUploadTimes){
+                            if (listData == null || listData.size() == 0) {
+                                ToastUtil.show(context, "没有匹配的手机联系人");
+                            }
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    }else {
+                        if (listData == null || listData.size() == 0) {
+                            ToastUtil.show(context, "没有匹配的手机联系人");
+                        }
                     }
                 }
             }
 
-            /*@Override
+            @Override
             public void onFailure(Call<ReturnBean<List<FriendInfoBean>>> call, Throwable t) {
-                alert.dismiss();
+//                alert.dismiss();
                 super.onFailure(call, t);
-            }*/
+                hadUploadTimes++;
+                if(ifSub){
+                    if(hadUploadTimes == needUploadTimes){
+                        progressBar.setVisibility(View.GONE);
+                    }
+                }
+            }
         });
     }
 

@@ -25,6 +25,8 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
+import com.yanlong.im.chat.eventbus.EventMsgSync;
+import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.ui.AddGroupActivity;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
@@ -75,6 +77,7 @@ public class QRCodeManage {
     public static final String DOWNLOAD_APP_URL = "https://www.zln365.com"; //下载地址
     public static final String PC_LOGIN_URL = "xc://login/"; //扫码登录地址
     private static String code = "";//扫码后的code
+    private static String synck = "0";//是否同步  1同步 0不同步
 
 
     /**
@@ -343,7 +346,7 @@ public class QRCodeManage {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
-                new UserAction().sweepCodeLoginSure(code,"0", new CallBack<ReturnBean>() {
+                new UserAction().sweepCodeLoginSure(code,synck, new CallBack<ReturnBean>() {
                     @Override
                     public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                         if (response.body() == null) {
@@ -351,6 +354,10 @@ public class QRCodeManage {
                         }
                         if(response.body().isOk()){
                             ToastUtil.show("登录成功!");
+                            //TODO 如果选择了同步，则通知MainActivity同步消息
+                            if(synck.equals("1")){
+                                EventBus.getDefault().post(new EventMsgSync());
+                            }
                         }else {
                             ToastUtil.show(response.body().getMsg());
                         }
