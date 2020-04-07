@@ -9,9 +9,7 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.MainApplication;
 import net.cb.cb.library.bean.BuglyException;
 import net.cb.cb.library.bean.EventLoginOut;
-import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.constant.BuglyTag;
-import net.cb.cb.library.utils.encrypt.AESEncrypt;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -125,7 +123,7 @@ public class NetIntrtceptor implements Interceptor {
                 // 上报后的Crash会显示该标签
                 CrashReport.setUserSceneTag(MainApplication.getInstance().getApplicationContext(), BUGLY_TAG_LOGIN);
                 // 上传异常数据
-                BuglyLog.i(BuglyTag.BUGLY_TAG_3, "403：" + resp.message() /*+ " " + resp.body()*/);
+                BuglyLog.e(BuglyTag.BUGLY_TAG_3, "403：" + resp.message() /*+ " " + resp.body()*/);
                 CrashReport.postCatchedException(new BuglyException());
                 EventBus.getDefault().post(new EventLoginOut());
                 break;

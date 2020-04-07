@@ -32,7 +32,6 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.Installation;
 import net.cb.cb.library.utils.LogUtil;
@@ -43,7 +42,6 @@ import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.VersionUtil;
-import net.cb.cb.library.utils.encrypt.AESEncrypt;
 import net.cb.cb.library.utils.encrypt.EncrypUtil;
 import net.cb.cb.library.utils.encrypt.MD5;
 
