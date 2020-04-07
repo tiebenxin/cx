@@ -123,7 +123,6 @@ public class BurnManager {
 //                        LogUtil.getLog().i("SurvivalTime", "刷新所有会话:" + gLen + "--" + uLen);
 //                        MessageManager.getInstance().notifyRefreshMsg();
 //                    }
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
 
                     gids.clear();
                     uids.clear();
@@ -131,6 +130,7 @@ public class BurnManager {
                 tempList.clear();
             }
         }
+        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
     }
 
     private void addTemp(List<MsgAllBean> tempList, MsgAllBean bean) {
