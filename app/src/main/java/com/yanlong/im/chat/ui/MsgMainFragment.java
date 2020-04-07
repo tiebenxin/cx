@@ -343,7 +343,6 @@ public class MsgMainFragment extends Fragment {
             @Override
             public void onChanged(@Nullable Integer position) {
                 if(position>=0&&position<viewModel.sessions.size()){
-
                     viewModel.deleteItem(position);
                     //通知更新
                     MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
@@ -351,7 +350,7 @@ public class MsgMainFragment extends Fragment {
                         @Override
                         public void run() {
 //                        mtListView.getListView().getAdapter().notifyItemRemoved(position + 1);//范围刷新
-                            if (viewModel.sessions != null && viewModel.sessions.size() > 0) {
+                            if (viewModel.sessions != null && viewModel.sessions.size() >= 0) {
                                 mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
                             }
                         }

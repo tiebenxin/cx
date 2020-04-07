@@ -58,17 +58,20 @@ public class MainViewModel extends ViewModel {
         });
     }
 
-    public String getSessionJson(){
+    public String getSessionJson() {
         return repository.getSessionJson(sessions);
     }
+
     /**
      * 获取群信息
+     *
      * @param gid
      * @return
      */
-    public Group getGroup4Id(String gid){
+    public Group getGroup4Id(String gid) {
         return repository.getGroup4Id(gid);
     }
+
     public void updateItemSessionDetail() {
         repository.updateSessionDetail();
     }
@@ -79,27 +82,24 @@ public class MainViewModel extends ViewModel {
      * @param position
      */
     public void deleteItem(int position) {
-
         try {
-            if(position>=0&&position<sessions.size()){
-                long uid = sessions.get(position).getFrom_uid();
-                String gid = sessions.get(position).getGid();
-                //开始删除事务
-                repository.beginTransaction();
-                String sid = sessions.get(position).getSid();
-                sessions.get(position).deleteFromRealm();
-                if (sessionMoresPositions.containsKey(sid)) {
-                    int index=sessionMoresPositions.get(sid);
-                    if(index>=0&&index<sessionMores.size()){
-                        //删除session详情
-                        sessionMores.get(index).deleteFromRealm();
-                    }
-                    //删除位置信息
-                    sessionMoresPositions.remove(sid);
+            long uid = sessions.get(position).getFrom_uid();
+            String gid = sessions.get(position).getGid();
+            //开始删除事务
+            repository.beginTransaction();
+            String sid = sessions.get(position).getSid();
+            sessions.get(position).deleteFromRealm();
+            if (sessionMoresPositions.containsKey(sid)) {
+                int index = sessionMoresPositions.get(sid);
+                if (index >= 0 && index < sessionMores.size()) {
+                    //删除session详情
+                    sessionMores.get(index).deleteFromRealm();
                 }
-                repository.commitTransaction();
-                repository.deleteAllMsg(uid,gid);
+                //删除位置信息
+                sessionMoresPositions.remove(sid);
             }
+            repository.commitTransaction();
+            repository.deleteAllMsg(uid, gid);
         } catch (Exception e) {
         }
     }
