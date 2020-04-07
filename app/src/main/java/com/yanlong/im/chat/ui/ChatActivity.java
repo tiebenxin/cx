@@ -833,7 +833,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void doAckEvent(AckEvent event) {
         Object data = event.getData();
-        if (data instanceof MsgAllBean) {
+       if (data instanceof MsgAllBean) {
             LogUtil.getLog().i(TAG, "收到回执--MsgAllBean");
             MsgAllBean msgAllBean = (MsgAllBean) data;
             fixSendTime(msgAllBean.getMsg_id());
@@ -3055,6 +3055,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * @param msgAllbean
      */
     private void replaceListDataAndNotify(MsgAllBean msgAllbean) {
+        if(msgAllbean.getMsg_type()==ChatEnum.EMessageType.MSG_CANCEL){
+            //收到撤回消息回执，更新主页UI
+            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
+        }
 
         if (msgListData == null)
             return;

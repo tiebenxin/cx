@@ -11,6 +11,7 @@ import java.util.Map;
  * @description emoj缓存
  */
 public class EmojBitmapCache {
+    private Map<String, Bitmap> mBitmapSmallCache=new HashMap<>();
     private Map<String, Bitmap> mBitmapCache=new HashMap<>();
     private EmojBitmapCache(){}
     private static class Holder{
@@ -30,12 +31,31 @@ public class EmojBitmapCache {
             return null;
         }
     }
+
+    public void putSmall(String key,Bitmap bitmap){
+        mBitmapSmallCache.put(key,bitmap);
+    }
+
+    public Bitmap getSmall(String key){
+        if(mBitmapSmallCache.containsKey(key)){
+            return mBitmapSmallCache.get(key);
+        }else{
+            return null;
+        }
+    }
     public void clear(){
         for(Bitmap bitmap: mBitmapCache.values()){
             bitmap.recycle();
         }
+        for(Bitmap bitmap: mBitmapSmallCache.values()){
+            bitmap.recycle();
+        }
+
         mBitmapCache.clear();
         mBitmapCache=null;
+
+        mBitmapSmallCache.clear();
+        mBitmapSmallCache=null;
 
     }
 }

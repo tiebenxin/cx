@@ -50,13 +50,21 @@ public class ExpressionUtil {
 			if (matcher.start() < start) {
 				continue;
 			}
-			Bitmap bitmap = EmojBitmapCache.getInstance().get(key);
+			Bitmap bitmap =null;
+			if(size==ExpressionUtil.DEFAULT_SMALL_SIZE)
+				bitmap=EmojBitmapCache.getInstance().getSmall(key);
+			else  bitmap=EmojBitmapCache.getInstance().get(key);
 			if(bitmap == null){
 				if (FaceView.map_FaceEmoji.containsKey(key)) {
 					bitmap = BitmapFactory.decodeResource(context.getResources(), Integer.parseInt(FaceView.map_FaceEmoji.get(key).toString()));
 					bitmap = Bitmap.createScaledBitmap(bitmap, dip2px( context,size), dip2px( context,size), true);
 //				bitmap = getBitmapFromDrawable(context, Integer.parseInt(FaceView.map_FaceEmoji.get(key).toString()));
-					EmojBitmapCache.getInstance().put(key,bitmap);
+					if(size==ExpressionUtil.DEFAULT_SMALL_SIZE){
+						EmojBitmapCache.getInstance().putSmall(key,bitmap);
+					}else{
+						EmojBitmapCache.getInstance().put(key,bitmap);
+					}
+
 				}
 			}
 
