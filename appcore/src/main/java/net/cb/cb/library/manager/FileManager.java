@@ -130,53 +130,69 @@ public class FileManager {
         return null;
     }
 
+    //存储pc同步消息
+    public File saveMsgFile2(byte[] bytes) {
+        String filePath = getOtherRoot();
+        String fileName = System.currentTimeMillis() + ".txt";
 
-    public byte[] getFileToByte(File file) {
-        if (file == null || !file.exists()) {
-            return null;
-        }
-        FileInputStream fis = null;
-        BufferedInputStream bis = null;
-        byte[] buffer = new byte[1024];
-        List<byte[]> list = new ArrayList<>();
-        StringBuffer stringBuffer = new StringBuffer();
+        BufferedOutputStream bos = null;
+        FileOutputStream fos = null;
+        File file = null;
         try {
-            fis = new FileInputStream(file);
-            bis = new BufferedInputStream(fis);
-            int bytesRead = 0;
-            while ((bytesRead = bis.read(buffer)) != -1) {
-                String s = new String(buffer, 0, bytesRead);
-                stringBuffer.append(s);
-//                System.out.println("PC同步--2--" + s);
-                list.add(buffer);
+            File dir = new File(filePath);
+            if (!dir.exists() && dir.isDirectory()) {//判断文件目录是否存在
+                dir.mkdirs();
             }
-//            if (list.size() > 0) {
-//                return listToBytes(list);
-//            }
-            return hexStrToByte(stringBuffer.toString());
+            file = new File(filePath + File.separator + fileName);
+            fos = new FileOutputStream(file);
+            bos = new BufferedOutputStream(fos);
+            bos.write(bytes, 0, bytes.length);
+            bos.flush();
+            return file;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (bis != null) {
-                    bis.close();
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-
-            try {
-                if (fis != null) {
-                    fis.close();
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-
-
         }
         return null;
     }
+
+    public static byte[] readFileBytes(File file) {
+        if (!file.exists()) {
+            return null;
+        }
+        BufferedInputStream fw = null;
+        try {
+            fw = new BufferedInputStream(new FileInputStream(file));
+            byte[] bytes = new byte[(int) file.length()];
+            fw.read(bytes);
+            return bytes;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (null != fw) {
+                try {
+                    fw.close();
+                } catch (Exception e) {
+                }
+            }
+        }
+        return null;
+    }
+
 
     /***
      * 合并数组

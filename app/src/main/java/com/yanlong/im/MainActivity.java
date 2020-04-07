@@ -20,6 +20,8 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
+
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
@@ -124,6 +126,9 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import android.util.Base64;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -1214,6 +1219,7 @@ public class MainActivity extends AppActivity {
     @SuppressLint("CheckResult")
     private void getMsgToPC() {
         ThreadUtil.getInstance().execute(new Runnable() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void run() {
                 List<MsgAllBean> msgList = msgDao.getMsgIn3Day();
@@ -1236,14 +1242,11 @@ public class MainActivity extends AppActivity {
                 if (message != null) {
                     byte[] bytes = message.toByteArray();
                     if (bytes != null) {
-                        String result = FileManager.getInstance().bytesToHex(bytes);
-                        System.out.println("PC同步--1--" + result);
-//                        String content = "hello Liszt, 清明时节雨纷纷，路上行人欲断魂";
-                        bytes = result.getBytes();
+                        System.out.println("PC同步--1--" + bytes.length);
                         File file = FileManager.getInstance().saveMsgFile(bytes);
                         if (file != null) {
-                            parseFile(file);
-//                            uploadMsgFile(file);
+//                            parseFile(file);
+                            uploadMsgFile(file);
                         }
                     }
                 }
@@ -1253,7 +1256,7 @@ public class MainActivity extends AppActivity {
 
     private void uploadMsgFile(File file) {
         UpFileAction upFileAction = new UpFileAction();
-        upFileAction.upFile(UpFileAction.PATH.FILE, MainActivity.this, new UpFileUtil.OssUpCallback() {
+        upFileAction.upFile(UserAction.getMyId() + "", UpFileAction.PATH.PC_MSG, MainActivity.this, new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String url) {
                 LogUtil.getLog().i("PC同步消息", "文件上传成功--" + url);
@@ -1276,7 +1279,6 @@ public class MainActivity extends AppActivity {
             return;
         }
         DialogCommon dialogLogin = new DialogCommon(this);
-//        dialogLogin.setCanceledOnTouchOutside(false);
         dialogLogin.setContent("请退出重登后使用此功能", true)
                 .setTitleAndSure(false, true)
                 .setRight("开启")
@@ -1308,15 +1310,17 @@ public class MainActivity extends AppActivity {
         return true;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void parseFile(File file) {
-        byte[] bytes = FileManager.getInstance().getFileToByte(file);
+        System.out.println("PC同步--2--文件" + file.length());
+        byte[] bytes = FileManager.getInstance().readFileBytes(file);
         if (bytes != null) {
-            String result = FileManager.getInstance().bytesToHex(bytes);
-            System.out.println("PC同步--3--" + result);
+            System.out.println("PC同步--3--" + bytes.length);
             if (bytes != null) {
                 try {
                     MsgBean.UniversalMessage message = MsgBean.UniversalMessage.parseFrom(bytes);
                     if (message != null) {
+
 
                     }
                 } catch (InvalidProtocolBufferException e) {

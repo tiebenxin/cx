@@ -687,7 +687,7 @@ public class SocketUtil {
                         CrashReport.setUserSceneTag(MainApplication.getInstance().getApplicationContext(), BUGLY_TAG_LOGIN);
                         // 上传异常数据
                         CrashReport.putUserData(MainApplication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_3, "鉴权失败退出登录");
-                        BuglyLog.i(BuglyTag.BUGLY_TAG_3, "鉴权失败退出登录");
+                        BuglyLog.e(BuglyTag.BUGLY_TAG_3, "鉴权失败退出登录");
                         CrashReport.postCatchedException(new BuglyException());
                         //6.20 鉴权失败退出登录
                         EventBus.getDefault().post(new EventLoginOut());

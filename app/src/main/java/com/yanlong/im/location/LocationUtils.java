@@ -5,9 +5,6 @@ import android.content.Context;
 import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
-import com.baidu.location.BDAbstractLocationListener;
-import com.baidu.location.BDLocation;
-import com.yanlong.im.MyAppLication;
 
 import static java.lang.Math.atan2;
 import static java.lang.Math.cos;

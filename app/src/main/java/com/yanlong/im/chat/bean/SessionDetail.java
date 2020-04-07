@@ -16,6 +16,15 @@ public class SessionDetail extends RealmObject{
     private String avatarList;//群头像
     private MsgAllBean message;//最后消息
     private String senderName; //发送者名字，群聊
+    private String messageContent;//最新消息
+
+    public String getMessageContent() {
+        return messageContent==null?"":messageContent;
+    }
+
+    public void setMessageContent(String messageContent) {
+        this.messageContent = messageContent;
+    }
 
     public String getSenderName() {
         return senderName;

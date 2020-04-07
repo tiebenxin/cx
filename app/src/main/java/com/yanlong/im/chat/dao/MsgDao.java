@@ -40,6 +40,7 @@ import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -602,6 +603,8 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
+        //通知主页刷新
+        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
     }
 
     /***
@@ -629,6 +632,8 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
+        //通知主页刷新
+        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
     }
 
 
@@ -691,6 +696,8 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
+        //通知主页刷新
+        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
         return msgAllBean;
     }
 
@@ -3248,11 +3255,13 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
+        //通知主页刷新
+        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
         return false;
 
     }
 
-    private void deleteRealmMsg(MsgAllBean msg) {
+    public void deleteRealmMsg(MsgAllBean msg) {
         if (msg.getReceive_red_envelope() != null)
             msg.getReceive_red_envelope().deleteFromRealm();
         if (msg.getMsgNotice() != null)

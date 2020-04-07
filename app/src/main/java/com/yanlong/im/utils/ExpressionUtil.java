@@ -12,9 +12,9 @@ import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.style.ImageSpan;
 
 import com.yanlong.im.view.face.FaceView;
-import com.yanlong.im.view.face.wight.HotelListImageSpan;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,26 +50,28 @@ public class ExpressionUtil {
 			if (matcher.start() < start) {
 				continue;
 			}
-			Bitmap bitmap = null;
-			if (FaceView.map_FaceEmoji.containsKey(key)) {
-				bitmap = BitmapFactory.decodeResource(context.getResources(), Integer.parseInt(FaceView.map_FaceEmoji.get(key).toString()));
-				bitmap = Bitmap.createScaledBitmap(bitmap, dip2px( context,size), dip2px( context,size), true);
+			Bitmap bitmap = EmojBitmapCache.getInstance().get(key);
+			if(bitmap == null){
+				if (FaceView.map_FaceEmoji.containsKey(key)) {
+					bitmap = BitmapFactory.decodeResource(context.getResources(), Integer.parseInt(FaceView.map_FaceEmoji.get(key).toString()));
+					bitmap = Bitmap.createScaledBitmap(bitmap, dip2px( context,size), dip2px( context,size), true);
 //				bitmap = getBitmapFromDrawable(context, Integer.parseInt(FaceView.map_FaceEmoji.get(key).toString()));
+					EmojBitmapCache.getInstance().put(key,bitmap);
+				}
 			}
+
 			if (bitmap != null) {
-				HotelListImageSpan imageSpan = new HotelListImageSpan(context, bitmap);
-				// 通过图片资源id来得到bitmap，用一个ImageSpan来包装
+				ImageSpan imageSpan = new ImageSpan(context, bitmap);
+//				// 通过图片资源id来得到bitmap，用一个ImageSpan来包装
 				int end = matcher.start() + key.length();
 				// 计算该图片名字的长度，也就是要替换的字符串的长度
 				// spannableString.setSpan(imageSpan, matcher.start(), end,
 				// Spannable.SPAN_INCLUSIVE_EXCLUSIVE); // 将该图片替换字符串中规定的位置中
 				spannableString.setSpan(imageSpan, matcher.start(), end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // 将该图片替换字符串中规定的位置中
-				if (end < spannableString.length()) { // 如果整个字符串还未验证完，则继续。。
-					dealExpression(context, size, spannableString, patten, end);
-				}
-				break;
 			}
 		}
+
+
 	}
 
 	public static int dip2px(Context context, float dpValue) {

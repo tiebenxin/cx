@@ -200,6 +200,7 @@ public class MsgSearchActivity extends AppActivity {
             MsgAllBean msginfo = null;
             String name = "";
             List<String> avatarList = null;
+            String info = "";
             if (sessionMoresPositions.containsKey(bean.getSid())) {
                 Integer index = sessionMoresPositions.get(bean.getSid());
                 if (index != null && index >= 0) {
@@ -213,19 +214,14 @@ public class MsgSearchActivity extends AppActivity {
                         avatarList = Arrays.asList(avatarListString.split(","));
                     }
                     if(name==null)name="";
+                    info = sessionDetails.get(index).getMessageContent();
                 }
-            }
-            if(title.equals("5666")){
-
             }
 
             // 头像集合
             List<String> headList = new ArrayList<>();
 
-            String info = "";
-            if (msginfo != null) {
-                info = msginfo.getMsg_typeStr();
-            }
+
             if (bean.getType() == 0) {//单人
                 if (StringUtil.isNotNull(bean.getDraft())) {
                     SpannableString style = new SpannableString("[草稿]" + bean.getDraft());

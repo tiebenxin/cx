@@ -34,6 +34,10 @@ public class MainViewModel extends ViewModel {
 
     public MainViewModel() {
         repository = new MainRepository();
+        init();
+    }
+
+    private void init() {
         sessions = repository.getSesisons();
         sessionOriginalSize = sessions.size();
         //session数据变化时，更新session详情
@@ -58,17 +62,20 @@ public class MainViewModel extends ViewModel {
         });
     }
 
-    public String getSessionJson(){
+    public String getSessionJson() {
         return repository.getSessionJson(sessions);
     }
+
     /**
      * 获取群信息
+     *
      * @param gid
      * @return
      */
-    public Group getGroup4Id(String gid){
+    public Group getGroup4Id(String gid) {
         return repository.getGroup4Id(gid);
     }
+
     public void updateItemSessionDetail() {
         repository.updateSessionDetail();
     }
@@ -80,20 +87,34 @@ public class MainViewModel extends ViewModel {
      */
     public void deleteItem(int position) {
         try {
+            long uid = sessions.get(position).getFrom_uid();
+            String gid = sessions.get(position).getGid();
             //开始删除事务
             repository.beginTransaction();
             String sid = sessions.get(position).getSid();
             sessions.get(position).deleteFromRealm();
             if (sessionMoresPositions.containsKey(sid)) {
-                //删除session详情
-                sessionMores.get(sessionMoresPositions.get(sid)).deleteFromRealm();
+                int index = sessionMoresPositions.get(sid);
+                if (index >= 0 && index < sessionMores.size()) {
+                    //删除session详情
+                    sessionMores.get(index).deleteFromRealm();
+                }
                 //删除位置信息
                 sessionMoresPositions.remove(sid);
             }
             repository.commitTransaction();
+            repository.deleteAllMsg(uid, gid);
         } catch (Exception e) {
         }
+    }
 
+    /**
+     * onResume检查realm状态,避免系统奔溃后，主页重新启动realm对象已被关闭，需重新连接
+     */
+    public void checkRealmStatus() {
+        if (!repository.checkRealmStatus()) {
+            init();
+        }
     }
 
     public void onDestory() {
