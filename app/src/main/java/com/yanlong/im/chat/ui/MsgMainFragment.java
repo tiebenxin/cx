@@ -126,7 +126,7 @@ public class MsgMainFragment extends Fragment {
     private SocketEvent socketEvent;
 
     private void initEvent() {
-        mAdapter = new MsgMainFragmentAdapter(getActivity(),viewModel,mHeadView);
+        mAdapter = new MsgMainFragmentAdapter(getActivity(), viewModel, mHeadView);
         mtListView.init(mAdapter);
 
         mtListView.getLoadView().setStateNormal();
@@ -315,7 +315,8 @@ public class MsgMainFragment extends Fragment {
         super.onResume();
     }
 
-    private long lastRefreshTime=0;
+    private long lastRefreshTime = 0;
+
     /**
      * 初始化观察器
      */
@@ -325,14 +326,15 @@ public class MsgMainFragment extends Fragment {
             @Override
             public void onChange(RealmResults<SessionDetail> sessionMore) {
                 if (sessionMore != null) {
-                    Log.e("raleigh_test","sessionMores Changes");
-                     boolean isNeedCloseSwipe= viewModel.sessionOriginalSize != viewModel.sessions.size();
-                    if(System.currentTimeMillis()-lastRefreshTime>1*1000){//1秒之内不刷新
-                        if(!mAdapter.isNeedCloseSwipe)mAdapter.isNeedCloseSwipe=isNeedCloseSwipe;
-                        lastRefreshTime=System.currentTimeMillis();
+                    Log.e("raleigh_test", "sessionMores Changes");
+                    boolean isNeedCloseSwipe = viewModel.sessionOriginalSize != viewModel.sessions.size();
+                    if (System.currentTimeMillis() - lastRefreshTime > 1 * 1000) {//1秒之内不刷新
+                        if (!mAdapter.isNeedCloseSwipe)
+                            mAdapter.isNeedCloseSwipe = isNeedCloseSwipe;
+                        lastRefreshTime = System.currentTimeMillis();
                         mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
-                    }else {// 1秒之内
-                        if(isNeedCloseSwipe) mAdapter.isNeedCloseSwipe=isNeedCloseSwipe;
+                    } else {// 1秒之内
+                        if (isNeedCloseSwipe) mAdapter.isNeedCloseSwipe = isNeedCloseSwipe;
                     }
                     viewModel.sessionOriginalSize = viewModel.sessions.size();
                 }
@@ -342,7 +344,7 @@ public class MsgMainFragment extends Fragment {
         viewModel.currentDeletePosition.observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(@Nullable Integer position) {
-                if(position>=0&&position<viewModel.sessions.size()){
+                if (position >= 0 && position < viewModel.sessions.size()) {
                     viewModel.deleteItem(position);
                     //通知更新
                     MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
@@ -350,8 +352,12 @@ public class MsgMainFragment extends Fragment {
                         @Override
                         public void run() {
 //                        mtListView.getListView().getAdapter().notifyItemRemoved(position + 1);//范围刷新
-                            if (viewModel.sessions != null && viewModel.sessions.size() >= 0) {
-                                mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                            if (viewModel.sessions != null ) {
+                                if (viewModel.sessions.size() > 0)
+                                    mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                                if (viewModel.sessions.size() == 0) {
+                                    mtListView.getListView().getAdapter().notifyDataSetChanged();
+                                }
                             }
                         }
                     }, 50);
@@ -382,7 +388,7 @@ public class MsgMainFragment extends Fragment {
 //                MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
 //            } else
 //
-                if (refreshTag == CoreEnum.ESessionRefreshTag.ALL) {
+            if (refreshTag == CoreEnum.ESessionRefreshTag.ALL) {
                 //阅后即焚 -更新
                 viewModel.updateItemSessionDetail();
             }
