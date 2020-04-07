@@ -79,21 +79,29 @@ public class MainViewModel extends ViewModel {
      * @param position
      */
     public void deleteItem(int position) {
+
         try {
-            //开始删除事务
-            repository.beginTransaction();
-            String sid = sessions.get(position).getSid();
-            sessions.get(position).deleteFromRealm();
-            if (sessionMoresPositions.containsKey(sid)) {
-                //删除session详情
-                sessionMores.get(sessionMoresPositions.get(sid)).deleteFromRealm();
-                //删除位置信息
-                sessionMoresPositions.remove(sid);
+            if(position>=0&&position<sessions.size()){
+                long uid = sessions.get(position).getFrom_uid();
+                String gid = sessions.get(position).getGid();
+                //开始删除事务
+                repository.beginTransaction();
+                String sid = sessions.get(position).getSid();
+                sessions.get(position).deleteFromRealm();
+                if (sessionMoresPositions.containsKey(sid)) {
+                    int index=sessionMoresPositions.get(sid);
+                    if(index>=0&&index<sessionMores.size()){
+                        //删除session详情
+                        sessionMores.get(index).deleteFromRealm();
+                    }
+                    //删除位置信息
+                    sessionMoresPositions.remove(sid);
+                }
+                repository.commitTransaction();
+                repository.deleteAllMsg(uid,gid);
             }
-            repository.commitTransaction();
         } catch (Exception e) {
         }
-
     }
 
     public void onDestory() {

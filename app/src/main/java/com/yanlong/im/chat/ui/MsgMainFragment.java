@@ -343,12 +343,9 @@ public class MsgMainFragment extends Fragment {
             @Override
             public void onChanged(@Nullable Integer position) {
                 if(position>=0&&position<viewModel.sessions.size()){
-                    long uid = viewModel.sessions.get(position).getFrom_uid();
-                    String gid = viewModel.sessions.get(position).getGid();
-                    //数据库中删除数据项
+
                     viewModel.deleteItem(position);
                     //通知更新
-                    MessageManager.getInstance().deleteSessionAndMsg(uid, gid);
                     MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
                     getView().postDelayed(new Runnable() {
                         @Override

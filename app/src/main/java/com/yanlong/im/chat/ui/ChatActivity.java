@@ -2905,7 +2905,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         } else if (type == CoreEnum.ERefreshType.DELETE) {
             dismissPop();
             if (event.getObject() != null && event.getObject() instanceof MsgAllBean) {
-                Log.e("raleigh_test", "deleteMsg");
+                Log.e("raleigh_test", "deleteAllMsg");
                 deleteMsg((MsgAllBean) event.getObject());
             } else if (event.getList() != null) {
                 Log.e("raleigh_test", "deleteMsgList");
@@ -6398,7 +6398,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //删除单条消息
     private void deleteMsg(MsgAllBean bean) {
-//        LogUtil.getLog().i("SurvivalTime", "deleteMsg:" + bean.getMsg_id());
+//        LogUtil.getLog().i("SurvivalTime", "deleteAllMsg:" + bean.getMsg_id());
         if (msgListData == null) {
             return;
         }
