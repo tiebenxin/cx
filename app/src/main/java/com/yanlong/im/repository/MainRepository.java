@@ -18,14 +18,17 @@ public class MainRepository {
     public MainRepository() {
         localDataSource = new MainLocalDataSource();
     }
+
     /**
      * 获取群信息
+     *
      * @param gid
      * @return
      */
-    public Group getGroup4Id(String gid){
+    public Group getGroup4Id(String gid) {
         return localDataSource.getGroup4Id(gid);
     }
+
     /**
      * 获取session 列表
      *
@@ -34,6 +37,7 @@ public class MainRepository {
     public RealmResults<Session> getSesisons() {
         return localDataSource.getSession();
     }
+
     /**
      * 获取session 详情
      *
@@ -43,15 +47,17 @@ public class MainRepository {
         return localDataSource.getSessionMore();
     }
 
-    public String getSessionJson(RealmResults<Session> sessions){
+    public String getSessionJson(RealmResults<Session> sessions) {
         return localDataSource.getSessionJson(sessions);
     }
+
     /**
      * 更新详情
      */
-    public void updateSessionDetail(){
+    public void updateSessionDetail() {
         localDataSource.updateSessionDetail();
     }
+
     /**
      * 数据库开始事务处理
      */
@@ -70,4 +76,7 @@ public class MainRepository {
         localDataSource.onDestory();
     }
 
+    public void deleteAllMsg(Long uid, String gid) {
+        localDataSource.deleteAllMsg(uid, gid);
+    }
 }
