@@ -4078,6 +4078,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                         showDraftContent(editChat.getText().toString() + restContent);
                         editChat.setSelection(editChat.getText().length());
+                        //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
+                        if(!mViewModel.isOpenValue())
+                            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                         mViewModel.isInputText.setValue(true);
                     }
                 }
