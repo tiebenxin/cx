@@ -548,6 +548,83 @@ public class SocketUtil {
      * 接收
      */
     private void receive() {
+//        new Thread(new Runnable() {
+//            private long indexVer = threadVer;
+//            @Override
+//            public void run() {
+//                //限制版本控制
+//                try {
+//                    //8.6先加大接收容量
+//                    ByteBuffer readBuf = ByteBuffer.allocate(1024 * 8);//最大 65536 ，65536/1024=64kb，倍数小于64
+//                    int data_size = 0;
+//                    List<byte[]> temp = new ArrayList<>();
+//                    while (isRun() && (indexVer == threadVer)) {
+//                        data_size = socketChannel.read(readBuf);
+//                        if (data_size > 0) {
+//                            readBuf.flip();
+//                            //当次数据
+//                            byte[] data = new byte[data_size];
+//                            readBuf.get(data, 0, data_size);
+//                            if (data.length < 1024) {
+//                                LogUtil.getLog().d(TAG, "<<<<<接收数据: " + SocketPacket.bytesToHex(data));
+//                            }
+//                            LogUtil.getLog().d(TAG, "<<<<<接收数据总大小: " + data.length);
+//
+//                            if (SocketPacket.isHead(data)) {//收到包头
+//                                LogUtil.getLog().d(TAG, ">>>接收数据: 是包头");
+//                                temp.clear();//每次收到包头把之前的缓存清理
+//                                byte[] ex = doPackage(data);//没处理完的断包
+//                                if (ex != null) {
+//                                    if (!SocketPacket.isHead(ex)) {//下个断包是否是包头不是就抛掉
+//                                        LogUtil.getLog().d(TAG, ">>抛掉错误数据" + SocketPacket.bytesToHex(ex));
+//                                    }
+//                                    temp.add(ex);
+//                                    LogUtil.getLog().d(TAG, ">>>[包头]剩余数据长度" + ex.length);
+//                                }
+//                            } else {//收到包体
+//                                LogUtil.getLog().d(TAG, ">>>接收数据: 是包体");
+//                                if (temp.size() > 0) {
+//                                    byte[] oldpk = SocketPacket.listToBytes(temp);
+//                                    LogUtil.getLog().d(TAG, ">>>上一个包大小" + oldpk.length);
+//                                    temp.clear();
+//                                    byte[] epk = SocketPacket.byteMergerAll(oldpk, data);//合成的新包
+//                                    LogUtil.getLog().d(TAG, ">>>合成包大小" + epk.length);
+//                                    byte[] ex = doPackage(epk);
+//                                    if (ex != null) {
+//                                        temp.add(ex);
+//                                        LogUtil.getLog().d(TAG, ">>>[包体]剩余数据长度" + ex.length);
+//                                    }
+//                                } else {//如果没有包头缓存,同样抛掉包体
+//                                    LogUtil.getLog().d(TAG, ">>>抛掉包体错误数据" + SocketPacket.bytesToHex(data));
+//                                }
+//                            }
+//                            LogUtil.getLog().d(TAG, ">>>当前缓冲区数: " + temp.size());
+//                            readBuf.clear();
+//                        } else {
+//                            // LogUtil.getLog().d(TAG, "<<<<<接收缓存: "+ data_size);
+//                        }
+//                        Thread.sleep(50);
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    LogUtil.getLog().e(TAG, "==getClass==" + e.getClass() + "===>>>接收异常run:===" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
+//                    LogUtil.writeLog("===>>>接收异常run:===" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
+//                    //java.io.EOFException: Read error
+//                    if (e != null && e.getMessage() != null && e.getMessage().contains("EOFException")) {
+//                        EventLoginOut4Conflict eventLoginOut4Conflict = new EventLoginOut4Conflict();
+//                        // 登录冲突
+//                        String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
+//                        eventLoginOut4Conflict.setMsg("您的账号" + phone + "已经在另一台设备上登录。如果不是您本人操作,请尽快修改密码");
+//                        EventBus.getDefault().post(eventLoginOut4Conflict);
+//                        return;
+//                    }
+//                    stop(true);
+//                    startSocket();
+//                }
+//                setRunState(0);
+//                LogUtil.getLog().d(TAG, ">>>接收结束");
+//            }
+//        }).start();
         ExecutorManager.INSTANCE.getReadThread().execute(new Runnable() {
             private long indexVer = threadVer;
 
