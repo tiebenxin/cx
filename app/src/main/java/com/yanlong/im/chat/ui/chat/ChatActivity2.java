@@ -567,7 +567,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
     @Override
     protected void onDestroy() {
         //释放adapter资源
-//        mAdapter.onDestory();
+//        mAdapter.onDestroy();
         //关闭窗口，避免内存溢出
         dismissPop();
 

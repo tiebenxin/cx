@@ -19,6 +19,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.databinding.FragmentForwardSessionBinding;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
+
 import net.cb.cb.library.base.BaseMvpFragment;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -41,7 +42,7 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
     private FragmentForwardSessionBinding ui;
     private UserDao userDao = new UserDao();
     private MsgDao msgDao = new MsgDao();
-    private AdapterForwardSession adapter;
+    private ForwardSessionAdapter adapter;
     private IForwardListener listener;
     private List<Session> sessionsList;
 
@@ -69,7 +70,8 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
     }
 
     private void initAdapter() {
-        adapter = new AdapterForwardSession(getActivity());
+//        adapter = new AdapterForwardSession(getActivity());
+        adapter = new ForwardSessionAdapter(getActivity(), ((MsgForwardActivity) getActivity()).getViewModel());
         ui.listView.init(adapter);
         ui.listView.getLoadView().setStateNormal();
         adapter.initDao(userDao, msgDao);
@@ -97,10 +99,10 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
         if (sessions == null) {
             return;
         }
-        sessionsList=sessions;
+        sessionsList = sessions;
 
-        List<Session> temp=searchSessionBykey(sessionsList,MsgForwardActivity.searchKey);
-        adapter.bindData(temp);
+//        List<Session> temp = searchSessionBykey(sessionsList, MsgForwardActivity.searchKey);
+//        adapter.bindData(temp);
         ui.listView.init(adapter);
     }
 
@@ -114,13 +116,13 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
     }
 
 
-    private List<Session> searchSessionBykey(List<Session> sessions,String key){
+    private List<Session> searchSessionBykey(List<Session> sessions, String key) {
 //        LogUtil.getLog().e("======转发搜索====最近聊天====key=="+key);
-        if(!StringUtil.isNotNull(key)){
+        if (!StringUtil.isNotNull(key)) {
             return sessions;
         }
 
-        List<Session> temp=new ArrayList<>();
+        List<Session> temp = new ArrayList<>();
         for (Session bean : sessions) {
             String name = "";
             if (bean.getType() == 0) {//单人
@@ -132,16 +134,15 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
 
             }
 
-            if (StringUtil.isNotNull(name)&&(name.contains(key))) {
+            if (StringUtil.isNotNull(name) && (name.contains(key))) {
 //                LogUtil.getLog().e("====name==="+name);
                 bean.setUnread_count(0);
                 temp.add(bean);
             }
         }
 //        LogUtil.getLog().e("====temp==="+temp.size());
-        return  temp;
+        return temp;
     }
-
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -152,7 +153,7 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void posting(SearchKeyEvent event) {
-        List<Session> temp=searchSessionBykey(sessionsList,MsgForwardActivity.searchKey);
+        List<Session> temp = searchSessionBykey(sessionsList, MsgForwardActivity.searchKey);
         adapter.bindData(temp);
         ui.listView.init(adapter);
 
