@@ -15,6 +15,7 @@ import com.yanlong.im.utils.DaoUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import io.realm.Realm;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -61,11 +62,26 @@ public class MainLocalDataSource {
             String[] orderFiled = {"isTop", "up_time"};
             Sort[] sorts = {Sort.DESCENDING, Sort.DESCENDING};
             list = realm.where(Session.class).sort(orderFiled, sorts).findAll();
+            //TODO:删除部分数据，临时解决客服号数据过大问题
+//            if (list != null) {
+//                int len = list.size();
+//                int size = 50;
+//                if (len > size) {
+//                    beginTransaction();
+//                    Session session = list.get(size);
+//                    long time = session.getUp_time();
+//                    RealmResults<Session> removeList = list.where().equalTo("isTop",0).and().lessThan("up_time", time).findAll();
+//                    if (removeList != null) {
+//                        removeList.deleteAllFromRealm();
+//                    }
+//                    commitTransaction();
+//                }
+//            }
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.reportException(e);
         }
-        Log.e("raleigh_test", "getSession" + list.size() + ",t=" + DateUtils.timeStamp2Date(DateUtils.getSystemTime(), null));
+        Log.e("raleigh_test", "getSession--" + list.size() + ",t=" + DateUtils.timeStamp2Date(DateUtils.getSystemTime(), null));
         return list;
     }
 
@@ -145,7 +161,7 @@ public class MainLocalDataSource {
     public boolean checkRealmStatus() {
         boolean result = true;
         if (realm == null || realm.isClosed()) {
-            result=false;
+            result = false;
             realm = DaoUtil.open();
         }
         return result;
