@@ -108,7 +108,11 @@ public class BurnManager {
             if (tempList.size() > 0) {
                 boolean result = msgDao.deleteMsgList(tempList);
                 LogUtil.getLog().i("SurvivalTime", "批量删除size=" + tempList.size());
+
                 if (result) {
+                    if (needRefreshChat) {
+                        MessageManager.getInstance().notifyRefreshChat(tempList, CoreEnum.ERefreshType.DELETE);
+                    }
                     int gLen = gids.size();
                     int uLen = uids.size();
 //                    if (gLen + uLen == 1) {
