@@ -22,6 +22,7 @@ import com.yanlong.im.MainActivity;
 import com.yanlong.im.MainViewModel;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
@@ -353,7 +354,7 @@ public class MsgMainFragment extends Fragment {
                         @Override
                         public void run() {
 //                        mtListView.getListView().getAdapter().notifyItemRemoved(position + 1);//范围刷新
-                            if (viewModel.sessions != null ) {
+                            if (viewModel.sessions != null) {
                                 if (viewModel.sessions.size() > 0)
                                     mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
                                 if (viewModel.sessions.size() == 0) {
@@ -362,6 +363,23 @@ public class MsgMainFragment extends Fragment {
                             }
                         }
                     }, 50);
+                }
+            }
+        });
+        viewModel.sessions.addChangeListener(new RealmChangeListener<RealmResults<Session>>() {
+            @Override
+            public void onChange(RealmResults<Session> sessions) {
+                LogUtil.getLog().i("未读数", "onChange");
+                RealmResults<Session> sessionList = sessions.where().greaterThan("unread_count", 0).limit(100).findAll();
+                if (sessionList != null) {
+                    Number unreadCount = sessionList.where().sum("unread_count");
+                    if (unreadCount != null) {
+                        getActivityMe().updateMsgUnread(unreadCount.intValue());
+                    } else {
+                        getActivityMe().updateMsgUnread(0);
+                    }
+                } else {
+                    getActivityMe().updateMsgUnread(0);
                 }
             }
         });

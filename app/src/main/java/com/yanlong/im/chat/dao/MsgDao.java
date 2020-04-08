@@ -42,6 +42,7 @@ import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshChat;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 
@@ -67,12 +68,13 @@ public class MsgDao {
     public Group getGroup4Id(String gid) {
         return DaoUtil.findOne(Group.class, "gid", gid);
     }
-    public List<SessionDetail> getSessionDetail(){
+
+    public List<SessionDetail> getSessionDetail() {
         Realm realm = DaoUtil.open();
-        List<SessionDetail> sessionDetails=null;
-        try{
-          sessionDetails=realm.copyFromRealm( realm.where(SessionDetail.class).findAll());
-        }finally {
+        List<SessionDetail> sessionDetails = null;
+        try {
+            sessionDetails = realm.copyFromRealm(realm.where(SessionDetail.class).findAll());
+        } finally {
             DaoUtil.close(realm);
         }
         return sessionDetails;
@@ -954,13 +956,9 @@ public class MsgDao {
         realm.beginTransaction();
         if (StringUtil.isNotNull(gid)) {//群消息
             realm.where(Session.class).equalTo("gid", gid).findAll().deleteAllFromRealm();
-
         } else {
             realm.where(Session.class).equalTo("from_uid", from_uid).findAll().deleteAllFromRealm();
-
-
         }
-
         realm.commitTransaction();
         realm.close();
     }
@@ -969,7 +967,7 @@ public class MsgDao {
      * 更新或者创建session
      *
      * */
-    public void sessionReadUpdate(String gid, Long from_uid, boolean canChangeUnread, MsgAllBean bean, String firstFlag) {
+    public boolean sessionReadUpdate(String gid, Long from_uid, boolean canChangeUnread, MsgAllBean bean, String firstFlag) {
         //是否是 撤回
         String cancelId = null;
         if (bean != null) {
@@ -1082,15 +1080,13 @@ public class MsgDao {
             session.setMessageType(1000);
         } else if ("first".equals(firstFlag) && bean != null && bean.getAtMessage() != null && bean.getAtMessage().getAt_type() != 1000) {
             //对at消息处理 而且不是撤回消息
-//            LogUtil.getLog().e("===bean.getAtMessage().getAt_type()="+bean.getAtMessage().getAt_type()+"===bean.getAtMessage().getMsg()="+bean.getAtMessage().getMsg());
             int messageType = bean.getAtMessage().getAt_type();
             String atMessage = bean.getAtMessage().getMsg();
             session.setMessageType(messageType);
             session.setAtMessage(atMessage);
         }
-
-
-        DaoUtil.update(session);
+        LogUtil.getLog().e("更新session未读数", "msgDao");
+        return DaoUtil.update(session);
     }
 
     /*
@@ -1227,8 +1223,7 @@ public class MsgDao {
     public int sessionReadGetAll() {
         int sum = 0;
         Realm realm = DaoUtil.open();
-        List<Session> list = realm.where(Session.class).limit(100).findAll();
-
+        List<Session> list = realm.where(Session.class).greaterThan("unread_count", 0).limit(100).findAll();
         if (list != null) {
             for (Session s : list) {
                 sum += s.getUnread_count();
