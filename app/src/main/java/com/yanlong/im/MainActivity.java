@@ -550,7 +550,7 @@ public class MainActivity extends AppActivity {
     protected void onResume() {
         super.onResume();
         isActivityStop = false;
-//        taskGetMsgNum();
+        taskGetMsgNum();
         checkNotificationOK();
         checkPayEnvironmentInit();
         if (AppConfig.isOnline()) {
