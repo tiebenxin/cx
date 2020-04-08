@@ -221,8 +221,10 @@ public class UpdateSessionDetail {
                     .beginGroup().equalTo("from_uid", session.getFrom_uid()).or().equalTo("to_uid", session.getFrom_uid()).endGroup()
                     .sort("timestamp", Sort.DESCENDING).findFirst();
 
-            sessionMore.setMessage(msg);
-            sessionMore.setMessageContent(msg.getMsg_typeStr());
+            if(msg!=null){
+                sessionMore.setMessage(msg);
+                sessionMore.setMessageContent(msg.getMsg_typeStr());
+            }
         }
         realm.copyToRealmOrUpdate(sessionMore);
 
