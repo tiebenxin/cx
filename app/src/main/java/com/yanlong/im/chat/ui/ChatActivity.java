@@ -1666,7 +1666,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         String avatar = "";
         if (mFinfo != null) {
             name = mFinfo.getName();
-            avatar = mFinfo.getHead();
+            avatar = mFinfo.getHead()==null?"":mFinfo.getHead();
         }
         Intent intent = TransferActivity.newIntent(ChatActivity.this, toUId, name, avatar);
         startActivity(intent);
@@ -2042,7 +2042,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             event.isClose = true;
                             EventBus.getDefault().post(event);
                             Bundle bundle = new Bundle();
-                            bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
+                            bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead()==null?"":userInfo.getHead());
                             if (!TextUtils.isEmpty(userInfo.getMkName())) {
                                 bundle.putString(Preferences.USER_NAME, userInfo.getMkName());
                             } else {
@@ -2883,7 +2883,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
             String json = data.getStringExtra(SelectUserActivity.RET_JSON);
             UserInfo userInfo = gson.fromJson(json, UserInfo.class);
-            BusinessCardMessage cardMessage = SocketData.createCardMessage(SocketData.getUUID(), userInfo.getHead(), userInfo.getName(), userInfo.getImid(), userInfo.getUid());
+            BusinessCardMessage cardMessage = SocketData.createCardMessage(SocketData.getUUID(), userInfo.getHead()==null?"":userInfo.getHead(), userInfo.getName(), userInfo.getImid(), userInfo.getUid());
             sendMessage(cardMessage, ChatEnum.EMessageType.BUSINESS_CARD);
         }
     }
@@ -4566,8 +4566,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 bean.setRead(true);
             }
         }
-        msgDao.updatePlayStatus(voiceMessage.getMsgId(), status);
-        voiceMessage.setPlayStatus(status);
+        if(voiceMessage!=null && !TextUtils.isEmpty(voiceMessage.getMsgId())){
+            msgDao.updatePlayStatus(voiceMessage.getMsgId(), status);
+            voiceMessage.setPlayStatus(status);
+        }
         final MsgAllBean finalBean = bean;
         runOnUiThread(new Runnable() {
             @Override
@@ -5239,7 +5241,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 nkname = userInfo.getMkName();
             }
 
-            head = userInfo.getHead();
+            if(userInfo.getHead()!=null){
+                head = userInfo.getHead();
+            }
 
 
 //            LogUtil.getLog().d("tak", "taskName: " + nkname);
@@ -5414,10 +5418,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             totalSize = group.getUsers().size();
                         }
                         JrmfRpClient.sendGroupEnvelopeForResult(ChatActivity.this, "" + toGid, "" + UserAction.getMyId(), token,
-                                totalSize, info.getName(), info.getHead(), REQ_RP);
+                                totalSize, info.getName(), info.getHead()==null?"":info.getHead(), REQ_RP);
                     } else {
                         JrmfRpClient.sendSingleEnvelopeForResult(ChatActivity.this, "" + toUId, "" + info.getUid(), token,
-                                info.getName(), info.getHead(), REQ_RP);
+                                info.getName(), info.getHead()==null?"":info.getHead(), REQ_RP);
                     }
                     LogUtil.writeEnvelopeLog("准备发红包");
 
@@ -5461,11 +5465,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (isGroup()) {
                         UserInfo minfo = UserAction.getMyInfo();
                         JrmfRpClient.openGroupRp(ChatActivity.this, "" + minfo.getUid(), token,
-                                minfo.getName(), minfo.getHead(), rbid, callBack);
+                                minfo.getName(), minfo.getHead()==null?"":minfo.getHead(), rbid, callBack);
                     } else {
                         UserInfo minfo = UserAction.getMyInfo();
                         JrmfRpClient.openSingleRp(ChatActivity.this, "" + minfo.getUid(), token,
-                                minfo.getName(), minfo.getHead(), rbid, callBack);
+                                minfo.getName(), minfo.getHead()==null?"":minfo.getHead(), rbid, callBack);
                     }
 
                 }
@@ -5529,7 +5533,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     SignatureBean sign = response.body().getData();
                     String token = sign.getSign();
                     UserInfo minfo = UserAction.getMyInfo();
-                    JrmfRpClient.openRpDetail(ChatActivity.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead());
+                    JrmfRpClient.openRpDetail(ChatActivity.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead()==null?"":minfo.getHead());
                 }
             }
         });
