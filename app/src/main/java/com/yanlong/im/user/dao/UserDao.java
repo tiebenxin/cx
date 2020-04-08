@@ -10,6 +10,7 @@ import com.yanlong.im.utils.DaoUtil;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.manager.Constants;
+import net.cb.cb.library.utils.LogUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -445,19 +446,20 @@ public class UserDao {
      * @param type 0:不在线,1:在线
      * @param time 离线需要更新离线时间
      */
-    public void updateUserOnlineStatus(Long uid, int type, long time) {
+    public UserInfo updateUserOnlineStatus(Long uid, int type, long time) {
+        UserInfo info = null;
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
             UserInfo user = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
             if (user != null) {
-                UserInfo userInfo = realm.copyFromRealm(user);
-                if (userInfo != null) {
-                    userInfo.setActiveType(type);
+                if (user != null) {
+                    user.setActiveType(type);
                     if (type == CoreEnum.ESureType.NO) {
-                        userInfo.setLastonline(time);
+                        user.setLastonline(time);
                     }
-                    realm.insertOrUpdate(userInfo);
+                    info = realm.copyFromRealm(user);
+                    realm.insertOrUpdate(user);
                 }
             }
             realm.commitTransaction();
@@ -467,6 +469,7 @@ public class UserDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
+        return info;
     }
 
     /***

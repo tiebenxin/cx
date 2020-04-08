@@ -9,7 +9,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
@@ -20,24 +19,19 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.R;
-import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.bean.GroupImageHead;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.ExpressionUtil;
-import com.yanlong.im.utils.GlideOptionsUtil;
-import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.wight.avatar.MultiImageView;
 
@@ -48,9 +42,11 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.StrikeButton;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -73,6 +69,9 @@ public class MsgSearchActivity extends AppActivity {
     private UserDao userDao;
     private boolean onlineState = true;//判断网络状态 true在线 false离线
     private final String TYPE_FACE = "[动画表情]";
+    private List<SessionDetail> sessionDetails = null;
+    //保存session 位置
+    public Map<String, Integer> sessionMoresPositions = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +79,10 @@ public class MsgSearchActivity extends AppActivity {
         setContentView(R.layout.activity_search_frd_grp);
         findViews();
         getIntentData();
+        sessionDetails = msgDao.getSessionDetail();
+        for (int i = 0; i < sessionDetails.size(); i++) {
+            sessionMoresPositions.put(sessionDetails.get(i).getSid(), i);
+        }
         initEvent();
     }
 
@@ -154,10 +157,11 @@ public class MsgSearchActivity extends AppActivity {
     //页面跳转->数据传递
     private void getIntentData() {
         if (getIntent() != null) {
-            onlineState = getIntent().getBooleanExtra("online_state",true);
-            if(getIntent().getStringExtra("conversition_data")!=null){
+            onlineState = getIntent().getBooleanExtra("online_state", true);
+            if (getIntent().getStringExtra("conversition_data") != null) {
                 String json = getIntent().getStringExtra("conversition_data");
-                totalData.addAll(new Gson().fromJson(json,new TypeToken<List<Session>>(){}.getType()));
+                totalData.addAll(new Gson().fromJson(json, new TypeToken<List<Session>>() {
+                }.getType()));
             }
         }
     }
@@ -190,23 +194,40 @@ public class MsgSearchActivity extends AppActivity {
         @Override
         public void onBindViewHolder(final MsgSearchActivity.RecyclerViewAdapter.RCViewHolder holder, int position) {
             final Session bean = listData.get(position);
-            String icon = bean.getAvatar();
-            String title = bean.getName();
-            MsgAllBean msginfo = bean.getMessage();
-            String name = bean.getSenderName();
+
+            String icon = "";
+            String title = "";
+            MsgAllBean msginfo = null;
+            String name = "";
+            List<String> avatarList = null;
+            String info = "";
+            if (sessionMoresPositions.containsKey(bean.getSid())) {
+                Integer index = sessionMoresPositions.get(bean.getSid());
+                if (index != null && index >= 0) {
+                    //从session详情对象中获取
+                    icon = sessionDetails.get(index).getAvatar();
+                    title = sessionDetails.get(index).getName();
+                    msginfo = sessionDetails.get(index).getMessage();
+                    name = sessionDetails.get(index).getSenderName();
+                    String avatarListString = sessionDetails.get(index).getAvatarList();
+                    if (avatarListString != null) {
+                        avatarList = Arrays.asList(avatarListString.split(","));
+                    }
+                    if(name==null)name="";
+                    info = sessionDetails.get(index).getMessageContent();
+                }
+            }
+
             // 头像集合
             List<String> headList = new ArrayList<>();
 
-            String info = "";
-            if (msginfo != null) {
-                info = msginfo.getMsg_typeStr();
-            }
+
             if (bean.getType() == 0) {//单人
                 if (StringUtil.isNotNull(bean.getDraft())) {
                     SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                     style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    showMessage(holder.txtInfo, bean.getDraft(), style);
+                    showMessage(holder.txtInfo, bean.getDraft(), style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
                 } else {
                     // 判断是否是动画表情
                     if (info.length() == PatternUtil.FACE_CUSTOMER_LENGTH) {
@@ -215,10 +236,10 @@ public class MsgSearchActivity extends AppActivity {
                         if (matcher.matches()) {
                             holder.txtInfo.setText(TYPE_FACE);
                         } else {
-                            showMessage(holder.txtInfo, info, null);
+                            showMessage(holder.txtInfo, info, null,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
                         }
                     } else {
-                        showMessage(holder.txtInfo, info, null);
+                        showMessage(holder.txtInfo, info, null,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
                     }
                 }
                 headList.add(icon);
@@ -228,7 +249,11 @@ public class MsgSearchActivity extends AppActivity {
                 int type = bean.getMessageType();
                 if (type == 0 || type == 1) {
                     if (!TextUtils.isEmpty(bean.getAtMessage()) && !TextUtils.isEmpty(name)) {
-                        info = name + bean.getAtMessage();
+                        if(TextUtils.isEmpty(info)){
+                            info = name + bean.getAtMessage();
+                        }else{
+                            info = name + info;
+                        }
                     } else {
                         info = name + info;
 
@@ -240,36 +265,14 @@ public class MsgSearchActivity extends AppActivity {
                 }
                 switch (type) {
                     case 0:
-                        if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
-                                SpannableString style = new SpannableString("[有人@我]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
-                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                showMessage(holder.txtInfo, info, style);
-                            } else {
-                                SpannableString style = new SpannableString("[有人@我]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
-                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                showMessage(holder.txtInfo, info, style);
-                            }
-                        }
-                        break;
                     case 1:
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            if (msginfo == null || msginfo.getMsg_type() == null) {
-                                return;
-                            }
-                            if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
-                                SpannableString style = new SpannableString("[@所有人]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
-                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                showMessage(holder.txtInfo, info, style);
-                            } else {
-                                SpannableString style = new SpannableString("[@所有人]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
-                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                showMessage(holder.txtInfo, info, style);
-                            }
+                            SpannableString style = new SpannableString("[有人@我]" + info);
+                            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
+                            style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            showMessage(holder.txtInfo, info, style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
+                        }else{
+                            showMessage(holder.txtInfo, info, null,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
                         }
                         break;
                     case 2:
@@ -277,7 +280,7 @@ public class MsgSearchActivity extends AppActivity {
                             SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
                             ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                             style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            showMessage(holder.txtInfo, bean.getDraft(), style);
+                            showMessage(holder.txtInfo, bean.getDraft(), style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
                         } else {
                             // 判断是否是动画表情
                             Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
@@ -286,7 +289,7 @@ public class MsgSearchActivity extends AppActivity {
                                 info = info.substring(0, info.indexOf("["));
                                 holder.txtInfo.setText(info + " " + TYPE_FACE);
                             } else {
-                                showMessage(holder.txtInfo, info, null);
+                                showMessage(holder.txtInfo, info, null,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
                             }
                         }
                         break;
@@ -298,7 +301,7 @@ public class MsgSearchActivity extends AppActivity {
                             info = info.substring(0, info.indexOf("["));
                             holder.txtInfo.setText(info + " " + TYPE_FACE);
                         } else {
-                            showMessage(holder.txtInfo, info, null);
+                            showMessage(holder.txtInfo, info, null,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
                         }
                         break;
                 }
@@ -307,7 +310,11 @@ public class MsgSearchActivity extends AppActivity {
                     headList.add(icon);
                     holder.imgHead.setList(headList);
                 } else {
-                    loadGroupHeads(bean, holder.imgHead);
+                    if (avatarList != null && avatarList.size() > 0) {
+                        holder.imgHead.setList(avatarList);
+                    } else {
+                        loadGroupHeads(bean, holder.imgHead);
+                    }
                 }
             }
 
@@ -395,13 +402,17 @@ public class MsgSearchActivity extends AppActivity {
          *
          * @param message
          */
-        protected void showMessage(TextView txtInfo, String message, SpannableString spannableString) {
-            if (spannableString == null) {
-                spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, message);
-            } else {
-                spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, spannableString);
+        protected void showMessage(TextView txtInfo, String message, SpannableString spannableString,boolean msgIsClear) {
+            if(msgIsClear) {
+                txtInfo.setText("");
+            }else {
+                if (spannableString == null) {
+                    spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, message);
+                } else {
+                    spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, spannableString);
+                }
+                txtInfo.setText(spannableString, TextView.BufferType.SPANNABLE);
             }
-            txtInfo.setText(spannableString, TextView.BufferType.SPANNABLE);
         }
 
     }

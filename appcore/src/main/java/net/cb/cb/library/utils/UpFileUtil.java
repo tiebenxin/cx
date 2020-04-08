@@ -1,6 +1,7 @@
 package net.cb.cb.library.utils;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
@@ -121,11 +122,17 @@ public class UpFileUtil {
                 endEx = imgPath.substring(sEx);
             }
         }
-        final String img_name = UUID.randomUUID().toString() + endEx;
+        final String img_name;
+        //pc同步消息，只能用固定域名
+        if (isPcMsgPath(path)) {
+            img_name = endEx;
+        } else {
+            img_name = UUID.randomUUID().toString() + endEx;
+        }
 
         //data.setTime(System.currentTimeMillis());
         //"Android/" + simpleDateFormat.format(data) + "/"
-        final String objkey =path  + img_name;
+        final String objkey = path + img_name;
 
         PutObjectRequest putObjectRequest;
 
@@ -138,7 +145,7 @@ public class UpFileUtil {
         putObjectRequest.setRetryCallback(new OSSRetryCallback() {
             @Override
             public void onRetryCallback() {
-                Log.v(TAG,"重试回调------------------>");
+                Log.v(TAG, "重试回调------------------>");
             }
         });
 
@@ -164,10 +171,10 @@ public class UpFileUtil {
             @Override
             public void onFailure(OSSRequest request, ClientException clientException, ServiceException serviceException) {
                 ossUpCallback.fail();
-                LogUtil.getLog().e("uplog", "---->上传异常:"+clientException.getMessage()+"\n" + serviceException.getRawMessage());
-                try{
+                LogUtil.getLog().e("uplog", "---->上传异常:" + clientException.getMessage() + "\n" + serviceException.getRawMessage());
+                try {
                     ToastUtil.show(context, "上传失败");
-                }catch (Exception e){
+                } catch (Exception e) {
 
                 }
 
@@ -188,6 +195,17 @@ public class UpFileUtil {
 
         void inProgress(long progress, long zong);
 
+    }
+
+    //是否是pc同步消息
+    private boolean isPcMsgPath(String path) {
+        if (TextUtils.isEmpty(path)) {
+            return false;
+        }
+        if (path.contains("file/msg")) {
+            return true;
+        }
+        return false;
     }
 
 }

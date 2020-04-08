@@ -11,14 +11,12 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
-import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventMyUserInfo;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
 
-import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
@@ -233,8 +231,6 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
             switch (requestCode) {
                 case NICENAME:
                     taskUserInfoSet(null, null, content, null);
-                    //刷新主页
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
                     break;
                 case SEX:
                     int contentSex;
@@ -252,8 +248,6 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                     if (!TextUtils.isEmpty(content)) {
                         imageHead = content;
                     }
-                    //刷新主页
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
                     break;
                 case IDENTITY:
                     mTvIdentity.setText("已认证");

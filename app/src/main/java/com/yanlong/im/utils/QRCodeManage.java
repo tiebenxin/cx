@@ -3,15 +3,30 @@ package com.yanlong.im.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.google.zxing.Result;
 import com.luck.picture.lib.tools.DateUtils;
+import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
+import com.yanlong.im.chat.eventbus.EventMsgSync;
+import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.ui.AddGroupActivity;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
@@ -28,6 +43,7 @@ import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,6 +52,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import io.realm.RealmList;
+import okhttp3.Callback;
+import okhttp3.Headers;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -53,6 +75,10 @@ public class QRCodeManage {
     public static final String ADD_GROUP_FUNCHTION = "ADDGROUP"; //添加群
 
     public static final String DOWNLOAD_APP_URL = "https://www.zln365.com"; //下载地址
+    public static final String PC_LOGIN_URL = "xc://login/"; //扫码登录地址
+    private static String code = "";//扫码后的code
+    private static String synck = "0";//是否同步  1同步 0不同步
+
 
     /**
      * 扫描二维码转换bean
@@ -215,6 +241,8 @@ public class QRCodeManage {
                 openAliPay2Pay(mContext, result);
             } else if (result.contains(DOWNLOAD_APP_URL)) {
                 openUri(mContext, result);
+            } else if (result.contains(PC_LOGIN_URL)){
+                httpSweepCodeLoginCommit(result,(Activity)mContext);
             } else {
                 QRCodeBean bean = QRCodeManage.getQRCodeBean(mContext, result);
                 QRCodeManage.goToActivity((Activity) mContext, bean);
@@ -264,5 +292,127 @@ public class QRCodeManage {
         return time;
     }
 
+    /**
+     * 二维码登录 - 扫描认领
+     * @param result
+     */
+    private static void httpSweepCodeLoginCommit(String result,Activity activity){
+        code = result.substring(result.lastIndexOf("/")+1);//截取参数
+        new UserAction().sweepCodeLoginCommit(code, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                if(response.body().isOk()){
+                    ToastUtil.show("扫码成功!");
+                    showSweepCodeLoginDialog(activity);
+                }else {
+                    ToastUtil.show(response.body().getMsg());
+                }
+            }
 
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show(t.toString());
+            }
+        });
+    }
+
+
+    /**
+     * 扫码登录弹框(特殊样式/暂不复用/加底部弹出动画效果)
+     */
+    private static void showSweepCodeLoginDialog(Activity activity){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+        dialogBuilder.setCancelable(true);
+        final AlertDialog dialog = dialogBuilder.create();
+        //获取界面
+        View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_sweep_code_login, null);
+        //初始化控件
+        TextView tvExit = dialogView.findViewById(R.id.tv_exit);
+        TextView tvSure = dialogView.findViewById(R.id.tv_sure);
+        TextView tvCancel = dialogView.findViewById(R.id.tv_cancel);
+        //退出
+        tvExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        //确认
+        tvSure.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                new UserAction().sweepCodeLoginSure(code,synck, new CallBack<ReturnBean>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                        if (response.body() == null) {
+                            return;
+                        }
+                        if(response.body().isOk()){
+                            ToastUtil.show("登录成功!");
+                            //TODO 如果选择了同步，则通知MainActivity同步消息
+                            if(synck.equals("1")){
+                                EventBus.getDefault().post(new EventMsgSync());
+                            }
+                        }else {
+                            ToastUtil.show(response.body().getMsg());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean> call, Throwable t) {
+                        super.onFailure(call, t);
+                        ToastUtil.show(t.toString());
+                    }
+                });
+            }
+        });
+        //取消
+        tvCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                new UserAction().sweepCodeLoginCancel(code, new CallBack<ReturnBean>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                        if (response.body() == null) {
+                            return;
+                        }
+                        if(response.body().isOk()){
+                            LogUtil.getLog().d(TAG,"取消登录成功!");
+                        }else {
+                            ToastUtil.show(response.body().getMsg());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean> call, Throwable t) {
+                        super.onFailure(call, t);
+                        ToastUtil.show(t.toString());
+                    }
+                });
+            }
+        });
+        //展示界面
+        dialog.show();
+        //解决圆角shape背景无效问题
+        Window window = dialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        window.setWindowAnimations(R.style.ActionSheetDialogAnimation);
+        //相关配置
+        WindowManager.LayoutParams lp = window.getAttributes();
+        window.setGravity(Gravity.CENTER);
+        WindowManager manager = window.getWindowManager();
+        DisplayMetrics metrics = new DisplayMetrics();
+        manager.getDefaultDisplay().getMetrics(metrics);
+        //设置宽高，占满全屏
+        lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+        dialog.getWindow().setAttributes(lp);
+        dialog.setContentView(dialogView);
+    }
 }

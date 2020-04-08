@@ -20,6 +20,8 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
+
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
@@ -28,6 +30,7 @@ import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
 import com.example.nim_lib.util.PermissionsUtil;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.eventbus.IdentifyUserEvent;
@@ -50,10 +53,11 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.NotificationConfig;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventMsgSync;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.manager.TcpConnection;
 import com.yanlong.im.chat.task.TaskLoadSavedGroup;
+import com.yanlong.im.chat.tcp.TcpConnection;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.location.LocationPersimmions;
 import com.yanlong.im.location.LocationService;
@@ -89,6 +93,7 @@ import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.manager.FileManager;
 import net.cb.cb.library.manager.TokenManager;
@@ -167,6 +172,9 @@ public class MainActivity extends AppActivity {
     private boolean testMe = true;
     private String lastPostLocationTime = "";//最近一次上传用户位置的时间
     private boolean isCreate = false;
+    private ShopFragemnt mShowFragment;
+    @EMainTab
+    private int currentTab = EMainTab.MSG;
 
 
     @Override
@@ -255,7 +263,6 @@ public class MainActivity extends AppActivity {
             checkNeteaseLogin();
             checkPermission();
             initLocation();
-//            getMsgToPC();
         }
     }
 
@@ -285,10 +292,12 @@ public class MainActivity extends AppActivity {
     //自动生成的控件事件
     private void initEvent() {
         mMsgMainFragment = MsgMainFragment.newInstance();
-        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), ShopFragemnt.newInstance(), MyFragment.newInstance()};
+        mShowFragment = ShopFragemnt.newInstance();
+        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), mShowFragment, MyFragment.newInstance()};
         tabs = new String[]{"消息", "通讯录", "商城", "我"};
         iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_shop, R.mipmap.ic_me};
         iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_shop_h, R.mipmap.ic_me_h};
+        viewPage.setCurrentItem(currentTab);
         viewPage.setOffscreenPageLimit(2);
         viewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -305,6 +314,14 @@ public class MainActivity extends AppActivity {
         bottomTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == EMainTab.SHOP) {
+                    viewPage.setCurrentItem(currentTab);
+                    boolean hasToken = check();
+                    if (!hasToken) {
+                        showLoginDialog();
+                    }
+                }
+                currentTab = tab.getPosition();
                 viewPage.setCurrentItem(tab.getPosition());
                 for (int i = 0; i < bottomTab.getTabCount(); i++) {
                     View rootView = bottomTab.getTabAt(i).getCustomView();
@@ -533,8 +550,7 @@ public class MainActivity extends AppActivity {
     protected void onResume() {
         super.onResume();
         isActivityStop = false;
-        taskGetMsgNum();
-        //taskClearNotification();
+//        taskGetMsgNum();
         checkNotificationOK();
         checkPayEnvironmentInit();
         if (AppConfig.isOnline()) {
@@ -595,7 +611,7 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefresh(EventRefreshMainMsg event) {
-        taskGetMsgNum();
+//        taskGetMsgNum();
         taskGetFriendNum();
     }
 
@@ -761,6 +777,11 @@ public class MainActivity extends AppActivity {
         IntentUtil.gotoActivity(MainActivity.this, VideoActivity.class);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void msgSync(EventMsgSync event) {
+        getMsgToPC();
+    }
+
     /**
      * 显示浮动按钮的音视频时长
      *
@@ -810,7 +831,7 @@ public class MainActivity extends AppActivity {
         }
     };
 
-    private void loginoutComment() {
+    public void loginoutComment() {
         UserInfo userInfo = UserAction.getMyInfo();
         if (userInfo != null) {
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead() + "");
@@ -834,6 +855,7 @@ public class MainActivity extends AppActivity {
         if (sbmsg == null)
             return;
         int num = msgDao.sessionReadGetAll();
+        LogUtil.getLog().e("获取session未读数", "num=" + num);
         sbmsg.setNum(num, true);
         BadgeUtil.setBadgeCount(getApplicationContext(), num);
     }
@@ -1132,8 +1154,8 @@ public class MainActivity extends AppActivity {
     public @interface EMainTab {
         int MSG = 0; // 消息界面
         int CONTACT = 1; // 好友界面
-        int SHOP = 3; // 商城界面
-        int ME = 2; // 我的界面
+        int SHOP = 2; // 商城界面
+        int ME = 3; // 我的界面
     }
 
     /**
@@ -1194,6 +1216,7 @@ public class MainActivity extends AppActivity {
     @SuppressLint("CheckResult")
     private void getMsgToPC() {
         ThreadUtil.getInstance().execute(new Runnable() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void run() {
                 List<MsgAllBean> msgList = msgDao.getMsgIn3Day();
@@ -1216,31 +1239,97 @@ public class MainActivity extends AppActivity {
                 if (message != null) {
                     byte[] bytes = message.toByteArray();
                     if (bytes != null) {
+                        System.out.println("PC同步--1--" + bytes.length);
                         File file = FileManager.getInstance().saveMsgFile(bytes);
                         if (file != null) {
-                            UpFileAction upFileAction = new UpFileAction();
-                            upFileAction.upFile(UpFileAction.PATH.FILE, MainActivity.this, new UpFileUtil.OssUpCallback() {
-                                @Override
-                                public void success(String url) {
-                                    LogUtil.getLog().i("PC同步消息", "文件上传成功--" + url);
-                                }
-
-                                @Override
-                                public void fail() {
-                                    LogUtil.getLog().i("PC同步消息", "文件上传失败");
-                                }
-
-                                @Override
-                                public void inProgress(long progress, long zong) {
-
-                                }
-                            }, file.getAbsolutePath());
+//                            parseFile(file);
+                            uploadMsgFile(file);
                         }
                     }
                 }
-
             }
         });
+    }
 
+    private void uploadMsgFile(File file) {
+        UpFileAction upFileAction = new UpFileAction();
+        upFileAction.upFile(UserAction.getMyId() + "", UpFileAction.PATH.PC_MSG, MainActivity.this, new UpFileUtil.OssUpCallback() {
+            @Override
+            public void success(String url) {
+                LogUtil.getLog().i("PC同步消息", "文件上传成功--" + url);
+            }
+
+            @Override
+            public void fail() {
+                LogUtil.getLog().i("PC同步消息", "文件上传失败");
+            }
+
+            @Override
+            public void inProgress(long progress, long zong) {
+
+            }
+        }, file.getAbsolutePath());
+    }
+
+    private void showLoginDialog() {
+        if (isFinishing()) {
+            return;
+        }
+        DialogCommon dialogLogin = new DialogCommon(this);
+        dialogLogin.setContent("请退出重登后使用此功能", true)
+                .setTitleAndSure(false, true)
+                .setRight("开启")
+                .setLeft("拒绝")
+                .setListener(new DialogCommon.IDialogListener() {
+                    @Override
+                    public void onSure() {
+                        if (!isFinishing()) {
+                            loginoutComment();
+                            Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
+                            startActivity(loginIntent);
+                            finish();
+                        }
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        viewPage.setCurrentItem(EMainTab.MSG);
+                    }
+                }).show();
+
+    }
+
+    public boolean check() {
+        TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+        if (token == null || TextUtils.isEmpty(token.getBankReqSignKey())) {
+            return false;
+        }
+        return true;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void parseFile(File file) {
+        System.out.println("PC同步--2--文件" + file.length());
+        byte[] bytes = FileManager.getInstance().readFileBytes(file);
+        if (bytes != null) {
+            System.out.println("PC同步--3--" + bytes.length);
+            if (bytes != null) {
+                try {
+                    MsgBean.UniversalMessage message = MsgBean.UniversalMessage.parseFrom(bytes);
+                    if (message != null) {
+
+
+                    }
+                } catch (InvalidProtocolBufferException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void updateMsgUnread(int num) {
+        LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + num);
+        sbmsg.setNum(num, true);
+        BadgeUtil.setBadgeCount(getApplicationContext(), num);
     }
 }

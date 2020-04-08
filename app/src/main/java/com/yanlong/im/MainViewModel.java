@@ -2,8 +2,8 @@ package com.yanlong.im;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
-import android.util.Log;
 
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.repository.MainRepository;
@@ -29,9 +29,15 @@ public class MainViewModel extends ViewModel {
     public Map<String, Integer> sessionMoresPositions = new HashMap<>();
     //保存session数量
     public int sessionOriginalSize = 0;
+    //判断网络状态 true在线 false离线
+    public MutableLiveData<Boolean> onlineState = new MutableLiveData<>();
 
     public MainViewModel() {
         repository = new MainRepository();
+        init();
+    }
+
+    private void init() {
         sessions = repository.getSesisons();
         sessionOriginalSize = sessions.size();
         //session数据变化时，更新session详情
@@ -39,7 +45,6 @@ public class MainViewModel extends ViewModel {
         sessions.addChangeListener(new RealmChangeListener<RealmResults<Session>>() {
             @Override
             public void onChange(RealmResults<Session> sessions) {
-                Log.e("raleigh_test", "sessions" + sessions.size());
 //                if(sessionOriginalSize<sessions.size()){
                 //session数据变化时，更新session详情：旧数据收到/发送消息，删除，新数据收到/发送消息
                 repository.updateSessionDetail();
@@ -49,13 +54,26 @@ public class MainViewModel extends ViewModel {
         sessionMores.addChangeListener(new RealmChangeListener<RealmResults<SessionDetail>>() {
             @Override
             public void onChange(RealmResults<SessionDetail> sessionMores) {
-                Log.e("raleigh_test", "sessionMores=" + sessionMores.size());
                 sessionMoresPositions.clear();
                 for (int i = 0; i < sessionMores.size(); i++) {
                     sessionMoresPositions.put(sessionMores.get(i).getSid(), i);
                 }
             }
         });
+    }
+
+    public String getSessionJson() {
+        return repository.getSessionJson(sessions);
+    }
+
+    /**
+     * 获取群信息
+     *
+     * @param gid
+     * @return
+     */
+    public Group getGroup4Id(String gid) {
+        return repository.getGroup4Id(gid);
     }
 
     public void updateItemSessionDetail() {
@@ -69,20 +87,34 @@ public class MainViewModel extends ViewModel {
      */
     public void deleteItem(int position) {
         try {
+            long uid = sessions.get(position).getFrom_uid();
+            String gid = sessions.get(position).getGid();
             //开始删除事务
             repository.beginTransaction();
             String sid = sessions.get(position).getSid();
             sessions.get(position).deleteFromRealm();
             if (sessionMoresPositions.containsKey(sid)) {
-                //删除session详情
-                sessionMores.get(sessionMoresPositions.get(sid)).deleteFromRealm();
+                int index = sessionMoresPositions.get(sid);
+                if (index >= 0 && index < sessionMores.size()) {
+                    //删除session详情
+                    sessionMores.get(index).deleteFromRealm();
+                }
                 //删除位置信息
                 sessionMoresPositions.remove(sid);
             }
             repository.commitTransaction();
+            repository.deleteAllMsg(uid, gid);
         } catch (Exception e) {
         }
+    }
 
+    /**
+     * onResume检查realm状态,避免系统奔溃后，主页重新启动realm对象已被关闭，需重新连接
+     */
+    public void checkRealmStatus() {
+        if (!repository.checkRealmStatus()) {
+            init();
+        }
     }
 
     public void onDestory() {

@@ -833,7 +833,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void doAckEvent(AckEvent event) {
         Object data = event.getData();
-        if (data instanceof MsgAllBean) {
+       if (data instanceof MsgAllBean) {
             LogUtil.getLog().i(TAG, "收到回执--MsgAllBean");
             MsgAllBean msgAllBean = (MsgAllBean) data;
             fixSendTime(msgAllBean.getMsg_id());
@@ -2903,8 +2903,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (type == CoreEnum.ERefreshType.ALL) {
             taskRefreshMessage(event.isScrollBottom);
         } else if (type == CoreEnum.ERefreshType.DELETE) {
+            dismissPop();
             if (event.getObject() != null && event.getObject() instanceof MsgAllBean) {
-                Log.e("raleigh_test", "deleteMsg");
+                Log.e("raleigh_test", "deleteAllMsg");
                 deleteMsg((MsgAllBean) event.getObject());
             } else if (event.getList() != null) {
                 Log.e("raleigh_test", "deleteMsgList");
@@ -3054,6 +3055,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * @param msgAllbean
      */
     private void replaceListDataAndNotify(MsgAllBean msgAllbean) {
+        if(msgAllbean.getMsg_type()==ChatEnum.EMessageType.MSG_CANCEL){
+            //收到撤回消息回执，更新主页UI
+            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
+        }
 
         if (msgListData == null)
             return;
@@ -3408,14 +3413,17 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         private void updateSurvivalTimeImage(String msgId, int id, boolean isMe) {
             if (mMsgIdPositions.containsKey(msgId)) {
                 int position = mMsgIdPositions.get(msgId);
-                ChatItemView chatItemView = ((ChatItemView) mtListView.getListView().getLayoutManager().findViewByPosition(position));
-                if (chatItemView != null) {
-                    if (isMe)
-                        chatItemView.viewMeSurvivalTime
-                                .setImageResource(id);
-                    else
-                        chatItemView.viewOtSurvivalTime
-                                .setImageResource(id);
+                View view=mtListView.getListView().getLayoutManager().findViewByPosition(position);
+                if(view instanceof ChatItemView) {
+                    ChatItemView chatItemView = ((ChatItemView) mtListView.getListView().getLayoutManager().findViewByPosition(position));
+                    if (chatItemView != null) {
+                        if (isMe)
+                            chatItemView.viewMeSurvivalTime
+                                    .setImageResource(id);
+                        else
+                            chatItemView.viewOtSurvivalTime
+                                    .setImageResource(id);
+                    }
                 }
             }
         }
@@ -4070,6 +4078,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                         showDraftContent(editChat.getText().toString() + restContent);
                         editChat.setSelection(editChat.getText().length());
+                        //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
+                        if(!mViewModel.isOpenValue())
+                            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                         mViewModel.isInputText.setValue(true);
                     }
                 }
@@ -6397,7 +6408,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //删除单条消息
     private void deleteMsg(MsgAllBean bean) {
-//        LogUtil.getLog().i("SurvivalTime", "deleteMsg:" + bean.getMsg_id());
+//        LogUtil.getLog().i("SurvivalTime", "deleteAllMsg:" + bean.getMsg_id());
         if (msgListData == null) {
             return;
         }

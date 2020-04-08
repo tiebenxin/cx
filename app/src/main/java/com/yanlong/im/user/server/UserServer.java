@@ -20,6 +20,7 @@ import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 /***
  * test
@@ -203,4 +204,13 @@ public interface UserServer {
     @POST("/user/report-geo-position")
     @FormUrlEncoded
     Call<ReturnBean> postLocation(@Field("city") String city, @Field("country") String country, @Field("lat") String lat,@Field("lon") String lon);
+
+    @POST("/user/scan_qr_code")
+    Call<ReturnBean> sweepCodeLoginCommit(@Query("code") String code);
+
+    @POST("/user/confirm_login")
+    Call<ReturnBean> sweepCodeLoginSure(@Query("code") String code,@Query("sync") String sync);
+
+    @POST("/user/cancel_login")
+    Call<ReturnBean> sweepCodeLoginCancel(@Query("code") String code);
 }

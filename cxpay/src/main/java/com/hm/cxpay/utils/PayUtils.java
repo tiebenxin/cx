@@ -1,18 +1,13 @@
 package com.hm.cxpay.utils;
 
 import android.text.TextUtils;
-import android.util.Base64;
 
 import com.google.common.io.BaseEncoding;
-import com.hm.cxpay.global.PayEnvironment;
 
 import net.cb.cb.library.utils.LogUtil;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Random;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -51,9 +46,7 @@ public class PayUtils {
             sha256_HMAC = Mac.getInstance("HmacSHA256");
             SecretKeySpec secret_key = new SecretKeySpec(secretKey.getBytes(), "HmacSHA256");
             sha256_HMAC.init(secret_key);
-//            result = Base64.encodeToString(sha256_HMAC.doFinal(signatureReqStr.getBytes()), Base64.DEFAULT);
             result = BaseEncoding.base16().encode(sha256_HMAC.doFinal(signatureReqStr.getBytes())).toLowerCase();
-//            result = URLEncoder.encode(result, "UTF-8");
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {

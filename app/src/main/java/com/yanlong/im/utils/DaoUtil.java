@@ -29,7 +29,7 @@ public class DaoUtil {
         // 1.dbVer的版本号+1
         // 2.DaoMigration类中migrate()处理升级之后的字段
         //-------------------------------------------
-        long dbVer = 25;
+        long dbVer = 26;
         if (AppConfig.DEBUG) {//debug版本就直接清理数据
 //            config = new RealmConfiguration.Builder()
 //                    .name(dbName + ".realm")//指定数据库的名称。如不指定默认名为default。
@@ -97,20 +97,22 @@ public class DaoUtil {
         }
     }
 
-    public static void update(RealmModel obj) {
+    public static boolean update(RealmModel obj) {
         if (obj == null)
-            return;
+            return false;
         Realm realm = open();
         try {
             realm.beginTransaction();
             realm.insertOrUpdate(obj);
             realm.commitTransaction();
             realm.close();
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
             close(realm);
             reportException(e);
         }
+        return false;
     }
 
     //查找所有数据

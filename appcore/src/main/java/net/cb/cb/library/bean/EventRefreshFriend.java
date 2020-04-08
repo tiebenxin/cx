@@ -12,6 +12,8 @@ public class EventRefreshFriend extends BaseEvent {
     @CoreEnum.ERosterAction
     private int rosterAction = CoreEnum.ERosterAction.DEFAULT;//roster操作指令
 
+    private Object user;
+
     private long uid;
 
     public boolean isLocal() {
@@ -36,5 +38,13 @@ public class EventRefreshFriend extends BaseEvent {
 
     public void setUid(long uid) {
         this.uid = uid;
+    }
+
+    public Object getUser() {
+        return user;
+    }
+
+    public void setUser(Object user) {
+        this.user = user;
     }
 }

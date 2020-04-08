@@ -42,14 +42,19 @@ import com.hm.cxpay.ui.BindPhoneNumActivity;
 import com.hm.cxpay.ui.LooseChangeActivity;
 import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.widget.PswView;
+import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.WebPageActivity;
 
@@ -214,14 +219,14 @@ public class ShopFragemnt extends Fragment {
                             webView.loadUrl(url);
 //                            LogUtil.getLog().i("QQ", "重新加载了一次新的url");
                         } else {
-                            ToastUtil.show("商城url地址为空，请联系客服！");
+//                            ToastUtil.show("商城url地址为空，请联系客服！");
                         }
                     }
 
                     @Override
                     public void onHandleError(BaseResponse baseResponse) {
                         super.onHandleError(baseResponse);
-                        ToastUtil.show("商城url地址出错，请联系客服！");
+//                        ToastUtil.show("商城url地址出错，请联系客服！");
                     }
                 });
     }
@@ -341,11 +346,15 @@ public class ShopFragemnt extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            if(PayEnvironment.getInstance().getUserId()<=0){
+            if (PayEnvironment.getInstance().getUserId() <= 0) {
                 UserInfo info = UserAction.getMyInfo();
-                if (info!=null && info.getUid() != null) {
+                if (info != null && info.getUid() != null) {
                     PayEnvironment.getInstance().setUserId(info.getUid().longValue());
                 }
+            }
+            TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+            if (token == null || TextUtils.isEmpty(token.getBankReqSignKey())) {
+                return;
             }
             httpGetUrl();
         }
@@ -360,9 +369,9 @@ public class ShopFragemnt extends Fragment {
             //2 已完成绑定手机号
             if (userBean.getPhoneBindStat() == 1) {
                 //3 已设置支付密码
-                if(userBean.getPayPwdStat() == 1){
+                if (userBean.getPayPwdStat() == 1) {
                     showCheckPaywordDialog();
-                }else {
+                } else {
                     //未设置支付密码
                     showSetPaywordDialog();
                 }
@@ -430,7 +439,7 @@ public class ShopFragemnt extends Fragment {
                     @Override
                     public void onClick(View v) {
                         //从商城跳转到认证，需要额外增加一个步骤，即设置支付密码
-                        startActivity(new Intent(activity, ServiceAgreementActivity.class).putExtra("from_shop",authAll));
+                        startActivity(new Intent(activity, ServiceAgreementActivity.class).putExtra("from_shop", authAll));
                         dialogOne.dismiss();
                     }
                 })
@@ -456,7 +465,7 @@ public class ShopFragemnt extends Fragment {
                     @Override
                     public void onClick(View v) {
                         //去绑定
-                        startActivity(new Intent(activity, BindPhoneNumActivity.class).putExtra("from_shop",authOnce));
+                        startActivity(new Intent(activity, BindPhoneNumActivity.class).putExtra("from_shop", authOnce));
                         dialogTwo.dismiss();
                     }
                 })
@@ -481,7 +490,7 @@ public class ShopFragemnt extends Fragment {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
-                startActivity(new Intent(activity, SetPaywordActivity.class).putExtra("from_shop",authOnce));
+                startActivity(new Intent(activity, SetPaywordActivity.class).putExtra("from_shop", authOnce));
 
             }
         });

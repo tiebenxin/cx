@@ -34,6 +34,7 @@ import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.PySortView;
@@ -114,7 +115,6 @@ public class FriendMainFragment extends Fragment {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
     }
-
 
 
     //自动寻找控件
@@ -222,9 +222,9 @@ public class FriendMainFragment extends Fragment {
             } else if (holder instanceof RCViewBtnHolder) {
 
                 final RCViewBtnHolder hd = (RCViewBtnHolder) holder;
-                if(listData!=null){
-                    hd.friend_numb_tv.setText("共"+(listData.size()-2)+"位联系人");
-                }else {
+                if (listData != null) {
+                    hd.friend_numb_tv.setText("共" + (listData.size() - 2) + "位联系人");
+                } else {
                     hd.friend_numb_tv.setText("共0位联系人");
                 }
 
@@ -293,13 +293,13 @@ public class FriendMainFragment extends Fragment {
 
         @Override
         public int getItemViewType(int position) {
-            int type=0;
-            if(position==0){
-                type=0;
-            }else if(position==listData.size()-1){
-                type=1;
-            }else {
-                type=2;
+            int type = 0;
+            if (position == 0) {
+                type = 0;
+            } else if (position == listData.size() - 1) {
+                type = 1;
+            } else {
+                type = 2;
             }
             return type;
         }
@@ -310,7 +310,8 @@ public class FriendMainFragment extends Fragment {
             if (i == 0) {
                 RCViewFuncHolder holder = new RCViewFuncHolder(getLayoutInflater().inflate(R.layout.item_msg_friend_fun, view, false));
                 return holder;
-            }if (i == 1) {
+            }
+            if (i == 1) {
                 RCViewBtnHolder holder = new RCViewBtnHolder(getLayoutInflater().inflate(R.layout.item_msg_btn, view, false));
                 return holder;
             } else {
@@ -455,24 +456,23 @@ public class FriendMainFragment extends Fragment {
                 default:
                     if (uid > 0) {
                         refreshPosition(uid);
+                    } else if (event.getUser() != null && event.getUser() instanceof UserInfo) {
+                        refreshUser((UserInfo) event.getUser());
                     } else {
                         taskListData();
                     }
                     break;
             }
-
         } else {
             long uid = event.getUid();
             if (uid > 0) {
                 @CoreEnum.ERosterAction int action = event.getRosterAction();
                 switch (action) {
                     case CoreEnum.ERosterAction.REQUEST_FRIEND:
-                        taskRefreshUser(uid, action);
-                        break;
                     case CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS:
                         taskRefreshUser(uid, action);
                         break;
-//                    case CoreEnum.ERosterAction.REMOVE_FRIEND:
+                    //                    case CoreEnum.ERosterAction.REMOVE_FRIEND:
 //                        taskRemoveUser(uid);
 //                        break;
                     default:
@@ -490,10 +490,18 @@ public class FriendMainFragment extends Fragment {
         if (listData != null) {
             UserInfo info = userDao.findUserInfo(uid);
             if (info != null) {
-                if (listData.contains(info)) {
-                    int index = listData.indexOf(info);
+                refreshUser(info);
+            }
+        }
+    }
+
+    private void refreshUser(UserInfo user) {
+        if (listData != null) {
+            if (user != null) {
+                if (listData.contains(user)) {
+                    int index = listData.indexOf(user);
                     if (index >= 0) {
-                        listData.set(index, info);
+                        listData.set(index, user);
                         mtListView.getListView().getAdapter().notifyItemChanged(index, index);
                     }
                 }

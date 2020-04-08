@@ -25,6 +25,7 @@ import com.yanlong.im.chat.bean.ReceiveRedEnvelopeMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.Remind;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.UserSeting;
@@ -39,7 +40,9 @@ import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshChat;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 
@@ -64,6 +67,17 @@ public class MsgDao {
 
     public Group getGroup4Id(String gid) {
         return DaoUtil.findOne(Group.class, "gid", gid);
+    }
+
+    public List<SessionDetail> getSessionDetail() {
+        Realm realm = DaoUtil.open();
+        List<SessionDetail> sessionDetails = null;
+        try {
+            sessionDetails = realm.copyFromRealm(realm.where(SessionDetail.class).findAll());
+        } finally {
+            DaoUtil.close(realm);
+        }
+        return sessionDetails;
     }
 
     /***
@@ -591,6 +605,8 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
+        //通知主页刷新
+        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
     }
 
     /***
@@ -618,6 +634,8 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
+        //通知主页刷新
+        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
     }
 
 
@@ -680,6 +698,8 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
+        //通知主页刷新
+        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
         return msgAllBean;
     }
 
@@ -748,11 +768,12 @@ public class MsgDao {
             realm.where(AtMessage.class).findAll().deleteAllFromRealm();
             realm.where(AssistantMessage.class).findAll().deleteAllFromRealm();
             realm.where(VideoMessage.class).findAll().deleteAllFromRealm();
-
+            realm.where(SessionDetail.class).findAll().deleteAllFromRealm();
             //清理角标
             RealmResults<Session> sessions = realm.where(Session.class).findAll();
             for (Session session : sessions) {
                 session.setUnread_count(0);
+                session.setAtMessage(null);
                 realm.insertOrUpdate(session);
             }
             realm.commitTransaction();
@@ -934,13 +955,9 @@ public class MsgDao {
         realm.beginTransaction();
         if (StringUtil.isNotNull(gid)) {//群消息
             realm.where(Session.class).equalTo("gid", gid).findAll().deleteAllFromRealm();
-
         } else {
             realm.where(Session.class).equalTo("from_uid", from_uid).findAll().deleteAllFromRealm();
-
-
         }
-
         realm.commitTransaction();
         realm.close();
     }
@@ -949,7 +966,7 @@ public class MsgDao {
      * 更新或者创建session
      *
      * */
-    public void sessionReadUpdate(String gid, Long from_uid, boolean canChangeUnread, MsgAllBean bean, String firstFlag) {
+    public boolean sessionReadUpdate(String gid, Long from_uid, boolean canChangeUnread, MsgAllBean bean, String firstFlag) {
         //是否是 撤回
         String cancelId = null;
         if (bean != null) {
@@ -1062,15 +1079,13 @@ public class MsgDao {
             session.setMessageType(1000);
         } else if ("first".equals(firstFlag) && bean != null && bean.getAtMessage() != null && bean.getAtMessage().getAt_type() != 1000) {
             //对at消息处理 而且不是撤回消息
-//            LogUtil.getLog().e("===bean.getAtMessage().getAt_type()="+bean.getAtMessage().getAt_type()+"===bean.getAtMessage().getMsg()="+bean.getAtMessage().getMsg());
             int messageType = bean.getAtMessage().getAt_type();
             String atMessage = bean.getAtMessage().getMsg();
             session.setMessageType(messageType);
             session.setAtMessage(atMessage);
         }
-
-
-        DaoUtil.update(session);
+        LogUtil.getLog().e("更新session未读数", "msgDao");
+        return DaoUtil.update(session);
     }
 
     /*
@@ -1182,6 +1197,7 @@ public class MsgDao {
                 DaoUtil.findOne(Session.class, "from_uid", from_uid);
         if (session != null) {
             session.setUnread_count(0);
+            session.setAtMessage(null);
             //  session.setUp_time(System.currentTimeMillis());
             DaoUtil.update(session);
         }
@@ -1206,8 +1222,7 @@ public class MsgDao {
     public int sessionReadGetAll() {
         int sum = 0;
         Realm realm = DaoUtil.open();
-        List<Session> list = realm.where(Session.class).limit(100).findAll();
-
+        List<Session> list = realm.where(Session.class).greaterThan("unread_count", 0).limit(100).findAll();
         if (list != null) {
             for (Session s : list) {
                 sum += s.getUnread_count();
@@ -3235,11 +3250,13 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
+        //通知主页刷新
+        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
         return false;
 
     }
 
-    private void deleteRealmMsg(MsgAllBean msg) {
+    public void deleteRealmMsg(MsgAllBean msg) {
         if (msg.getReceive_red_envelope() != null)
             msg.getReceive_red_envelope().deleteFromRealm();
         if (msg.getMsgNotice() != null)

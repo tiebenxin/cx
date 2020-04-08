@@ -120,6 +120,10 @@ public class DaoMigration implements RealmMigration {
                 updateV25(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 25) {
+                updateV26(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -453,7 +457,10 @@ public class DaoMigration implements RealmMigration {
                 .addField("senderName", String.class)
                 .addRealmObjectField("message", schema.get("MsgAllBean"));
     }
-
+    private void updateV26(RealmSchema schema) {
+        schema.get("SessionDetail")
+                .addField("messageContent", String.class);
+    }
     @Override
     public boolean equals(@Nullable Object obj) {
         return obj instanceof DaoMigration;

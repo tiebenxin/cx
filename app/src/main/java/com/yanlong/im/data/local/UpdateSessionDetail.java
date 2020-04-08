@@ -110,6 +110,7 @@ public class UpdateSessionDetail {
             }
             if (msg != null) {
                 sessionMore.setMessage(msg);
+                sessionMore.setMessageContent(msg.getMsg_typeStr());
                 if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {//通知不要加谁发的消息
                     sessionMore.setSenderName("");
                 } else {
@@ -221,6 +222,7 @@ public class UpdateSessionDetail {
                     .sort("timestamp", Sort.DESCENDING).findFirst();
 
             sessionMore.setMessage(msg);
+            sessionMore.setMessageContent(msg.getMsg_typeStr());
         }
         realm.copyToRealmOrUpdate(sessionMore);
 

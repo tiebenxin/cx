@@ -32,7 +32,6 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.Installation;
 import net.cb.cb.library.utils.LogUtil;
@@ -43,7 +42,6 @@ import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.VersionUtil;
-import net.cb.cb.library.utils.encrypt.AESEncrypt;
 import net.cb.cb.library.utils.encrypt.EncrypUtil;
 import net.cb.cb.library.utils.encrypt.MD5;
 
@@ -907,5 +905,29 @@ public class UserAction {
         NetUtil.getNet().exec(server.postLocation(city, country, lat, lon), callback);
     }
 
+    /**
+     * 二维码登录 - 扫描提交
+     */
+    public void sweepCodeLoginCommit(String code, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.sweepCodeLoginCommit(code), callback);
+    }
+
+
+    /**
+     * 二维码登录 - 确认登录
+     * @param code
+     * @param sync  1 同步 0 不同步
+     * @param callback
+     */
+    public void sweepCodeLoginSure(String code,String sync, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.sweepCodeLoginSure(code,sync), callback);
+    }
+
+    /**
+     * 二维码登录 - 取消登录
+     */
+    public void sweepCodeLoginCancel(String code, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.sweepCodeLoginCancel(code), callback);
+    }
 
 }

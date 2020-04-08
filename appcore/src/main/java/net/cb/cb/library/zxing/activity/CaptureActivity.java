@@ -47,6 +47,7 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 
 import net.cb.cb.library.R;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UriUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -106,16 +107,16 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
 
     }
 
-    private void initView(){
+    private void initView() {
         CameraManager.init(getApplication());
         hasSurface = false;
         inactivityTimer = new InactivityTimer(this);
-        mTvMyQrCode =  findViewById(R.id.tv_my_qr_code);
-        mActionBar =  findViewById(R.id.action_bar);
-        viewfinderView =  findViewById(R.id.viewfinder_content);
+        mTvMyQrCode = findViewById(R.id.tv_my_qr_code);
+        mActionBar = findViewById(R.id.action_bar);
+        viewfinderView = findViewById(R.id.viewfinder_content);
     }
 
-    private void initEvent(){
+    private void initEvent() {
         mActionBar.setTxtRight("相册");
         mActionBar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -137,7 +138,6 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
     }
 
 
-
     @Override
     protected void onActivityResult(final int requestCode, int resultCode, Intent data) {
 
@@ -157,6 +157,7 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
 
     /**
      * 处理选择的图片
+     *
      * @param file
      */
     private void handleAlbumPic(String file) {
@@ -174,7 +175,7 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
                 if (result != null) {
                     Intent resultIntent = new Intent();
                     Bundle bundle = new Bundle();
-                    bundle.putString(INTENT_EXTRA_KEY_QR_SCAN ,result.getText());
+                    bundle.putString(INTENT_EXTRA_KEY_QR_SCAN, result.getText());
                     resultIntent.putExtras(bundle);
                     CaptureActivity.this.setResult(RESULT_OK, resultIntent);
                     finish();
@@ -187,27 +188,32 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
 
     /**
      * 扫描二维码图片的方法
+     *
      * @param path
      * @return
      */
     public Result scanningImage(String path) {
-        if(TextUtils.isEmpty(path)){
+        if (TextUtils.isEmpty(path)) {
             return null;
         }
-        Hashtable<DecodeHintType, String> hints = new Hashtable<>();
-        hints.put(DecodeHintType.CHARACTER_SET, "UTF8"); //设置二维码内容的编码
+        Hashtable<DecodeHintType, Object> hints = new Hashtable<>();
+        hints.put(DecodeHintType.CHARACTER_SET, "UTF-8"); //设置二维码内容的编码
+        hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
+        hints.put(DecodeHintType.POSSIBLE_FORMATS, BarcodeFormat.QR_CODE);
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true; // 先获取原大小
         scanBitmap = BitmapFactory.decodeFile(path, options);
         options.inJustDecodeBounds = false; // 获取新的大小
-        int sampleSize = (int) (options.outHeight / (float) 200);
+        int sampleSize = (int) (options.outHeight / (float) 400);
+//        LogUtil.getLog().i("二维码", options.outWidth + "--" + options.outHeight + "--sampleSize=" + sampleSize);
         if (sampleSize <= 0)
             sampleSize = 1;
         try {
             options.inSampleSize = sampleSize;
             scanBitmap = BitmapFactory.decodeFile(path, options);
             RGBLuminanceSource source = new RGBLuminanceSource(scanBitmap);
+//            LogUtil.getLog().i("二维码", scanBitmap.getWidth() + "--" + scanBitmap.getHeight());
             BinaryBitmap bitmap1 = new BinaryBitmap(new HybridBinarizer(source));
             QRCodeReader reader = new QRCodeReader();
             return reader.decode(bitmap1, hints);
@@ -281,7 +287,7 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
         String resultString = result.getText();
         //FIXME
         if (TextUtils.isEmpty(resultString)) {
-            ToastUtil.show(this,"Scan failed!");
+            ToastUtil.show(this, "Scan failed!");
         } else {
             Intent resultIntent = new Intent();
             Bundle bundle = new Bundle();

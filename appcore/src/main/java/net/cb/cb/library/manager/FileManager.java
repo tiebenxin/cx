@@ -2,10 +2,15 @@ package net.cb.cb.library.manager;
 
 import android.os.Environment;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Liszt
@@ -81,7 +86,7 @@ public class FileManager {
     }
 
     public String getOtherRoot() {
-        return Environment.getExternalStorageDirectory().getAbsolutePath() + CACHE_ROOT + CACHE + VIDEO;
+        return Environment.getExternalStorageDirectory().getAbsolutePath() + CACHE_ROOT + CACHE + OTHER;
     }
 
 
@@ -101,7 +106,8 @@ public class FileManager {
             file = new File(filePath + File.separator + fileName);
             fos = new FileOutputStream(file);
             bos = new BufferedOutputStream(fos);
-            bos.write(bytes);
+            bos.write(bytes, 0, bytes.length);
+            bos.flush();
             return file;
         } catch (Exception e) {
             e.printStackTrace();
@@ -120,6 +126,136 @@ public class FileManager {
                     e1.printStackTrace();
                 }
             }
+        }
+        return null;
+    }
+
+    //存储pc同步消息
+    public File saveMsgFile2(byte[] bytes) {
+        String filePath = getOtherRoot();
+        String fileName = System.currentTimeMillis() + ".txt";
+
+        BufferedOutputStream bos = null;
+        FileOutputStream fos = null;
+        File file = null;
+        try {
+            File dir = new File(filePath);
+            if (!dir.exists() && dir.isDirectory()) {//判断文件目录是否存在
+                dir.mkdirs();
+            }
+            file = new File(filePath + File.separator + fileName);
+            fos = new FileOutputStream(file);
+            bos = new BufferedOutputStream(fos);
+            bos.write(bytes, 0, bytes.length);
+            bos.flush();
+            return file;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
+
+    public static byte[] readFileBytes(File file) {
+        if (!file.exists()) {
+            return null;
+        }
+        BufferedInputStream fw = null;
+        try {
+            fw = new BufferedInputStream(new FileInputStream(file));
+            byte[] bytes = new byte[(int) file.length()];
+            fw.read(bytes);
+            return bytes;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (null != fw) {
+                try {
+                    fw.close();
+                } catch (Exception e) {
+                }
+            }
+        }
+        return null;
+    }
+
+
+    /***
+     * 合并数组
+     * @param values
+     * @return
+     */
+    public byte[] listToBytes(List<byte[]> values) {
+        int length_byte = 0;
+        for (int i = 0; i < values.size(); i++) {
+            length_byte += values.get(i).length;
+        }
+        byte[] all_byte = new byte[length_byte];
+        int countLength = 0;
+        for (int i = 0; i < values.size(); i++) {
+            byte[] b = values.get(i);
+            System.arraycopy(b, 0, all_byte, countLength, b.length);
+            countLength += b.length;
+        }
+        return all_byte;
+    }
+
+    /**
+     * 字节数组转16进制
+     *
+     * @param bytes 需要转换的byte数组
+     * @return 转换后的Hex字符串
+     */
+    public String bytesToHex(byte[] bytes) {
+        StringBuffer sb = new StringBuffer();
+        int length = bytes.length;
+        for (int i = 0; i < length; i++) {
+            String hex = Integer.toHexString(bytes[i] & 0xFF);
+            if (hex.length() < 2) {
+                sb.append(0);
+            }
+            if (i == length - 1) {
+                sb.append(hex);
+            } else {
+                sb.append(hex + " ");
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Hex字符串转byte
+     *
+     * @param inHex 待转换的Hex字符串
+     * @return 转换后的byte
+     */
+    public byte hexToByte(String inHex) {
+        return (byte) Integer.parseInt(inHex, 16);
+    }
+
+    public byte[] hexStrToByte(String str) {
+        String[] arr = str.split(" ");
+        if (arr != null) {
+            int len = arr.length;
+            byte[] bytes = new byte[len];
+            for (int i = 0; i < len; i++) {
+                bytes[i] = hexToByte(arr[i]);
+            }
+            return bytes;
         }
         return null;
     }

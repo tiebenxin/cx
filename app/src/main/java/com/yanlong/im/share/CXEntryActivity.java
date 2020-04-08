@@ -7,7 +7,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.manager.TcpConnection;
+import com.yanlong.im.chat.tcp.TcpConnection;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.ui.LoginActivity;
@@ -151,7 +151,7 @@ public class CXEntryActivity extends AppActivity {
 
     private boolean isSupportType(String type) {
         if (!TextUtils.isEmpty(type)) {
-            if (type.startsWith("image/") || type.startsWith("text/")) {
+            if (type.startsWith("image/") || type.startsWith("text/")|| type.startsWith("application/")) {
                 return true;
             }
         }
