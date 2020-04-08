@@ -97,20 +97,22 @@ public class DaoUtil {
         }
     }
 
-    public static void update(RealmModel obj) {
+    public static boolean update(RealmModel obj) {
         if (obj == null)
-            return;
+            return false;
         Realm realm = open();
         try {
             realm.beginTransaction();
             realm.insertOrUpdate(obj);
             realm.commitTransaction();
             realm.close();
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
             close(realm);
             reportException(e);
         }
+        return false;
     }
 
     //查找所有数据

@@ -174,10 +174,10 @@ public class MessageManager {
      * @return 返回结果，不需要处理逻辑的消息，默认处理成功
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify, String requestId) {
-//        System.out.println(TAG + "开始处理: " + wrapMessage.getMsgId() + "--time=" + System.currentTimeMillis());
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
             return true;
         }
+        LogUtil.getLog().e(TAG, "接收到消息: " + wrapMessage.getMsgId() + "--type=" + wrapMessage.getMsgType());
         boolean result = true;
         boolean hasNotified = false;//已经通知刷新了
         boolean isCancelValid = false;//是否是有效撤销信息
@@ -188,7 +188,6 @@ public class MessageManager {
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
             if (oldMsgId.contains(wrapMessage.getMsgId())) {
                 LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
-//                System.out.println(TAG + ">>>>>重复消息: " + wrapMessage.getMsgId());
                 return true;
             } else {
                 if (oldMsgId.size() >= 500) {
@@ -198,7 +197,6 @@ public class MessageManager {
             }
         }
         updateUserAvatarAndNick(wrapMessage, isList, requestId);
-//        System.out.println(TAG + "开始转换bean: " + wrapMessage.getMsgId() + "--time=" + System.currentTimeMillis());
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
         if (bean != null && !TextUtils.isEmpty(requestId)) {
             bean.setRequest_id(requestId);
@@ -362,7 +360,6 @@ public class MessageManager {
                 }
                 msgDao.remidCount("friend_apply");
                 notifyRefreshFriend(true, -1L, CoreEnum.ERosterAction.DEFAULT);//刷新首页 通讯录底部小红点
-//                notifyRefreshFriend(true, -1L, CoreEnum.ERosterAction.REQUEST_FRIEND);//假动作
                 break;
             case CHANGE_GROUP_META://修改群属性
                 MsgBean.ChangeGroupMetaMessage.RealMsgCase realMsgCase = wrapMessage.getChangeGroupMeta().getRealMsgCase();
@@ -491,9 +488,6 @@ public class MessageManager {
                 EventBus.getDefault().post(new ReadDestroyBean(survivalTime, wrapMessage.getGid(), wrapMessage.getFromUid()));
                 break;
             case READ://已读消息
-//                msgDao.setUpdateRead(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), wrapMessage.getRead().getTimestamp());
-//                LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getRead().getTimestamp());
-
                 long uids = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
                 msgDao.setUpdateRead(uids, wrapMessage.getTimestamp());
                 LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getTimestamp());
@@ -576,7 +570,6 @@ public class MessageManager {
                 }
                 break;
         }
-//        System.out.println(TAG + "结束存储: " + wrapMessage.getMsgId() + "--time=" + System.currentTimeMillis());
         //刷新单个,接收到音视频通话消息不需要刷新
         if (result && !hasNotified && !isList && bean != null && wrapMessage.getMsgType() != P2P_AU_VIDEO_DIAL) {
             setMessageChange(true);
@@ -878,7 +871,7 @@ public class MessageManager {
     /*
      * 更新session未读数
      * */
-    public synchronized void updateSessionUnread(String gid, Long from_uid, MsgAllBean bean, String firstFlag) {
+    public synchronized boolean updateSessionUnread(String gid, Long from_uid, MsgAllBean bean, String firstFlag) {
 //        LogUtil.getLog().d("a=", TAG + "--更新Session--updateSessionUnread" + "--isCancel=" + isCancel);
         boolean canChangeUnread = true;
         if (!TextUtils.isEmpty(gid)) {
@@ -891,7 +884,7 @@ public class MessageManager {
             }
 
         }
-        msgDao.sessionReadUpdate(gid, from_uid, canChangeUnread, bean, firstFlag);
+        return msgDao.sessionReadUpdate(gid, from_uid, canChangeUnread, bean, firstFlag);
     }
 
     /*
@@ -1098,7 +1091,7 @@ public class MessageManager {
                 } catch (Exception e) {
                     e.printStackTrace();
                     DaoUtil.reportException(e);
-                }finally {
+                } finally {
                     DaoUtil.close(realm);
                 }
             }

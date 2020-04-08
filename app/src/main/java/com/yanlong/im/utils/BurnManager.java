@@ -108,7 +108,11 @@ public class BurnManager {
             if (tempList.size() > 0) {
                 boolean result = msgDao.deleteMsgList(tempList);
                 LogUtil.getLog().i("SurvivalTime", "批量删除size=" + tempList.size());
+
                 if (result) {
+                    if (needRefreshChat) {
+                        MessageManager.getInstance().notifyRefreshChat(tempList, CoreEnum.ERefreshType.DELETE);
+                    }
                     int gLen = gids.size();
                     int uLen = uids.size();
 //                    if (gLen + uLen == 1) {
@@ -123,7 +127,6 @@ public class BurnManager {
 //                        LogUtil.getLog().i("SurvivalTime", "刷新所有会话:" + gLen + "--" + uLen);
 //                        MessageManager.getInstance().notifyRefreshMsg();
 //                    }
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
 
                     gids.clear();
                     uids.clear();
@@ -131,6 +134,7 @@ public class BurnManager {
                 tempList.clear();
             }
         }
+        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
     }
 
     private void addTemp(List<MsgAllBean> tempList, MsgAllBean bean) {

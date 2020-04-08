@@ -56,8 +56,8 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventMsgSync;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.tcp.TcpConnection;
 import com.yanlong.im.chat.task.TaskLoadSavedGroup;
+import com.yanlong.im.chat.tcp.TcpConnection;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.location.LocationPersimmions;
 import com.yanlong.im.location.LocationService;
@@ -126,9 +126,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-
-import android.util.Base64;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -554,7 +551,6 @@ public class MainActivity extends AppActivity {
         super.onResume();
         isActivityStop = false;
         taskGetMsgNum();
-        //taskClearNotification();
         checkNotificationOK();
         checkPayEnvironmentInit();
         if (AppConfig.isOnline()) {
@@ -615,7 +611,7 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefresh(EventRefreshMainMsg event) {
-        taskGetMsgNum();
+//        taskGetMsgNum();
         taskGetFriendNum();
     }
 
@@ -859,6 +855,7 @@ public class MainActivity extends AppActivity {
         if (sbmsg == null)
             return;
         int num = msgDao.sessionReadGetAll();
+        LogUtil.getLog().e("获取session未读数", "num=" + num);
         sbmsg.setNum(num, true);
         BadgeUtil.setBadgeCount(getApplicationContext(), num);
     }
@@ -1328,5 +1325,11 @@ public class MainActivity extends AppActivity {
                 }
             }
         }
+    }
+
+    public void updateMsgUnread(int num) {
+        LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + num);
+        sbmsg.setNum(num, true);
+        BadgeUtil.setBadgeCount(getApplicationContext(), num);
     }
 }

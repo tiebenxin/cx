@@ -51,13 +51,13 @@ public class MyJPushMessageReceiver extends JPushMessageReceiver {
     @Override
     public void onNotifyMessageArrived(Context context, NotificationMessage notificationMessage) {
         super.onNotifyMessageArrived(context, notificationMessage);
-        LogUtil.getLog().i("MyJPushMessageReceiver", "来消息了");
+        LogUtil.getLog().i("JIGUANG--MyJPushMessageReceiver", "来消息了");
         String extras = notificationMessage.notificationExtras;
         // 如果是音视频通知，先停掉极光在打开，是为了解决小米手机进来通知铃声跟音视频铃声重复播放问题
         if (StringUtil.isNotNull(extras)) {
             Map<String, Double> map = new Gson().fromJson(extras, Map.class);
             Double msgType = map.get("msg_type");
-            if (msgType == MsgBean.MessageType.P2P_AU_VIDEO_DIAL.getNumber()) {
+            if (msgType != null && msgType == MsgBean.MessageType.P2P_AU_VIDEO_DIAL.getNumber()) {
                 EventBus.getDefault().post(new EventFactory.StopJPushResumeEvent());
             }
         }
@@ -85,7 +85,7 @@ public class MyJPushMessageReceiver extends JPushMessageReceiver {
     @Override
     public void onNotifyMessageOpened(Context context, NotificationMessage notificationMessage) {
         super.onNotifyMessageOpened(context, notificationMessage);
-        LogUtil.getLog().i("MyJPushMessageReceiver", "onNotifyMessageOpened");
+        LogUtil.getLog().i("JIGUANG--MyJPushMessageReceiver", "onNotifyMessageOpened");
         Intent intent = new Intent(context, SplashActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);

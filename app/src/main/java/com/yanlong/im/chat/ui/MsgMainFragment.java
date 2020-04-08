@@ -12,7 +12,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +21,7 @@ import com.yanlong.im.MainActivity;
 import com.yanlong.im.MainViewModel;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
@@ -316,8 +316,6 @@ public class MsgMainFragment extends Fragment {
         super.onResume();
     }
 
-    private long lastRefreshTime = 0;
-
     /**
      * 初始化观察器
      */
@@ -327,15 +325,11 @@ public class MsgMainFragment extends Fragment {
             @Override
             public void onChange(RealmResults<SessionDetail> sessionMore) {
                 if (sessionMore != null) {
-                    Log.e("raleigh_test", "sessionMores Changes");
-                    boolean isNeedCloseSwipe = viewModel.sessionOriginalSize != viewModel.sessions.size();
-                    if (System.currentTimeMillis() - lastRefreshTime > 1 * 1000) {//1秒之内不刷新
-                        if (!mAdapter.isNeedCloseSwipe)
-                            mAdapter.isNeedCloseSwipe = isNeedCloseSwipe;
-                        lastRefreshTime = System.currentTimeMillis();
+                    mAdapter.isNeedCloseSwipe = viewModel.sessionOriginalSize != viewModel.sessions.size();
+                    if(viewModel.sessions.size()==0){
+                        mtListView.getListView().getAdapter().notifyDataSetChanged();
+                    }else{
                         mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
-                    } else {// 1秒之内
-                        if (isNeedCloseSwipe) mAdapter.isNeedCloseSwipe = isNeedCloseSwipe;
                     }
                     viewModel.sessionOriginalSize = viewModel.sessions.size();
                 }
@@ -353,7 +347,7 @@ public class MsgMainFragment extends Fragment {
                         @Override
                         public void run() {
 //                        mtListView.getListView().getAdapter().notifyItemRemoved(position + 1);//范围刷新
-                            if (viewModel.sessions != null ) {
+                            if (viewModel.sessions != null) {
                                 if (viewModel.sessions.size() > 0)
                                     mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
                                 if (viewModel.sessions.size() == 0) {
@@ -362,6 +356,23 @@ public class MsgMainFragment extends Fragment {
                             }
                         }
                     }, 50);
+                }
+            }
+        });
+        viewModel.sessions.addChangeListener(new RealmChangeListener<RealmResults<Session>>() {
+            @Override
+            public void onChange(RealmResults<Session> sessions) {
+                LogUtil.getLog().i("未读数", "onChange");
+                RealmResults<Session> sessionList = sessions.where().greaterThan("unread_count", 0).limit(100).findAll();
+                if (sessionList != null) {
+                    Number unreadCount = sessionList.where().sum("unread_count");
+                    if (unreadCount != null) {
+                        getActivityMe().updateMsgUnread(unreadCount.intValue());
+                    } else {
+                        getActivityMe().updateMsgUnread(0);
+                    }
+                } else {
+                    getActivityMe().updateMsgUnread(0);
                 }
             }
         });
