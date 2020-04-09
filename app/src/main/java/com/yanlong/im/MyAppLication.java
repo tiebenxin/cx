@@ -23,6 +23,7 @@ import com.umeng.socialize.PlatformConfig;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yanlong.im.controll.AVChatKit;
 import com.yanlong.im.location.LocationService;
+import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.utils.EmojBitmapCache;
 import com.yanlong.im.utils.IVolleyInitImp;
 import com.yanlong.im.utils.LogcatHelper;
@@ -57,11 +58,13 @@ public class MyAppLication extends MainApplication {
     private final String U_APP_KEY = "5d53659c570df3d281000225";
     public LocationService locationService;
 //    public Vibrator mVibrator;
+    public ApplicationRepository repository;
 
 
     @Override
     public void onCreate() {
         super.onCreate();
+
         initNim();
         AppConfig.setContext(getApplicationContext());
         ///推送处理
@@ -76,6 +79,7 @@ public class MyAppLication extends MainApplication {
 
         //初始化数据库
         Realm.init(getApplicationContext());
+        repository=new ApplicationRepository();
 
         initWeixinConfig();
         initRunstate();
@@ -93,7 +97,9 @@ public class MyAppLication extends MainApplication {
         initARouter();//初始化路由
         initVolley();
     }
-
+    public void addSessionChangeListener(ApplicationRepository.SessionChangeListener sessionChangeListener){
+        repository.addSessionChangeListener(sessionChangeListener);
+    }
     private void initBuildType() {
         switch (BuildConfig.BUILD_TYPE) {
             case "debug":
@@ -307,6 +313,8 @@ public class MyAppLication extends MainApplication {
     public void onTerminate() {
         //清除表情缓存
         EmojBitmapCache.getInstance().clear();
+        //清除仓库对象
+        repository.onDestory();
         super.onTerminate();
     }
 
