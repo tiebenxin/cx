@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,6 +17,7 @@ import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -71,7 +71,6 @@ import static android.widget.RelativeLayout.CENTER_IN_PARENT;
 public class VideoPlayActivity extends AppActivity implements View.OnClickListener, SurfaceHolder.Callback, MediaPlayer.OnVideoSizeChangedListener {
     private InputMethodManager manager;
     private SurfaceView textureView;
-    private SurfaceTexture surfaceTexture;
     private ImageView img_bg;
     private ImageView img_progress;
     private String mPath;
@@ -122,6 +121,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         }
         MessageManager.getInstance().setCanStamp(false);
     }
+
 
     private void downVideo(final MsgAllBean msgAllBean, final VideoMessage videoMessage) {
 
@@ -358,6 +358,8 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 }
             }
         });
+
+        mMediaPlayer.setOnVideoSizeChangedListener(this);
     }
 
     @Override
@@ -584,27 +586,71 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     public void changeVideoSize() {
         int videoWidth = mMediaPlayer.getVideoWidth();
         int videoHeight = mMediaPlayer.getVideoHeight();
-
         //根据视频尺寸去计算->视频可以在sufaceView中放大的最大倍数。
-        float max;
+        float percent;
         if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
             //竖屏模式下按视频宽度计算放大倍数值
-            max = Math.max((float) videoWidth / (float) surfaceWidth, (float) videoHeight / (float) surfaceHeight);
+            percent = Math.max((float) videoWidth / (float) surfaceWidth, (float) videoHeight / (float) surfaceHeight);
         } else {
             //横屏模式下按视频高度计算放大倍数值
-            max = Math.max(((float) videoWidth / (float) surfaceHeight), (float) videoHeight / (float) surfaceWidth);
+            percent = Math.max(((float) videoWidth / (float) surfaceHeight), (float) videoHeight / (float) surfaceWidth);
         }
 
         //视频宽高分别/最大倍数值 计算出放大后的视频尺寸
-        videoWidth = (int) Math.ceil((float) videoWidth / max);
-        videoHeight = (int) Math.ceil((float) videoHeight / max);
+        videoWidth = (int) Math.ceil((float) videoWidth / percent);
+        videoHeight = (int) Math.ceil((float) videoHeight / percent);
 
         //无法直接设置视频尺寸，将计算出的视频尺寸设置到surfaceView 让视频自动填充。
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(videoWidth, videoHeight);
         layoutParams.addRule(CENTER_IN_PARENT);
         textureView.setLayoutParams(layoutParams);
-//        textureView.set
     }
+
+//    public void changeVideoSize() {
+//        int videoWidth = mMediaPlayer.getVideoWidth();
+//        int videoHeight = mMediaPlayer.getVideoHeight();
+//        int deviceWidth = getResources().getDisplayMetrics().widthPixels;
+//        int deviceHeight = getResources().getDisplayMetrics().heightPixels;
+//        LogUtil.getLog().i(VideoPlayActivity.class.getSimpleName(), "changeVideoSize--" + "deviceWidth=" + deviceWidth +
+//                "--deviceHeight=" + deviceHeight + "--videoWidth=" + videoWidth + "--videoHeight=" + videoHeight);
+//
+//        //根据视频尺寸去计算->视频可以在sufaceView中放大的最大倍数。
+//        float percent;
+//        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+//            percent = (float) deviceWidth / (float) deviceHeight; //竖屏状态下宽度小与高度,求比
+//        } else {
+//            percent = (float) deviceHeight / (float) deviceWidth; //横屏状态下高度小与宽度,求比
+//        }
+//
+//        if (videoWidth > videoHeight) { //判断视频的宽大于高,那么我们就优先满足视频的宽度铺满屏幕的宽度,然后在按比例求出合适比例的高度
+//            videoWidth = deviceWidth;//将视频宽度等于设备宽度,让视频的宽铺满屏幕
+//            videoHeight = (int) (deviceWidth * percent);//设置了视频宽度后,在按比例算出视频高度
+//        } else {  //判断视频的高大于宽,那么我们就优先满足视频的高度铺满屏幕的高度,然后在按比例求出合适比例的宽度
+//            if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {//竖屏
+//                videoHeight = deviceHeight;
+//                /**
+//                 * 接受在宽度的轻微拉伸来满足视频铺满屏幕的优化
+//                 */
+//                float videoPercent = (float) videoWidth / (float) videoHeight;//求视频比例 注意是宽除高 与 上面的devicePercent 保持一致
+//                float differenceValue = Math.abs(videoPercent - percent);//相减求绝对值
+//                LogUtil.getLog().e(VideoPlayActivity.class.getSimpleName(), "devicePercent=" + percent);
+//                LogUtil.getLog().e(VideoPlayActivity.class.getSimpleName(), "videoPercent=" + videoPercent);
+//                LogUtil.getLog().e(VideoPlayActivity.class.getSimpleName(), "differenceValue=" + differenceValue);
+//                if (differenceValue < 0.3) { //如果小于0.3比例,那么就放弃按比例计算宽度直接使用屏幕宽度
+//                    videoWidth = deviceWidth;
+//                } else {
+//                    videoWidth = (int) (videoWidth / percent);//注意这里是用视频宽度来除
+//                }
+//            } else { //横屏
+//                videoHeight = deviceHeight;
+//                videoWidth = (int) (deviceHeight * percent);
+//            }
+//        }
+//        //无法直接设置视频尺寸，将计算出的视频尺寸设置到surfaceView 让视频自动填充。
+//        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(videoWidth, videoHeight);
+//        layoutParams.addRule(CENTER_IN_PARENT);
+//        textureView.setLayoutParams(layoutParams);
+//    }
 
     @Override
     public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
