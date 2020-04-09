@@ -872,8 +872,6 @@ public class MsgDao {
      * 备注：新增不区分大小写模糊查询
      */
     public List<MsgAllBean> searchMsg4key(String key, String gid, Long uid) {
-
-
         Realm realm = DaoUtil.open();
         List<MsgAllBean> ret = null;
         try {
@@ -881,14 +879,22 @@ public class MsgDao {
             RealmResults<MsgAllBean> msg;
             if (StringUtil.isNotNull(gid)) {//群
                 msg = realm.where(MsgAllBean.class)
-                        .equalTo("gid", gid).and().equalTo("msg_type", 1).and()
+                        .equalTo("gid", gid)
+                        .and()
+                        .equalTo("msg_type", 1)
+                        .and()
                         .contains("chat.msg", key, Case.INSENSITIVE)
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
             } else {//单人
-                msg = realm.where(MsgAllBean.class).equalTo("gid", "").equalTo("msg_type", 1)
-                        .contains("chat.msg", key, Case.INSENSITIVE).beginGroup()
-                        .equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                msg = realm.where(MsgAllBean.class)
+                        .equalTo("gid", "")
+                        .and()
+                        .equalTo("msg_type", 1)
+                        .and()
+                        .contains("chat.msg", key, Case.INSENSITIVE)
+                        .and()
+                        .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
             }

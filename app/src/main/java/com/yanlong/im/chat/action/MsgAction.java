@@ -366,7 +366,6 @@ public class MsgAction {
      * 根据key查询消息
      */
     public List<MsgAllBean> searchMsg4key(String key, String gid, Long uid) {
-
         return dao.searchMsg4key(key, gid, uid);
     }
 

@@ -4949,8 +4949,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         scrollListView(isScrollBottom);
     }
 
+    private void notifyDataChange() {
+        mtListView.notifyDataSetChange();
+        mtListView.getSwipeLayout().setRefreshing(false);
+    }
+
     private void notifyData() {
-//        mtListView.notifyDataSetChange();
         if (msgListData != null) {
             //调用该方法，有面板或软键盘弹出时，会使列表跳转到第一项
             mtListView.getListView().getAdapter().notifyItemRangeChanged(0, msgListData.size());
@@ -5214,9 +5218,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     public void taskFinadHistoryMessage(EventFindHistory history) {
         isLoadHistory = true;
         msgListData = msgAction.getMsg4UserHistory(toGid, toUId, history.getStime());
-//        ToastUtil.show(getContext(), "历史" + msgListData.size());
         taskMkName(msgListData);
-        notifyData();
+        notifyDataChange();
         mtListView.getListView().smoothScrollToPosition(0);
 
     }
