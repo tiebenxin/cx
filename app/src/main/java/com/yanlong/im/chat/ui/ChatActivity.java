@@ -5421,6 +5421,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 是否已经退出,是否被封
      * */
     private void setBanView(boolean isExited, boolean isForbid) {
+        if (isExited || isForbid){
+            // 关闭软键盘
+            InputUtil.hideKeyboard(editChat);
+        }
         actionbar.getBtnRight().setVisibility(isExited || isForbid ? View.GONE : View.VISIBLE);
         tvBan.setVisibility(isExited || isForbid ? VISIBLE : GONE);
         if (isExited) {
