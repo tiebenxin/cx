@@ -53,10 +53,10 @@
             android:name=".ui.BindPhoneNumActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.change.ChangeDetailListActivity"
+            android:name=".ui.update.ChangeDetailListActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.change.ChangeDetailActivity"
+            android:name=".ui.update.ChangeDetailActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.bill.BillDetailListActivity"

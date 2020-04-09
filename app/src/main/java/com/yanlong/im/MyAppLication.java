@@ -60,6 +60,7 @@ public class MyAppLication extends MainApplication {
     private final String U_APP_KEY = "5d53659c570df3d281000225";
     public LocationService locationService;
 //    public Vibrator mVibrator;
+    //全局数据仓库
     private ApplicationRepository repository;
 
     @Override
@@ -108,6 +109,13 @@ public class MyAppLication extends MainApplication {
     }
     public void removeSessionChangeListener(ApplicationRepository.SessionChangeListener sessionChangeListener){
         repository.removeSessionChangeListener(sessionChangeListener);
+    }
+
+    /**
+     * 加载更多session,每100条递增
+     */
+    public void loadMoreSessions(){
+        repository.loadMoreSessions();
     }
 
     private void initBuildType() {

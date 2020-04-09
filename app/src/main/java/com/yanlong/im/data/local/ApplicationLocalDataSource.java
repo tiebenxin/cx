@@ -44,10 +44,10 @@ public class ApplicationLocalDataSource {
      *
      * @return
      */
-    public RealmResults<Session> getSessions() {
+    public RealmResults<Session> getSessions(int limit) {
         String[] orderFiled = {"isTop", "up_time"};
         Sort[] sorts = {Sort.DESCENDING, Sort.DESCENDING};
-        return realm.where(Session.class).sort(orderFiled, sorts).findAllAsync();
+        return realm.where(Session.class).sort(orderFiled, sorts).limit(limit).findAllAsync();
     }
 
     public void onDestory() {

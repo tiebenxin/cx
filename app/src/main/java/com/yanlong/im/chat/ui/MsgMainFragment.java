@@ -42,6 +42,7 @@ import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.MultiListView;
 import net.cb.cb.library.view.PopView;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
 
@@ -129,10 +130,31 @@ public class MsgMainFragment extends Fragment {
     private SocketEvent socketEvent;
 
     private void initEvent() {
+
         mAdapter = new MsgMainFragmentAdapter(getActivity(), viewModel, mHeadView);
         mtListView.init(mAdapter);
-
         mtListView.getLoadView().setStateNormal();
+        mtListView.setEvent(new MultiListView.Event() {
+            @Override
+            public void onRefresh() {
+                mtListView.getSwipeLayout().setRefreshing(false);
+            }
+
+            @Override
+            public void onLoadMore() {
+                mtListView.getSwipeLayout().setRefreshing(false);
+                MyAppLication.INSTANCE().loadMoreSessions();
+            }
+
+            @Override
+            public void onLoadFail() {
+                mtListView.getSwipeLayout().setRefreshing(false);
+            }
+        });
+        //必须在setEvent后调用
+        mtListView.getSwipeLayout().setEnabled(false);
+
+//        mtListView.getLoadView().setStateNormal();
         SocketUtil.getSocketUtil().addEvent(socketEvent = new SocketEvent() {
             @Override
             public void onHeartbeat() {
@@ -334,6 +356,7 @@ public class MsgMainFragment extends Fragment {
     private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
         @Override
         public void init(RealmResults<Session> sessions) {
+            viewModel.sessions = sessions;
             mAdapter.notifyDataSetChanged();
         }
 
