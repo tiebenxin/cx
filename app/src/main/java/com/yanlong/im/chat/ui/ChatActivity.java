@@ -5421,7 +5421,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 是否已经退出,是否被封
      * */
     private void setBanView(boolean isExited, boolean isForbid) {
-        if (isExited || isForbid){
+        if (isExited || isForbid) {
             // 关闭软键盘
             InputUtil.hideKeyboard(editChat);
         }
@@ -5430,7 +5430,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (isExited) {
             tvBan.setText("你已经被移除群聊，无法发送消息");
         } else if (isForbid) {
-            tvBan.setText("该群因涉及违规，已被封停");
+            tvBan.setText(AppConfig.getString(R.string.group_forbid));
         }
         viewChatBottomc.setVisibility(isExited || isForbid ? GONE : VISIBLE);
         llMore.setVisibility(GONE);

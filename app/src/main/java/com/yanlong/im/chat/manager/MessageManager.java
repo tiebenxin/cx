@@ -651,11 +651,12 @@ public class MessageManager {
 
     //重新生成群头像
     public void changeGroupAvatar(String gid) {
-        Group group = msgDao.getGroup4Id(gid);
-        if (group != null) {
-            doImgHeadChange(gid, group);
-            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
-        }
+//        Group group = msgDao.getGroup4Id(gid);
+//        if (group != null) {
+//            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+//        }
+        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+
     }
 
     private void removeGroupMember(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
@@ -1627,20 +1628,6 @@ public class MessageManager {
         }
         //用户退出登录需清除阅后即焚数据
         BurnManager.getInstance().clear();
-    }
-
-    public void doImgHeadChange(String gid, Group group) {
-        int i = group.getUsers().size();
-        i = i > 9 ? 9 : i;
-        //头像地址
-        String url[] = new String[i];
-        for (int j = 0; j < i; j++) {
-            MemberUser userInfo = group.getUsers().get(j);
-            url[j] = userInfo.getHead();
-        }
-        File file = GroupHeadImageUtil.synthesis(AppConfig.getContext(), url);
-        MsgDao msgDao = new MsgDao();
-        msgDao.groupHeadImgUpdate(gid, file.getAbsolutePath());
     }
 
     /*

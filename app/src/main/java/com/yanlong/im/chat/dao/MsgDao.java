@@ -1438,12 +1438,17 @@ public class MsgDao {
                         } else {
                             Group group = realm.where(Group.class).equalTo("gid", l.getGid()).findFirst();
                             if (group != null) {
-                                top = group.getIsTop();
-                                List<MemberUser> users = realm.copyFromRealm(group.getUsers());
-                                MemberUser member = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), group.getGid());
-                                if (users != null && member != null && !users.contains(member)) {
+                                if (group.getStat() != ChatEnum.EGroupStatus.NORMAL) {
                                     session = realm.copyFromRealm(l);
                                     removes.add(session);
+                                } else {
+                                    top = group.getIsTop();
+                                    List<MemberUser> users = realm.copyFromRealm(group.getUsers());
+                                    MemberUser member = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), group.getGid());
+                                    if (users != null && member != null && !users.contains(member)) {
+                                        session = realm.copyFromRealm(l);
+                                        removes.add(session);
+                                    }
                                 }
                             }
                         }

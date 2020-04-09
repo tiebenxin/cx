@@ -807,17 +807,7 @@ public class GroupInfoActivity extends AppActivity {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
-                    //8.8 如果是有群昵称显示自己群昵称
-//                    for (MemberUser number : ginfo.getUsers()) {
-//                        if (StringUtil.isNotNull(number.getMembername())) {
-//                            number.setName(number.getMembername());
-//                        }
-//                    }
                     if (isMemberChange) {
-                        Group goldinfo = msgDao.getGroup4Id(gid);
-                        if (!isChange(goldinfo, ginfo)) {
-                            doImgHeadChange(gid, ginfo);
-                        }
                         MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                     }
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
@@ -831,7 +821,7 @@ public class GroupInfoActivity extends AppActivity {
                 }
             }
         };
-        msgAction.groupInfo(gid, true,callBack);
+        msgAction.groupInfo(gid, true, callBack);
     }
 
     private void filterData() {
@@ -1130,27 +1120,10 @@ public class GroupInfoActivity extends AppActivity {
         return false;
     }
 
-    private void doImgHeadChange(String gid, Group ginfo) {
-
-        int i = ginfo.getUsers().size();
-        i = i > 9 ? 9 : i;
-        //头像地址
-        String url[] = new String[i];
-        for (int j = 0; j < i; j++) {
-            MemberUser userInfo = ginfo.getUsers().get(j);
-            url[j] = userInfo.getHead();
-        }
-        File file = GroupHeadImageUtil.synthesis(getContext(), url);
-        MsgDao msgDao = new MsgDao();
-        msgDao.groupHeadImgUpdate(gid, file.getAbsolutePath());
-//                        msgDao.groupSave(ginfo);
-    }
-
     private void createAndSaveMsg() {
         if (ginfo == null || TextUtils.isEmpty(gid)) {
             return;
         }
-//        MsgAllBean bean = SocketData.createMessageBean(gid, "@所有人 \r\n" + ginfo.getAnnouncement(), ginfo);
         AtMessage atMessage = SocketData.createAtMessage(SocketData.getUUID(), "@所有人 \r\n" + ginfo.getAnnouncement(), ChatEnum.EAtType.ALL, null);
         MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.AT, ChatEnum.ESendStatus.NORMAL, -1L, atMessage);
         if (bean != null) {

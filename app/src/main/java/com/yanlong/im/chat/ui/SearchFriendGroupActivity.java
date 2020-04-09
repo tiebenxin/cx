@@ -20,7 +20,9 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import androidx.annotation.RequiresApi;
+
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
@@ -40,9 +42,11 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -137,7 +141,6 @@ public class SearchFriendGroupActivity extends AppActivity {
     }
 
 
-
     @RequiresApi(api = Build.VERSION_CODES.M)
     private Spannable getSpan(String message, String condition, int fromIndex) {
         if (!message.contains(condition)) {
@@ -198,7 +201,6 @@ public class SearchFriendGroupActivity extends AppActivity {
                             holder.viewTagFried.setVisibility(View.VISIBLE);
                         }
                         final UserInfo user = listDataUser.get(position - 1);
-//                    name = user.getName4Show();
                         url = user.getHead();
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -208,7 +210,8 @@ public class SearchFriendGroupActivity extends AppActivity {
                             }
                         });
                         holder.setContactName(user.getMkName(), user.getName(), key);
-
+                        headList.add(url);
+                        holder.imgHead.setList(headList);
                     } else {
                         if (position == listDataUser.size() + 1) {
                             holder.viewTagGroup.setVisibility(View.VISIBLE);
@@ -216,18 +219,13 @@ public class SearchFriendGroupActivity extends AppActivity {
                         }
                         int p = position - listDataUser.size() - 1;
                         final Group group = listDataGroup.get(p);
-//                    name = group.getName();
                         url = group.getAvatar();
-                        if(!StringUtil.isNotNull(url)){
-                            MsgDao msgDao = new MsgDao();
-                            String localUrl = msgDao.groupHeadImgGet(group.getGid());
-                            if (StringUtil.isNotNull(url)) {
-                                url=localUrl;
-                            } else {
-                                url=creatAndSaveImg(group);
-                            }
+                        if (StringUtil.isNotNull(url)) {
+                            headList.add(url);
+                            holder.imgHead.setList(headList);
+                        } else {
+                            loadGroupHeads(group, holder.imgHead);
                         }
-//                        LogUtil.getLog().e(position+"=======getAvatar==="+url);
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -236,11 +234,6 @@ public class SearchFriendGroupActivity extends AppActivity {
                         });
                         holder.setGroupName(group, key);
                     }
-//                    Glide.with(context).load(url)
-//                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-                    headList.add(url);
-                    holder.imgHead.setList(headList);
-
                 } else {
                     //头像地址
                     List<String> headList = new ArrayList<>();
@@ -262,7 +255,8 @@ public class SearchFriendGroupActivity extends AppActivity {
                             }
                         });
                         holder.setContactName(user.getMkName(), user.getName(), key);
-
+                        headList.add(url);
+                        holder.imgHead.setList(headList);
                     } else {
                         if (position == listDataUser.size()) {
                             holder.viewTagGroup.setVisibility(View.VISIBLE);
@@ -270,16 +264,12 @@ public class SearchFriendGroupActivity extends AppActivity {
                         }
                         int p = position - listDataUser.size();
                         final Group group = listDataGroup.get(p);
-//                    name = group.getName();
                         url = group.getAvatar();
-                        if(!StringUtil.isNotNull(url)){
-                            MsgDao msgDao = new MsgDao();
-                            String localUrl = msgDao.groupHeadImgGet(group.getGid());
-                            if (StringUtil.isNotNull(url)) {
-                                url=localUrl;
-                            } else {
-                                url=creatAndSaveImg(group);
-                            }
+                        if (!StringUtil.isNotNull(url)) {
+                            headList.add(url);
+                            holder.imgHead.setList(headList);
+                        } else {
+                            loadGroupHeads(group, holder.imgHead);
                         }
 
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -291,16 +281,11 @@ public class SearchFriendGroupActivity extends AppActivity {
                         holder.setGroupName(group, key);
                     }
 
-//                    Glide.with(context).load(url)
-//                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
-                    headList.add(url);
-                    holder.imgHead.setList(headList);
                 }
             }
 
         }
-
 
 
         @Override
@@ -488,23 +473,24 @@ public class SearchFriendGroupActivity extends AppActivity {
 
     }
 
-
-    private String creatAndSaveImg(Group bean) {
-        Group gginfo = bean;
-        int i = gginfo.getUsers().size();
-        i = i > 9 ? 9 : i;
-        //头像地址
-        String url[] = new String[i];
-        for (int j = 0; j < i; j++) {
-            MemberUser userInfo = gginfo.getUsers().get(j);
-            url[j] = userInfo.getHead();
+    /**
+     * 加载群头像
+     *
+     * @param group
+     * @param imgHead
+     */
+    public void loadGroupHeads(Group group, MultiImageView imgHead) {
+        if (group != null) {
+            int i = group.getUsers().size();
+            i = i > 9 ? 9 : i;
+            //头像地址
+            List<String> headList = new ArrayList<>();
+            for (int j = 0; j < i; j++) {
+                MemberUser userInfo = group.getUsers().get(j);
+                headList.add(userInfo.getHead());
+            }
+            imgHead.setList(headList);
         }
-        File file = GroupHeadImageUtil.synthesis(getContext(), url);
-
-        MsgDao msgDao = new MsgDao();
-        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
-
-        return file.getAbsolutePath();
     }
 
 }

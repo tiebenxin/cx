@@ -82,9 +82,7 @@ public class TaskLoadSavedGroup extends AsyncTask<Void, Integer, Boolean> {
                 if (response != null && response.body() != null && response.body().isOk()) {
                     List<Group> groups = response.body().getData();
                     if (groups != null) {
-//                        LogUtil.getLog().d("a=", "群信息--gids=" + gids);
                         msgDao.saveGroups(groups);
-                        createGroupHead(groups);
                         MessageManager.getInstance().addSavedGroup(groups);
                         int next = ++position;
                         loadGroups(next);
@@ -92,28 +90,5 @@ public class TaskLoadSavedGroup extends AsyncTask<Void, Integer, Boolean> {
                 }
             }
         });
-    }
-
-    /**
-     *  创建群聊头像
-     * @param groupList
-     */
-    private void createGroupHead(List<Group> groupList) {
-        // TODO 创建头像时需要异步处理，否则用户快速点击会出现ANR
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int len = groupList.size();
-                for (int i = 0; i < len; i++) {
-                    Group group = groupList.get(i);
-                    if (TextUtils.isEmpty(group.getAvatar())) {
-                        String avatar = msgDao.groupHeadImgGet(group.getGid());
-                        if (TextUtils.isEmpty(avatar)) {
-                            MessageManager.getInstance().doImgHeadChange(group.getGid(), group);
-                        }
-                    }
-                }
-            }
-        }).start();
     }
 }

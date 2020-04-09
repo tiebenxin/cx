@@ -750,39 +750,15 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                         taskGroupConf();
                     } else {
                         taskGroupConf();
-                        createAndSaveImg(model.getGid());
                     }
                 }
                 break;
-//            case OTHER_REMOVE_GROUP:
-//                createAndSaveImg(model.getGid());
-//                break;
             case CHANGE_GROUP_META:
                 getView().initTitle();
                 break;
         }
-
     }
 
-    private void createAndSaveImg(String gid) {
-        Group group = model.getGroup();
-        int i = group.getUsers().size();
-        i = i > 9 ? 9 : i;
-        //头像地址
-        String url[] = new String[i];
-        for (int j = 0; j < i; j++) {
-            MemberUser userInfo = group.getUsers().get(j);
-//            if (j == i - 1) {
-//                name += userInfo.getName();
-//            } else {
-//                name += userInfo.getName() + "、";
-//            }
-            url[j] = userInfo.getHead();
-        }
-        File file = GroupHeadImageUtil.synthesis(context, url);
-        MsgDao msgDao = new MsgDao();
-        msgDao.groupHeadImgCreate(group.getGid(), file.getAbsolutePath());
-    }
 
     /***
      * 获取群配置,并显示更多按钮

@@ -276,7 +276,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     viewModel.currentDeletePosition.setValue(position - 1);
                 }
             });
-            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#ececec"));
+            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#F2F2F2"));
             holder.iv_disturb.setVisibility(bean.getIsMute() == 0 ? View.INVISIBLE : View.VISIBLE);
         } else if (viewHolder instanceof HeadViewHolder) {
             HeadViewHolder headHolder = (HeadViewHolder) viewHolder;

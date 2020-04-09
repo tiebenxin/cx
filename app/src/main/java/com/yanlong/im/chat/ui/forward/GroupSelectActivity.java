@@ -427,24 +427,6 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
         }
     }
 
-    private void creatAndSaveImg(Group bean, ImageView imgHead) {
-        Group gginfo = bean;
-        int i = gginfo.getUsers().size();
-        i = i > 9 ? 9 : i;
-        //头像地址
-        String url[] = new String[i];
-        for (int j = 0; j < i; j++) {
-            MemberUser userInfo = gginfo.getUsers().get(j);
-            url[j] = userInfo.getHead();
-        }
-        File file = GroupHeadImageUtil.synthesis(getContext(), url);
-        Glide.with(context).load(file)
-                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
-
-        MsgDao msgDao = new MsgDao();
-        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
-    }
-
     /*
      * 发送留言消息
      * */

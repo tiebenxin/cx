@@ -16,13 +16,11 @@ import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
-import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
@@ -30,12 +28,10 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -320,9 +316,6 @@ public class GroupCreateActivity extends AppActivity {
         selectUser();
     }
 
-    private UpFileAction upFileAction = new UpFileAction();
-    private File fileImg;
-
     private void taskCreate() {
         if (listDataTop.size() < 2) {
             ToastUtil.show(getContext(), "人数必须大于3人");
@@ -345,9 +338,6 @@ public class GroupCreateActivity extends AppActivity {
 
             url[j] = userInfo.getHead();
         }
-        fileImg = GroupHeadImageUtil.synthesis(this, url);
-
-
         msgACtion.groupCreate(UserAction.getMyInfo().getName(), "", "", templist, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
@@ -365,8 +355,6 @@ public class GroupCreateActivity extends AppActivity {
                     return;
                 }
                 if (response.body().isOk()) {
-                    MsgDao msgDao = new MsgDao();
-                    msgDao.groupHeadImgCreate(response.body().getData().getGid(), fileImg.getAbsolutePath());
                     MessageManager.getInstance().setMessageChange(true);
                     MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, response.body().getData().getGid(), CoreEnum.ESessionRefreshTag.SINGLE, null);
                     startActivity(new Intent(getContext(), ChatActivity.class).putExtra(ChatActivity.AGM_TOGID, response.body().getData().getGid()).putExtra(ChatActivity.GROUP_CREAT, "creat"));
@@ -375,9 +363,7 @@ public class GroupCreateActivity extends AppActivity {
                     actionbar.getViewRight().setEnabled(true);
                     actionbar.getViewRight().setClickable(true);
                     ToastUtil.show(getContext(), response.body().getMsg());
-
                 }
-
             }
 
             @Override

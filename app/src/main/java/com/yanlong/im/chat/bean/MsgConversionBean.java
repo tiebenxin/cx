@@ -2,6 +2,7 @@ package com.yanlong.im.chat.bean;
 
 import android.text.TextUtils;
 
+import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -13,6 +14,7 @@ import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
@@ -472,9 +474,9 @@ public class MsgConversionBean {
                         forbidNotice.setMsgid(msgAllBean.getMsg_id());
                         forbidNotice.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN);
                         if (forbid) {
-                            forbidNotice.setNote("该群因涉及违规，已被封停");
+                            forbidNotice.setNote(AppConfig.getString(R.string.group_forbid));
                         } else {
-                            forbidNotice.setNote("该群已被解封");
+                            forbidNotice.setNote(AppConfig.getString(R.string.group_disband));
                         }
                         msgAllBean.setMsgNotice(forbidNotice);
                         break;

@@ -130,4 +130,11 @@ public class AppConfig {
     public static boolean isOnline() {
         return isOnline;
     }
+
+    public static String getString(int id) {
+        if (APP_CONTEXT == null) {
+            return "";
+        }
+        return APP_CONTEXT.getString(id);
+    }
 }
