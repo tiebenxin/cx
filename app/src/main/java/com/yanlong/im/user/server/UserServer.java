@@ -145,7 +145,7 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean<List<FriendInfoBean>>> getUserMatchPhone(@Field("@phoneList") String phoneList);
 
-    @POST("/pub/change-password-by-sms-captcha")
+    @POST("/pub/update-password-by-sms-captcha")
     @FormUrlEncoded
     Call<ReturnBean> changePasswordBySms(@Field("phone") String phone, @Field("captcha") Integer captcha, @Field("password") String password);
 

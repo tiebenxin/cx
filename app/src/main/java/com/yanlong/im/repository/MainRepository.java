@@ -29,14 +29,6 @@ public class MainRepository {
         return localDataSource.getGroup4Id(gid);
     }
 
-    /**
-     * 获取session 列表
-     *
-     * @return
-     */
-    public RealmResults<Session> getSesisons() {
-        return localDataSource.getSession();
-    }
 
     /**
      * 获取session 详情
