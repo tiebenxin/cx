@@ -65,7 +65,7 @@ public class MainLocalDataSource {
             e.printStackTrace();
             DaoUtil.reportException(e);
         }
-        Log.e("raleigh_test", "getSession" + list.size() + ",t=" + DateUtils.timeStamp2Date(DateUtils.getSystemTime(), null));
+        Log.e("raleigh_test", "getSessions" + list.size() + ",t=" + DateUtils.timeStamp2Date(DateUtils.getSystemTime(), null));
         return list;
     }
 

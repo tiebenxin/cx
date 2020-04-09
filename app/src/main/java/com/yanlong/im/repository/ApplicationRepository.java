@@ -20,18 +20,24 @@ import io.realm.RealmResults;
 public class ApplicationRepository {
     private ApplicationLocalDataSource localDataSource;
     public RealmResults<Session> sessions;
-    private List<SessionChangeListener> mSessionChangeListeners =new ArrayList<>();
+    private List<SessionChangeListener> mSessionChangeListeners = new ArrayList<>();
 
     public ApplicationRepository() {
         localDataSource = new ApplicationLocalDataSource();
         startObserver();
     }
-    public void addSessionChangeListener(SessionChangeListener sessionChangeListener){
+
+    public void addSessionChangeListener(SessionChangeListener sessionChangeListener) {
         mSessionChangeListeners.add(sessionChangeListener);
     }
 
+    public void removeSessionChangeListener(SessionChangeListener sessionChangeListener) {
+        if (mSessionChangeListeners.contains(sessionChangeListener))
+            mSessionChangeListeners.remove(sessionChangeListener);
+    }
+
     public void startObserver() {
-        sessions = getSesisons();
+        sessions = localDataSource.getSessions();
         /**集合通知OrderedRealmCollectionChangeListener
          * 该对象保存有关受删除，插入和更改影响的索引的信息。
          *
@@ -41,14 +47,14 @@ public class ApplicationRepository {
         sessions.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<Session>>() {
             @Override
             public void onChange(RealmResults<Session> sessions, OrderedCollectionChangeSet changeSet) {
-                /*****null表示异步查询第一次返回。*******************************************************************************************/
-                if (changeSet == null) {
+                /***** 异步查询第一次返回。*******************************************************************************************/
+                if (changeSet == null || changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
 //                    notifyDataSetChanged();
                     //1.异步更新所有detail
                     localDataSource.updateSessionDetail();
                     //通知监听器
-                    for(SessionChangeListener sessionChangeListener : mSessionChangeListeners){
-                        sessionChangeListener.init();
+                    for (SessionChangeListener sessionChangeListener : mSessionChangeListeners) {
+                        sessionChangeListener.init(sessions);
                     }
                     return;
                 }
@@ -64,7 +70,7 @@ public class ApplicationRepository {
                     for (int index = deletions.length - 1; index >= 0; index--) {
                         OrderedCollectionChangeSet.Range range = deletions[index];
                         for (int i = 0; i < range.length; i++) {
-                            int position=range.startIndex + i;
+                            int position = range.startIndex + i;
                             sids.add(sessions.get(position).getSid());
                             positions.add(position);
                         }
@@ -73,8 +79,8 @@ public class ApplicationRepository {
                     }
                     //1.删除-不需要更新detail
                     //2.通知监听器
-                    for(SessionChangeListener listener:mSessionChangeListeners){
-                        listener.delete(positions,sids);
+                    for (SessionChangeListener listener : mSessionChangeListeners) {
+                        listener.delete(positions, sids);
                     }
                 }
 
@@ -86,7 +92,7 @@ public class ApplicationRepository {
                     //获取更新信息
                     for (OrderedCollectionChangeSet.Range range : insertions) {
                         for (int i = 0; i < range.length; i++) {
-                            int position=range.startIndex + i;
+                            int position = range.startIndex + i;
                             sids.add(sessions.get(position).getSid());
                             positions.add(position);
                         }
@@ -97,8 +103,8 @@ public class ApplicationRepository {
                         //1.更新增加数据的detail详情
                         localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
                         //2.通知监听器
-                        for(SessionChangeListener listener:mSessionChangeListeners){
-                            listener.insert(positions,sids);
+                        for (SessionChangeListener listener : mSessionChangeListeners) {
+                            listener.insert(positions, sids);
                         }
                     }
 
@@ -111,7 +117,7 @@ public class ApplicationRepository {
                     //获取更新信息
                     for (OrderedCollectionChangeSet.Range range : modifications) {
                         for (int i = 0; i < range.length; i++) {
-                            int position=range.startIndex + i;
+                            int position = range.startIndex + i;
                             sids.add(sessions.get(position).getSid());
                             positions.add(position);
                         }
@@ -123,12 +129,15 @@ public class ApplicationRepository {
                         //1.更新增加更改的detail详情
                         localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
                         //2.通知监听器
-                        for(SessionChangeListener listener:mSessionChangeListeners){
-                            listener.change(positions,sids);
+                        for (SessionChangeListener listener : mSessionChangeListeners) {
+                            listener.update(positions, sids);
                         }
                     }
                 }
-
+                //通知监听器-所有变化
+                for (SessionChangeListener sessionChangeListener : mSessionChangeListeners) {
+                    sessionChangeListener.change(sessions);
+                }
             }
         });
     }
@@ -143,7 +152,7 @@ public class ApplicationRepository {
      * @return
      */
     public RealmResults<Session> getSesisons() {
-        return localDataSource.getSession();
+        return sessions;
     }
 
 
@@ -154,13 +163,16 @@ public class ApplicationRepository {
     }
 
     public interface SessionChangeListener {
-        void delete(ArrayList<Integer> position,ArrayList<String> sids);
+        void init(RealmResults<Session> sessions);
 
-        void insert(ArrayList<Integer> position,ArrayList<String> sids);
+        void delete(ArrayList<Integer> position, ArrayList<String> sids);
 
-        void change(ArrayList<Integer> position,ArrayList<String> sids);
+        void insert(ArrayList<Integer> position, ArrayList<String> sids);
 
-        void init();
+        void update(ArrayList<Integer> position, ArrayList<String> sids);
+
+        //所有变化-只要有变化就会调用
+        void change(RealmResults<Session> sessions);
 
     }
 }

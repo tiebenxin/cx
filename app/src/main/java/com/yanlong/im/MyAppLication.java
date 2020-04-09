@@ -21,6 +21,7 @@ import com.tencent.bugly.crashreport.CrashReport;
 import com.umeng.commonsdk.UMConfigure;
 import com.umeng.socialize.PlatformConfig;
 import com.xiaomi.mipush.sdk.MiPushClient;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.controll.AVChatKit;
 import com.yanlong.im.location.LocationService;
 import com.yanlong.im.repository.ApplicationRepository;
@@ -51,6 +52,7 @@ import java.io.IOException;
 
 import cn.jpush.android.api.JPushInterface;
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class MyAppLication extends MainApplication {
 
@@ -58,13 +60,11 @@ public class MyAppLication extends MainApplication {
     private final String U_APP_KEY = "5d53659c570df3d281000225";
     public LocationService locationService;
 //    public Vibrator mVibrator;
-    public ApplicationRepository repository;
-
+    private ApplicationRepository repository;
 
     @Override
     public void onCreate() {
         super.onCreate();
-
         initNim();
         AppConfig.setContext(getApplicationContext());
         ///推送处理
@@ -97,9 +97,19 @@ public class MyAppLication extends MainApplication {
         initARouter();//初始化路由
         initVolley();
     }
+    public static MyAppLication INSTANCE() {
+        return (MyAppLication)instance;
+    }
+    public RealmResults<Session> getSessions(){
+        return repository.getSesisons();
+    }
     public void addSessionChangeListener(ApplicationRepository.SessionChangeListener sessionChangeListener){
         repository.addSessionChangeListener(sessionChangeListener);
     }
+    public void removeSessionChangeListener(ApplicationRepository.SessionChangeListener sessionChangeListener){
+        repository.removeSessionChangeListener(sessionChangeListener);
+    }
+
     private void initBuildType() {
         switch (BuildConfig.BUILD_TYPE) {
             case "debug":
@@ -325,5 +335,6 @@ public class MyAppLication extends MainApplication {
         locationService = new LocationService(getApplicationContext());
 //        mVibrator =(Vibrator)getApplicationContext().getSystemService(Service.VIBRATOR_SERVICE);
     }
+
 
 }
