@@ -2765,13 +2765,18 @@ public class MsgDao {
 
 
     /***
-     * 获取保存群
+     * 获取保存群,是否能展示被封群
      */
-    public List<Group> getMySavedGroup() {
+    public List<Group> getMySavedGroup(boolean canShowForbid) {
         List<Group> results = null;
         Realm realm = DaoUtil.open();
         try {
-            List<Group> groups = realm.where(Group.class).equalTo("saved", 1).findAll();
+            List<Group> groups = null;
+            if (canShowForbid) {
+                groups = realm.where(Group.class).equalTo("saved", 1).findAll();
+            } else {
+                groups = realm.where(Group.class).equalTo("saved", 1).and().equalTo("stat", 0).findAll();
+            }
             int len = groups.size();
             if (len > 0) {
                 results = realm.copyFromRealm(groups);
