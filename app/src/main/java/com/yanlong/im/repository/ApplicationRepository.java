@@ -23,7 +23,7 @@ public class ApplicationRepository {
     private ApplicationLocalDataSource localDataSource;
     public RealmResults<Session> sessions;
     private List<SessionChangeListener> mSessionChangeListeners = new ArrayList<>();
-    private final int PAGE_COUNT = 10;
+    private final int PAGE_COUNT = 100;
     private int currentCount = 0;
 
     public ApplicationRepository() {
