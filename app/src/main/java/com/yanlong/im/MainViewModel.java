@@ -21,36 +21,29 @@ import io.realm.RealmResults;
  */
 public class MainViewModel extends ViewModel {
     private MainRepository repository;
-    public RealmResults<Session> sessions;
-    public RealmResults<SessionDetail> sessionMores;
+    public RealmResults<SessionDetail> sessionMores = null;
+    public RealmResults<Session> sessions = null;
+
     //当前删除操作位置,为数据源中的位置
     public MutableLiveData<Integer> currentDeletePosition = new MutableLiveData();
     //保存session 位置
     public Map<String, Integer> sessionMoresPositions = new HashMap<>();
-    //保存session数量
-    public int sessionOriginalSize = 0;
     //判断网络状态 true在线 false离线
     public MutableLiveData<Boolean> onlineState = new MutableLiveData<>();
+    //记录当前展开了删除按钮的位置,实际recyclerview中的position
+    public int currentSwipeDeletePosition=-1;
+    //是否要主动关闭展开的删除按钮
+    public MutableLiveData<Boolean> isNeedCloseSwipe = new MutableLiveData<>();
 
     public MainViewModel() {
         repository = new MainRepository();
-        init();
     }
 
-    private void init() {
-        sessions = repository.getSesisons();
-        sessionOriginalSize = sessions.size();
-        //session数据变化时，更新session详情
+    public void onStart() {
+        repository.checkRealmStatus();
+        //指向内存堆中同一个对象,session数据变化时，Application中会自动更新session详情
+        if(sessions == null)sessions=MyAppLication.INSTANCE().getSessions();
         sessionMores = repository.getSessionMore();
-        sessions.addChangeListener(new RealmChangeListener<RealmResults<Session>>() {
-            @Override
-            public void onChange(RealmResults<Session> sessions) {
-//                if(sessionOriginalSize<sessions.size()){
-                //session数据变化时，更新session详情：旧数据收到/发送消息，删除，新数据收到/发送消息
-                repository.updateSessionDetail();
-//                }
-            }
-        });
         sessionMores.addChangeListener(new RealmChangeListener<RealmResults<SessionDetail>>() {
             @Override
             public void onChange(RealmResults<SessionDetail> sessionMores) {
@@ -62,9 +55,6 @@ public class MainViewModel extends ViewModel {
         });
     }
 
-    public String getSessionJson() {
-        return repository.getSessionJson(sessions);
-    }
 
     /**
      * 获取群信息
@@ -87,12 +77,12 @@ public class MainViewModel extends ViewModel {
      */
     public void deleteItem(int position) {
         try {
-            long uid = sessions.get(position).getFrom_uid();
-            String gid = sessions.get(position).getGid();
+            long uid = MyAppLication.INSTANCE().getSessions().get(position).getFrom_uid();
+            String gid = MyAppLication.INSTANCE().getSessions().get(position).getGid();
             //开始删除事务
             repository.beginTransaction();
-            String sid = sessions.get(position).getSid();
-            sessions.get(position).deleteFromRealm();
+            String sid = MyAppLication.INSTANCE().getSessions().get(position).getSid();
+            MyAppLication.INSTANCE().getSessions().get(position).deleteFromRealm();
             if (sessionMoresPositions.containsKey(sid)) {
                 int index = sessionMoresPositions.get(sid);
                 if (index >= 0 && index < sessionMores.size()) {
@@ -107,19 +97,18 @@ public class MainViewModel extends ViewModel {
         } catch (Exception e) {
         }
     }
+    public String getSessionJson(){
+        return sessions==null?"":repository.getSessionJson(sessions);
+    }
 
-    /**
-     * onResume检查realm状态,避免系统奔溃后，主页重新启动realm对象已被关闭，需重新连接
-     */
-    public void checkRealmStatus() {
-        if (!repository.checkRealmStatus()) {
-            init();
-        }
+    public void onStop() {
+        sessionMores.removeAllChangeListeners();
+        sessionMores = null;
     }
 
     public void onDestory() {
-        sessions.removeAllChangeListeners();
-        sessionMores.removeAllChangeListeners();
+        if (sessionMores != null)
+            sessionMores.removeAllChangeListeners();
         repository.onDestory();
     }
 }

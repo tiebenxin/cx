@@ -52,6 +52,7 @@ import com.yanlong.im.chat.bean.EnvelopeInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.NotificationConfig;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventMsgSync;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
@@ -63,6 +64,7 @@ import com.yanlong.im.location.LocationPersimmions;
 import com.yanlong.im.location.LocationService;
 import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.notify.NotifySettingDialog;
+import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.shop.ShopFragemnt;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
@@ -126,12 +128,14 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
 import cn.jpush.android.api.JPushInterface;
+import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -264,7 +268,46 @@ public class MainActivity extends AppActivity {
             checkPermission();
             initLocation();
         }
+        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
     }
+    private ApplicationRepository.SessionChangeListener sessionChangeListener  = new ApplicationRepository.SessionChangeListener() {
+        @Override
+        public void init(RealmResults<Session> sessions) {
+
+        }
+
+        @Override
+        public void delete(ArrayList<Integer> position, ArrayList<String> sids) {
+
+        }
+
+        @Override
+        public void insert(ArrayList<Integer> position, ArrayList<String> sids) {
+
+        }
+
+        @Override
+        public void update(ArrayList<Integer> position, ArrayList<String> sids) {
+
+        }
+
+        @Override
+        public void change(RealmResults<Session> sessions) {
+            LogUtil.getLog().i("未读数", "onChange");
+            RealmResults<Session> sessionList = sessions.where().greaterThan("unread_count", 0).limit(100).findAll();
+            if (sessionList != null) {
+                Number unreadCount = sessionList.where().sum("unread_count");
+                if (unreadCount != null) {
+                    updateMsgUnread(unreadCount.intValue());
+                } else {
+                    updateMsgUnread(0);
+                }
+            } else {
+                updateMsgUnread(0);
+            }
+        }
+    };
+
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -494,6 +537,7 @@ public class MainActivity extends AppActivity {
 
     @Override
     protected void onStop() {
+        MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
         super.onStop();
         updateNetStatus();
         isActivityStop = true;
