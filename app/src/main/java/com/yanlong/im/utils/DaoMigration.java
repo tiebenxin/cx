@@ -124,6 +124,10 @@ public class DaoMigration implements RealmMigration {
                 updateV26(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 26) {
+                updateV27(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -440,14 +444,17 @@ public class DaoMigration implements RealmMigration {
         schema.get("MsgAllBean")
                 .addRealmObjectField("webMessage", schema.get("WebMessage"));
     }
+
     private void updateV23(RealmSchema schema) {
         schema.get("SendFileMessage")
                 .addField("isFromOther", boolean.class);
     }
+
     private void updateV24(RealmSchema schema) {
         schema.get("SendFileMessage")
                 .addField("realFileRename", String.class);
     }
+
     private void updateV25(RealmSchema schema) {
         schema.create("SessionDetail")
                 .addField("sid", String.class, FieldAttribute.PRIMARY_KEY)
@@ -457,10 +464,18 @@ public class DaoMigration implements RealmMigration {
                 .addField("senderName", String.class)
                 .addRealmObjectField("message", schema.get("MsgAllBean"));
     }
+
     private void updateV26(RealmSchema schema) {
         schema.get("SessionDetail")
                 .addField("messageContent", String.class);
     }
+
+    private void updateV27(RealmSchema schema) {
+        schema.get("Group")
+                .addField("stat", int.class);
+    }
+
+
     @Override
     public boolean equals(@Nullable Object obj) {
         return obj instanceof DaoMigration;

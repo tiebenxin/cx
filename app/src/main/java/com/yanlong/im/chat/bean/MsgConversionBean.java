@@ -465,8 +465,20 @@ public class MsgConversionBean {
                         }
                         msgAllBean.setMsgNotice(screenNotice);
                         break;
+                    case FORBBIDEN:
+                        boolean forbid = bean.getChangeGroupMeta().getForbbiden();
+                        msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
+                        MsgNotice forbidNotice = new MsgNotice();
+                        forbidNotice.setMsgid(msgAllBean.getMsg_id());
+                        forbidNotice.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN);
+                        if (forbid) {
+                            forbidNotice.setNote("该群因涉及违规，已被封停");
+                        } else {
+                            forbidNotice.setNote("该群已被解封");
+                        }
+                        msgAllBean.setMsgNotice(forbidNotice);
+                        break;
                 }
-
                 break;
             case AT:
                 if (bean.getAt().getAtType() == MsgBean.AtMessage.AtType.UNRECOGNIZED) {
@@ -639,7 +651,7 @@ public class MsgConversionBean {
                 } else {
                     name = new MsgDao().getUsername4Show(bean.getGid(), bean.getFromUid());
                     stringBuffer.append("你已被\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name + "</font>\"取消管理员身份");
-                    changeViceAdminsNotice.setMsgType(ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCLE);
+                    changeViceAdminsNotice.setMsgType(ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL);
                 }
                 EventBus.getDefault().post(event);
                 changeViceAdminsNotice.setNote(stringBuffer + "<div id='" + bean.getGid() + "'></div>");

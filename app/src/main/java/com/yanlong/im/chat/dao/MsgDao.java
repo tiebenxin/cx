@@ -3224,7 +3224,6 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
-
     }
 
     //批量删除消息
@@ -3415,5 +3414,26 @@ public class MsgDao {
             DaoUtil.reportException(e);
         }
     }
+
+    //更新群状态
+    public Group updateGroupStatus(String gid, int value) {
+        Group result = null;
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
+                group.setStat(value);
+            }
+            result = realm.copyFromRealm(group);
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return result;
+    }
+
 
 }

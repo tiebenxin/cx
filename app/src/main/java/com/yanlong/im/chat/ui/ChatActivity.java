@@ -199,6 +199,7 @@ import net.cb.cb.library.bean.EventUpFileLoadEvent;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
+import net.cb.cb.library.bean.GroupStatusChangeEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.dialog.DialogEnvelopePast;
@@ -279,7 +280,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private List<String> uidList;
 
 
-    //返回需要刷新的 8.19 取消自动刷新
+    //返回需要刷新的 8.19 取消自动刷新\
     // public static final int REQ_REFRESH = 7779;
     private HeadView2 headView;
     private ActionbarView actionbar;
@@ -330,10 +331,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private int textPosition;
     private int contactIntimately;
     private String master = "";
-    private TextView tv_ban;
+    private TextView tvBan;
     private String draft;
     private int isFirst;
-    private UserInfo mFinfo;// 聊天用户信息，刷新时更新
+    private UserInfo userInfo;// 聊天用户信息，刷新时更新
     private SingleMeberInfoBean singleMeberInfoBean;// 单个群成员信息，主要查看是否被单人禁言
 
     // 气泡视图
@@ -644,8 +645,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 return groupInfo.getScreenshotNotification() == 1;
             }
         } else {
-            if (mFinfo != null) {
-                return mFinfo.getScreenshotNotification() == 1;
+            if (userInfo != null) {
+                return userInfo.getScreenshotNotification() == 1;
             }
         }
         return false;
@@ -664,7 +665,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         viewChatBottomc = findViewById(R.id.view_chat_bottom_c);
         btnSend = findViewById(R.id.btn_send);
         txtVoice = findViewById(R.id.txt_voice);
-        tv_ban = findViewById(R.id.tv_ban);
+        tvBan = findViewById(R.id.tv_ban);
         viewFaceView = findViewById(R.id.chat_view_faceview);
         viewNewMessage = new ControllerNewMessage(findViewById(R.id.viewNewMessage));
         setChatImageBackground();
@@ -833,7 +834,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void doAckEvent(AckEvent event) {
         Object data = event.getData();
-       if (data instanceof MsgAllBean) {
+        if (data instanceof MsgAllBean) {
             LogUtil.getLog().i(TAG, "收到回执--MsgAllBean");
             MsgAllBean msgAllBean = (MsgAllBean) data;
             fixSendTime(msgAllBean.getMsg_id());
@@ -1659,14 +1660,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 return;
             }
         }
-        if (mFinfo == null) {
-            mFinfo = userDao.findUserInfo(toUId);
+        if (userInfo == null) {
+            userInfo = userDao.findUserInfo(toUId);
         }
         String name = "";
         String avatar = "";
-        if (mFinfo != null) {
-            name = mFinfo.getName();
-            avatar = mFinfo.getHead()==null?"":mFinfo.getHead();
+        if (userInfo != null) {
+            name = userInfo.getName();
+            avatar = userInfo.getHead() == null ? "" : userInfo.getHead();
         }
         Intent intent = TransferActivity.newIntent(ChatActivity.this, toUId, name, avatar);
         startActivity(intent);
@@ -2042,7 +2043,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             event.isClose = true;
                             EventBus.getDefault().post(event);
                             Bundle bundle = new Bundle();
-                            bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead()==null?"":userInfo.getHead());
+                            bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead() == null ? "" : userInfo.getHead());
                             if (!TextUtils.isEmpty(userInfo.getMkName())) {
                                 bundle.putString(Preferences.USER_NAME, userInfo.getMkName());
                             } else {
@@ -2341,9 +2342,32 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventRefresh(EventUserOnlineChange event) {
-        if (toUId != null && !isGroup() && event.getUid() == toUId.intValue()) {
-            updateUserOnlineStatus();
+    public void eventOnlineChange(EventUserOnlineChange event) {
+        if (toUId != null && !isGroup()) {
+            if (event.getObject() instanceof UserInfo) {
+                UserInfo info = (UserInfo) event.getObject();
+                if (info != null && info.getUid().intValue() == toUId.intValue()) {
+                    userInfo = info;
+                    updateUserOnlineStatus(info);
+                }
+            }
+        }
+//        if (toUId != null && !isGroup() && event.getUid() == toUId.intValue()) {
+//            updateUserOnlineStatus();
+//        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventGroupStatusChange(GroupStatusChangeEvent event) {
+        if (isGroup()) {
+            if (event.getData() instanceof Group) {
+                Group group = (Group) event.getData();
+                if (group != null && group.getGid().equals(toGid)) {
+                    groupInfo = group;
+                    boolean forbid = groupInfo.getStat() == ChatEnum.EGroupStatus.BANED;
+                    setBanView(false, forbid);
+                }
+            }
         }
     }
 
@@ -2431,8 +2455,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         } else {
             if (toUId != null && toUId.longValue() == event.getUid()) {
-                if (mFinfo != null) {
-                    mFinfo.setScreenshotNotification(event.getFlag());
+                if (userInfo != null) {
+                    userInfo.setScreenshotNotification(event.getFlag());
                 }
                 if (event.getFlag() == 1) {
                     isScreenShotListen = true;
@@ -2883,7 +2907,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
             String json = data.getStringExtra(SelectUserActivity.RET_JSON);
             UserInfo userInfo = gson.fromJson(json, UserInfo.class);
-            BusinessCardMessage cardMessage = SocketData.createCardMessage(SocketData.getUUID(), userInfo.getHead()==null?"":userInfo.getHead(), userInfo.getName(), userInfo.getImid(), userInfo.getUid());
+            BusinessCardMessage cardMessage = SocketData.createCardMessage(SocketData.getUUID(), userInfo.getHead() == null ? "" : userInfo.getHead(), userInfo.getName(), userInfo.getImid(), userInfo.getUid());
             sendMessage(cardMessage, ChatEnum.EMessageType.BUSINESS_CARD);
         }
     }
@@ -3055,7 +3079,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * @param msgAllbean
      */
     private void replaceListDataAndNotify(MsgAllBean msgAllbean) {
-        if(msgAllbean.getMsg_type()==ChatEnum.EMessageType.MSG_CANCEL){
+        if (msgAllbean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {
             //收到撤回消息回执，更新主页UI
             MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
         }
@@ -3170,8 +3194,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         String name = "";
         if (isGroup()) {
             name = msgDao.getGroupMemberName2(toGid, uid);
-        } else if (mFinfo != null) {
-            name = mFinfo.getName4Show();
+        } else if (userInfo != null) {
+            name = userInfo.getName4Show();
         }
         startActivity(new Intent(getContext(), UserInfoActivity.class)
                 .putExtra(UserInfoActivity.ID, uid)
@@ -3413,8 +3437,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         private void updateSurvivalTimeImage(String msgId, int id, boolean isMe) {
             if (mMsgIdPositions.containsKey(msgId)) {
                 int position = mMsgIdPositions.get(msgId);
-                View view=mtListView.getListView().getLayoutManager().findViewByPosition(position);
-                if(view instanceof ChatItemView) {
+                View view = mtListView.getListView().getLayoutManager().findViewByPosition(position);
+                if (view instanceof ChatItemView) {
                     ChatItemView chatItemView = ((ChatItemView) mtListView.getListView().getLayoutManager().findViewByPosition(position));
                     if (chatItemView != null) {
                         if (isMe)
@@ -4079,7 +4103,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         showDraftContent(editChat.getText().toString() + restContent);
                         editChat.setSelection(editChat.getText().length());
                         //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
-                        if(!mViewModel.isOpenValue())
+                        if (!mViewModel.isOpenValue())
                             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                         mViewModel.isInputText.setValue(true);
                     }
@@ -4566,7 +4590,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 bean.setRead(true);
             }
         }
-        if(voiceMessage!=null && !TextUtils.isEmpty(voiceMessage.getMsgId())){
+        if (voiceMessage != null && !TextUtils.isEmpty(voiceMessage.getMsgId())) {
             msgDao.updatePlayStatus(voiceMessage.getMsgId(), status);
             voiceMessage.setPlayStatus(status);
         }
@@ -4972,26 +4996,27 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         isExit = true;
                     }
                 }
-                setBanView(!isExit);
+                boolean forbid = groupInfo.getStat() == ChatEnum.EGroupStatus.BANED;
+                setBanView(!isExit, forbid);
             }
             //6.15 设置右上角点击
             taskGroupConf();
 
         } else {
-            mFinfo = userDao.findUserInfo(toUId);
-            if (mFinfo == null && toUId == 100121L) {
-                mFinfo = new UserInfo();
-                mFinfo.setUid(100121L);
-                mFinfo.setName("常信客服");
+            userInfo = userDao.findUserInfo(toUId);
+            if (userInfo == null && toUId == 100121L) {
+                userInfo = new UserInfo();
+                userInfo.setUid(100121L);
+                userInfo.setName("常信客服");
             }
-            if (mFinfo != null) {
-                title = mFinfo.getName4Show();
-                if (mFinfo.getLastonline() > 0) {
+            if (userInfo != null) {
+                title = userInfo.getName4Show();
+                if (userInfo.getLastonline() > 0) {
                     // 客服不显示时间状态
                     if (onlineState && !UserUtil.isSystemUser(toUId)) {
-                        actionbar.setTitleMore(TimeToString.getTimeOnline(mFinfo.getLastonline(), mFinfo.getActiveType(), true), true);
+                        actionbar.setTitleMore(TimeToString.getTimeOnline(userInfo.getLastonline(), userInfo.getActiveType(), true), true);
                     } else {
-                        actionbar.setTitleMore(TimeToString.getTimeOnline(mFinfo.getLastonline(), mFinfo.getActiveType(), true), false);
+                        actionbar.setTitleMore(TimeToString.getTimeOnline(userInfo.getLastonline(), userInfo.getActiveType(), true), false);
                     }
                 }
             }
@@ -5036,6 +5061,26 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), true);
                 } else {
                     actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), false);
+                }
+            }
+            actionbar.setChatTitle(title);
+        }
+
+    }
+
+    /***
+     * 获取会话信息
+     */
+    private void updateUserOnlineStatus(UserInfo userInfo) {
+        String title = "";
+        if (!isGroup()) {
+            title = userInfo.getName4Show();
+            if (userInfo.getLastonline() > 0) {
+                // 客服不显示时间状态
+                if (onlineState && !UserUtil.isSystemUser(toUId)) {
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(userInfo.getLastonline(), userInfo.getActiveType(), true), true);
+                } else {
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(userInfo.getLastonline(), userInfo.getActiveType(), true), false);
                 }
             }
             actionbar.setChatTitle(title);
@@ -5241,7 +5286,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 nkname = userInfo.getMkName();
             }
 
-            if(userInfo.getHead()!=null){
+            if (userInfo.getHead() != null) {
                 head = userInfo.getHead();
             }
 
@@ -5361,7 +5406,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             } else {
                                 isExited = false;
                             }
-                            setBanView(isExited);
+                            boolean forbid = false;
+                            if (groupInfo != null) {
+                                forbid = groupInfo.getStat() == ChatEnum.EGroupStatus.BANED;
+                            }
+                            setBanView(isExited, forbid);
                         }
                     }
                 });
@@ -5369,12 +5418,17 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     /*
-     * 是否已经退出
+     * 是否已经退出,是否被封
      * */
-    private void setBanView(boolean isExited) {
-        actionbar.getBtnRight().setVisibility(isExited ? View.GONE : View.VISIBLE);
-        tv_ban.setVisibility(isExited ? VISIBLE : GONE);
-        viewChatBottomc.setVisibility(isExited ? GONE : VISIBLE);
+    private void setBanView(boolean isExited, boolean isForbid) {
+        actionbar.getBtnRight().setVisibility(isExited || isForbid ? View.GONE : View.VISIBLE);
+        tvBan.setVisibility(isExited || isForbid ? VISIBLE : GONE);
+        if (isExited) {
+            tvBan.setText("你已经被移除群聊，无法发送消息");
+        } else if (isForbid) {
+            tvBan.setText("该群因涉及违规，已被封停");
+        }
+        viewChatBottomc.setVisibility(isExited || isForbid ? GONE : VISIBLE);
         llMore.setVisibility(GONE);
     }
 
@@ -5383,11 +5437,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * */
     private void showViewMore(boolean b) {
         if (b) {
-            tv_ban.setVisibility(GONE);
+            tvBan.setVisibility(GONE);
             viewChatBottomc.setVisibility(GONE);
             llMore.setVisibility(VISIBLE);
         } else {
-            tv_ban.setVisibility(GONE);
+            tvBan.setVisibility(GONE);
             viewChatBottomc.setVisibility(VISIBLE);
             llMore.setVisibility(GONE);
         }
@@ -5418,10 +5472,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             totalSize = group.getUsers().size();
                         }
                         JrmfRpClient.sendGroupEnvelopeForResult(ChatActivity.this, "" + toGid, "" + UserAction.getMyId(), token,
-                                totalSize, info.getName(), info.getHead()==null?"":info.getHead(), REQ_RP);
+                                totalSize, info.getName(), info.getHead() == null ? "" : info.getHead(), REQ_RP);
                     } else {
                         JrmfRpClient.sendSingleEnvelopeForResult(ChatActivity.this, "" + toUId, "" + info.getUid(), token,
-                                info.getName(), info.getHead()==null?"":info.getHead(), REQ_RP);
+                                info.getName(), info.getHead() == null ? "" : info.getHead(), REQ_RP);
                     }
                     LogUtil.writeEnvelopeLog("准备发红包");
 
@@ -5465,11 +5519,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (isGroup()) {
                         UserInfo minfo = UserAction.getMyInfo();
                         JrmfRpClient.openGroupRp(ChatActivity.this, "" + minfo.getUid(), token,
-                                minfo.getName(), minfo.getHead()==null?"":minfo.getHead(), rbid, callBack);
+                                minfo.getName(), minfo.getHead() == null ? "" : minfo.getHead(), rbid, callBack);
                     } else {
                         UserInfo minfo = UserAction.getMyInfo();
                         JrmfRpClient.openSingleRp(ChatActivity.this, "" + minfo.getUid(), token,
-                                minfo.getName(), minfo.getHead()==null?"":minfo.getHead(), rbid, callBack);
+                                minfo.getName(), minfo.getHead() == null ? "" : minfo.getHead(), rbid, callBack);
                     }
 
                 }
@@ -5533,7 +5587,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     SignatureBean sign = response.body().getData();
                     String token = sign.getSign();
                     UserInfo minfo = UserAction.getMyInfo();
-                    JrmfRpClient.openRpDetail(ChatActivity.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead()==null?"":minfo.getHead());
+                    JrmfRpClient.openRpDetail(ChatActivity.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead() == null ? "" : minfo.getHead());
                 }
             }
         });
