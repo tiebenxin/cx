@@ -56,11 +56,15 @@ public class MainViewModel extends ViewModel {
                         allSids.add(session.getSid()) ;
                     }
                     isAllSidsChange.setValue(true);
+                }else{
+                    isSessionDetailsLoad.setValue(true);
                 }
             }else{
                 if(sids.size()>0){
                     allSids.addAll(sids);
                     isAllSidsChange.setValue(true);
+                }else{
+                    isSessionDetailsLoad.setValue(true);
                 }
             }
         }
