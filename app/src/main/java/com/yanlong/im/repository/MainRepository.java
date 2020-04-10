@@ -35,8 +35,8 @@ public class MainRepository {
      *
      * @return
      */
-    public RealmResults<SessionDetail> getSessionMore() {
-        return localDataSource.getSessionMore();
+    public RealmResults<SessionDetail> getSessionMore(String[] sids) {
+        return localDataSource.getSessionMore(sids);
     }
 
     public String getSessionJson(RealmResults<Session> sessions) {
@@ -46,8 +46,8 @@ public class MainRepository {
     /**
      * 更新详情
      */
-    public void updateSessionDetail() {
-        localDataSource.updateSessionDetail();
+    public void updateSessionDetail(String[] sids) {
+        localDataSource.updateSessionDetail(sids);
     }
 
     /**

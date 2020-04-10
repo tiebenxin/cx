@@ -42,20 +42,20 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean<Group>> groupInfo(@Field("gid") String gid);
 
-    @POST("/group/update-member-switch")
+    @POST("/group/change-member-switch")
     @FormUrlEncoded
     Call<ReturnBean> groupSwitch(@Field("gid") String gid, @Field("toTop") Integer isTop, @Field("notNotify") Integer notNotify, @Field("saved") Integer saved);
 
-    @POST("/group/update-group-switch")
+    @POST("/group/change-group-switch")
     @FormUrlEncoded
     Call<ReturnBean> groupSwitch(@Field("gid") String gid, @Field("needVerification") Integer needVerification);
 
 
-    @POST("/group/update-group-switch")
+    @POST("/group/change-group-switch")
     @FormUrlEncoded
     Call<ReturnBean> groupSwitchIntimately(@Field("gid") String gid, @Field("contactIntimately") Integer contactIntimately);
 
-    @POST("/group/update-group-switch")
+    @POST("/group/change-group-switch")
     @FormUrlEncoded
     Call<ReturnBean> setAllForbiddenWords(@Field("gid") String gid, @Field("wordsNotAllowed") Integer wordsNotAllowed);
 
@@ -63,7 +63,7 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> setSingleScreenShotSwitch(@Field("friend") String friend, @Field("screenshot") Integer screenshot);
 
-    @POST("/group/update-group-switch")
+    @POST("/group/change-group-switch")
     @FormUrlEncoded
     Call<ReturnBean> setScreenShotSwitch(@Field("gid") String gid, @Field("screenshotNotification") Integer screeshotNotification);
 
@@ -84,15 +84,15 @@ public interface MsgServer {
                                               @Field("nickname") String nickname, @Field("avatar") String avatar,
                                               @Field("inviter") String inviter, @Field("inviterName") String inviterName);
 
-    @POST("/group/update-group-name")
+    @POST("/group/change-group-name")
     @FormUrlEncoded
     Call<ReturnBean> changeGroupName(@Field("gid") String gid, @Field("name") String name);
 
-    @POST("/group/update-member-name")
+    @POST("/group/change-member-name")
     @FormUrlEncoded
     Call<ReturnBean> changeMemberName(@Field("gid") String gid, @Field("name") String name);
 
-    @POST("/group/update-group-avatar")
+    @POST("/group/change-group-avatar")
     @FormUrlEncoded
     Call<ReturnBean> groupHeadSet(@Field("gid") String gid, @Field("avatar") String avatar);
 
@@ -115,7 +115,7 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean<List<RobotInfoBean>>> robotSearch(@Field("keyword") String keyword);
 
-    @POST("/group/update-robot")
+    @POST("/group/change-robot")
     @FormUrlEncoded
     Call<ReturnBean> robotChange(@Field("gid") String gid, @Field("robotid") String robotid);
 
@@ -123,7 +123,7 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean<RobotInfoBean>> robotInfo(@Field("robotid") String robotid, @Field("gid") String gid);
 
-    @POST("/group/update-master")
+    @POST("/group/change-master")
     @FormUrlEncoded
     Call<ReturnBean> changeMaster(@Field("gid") String gid, @Field("uid") String uid, @Field("membername") String membername);
 
@@ -131,7 +131,7 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> setSurvivalTime(@Field("friend") long friend, @Field("survivalTime") int survivalTime);
 
-    @POST("/group/update-survival-time")
+    @POST("/group/change-survival-time")
     @FormUrlEncoded
     Call<ReturnBean> changeSurvivalTime(@Field("gid") String gid, @Field("survivalTime") int survivalTime);
 
@@ -139,7 +139,7 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean<List<Group>>> getGroupsByIds(@Field("@gids") String json);
 
-    @POST("/group/update-admins")
+    @POST("/group/change-admins")
     @FormUrlEncoded
     Call<ReturnBean> groupChangeAdmins(@Field("@admins") String adminsJson,@Field("gid") String gid,@Field("opt") int opt);
 

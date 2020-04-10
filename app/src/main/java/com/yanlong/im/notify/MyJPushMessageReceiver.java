@@ -51,8 +51,8 @@ public class MyJPushMessageReceiver extends JPushMessageReceiver {
     @Override
     public void onNotifyMessageArrived(Context context, NotificationMessage notificationMessage) {
         super.onNotifyMessageArrived(context, notificationMessage);
-        LogUtil.getLog().i("JIGUANG--MyJPushMessageReceiver", "来消息了");
         String extras = notificationMessage.notificationExtras;
+        LogUtil.getLog().i("JIGUANG--MyJPushMessageReceiver", "来消息了--" + extras);
         // 如果是音视频通知，先停掉极光在打开，是为了解决小米手机进来通知铃声跟音视频铃声重复播放问题
         if (StringUtil.isNotNull(extras)) {
             Map<String, Double> map = new Gson().fromJson(extras, Map.class);

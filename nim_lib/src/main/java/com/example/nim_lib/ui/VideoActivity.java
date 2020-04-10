@@ -76,6 +76,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -824,7 +825,10 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     };
 
     private void sendEventBus(String operation, int operationType) {
-
+        //网络连接有问题，则不发送
+        if (!checkNetConnectStatus()) {
+            return;
+        }
         Log.i(TAG, "sendEventBus operation:" + operation + " operationType:" + operationType);
         EventFactory.CloseVoiceMinimizeEvent event = new EventFactory.CloseVoiceMinimizeEvent();
         event.avChatType = mAVChatType;
@@ -1911,6 +1915,24 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             mAlertYesNo.dismiss();
         }
         mAlertYesNo.show();
+    }
+
+    /*
+     * 发送消息前，需要检测网络连接状态，网络不可用，不能发送
+     * 每条消息发送前，需要检测，语音和小视频录制之前，仍需要检测
+     * */
+    public boolean checkNetConnectStatus() {
+        boolean isOk;
+        if (!NetUtil.isNetworkConnected()) {
+//            ToastUtil.show(this, "网络连接不可用，请稍后重试");
+            isOk = false;
+        } else {
+            isOk = new net.cb.cb.library.utils.SharedPreferencesUtil(net.cb.cb.library.utils.SharedPreferencesUtil.SPName.CONN_STATUS).get4Json(Boolean.class);
+            if (!isOk) {
+//                ToastUtil.show(this, "连接已断开，请稍后再试");
+            }
+        }
+        return isOk;
     }
 }
 

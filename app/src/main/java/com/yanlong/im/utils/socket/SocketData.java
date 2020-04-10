@@ -1838,4 +1838,16 @@ public class SocketData {
             return this;
         }
     }
+
+    public static MsgNotice createMsgNoticeOfBanWords(String msgId, int flag) {
+        MsgNotice note = new MsgNotice();
+        note.setMsgid(msgId);
+        note.setMsgType(ChatEnum.ENoticeType.GROUP_BAN_WORDS);
+        if (flag == 1) {
+            note.setNote("你开启了全员禁言");
+        } else {
+            note.setNote("你解除了全员禁言");
+        }
+        return note;
+    }
 }
