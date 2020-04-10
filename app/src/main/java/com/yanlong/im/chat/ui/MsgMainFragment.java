@@ -331,9 +331,12 @@ public class MsgMainFragment extends Fragment {
 
     }
 
+
     @Override
     public void onResume() {
         viewModel.isNeedCloseSwipe.setValue(true);
+        //再次关闭，有时候会出现再次加载的情况
+        if(viewModel.isSessionDetailsLoad.getValue())viewModel.isSessionDetailsLoad.setValue(true);
         super.onResume();
     }
 
