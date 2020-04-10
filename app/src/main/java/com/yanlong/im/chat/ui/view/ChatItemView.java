@@ -1473,7 +1473,7 @@ public class ChatItemView extends LinearLayout {
         switch (state) {
             case 0://正常
                 imgMeErr.clearAnimation();
-                imgMeErr.setVisibility(INVISIBLE);
+                imgMeErr.setVisibility(GONE);
                 break;
             case 1://失败
                 imgMeErr.clearAnimation();
