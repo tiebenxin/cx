@@ -30,8 +30,6 @@ public class MainViewModel extends ViewModel {
     public Map<String, Integer> sessionMoresPositions = new HashMap<>();
     //判断网络状态 true在线 false离线
     public MutableLiveData<Boolean> onlineState = new MutableLiveData<>();
-    //记录当前展开了删除按钮的位置,实际recyclerview中的position
-    public int currentSwipeDeletePosition = -1;
     //是否要主动关闭展开的删除按钮
     public MutableLiveData<Boolean> isNeedCloseSwipe = new MutableLiveData<>();
 

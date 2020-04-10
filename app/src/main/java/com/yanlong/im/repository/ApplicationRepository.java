@@ -45,7 +45,6 @@ public class ApplicationRepository {
         //是PAGE_COUNT的倍数才加载
         if (currentCount % PAGE_COUNT==0) {
             currentCount = currentCount + PAGE_COUNT;
-            Log.e("raleigh_test","currentCount="+currentCount);
             sessions = localDataSource.getSessions(currentCount);
             /**集合通知OrderedRealmCollectionChangeListener
              * 该对象保存有关受删除，插入和更改影响的索引的信息。

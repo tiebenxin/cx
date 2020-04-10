@@ -429,8 +429,6 @@ public class MsgMainFragment extends Fragment {
 //                    if (viewModel.currentSwipeDeletePosition > 0 && viewModel.currentSwipeDeletePosition < mAdapter.getItemCount()) {
 //                        mtListView.getListView().getAdapter().notifyItemChanged(viewModel.currentSwipeDeletePosition);
                     mtListView.getListView().getAdapter().notifyDataSetChanged();//TODO
-                    //关闭后恢复值
-                    viewModel.currentSwipeDeletePosition = -1;
                     viewModel.isNeedCloseSwipe.setValue(false);
                 }
             }
