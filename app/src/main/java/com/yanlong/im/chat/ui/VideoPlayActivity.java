@@ -367,20 +367,21 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         super.onPause();
         if (null != mMediaPlayer) {
             mMediaPlayer.pause();
+            activity_video_big_con.setVisibility(View.VISIBLE);
             activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
         }
-        if (null != mTimer) {
-            mTimer.cancel();
-            mTimer = null;
-        }
+//        if (null != mTimer) {
+//            mTimer.cancel();
+//            mTimer = null;
+//        }
     }
 
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        activity_video_big_con.setVisibility(View.INVISIBLE);
-        activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
-    }
+//    @Override
+//    protected void onRestart() {
+//        super.onRestart();
+//        activity_video_big_con.setVisibility(View.VISIBLE);
+//        activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
+//    }
 
     @Override
     protected void onStop() {

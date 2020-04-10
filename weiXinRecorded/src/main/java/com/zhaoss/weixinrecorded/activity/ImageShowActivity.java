@@ -59,8 +59,8 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
     private int mWindowWidth;
     private int mWindowHeight;
     private int mDp100;
-    private int[] mDrawableBg = new int[]{R.drawable.color1, R.drawable.color2, R.drawable.color3, R.drawable.color4, R.drawable.color5};
-    private int[] mColors = new int[]{R.color.color1, R.color.color2, R.color.color3, R.color.color4, R.color.color5};
+    private int[] mDrawableBg = new int[]{R.drawable.color2, R.drawable.color1, R.drawable.color3, R.drawable.color4, R.drawable.color5};
+    private int[] mColors = new int[]{R.color.color2, R.color.color1, R.color.color3, R.color.color4, R.color.color5};
     private int mCurrentColorPosition = 0;
     private InputMethodManager mManager;
 
