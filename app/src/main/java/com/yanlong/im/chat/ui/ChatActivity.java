@@ -3758,10 +3758,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         MsgNotice notice = msgbean.getMsgNotice();
                         if (notice.getMsgType() == MsgNotice.MSG_TYPE_DEFAULT
                                 || notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
-                                || notice.getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR) {
+                                || notice.getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR
+                                || notice.getMsgType() == ChatEnum.ENoticeType.GROUP_BAN_WORDS) {
                             holder.viewChatItem.setData0(notice.getNote());
                         } else {
-
                             if (notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE
                                     || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF
                                     || notice.getMsgType() == ChatEnum.ENoticeType.SNAPSHOT_SCREEN) {

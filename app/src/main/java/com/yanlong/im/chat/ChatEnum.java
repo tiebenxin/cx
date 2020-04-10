@@ -271,7 +271,7 @@ public class ChatEnum {
             ENoticeType.RECEIVE_RED_ENVELOPE, ENoticeType.CANCEL, ENoticeType.BLACK_ERROR, ENoticeType.NO_FRI_ERROR, ENoticeType.LOCK, ENoticeType.CHANGE_VICE_ADMINS_ADD,
             ENoticeType.CHANGE_VICE_ADMINS_CANCEL, ENoticeType.FORBIDDEN_WORDS_OPEN, ENoticeType.FORBIDDEN_WORDS_CLOSE, ENoticeType.RED_ENVELOPE_RECEIVED_SELF,
             ENoticeType.FORBIDDEN_WORDS_SINGE, ENoticeType.OPEN_UP_RED_ENVELOPER, ENoticeType.SYS_ENVELOPE_RECEIVED_SELF, ENoticeType.RECEIVE_SYS_ENVELOPE, ENoticeType.SYS_ENVELOPE_RECEIVED,
-            ENoticeType.GROUP_FORBID})
+            ENoticeType.GROUP_FORBID,ENoticeType.GROUP_BAN_WORDS})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ENoticeType {
         int ENTER_BY_QRCODE = 1; //扫二维码进群
@@ -288,8 +288,8 @@ public class ChatEnum {
         int LOCK = 12;//端对端加密
         int CHANGE_VICE_ADMINS_ADD = 13;// 群管理变更通知 新增
         int CHANGE_VICE_ADMINS_CANCEL = 14;// 群管理变更通知 取消
-        int FORBIDDEN_WORDS_OPEN = 15;// 群禁言 开
-        int FORBIDDEN_WORDS_CLOSE = 16;// 群禁言 关
+        int FORBIDDEN_WORDS_OPEN = 15;// 接收到群禁言 开
+        int FORBIDDEN_WORDS_CLOSE = 16;// 接收到群禁言 关
         int RED_ENVELOPE_RECEIVED_SELF = 17;//自己领取自己的零钱红包
         int FORBIDDEN_WORDS_SINGE = 18;// 单人禁言
         int OPEN_UP_RED_ENVELOPER = 19;// 领取群红包
@@ -298,6 +298,7 @@ public class ChatEnum {
         int SYS_ENVELOPE_RECEIVED = 22;//xx领取你的零钱红包
         int SNAPSHOT_SCREEN = 23;//截屏通知
         int GROUP_FORBID = 24;//封群通知
+        int GROUP_BAN_WORDS = 25;//自己开启或者关闭群禁言
     }
 
     /*
