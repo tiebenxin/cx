@@ -128,7 +128,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -274,41 +273,47 @@ public class MainActivity extends AppActivity {
     }
     private ApplicationRepository.SessionChangeListener sessionChangeListener  = new ApplicationRepository.SessionChangeListener() {
         @Override
-        public void init(RealmResults<Session> sessions) {
-
+        public void init(RealmResults<Session> sessions, List<String> sids) {
+            updateUnReadCount();
         }
 
         @Override
-        public void delete(ArrayList<Integer> position, ArrayList<String> sids) {
-
+        public void delete(List<Integer> positions) {
+            updateUnReadCount();
         }
 
         @Override
-        public void insert(ArrayList<Integer> position, ArrayList<String> sids) {
-
+        public void insert(List<Integer> positions, List<String> sids) {
+            updateUnReadCount();
         }
 
         @Override
-        public void update(ArrayList<Integer> position, ArrayList<String> sids) {
-
+        public void update(List<Integer> positions, List<String> sids) {
+            updateUnReadCount();
         }
 
-        @Override
-        public void change(RealmResults<Session> sessions) {
-            LogUtil.getLog().i("未读数", "onChange");
-            RealmResults<Session> sessionList = sessions.where().greaterThan("unread_count", 0).limit(100).findAll();
-            if (sessionList != null) {
-                Number unreadCount = sessionList.where().sum("unread_count");
-                if (unreadCount != null) {
-                    updateMsgUnread(unreadCount.intValue());
-                } else {
-                    updateMsgUnread(0);
-                }
+
+    };
+
+    /**
+     * 更新底部未读数
+     *
+     */
+    private void updateUnReadCount(){
+        LogUtil.getLog().i("未读数", "onChange");
+        RealmResults<Session> sessionList = MyAppLication.INSTANCE().getSessions().where().greaterThan("unread_count", 0)
+                .limit(100).findAll();
+        if (sessionList != null) {
+            Number unreadCount = sessionList.where().sum("unread_count");
+            if (unreadCount != null) {
+                updateMsgUnread(unreadCount.intValue());
             } else {
                 updateMsgUnread(0);
             }
+        } else {
+            updateMsgUnread(0);
         }
-    };
+    }
 
 
     @Override

@@ -113,6 +113,7 @@ public class BurnManager {
                     if (needRefreshChat) {
                         MessageManager.getInstance().notifyRefreshChat(tempList, CoreEnum.ERefreshType.DELETE);
                     }
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
                     int gLen = gids.size();
                     int uLen = uids.size();
 //                    if (gLen + uLen == 1) {
@@ -134,7 +135,7 @@ public class BurnManager {
                 tempList.clear();
             }
         }
-        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
+
     }
 
     private void addTemp(List<MsgAllBean> tempList, MsgAllBean bean) {

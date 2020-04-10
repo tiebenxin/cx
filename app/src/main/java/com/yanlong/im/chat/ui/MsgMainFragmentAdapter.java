@@ -10,6 +10,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -110,6 +111,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             String name = "";
             List<String> avatarList = null;
             String info = "";
+            Log.e("raleigh_test","sessionMoresPositions="+viewModel.sessionMoresPositions.size());
             if (viewModel.sessionMoresPositions.containsKey(bean.getSid())) {
                 Integer index = viewModel.sessionMoresPositions.get(bean.getSid());
                 if (index != null && index >= 0) {
