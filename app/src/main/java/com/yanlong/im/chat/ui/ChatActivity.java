@@ -3758,10 +3758,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         MsgNotice notice = msgbean.getMsgNotice();
                         if (notice.getMsgType() == MsgNotice.MSG_TYPE_DEFAULT
                                 || notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
-                                || notice.getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR) {
+                                || notice.getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR
+                                || notice.getMsgType() == ChatEnum.ENoticeType.GROUP_BAN_WORDS) {
                             holder.viewChatItem.setData0(notice.getNote());
                         } else {
-
                             if (notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE
                                     || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF
                                     || notice.getMsgType() == ChatEnum.ENoticeType.SNAPSHOT_SCREEN) {
@@ -4949,8 +4949,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         scrollListView(isScrollBottom);
     }
 
+    private void notifyDataChange() {
+        mtListView.notifyDataSetChange();
+        mtListView.getSwipeLayout().setRefreshing(false);
+    }
+
     private void notifyData() {
-//        mtListView.notifyDataSetChange();
         if (msgListData != null) {
             //调用该方法，有面板或软键盘弹出时，会使列表跳转到第一项
             mtListView.getListView().getAdapter().notifyItemRangeChanged(0, msgListData.size());
@@ -5214,9 +5218,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     public void taskFinadHistoryMessage(EventFindHistory history) {
         isLoadHistory = true;
         msgListData = msgAction.getMsg4UserHistory(toGid, toUId, history.getStime());
-//        ToastUtil.show(getContext(), "历史" + msgListData.size());
         taskMkName(msgListData);
-        notifyData();
+        notifyDataChange();
         mtListView.getListView().smoothScrollToPosition(0);
 
     }
