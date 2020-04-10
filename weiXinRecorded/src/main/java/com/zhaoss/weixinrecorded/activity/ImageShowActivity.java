@@ -27,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
+import com.bumptech.glide.Glide;
 import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.databinding.ActivityImgShowBinding;
 import com.zhaoss.weixinrecorded.util.DimenUtils;
@@ -59,8 +60,8 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
     private int mWindowWidth;
     private int mWindowHeight;
     private int mDp100;
-    private int[] mDrawableBg = new int[]{R.drawable.color1, R.drawable.color2, R.drawable.color3, R.drawable.color4, R.drawable.color5};
-    private int[] mColors = new int[]{R.color.color1, R.color.color2, R.color.color3, R.color.color4, R.color.color5};
+    private int[] mDrawableBg = new int[]{R.drawable.color2, R.drawable.color1, R.drawable.color3, R.drawable.color4, R.drawable.color5};
+    private int[] mColors = new int[]{R.color.color2, R.color.color1, R.color.color3, R.color.color4, R.color.color5};
     private int mCurrentColorPosition = 0;
     private InputMethodManager mManager;
 
@@ -78,7 +79,8 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         index = getIntent().getExtras().getInt("index");
         mWindowWidth = Utils.getWindowWidth(mContext);
         mWindowHeight = Utils.getWindowHeight(mContext);
-        binding.imgShow.setImageURI(Uri.parse(mPath));
+        Glide.with(this).load(mPath).into(binding.imgShow);
+//        binding.imgShow.setImageURI(Uri.parse(mPath));
         mManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
         initColors();

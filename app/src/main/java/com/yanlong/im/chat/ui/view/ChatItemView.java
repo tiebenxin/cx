@@ -230,6 +230,8 @@ public class ChatItemView extends LinearLayout {
     private TextView tvMeAppName;
     private TextView tvOtAppName;
 
+    private ProgressBar pbOt4;
+
     public ChatItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
@@ -289,6 +291,7 @@ public class ChatItemView extends LinearLayout {
         viewMeUp = rootView.findViewById(R.id.view_me_up);
         txtMeUp = rootView.findViewById(R.id.txt_me_up);
         imgMe4 = rootView.findViewById(R.id.img_me_4);
+        pbOt4 = rootView.findViewById(R.id.pb_ot_4);
 
         viewOt5 = rootView.findViewById(R.id.view_ot_5);
         imgOt5 = rootView.findViewById(R.id.img_ot_5);
@@ -1204,11 +1207,13 @@ public class ChatItemView extends LinearLayout {
                                 Glide.with(getContext()).load(image.getThumbnailShow()).listener(new RequestListener() {
                                     @Override
                                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                                        pbOt4.setVisibility(GONE);
                                         return false;
                                     }
 
                                     @Override
                                     public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                                        pbOt4.setVisibility(GONE);
                                         return false;
                                     }
                                 }).apply(options).into(imgOt4);
@@ -1235,7 +1240,7 @@ public class ChatItemView extends LinearLayout {
 
                 @Override
                 public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
-
+                    pbOt4.setVisibility(GONE);
                     return false;
                 }
 
@@ -1244,7 +1249,7 @@ public class ChatItemView extends LinearLayout {
             RequestOptions rOptions = new RequestOptions();
             // 处理Bulgy#29303 java.lang.IllegalArgumentException You cannot start a load for a destroyed activity
             if (getContext() != null && !((Activity) getContext()).isFinishing()) {
-
+                pbOt4.setVisibility(VISIBLE);
                 RequestManager in = Glide.with(getContext());
 
                 RequestBuilder rb;

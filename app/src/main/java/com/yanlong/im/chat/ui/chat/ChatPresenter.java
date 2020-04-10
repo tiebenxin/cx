@@ -815,7 +815,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
     }
 
     private void checkMoreVoice(int start, MsgAllBean b) {
-//        LogUtil.getLog().i("AudioPlayManager", "checkMoreVoice--onCreate=" + onCreate);
+//        LogUtil.getLog().i("AudioPlayManager", "checkMoreVoice--initSession=" + initSession);
         int length = model.getTotalSize();
         int index = model.getListData().indexOf(b);
         if (index < 0) {
@@ -941,7 +941,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
             @Override
             public void onStart(MsgAllBean bean) {
                 updatePlayStatus(bean, position, ChatEnum.EPlayStatus.PLAYING);
-//                LogUtil.getLog().i("AudioPlayManager", "onStart--" + bean.getVoiceMessage().getUrl());
+//                LogUtil.getLog().i("AudioPlayManager", "initSession--" + bean.getVoiceMessage().getUrl());
             }
 
             @Override

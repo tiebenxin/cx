@@ -804,7 +804,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         if (lastPosition >= 0) {
             int targetHeight = ScreenUtils.getScreenHeight(this) / 2;//屏幕一般高度
             int size = model.getListData().size();
-//            int onCreate = size - 1;
+//            int initSession = size - 1;
             int height = 0;
             for (int i = lastPosition; i < size - 1; i++) {
 //                View view = mtListView.getLayoutManager().findViewByPosition(i);//获取不到不可见item
