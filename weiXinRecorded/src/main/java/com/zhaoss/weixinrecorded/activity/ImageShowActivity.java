@@ -27,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
+import com.bumptech.glide.Glide;
 import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.databinding.ActivityImgShowBinding;
 import com.zhaoss.weixinrecorded.util.DimenUtils;
@@ -78,7 +79,8 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         index = getIntent().getExtras().getInt("index");
         mWindowWidth = Utils.getWindowWidth(mContext);
         mWindowHeight = Utils.getWindowHeight(mContext);
-        binding.imgShow.setImageURI(Uri.parse(mPath));
+        Glide.with(this).load(mPath).into(binding.imgShow);
+//        binding.imgShow.setImageURI(Uri.parse(mPath));
         mManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
         initColors();
