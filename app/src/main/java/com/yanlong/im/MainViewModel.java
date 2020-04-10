@@ -46,7 +46,6 @@ public class MainViewModel extends ViewModel {
     }
 
     public  void initSession(List<String> sids) {
-        isSessionDetailsLoad.setValue(false);
         repository.checkRealmStatus();
         //指向内存堆中同一个对象,session数据变化时，Application中会自动更新session详情
         if (MyAppLication.INSTANCE().iSSessionsLoad()) {
