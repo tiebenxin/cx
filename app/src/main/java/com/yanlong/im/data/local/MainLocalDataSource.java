@@ -15,6 +15,7 @@ import net.cb.cb.library.utils.StringUtil;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 /**
  * @createAuthor Raleigh.Luo
@@ -30,8 +31,8 @@ public class MainLocalDataSource {
         updateSessionDetail = new UpdateSessionDetail(realm);
     }
 
-    public void updateSessionDetail() {
-        updateSessionDetail.update();
+    public void updateSessionDetail(String[] sids) {
+        updateSessionDetail.update(sids);
     }
 
     public String getSessionJson(RealmResults<Session> sessions) {
@@ -48,9 +49,8 @@ public class MainLocalDataSource {
         return DaoUtil.findOne(Group.class, "gid", gid);
     }
 
-
-    public RealmResults<SessionDetail> getSessionMore() {
-        return realm.where(SessionDetail.class).findAllAsync();
+    public RealmResults<SessionDetail> getSessionMore(String[] sids) {
+        return realm.where(SessionDetail.class).in("sid",sids).findAllAsync();
     }
 
 

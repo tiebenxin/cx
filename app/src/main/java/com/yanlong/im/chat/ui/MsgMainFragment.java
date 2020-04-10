@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,9 +51,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.ArrayList;
+import java.util.List;
 
-import io.realm.RealmChangeListener;
+import io.realm.OrderedCollectionChangeSet;
+import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.RealmResults;
 
 import static android.app.Activity.RESULT_OK;
@@ -130,10 +132,8 @@ public class MsgMainFragment extends Fragment {
     private SocketEvent socketEvent;
 
     private void initEvent() {
-
         mAdapter = new MsgMainFragmentAdapter(getActivity(), viewModel, mHeadView);
         mtListView.init(mAdapter);
-        mtListView.getLoadView().setStateNormal();
         mtListView.setEvent(new MultiListView.Event() {
             @Override
             public void onRefresh() {
@@ -151,10 +151,6 @@ public class MsgMainFragment extends Fragment {
                 mtListView.getSwipeLayout().setRefreshing(false);
             }
         });
-        //必须在setEvent后调用
-        mtListView.getSwipeLayout().setEnabled(false);
-
-//        mtListView.getLoadView().setStateNormal();
         SocketUtil.getSocketUtil().addEvent(socketEvent = new SocketEvent() {
             @Override
             public void onHeartbeat() {
@@ -328,6 +324,10 @@ public class MsgMainFragment extends Fragment {
         //application的viewModel
         viewModel = new ViewModelProvider(getActivity(), ViewModelProvider.AndroidViewModelFactory.getInstance(MyAppLication.getInstance())).get(MainViewModel.class);
         EventBus.getDefault().register(this);
+        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
+        viewModel.initSession(null);
+        //初始化观察器
+        initObserver();
 
     }
 
@@ -337,46 +337,50 @@ public class MsgMainFragment extends Fragment {
         super.onResume();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
-        viewModel.onStart();
-        //初始化观察器
-        initObserver();
-    }
-
-    @Override
-    public void onStop() {
-        MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
-        viewModel.onStop();
-        super.onStop();
-    }
-
     private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
         @Override
-        public void init(RealmResults<Session> sessions) {
-            viewModel.sessions = sessions;
-            mAdapter.notifyDataSetChanged();
+        public void init(RealmResults<Session> sessions, List<String> sids) {
+            //每次session初始化，都需要重新赋值
+            viewModel.initSession(sids);
         }
 
         @Override
-        public void delete(ArrayList<Integer> position, ArrayList<String> sids) {
+        public void delete(List<Integer> positions) {
             viewModel.isNeedCloseSwipe.setValue(true);
         }
 
         @Override
-        public void insert(ArrayList<Integer> position, ArrayList<String> sids) {
+        public void insert(List<Integer> positions, List<String> sids) {
             viewModel.isNeedCloseSwipe.setValue(true);
+            viewModel.allSids.addAll(sids);
+            viewModel.isAllSidsChange.setValue(true);
         }
 
         @Override
-        public void update(ArrayList<Integer> position, ArrayList<String> sids) {
-
+        public void update(List<Integer> positions, List<String> sids) {
+            viewModel.allSids.addAll(sids);
         }
-
+    };
+    private OrderedRealmCollectionChangeListener sessionMoresListener = new OrderedRealmCollectionChangeListener<RealmResults<SessionDetail>>() {
         @Override
-        public void change(RealmResults<Session> sessions) {
+        public void onChange(RealmResults<SessionDetail> sessionDetails, OrderedCollectionChangeSet changeSet) {
+            Log.e("raleigh_test", "details=" + sessionDetails.size());
+            /***更新位置信息*********************************************************/
+            viewModel.sessionMoresPositions.clear();
+            for (int i = 0; i < viewModel.sessionMores.size(); i++) {
+                viewModel.sessionMoresPositions.put(viewModel.sessionMores.get(i).getSid(), i);
+            }
+            /***第一次 更新已经被加载了 必须等sessiondetail 全部加载完*********************************************************/
+            if (!viewModel.isSessionDetailsLoad.getValue()) {
+                if(sessionDetails.size() == viewModel.sessions.size())
+                viewModel.isSessionDetailsLoad.setValue(true);
+            }
+            /***更新列表*********************************************************/
+            if (viewModel.sessions == null || viewModel.sessions.size() == 0) {
+                mtListView.getListView().getAdapter().notifyDataSetChanged();
+            } else {
+                mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+            }
         }
     };
 
@@ -384,19 +388,6 @@ public class MsgMainFragment extends Fragment {
      * 初始化观察器
      */
     private void initObserver() {
-        //监听列表数据变化
-        viewModel.sessionMores.addChangeListener(new RealmChangeListener<RealmResults<SessionDetail>>() {
-            @Override
-            public void onChange(RealmResults<SessionDetail> sessionMore) {
-                if (sessionMore != null) {
-                    if (viewModel.sessions == null || viewModel.sessions.size() == 0) {
-                        mtListView.getListView().getAdapter().notifyDataSetChanged();
-                    } else {
-                        mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
-                    }
-                }
-            }
-        });
         //监听删除操作项
         viewModel.currentDeletePosition.observe(this, new Observer<Integer>() {
             @Override
@@ -428,10 +419,28 @@ public class MsgMainFragment extends Fragment {
 //                    if (viewModel.currentSwipeDeletePosition > 0 && viewModel.currentSwipeDeletePosition < mAdapter.getItemCount()) {
 //                        mtListView.getListView().getAdapter().notifyItemChanged(viewModel.currentSwipeDeletePosition);
                     mtListView.getListView().getAdapter().notifyDataSetChanged();//TODO
-                    //关闭后恢复值
-                    viewModel.currentSwipeDeletePosition = -1;
                     viewModel.isNeedCloseSwipe.setValue(false);
                 }
+            }
+        });
+        viewModel.isSessionDetailsLoad.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean value) {
+                if (value) {
+                    mtListView.getLoadView().setStateNormal();
+                    //必须在setEvent后调用
+                    mtListView.getSwipeLayout().setEnabled(false);
+                }
+            }
+        });
+        viewModel.isAllSidsChange.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean aBoolean) {
+                Log.e("raleigh_test", "isAllSidsChange=");
+                viewModel.updateSessionMore();
+                //监听列表数据变化
+                viewModel.sessionMores.addChangeListener(sessionMoresListener);
+
             }
         });
 
@@ -439,10 +448,10 @@ public class MsgMainFragment extends Fragment {
 
     @Override
     public void onDestroy() {
+        MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
         super.onDestroy();
         //释放数据对象
-        viewModel.currentDeletePosition.removeObservers(this);
-        viewModel.onDestory();
+        viewModel.onDestory(this);
         SocketUtil.getSocketUtil().removeEvent(socketEvent);
         EventBus.getDefault().unregister(this);
     }

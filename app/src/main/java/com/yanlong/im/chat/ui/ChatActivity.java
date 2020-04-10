@@ -598,7 +598,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (!msgDao.isMsgLockExist(toGid, toUId)) {
             msgDao.insertOrUpdateMessage(SocketData.createMessageLock(toGid, toUId));
         }
-//        Log.i(TAG, "onStart");
+//        Log.i(TAG, "initSession");
         initData();
 
     }
@@ -4470,7 +4470,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void checkMoreVoice(int start, MsgAllBean b) {
-//        LogUtil.getLog().i("AudioPlayManager", "checkMoreVoice--onCreate=" + onCreate);
+//        LogUtil.getLog().i("AudioPlayManager", "checkMoreVoice--initSession=" + initSession);
         int length = msgListData.size();
         int index = msgListData.indexOf(b);
         if (index < 0) {
