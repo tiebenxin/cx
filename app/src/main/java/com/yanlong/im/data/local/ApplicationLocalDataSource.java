@@ -15,9 +15,10 @@ import io.realm.Sort;
 public class ApplicationLocalDataSource {
     private Realm realm = null;
     private UpdateSessionDetail updateSessionDetail = null;
+
     public ApplicationLocalDataSource() {
         realm = DaoUtil.open();
-        updateSessionDetail=new UpdateSessionDetail(realm);
+        updateSessionDetail = new UpdateSessionDetail(realm);
     }
 
     public Realm getRealm() {
@@ -27,15 +28,16 @@ public class ApplicationLocalDataSource {
     /**
      * 更新全部
      */
-    public void updateSessionDetail() {
-        updateSessionDetail.update();
+    public void updateSessionDetail(int limit) {
+        updateSessionDetail.update(limit);
     }
 
     /**
      * 更新指定主键的
+     *
      * @param sids
      */
-    public void updateSessionDetail(String[] sids){
+    public void updateSessionDetail(String[] sids) {
         updateSessionDetail.update(sids);
     }
 
@@ -45,9 +47,10 @@ public class ApplicationLocalDataSource {
      * @return
      */
     public RealmResults<Session> getSessions(int limit) {
+        limit=100;
         String[] orderFiled = {"isTop", "up_time"};
         Sort[] sorts = {Sort.DESCENDING, Sort.DESCENDING};
-        return realm.where(Session.class).sort(orderFiled, sorts).limit(limit).findAllAsync();
+        return  realm.where(Session.class).sort(orderFiled, sorts).limit(limit).findAllAsync();
     }
 
     public void onDestory() {

@@ -29,6 +29,7 @@ public class ApplicationRepository {
     public ApplicationRepository() {
         localDataSource = new ApplicationLocalDataSource();
         loadMoreSessions();
+        localDataSource.updateSessionDetail(PAGE_COUNT);
     }
 
     public void addSessionChangeListener(SessionChangeListener sessionChangeListener) {
@@ -59,8 +60,6 @@ public class ApplicationRepository {
                     /***** 异步查询第一次返回。*******************************************************************************************/
                     if (changeSet == null || changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
 //                    notifyDataSetChanged();
-                        //1.异步更新所有detail
-                        localDataSource.updateSessionDetail();
                         //通知监听器
                         for (SessionChangeListener sessionChangeListener : mSessionChangeListeners) {
                             sessionChangeListener.init(sessions);

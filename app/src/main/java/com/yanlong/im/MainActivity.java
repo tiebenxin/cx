@@ -185,6 +185,8 @@ public class MainActivity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //创建仓库-仅登录时会创建
+        MyAppLication.INSTANCE().createRepository();
         EventBus.getDefault().register(this);
         findViews();
         initEvent();

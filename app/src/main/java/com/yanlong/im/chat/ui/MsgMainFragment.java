@@ -356,7 +356,8 @@ public class MsgMainFragment extends Fragment {
     private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
         @Override
         public void init(RealmResults<Session> sessions) {
-            viewModel.sessions = sessions;
+            //每次session初始化，都需要重新赋值
+            viewModel.onStart();
             mAdapter.notifyDataSetChanged();
         }
 

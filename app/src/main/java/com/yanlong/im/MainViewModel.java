@@ -26,12 +26,12 @@ public class MainViewModel extends ViewModel {
 
     //当前删除操作位置,为数据源中的位置
     public MutableLiveData<Integer> currentDeletePosition = new MutableLiveData();
-    //保存session 位置
+    //保存session 位置sid/position
     public Map<String, Integer> sessionMoresPositions = new HashMap<>();
     //判断网络状态 true在线 false离线
     public MutableLiveData<Boolean> onlineState = new MutableLiveData<>();
     //记录当前展开了删除按钮的位置,实际recyclerview中的position
-    public int currentSwipeDeletePosition=-1;
+    public int currentSwipeDeletePosition = -1;
     //是否要主动关闭展开的删除按钮
     public MutableLiveData<Boolean> isNeedCloseSwipe = new MutableLiveData<>();
 
@@ -42,17 +42,25 @@ public class MainViewModel extends ViewModel {
     public void onStart() {
         repository.checkRealmStatus();
         //指向内存堆中同一个对象,session数据变化时，Application中会自动更新session详情
-        if(sessions == null)sessions=MyAppLication.INSTANCE().getSessions();
-        sessionMores = repository.getSessionMore();
-        sessionMores.addChangeListener(new RealmChangeListener<RealmResults<SessionDetail>>() {
-            @Override
-            public void onChange(RealmResults<SessionDetail> sessionMores) {
-                sessionMoresPositions.clear();
-                for (int i = 0; i < sessionMores.size(); i++) {
-                    sessionMoresPositions.put(sessionMores.get(i).getSid(), i);
-                }
+        if (MyAppLication.INSTANCE().iSSessionsLoad()) {
+            sessions = MyAppLication.INSTANCE().getSessions();
+            String[] sids = new String[sessions.size()];
+            int index = 0;
+            for (Session session : sessions) {
+                sids[index] = session.getSid();
+                index++;
             }
-        });
+            sessionMores = repository.getSessionMore(sids);
+            sessionMores.addChangeListener(new RealmChangeListener<RealmResults<SessionDetail>>() {
+                @Override
+                public void onChange(RealmResults<SessionDetail> sessionMores) {
+                    sessionMoresPositions.clear();
+                    for (int i = 0; i < sessionMores.size(); i++) {
+                        sessionMoresPositions.put(sessionMores.get(i).getSid(), i);
+                    }
+                }
+            });
+        }
     }
 
 
@@ -67,7 +75,8 @@ public class MainViewModel extends ViewModel {
     }
 
     public void updateItemSessionDetail() {
-        repository.updateSessionDetail();
+        //更新当前sessionDetail对象的所有数据
+        repository.updateSessionDetail(sessionMoresPositions.keySet().toArray(new String[sessionMoresPositions.size()]));
     }
 
     /**
@@ -97,8 +106,9 @@ public class MainViewModel extends ViewModel {
         } catch (Exception e) {
         }
     }
-    public String getSessionJson(){
-        return sessions==null?"":repository.getSessionJson(sessions);
+
+    public String getSessionJson() {
+        return sessions == null ? "" : repository.getSessionJson(sessions);
     }
 
     public void onStop() {

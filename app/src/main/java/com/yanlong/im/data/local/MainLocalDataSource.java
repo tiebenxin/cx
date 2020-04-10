@@ -3,7 +3,6 @@ package com.yanlong.im.data.local;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -16,7 +15,6 @@ import net.cb.cb.library.utils.StringUtil;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
-import io.realm.Sort;
 
 /**
  * @createAuthor Raleigh.Luo
@@ -32,8 +30,8 @@ public class MainLocalDataSource {
         updateSessionDetail = new UpdateSessionDetail(realm);
     }
 
-    public void updateSessionDetail() {
-        updateSessionDetail.update();
+    public void updateSessionDetail(String[] sids) {
+        updateSessionDetail.update(sids);
     }
 
     public String getSessionJson(RealmResults<Session> sessions) {
@@ -50,27 +48,8 @@ public class MainLocalDataSource {
         return DaoUtil.findOne(Group.class, "gid", gid);
     }
 
-    /**
-     * 获取session 列表
-     *
-     * @return
-     */
-    public RealmResults<Session> getSession() {
-        RealmResults<Session> list = null;
-        try {
-            String[] orderFiled = {"isTop", "up_time"};
-            Sort[] sorts = {Sort.DESCENDING, Sort.DESCENDING};
-            list = realm.where(Session.class).sort(orderFiled, sorts).findAll();
-        } catch (Exception e) {
-            e.printStackTrace();
-            DaoUtil.reportException(e);
-        }
-        Log.e("raleigh_test", "getSessions" + list.size() + ",t=" + DateUtils.timeStamp2Date(DateUtils.getSystemTime(), null));
-        return list;
-    }
-
-    public RealmResults<SessionDetail> getSessionMore() {
-        return realm.where(SessionDetail.class).findAllAsync();
+    public RealmResults<SessionDetail> getSessionMore(String[] sids) {
+        return realm.where(SessionDetail.class).in("sid",sids).findAllAsync();
     }
 
 
