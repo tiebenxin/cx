@@ -107,14 +107,17 @@ public class FriendMainFragment extends Fragment {
         try {
             //数据库中存储的是a>Z，便于排序
             if (viewModel.friends != null) {
-                String lastLetter = null;
                 for (int i = 0; i < viewModel.friends.size(); i++) {
                     String tag=viewModel.friends.get(i).getTag();
                     if(tag.equals(UserInfo.FRIEND_NUMBER_TAG)){//FRIEND_TAG表示数字名，显示#放到最后
+                        tag="#";
                         list.add("#");
+                        viewType.putTag(tag, i);
                     }else if(!list.contains(tag)){
                         list.add(tag);
+                        viewType.putTag(tag, i);
                     }
+
                 }
             }
         } catch (Exception e) {
