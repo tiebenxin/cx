@@ -58,7 +58,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 //    private Integer destroy = 1;
 //    private Long destroyTime = 30L;
 
-
+    @Ignore
     private String membername;//群的昵称
     private String sayHi;//待同意好友招呼语
     //通讯录存储数字的tag
