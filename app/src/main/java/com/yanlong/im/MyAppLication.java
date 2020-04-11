@@ -61,8 +61,7 @@ public class MyAppLication extends MainApplication {
 
     private static final String TAG = "MyAppLication";
     private final String U_APP_KEY = "5d53659c570df3d281000225";
-    //通讯录存储
-    public final String FRIEND_TAG="z";
+
     public LocationService locationService;
 //    public Vibrator mVibrator;
     //全局数据仓库

@@ -58,10 +58,12 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 //    private Integer destroy = 1;
 //    private Long destroyTime = 30L;
 
-    @Ignore
+
     private String membername;//群的昵称
     private String sayHi;//待同意好友招呼语
-
+    //通讯录存储数字的tag
+    @Ignore
+    public static final String FRIEND_NUMBER_TAG ="Z1";
     private Long lastonline;
     private int activeType; //是否在线（0：离线|1：在线）
     private String describe; //用户描述
@@ -436,14 +438,14 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
         try {
             String name = StringUtil.isNotNull(this.mkName) ? this.mkName : this.name;
             if (TextUtils.isEmpty(name)) {
-                setTag("#");
+                setTag(FRIEND_NUMBER_TAG);
             } else if (!("" + name.charAt(0)).matches("^[0-9a-zA-Z\\u4e00-\\u9fa5]+$")) {
-                setTag("#");
+                setTag(FRIEND_NUMBER_TAG);
             } else {
                 String[] n = PinyinHelper.toHanyuPinyinStringArray(name.charAt(0));
                 if (n == null) {
                     if (StringUtil.ifContainEmoji(name)) {
-                        setTag("#");
+                        setTag(FRIEND_NUMBER_TAG);
                     } else {
                         setTag("" + (name.toUpperCase()).charAt(0));
                     }
@@ -469,7 +471,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
     public void setTag(String tag) {
         if (tag.hashCode() < 65 || tag.hashCode() > 91) {
-            tag = "a";
+            tag = FRIEND_NUMBER_TAG;
         }
         this.tag = tag;
     }
@@ -480,10 +482,10 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
             return -1;
         }
         int last = getTag().charAt(0);
-        if (getTag().equals("a")) {
+        if (getTag().equals(FRIEND_NUMBER_TAG)) {
             return 1;
         }
-        if (o.getTag().equals("a")) {
+        if (o.getTag().equals(FRIEND_NUMBER_TAG)) {
             return -1;
         }
 
@@ -508,7 +510,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
             toTag();
         }
         //数据库中存储的是a>Z，便于排序
-        return TextUtils.isEmpty(tag) ? "a" : tag;
+        return TextUtils.isEmpty(tag) ? FRIEND_NUMBER_TAG : tag;
     }
 
     public String getDescribe() {

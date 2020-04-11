@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,7 +47,6 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
     //自动生成控件事件
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        Log.e("raleigh_test","onBindViewHolder");
         if (holder instanceof RCViewFuncHolder) {
             final RCViewFuncHolder hd = (RCViewFuncHolder) holder;
             hd.viewAdd.setOnClickListener(new View.OnClickListener() {
@@ -95,7 +93,7 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
         } else if (holder instanceof RCViewHolder) {
             final UserInfo bean = viewModel.friends.get(position-1);
             RCViewHolder hd = (RCViewHolder) holder;
-            hd.txtType.setText(bean.getTag());
+            hd.txtType.setText(bean.getTag().equals(UserInfo.FRIEND_NUMBER_TAG)?"#":bean.getTag());
             //      hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
 
             Glide.with(context).load(bean.getHead())

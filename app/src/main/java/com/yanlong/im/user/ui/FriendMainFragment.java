@@ -14,9 +14,7 @@ import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.ui.SearchFriendGroupActivity;
-import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
-import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshFriend;
@@ -112,7 +110,7 @@ public class FriendMainFragment extends Fragment {
                 String lastLetter = null;
                 for (int i = 0; i < viewModel.friends.size(); i++) {
                     String tag=viewModel.friends.get(i).getTag();
-                    if(tag.equals("a")){//a表示数字，显示#放到最后
+                    if(tag.equals(UserInfo.FRIEND_NUMBER_TAG)){//FRIEND_TAG表示数字名，显示#放到最后
                         list.add("#");
                     }else if(!list.contains(tag)){
                         list.add(tag);
@@ -186,68 +184,6 @@ public class FriendMainFragment extends Fragment {
         return fragment;
     }
 
-
-    private UserDao userDao = new UserDao();
-    private UserAction userAction = new UserAction();
-
-//    @SuppressLint("CheckResult")
-//    private void taskListData() {
-//        Observable.just(0)
-//                .map(new Function<Integer, List<UserInfo>>() {
-//                    @Override
-//                    public List<UserInfo> apply(Integer integer) throws Exception {
-//                        listData = userDao.getAllUserInBook();
-//                        if (listData != null) {
-//                            // 升序
-//                            Collections.sort(listData, new Comparator<UserInfo>() {
-//                                @Override
-//                                public int compare(UserInfo o1, UserInfo o2) {
-//                                    return o1.getTag().hashCode() - o2.getTag().hashCode();
-//                                }
-//                            });
-//
-//                            // 把#数据放到末尾
-//                            tempData.clear();
-//                            for (int i = listData.size() - 1; i >= 0; i--) {
-//                                UserInfo bean = listData.get(i);
-//                                if (bean.getTag().hashCode() == 35) {
-//                                    tempData.add(bean);
-//                                    listData.remove(i);
-//                                }
-//                            }
-//                            listData.addAll(tempData);
-//
-//                            //头部
-//                            UserInfo topBean = new UserInfo();
-//                            topBean.setTag("↑");
-//                            listData.add(0, topBean);
-//
-//                            //尾部
-//                            UserInfo btnBean = new UserInfo();
-//                            btnBean.setTag("#");
-//                            listData.add(btnBean);
-//
-//                            viewType.clearAllTag();
-//                            for (int i = 1; i < listData.size(); i++) {
-//                                viewType.putTag(listData.get(i).getTag(), i);
-//                            }
-//
-//                        }
-//                        return listData;
-//                    }
-//                }).subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .onErrorResumeNext(Observable.<List<UserInfo>>empty())
-//                .subscribe(new Consumer<List<UserInfo>>() {
-//                    @Override
-//                    public void accept(List<UserInfo> userInfo) throws Exception {
-//                        mtListView.notifyDataSetChange();
-//                        // 添加存在用户的首字母列表
-//                        viewType.addItemView(UserUtil.userParseString(listData));
-//                    }
-//                });
-//
-//    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshFriend(EventRefreshFriend event) {

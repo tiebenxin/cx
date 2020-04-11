@@ -78,7 +78,7 @@ public class ApplicationLocalDataSource {
                             .beginGroup().equalTo("uType", 2).or().equalTo("uType", 4).endGroup()
                             .findAll();
                     //批量更新
-                    if (userInfos != null && userInfos.size() > 0) userInfos.setString("tag", "a");
+                    if (userInfos != null && userInfos.size() > 0) userInfos.setString("tag", UserInfo.FRIEND_NUMBER_TAG);
                 }
             }, new Realm.Transaction.OnSuccess() {
                 @Override
@@ -92,7 +92,7 @@ public class ApplicationLocalDataSource {
 
         return realm.where(UserInfo.class)
                 .beginGroup().equalTo("uType", 2).or().equalTo("uType", 4).endGroup()
-                .sort("tag", Sort.DESCENDING).findAllAsync();
+                .sort("tag", Sort.ASCENDING).findAllAsync();
     }
 
     public void onDestory() {
