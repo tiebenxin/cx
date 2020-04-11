@@ -421,7 +421,7 @@ public class MainActivity extends AppActivity {
                     if ((now - firstPressTime) > 500) {
                         firstPressTime = now;
                     } else {
-//                        asd
+                        mMsgMainFragment.moveToUnread();
                     }
                 }
             }

@@ -51,6 +51,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.OrderedCollectionChangeSet;
@@ -82,6 +83,8 @@ public class MsgMainFragment extends Fragment {
     private LinearLayout viewPopQr;
     private LinearLayout viewPopHelp;
     private View mHeadView;
+
+    public static int showPosition = 0;//双击未读消息置顶-展示的位置
 
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();
@@ -525,4 +528,25 @@ public class MsgMainFragment extends Fragment {
         return mainActivity;
     }
 
+    //滑动到未读消息项
+    public void moveToUnread(){
+        List<Integer> positionList = new ArrayList<>();//保存有未读消息的位置
+        if(viewModel.sessions.size()>0){
+            for(int i=0; i< viewModel.sessions.size(); i++){
+                Session bean = viewModel.sessions.get(i);
+                if(bean.getUnread_count()>0){
+                    positionList.add(i);
+                }
+            }
+        }
+        //从首位置开始，多次双击，按未读消息会话的顺序滑动，依次滑动至最后一项，然后重置位置
+        if(positionList.size()>0){
+            mtListView.getLayoutManager().scrollToPositionWithOffset(positionList.get(showPosition)+1,0);
+            if(showPosition < positionList.size()-1){
+                showPosition++;
+            }else {
+                showPosition=0;
+            }
+        }
+    }
 }
