@@ -47,7 +47,6 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
-import com.zhaoss.weixinrecorded.util.BitmapUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.dialog.DialogCommon2;
@@ -56,7 +55,6 @@ import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
-import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;

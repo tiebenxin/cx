@@ -21,8 +21,11 @@ import com.tencent.bugly.crashreport.CrashReport;
 import com.umeng.commonsdk.UMConfigure;
 import com.umeng.socialize.PlatformConfig;
 import com.xiaomi.mipush.sdk.MiPushClient;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.controll.AVChatKit;
 import com.yanlong.im.location.LocationService;
+import com.yanlong.im.repository.ApplicationRepository;
+import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.utils.EmojBitmapCache;
 import com.yanlong.im.utils.IVolleyInitImp;
 import com.yanlong.im.utils.LogcatHelper;
@@ -37,6 +40,7 @@ import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.AppFrontBackHelper;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.UpLoadUtils;
@@ -50,6 +54,7 @@ import java.io.IOException;
 
 import cn.jpush.android.api.JPushInterface;
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class MyAppLication extends MainApplication {
 
@@ -57,7 +62,8 @@ public class MyAppLication extends MainApplication {
     private final String U_APP_KEY = "5d53659c570df3d281000225";
     public LocationService locationService;
 //    public Vibrator mVibrator;
-
+    //全局数据仓库
+    private ApplicationRepository repository;
 
     @Override
     public void onCreate() {
@@ -76,7 +82,8 @@ public class MyAppLication extends MainApplication {
 
         //初始化数据库
         Realm.init(getApplicationContext());
-
+        //初始化应用仓库
+        createRepository();
         initWeixinConfig();
         initRunstate();
         initRedPacket();
@@ -92,6 +99,68 @@ public class MyAppLication extends MainApplication {
         initLocation();//初始化定位
         initARouter();//初始化路由
         initVolley();
+    }
+
+    /**
+     * 初始化数据仓库--已登录的用户
+     * 1.已登录的用户-在application onCreate中创建
+     * 2.刚登录用户-在MainActivity onCreate中创建
+     * 3.退出登录时，销毁数据仓库
+     */
+    public void createRepository(){
+        if(repository==null){
+            //同步使用友盟设备号,如果同步失败使用自己设备号
+            TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+            if(token!=null){//用户已经登录
+                repository=new ApplicationRepository();
+            }
+        }
+    }
+
+    /**
+     * 销毁用户仓库
+     * 1.退出登录
+     * 2.Application终止
+     */
+    public void destoryRepository(){
+        if(repository!=null){
+            repository.onDestory();
+            repository = null;
+        }
+    }
+
+
+    public static MyAppLication INSTANCE() {
+        return (MyAppLication)instance;
+    }
+    public RealmResults<Session> getSessions(){
+        return repository==null?null:repository.getSesisons();
+    }
+
+    /**
+     * sessions对象是否已经加载
+     * @return
+     */
+    public boolean iSSessionsLoad(){
+        boolean result=false;
+        if(repository!=null&&repository.getSesisons().isLoaded()){
+            result=true;
+        }
+        return result;
+    }
+
+    public void addSessionChangeListener(ApplicationRepository.SessionChangeListener sessionChangeListener){
+        if(repository!=null)repository.addSessionChangeListener(sessionChangeListener);
+    }
+    public void removeSessionChangeListener(ApplicationRepository.SessionChangeListener sessionChangeListener){
+        if(repository!=null)repository.removeSessionChangeListener(sessionChangeListener);
+    }
+
+    /**
+     * 加载更多session,每100条递增
+     */
+    public void loadMoreSessions(){
+        if(repository!=null)repository.loadMoreSessions();
     }
 
     private void initBuildType() {
@@ -307,6 +376,8 @@ public class MyAppLication extends MainApplication {
     public void onTerminate() {
         //清除表情缓存
         EmojBitmapCache.getInstance().clear();
+        //清除仓库对象
+        destoryRepository();
         super.onTerminate();
     }
 
@@ -317,5 +388,6 @@ public class MyAppLication extends MainApplication {
         locationService = new LocationService(getApplicationContext());
 //        mVibrator =(Vibrator)getApplicationContext().getSystemService(Service.VIBRATOR_SERVICE);
     }
+
 
 }

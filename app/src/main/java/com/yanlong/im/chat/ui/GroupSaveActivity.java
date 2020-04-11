@@ -112,7 +112,7 @@ public class GroupSaveActivity extends AppActivity {
                 .map(new Function<Integer, List<Group>>() {
                     @Override
                     public List<Group> apply(Integer integer) throws Exception {
-                        return msgDao.getMySavedGroup();
+                        return msgDao.getMySavedGroup(true);
                     }
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

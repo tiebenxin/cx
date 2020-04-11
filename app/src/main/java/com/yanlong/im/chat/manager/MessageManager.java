@@ -40,6 +40,7 @@ import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventSwitchDisturb;
 import net.cb.cb.library.bean.EventUserOnlineChange;
+import net.cb.cb.library.bean.GroupStatusChangeEvent;
 import net.cb.cb.library.bean.RefreshApplyEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
@@ -389,6 +390,18 @@ public class MessageManager {
                         msgDao.updateGroupSnapshot(wrapMessage.getGid(), wrapMessage.getChangeGroupMeta().getScreenshotNotification() ? 1 : 0);
                         notifySwitchSnapshot(wrapMessage.getGid(), 0, wrapMessage.getChangeGroupMeta().getScreenshotNotification() ? 1 : 0);
                         break;
+                    case FORBBIDEN://封群
+                        if (bean != null) {
+                            result = saveMessageNew(bean, isList);
+                        }
+                        LogUtil.getLog().d(TAG, ">>>群状态改变---uid=" + wrapMessage.getFromUid() + "--isForbid=" + wrapMessage.getChangeGroupMeta().getForbbiden());
+                        Group group = msgDao.updateGroupStatus(wrapMessage.getGid(), wrapMessage.getChangeGroupMeta().getForbbiden() ? ChatEnum.EGroupStatus.BANED : ChatEnum.EGroupStatus.NORMAL);
+                        if (group != null) {
+                            if (isChatAlive()) {
+                                notifyGroupMetaChange(group);
+                            }
+                        }
+                        break;
                 }
                 break;
             case DESTROY_GROUP://销毁群
@@ -415,11 +428,14 @@ public class MessageManager {
             case ACTIVE_STAT_CHANGE://在线状态改变
                 UserInfo user = updateUserOnlineStatus(wrapMessage);
                 if (user != null) {
-                    notifyRefreshFriend(true, user, CoreEnum.ERosterAction.UPDATE_INFO);
-                } else {
-                    notifyRefreshFriend(true, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.UPDATE_INFO);
+                    notifyOnlineChange(user);
                 }
-                notifyOnlineChange(wrapMessage.getFromUid());
+//                if (user != null) {
+//                    notifyRefreshFriend(true, user, CoreEnum.ERosterAction.UPDATE_INFO);
+//                } else {
+//                    notifyRefreshFriend(true, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.UPDATE_INFO);
+//                }
+//                notifyOnlineChange(wrapMessage.getFromUid());
                 break;
             case CANCEL://撤销消息
                 if (bean != null) {
@@ -626,19 +642,21 @@ public class MessageManager {
         return type == MsgBean.MessageType.CANCEL && isValid;
     }
 
-    private void notifyOnlineChange(long uid) {
+    private void notifyOnlineChange(UserInfo info) {
         EventUserOnlineChange event = new EventUserOnlineChange();
-        event.setUid(uid);
+        event.setObject(info);
         EventBus.getDefault().post(event);
+
     }
 
     //重新生成群头像
     public void changeGroupAvatar(String gid) {
-        Group group = msgDao.getGroup4Id(gid);
-        if (group != null) {
-            doImgHeadChange(gid, group);
-            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
-        }
+//        Group group = msgDao.getGroup4Id(gid);
+//        if (group != null) {
+//            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+//        }
+        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+
     }
 
     private void removeGroupMember(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
@@ -1216,8 +1234,6 @@ public class MessageManager {
                 ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), receiveMessage.getSayHi());
                 MsgAllBean message = createMsgBean(wmsg, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
                 DaoUtil.save(message);
-//                MessageManager.getInstance().updateSessionUnread(message.getGid(), message.getFrom_uid(),false);//不更新未读，只需要一条即可
-//                MessageManager.getInstance().setMessageChange(true);
             }
         }
     }
@@ -1392,8 +1408,6 @@ public class MessageManager {
      * 发出通知声音或者震动
      * */
     private void doNotify(MsgBean.UniversalMessage.WrapMessage msg) {
-        //        LogUtil.getLog().e("===msg.getMsgType()=="+msg.getMsgType()+"======SESSION_TYPE=="+SESSION_TYPE
-        //                +"======SESSION_FUID=="+SESSION_FUID+"======SESSION_GID=="+SESSION_GID);
         boolean isGroup = StringUtil.isNotNull(msg.getGid());
         //会话已经静音
         Session session = isGroup ? DaoUtil.findOne(Session.class, "gid", msg.getGid()) : DaoUtil.findOne(Session.class, "from_uid", msg.getFromUid());
@@ -1590,24 +1604,6 @@ public class MessageManager {
     }
 
     /*
-     * 检测该群是否还有效，即自己是否还在该群中
-     * */
-    public boolean isGroupValid(String gid) {
-        Group group = msgDao.groupNumberGet(gid);
-//        Group group = msgDao.getGroup4Id(gid);
-        if (group != null) {
-            List<MemberUser> users = group.getUsers();
-            if (users != null) {
-                MemberUser member = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), group.getGid());
-                if (member != null && !users.contains(member)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /*
      * 通知群变化
      * */
     public void notifyGroupChange(boolean isNeedLoad) {
@@ -1632,20 +1628,6 @@ public class MessageManager {
         }
         //用户退出登录需清除阅后即焚数据
         BurnManager.getInstance().clear();
-    }
-
-    public void doImgHeadChange(String gid, Group group) {
-        int i = group.getUsers().size();
-        i = i > 9 ? 9 : i;
-        //头像地址
-        String url[] = new String[i];
-        for (int j = 0; j < i; j++) {
-            MemberUser userInfo = group.getUsers().get(j);
-            url[j] = userInfo.getHead();
-        }
-        File file = GroupHeadImageUtil.synthesis(AppConfig.getContext(), url);
-        MsgDao msgDao = new MsgDao();
-        msgDao.groupHeadImgUpdate(gid, file.getAbsolutePath());
     }
 
     /*
@@ -1717,19 +1699,6 @@ public class MessageManager {
     /*
      * 通知刷新聊天界面
      * */
-    public void notifyRefreshChat(MsgAllBean bean, @CoreEnum.ERefreshType int type) {
-        if (bean == null || type < 0) {
-            return;
-        }
-        EventRefreshChat event = new EventRefreshChat();
-        event.setObject(bean);
-        event.setRefreshType(type);
-        EventBus.getDefault().post(event);
-    }
-
-    /*
-     * 通知刷新聊天界面
-     * */
     public void notifyRefreshChat(List<MsgAllBean> list, @CoreEnum.ERefreshType int type) {
         if (list == null || type < 0) {
             return;
@@ -1740,9 +1709,21 @@ public class MessageManager {
         EventBus.getDefault().post(event);
     }
 
-    public MsgAllBean updateCancelMsg(String msgId, String cancelId) {
-        return msgDao.msgDel4Cancel(msgId, cancelId);
+    //群属性变化
+    public void notifyGroupMetaChange(Group group) {
+        GroupStatusChangeEvent event = new GroupStatusChangeEvent();
+        event.setData(group);
+        EventBus.getDefault().post(event);
+    }
 
+    //聊天界面是否存活
+    public boolean isChatAlive() {
+        if (SESSION_TYPE == 1 || SESSION_TYPE == 2) {
+            LogUtil.getLog().i(TAG, "聊天界面alive");
+            return true;
+        }
+        LogUtil.getLog().i(TAG, "聊天界面关闭");
+        return false;
     }
 
 

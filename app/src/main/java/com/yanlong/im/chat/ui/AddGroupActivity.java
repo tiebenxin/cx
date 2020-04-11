@@ -101,7 +101,7 @@ public class AddGroupActivity extends AppActivity {
 
 
     private void taskGroupInfo(String gid) {
-        msgAction.groupInfo(gid, true,new CallBack<ReturnBean<Group>>() {
+        msgAction.groupInfo(gid, true, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
@@ -109,10 +109,7 @@ public class AddGroupActivity extends AppActivity {
                     if (!TextUtils.isEmpty(bean.getAvatar())) {
                         Glide.with(context).load(bean.getAvatar())
                                 .apply(GlideOptionsUtil.headImageOptions()).into(mSdGroupHead);
-                    } else {
-                        createAndSaveImg(bean, mSdGroupHead);
                     }
-
                     mTvGroupName.setText(/*bean.getName()*/msgDao.getGroupName(bean));
                     mTvGroupNum.setText(bean.getUsers().size() + "人");
                 } else {
@@ -120,25 +117,6 @@ public class AddGroupActivity extends AppActivity {
                 }
             }
         });
-    }
-
-    private void createAndSaveImg(Group group, ImageView imgHead) {
-        if (group != null) {
-            int i = group.getUsers().size();
-            i = i > 9 ? 9 : i;
-            //头像地址
-            String url[] = new String[i];
-            for (int j = 0; j < i; j++) {
-                MemberUser userInfo = group.getUsers().get(j);
-                url[j] = userInfo.getHead();
-            }
-            File file = GroupHeadImageUtil.synthesis(getContext(), url);
-            Glide.with(this).load(file)
-                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
-
-            MsgDao msgDao = new MsgDao();
-            msgDao.groupHeadImgCreate(group.getGid(), file.getAbsolutePath());
-        }
     }
 
 
@@ -167,8 +145,8 @@ public class AddGroupActivity extends AppActivity {
                         ToastUtil.show(AddGroupActivity.this, "申请成功,等待群主验证");
                     }
                     finish();
-                }else {
-                    ToastUtil.show(context,response.body().getMsg());
+                } else {
+                    ToastUtil.show(context, response.body().getMsg());
                     mBtnAddGroup.setEnabled(true);
                 }
             }

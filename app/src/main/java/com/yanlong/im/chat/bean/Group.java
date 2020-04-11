@@ -54,6 +54,7 @@ public class Group extends RealmObject {
 
     private int survivaltime;  // 阅后即焚时间
     private String merchantEntry;// 群机器人网址
+    private int stat;//0 正常群， 1. 群已被解散，2. 群已被封
 
     public int getSurvivaltime() {
         return survivaltime;
@@ -301,5 +302,13 @@ public class Group extends RealmObject {
             }
         }
         return isManager;
+    }
+
+    public int getStat() {
+        return stat;
+    }
+
+    public void setStat(int stat) {
+        this.stat = stat;
     }
 }

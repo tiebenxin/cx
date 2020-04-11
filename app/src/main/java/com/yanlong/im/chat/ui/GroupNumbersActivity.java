@@ -332,7 +332,6 @@ public class GroupNumbersActivity extends AppActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                GroupHeadImageUtil.creatAndSaveImg(GroupNumbersActivity.this, gid);
                 if (response.body() == null) {
                     isClickble = 0;
                     return;

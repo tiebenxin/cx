@@ -27,6 +27,7 @@ import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendAddAcitvity;
 import com.yanlong.im.user.ui.HelpActivity;
@@ -42,6 +43,7 @@ import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.MultiListView;
 import net.cb.cb.library.view.PopView;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
 
@@ -49,7 +51,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import io.realm.RealmChangeListener;
+import java.util.List;
+
+import io.realm.OrderedCollectionChangeSet;
+import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.RealmResults;
 
 import static android.app.Activity.RESULT_OK;
@@ -129,8 +134,23 @@ public class MsgMainFragment extends Fragment {
     private void initEvent() {
         mAdapter = new MsgMainFragmentAdapter(getActivity(), viewModel, mHeadView);
         mtListView.init(mAdapter);
+        mtListView.setEvent(new MultiListView.Event() {
+            @Override
+            public void onRefresh() {
+                mtListView.getSwipeLayout().setRefreshing(false);
+            }
 
-        mtListView.getLoadView().setStateNormal();
+            @Override
+            public void onLoadMore() {
+                mtListView.getSwipeLayout().setRefreshing(false);
+                MyAppLication.INSTANCE().loadMoreSessions();
+            }
+
+            @Override
+            public void onLoadFail() {
+                mtListView.getSwipeLayout().setRefreshing(false);
+            }
+        });
         SocketUtil.getSocketUtil().addEvent(socketEvent = new SocketEvent() {
             @Override
             public void onHeartbeat() {
@@ -301,47 +321,76 @@ public class MsgMainFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //application的viewModel
         viewModel = new ViewModelProvider(getActivity(), ViewModelProvider.AndroidViewModelFactory.getInstance(MyAppLication.getInstance())).get(MainViewModel.class);
         EventBus.getDefault().register(this);
+        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
+        viewModel.initSession(null);
         //初始化观察器
         initObserver();
+
     }
+
 
     @Override
     public void onResume() {
-        viewModel.checkRealmStatus();
-        if (mAdapter != null) {
-            mAdapter.isNeedCloseSwipe = true;
-            mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
-        }
+        viewModel.isNeedCloseSwipe.setValue(true);
+        //再次关闭，有时候会出现再次加载的情况
+        if(viewModel.isSessionDetailsLoad.getValue())viewModel.isSessionDetailsLoad.setValue(true);
         super.onResume();
     }
 
-    private long lastRefreshTime = 0;
+    private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
+        @Override
+        public void init(RealmResults<Session> sessions, List<String> sids) {
+            //每次session初始化，都需要重新赋值
+            viewModel.initSession(sids);
+        }
+
+        @Override
+        public void delete(List<Integer> positions) {
+            viewModel.isNeedCloseSwipe.setValue(true);
+        }
+
+        @Override
+        public void insert(List<Integer> positions, List<String> sids) {
+            viewModel.isNeedCloseSwipe.setValue(true);
+            viewModel.allSids.addAll(sids);
+            viewModel.isAllSidsChange.setValue(true);
+        }
+
+        @Override
+        public void update(List<Integer> positions, List<String> sids) {
+            viewModel.allSids.addAll(sids);
+        }
+    };
+    private OrderedRealmCollectionChangeListener sessionMoresListener = new OrderedRealmCollectionChangeListener<RealmResults<SessionDetail>>() {
+        @Override
+        public void onChange(RealmResults<SessionDetail> sessionDetails, OrderedCollectionChangeSet changeSet) {
+            Log.e("raleigh_test", "details=" + sessionDetails.size());
+            /***更新位置信息*********************************************************/
+            viewModel.sessionMoresPositions.clear();
+            for (int i = 0; i < viewModel.sessionMores.size(); i++) {
+                viewModel.sessionMoresPositions.put(viewModel.sessionMores.get(i).getSid(), i);
+            }
+            /***第一次 更新已经被加载了 必须等sessiondetail 全部加载完*********************************************************/
+            if (!viewModel.isSessionDetailsLoad.getValue()) {
+                if(sessionDetails.size() == viewModel.sessions.size())
+                viewModel.isSessionDetailsLoad.setValue(true);
+            }
+            /***更新列表*********************************************************/
+            if (viewModel.sessions == null || viewModel.sessions.size() == 0) {
+                mtListView.getListView().getAdapter().notifyDataSetChanged();
+            } else {
+                mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+            }
+        }
+    };
 
     /**
      * 初始化观察器
      */
     private void initObserver() {
-        //监听列表数据变化
-        viewModel.sessionMores.addChangeListener(new RealmChangeListener<RealmResults<SessionDetail>>() {
-            @Override
-            public void onChange(RealmResults<SessionDetail> sessionMore) {
-                if (sessionMore != null) {
-                    Log.e("raleigh_test", "sessionMores Changes");
-                    boolean isNeedCloseSwipe = viewModel.sessionOriginalSize != viewModel.sessions.size();
-                    if (System.currentTimeMillis() - lastRefreshTime > 1 * 1000) {//1秒之内不刷新
-                        if (!mAdapter.isNeedCloseSwipe)
-                            mAdapter.isNeedCloseSwipe = isNeedCloseSwipe;
-                        lastRefreshTime = System.currentTimeMillis();
-                        mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
-                    } else {// 1秒之内
-                        if (isNeedCloseSwipe) mAdapter.isNeedCloseSwipe = isNeedCloseSwipe;
-                    }
-                    viewModel.sessionOriginalSize = viewModel.sessions.size();
-                }
-            }
-        });
         //监听删除操作项
         viewModel.currentDeletePosition.observe(this, new Observer<Integer>() {
             @Override
@@ -366,31 +415,46 @@ public class MsgMainFragment extends Fragment {
                 }
             }
         });
-        viewModel.sessions.addChangeListener(new RealmChangeListener<RealmResults<Session>>() {
+        viewModel.isNeedCloseSwipe.observe(this, new Observer<Boolean>() {
             @Override
-            public void onChange(RealmResults<Session> sessions) {
-                LogUtil.getLog().i("未读数", "onChange");
-                RealmResults<Session> sessionList = sessions.where().greaterThan("unread_count", 0).limit(100).findAll();
-                if (sessionList != null) {
-                    Number unreadCount = sessionList.where().sum("unread_count");
-                    if (unreadCount != null) {
-                        getActivityMe().updateMsgUnread(unreadCount.intValue());
-                    } else {
-                        getActivityMe().updateMsgUnread(0);
-                    }
-                } else {
-                    getActivityMe().updateMsgUnread(0);
+            public void onChanged(@Nullable Boolean value) {
+                if (value) {
+//                    if (viewModel.currentSwipeDeletePosition > 0 && viewModel.currentSwipeDeletePosition < mAdapter.getItemCount()) {
+//                        mtListView.getListView().getAdapter().notifyItemChanged(viewModel.currentSwipeDeletePosition);
+                    mtListView.getListView().getAdapter().notifyDataSetChanged();//TODO
+                    viewModel.isNeedCloseSwipe.setValue(false);
                 }
             }
         });
+        viewModel.isSessionDetailsLoad.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean value) {
+                if (value) {
+                    mtListView.getLoadView().setStateNormal();
+                    //必须在setEvent后调用
+                    mtListView.getSwipeLayout().setEnabled(false);
+                }
+            }
+        });
+        viewModel.isAllSidsChange.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean aBoolean) {
+                Log.e("raleigh_test", "isAllSidsChange=");
+                viewModel.updateSessionMore();
+                //监听列表数据变化
+                viewModel.sessionMores.addChangeListener(sessionMoresListener);
+
+            }
+        });
+
     }
 
     @Override
     public void onDestroy() {
+        MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
         super.onDestroy();
         //释放数据对象
-        viewModel.currentDeletePosition.removeObservers(this);
-        viewModel.onDestory();
+        viewModel.onDestory(this);
         SocketUtil.getSocketUtil().removeEvent(socketEvent);
         EventBus.getDefault().unregister(this);
     }

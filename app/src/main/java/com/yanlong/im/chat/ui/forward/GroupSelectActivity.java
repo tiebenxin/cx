@@ -10,11 +10,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.example.nim_lib.config.Preferences;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.ImageMessage;
@@ -28,14 +26,10 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityGroupSaveBinding;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.utils.GlideOptionsUtil;
-import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.wight.avatar.MultiImageView;
 
 import net.cb.cb.library.CoreEnum;
-import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -47,7 +41,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,8 +49,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Response;
 
 import static com.yanlong.im.chat.ui.forward.MsgForwardActivity.AGM_JSON;
 
@@ -130,28 +121,13 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
         loadSavedGroup();
     }
 
-
-    private void taskMySaved() {
-        new MsgAction().getMySaved(new CallBack<ReturnBean<List<Group>>>(ui.mtListView) {
-            @Override
-            public void onResponse(Call<ReturnBean<List<Group>>> call, Response<ReturnBean<List<Group>>> response) {
-                if (response.body() == null || !response.body().isOk()) {
-                    ui.mtListView.getLoadView().setStateNoData(R.mipmap.ic_nodate);
-                    return;
-                }
-                groupInfoBeans.addAll(response.body().getData());
-                ui.mtListView.notifyDataSetChange(response);
-            }
-        });
-    }
-
     @SuppressLint("CheckResult")
     private void loadSavedGroup() {
         Observable.just(0)
                 .map(new Function<Integer, List<Group>>() {
                     @Override
                     public List<Group> apply(Integer integer) throws Exception {
-                        return msgDao.getMySavedGroup();
+                        return msgDao.getMySavedGroup(false);
                     }
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -257,8 +233,8 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
             }
             sendLeaveMessage(content, uid, gid);
             notifyRefreshMsg(gid, uid);
-        }else if(msgAllBean.getShippedExpressionMessage()!=null){
-            ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(),msgAllBean.getShippedExpressionMessage().getId());
+        } else if (msgAllBean.getShippedExpressionMessage() != null) {
+            ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(), msgAllBean.getShippedExpressionMessage().getId());
             MsgAllBean allBean = SocketData.createMessageBean(uid, gid, ChatEnum.EMessageType.SHIPPED_EXPRESSION, ChatEnum.ESendStatus.SENDING,
                     SocketData.getFixTime(), message);
             if (allBean != null) {
@@ -425,24 +401,6 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
             }
 
         }
-    }
-
-    private void creatAndSaveImg(Group bean, ImageView imgHead) {
-        Group gginfo = bean;
-        int i = gginfo.getUsers().size();
-        i = i > 9 ? 9 : i;
-        //头像地址
-        String url[] = new String[i];
-        for (int j = 0; j < i; j++) {
-            MemberUser userInfo = gginfo.getUsers().get(j);
-            url[j] = userInfo.getHead();
-        }
-        File file = GroupHeadImageUtil.synthesis(getContext(), url);
-        Glide.with(context).load(file)
-                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
-
-        MsgDao msgDao = new MsgDao();
-        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
     }
 
     /*

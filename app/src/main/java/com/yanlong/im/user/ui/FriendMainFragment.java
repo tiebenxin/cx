@@ -31,10 +31,10 @@ import com.yanlong.im.utils.UserUtil;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
+import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.PySortView;
@@ -482,6 +482,16 @@ public class FriendMainFragment extends Fragment {
             } else {
                 taskListData();
 
+            }
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventOnlineChange(EventUserOnlineChange event) {
+        if (event.getObject() instanceof UserInfo) {
+            UserInfo info = (UserInfo) event.getObject();
+            if (info != null) {
+                refreshUser(info);
             }
         }
     }

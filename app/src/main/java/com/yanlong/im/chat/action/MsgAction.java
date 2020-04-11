@@ -298,8 +298,6 @@ public class MsgAction {
                         newGroup.getMygroupName();
                         dao.groupNumberSave(newGroup);
                         MessageManager.getInstance().updateCacheGroup(newGroup);
-                        //8.8 取消从数据库里读取群成员信息
-                        MessageManager.getInstance().doImgHeadChange(gid, newGroup);
                         callback.onResponse(call, response);
                     } else {
                         LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid);
@@ -368,7 +366,6 @@ public class MsgAction {
      * 根据key查询消息
      */
     public List<MsgAllBean> searchMsg4key(String key, String gid, Long uid) {
-
         return dao.searchMsg4key(key, gid, uid);
     }
 

@@ -750,39 +750,15 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                         taskGroupConf();
                     } else {
                         taskGroupConf();
-                        createAndSaveImg(model.getGid());
                     }
                 }
                 break;
-//            case OTHER_REMOVE_GROUP:
-//                createAndSaveImg(model.getGid());
-//                break;
             case CHANGE_GROUP_META:
                 getView().initTitle();
                 break;
         }
-
     }
 
-    private void createAndSaveImg(String gid) {
-        Group group = model.getGroup();
-        int i = group.getUsers().size();
-        i = i > 9 ? 9 : i;
-        //头像地址
-        String url[] = new String[i];
-        for (int j = 0; j < i; j++) {
-            MemberUser userInfo = group.getUsers().get(j);
-//            if (j == i - 1) {
-//                name += userInfo.getName();
-//            } else {
-//                name += userInfo.getName() + "、";
-//            }
-            url[j] = userInfo.getHead();
-        }
-        File file = GroupHeadImageUtil.synthesis(context, url);
-        MsgDao msgDao = new MsgDao();
-        msgDao.groupHeadImgCreate(group.getGid(), file.getAbsolutePath());
-    }
 
     /***
      * 获取群配置,并显示更多按钮
@@ -839,7 +815,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
     }
 
     private void checkMoreVoice(int start, MsgAllBean b) {
-//        LogUtil.getLog().i("AudioPlayManager", "checkMoreVoice--onCreate=" + onCreate);
+//        LogUtil.getLog().i("AudioPlayManager", "checkMoreVoice--initSession=" + initSession);
         int length = model.getTotalSize();
         int index = model.getListData().indexOf(b);
         if (index < 0) {
@@ -965,7 +941,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
             @Override
             public void onStart(MsgAllBean bean) {
                 updatePlayStatus(bean, position, ChatEnum.EPlayStatus.PLAYING);
-//                LogUtil.getLog().i("AudioPlayManager", "onStart--" + bean.getVoiceMessage().getUrl());
+//                LogUtil.getLog().i("AudioPlayManager", "initSession--" + bean.getVoiceMessage().getUrl());
             }
 
             @Override

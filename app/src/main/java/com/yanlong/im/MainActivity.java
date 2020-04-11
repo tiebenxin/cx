@@ -52,6 +52,7 @@ import com.yanlong.im.chat.bean.EnvelopeInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.NotificationConfig;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventMsgSync;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
@@ -63,6 +64,7 @@ import com.yanlong.im.location.LocationPersimmions;
 import com.yanlong.im.location.LocationService;
 import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.notify.NotifySettingDialog;
+import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.shop.ShopFragemnt;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
@@ -132,6 +134,7 @@ import java.util.List;
 import java.util.Locale;
 
 import cn.jpush.android.api.JPushInterface;
+import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -181,6 +184,8 @@ public class MainActivity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //创建仓库-仅登录时会创建
+        MyAppLication.INSTANCE().createRepository();
         EventBus.getDefault().register(this);
         findViews();
         initEvent();
@@ -264,7 +269,52 @@ public class MainActivity extends AppActivity {
             checkPermission();
             initLocation();
         }
+        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
     }
+    private ApplicationRepository.SessionChangeListener sessionChangeListener  = new ApplicationRepository.SessionChangeListener() {
+        @Override
+        public void init(RealmResults<Session> sessions, List<String> sids) {
+            updateUnReadCount();
+        }
+
+        @Override
+        public void delete(List<Integer> positions) {
+            updateUnReadCount();
+        }
+
+        @Override
+        public void insert(List<Integer> positions, List<String> sids) {
+            updateUnReadCount();
+        }
+
+        @Override
+        public void update(List<Integer> positions, List<String> sids) {
+            updateUnReadCount();
+        }
+
+
+    };
+
+    /**
+     * 更新底部未读数
+     *
+     */
+    private void updateUnReadCount(){
+        LogUtil.getLog().i("未读数", "onChange");
+        RealmResults<Session> sessionList = MyAppLication.INSTANCE().getSessions().where().greaterThan("unread_count", 0)
+                .limit(100).findAll();
+        if (sessionList != null) {
+            Number unreadCount = sessionList.where().sum("unread_count");
+            if (unreadCount != null) {
+                updateMsgUnread(unreadCount.intValue());
+            } else {
+                updateMsgUnread(0);
+            }
+        } else {
+            updateMsgUnread(0);
+        }
+    }
+
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -494,6 +544,7 @@ public class MainActivity extends AppActivity {
 
     @Override
     protected void onStop() {
+        MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
         super.onStop();
         updateNetStatus();
         isActivityStop = true;
@@ -550,7 +601,7 @@ public class MainActivity extends AppActivity {
     protected void onResume() {
         super.onResume();
         isActivityStop = false;
-//        taskGetMsgNum();
+        taskGetMsgNum();
         checkNotificationOK();
         checkPayEnvironmentInit();
         if (AppConfig.isOnline()) {

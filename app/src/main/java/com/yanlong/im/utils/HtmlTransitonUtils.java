@@ -84,7 +84,7 @@ public class HtmlTransitonUtils {
                 case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_ADD://群管理变更通知
                     setType13(context, style, bean);
                     break;
-                case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCLE:
+                case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL:
                     setType14(context, style, bean);
                     break;
                 case ChatEnum.ENoticeType.FORBIDDEN_WORDS_OPEN:// 群禁言

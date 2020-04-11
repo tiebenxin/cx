@@ -10,6 +10,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,8 +50,6 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     public View viewNetwork;
     //记录当前要删除的项
     private SwipeMenuLayout currentDelSwipeLayout = null;
-    //是否关闭右侧删除
-    public boolean isNeedCloseSwipe = false;
     private Context context;
     private MainViewModel viewModel;
 
@@ -102,7 +101,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, int position) {
         if (viewHolder instanceof RCViewHolder) {
             RCViewHolder holder = (RCViewHolder) viewHolder;
-            if (isNeedCloseSwipe) {
+            if (viewModel.isNeedCloseSwipe.getValue()) {
                 holder.swipeLayout.quickClose();
             }
             final Session bean = viewModel.sessions.get(position - 1);
@@ -112,6 +111,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             String name = "";
             List<String> avatarList = null;
             String info = "";
+            Log.e("raleigh_test","sessionMoresPositions="+viewModel.sessionMoresPositions.size());
             if (viewModel.sessionMoresPositions.containsKey(bean.getSid())) {
                 Integer index = viewModel.sessionMoresPositions.get(bean.getSid());
                 if (index != null && index >= 0) {
@@ -276,7 +276,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     viewModel.currentDeletePosition.setValue(position - 1);
                 }
             });
-            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#ececec"));
+            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#F2F2F2"));
             holder.iv_disturb.setVisibility(bean.getIsMute() == 0 ? View.INVISIBLE : View.VISIBLE);
         } else if (viewHolder instanceof HeadViewHolder) {
             HeadViewHolder headHolder = (HeadViewHolder) viewHolder;

@@ -754,6 +754,7 @@ public class MsgDao {
         try {
             realm.beginTransaction();
             realm.where(MsgAllBean.class).findAll().deleteAllFromRealm();
+            realm.where(SessionDetail.class).findAll().deleteAllFromRealm();
             //这里要清除关联表
             realm.where(ChatMessage.class).findAll().deleteAllFromRealm();
             realm.where(ImageMessage.class).findAll().deleteAllFromRealm();
@@ -768,12 +769,12 @@ public class MsgDao {
             realm.where(AtMessage.class).findAll().deleteAllFromRealm();
             realm.where(AssistantMessage.class).findAll().deleteAllFromRealm();
             realm.where(VideoMessage.class).findAll().deleteAllFromRealm();
-            realm.where(SessionDetail.class).findAll().deleteAllFromRealm();
+
             //清理角标
             RealmResults<Session> sessions = realm.where(Session.class).findAll();
             for (Session session : sessions) {
                 session.setUnread_count(0);
-                session.setAtMessage(null);
+                session.setAtMessage("");
                 realm.insertOrUpdate(session);
             }
             realm.commitTransaction();
@@ -871,8 +872,6 @@ public class MsgDao {
      * 备注：新增不区分大小写模糊查询
      */
     public List<MsgAllBean> searchMsg4key(String key, String gid, Long uid) {
-
-
         Realm realm = DaoUtil.open();
         List<MsgAllBean> ret = null;
         try {
@@ -880,14 +879,22 @@ public class MsgDao {
             RealmResults<MsgAllBean> msg;
             if (StringUtil.isNotNull(gid)) {//群
                 msg = realm.where(MsgAllBean.class)
-                        .equalTo("gid", gid).and().equalTo("msg_type", 1).and()
+                        .equalTo("gid", gid)
+                        .and()
+                        .equalTo("msg_type", 1)
+                        .and()
                         .contains("chat.msg", key, Case.INSENSITIVE)
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
             } else {//单人
-                msg = realm.where(MsgAllBean.class).equalTo("gid", "").equalTo("msg_type", 1)
-                        .contains("chat.msg", key, Case.INSENSITIVE).beginGroup()
-                        .equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                msg = realm.where(MsgAllBean.class)
+                        .equalTo("gid", "")
+                        .and()
+                        .equalTo("msg_type", 1)
+                        .and()
+                        .contains("chat.msg", key, Case.INSENSITIVE)
+                        .and()
+                        .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
             }
@@ -1437,12 +1444,17 @@ public class MsgDao {
                         } else {
                             Group group = realm.where(Group.class).equalTo("gid", l.getGid()).findFirst();
                             if (group != null) {
-                                top = group.getIsTop();
-                                List<MemberUser> users = realm.copyFromRealm(group.getUsers());
-                                MemberUser member = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), group.getGid());
-                                if (users != null && member != null && !users.contains(member)) {
+                                if (group.getStat() != ChatEnum.EGroupStatus.NORMAL) {
                                     session = realm.copyFromRealm(l);
                                     removes.add(session);
+                                } else {
+                                    top = group.getIsTop();
+                                    List<MemberUser> users = realm.copyFromRealm(group.getUsers());
+                                    MemberUser member = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), group.getGid());
+                                    if (users != null && member != null && !users.contains(member)) {
+                                        session = realm.copyFromRealm(l);
+                                        removes.add(session);
+                                    }
                                 }
                             }
                         }
@@ -2759,13 +2771,18 @@ public class MsgDao {
 
 
     /***
-     * 获取保存群
+     * 获取保存群,是否能展示被封群
      */
-    public List<Group> getMySavedGroup() {
+    public List<Group> getMySavedGroup(boolean canShowForbid) {
         List<Group> results = null;
         Realm realm = DaoUtil.open();
         try {
-            List<Group> groups = realm.where(Group.class).equalTo("saved", 1).findAll();
+            List<Group> groups = null;
+            if (canShowForbid) {
+                groups = realm.where(Group.class).equalTo("saved", 1).findAll();
+            } else {
+                groups = realm.where(Group.class).equalTo("saved", 1).and().equalTo("stat", 0).findAll();
+            }
             int len = groups.size();
             if (len > 0) {
                 results = realm.copyFromRealm(groups);
@@ -3223,7 +3240,6 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
-
     }
 
     //批量删除消息
@@ -3414,5 +3430,26 @@ public class MsgDao {
             DaoUtil.reportException(e);
         }
     }
+
+    //更新群状态
+    public Group updateGroupStatus(String gid, int value) {
+        Group result = null;
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
+                group.setStat(value);
+            }
+            result = realm.copyFromRealm(group);
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return result;
+    }
+
 
 }

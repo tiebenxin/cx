@@ -2,6 +2,7 @@ package com.yanlong.im.chat.bean;
 
 import android.text.TextUtils;
 
+import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -13,6 +14,7 @@ import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
@@ -465,8 +467,20 @@ public class MsgConversionBean {
                         }
                         msgAllBean.setMsgNotice(screenNotice);
                         break;
+                    case FORBBIDEN:
+                        boolean forbid = bean.getChangeGroupMeta().getForbbiden();
+                        msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
+                        MsgNotice forbidNotice = new MsgNotice();
+                        forbidNotice.setMsgid(msgAllBean.getMsg_id());
+                        forbidNotice.setMsgType(ChatEnum.ENoticeType.SNAPSHOT_SCREEN);
+                        if (forbid) {
+                            forbidNotice.setNote(AppConfig.getString(R.string.group_forbid));
+                        } else {
+                            forbidNotice.setNote(AppConfig.getString(R.string.group_disband));
+                        }
+                        msgAllBean.setMsgNotice(forbidNotice);
+                        break;
                 }
-
                 break;
             case AT:
                 if (bean.getAt().getAtType() == MsgBean.AtMessage.AtType.UNRECOGNIZED) {
@@ -639,7 +653,7 @@ public class MsgConversionBean {
                 } else {
                     name = new MsgDao().getUsername4Show(bean.getGid(), bean.getFromUid());
                     stringBuffer.append("你已被\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name + "</font>\"取消管理员身份");
-                    changeViceAdminsNotice.setMsgType(ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCLE);
+                    changeViceAdminsNotice.setMsgType(ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL);
                 }
                 EventBus.getDefault().post(event);
                 changeViceAdminsNotice.setNote(stringBuffer + "<div id='" + bean.getGid() + "'></div>");

@@ -11,9 +11,12 @@ import android.widget.CompoundButton;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.ui.BaseBindActivity;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
+import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.groupmanager.ExitGroupActivity;
 import com.yanlong.im.chat.ui.groupmanager.InactiveMemberActivity;
@@ -21,7 +24,9 @@ import com.yanlong.im.chat.ui.groupmanager.NoRedBagActivity;
 import com.yanlong.im.chat.ui.groupmanager.NoRedEnvelopesActivity;
 import com.yanlong.im.chat.ui.groupmanager.SetupSysManagerActivity;
 import com.yanlong.im.databinding.ActivityGroupManageBinding;
+import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -145,7 +150,7 @@ public class GroupManageActivity extends BaseBindActivity<ActivityGroupManageBin
     }
 
     private void taskGetInfoNetwork() {
-        msgAction.groupInfo(mGid,true, new CallBack<ReturnBean<Group>>() {
+        msgAction.groupInfo(mGid, true, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
@@ -268,7 +273,9 @@ public class GroupManageActivity extends BaseBindActivity<ActivityGroupManageBin
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 bindingView.ckForbiddenWords.setEnabled(true);
                 if (response.body() == null) {
-                    ToastUtil.show(getContext(), "全员禁言开启失败");
+                    ToastUtil.show(getContext(), "全员禁言开启或解除失败");
+                } else if (response.body().isOk()) {
+                    saveMessage(gid, i);
                 } else if (!TextUtils.isEmpty(response.body().getMsg())) {
                     ToastUtil.show(getContext(), response.body().getMsg());
                 }
@@ -378,6 +385,16 @@ public class GroupManageActivity extends BaseBindActivity<ActivityGroupManageBin
                             .putExtra(GroupRobotActivity.AGM_RID, mGinfo.getRobotid()));
                 }
                 break;
+        }
+    }
+
+    private void saveMessage(String gid, int flag) {
+        if (!TextUtils.isEmpty(gid)) {
+            MsgNotice notice = SocketData.createMsgNoticeOfBanWords(SocketData.getUUID(), flag);
+            MsgAllBean msgAllBean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
+            MessageManager.getInstance().saveMessage(msgAllBean);
+            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
+            MessageManager.getInstance().notifyRefreshChat();
         }
     }
 }
