@@ -12,7 +12,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -367,7 +366,6 @@ public class MsgMainFragment extends Fragment {
     private OrderedRealmCollectionChangeListener sessionMoresListener = new OrderedRealmCollectionChangeListener<RealmResults<SessionDetail>>() {
         @Override
         public void onChange(RealmResults<SessionDetail> sessionDetails, OrderedCollectionChangeSet changeSet) {
-            Log.e("raleigh_test", "details=" + sessionDetails.size());
             /***更新位置信息*********************************************************/
             viewModel.sessionMoresPositions.clear();
             for (int i = 0; i < viewModel.sessionMores.size(); i++) {
@@ -439,7 +437,6 @@ public class MsgMainFragment extends Fragment {
         viewModel.isAllSidsChange.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean aBoolean) {
-                Log.e("raleigh_test", "isAllSidsChange=");
                 viewModel.updateSessionMore();
                 //监听列表数据变化
                 viewModel.sessionMores.addChangeListener(sessionMoresListener);
