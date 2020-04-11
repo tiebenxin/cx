@@ -2,20 +2,13 @@ package com.yanlong.im.chat.ui.cell;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.Target;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -40,6 +33,7 @@ public class ChatCellExpress extends ChatCellFileBase {
     private ImageView imageView;
     private ShippedExpressionMessage contentMessage;
     private final RequestOptions options;
+    private String uri;
 
     protected ChatCellExpress(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
@@ -64,6 +58,7 @@ public class ChatCellExpress extends ChatCellFileBase {
         checkSendStatus();
         resetSize();
         if (FaceView.map_FaceEmoji != null && FaceView.map_FaceEmoji.get(contentMessage.getId()) != null) {
+            uri = FaceView.map_FaceEmoji.get(contentMessage.getId()).toString();
             imageView.setVisibility(VISIBLE);
             glide(options, Integer.parseInt(FaceView.map_FaceEmoji.get(contentMessage.getId()).toString()));
         } else {
@@ -76,23 +71,11 @@ public class ChatCellExpress extends ChatCellFileBase {
         Glide.with(getContext())
                 .load(url)
                 .apply(rOptions)
-//                    .thumbnail(0.2f)
+                .thumbnail(0.2f)
                 .into(imageView);
     }
 
     public void glide(RequestOptions rOptions, int id) {
-//        Glide.with(getContext()).load(id).listener(new RequestListener() {
-//            @Override
-//            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
-//                return false;
-//            }
-//        }).apply(rOptions).into(imageView);
-
         Glide.with(getContext())
                 .load(id)
                 .apply(rOptions)
@@ -115,8 +98,8 @@ public class ChatCellExpress extends ChatCellFileBase {
     public void onClick(View view) {
         super.onClick(view);
         if (view.getId() == imageView.getId()) {
-            if (mCellListener != null && model != null) {
-                mCellListener.onEvent(ChatEnum.ECellEventType.EXPRESS_CLICK, model, new Object());
+            if (mCellListener != null && model != null && !TextUtils.isEmpty(uri)) {
+                mCellListener.onEvent(ChatEnum.ECellEventType.EXPRESS_CLICK, model, uri);
             }
         }
     }
@@ -124,8 +107,8 @@ public class ChatCellExpress extends ChatCellFileBase {
     @Override
     public void onBubbleClick() {
         super.onBubbleClick();
-        if (mCellListener != null && model != null) {
-            mCellListener.onEvent(ChatEnum.ECellEventType.EXPRESS_CLICK, model, model.getImage());
+        if (mCellListener != null && model != null && !TextUtils.isEmpty(uri)) {
+            mCellListener.onEvent(ChatEnum.ECellEventType.EXPRESS_CLICK, model, uri);
         }
     }
 

@@ -178,6 +178,7 @@ import com.yanlong.im.view.HeadView2;
 import com.yanlong.im.view.face.AddFaceActivity;
 import com.yanlong.im.view.face.FaceView;
 import com.yanlong.im.view.face.FaceViewPager;
+import com.yanlong.im.view.face.ShowBigFaceActivity;
 import com.yanlong.im.view.face.bean.FaceBean;
 import com.yanlong.im.view.function.ChatExtendMenuView;
 import com.yanlong.im.view.function.FunctionItemModel;
@@ -5383,6 +5384,18 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                 SendFileMessage fileMessage = (SendFileMessage) args[0];
                 //1 如果是我发的文件
                 clickFile(message, fileMessage);
+                break;
+            case ChatEnum.ECellEventType.EXPRESS_CLICK:
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
+                if (args[0] == null) {
+                    return;
+                }
+                String uri = (String) args[0];
+                Bundle bundle = new Bundle();
+                bundle.putString(Preferences.DATA, uri);
+                IntentUtil.gotoActivity(ChatActivity2.this, ShowBigFaceActivity.class, bundle);
                 break;
             case ChatEnum.ECellEventType.RESEND_CLICK:
                 resendMessage(message);
