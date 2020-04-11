@@ -3,6 +3,7 @@ package com.yanlong.im.chat.ui.cell;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -98,6 +99,7 @@ public class ChatCellVideo extends ChatCellImage {
         if (video == null || ivBg == null) {
             return;
         }
+        resetSize();
         String url = video.getBg_url();
         RequestOptions rOptions = new RequestOptions().centerCrop().transform(new RoundTransform(mContext, 10));
         rOptions.override(width, height);
@@ -123,6 +125,35 @@ public class ChatCellVideo extends ChatCellImage {
             return String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond);
         } else {
             return String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond);
+        }
+    }
+
+
+    private void resetSize() {
+        int realW = (int) videoMessage.getWidth();
+        int realH = (int) videoMessage.getHeight();
+        if (realH > 0) {
+            double scale = (realW * 1.00) / realH;
+            if (realW > realH) {
+                width = DEFAULT_W;
+                height = (int) (width / scale);
+            } else if (realW < realH) {
+                height = DEFAULT_H;
+                width = (int) (height * scale);
+            } else {
+                width = height = DEFAULT_H;
+            }
+        }
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        lp.width = width;
+        lp.height = height;
+        ivBg.setLayoutParams(lp);
+
+        if (ll_progress != null) {
+            FrameLayout.LayoutParams lp2 = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+            lp2.width = width;
+            lp2.height = height;
+            ll_progress.setLayoutParams(lp2);
         }
     }
 

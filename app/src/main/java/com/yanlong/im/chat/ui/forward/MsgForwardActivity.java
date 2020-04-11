@@ -2,6 +2,7 @@ package com.yanlong.im.chat.ui.forward;
 
 
 import android.Manifest;
+import android.arch.lifecycle.ViewModelProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
@@ -22,6 +23,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.MainActivity;
+import com.yanlong.im.MainViewModel;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ChatMessage;
@@ -35,6 +38,7 @@ import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.eventbus.AckEvent;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.UpLoadService;
+import com.yanlong.im.chat.ui.forward.vm.ForwardViewModel;
 import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityMsgForwardBinding;
 import com.yanlong.im.location.LocationUtils;
@@ -121,6 +125,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     private DialogCommon2 dialogSendProgress;
     private int prePosition;
     private int preProgress;
+    private ForwardViewModel viewModel;
 
 
     //单条消息转发
@@ -147,6 +152,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
+        viewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(MyAppLication.getInstance())).get(ForwardViewModel.class);
         initIntent();
         findViews();
         initEvent();
@@ -155,9 +161,20 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (viewModel != null) {
+            viewModel.checkRealmStatus();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         dismissSendProgress();
+        if (viewModel != null) {
+            viewModel.onDestroy();
+        }
     }
 
     private void dismissSendProgress() {
@@ -1160,5 +1177,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     private String getProgressText(int position, int count, int progress) {
         LogUtil.getLog().i("分享", position + "/" + count + "--进度==" + progress);
         return "正在发送图片（" + position + "/" + count + "): " + progress + "%";
+    }
+
+
+    public ForwardViewModel getViewModel() {
+        return viewModel;
     }
 }
