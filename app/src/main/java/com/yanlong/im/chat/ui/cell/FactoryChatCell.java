@@ -78,6 +78,10 @@ public class FactoryChatCell {
             case FILE_SEND:
                 cell = new ChatCellFile(mContext, view, mListener, mAdapter);
                 break;
+            case CALL_RECEIVED:
+            case CALL_SEND:
+                cell = new ChatCellCall(mContext, view, mListener, mAdapter);
+                break;
             case WEB_RECEIVED:
             case WEB_SEND:
                 cell = new ChatCellWeb(mContext, view, mListener, mAdapter);

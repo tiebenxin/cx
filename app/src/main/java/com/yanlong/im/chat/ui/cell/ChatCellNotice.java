@@ -8,9 +8,13 @@ import android.widget.TextView;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.MsgTagHandler;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgNotice;
+import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.utils.HtmlTransitonUtils;
+
+import net.cb.cb.library.AppConfig;
 
 /*
  * 通知消息, 撤回消息
@@ -35,19 +39,36 @@ public class ChatCellNotice extends ChatCellBase {
     protected void showMessage(MsgAllBean message) {
         super.showMessage(message);
         if (messageType == ChatEnum.EMessageType.NOTICE) {
-            if (message.getMsgNotice().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT || message.getMsgNotice().getMsgType() == 17) {
+            MsgNotice notice = message.getMsgNotice();
+            if (notice.getMsgType() == MsgNotice.MSG_TYPE_DEFAULT
+                    || notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
+                    || notice.getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR
+                    || notice.getMsgType() == ChatEnum.ENoticeType.GROUP_BAN_WORDS) {
                 tv_content.setText(Html.fromHtml(message.getMsgNotice().getNote()));
             } else {
-                tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgNotice().getNote(), message.getMsgNotice().getMsgType()));
+                if (notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE
+                        || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF
+                        || notice.getMsgType() == ChatEnum.ENoticeType.SNAPSHOT_SCREEN) {
+                    tv_content.setText(Html.fromHtml(notice.getNote(), null,
+                            new MsgTagHandler(AppConfig.getContext(), true, message.getMsg_id(), (IActionTagClickListener) getContext())));
+                } else {
+                    tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgNotice().getNote(), message.getMsgNotice().getMsgType()));
+                }
             }
 
-            //8.22 如果是红包消息类型则显示红包图
-            if (message.getMsgNotice().getMsgType() != null && (message.getMsgNotice().getMsgType() == 7 || message.getMsgNotice().getMsgType() == 8 || message.getMsgNotice().getMsgType() == 17)) {
+            //如果是红包消息类型则显示红包图
+            if (message.getMsgNotice().getMsgType() != null && (notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED
+                    || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE
+                    || notice.getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
+                    || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED
+                    || notice.getMsgType() == ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE
+                    || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF)) {
                 iv_icon.setVisibility(View.VISIBLE);
             } else {
                 iv_icon.setVisibility(View.GONE);
             }
         } else if (messageType == ChatEnum.EMessageType.MSG_CANCEL) {
+            iv_icon.setVisibility(View.GONE);
             tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
             if (message.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
                 tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
@@ -55,6 +76,16 @@ public class ChatCellNotice extends ChatCellBase {
                 tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType()));
             }
             iv_icon.setVisibility(View.GONE);
+        } else if (messageType == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME) {
+            iv_icon.setVisibility(View.GONE);
+            if (message.getMsgCancel() != null) {
+                tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
+            }
+        } else if (messageType == ChatEnum.EMessageType.TRANSFER_NOTICE) {
+            iv_icon.setVisibility(View.GONE);
+            if (message.getMsgCancel() != null) {
+                tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
+            }
         }
     }
 }

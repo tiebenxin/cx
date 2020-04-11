@@ -367,7 +367,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     }
 
     //设置阅后即焚时钟UI
-    private void setBellUI(int type, boolean isRecovery, boolean isMe) {
+    public void setBellUI(int type, boolean isRecovery, boolean isMe) {
         if (ivBell == null) {
             return;
         }
@@ -425,6 +425,12 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         } else {
             LogUtil.getLog().i("ChatCellBase", "隐藏已读 msgId--" + model.getMsg_id());
             viewRead.setVisibility(View.GONE);
+        }
+    }
+
+    public void setBellId(int rid) {
+        if (ivBell != null) {
+            ivBell.setImageResource(rid);
         }
     }
 

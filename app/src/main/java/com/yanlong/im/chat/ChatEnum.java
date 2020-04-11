@@ -79,6 +79,10 @@ public class ChatEnum {
         FILE_RECEIVED(R.layout.cell_file_received),
         FILE_SEND(R.layout.cell_file_send),
 
+        //音视频通话消息
+        CALL_RECEIVED(R.layout.cell_call_received),
+        CALL_SEND(R.layout.cell_call_send),
+
         //分享 web 或 游戏消息
         WEB_RECEIVED(R.layout.cell_web_received),
         WEB_SEND(R.layout.cell_web_send),
@@ -272,7 +276,7 @@ public class ChatEnum {
             ENoticeType.RECEIVE_RED_ENVELOPE, ENoticeType.CANCEL, ENoticeType.BLACK_ERROR, ENoticeType.NO_FRI_ERROR, ENoticeType.LOCK, ENoticeType.CHANGE_VICE_ADMINS_ADD,
             ENoticeType.CHANGE_VICE_ADMINS_CANCEL, ENoticeType.FORBIDDEN_WORDS_OPEN, ENoticeType.FORBIDDEN_WORDS_CLOSE, ENoticeType.RED_ENVELOPE_RECEIVED_SELF,
             ENoticeType.FORBIDDEN_WORDS_SINGE, ENoticeType.OPEN_UP_RED_ENVELOPER, ENoticeType.SYS_ENVELOPE_RECEIVED_SELF, ENoticeType.RECEIVE_SYS_ENVELOPE, ENoticeType.SYS_ENVELOPE_RECEIVED,
-            ENoticeType.GROUP_FORBID,ENoticeType.GROUP_BAN_WORDS})
+            ENoticeType.GROUP_FORBID, ENoticeType.GROUP_BAN_WORDS})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ENoticeType {
         int ENTER_BY_QRCODE = 1; //扫二维码进群
