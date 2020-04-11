@@ -87,7 +87,7 @@ public class MainViewModel extends ViewModel {
 
     public void updateItemSessionDetail() {
         //更新当前sessionDetail对象的所有数据
-        repository.updateSessionDetail(sessionMoresPositions.keySet().toArray(new String[sessionMoresPositions.size()]));
+        repository.updateSessionDetail(allSids.toArray(new String[allSids.size()]));
     }
 
     /**
