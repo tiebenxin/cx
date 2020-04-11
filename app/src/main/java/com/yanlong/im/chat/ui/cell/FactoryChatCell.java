@@ -86,6 +86,10 @@ public class FactoryChatCell {
             case WEB_SEND:
                 cell = new ChatCellWeb(mContext, view, mListener, mAdapter);
                 break;
+            case EXPRESS_RECEIVED:
+            case EXPRESS_SEND:
+                cell = new ChatCellExpress(mContext, view, mListener, mAdapter);
+                break;
             case MULTI_RECEIVED:
             case MULTI_SEND:
                 cell = new ChatCellMulti(mContext, view, mListener, mAdapter);

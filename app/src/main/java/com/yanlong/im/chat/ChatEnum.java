@@ -87,6 +87,9 @@ public class ChatEnum {
         WEB_RECEIVED(R.layout.cell_web_received),
         WEB_SEND(R.layout.cell_web_send),
 
+        //表情消息
+        EXPRESS_RECEIVED(R.layout.cell_img_received),
+        EXPRESS_SEND(R.layout.cell_img_send),
 
         //合并转发
         MULTI_RECEIVED(R.layout.cell_txt_received),
@@ -152,7 +155,7 @@ public class ChatEnum {
      * */
     @IntDef({ECellEventType.TXT_CLICK, ECellEventType.IMAGE_CLICK, ECellEventType.CARD_CLICK, ECellEventType.RED_ENVELOPE_CLICK, ECellEventType.LONG_CLICK, ECellEventType.TRANSFER_CLICK,
             ECellEventType.AVATAR_CLICK, ECellEventType.RESEND_CLICK, ECellEventType.AVATAR_LONG_CLICK, ECellEventType.VOICE_CLICK, ECellEventType.VIDEO_CLICK, ECellEventType.FILE_CLICK,
-            ECellEventType.BALANCE_ASSISTANT_CLICK, ECellEventType.WEB_CLICK, ECellEventType.MULTI_CLICK, ECellEventType.MAP_CLICK, ECellEventType.VOICE_VIDEO_CALL})
+            ECellEventType.BALANCE_ASSISTANT_CLICK, ECellEventType.WEB_CLICK, ECellEventType.MULTI_CLICK, ECellEventType.MAP_CLICK, ECellEventType.VOICE_VIDEO_CALL, ECellEventType.EXPRESS_CLICK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ECellEventType {
         int TXT_CLICK = 0; //点击文本消息
@@ -172,6 +175,7 @@ public class ChatEnum {
         int MULTI_CLICK = 14;//合并消息
         int MAP_CLICK = 15;//位置消息
         int VOICE_VIDEO_CALL = 16;//点击音视频电话消息
+        int EXPRESS_CLICK = 17;//点击表情
     }
 
 

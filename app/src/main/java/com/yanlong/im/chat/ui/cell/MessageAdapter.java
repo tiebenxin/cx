@@ -37,8 +37,6 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MessageAdapter extends RecyclerView.Adapter {
     int COUNT = 12;
-
-
     private final Context context;
     private final ICellEventListener eventListener;
     private List<MsgAllBean> mList;
@@ -120,8 +118,8 @@ public class MessageAdapter extends RecyclerView.Adapter {
             savePositions(msg.getMsg_id(), position, msg.isMe(), (ChatCellBase) viewHolder);
             addSurvivalTime(msg);
             if (msg.getSurvival_time() > 0 && msg.getStartTime() > 0 && msg.getEndTime() > 0) {
-                ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), false, msg.isMe());
                 bindTimer(msg.getMsg_id(), msg.isMe(), msg.getStartTime(), msg.getEndTime());
+                ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), false, msg.isMe());
             } else {
                 ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), true, msg.isMe());
             }
@@ -272,7 +270,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
     }
 
-    public void onDestory() {
+    public void onDestroy() {
         //清除计时器，避免内存溢出
         for (Disposable timer : mTimers.values()) {
             timer.dispose();
@@ -361,6 +359,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         if (mTimersIndexs.containsKey(msgId)) {
             String name = "icon_st_" + Math.min(COUNT, mTimersIndexs.get(msgId) + 1);
             int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
+            LogUtil.getLog().i(MessageAdapter.class.getSimpleName(), "SurvivalTime--" + name);
             if (mMsgIdPositions.containsKey(msgId)) {
                 cellBase.setBellId(id);
             }
@@ -370,28 +369,28 @@ public class MessageAdapter extends RecyclerView.Adapter {
     /**
      * 添加阅读即焚消息到队列
      */
-    public void addSurvivalTime(MsgAllBean msgbean) {
+    public void addSurvivalTime(MsgAllBean msg) {
         boolean isGroup = isGroup();
-        boolean isMe = msgbean.isMe();
+        boolean isMe = msg.isMe();
         //单聊 自己发的消息，需等待对方已读
-        boolean checkNotGroupAndNotRead = !isGroup && isMe && msgbean.getRead() != 1;
-        if (msgbean == null || BurnManager.getInstance().isContainMsg(msgbean) || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL
+        boolean checkNotGroupAndNotRead = !isGroup && isMe && msg.getRead() != 1;
+        if (msg == null || BurnManager.getInstance().isContainMsg(msg) || msg.getSend_state() != ChatEnum.ESendStatus.NORMAL
                 || checkNotGroupAndNotRead) {
             return;
         }
         //单聊使用已读时间作为焚开始时间
-        long date = msgbean.getReadTime();
+        long date = msg.getReadTime();
 
         //群聊暂时不处理（待后期策略）
         if (isGroup || date == 0) {
             date = DateUtils.getSystemTime();
         }
-        if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0) {
-            msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000), date, msgbean.getMsg_id());
-            msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
-            msgbean.setStartTime(date);
-            EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean, null));
-            LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间1----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
+        if (msg.getSurvival_time() > 0 && msg.getEndTime() == 0) {
+            msgDao.setMsgEndTime((date + msg.getSurvival_time() * 1000), date, msg.getMsg_id());
+            msg.setEndTime(date + msg.getSurvival_time() * 1000);
+            msg.setStartTime(date);
+            EventBus.getDefault().post(new EventSurvivalTimeAdd(msg, null));
+            LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间1----> end:" + (date + msg.getSurvival_time() * 1000) + "---msgid:" + msg.getMsg_id());
         }
     }
 

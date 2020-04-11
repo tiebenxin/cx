@@ -659,7 +659,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     layout = ChatEnum.EChatCellLayout.STAMP_RECEIVED;
                 }
                 break;
-            case ChatEnum.EMessageType.AT://戳一下
+            case ChatEnum.EMessageType.AT://@消息
                 if (isMe) {
                     layout = ChatEnum.EChatCellLayout.AT_SEND;
                 } else {
@@ -691,6 +691,13 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     layout = ChatEnum.EChatCellLayout.CALL_SEND;
                 } else {
                     layout = ChatEnum.EChatCellLayout.CALL_RECEIVED;
+                }
+                break;
+            case ChatEnum.EMessageType.SHIPPED_EXPRESSION://表情
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.EXPRESS_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.EXPRESS_RECEIVED;
                 }
                 break;
             default://未识别

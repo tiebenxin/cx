@@ -125,7 +125,7 @@ public class ChatCellVoice extends ChatCellBase {
             float x = DensityUtil.dip2px(getContext(), 94);//viewOtP.getX();//原始值60
             int w = new Float((wsum - x) / 60 * (s)).intValue();
             ViewGroup.LayoutParams layoutParams = bubbleLayout.getLayoutParams();
-            layoutParams.width = w + getOtherWidth();
+            layoutParams.width = w + DensityUtil.dip2px(getContext(), 60);
             bubbleLayout.setMinimumWidth(w);
             LogUtil.getLog().i(ChatCellVoice.class.getSimpleName(), "updateBubbleWidth--width=" + w);
         }
@@ -141,10 +141,12 @@ public class ChatCellVoice extends ChatCellBase {
     private int getOtherWidth() {
         int width = 0;
         if (ivVoice != null) {
+            ivVoice.measure(View.MeasureSpec.EXACTLY, View.MeasureSpec.EXACTLY);
             ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) ivVoice.getLayoutParams();
             width += ivVoice.getMaxWidth() + layoutParams.leftMargin + layoutParams.rightMargin;
         }
         if (tvTime != null) {
+            tvTime.measure(View.MeasureSpec.EXACTLY, View.MeasureSpec.EXACTLY);
             ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) tvTime.getLayoutParams();
             width += tvTime.getMaxWidth() + layoutParams.leftMargin + layoutParams.rightMargin;
         }
