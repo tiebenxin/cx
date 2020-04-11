@@ -32,7 +32,7 @@ import java.util.List;
 public class ForwardRosterFragment extends BaseMvpFragment<ForwardModel, ForwardView, ForwardPresenter> implements ForwardView {
 
     private FragmentForwardSessionBinding ui;
-    private AdapterForwardRoster adapter;
+    private ForwardRosterAdapter adapter;
     private IForwardRosterListener listener;
     private List<UserInfo> userlist;
 
@@ -62,7 +62,7 @@ public class ForwardRosterFragment extends BaseMvpFragment<ForwardModel, Forward
     }
 
     private void initAdapter() {
-        adapter = new AdapterForwardRoster(getActivity());
+        adapter = new ForwardRosterAdapter(getActivity(),((MsgForwardActivity) getActivity()).getViewModel());
         ui.listView.init(adapter);
         ui.listView.getLoadView().setStateNormal();
         adapter.setForwardListener(listener);
@@ -100,9 +100,8 @@ public class ForwardRosterFragment extends BaseMvpFragment<ForwardModel, Forward
         }
 
         userlist=list;
-
-        List<UserInfo> temp=searchSessionBykey(userlist,MsgForwardActivity.searchKey);
-        adapter.bindData(temp);
+//        List<UserInfo> temp=searchSessionBykey(userlist,MsgForwardActivity.searchKey);
+//        adapter.bindData(temp);
         ui.listView.init(adapter);
     }
 

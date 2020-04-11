@@ -63,11 +63,7 @@
                     <ImageView
                         android:id="@+id/iv_img"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:selectAllOnFocus="true"
-                        android:textColor="@color/black"
-                        android:textIsSelectable="false"
-                        android:textSize="15sp" />
+                        android:layout_height="wrap_content" />
 
                     <LinearLayout
                         android:id="@+id/ll_progress"

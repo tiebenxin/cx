@@ -157,7 +157,7 @@ public class ChatCellImage extends ChatCellFileBase {
     public void onBubbleClick() {
         super.onBubbleClick();
         if (mCellListener != null && model != null) {
-            mCellListener.onEvent(ChatEnum.ECellEventType.IMAGE_CLICK, model, new Object());
+            mCellListener.onEvent(ChatEnum.ECellEventType.IMAGE_CLICK, model, model.getImage());
         }
     }
 
@@ -178,16 +178,4 @@ public class ChatCellImage extends ChatCellFileBase {
 
         }
     }
-
-//    public void updateProgress(@ChatEnum.ESendStatus int status, int progress) {
-//        if (ll_progress != null && progressBar != null && tv_progress != null) {
-//            checkSendStatus();
-//            if (progress > 0 && progress < 100) {
-//                ll_progress.setVisibility(View.VISIBLE);
-//                tv_progress.setText(progress + "%");
-//            } else {
-//                ll_progress.setVisibility(View.GONE);
-//            }
-//        }
-//    }
 }

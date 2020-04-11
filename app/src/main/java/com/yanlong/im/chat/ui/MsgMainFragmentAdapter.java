@@ -26,6 +26,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.ui.chat.ChatActivity2;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.wight.avatar.MultiImageView;
 
@@ -111,7 +112,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             String name = "";
             List<String> avatarList = null;
             String info = "";
-            Log.e("raleigh_test","sessionMoresPositions="+viewModel.sessionMoresPositions.size());
+            Log.e("raleigh_test", "sessionMoresPositions=" + viewModel.sessionMoresPositions.size());
             if (viewModel.sessionMoresPositions.containsKey(bean.getSid())) {
                 Integer index = viewModel.sessionMoresPositions.get(bean.getSid());
                 if (index != null && index >= 0) {
@@ -261,7 +262,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             holder.viewIt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    context.startActivity(new Intent(context, ChatActivity.class)
+                    context.startActivity(new Intent(context, ChatActivity2.class)
                             .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
                             .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
                             .putExtra(ChatActivity.ONLINE_STATE, viewModel.onlineState.getValue())

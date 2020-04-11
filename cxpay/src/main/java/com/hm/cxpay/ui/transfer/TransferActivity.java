@@ -135,6 +135,9 @@ public class TransferActivity extends BasePayActivity {
                         if (bank != null) {
                             showInputPasswordDialog(money, PayEnum.EPayStyle.BANK, bank);
                         } else {
+                            if (PayEnvironment.getInstance().getUser() == null) {
+                                return;
+                            }
                             showBalanceNoEnoughDialog(money, PayEnvironment.getInstance().getUser().getBalance());
                         }
                     }

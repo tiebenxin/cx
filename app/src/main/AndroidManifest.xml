@@ -699,6 +699,7 @@
                 <!--                <data android:mimeType="*/*" />-->
             </intent-filter>
         </activity>
+        <activity android:name=".chat.ui.chat.ChatActivity2" />
 
     </application>
 
