@@ -63,7 +63,7 @@ public class ApplicationLocalDataSource {
      *
      * @return
      */
-    public RealmResults<UserInfo> getFriends() {
+    public RealmResults<UserInfo> getFriends(int limit) {
         boolean isNeedResetFriendTag= MyAppLication.getInstance().getSharedPreferences(SharedPreferencesUtil.SPName.USER_SETTING.toString(), Context.MODE_PRIVATE)
                 .getBoolean("isNeedResetFriendTag",true);
         if(isNeedResetFriendTag){
@@ -92,7 +92,7 @@ public class ApplicationLocalDataSource {
 
         return realm.where(UserInfo.class)
                 .beginGroup().equalTo("uType", 2).or().equalTo("uType", 4).endGroup()
-                .sort("tag", Sort.ASCENDING).findAllAsync();
+                .sort("tag", Sort.ASCENDING).limit(limit).findAllAsync();
     }
 
     public void onDestory() {

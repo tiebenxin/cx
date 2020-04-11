@@ -178,6 +178,14 @@ public class MyAppLication extends MainApplication {
         if(repository!=null)repository.loadMoreSessions();
     }
 
+    /**
+     * 加载更多通讯录好友,每1000条递增
+     */
+    public void loadMoreFriends(){
+        if(repository!=null)repository.loadMoreFriends();
+    }
+
+
     private void initBuildType() {
         switch (BuildConfig.BUILD_TYPE) {
             case "debug":

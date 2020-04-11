@@ -21,6 +21,7 @@ import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.MultiListView;
 import net.cb.cb.library.view.PySortView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -80,11 +81,13 @@ public class FriendMainFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         //MainActivity的viewModel
         viewModel = new ViewModelProvider(getActivity(), ViewModelProvider.AndroidViewModelFactory.getInstance(MyAppLication.getInstance())).get(MainViewModel.class);
+        updateFriends();
         initEvent();
-        initObserver();
     }
 
-    private void initObserver() {
+    private void updateFriends() {
+        if(viewModel.friends!=null)viewModel.friends.removeChangeListener(friendsChangeListener);
+        viewModel.friends = MyAppLication.INSTANCE().getFriends();
         viewModel.friends.addChangeListener(friendsChangeListener);
     }
 
@@ -148,6 +151,23 @@ public class FriendMainFragment extends Fragment {
         adapter = new FriendMainFragmentAdapter(requireContext(), viewModel);
         mtListView.init(adapter);
         mtListView.getLoadView().setStateNormal();
+        mtListView.setEvent(new MultiListView.Event() {
+            @Override
+            public void onRefresh() {
+            }
+
+            @Override
+            public void onLoadMore() {
+                MyAppLication.INSTANCE().loadMoreFriends();
+                updateFriends();
+            }
+
+            @Override
+            public void onLoadFail() {
+            }
+        });
+        //必须在setEvent后调用
+        mtListView.getSwipeLayout().setEnabled(false);
         //联动
         viewType.setLinearLayoutManager(mtListView.getLayoutManager());
         viewType.setListView(mtListView.getListView());

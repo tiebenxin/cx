@@ -136,18 +136,17 @@ public class MsgMainFragment extends Fragment {
         mtListView.setEvent(new MultiListView.Event() {
             @Override
             public void onRefresh() {
-                mtListView.getSwipeLayout().setRefreshing(false);
+
             }
 
             @Override
             public void onLoadMore() {
-                mtListView.getSwipeLayout().setRefreshing(false);
                 MyAppLication.INSTANCE().loadMoreSessions();
             }
 
             @Override
             public void onLoadFail() {
-                mtListView.getSwipeLayout().setRefreshing(false);
+
             }
         });
         SocketUtil.getSocketUtil().addEvent(socketEvent = new SocketEvent() {

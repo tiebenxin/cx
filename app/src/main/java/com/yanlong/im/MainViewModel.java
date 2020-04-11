@@ -50,7 +50,6 @@ public class MainViewModel extends ViewModel {
     public MainViewModel() {
         repository = new MainRepository();
         isSessionDetailsLoad.setValue(false);
-        friends=MyAppLication.INSTANCE().getFriends();
     }
 
     public  void initSession(List<String> sids) {
