@@ -76,7 +76,7 @@ public class QRCodeManage {
     public static final String ADD_GROUP_FUNCHTION = "ADDGROUP"; //添加群
 
     public static final String DOWNLOAD_APP_URL = "https://www.zln365.com"; //下载地址
-    public static final String PC_LOGIN_URL = "xc://login/"; //扫码登录地址
+    public static final String PC_LOGIN_URL = "cx://login/"; //扫码登录地址
     private static String code = "";//扫码后的code
     private static String synck = "0";//是否同步  1同步 0不同步
 
