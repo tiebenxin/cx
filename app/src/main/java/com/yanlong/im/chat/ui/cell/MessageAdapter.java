@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.ui.cell;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.utils.BurnManager;
+import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.utils.LogUtil;
 
@@ -130,7 +132,12 @@ public class MessageAdapter extends RecyclerView.Adapter {
                 imageCell.updateProgress(msg.getSend_state(), progress);
             } else if (msg.getMsg_type() == ChatEnum.EMessageType.VOICE) {
                 ChatCellVoice voiceCell = (ChatCellVoice) viewHolder;
-                voiceCell.updateVoice();
+                if (msg == null && msg.getVoiceMessage() == null) {
+                    return;
+                }
+                voiceCell.setSendStatus(false);
+                String url = msg.isMe() ? msg.getVoiceMessage().getLocalUrl() : msg.getVoiceMessage().getUrl();
+                voiceCell.updateVoice(AudioPlayManager.getInstance().isPlay(Uri.parse(url)));
             } else if (msg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
                 ChatCellVideo videoCell = (ChatCellVideo) viewHolder;
                 videoCell.updateMessage(msg);

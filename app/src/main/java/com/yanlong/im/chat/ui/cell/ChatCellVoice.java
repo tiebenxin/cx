@@ -1,21 +1,25 @@
 package com.yanlong.im.chat.ui.cell;
 
 import android.content.Context;
-import android.net.Uri;
+import android.graphics.drawable.AnimationDrawable;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.nim_lib.util.ScreenUtil;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VoiceMessage;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
 
+import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 /*
@@ -24,7 +28,6 @@ import static android.view.View.VISIBLE;
 public class ChatCellVoice extends ChatCellBase {
 
     private VoiceMessage voiceMessage;
-    private Uri uri;
     private ImageView ivVoice;
     private TextView tvTime;
     private ImageView ivStatus;
@@ -48,6 +51,7 @@ public class ChatCellVoice extends ChatCellBase {
         if (voiceMessage != null) {
             updateBubbleWidth(voiceMessage.getTime());
             initTime(voiceMessage.getTime());
+            updateUnread(voiceMessage.getPlayStatus());
         }
     }
 
@@ -59,10 +63,46 @@ public class ChatCellVoice extends ChatCellBase {
         }
     }
 
-    void updateVoice() {
+    void updateVoice(boolean isPlay) {
+        LogUtil.getLog().i(ChatCellVoice.class.getSimpleName(), "updateVoice");
         voiceMessage = model.getVoiceMessage();
         if (voiceMessage != null) {
-            uri = Uri.parse(voiceMessage.getUrl());
+            int playStatus = voiceMessage.getPlayStatus();
+            updateUnread(playStatus);
+            if (isPlay && playStatus == ChatEnum.EPlayStatus.PLAYING) {
+                ((AnimationDrawable) ivVoice.getDrawable()).selectDrawable(2);
+                ((AnimationDrawable) ivVoice.getDrawable()).start();
+            } else {
+                ((AnimationDrawable) ivVoice.getDrawable()).selectDrawable(0);
+                ((AnimationDrawable) ivVoice.getDrawable()).stop();
+            }
+            if (!isMe && !model.isRead()) {
+                setDownloadStatus(playStatus, model.isRead());
+            }
+        }
+    }
+
+    private void updateUnread(int playStatus) {
+        if (ivStatus == null || isMe) {
+            return;
+        }
+        ivStatus.setVisibility(playStatus != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
+
+    }
+
+    private void setDownloadStatus(int playStatus, boolean isRead) {
+        switch (playStatus) {
+            case ChatEnum.EPlayStatus.DOWNLOADING://正常
+                if (!isRead) {
+                    Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
+                    ivStatus.startAnimation(rotateAnimation);
+                    ivStatus.setVisibility(VISIBLE);
+                }
+                break;
+            case ChatEnum.EPlayStatus.NO_PLAY:
+                ivStatus.clearAnimation();
+                ivStatus.setVisibility(GONE);
+                break;
         }
     }
 
@@ -78,12 +118,16 @@ public class ChatCellVoice extends ChatCellBase {
         if (bubbleLayout == null) {
             return;
         }
+        LogUtil.getLog().i(ChatCellVoice.class.getSimpleName(), "updateBubbleWidth--len=" + len);
         if (len > 0) {
             int s = len > 60 ? 60 : len;
-            int wsum = getScreenWidth() - DensityUtil.dip2px(getContext(), 74) * 2;//-DensityUtil.dip2px(getContext(),35);
+            int wsum = getScreenWidth() - DensityUtil.dip2px(getContext(), 74) * 2;
             float x = DensityUtil.dip2px(getContext(), 94);//viewOtP.getX();//原始值60
             int w = new Float((wsum - x) / 60 * (s)).intValue();
+            ViewGroup.LayoutParams layoutParams = bubbleLayout.getLayoutParams();
+            layoutParams.width = w + getOtherWidth();
             bubbleLayout.setMinimumWidth(w);
+            LogUtil.getLog().i(ChatCellVoice.class.getSimpleName(), "updateBubbleWidth--width=" + w);
         }
     }
 
@@ -92,5 +136,19 @@ public class ChatCellVoice extends ChatCellBase {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         windowManager.getDefaultDisplay().getMetrics(displayMetrics);
         return displayMetrics.widthPixels;
+    }
+
+    private int getOtherWidth() {
+        int width = 0;
+        if (ivVoice != null) {
+            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) ivVoice.getLayoutParams();
+            width += ivVoice.getMaxWidth() + layoutParams.leftMargin + layoutParams.rightMargin;
+        }
+        if (tvTime != null) {
+            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) tvTime.getLayoutParams();
+            width += tvTime.getMaxWidth() + layoutParams.leftMargin + layoutParams.rightMargin;
+        }
+        LogUtil.getLog().i(ChatCellVoice.class.getSimpleName(), "updateBubbleWidth--other-width=" + width);
+        return width;
     }
 }

@@ -95,6 +95,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="4dp"
+                        android:gravity="center_vertical"
                         android:background="@drawable/selector_chat_me_touch"
                         android:visibility="visible">
 
