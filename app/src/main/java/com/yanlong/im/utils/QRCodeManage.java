@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -325,6 +326,7 @@ public class QRCodeManage {
      * 扫码登录弹框(特殊样式/暂不复用/加底部弹出动画效果)
      */
     private static void showSweepCodeLoginDialog(Activity activity){
+        synck = "0";
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setCancelable(true);
         final AlertDialog dialog = dialogBuilder.create();
@@ -334,6 +336,20 @@ public class QRCodeManage {
         TextView tvExit = dialogView.findViewById(R.id.tv_exit);
         TextView tvSure = dialogView.findViewById(R.id.tv_sure);
         TextView tvCancel = dialogView.findViewById(R.id.tv_cancel);
+        ImageView ivCheck = dialogView.findViewById(R.id.iv_check);
+        //是否同步
+        ivCheck.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(synck.equals("0")){
+                    ivCheck.setImageResource(R.drawable.ic_check);
+                    synck = "1";
+                }else {
+                    ivCheck.setImageResource(R.drawable.ic_uncheck);
+                    synck = "0";
+                }
+            }
+        });
         //退出
         tvExit.setOnClickListener(new View.OnClickListener() {
             @Override
