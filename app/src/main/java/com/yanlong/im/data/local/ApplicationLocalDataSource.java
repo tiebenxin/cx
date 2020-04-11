@@ -1,7 +1,13 @@
 package com.yanlong.im.data.local;
 
+import android.content.Context;
+
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
+
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -26,7 +32,7 @@ public class ApplicationLocalDataSource {
     }
 
     /**
-     * 更新全部
+     * 更新全部 session详情
      */
     public void updateSessionDetail(int limit) {
         updateSessionDetail.update(limit);
@@ -47,15 +53,53 @@ public class ApplicationLocalDataSource {
      * @return
      */
     public RealmResults<Session> getSessions(int limit) {
-        limit=100;
         String[] orderFiled = {"isTop", "up_time"};
         Sort[] sorts = {Sort.DESCENDING, Sort.DESCENDING};
-        return  realm.where(Session.class).sort(orderFiled, sorts).limit(limit).findAllAsync();
+        return realm.where(Session.class).sort(orderFiled, sorts).limit(limit).findAllAsync();
+    }
+
+    /**
+     * 获取session 列表-异步
+     *
+     * @return
+     */
+    public RealmResults<UserInfo> getFriends() {
+        boolean isNeedResetFriendTag= MyAppLication.getInstance().getSharedPreferences(SharedPreferencesUtil.SPName.USER_SETTING.toString(), Context.MODE_PRIVATE)
+                .getBoolean("isNeedResetFriendTag",true);
+        if(isNeedResetFriendTag){
+            //兼容老用户，需要第一次将tage-#更改为a,方便排序
+            realm.executeTransactionAsync(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    //批量更改
+                    RealmResults<UserInfo> userInfos = realm.where(UserInfo.class)
+                            .equalTo("tag", "#")
+                            .and()
+                            .beginGroup().equalTo("uType", 2).or().equalTo("uType", 4).endGroup()
+                            .findAll();
+                    //批量更新
+                    if (userInfos != null && userInfos.size() > 0) userInfos.setString("tag", "a");
+                }
+            }, new Realm.Transaction.OnSuccess() {
+                @Override
+                public void onSuccess() {
+                    //记住，下次不用再重置了
+                    MyAppLication.getInstance().getSharedPreferences(SharedPreferencesUtil.SPName.USER_SETTING.toString(), Context.MODE_PRIVATE)
+                            .edit().putBoolean("isNeedResetFriendTag",false).apply();
+                }
+            });
+        }
+
+        return realm.where(UserInfo.class)
+                .beginGroup().equalTo("uType", 2).or().equalTo("uType", 4).endGroup()
+                .sort("tag", Sort.DESCENDING).findAllAsync();
     }
 
     public void onDestory() {
         if (realm != null) {
             DaoUtil.close(realm);
         }
+        realm = null;
+        updateSessionDetail = null;
     }
 }

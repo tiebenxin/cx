@@ -26,6 +26,7 @@ import com.yanlong.im.controll.AVChatKit;
 import com.yanlong.im.location.LocationService;
 import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.user.bean.TokenBean;
+import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.EmojBitmapCache;
 import com.yanlong.im.utils.IVolleyInitImp;
 import com.yanlong.im.utils.LogcatHelper;
@@ -60,6 +61,8 @@ public class MyAppLication extends MainApplication {
 
     private static final String TAG = "MyAppLication";
     private final String U_APP_KEY = "5d53659c570df3d281000225";
+    //通讯录存储
+    public final String FRIEND_TAG="z";
     public LocationService locationService;
 //    public Vibrator mVibrator;
     //全局数据仓库
@@ -133,8 +136,21 @@ public class MyAppLication extends MainApplication {
     public static MyAppLication INSTANCE() {
         return (MyAppLication)instance;
     }
+
+    /**
+     * 获取所有session会话列表数据
+     * @return
+     */
     public RealmResults<Session> getSessions(){
         return repository==null?null:repository.getSesisons();
+    }
+
+    /**
+     * 获取所有通讯录好友
+     * @return
+     */
+    public RealmResults<UserInfo> getFriends(){
+        return repository==null?null:repository.getFriends();
     }
 
     /**

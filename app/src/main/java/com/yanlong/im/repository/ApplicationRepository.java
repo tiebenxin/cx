@@ -3,6 +3,7 @@ package com.yanlong.im.repository;
 
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.data.local.ApplicationLocalDataSource;
+import com.yanlong.im.user.bean.UserInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,13 +20,17 @@ import io.realm.RealmResults;
  */
 public class ApplicationRepository {
     private ApplicationLocalDataSource localDataSource;
+    //会话消息
     public RealmResults<Session> sessions;
+    //通讯录好友
+    public RealmResults<UserInfo> friends;
     private List<SessionChangeListener> mSessionChangeListeners = new ArrayList<>();
     private final int PAGE_COUNT = 100;
     private int currentCount = 0;
 
     public ApplicationRepository() {
         localDataSource = new ApplicationLocalDataSource();
+        friends = localDataSource.getFriends();
         loadMoreSessions();
         localDataSource.updateSessionDetail(PAGE_COUNT);
     }
@@ -169,10 +174,20 @@ public class ApplicationRepository {
     }
 
 
+    public RealmResults<UserInfo> getFriends() {
+        return friends;
+    }
+
+
     public void onDestory() {
         sessions.removeAllChangeListeners();
         mSessionChangeListeners.clear();
         localDataSource.onDestory();
+
+        sessions = null;
+        friends = null;
+        mSessionChangeListeners = null;
+        localDataSource = null;
     }
 
     public interface SessionChangeListener {

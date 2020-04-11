@@ -26,6 +26,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     @SerializedName("gender")
     private int sex;
     private String imid;
+    //数据库中，数字存储的是a（非#） >Z，便于排序
     private String tag;
     @SerializedName("avatar")
     private String head;
@@ -467,10 +468,8 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public void setTag(String tag) {
-        if ("↑".equals(tag)) {
-            tag = "↑";
-        } else if (tag.hashCode() < 65 || tag.hashCode() > 91) {
-            tag = "#";
+        if (tag.hashCode() < 65 || tag.hashCode() > 91) {
+            tag = "a";
         }
         this.tag = tag;
     }
@@ -481,10 +480,10 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
             return -1;
         }
         int last = getTag().charAt(0);
-        if (getTag().equals("#")) {
+        if (getTag().equals("a")) {
             return 1;
         }
-        if (o.getTag().equals("#")) {
+        if (o.getTag().equals("a")) {
             return -1;
         }
 
@@ -508,7 +507,8 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
         if (TextUtils.isEmpty(tag)) {
             toTag();
         }
-        return TextUtils.isEmpty(tag) ? "#" : tag;
+        //数据库中存储的是a>Z，便于排序
+        return TextUtils.isEmpty(tag) ? "a" : tag;
     }
 
     public String getDescribe() {

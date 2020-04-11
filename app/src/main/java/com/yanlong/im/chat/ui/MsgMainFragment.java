@@ -320,7 +320,7 @@ public class MsgMainFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //application的viewModel
+        //MainActivity的viewModel
         viewModel = new ViewModelProvider(getActivity(), ViewModelProvider.AndroidViewModelFactory.getInstance(MyAppLication.getInstance())).get(MainViewModel.class);
         EventBus.getDefault().register(this);
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);

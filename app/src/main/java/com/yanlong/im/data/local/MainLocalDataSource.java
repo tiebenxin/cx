@@ -6,16 +6,22 @@ import com.google.gson.Gson;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.Remind;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
+import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.utils.StringUtil;
+
+import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
-import io.realm.Sort;
 
 /**
  * @createAuthor Raleigh.Luo
@@ -130,6 +136,112 @@ public class MainLocalDataSource {
         }
         return result;
     }
+
+    /***
+     * 获取红点的值
+     * @param type
+     * @return
+     */
+    public int getRemindCount(String type) {
+        Remind remind = realm.where(Remind.class).equalTo("remid_type", type).findFirst();
+        int num = remind == null ? 0 : remind.getNumber();
+        return num;
+    }
+    /***
+     * 清除红点的值
+     * @param type
+     * @return
+     */
+    public void clearRemindCount(String type) {
+        Remind remind = realm.where(Remind.class).equalTo("remid_type", type).findFirst();
+        if (remind != null) {
+            beginTransaction();
+            remind.setNumber(0);
+            commitTransaction();
+        }
+    }
+
+    /**
+     * 更新通讯录好友信息
+     * @param userInfo
+     */
+    public void updateFriend(UserInfo userInfo){
+        beginTransaction();
+        realm.copyToRealmOrUpdate(userInfo);
+        commitTransaction();
+    }
+    /***
+     * 更新好友
+     * @param list
+     */
+    public void updateUsersOnlineStatus(List<OnlineBean> list) {
+            realm.executeTransactionAsync(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    try{
+                    if (list != null && list.size() > 0) {
+                        int len = list.size();
+                        for (int i = 0; i < len; i++) {
+                            OnlineBean bean = list.get(i);
+                            if (bean == null) {
+                                continue;
+                            }
+                            UserInfo user = realm.where(UserInfo.class).equalTo("uid", bean.getUid()).findFirst();
+                            if (user == null) {//拉黑用户数据库没有？
+                                continue;
+                            }
+                            UserInfo userInfo = realm.copyFromRealm(user);
+                            if (userInfo == null) {
+                                continue;
+                            }
+                            if (bean.getLastonline() > userInfo.getLastonline()) {//更新数据时间大于本地数据时间，才更新
+                                userInfo.setLastonline(bean.getLastonline());
+                            }
+                            userInfo.setActiveType(bean.getActiveType());
+                            realm.insertOrUpdate(userInfo);
+                        }
+                    }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+
+    }
+
+    /**
+     * 设置为陌生人
+     * @param uid
+     */
+    public void setToStranger(long uid){
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+                if (userInfo != null) {
+                    //设置为陌生人
+                    userInfo.setuType(0);
+                    //关闭阅后即焚
+                    userInfo.setDestroy(0);
+                    //// 更新置顶状态
+                    userInfo.setIstop(0);
+                }
+                //// session会话更新置顶状态
+                Session session = realm.where(Session.class).equalTo("from_uid", uid).findFirst();
+                if (session != null) {
+                    session.setIsTop(0);
+                }
+              }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+                // 刷新列表
+                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, "", CoreEnum.ESessionRefreshTag.ALL, null);
+            }
+        });
+    }
+
 
     public void onDestory() {
         updateSessionDetail = null;
