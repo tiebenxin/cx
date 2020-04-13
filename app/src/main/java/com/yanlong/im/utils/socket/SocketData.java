@@ -1438,6 +1438,7 @@ public class SocketData {
         }
         bean.setMsg_type(ChatEnum.EMessageType.LOCK);
         bean.setMsg_id(SocketData.getUUID());
+        bean.setIsLocal(1);
         bean.setTimestamp(0L);
         ChatMessage message = SocketData.createChatMessage(bean.getMsg_id(), getNoticeString(bean, ChatEnum.ENoticeType.LOCK));
         bean.setChat(message);
