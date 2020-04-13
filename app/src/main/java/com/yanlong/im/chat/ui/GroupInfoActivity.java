@@ -214,7 +214,7 @@ public class GroupInfoActivity extends AppActivity {
         viewGroupName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isAdmin()) {
+                if (!isAdmin() && !isAdministrators()) {
                     ToastUtil.show(getContext(), "非群主无法修改");
                     return;
                 }
@@ -246,7 +246,7 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 ginfo.getMaster();
-                if (isAdmin()) {
+                if (isAdmin() || isAdministrators()) {
                     Intent intent = new Intent(GroupInfoActivity.this, GroupNoteDetailActivity.class);
                     intent.putExtra(GroupNoteDetailActivity.GID, gid);
                     intent.putExtra(GroupNoteDetailActivity.NOTE, ginfo.getAnnouncement());
@@ -305,7 +305,7 @@ public class GroupInfoActivity extends AppActivity {
                 Intent headIntent = new Intent(GroupInfoActivity.this, ImageHeadActivity.class);
                 //todo 头像修改
                 headIntent.putExtra(ImageHeadActivity.IMAGE_HEAD, ginfo.getAvatar());
-                headIntent.putExtra("admin", isAdmin());
+                headIntent.putExtra("admin", isAdmin() || isAdministrators());
                 headIntent.putExtra("groupSigle", true);
                 headIntent.putExtra("gid", gid);
                 startActivityForResult(headIntent, IMAGE_HEAD);
