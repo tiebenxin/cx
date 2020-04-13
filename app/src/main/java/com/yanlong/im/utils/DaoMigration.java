@@ -128,6 +128,10 @@ public class DaoMigration implements RealmMigration {
                 updateV27(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 27) {
+                updateV28(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -473,6 +477,11 @@ public class DaoMigration implements RealmMigration {
     private void updateV27(RealmSchema schema) {
         schema.get("Group")
                 .addField("stat", int.class);
+    }
+
+    private void updateV28(RealmSchema schema) {
+        schema.get("MsgAllBean")
+                .addField("isLocal", int.class);
     }
 
 

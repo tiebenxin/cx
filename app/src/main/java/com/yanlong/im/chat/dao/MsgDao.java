@@ -2226,6 +2226,7 @@ public class MsgDao {
         msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
         msgAllBean.setMsgNotice(note);
         msgAllBean.setTimestamp(new Date().getTime());
+        msgAllBean.setIsLocal(1);
         realm.insertOrUpdate(msgAllBean);
         realm.commitTransaction();
         realm.close();
@@ -3355,6 +3356,10 @@ public class MsgDao {
                     .beginGroup().isNotEmpty("gid").and().isNotNull("gid").endGroup()
                     .and()
                     .beginGroup().greaterThan("timestamp", time).endGroup()
+                    .and()
+                    .beginGroup().equalTo("isLocal", 0).endGroup()
+                    .and()
+                    .beginGroup().equalTo("send_state", 0).endGroup()
                     .limit(1000)
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
@@ -3363,30 +3368,13 @@ public class MsgDao {
                     .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
                     .and()
                     .beginGroup().greaterThan("timestamp", time).endGroup()
+                    .and()
+                    .beginGroup().equalTo("isLocal", 0).endGroup()
+                    .and()
+                    .beginGroup().equalTo("send_state", 0).endGroup()
                     .limit(3000)
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
-
-            //TODO：无法控制单聊和群聊数据长度
-//            RealmResults<MsgAllBean> totalMsgs = realm.where(MsgAllBean.class)
-//                    //群聊
-//                    .beginGroup()
-//                    .beginGroup().isNotEmpty("gid").and().isNotNull("gid").endGroup()
-//                    .and()
-//                    .beginGroup().greaterThan("timestamp", time).endGroup()
-//                    .and()
-//                    .endGroup()
-//                    .or()
-//                    //单聊
-//                    .beginGroup()
-//                    .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
-//                    .and()
-//                    .beginGroup().greaterThan("timestamp", time).endGroup()
-//                    .and()
-//                    .endGroup()
-//                    .limit(1000)
-//                    .sort("timestamp", Sort.DESCENDING)
-//                    .findAll();
 
             RealmList<MsgAllBean> results = new RealmList<>();
             if (groupMsgs != null) {
@@ -3395,11 +3383,6 @@ public class MsgDao {
             if (privateMsgs != null) {
                 results.addAll(privateMsgs);
             }
-
-//            if (totalMsgs != null) {
-//
-//            }
-//            results.sort("timestamp", Sort.DESCENDING);
             list = realm.copyFromRealm(results);
             realm.close();
         } catch (Exception e) {

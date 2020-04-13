@@ -1922,6 +1922,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, sendStatus, SocketData.getFixTime(), message);
         if (msgAllBean != null && canSend) {
+            if (filterMessage(message) || isUploadType(msgAllBean.getMsg_type())) {
+                msgAllBean.setIsLocal(0);
+            } else {
+                msgAllBean.setIsLocal(1);
+            }
             SocketData.sendAndSaveMessage(msgAllBean, canSend);
             showSendObj(msgAllBean);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
@@ -4610,13 +4615,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void startPlayVoice(MsgAllBean bean, boolean canAutoPlay, final int position) {
-//        LogUtil.getLog().i(TAG, "startPlayVoice--" + "downSize =" + downloadList.size());
-
         if (downloadList.size() > 1) {
             int size = downloadList.size();
             int p = downloadList.indexOf(bean);
             if (p != size - 1) {
-//                LogUtil.getLog().i(TAG, "startPlayVoice--终止下载位置=" + p);
                 downloadList.remove(bean);
                 return;
             }
@@ -4867,8 +4869,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void onRetransmission(final MsgAllBean msgbean) {
         Intent intent = MsgForwardActivity.newIntent(this, ChatEnum.EForwardMode.DEFAULT, new Gson().toJson(msgbean));
         startActivity(intent);
-//        startActivity(new Intent(getContext(), MsgForwardActivity.class)
-////                .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean)));
     }
 
     /**
@@ -4876,18 +4876,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      *
      * @param msgBean
      */
-//    private void onRecall(final MsgAllBean msgbean) {
-//        String msg = "";
-//        Integer msgType = 0;
-//        if (msgbean.getChat() != null) {
-//            msg = msgbean.getChat().getMsg();
-//        } else if (msgbean.getAtMessage() != null) {
-//            msg = msgbean.getAtMessage().getMsg();
-//        }
-//        msgType = msgbean.getMsg_type();
-//        MsgAllBean msgAllbean = SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id(), msg, msgType);
-//        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
-//    }
     private void onRecall(final MsgAllBean msgBean) {
         int position = msgListData.indexOf(msgBean);
         MsgCancel cancel = SocketData.createCancelMsg(msgBean);

@@ -1887,6 +1887,11 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
         }
         MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, sendStatus, SocketData.getFixTime(), message);
         if (msgAllBean != null && canSend) {
+            if (filterMessage(message) || isUploadType(msgAllBean.getMsg_type())) {
+                msgAllBean.setIsLocal(0);
+            } else {
+                msgAllBean.setIsLocal(1);
+            }
             SocketData.sendAndSaveMessage(msgAllBean, canSend);
             showSendObj(msgAllBean);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);

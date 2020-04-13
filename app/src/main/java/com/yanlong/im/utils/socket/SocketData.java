@@ -958,6 +958,7 @@ public class SocketData {
             msg.setFrom_nickname(bean.getFrom_nickname());
             msg.setFrom_group_nickname(bean.getFrom_group_nickname());
             msg.setMsgNotice(createMsgNotice(msgId, type, getNoticeString(bean, type)));
+            msg.setIsLocal(1);
         }
         return msg;
     }
@@ -1072,7 +1073,12 @@ public class SocketData {
         msg.setFrom_nickname(UserAction.getMyInfo().getName());
         int survivaltime = new UserDao().getReadDestroy(uid, gid);
         msg.setSurvival_time(survivaltime);
-
+        //是否是本地构建的消息
+        if (msgType != ChatEnum.EMessageType.NOTICE) {
+            msg.setIsLocal(0);
+        } else {
+            msg.setIsLocal(1);
+        }
         msg.setRead(true);//已读
         if (isGroup) {
             Group group = msgDao.getGroup4Id(gid);
@@ -1243,7 +1249,12 @@ public class SocketData {
         msg.setRead(false);
         int survivaltime = new UserDao().getReadDestroy(wrap.getFromUid(), wrap.getGid());
         msg.setSurvival_time(survivaltime);
-
+        //是否是本地构建的消息
+        if (msgType != ChatEnum.EMessageType.NOTICE) {
+            msg.setIsLocal(0);
+        } else {
+            msg.setIsLocal(1);
+        }
         if (isGroup) {
             Group group = msgDao.getGroup4Id(wrap.getGid());
             if (group != null) {
