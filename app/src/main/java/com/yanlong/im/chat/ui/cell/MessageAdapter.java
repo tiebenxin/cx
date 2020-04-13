@@ -11,16 +11,12 @@ import android.view.ViewGroup;
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.UpLoadService;
-import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.utils.LogUtil;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -380,7 +376,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         boolean isMe = msg.isMe();
         //单聊 自己发的消息，需等待对方已读
         boolean checkNotGroupAndNotRead = !isGroup && isMe && msg.getRead() != 1;
-        if (msg == null || BurnManager.getInstance().isContainMsg(msg) || msg.getSend_state() != ChatEnum.ESendStatus.NORMAL
+        if (msg == null || msg.getEndTime()>0 || msg.getSend_state() != ChatEnum.ESendStatus.NORMAL
                 || checkNotGroupAndNotRead) {
             return;
         }
@@ -395,8 +391,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
             msgDao.setMsgEndTime((date + msg.getSurvival_time() * 1000), date, msg.getMsg_id());
             msg.setEndTime(date + msg.getSurvival_time() * 1000);
             msg.setStartTime(date);
-            EventBus.getDefault().post(new EventSurvivalTimeAdd(msg, null));
-            LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间1----> end:" + (date + msg.getSurvival_time() * 1000) + "---msgid:" + msg.getMsg_id());
         }
     }
 

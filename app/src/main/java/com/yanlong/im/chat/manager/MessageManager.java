@@ -1627,7 +1627,7 @@ public class MessageManager {
             taskMaps.clear();
         }
         //用户退出登录需清除阅后即焚数据
-        BurnManager.getInstance().clear();
+//        BurnManager.getInstance().clear();
     }
 
     /*

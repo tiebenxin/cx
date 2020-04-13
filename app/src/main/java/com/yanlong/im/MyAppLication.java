@@ -65,7 +65,7 @@ public class MyAppLication extends MainApplication {
     public LocationService locationService;
 //    public Vibrator mVibrator;
     //全局数据仓库
-    private ApplicationRepository repository;
+    public ApplicationRepository repository;
 
     @Override
     public void onCreate() {
@@ -186,6 +186,9 @@ public class MyAppLication extends MainApplication {
     }
 
 
+    public void notifyBurnQuene(){
+        if(repository!=null)repository.notifyBurnQuene();
+    }
     private void initBuildType() {
         switch (BuildConfig.BUILD_TYPE) {
             case "debug":
