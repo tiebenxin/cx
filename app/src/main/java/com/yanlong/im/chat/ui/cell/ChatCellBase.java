@@ -84,6 +84,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                 public boolean onLongClick(View v) {
                     if (mCellListener != null) {
                         updateSelectedBG(true);
+                        checkCancelMenu();//临时检测撤回menu
                         mCellListener.onEvent(ChatEnum.ECellEventType.LONG_CLICK, model, menus, bubbleLayout, menuListener);
                     }
                     return true;
@@ -198,6 +199,9 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                 break;
 
         }
+    }
+
+    private void checkCancelMenu() {
         //云红包不能撤回
         if (isMe && model.getSend_state() == ChatEnum.ESendStatus.NORMAL && model.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE && !isAtBanedCancel(model)) {
             if (model.getFrom_uid() != null && model.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
@@ -262,7 +266,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         if (tv_time == null) {
             return;
         }
-        if (currentPosition > 0 && (model.getTimestamp() - mAdapter.getPositionMessage(currentPosition - 1).getTimestamp()) < (60 * 1000)) {
+        if (currentPosition > 0 && (model.getTimestamp() - mAdapter.getMessage(currentPosition - 1).getTimestamp()) < (60 * 1000)) {
             tv_time.setVisibility(View.GONE);
         } else {
             tv_time.setVisibility(VISIBLE);
@@ -363,7 +367,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     }
 
     //设置阅后即焚时钟UI
-    private void setBellUI(int type, boolean isRecovery, boolean isMe) {
+    public void setBellUI(int type, boolean isRecovery, boolean isMe) {
         if (ivBell == null) {
             return;
         }
@@ -421,6 +425,12 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         } else {
             LogUtil.getLog().i("ChatCellBase", "隐藏已读 msgId--" + model.getMsg_id());
             viewRead.setVisibility(View.GONE);
+        }
+    }
+
+    public void setBellId(int rid) {
+        if (ivBell != null) {
+            ivBell.setImageResource(rid);
         }
     }
 

@@ -79,10 +79,17 @@ public class ChatEnum {
         FILE_RECEIVED(R.layout.cell_file_received),
         FILE_SEND(R.layout.cell_file_send),
 
+        //音视频通话消息
+        CALL_RECEIVED(R.layout.cell_call_received),
+        CALL_SEND(R.layout.cell_call_send),
+
         //分享 web 或 游戏消息
         WEB_RECEIVED(R.layout.cell_web_received),
         WEB_SEND(R.layout.cell_web_send),
 
+        //表情消息
+        EXPRESS_RECEIVED(R.layout.cell_img_received),
+        EXPRESS_SEND(R.layout.cell_img_send),
 
         //合并转发
         MULTI_RECEIVED(R.layout.cell_txt_received),
@@ -148,7 +155,7 @@ public class ChatEnum {
      * */
     @IntDef({ECellEventType.TXT_CLICK, ECellEventType.IMAGE_CLICK, ECellEventType.CARD_CLICK, ECellEventType.RED_ENVELOPE_CLICK, ECellEventType.LONG_CLICK, ECellEventType.TRANSFER_CLICK,
             ECellEventType.AVATAR_CLICK, ECellEventType.RESEND_CLICK, ECellEventType.AVATAR_LONG_CLICK, ECellEventType.VOICE_CLICK, ECellEventType.VIDEO_CLICK, ECellEventType.FILE_CLICK,
-            ECellEventType.BALANCE_ASSISTANT_CLICK, ECellEventType.WEB_CLICK, ECellEventType.MULTI_CLICK, ECellEventType.MAP_CLICK})
+            ECellEventType.BALANCE_ASSISTANT_CLICK, ECellEventType.WEB_CLICK, ECellEventType.MULTI_CLICK, ECellEventType.MAP_CLICK, ECellEventType.VOICE_VIDEO_CALL, ECellEventType.EXPRESS_CLICK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ECellEventType {
         int TXT_CLICK = 0; //点击文本消息
@@ -161,12 +168,14 @@ public class ChatEnum {
         int RESEND_CLICK = 7;//点击重新发送
         int AVATAR_LONG_CLICK = 8;//头像长按事件
         int VOICE_CLICK = 9;//语音消息
-        int VIDEO_CLICK = 10;//视屏消息
+        int VIDEO_CLICK = 10;//视频消息
         int FILE_CLICK = 11;//文件消息
         int BALANCE_ASSISTANT_CLICK = 12;//零钱助手消息
         int WEB_CLICK = 13;//分享web消息
         int MULTI_CLICK = 14;//合并消息
         int MAP_CLICK = 15;//位置消息
+        int VOICE_VIDEO_CALL = 16;//点击音视频电话消息
+        int EXPRESS_CLICK = 17;//点击表情
     }
 
 
@@ -271,7 +280,7 @@ public class ChatEnum {
             ENoticeType.RECEIVE_RED_ENVELOPE, ENoticeType.CANCEL, ENoticeType.BLACK_ERROR, ENoticeType.NO_FRI_ERROR, ENoticeType.LOCK, ENoticeType.CHANGE_VICE_ADMINS_ADD,
             ENoticeType.CHANGE_VICE_ADMINS_CANCEL, ENoticeType.FORBIDDEN_WORDS_OPEN, ENoticeType.FORBIDDEN_WORDS_CLOSE, ENoticeType.RED_ENVELOPE_RECEIVED_SELF,
             ENoticeType.FORBIDDEN_WORDS_SINGE, ENoticeType.OPEN_UP_RED_ENVELOPER, ENoticeType.SYS_ENVELOPE_RECEIVED_SELF, ENoticeType.RECEIVE_SYS_ENVELOPE, ENoticeType.SYS_ENVELOPE_RECEIVED,
-            ENoticeType.GROUP_FORBID,ENoticeType.GROUP_BAN_WORDS})
+            ENoticeType.GROUP_FORBID, ENoticeType.GROUP_BAN_WORDS})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ENoticeType {
         int ENTER_BY_QRCODE = 1; //扫二维码进群

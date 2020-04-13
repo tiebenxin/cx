@@ -599,6 +599,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         switch (msgType) {
             case ChatEnum.EMessageType.NOTICE://通知
             case ChatEnum.EMessageType.MSG_CANCEL://撤回
+            case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME://阅后即焚
+            case ChatEnum.EMessageType.TRANSFER_NOTICE://转账提醒
                 layout = ChatEnum.EChatCellLayout.NOTICE;
                 break;
             case ChatEnum.EMessageType.TEXT://文本
@@ -657,7 +659,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     layout = ChatEnum.EChatCellLayout.STAMP_RECEIVED;
                 }
                 break;
-            case ChatEnum.EMessageType.AT://戳一下
+            case ChatEnum.EMessageType.AT://@消息
                 if (isMe) {
                     layout = ChatEnum.EChatCellLayout.AT_SEND;
                 } else {
@@ -670,8 +672,33 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             case ChatEnum.EMessageType.LOCK://端对端加密消息
                 layout = ChatEnum.EChatCellLayout.LOCK;
                 break;
-            case ChatEnum.EMessageType.UNRECOGNIZED://未识别
-                layout = ChatEnum.EChatCellLayout.UNRECOGNIZED;
+            case ChatEnum.EMessageType.FILE:
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.FILE_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.FILE_RECEIVED;
+                }
+                break;
+            case ChatEnum.EMessageType.LOCATION:
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.MAP_RECEIVED;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.MAP_SEND;
+                }
+                break;
+            case ChatEnum.EMessageType.MSG_VOICE_VIDEO:
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.CALL_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.CALL_RECEIVED;
+                }
+                break;
+            case ChatEnum.EMessageType.SHIPPED_EXPRESSION://表情
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.EXPRESS_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.EXPRESS_RECEIVED;
+                }
                 break;
             default://未识别
                 layout = ChatEnum.EChatCellLayout.UNRECOGNIZED;

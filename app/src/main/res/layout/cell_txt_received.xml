@@ -80,7 +80,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="normal"
                         android:gravity="center_vertical"
-                        android:maxWidth="200dp"
+                        android:maxWidth="210dp"
                         android:selectAllOnFocus="true"
                         android:text=""
                         android:textColor="@color/black"

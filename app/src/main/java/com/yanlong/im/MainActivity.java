@@ -178,6 +178,7 @@ public class MainActivity extends AppActivity {
     private ShopFragemnt mShowFragment;
     @EMainTab
     private int currentTab = EMainTab.MSG;
+    private long firstPressTime = 0;//第一次双击时间
 
 
     @Override
@@ -413,7 +414,16 @@ public class MainActivity extends AppActivity {
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-
+                //双击第一个TAB采用此方法监听 (不再重写监听器)
+                //双击消息，小于0.5s不响应，大于0.5s响应
+                if(tab.getPosition()==0){
+                    long now = System.currentTimeMillis();
+                    if ((now - firstPressTime) > 500) {
+                        firstPressTime = now;
+                    } else {
+                        mMsgMainFragment.moveToUnread();
+                    }
+                }
             }
         });
         // 提供自定义的布局添加Tab
