@@ -4,10 +4,12 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.repository.MainRepository;
+import com.yanlong.im.user.bean.UserInfo;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,8 +26,13 @@ import io.realm.RealmResults;
  */
 public class MainViewModel extends ViewModel {
     private MainRepository repository;
+    //会话详情
     public RealmResults<SessionDetail> sessionMores = null;
+    //会话列表
     public RealmResults<Session> sessions = null;
+
+    //通讯录好友
+    public RealmResults<UserInfo> friends = null;
 
     //当前删除操作位置,为数据源中的位置
     public MutableLiveData<Integer> currentDeletePosition = new MutableLiveData();
@@ -87,7 +94,7 @@ public class MainViewModel extends ViewModel {
 
     public void updateItemSessionDetail() {
         //更新当前sessionDetail对象的所有数据
-        repository.updateSessionDetail(sessionMoresPositions.keySet().toArray(new String[sessionMoresPositions.size()]));
+        repository.updateSessionDetail(allSids.toArray(new String[allSids.size()]));
     }
 
     /**
@@ -121,7 +128,44 @@ public class MainViewModel extends ViewModel {
     public String getSessionJson() {
         return sessions == null ? "" : repository.getSessionJson(sessions);
     }
+    /***
+     * 获取红点的值
+     * @param type
+     * @return
+     */
+    public int getRemindCount(String type){
+        return repository.getRemindCount(type);
+    }
+    /***
+     * 清除红点的值
+     * @param type
+     * @return
+     */
+    public void clearRemindCount(String type) {
+        repository.clearRemindCount(type);
+    }
 
+    /****远程请求*********************************************************************************/
+    /***
+     * 获取单个用户信息并且缓存到数据库
+     * @param usrid
+     */
+    public void requestUserInfoAndSave(Long usrid, @ChatEnum.EUserType int type){
+        repository.requestUserInfoAndSave(usrid,type);
+    }
+    /**
+     * 设置为陌生人
+     * @param uid
+     */
+    public void setToStranger(long uid){
+        repository.setToStranger(uid);
+    }
+    /**
+     * 获取通讯录好友在线状态
+     */
+    public void requestUsersOnlineStatus(){
+        repository.requestUsersOnlineStatus();
+    }
     public void onDestory(LifecycleOwner owner) {
         if (sessionMores != null)
             sessionMores.removeAllChangeListeners();

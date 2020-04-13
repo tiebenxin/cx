@@ -3,6 +3,7 @@ package com.yanlong.im.repository;
 
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.data.local.ApplicationLocalDataSource;
+import com.yanlong.im.user.bean.UserInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,13 +20,22 @@ import io.realm.RealmResults;
  */
 public class ApplicationRepository {
     private ApplicationLocalDataSource localDataSource;
-    public RealmResults<Session> sessions;
+    //会话消息
+    public RealmResults<Session> sessions = null;
+    //通讯录好友
+    public RealmResults<UserInfo> friends = null;
     private List<SessionChangeListener> mSessionChangeListeners = new ArrayList<>();
+    //session 会话分页
     private final int PAGE_COUNT = 100;
-    private int currentCount = 0;
+    private int currentCount = 0;//currentCount是PAGE_COUNT倍数
+
+    //通讯录分页
+    private final int FRIEND_PAGE_COUNT = 1000;
+    private int currentFriendCount = 0;//currentFriendCount是FRIEND_PAGE_COUNT倍数
 
     public ApplicationRepository() {
         localDataSource = new ApplicationLocalDataSource();
+        loadMoreFriends();
         loadMoreSessions();
         localDataSource.updateSessionDetail(PAGE_COUNT);
     }
@@ -41,118 +51,116 @@ public class ApplicationRepository {
 
     public synchronized void loadMoreSessions() {
         //是PAGE_COUNT的倍数才加载
-        if (currentCount % PAGE_COUNT == 0) {
-            currentCount = currentCount + PAGE_COUNT;
-            sessions = localDataSource.getSessions(currentCount);
-            /**集合通知OrderedRealmCollectionChangeListener
-             * 该对象保存有关受删除，插入和更改影响的索引的信息。
-             *
-             * 前两个删除和插入记录已添加到集合中或从集合中删除的对象的索引。在将对象添加到Realm或Realm删除对象时会考虑到这一点。
-             * 对于RealmResults，当您过滤特定值并且对象已更改以使其现在与查询匹配或不再匹配时，这也适用。
-             */
-            sessions.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<Session>>() {
-                @Override
-                public void onChange(RealmResults<Session> sessions, OrderedCollectionChangeSet changeSet) {
-
-                    /***** 异步查询第一次返回。*******************************************************************************************/
-                    {
-                        if (changeSet == null || changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
+        currentCount = currentCount + PAGE_COUNT;
+        sessions = localDataSource.getSessions(currentCount);
+        /**集合通知OrderedRealmCollectionChangeListener
+         * 该对象保存有关受删除，插入和更改影响的索引的信息。
+         *
+         * 前两个删除和插入记录已添加到集合中或从集合中删除的对象的索引。在将对象添加到Realm或Realm删除对象时会考虑到这一点。
+         * 对于RealmResults，当您过滤特定值并且对象已更改以使其现在与查询匹配或不再匹配时，这也适用。
+         */
+        sessions.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<Session>>() {
+            @Override
+            public void onChange(RealmResults<Session> sessions, OrderedCollectionChangeSet changeSet) {
+                currentCount = sessions.size();
+                /***** 异步查询第一次返回。*******************************************************************************************/
+                {
+                    if (changeSet == null || changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
 //                    notifyDataSetChanged();
 
-                            int index = 0;
-                            ArrayList<String> sids = new ArrayList<String>();
-                            sids.clear();
-                            for (Session session : sessions) {
-                                sids.add(session.getSid());
-                            }
-
-                            //1.更新detail
-                            if (sids.size()>0) {
-                                localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
-                            }
-                            //通知监听器
-                            for (SessionChangeListener sessionChangeListener : mSessionChangeListeners) {
-                                sessionChangeListener.init(sessions,sids);
-                            }
-                            return;
+                        int index = 0;
+                        ArrayList<String> sids = new ArrayList<String>();
+                        sids.clear();
+                        for (Session session : sessions) {
+                            sids.add(session.getSid());
                         }
-                    }
 
-                    /*****删除了数据，对于删除，必须以相反的顺序通知适配器。*******************************************************************************************/
-                    {
-                        OrderedCollectionChangeSet.Range[] deletions = changeSet.getDeletionRanges();
-                        ArrayList<Integer> positions = new ArrayList<>();
-                        for (int index = deletions.length - 1; index >= 0; index--) {
-                            OrderedCollectionChangeSet.Range range = deletions[index];
-                            for (int i = 0; i < range.length; i++) {
-                                int position = range.startIndex + i;
-                                positions.add(position);
-                            }
+                        //1.更新detail
+                        if (sids.size() > 0) {
+                            localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
+                        }
+                        //通知监听器
+                        for (SessionChangeListener sessionChangeListener : mSessionChangeListeners) {
+                            sessionChangeListener.init(sessions, sids);
+                        }
+                        return;
+                    }
+                }
+
+                /*****删除了数据，对于删除，必须以相反的顺序通知适配器。*******************************************************************************************/
+                {
+                    OrderedCollectionChangeSet.Range[] deletions = changeSet.getDeletionRanges();
+                    ArrayList<Integer> positions = new ArrayList<>();
+                    for (int index = deletions.length - 1; index >= 0; index--) {
+                        OrderedCollectionChangeSet.Range range = deletions[index];
+                        for (int i = 0; i < range.length; i++) {
+                            int position = range.startIndex + i;
+                            positions.add(position);
+                        }
 
 //                    notifyItemRangeRemoved(range.startIndex, range.length);
-                        }
-                        if(positions.size()>0){
-                            //1.删除-不需要更新detail
-                            //2.通知监听器
-                            for (SessionChangeListener listener : mSessionChangeListeners) {
-                                listener.delete(positions);
-                            }
-                        }
                     }
-
-                    /*****增加了数据*******************************************************************************************/
-                    {
-                        OrderedCollectionChangeSet.Range[] insertions = changeSet.getInsertionRanges();
-                        ArrayList<String> sids = new ArrayList<String>();
-                        ArrayList<Integer> positions = new ArrayList<>();
-                        //获取更新信息
-                        for (OrderedCollectionChangeSet.Range range : insertions) {
-                            for (int i = 0; i < range.length; i++) {
-                                int position = range.startIndex + i;
-                                sids.add(sessions.get(position).getSid());
-                                positions.add(position);
-                            }
-//                    notifyItemRangeInserted(range.startIndex, range.length);
-                        }
-
-                        if (sids.size() > 0) {
-                            //1.更新增加数据的detail详情
-                            localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
-                            //2.通知监听器
-                            for (SessionChangeListener listener : mSessionChangeListeners) {
-                                listener.insert(positions, sids);
-                            }
-                        }
-
-                    }
-                    /*****数据更改*******************************************************************************************/
-                    {
-                        OrderedCollectionChangeSet.Range[] modifications = changeSet.getChangeRanges();
-                        ArrayList<String> sids = new ArrayList<String>();
-                        ArrayList<Integer> positions = new ArrayList<>();
-                        //获取更新信息
-                        for (OrderedCollectionChangeSet.Range range : modifications) {
-                            for (int i = 0; i < range.length; i++) {
-                                int position = range.startIndex + i;
-                                sids.add(sessions.get(position).getSid());
-                                positions.add(position);
-                            }
-
-//                    notifyItemRangeChanged(range.startIndex, range.length);
-                        }
-
-                        if (sids.size() > 0) {
-                            //1.更新增加更改的detail详情
-                            localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
-                            //2.通知监听器
-                            for (SessionChangeListener listener : mSessionChangeListeners) {
-                                listener.update(positions, sids);
-                            }
+                    if (positions.size() > 0) {
+                        //1.删除-不需要更新detail
+                        //2.通知监听器
+                        for (SessionChangeListener listener : mSessionChangeListeners) {
+                            listener.delete(positions);
                         }
                     }
                 }
-            });
-        }
+
+                /*****增加了数据*******************************************************************************************/
+                {
+                    OrderedCollectionChangeSet.Range[] insertions = changeSet.getInsertionRanges();
+                    ArrayList<String> sids = new ArrayList<String>();
+                    ArrayList<Integer> positions = new ArrayList<>();
+                    //获取更新信息
+                    for (OrderedCollectionChangeSet.Range range : insertions) {
+                        for (int i = 0; i < range.length; i++) {
+                            int position = range.startIndex + i;
+                            sids.add(sessions.get(position).getSid());
+                            positions.add(position);
+                        }
+//                    notifyItemRangeInserted(range.startIndex, range.length);
+                    }
+
+                    if (sids.size() > 0) {
+                        //1.更新增加数据的detail详情
+                        localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
+                        //2.通知监听器
+                        for (SessionChangeListener listener : mSessionChangeListeners) {
+                            listener.insert(positions, sids);
+                        }
+                    }
+
+                }
+                /*****数据更改*******************************************************************************************/
+                {
+                    OrderedCollectionChangeSet.Range[] modifications = changeSet.getChangeRanges();
+                    ArrayList<String> sids = new ArrayList<String>();
+                    ArrayList<Integer> positions = new ArrayList<>();
+                    //获取更新信息
+                    for (OrderedCollectionChangeSet.Range range : modifications) {
+                        for (int i = 0; i < range.length; i++) {
+                            int position = range.startIndex + i;
+                            sids.add(sessions.get(position).getSid());
+                            positions.add(position);
+                        }
+
+//                    notifyItemRangeChanged(range.startIndex, range.length);
+                    }
+
+                    if (sids.size() > 0) {
+                        //1.更新增加更改的detail详情
+                        localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
+                        //2.通知监听器
+                        for (SessionChangeListener listener : mSessionChangeListeners) {
+                            listener.update(positions, sids);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     public Realm getRealm() {
@@ -168,11 +176,33 @@ public class ApplicationRepository {
         return sessions;
     }
 
+    public synchronized void loadMoreFriends() {
+        //是PAGE_COUNT的倍数才加载
+        currentFriendCount = currentFriendCount + FRIEND_PAGE_COUNT;
+        friends = localDataSource.getFriends(currentFriendCount);
+        friends.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<UserInfo>>() {
+            @Override
+            public void onChange(RealmResults<UserInfo> userInfos, OrderedCollectionChangeSet changeSet) {
+                currentFriendCount = userInfos.size();
+            }
+        });
+    }
+
+    public RealmResults<UserInfo> getFriends() {
+        return friends;
+    }
+
 
     public void onDestory() {
         sessions.removeAllChangeListeners();
         mSessionChangeListeners.clear();
         localDataSource.onDestory();
+        friends.removeAllChangeListeners();
+        sessions = null;
+        friends = null;
+
+        mSessionChangeListeners = null;
+        localDataSource = null;
     }
 
     public interface SessionChangeListener {

@@ -12,7 +12,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -137,18 +136,17 @@ public class MsgMainFragment extends Fragment {
         mtListView.setEvent(new MultiListView.Event() {
             @Override
             public void onRefresh() {
-                mtListView.getSwipeLayout().setRefreshing(false);
+
             }
 
             @Override
             public void onLoadMore() {
-                mtListView.getSwipeLayout().setRefreshing(false);
                 MyAppLication.INSTANCE().loadMoreSessions();
             }
 
             @Override
             public void onLoadFail() {
-                mtListView.getSwipeLayout().setRefreshing(false);
+
             }
         });
         SocketUtil.getSocketUtil().addEvent(socketEvent = new SocketEvent() {
@@ -321,7 +319,7 @@ public class MsgMainFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //application的viewModel
+        //MainActivity的viewModel
         viewModel = new ViewModelProvider(getActivity(), ViewModelProvider.AndroidViewModelFactory.getInstance(MyAppLication.getInstance())).get(MainViewModel.class);
         EventBus.getDefault().register(this);
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
@@ -367,7 +365,6 @@ public class MsgMainFragment extends Fragment {
     private OrderedRealmCollectionChangeListener sessionMoresListener = new OrderedRealmCollectionChangeListener<RealmResults<SessionDetail>>() {
         @Override
         public void onChange(RealmResults<SessionDetail> sessionDetails, OrderedCollectionChangeSet changeSet) {
-            Log.e("raleigh_test", "details=" + sessionDetails.size());
             /***更新位置信息*********************************************************/
             viewModel.sessionMoresPositions.clear();
             for (int i = 0; i < viewModel.sessionMores.size(); i++) {
@@ -439,7 +436,6 @@ public class MsgMainFragment extends Fragment {
         viewModel.isAllSidsChange.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean aBoolean) {
-                Log.e("raleigh_test", "isAllSidsChange=");
                 viewModel.updateSessionMore();
                 //监听列表数据变化
                 viewModel.sessionMores.addChangeListener(sessionMoresListener);
