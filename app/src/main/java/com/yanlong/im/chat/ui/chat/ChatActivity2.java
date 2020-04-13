@@ -4587,20 +4587,6 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
         }
     }
 
-    public void addSurvivalTimeAndRead(MsgAllBean msgbean) {
-        if (msgbean == null || BurnManager.getInstance().isContainMsg(msgbean) || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL) {
-            return;
-        }
-        if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0 && msgbean.getRead() == 1) {
-            long date = DateUtils.getSystemTime();
-            msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000), date, msgbean.getMsg_id());
-            msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
-            msgbean.setStartTime(date);
-            EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean, null));
-            LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间2----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
-        }
-    }
-
 
     public void addSurvivalTimeForList(List<MsgAllBean> list) {
         if (list == null && list.size() == 0) {

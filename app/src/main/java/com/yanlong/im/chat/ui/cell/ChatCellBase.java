@@ -418,17 +418,18 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
             return;
         }
         if (isMe && model.getSend_state() == ChatEnum.ESendStatus.NORMAL && model.getRead() == 1 && model.getReadTime() > 0) {
-            LogUtil.getLog().i("ChatCellBase", "显示已读 msgId--" + model.getMsg_id());
+//            LogUtil.getLog().i("ChatCellBase", "显示已读 msgId--" + model.getMsg_id());
             viewRead.setVisibility(VISIBLE);
             tvRead.setText("已读");
             tvReadTime.setText(TimeToString.HH_MM(model.getReadTime()));
         } else {
-            LogUtil.getLog().i("ChatCellBase", "隐藏已读 msgId--" + model.getMsg_id());
+//            LogUtil.getLog().i("ChatCellBase", "隐藏已读 msgId--" + model.getMsg_id());
             viewRead.setVisibility(View.GONE);
         }
     }
 
     public void setBellId(int rid) {
+        LogUtil.getLog().i("SurvivalTime", "--setBellId--rid=" + rid);
         if (ivBell != null) {
             ivBell.setImageResource(rid);
         }
