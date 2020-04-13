@@ -51,7 +51,6 @@ import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
@@ -85,7 +84,6 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
-import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
@@ -2044,7 +2042,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
      * 添加阅读即焚消息到队列
      */
     public void addSurvivalTime(MsgAllBean msgBean) {
-        if (msgBean == null || BurnManager.getInstance().isContainMsg(msgBean) || msgBean.getSend_state() != ChatEnum.ESendStatus.NORMAL) {
+        if (msgBean == null || msgBean.getEndTime()>0 || msgBean.getSend_state() != ChatEnum.ESendStatus.NORMAL) {
             return;
         }
         if (msgBean.getSurvival_time() > 0 && msgBean.getEndTime() == 0) {
@@ -2052,22 +2050,6 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
             msgDao.setMsgEndTime((date + msgBean.getSurvival_time() * 1000), date, msgBean.getMsg_id());
             msgBean.setEndTime(date + msgBean.getSurvival_time() * 1000);
             msgBean.setStartTime(date);
-            EventBus.getDefault().post(new EventSurvivalTimeAdd(msgBean, null));
-            LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间1----> end:" + (date + msgBean.getSurvival_time() * 1000) + "---msgid:" + msgBean.getMsg_id());
-        }
-    }
-
-    public void addSurvivalTimeAndRead(MsgAllBean msgBean) {
-        if (msgBean == null || BurnManager.getInstance().isContainMsg(msgBean) || msgBean.getSend_state() != ChatEnum.ESendStatus.NORMAL) {
-            return;
-        }
-        if (msgBean.getSurvival_time() > 0 && msgBean.getEndTime() == 0 && msgBean.getRead() == 1) {
-            long date = DateUtils.getSystemTime();
-            msgDao.setMsgEndTime((date + msgBean.getSurvival_time() * 1000), date, msgBean.getMsg_id());
-            msgBean.setEndTime(date + msgBean.getSurvival_time() * 1000);
-            msgBean.setStartTime(date);
-            EventBus.getDefault().post(new EventSurvivalTimeAdd(msgBean, null));
-            LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间2----> end:" + (date + msgBean.getSurvival_time() * 1000) + "---msgid:" + msgBean.getMsg_id());
         }
     }
 
@@ -2083,10 +2065,8 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                 msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000), date, msgbean.getMsg_id());
                 msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
                 msgbean.setStartTime(date);
-                LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间3----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
             }
         }
-        EventBus.getDefault().post(new EventSurvivalTimeAdd(null, list));
     }
 
     //更新图片，视频，文件上传过程刷新

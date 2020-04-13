@@ -40,6 +40,12 @@ public class ApplicationRepository {
         localDataSource.updateSessionDetail(PAGE_COUNT);
     }
 
+    /**
+     * 通知更新阅后即焚队列
+     */
+    public void notifyBurnQuene(){
+        localDataSource.notifyBurnQuene();
+    }
     public void addSessionChangeListener(SessionChangeListener sessionChangeListener) {
         mSessionChangeListeners.add(sessionChangeListener);
     }
@@ -186,6 +192,12 @@ public class ApplicationRepository {
                 currentFriendCount = userInfos.size();
             }
         });
+    }
+    /**
+     * 保存当前会话退出即焚消息，endTime到数据库-自动会加入焚队列，存入数据库
+     */
+    public void saveExitSurvivalMsg(String gid, Long userid){
+        localDataSource.saveExitSurvivalMsg(gid,userid);
     }
 
     public RealmResults<UserInfo> getFriends() {
