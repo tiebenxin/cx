@@ -103,6 +103,12 @@ public class MessageAdapter extends RecyclerView.Adapter {
         ChatCellBase cellBase = (ChatCellBase) viewHolder;
         savePositions(msg.getMsg_id(), position, msg.isMe(), cellBase);
         addSurvivalTime(msg);
+        if (msg.getSurvival_time() > 0 && msg.getStartTime() > 0 && msg.getEndTime() > 0) {
+            bindTimer(msg.getMsg_id(), msg.isMe(), msg.getStartTime(), msg.getEndTime());
+            ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), false, msg.isMe());
+        } else {
+            ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), true, msg.isMe());
+        }
         cellBase.putMessage(mList.get(position), position);
         viewMap.put(position, cellBase.itemView);
         cellMap.put(position, cellBase);
@@ -313,7 +319,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
                                     String name = "icon_st_" + Math.min(COUNT, index + 1);
                                     int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
                                     updateSurvivalTimeImage(msgId, id, isMe);
-                                    LogUtil.getLog().i("CountDownView", "isME=" + index);
+                                    LogUtil.getLog().i("SurvivalTime--CountDownView", "isME=" + index);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }

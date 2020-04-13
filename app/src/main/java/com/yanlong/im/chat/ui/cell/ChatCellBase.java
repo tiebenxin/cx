@@ -373,7 +373,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         }
         if (isMe) {
             if (isRecovery) {
-                ivBell.setBackgroundResource(R.mipmap.icon_st_1);
+                ivBell.setImageResource(R.mipmap.icon_st_1);
             }
             if (type == -1) {
                 ivBell.setVisibility(View.VISIBLE);
@@ -384,7 +384,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
             }
         } else {
             if (isRecovery) {
-                ivBell.setBackgroundResource(R.mipmap.icon_st_1);
+                ivBell.setImageResource(R.mipmap.icon_st_1);
             }
             if (type == -1) {
                 ivBell.setVisibility(View.VISIBLE);

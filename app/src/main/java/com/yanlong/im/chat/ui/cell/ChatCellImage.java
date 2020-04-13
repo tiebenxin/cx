@@ -127,7 +127,7 @@ public class ChatCellImage extends ChatCellFileBase {
                 height = DEFAULT_H;
                 width = (int) (height * scale);
             } else {
-                width = height = DEFAULT_H;
+                width = height = DEFAULT_W;
             }
         }
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);

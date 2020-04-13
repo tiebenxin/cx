@@ -30,7 +30,7 @@ public class ChatCellVideo extends ChatCellImage {
     int height = DEFAULT_H;
 
     private ImageView ivBg;
-//    private LinearLayout ll_progress;
+    //    private LinearLayout ll_progress;
 //    private ProgressBar progressBar;
 //    private TextView tv_progress;
     private ImageView ivPlay;
@@ -57,6 +57,7 @@ public class ChatCellVideo extends ChatCellImage {
         super.showMessage(message);
         videoMessage = message.getVideoMessage();
         loadImage(message);
+        checkSendStatus();
     }
 
     @Override
@@ -157,4 +158,11 @@ public class ChatCellVideo extends ChatCellImage {
         }
     }
 
+    @Override
+    public void onBubbleClick() {
+        super.onBubbleClick();
+        if (mCellListener != null && model != null) {
+            mCellListener.onEvent(ChatEnum.ECellEventType.VIDEO_CLICK, model);
+        }
+    }
 }
