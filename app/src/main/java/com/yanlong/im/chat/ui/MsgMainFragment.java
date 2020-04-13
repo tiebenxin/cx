@@ -83,7 +83,7 @@ public class MsgMainFragment extends Fragment {
     private LinearLayout viewPopHelp;
     private View mHeadView;
 
-    public static int showPosition = 0;//双击未读消息置顶-展示的位置
+    public static int showPosition = 0;//双击未读消息置顶-展示的位置 (切换账号需要重置，防crash)
 
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();

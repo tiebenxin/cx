@@ -23,6 +23,7 @@ import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.ChatFontActivity;
+import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.utils.update.UpdateManage;
@@ -227,7 +228,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
         NIMClient.getService(AuthService.class).logout();// 登出网易登录
         userAction.loginOut();
         EventBus.getDefault().post(new EventLoginOut(1));
-
+        MsgMainFragment.showPosition = 0;
     }
 
     private MsgAction msgAction = new MsgAction();
