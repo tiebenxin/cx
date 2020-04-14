@@ -38,7 +38,7 @@ public class ApplicationRepository {
     private int currentFriendCount = 0;//currentFriendCount是FRIEND_PAGE_COUNT倍数
 
     //session sid/position 解决主页频繁刷新问题
-    public Map<String,Integer> sessionSidPositons = new HashMap<>();
+    public Map<String, Integer> sessionSidPositons = new HashMap<>();
 
     public ApplicationRepository() {
         localDataSource = new ApplicationLocalDataSource();
@@ -50,9 +50,10 @@ public class ApplicationRepository {
     /**
      * 通知更新阅后即焚队列
      */
-    public void notifyBurnQuene(){
+    public void notifyBurnQuene() {
         localDataSource.notifyBurnQuene();
     }
+
     public void addSessionChangeListener(SessionChangeListener sessionChangeListener) {
         mSessionChangeListeners.add(sessionChangeListener);
     }
@@ -65,7 +66,7 @@ public class ApplicationRepository {
     public synchronized void loadMoreSessions() {
         //是PAGE_COUNT的倍数才加载
         currentCount = currentCount + PAGE_COUNT;
-        if(sessions!=null)sessions.removeAllChangeListeners();
+        if (sessions != null) sessions.removeAllChangeListeners();
         sessions = localDataSource.getSessions(currentCount);
         /**集合通知OrderedRealmCollectionChangeListener
          * 该对象保存有关受删除，插入和更改影响的索引的信息。
@@ -88,7 +89,7 @@ public class ApplicationRepository {
                         sessionIndex = 0;
                         for (Session session : sessions) {
                             sids.add(session.getSid());
-                            sessionSidPositons.put(session.getSid(),sessionIndex);
+                            sessionSidPositons.put(session.getSid(), sessionIndex);
                             sessionIndex++;
                         }
 
@@ -104,11 +105,11 @@ public class ApplicationRepository {
                     }
                 }
                 //更新位置信息
-                if( changeSet.getDeletionRanges().length>0|| changeSet.getInsertionRanges().length>0){
+                if (changeSet.getDeletionRanges().length > 0 || changeSet.getInsertionRanges().length > 0) {
                     sessionSidPositons.clear();
                     sessionIndex = 0;
                     for (Session session : sessions) {
-                        sessionSidPositons.put(session.getSid(),sessionIndex);
+                        sessionSidPositons.put(session.getSid(), sessionIndex);
                         sessionIndex++;
                     }
                 }
@@ -116,24 +117,12 @@ public class ApplicationRepository {
                 /*****删除了数据，对于删除，必须以相反的顺序通知适配器。*******************************************************************************************/
                 {
 
-
-                    OrderedCollectionChangeSet.Range[] deletions = changeSet.getDeletionRanges();
-                    ArrayList<Integer> positions = new ArrayList<>();
-                    for (int index = deletions.length - 1; index >= 0; index--) {
-                        OrderedCollectionChangeSet.Range range = deletions[index];
-                        for (int i = 0; i < range.length; i++) {
-                            int position = range.startIndex + i;
-                            positions.add(position);
-                        }
 //                    notifyItemRangeRemoved(range.startIndex, range.length);
-                    }
-
-
-                    if (positions.size() > 0) {
+                    if (changeSet.getDeletions().length > 0) {
                         //1.删除-不需要更新detail
                         //2.通知监听器
                         for (SessionChangeListener listener : mSessionChangeListeners) {
-                            listener.delete(positions);
+                            listener.delete(changeSet.getDeletions());
                         }
                     }
                 }
@@ -141,51 +130,40 @@ public class ApplicationRepository {
                 /*****增加了数据*******************************************************************************************/
                 {
 
-                    OrderedCollectionChangeSet.Range[] insertions = changeSet.getInsertionRanges();
+                    int[] insertions = changeSet.getInsertions();
                     ArrayList<String> sids = new ArrayList<String>();
-                    ArrayList<Integer> positions = new ArrayList<>();
                     //获取更新信息
-                    for (OrderedCollectionChangeSet.Range range : insertions) {
-                        for (int i = 0; i < range.length; i++) {
-                            int position = range.startIndex + i;
-                            sids.add(sessions.get(position).getSid());
-                            positions.add(position);
-                        }
+                    for (int position : insertions) {
+                        sids.add(sessions.get(position).getSid());
 //                    notifyItemRangeInserted(range.startIndex, range.length);
                     }
 
-                    if (sids.size() > 0) {
+                    if (insertions.length > 0) {
                         //1.更新增加数据的detail详情
                         localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
                         //2.通知监听器
                         for (SessionChangeListener listener : mSessionChangeListeners) {
-                            listener.insert(positions, sids);
+                            listener.insert(insertions, sids);
                         }
                     }
 
                 }
                 /*****数据更改*******************************************************************************************/
                 {
-                    OrderedCollectionChangeSet.Range[] modifications = changeSet.getChangeRanges();
+                    int[] modifications = changeSet.getChanges();
                     ArrayList<String> sids = new ArrayList<String>();
-                    ArrayList<Integer> positions = new ArrayList<>();
                     //获取更新信息
-                    for (OrderedCollectionChangeSet.Range range : modifications) {
-                        for (int i = 0; i < range.length; i++) {
-                            int position = range.startIndex + i;
-                            sids.add(sessions.get(position).getSid());
-                            positions.add(position);
-                        }
-
+                    for (int position : modifications) {
+                        sids.add(sessions.get(position).getSid());
 //                    notifyItemRangeChanged(range.startIndex, range.length);
                     }
 
-                    if (sids.size() > 0) {
+                    if (modifications.length > 0) {
                         //1.更新增加更改的detail详情
                         localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
                         //2.通知监听器
                         for (SessionChangeListener listener : mSessionChangeListeners) {
-                            listener.update(positions, sids);
+                            listener.update(modifications, sids);
                         }
                     }
                 }
@@ -217,49 +195,50 @@ public class ApplicationRepository {
             }
         });
     }
+
     /**
      * 保存当前会话退出即焚消息，endTime到数据库-自动会加入焚队列，存入数据库
      */
-    public void saveExitSurvivalMsg(String gid, Long userid){
-        localDataSource.saveExitSurvivalMsg(gid,userid);
+    public void saveExitSurvivalMsg(String gid, Long userid) {
+        localDataSource.saveExitSurvivalMsg(gid, userid);
     }
 
     public RealmResults<UserInfo> getFriends() {
         return friends;
     }
 
-    public void deleteSession(String sid){
-        if(sessionSidPositons.containsKey(sid)){
-            Session session=sessions.get(sessionSidPositons.get(sid));
-            String gid=session.getGid();
-            Long uid=session.getFrom_uid();
+    public void deleteSession(String sid) {
+        if (sessionSidPositons.containsKey(sid)) {
+            Session session = sessions.get(sessionSidPositons.get(sid));
+            String gid = session.getGid();
+            Long uid = session.getFrom_uid();
             localDataSource.beginTransaction();
             session.deleteFromRealm();
             localDataSource.commitTransaction();
-            localDataSource.deleteAllMsg(sid,uid, gid);
+            localDataSource.deleteAllMsg(sid, uid, gid);
         }
     }
 
-    public void deleteSession(Long uid,String gid){
-            if(TextUtils.isEmpty(gid)){
-                Session session=sessions.where().equalTo("from_uid",uid).findFirst();
-                if(session!=null&&!TextUtils.isEmpty(session.getSid())){
-                    String sid=session.getSid();
-                    localDataSource.beginTransaction();
-                    session.deleteFromRealm();
-                    localDataSource.commitTransaction();
-                    localDataSource.deleteAllMsg(sid,uid, gid);
-                }
-            }else{
-                Session session=sessions.where().equalTo("gid",gid).findFirst();
-                if(session!=null&&!TextUtils.isEmpty(session.getSid())) {
-                    String sid = session.getSid();
-                    localDataSource.beginTransaction();
-                    session.deleteFromRealm();
-                    localDataSource.commitTransaction();
-                    localDataSource.deleteAllMsg(sid, uid, gid);
-                }
+    public void deleteSession(Long uid, String gid) {
+        if (TextUtils.isEmpty(gid)) {
+            Session session = sessions.where().equalTo("from_uid", uid).findFirst();
+            if (session != null && !TextUtils.isEmpty(session.getSid())) {
+                String sid = session.getSid();
+                localDataSource.beginTransaction();
+                session.deleteFromRealm();
+                localDataSource.commitTransaction();
+                localDataSource.deleteAllMsg(sid, uid, gid);
             }
+        } else {
+            Session session = sessions.where().equalTo("gid", gid).findFirst();
+            if (session != null && !TextUtils.isEmpty(session.getSid())) {
+                String sid = session.getSid();
+                localDataSource.beginTransaction();
+                session.deleteFromRealm();
+                localDataSource.commitTransaction();
+                localDataSource.deleteAllMsg(sid, uid, gid);
+            }
+        }
 
     }
 
@@ -280,13 +259,13 @@ public class ApplicationRepository {
         void init(RealmResults<Session> sessions, List<String> sids);
 
         //有数据删除
-        void delete(List<Integer> positions);
+        void delete(int[] positions);
 
         //有数据新增
-        void insert(List<Integer> positions, List<String> sids);
+        void insert(int[] positions, List<String> sids);
 
         //有数据更新
-        void update(List<Integer> positions, List<String> sids);
+        void update(int[] positions, List<String> sids);
     }
 }
 

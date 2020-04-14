@@ -350,19 +350,19 @@ public class MsgMainFragment extends Fragment {
         }
 
         @Override
-        public void delete(List<Integer> positions) {
+        public void delete(int[] positions) {
             viewModel.isNeedCloseSwipe.setValue(true);
         }
 
         @Override
-        public void insert(List<Integer> positions, List<String> sids) {
+        public void insert(int[] positions, List<String> sids) {
             viewModel.isNeedCloseSwipe.setValue(true);
             viewModel.allSids.addAll(sids);
             viewModel.isAllSidsChange.setValue(true);
         }
 
         @Override
-        public void update(List<Integer> positions, List<String> sids) {
+        public void update(int[] positions, List<String> sids) {
             viewModel.allSids.addAll(sids);
         }
     };
@@ -390,18 +390,15 @@ public class MsgMainFragment extends Fragment {
                 mtListView.getListView().getAdapter().notifyDataSetChanged();
             }
             /*****更新了数据*******************************************************************************************/
-            OrderedCollectionChangeSet.Range[] modifications = changeSet.getChangeRanges();
+            int[] modifications = changeSet.getChanges();
             //获取更新信息
-            for (OrderedCollectionChangeSet.Range range : modifications) {
-                for (int i = 0; i < range.length; i++) {
-                    int position = range.startIndex + i;
-                    String sid = sessionDetails.get(position).getSid();
-                    if (MyAppLication.INSTANCE().repository.sessionSidPositons.containsKey(sid)) {
-                        int startId = MyAppLication.INSTANCE().repository.sessionSidPositons.get(sid);
-                        mtListView.getListView().getAdapter().notifyItemRangeChanged(startId+1, range.length);
-                    } else {
-                        mtListView.getListView().getAdapter().notifyDataSetChanged();
-                    }
+            for (int position : modifications) {
+                String sid = sessionDetails.get(position).getSid();
+                if (MyAppLication.INSTANCE().repository.sessionSidPositons.containsKey(sid)) {
+                    int startId = MyAppLication.INSTANCE().repository.sessionSidPositons.get(sid);
+                    mtListView.getListView().getAdapter().notifyItemRangeChanged(startId + 1, 1);
+                } else {
+                    mtListView.getListView().getAdapter().notifyDataSetChanged();
                 }
             }
         }
