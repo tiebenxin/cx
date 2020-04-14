@@ -4,13 +4,16 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.yanlong.im.MyAppLication;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.StringUtil;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -29,7 +32,12 @@ public class ApplicationLocalDataSource {
     public ApplicationLocalDataSource() {
         realm = DaoUtil.open();
         updateSessionDetail = new UpdateSessionDetail(realm);
-        burnManager = new BurnManager(realm);
+        burnManager = new BurnManager(realm, new BurnManager.UpdateDetailListener() {
+            @Override
+            public void updateDetails(String[] gids, Long[] fromUids) {
+                updateSessionDetail.update(gids,fromUids);
+            }
+        });
     }
 
     /**
@@ -144,6 +152,67 @@ public class ApplicationLocalDataSource {
                 }
             }
         });
+    }
+
+    /**
+     * 删除某个session 所有消息
+     * @param uid
+     * @param gid
+     */
+    public void deleteAllMsg(Long uid, String gid) {
+        //异步线程删除
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                try {
+                    RealmResults<MsgAllBean> list;
+                    if (StringUtil.isNotNull(gid)) {
+                        list = realm.where(MsgAllBean.class)
+                                .beginGroup().equalTo("gid", gid).endGroup()
+                                .and()
+                                .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
+                                .findAll();
+                    } else {
+                        list = realm.where(MsgAllBean.class)
+                                .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                                .and()
+                                .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
+                                .and()
+                                .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                                .findAll();
+                    }
+
+                    //删除前先把子表数据干掉!!切记
+                    if (list != null) {
+                        MsgDao msgDao = new MsgDao();
+                        for (MsgAllBean msg : list) {
+                            msgDao.deleteRealmMsg(msg);
+                        }
+                        list.deleteAllFromRealm();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    DaoUtil.reportException(e);
+                }
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(Throwable error) {
+            }
+        });
+
+    }
+
+
+    public void beginTransaction(){
+        realm.beginTransaction();
+    }
+    public void commitTransaction(){
+        realm.commitTransaction();
     }
 
     public void onDestory() {

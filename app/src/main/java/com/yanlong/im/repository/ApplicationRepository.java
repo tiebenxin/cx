@@ -6,7 +6,9 @@ import com.yanlong.im.data.local.ApplicationLocalDataSource;
 import com.yanlong.im.user.bean.UserInfo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
@@ -32,6 +34,9 @@ public class ApplicationRepository {
     //通讯录分页
     private final int FRIEND_PAGE_COUNT = 1000;
     private int currentFriendCount = 0;//currentFriendCount是FRIEND_PAGE_COUNT倍数
+
+    //session sid/position 解决主页频繁刷新问题
+    public Map<String,Integer> sessionSidPositons = new HashMap<>();
 
     public ApplicationRepository() {
         localDataSource = new ApplicationLocalDataSource();
@@ -69,16 +74,19 @@ public class ApplicationRepository {
             @Override
             public void onChange(RealmResults<Session> sessions, OrderedCollectionChangeSet changeSet) {
                 currentCount = sessions.size();
+                int sessionIndex = 0;
                 /***** 异步查询第一次返回。*******************************************************************************************/
                 {
                     if (changeSet == null || changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
 //                    notifyDataSetChanged();
-
-                        int index = 0;
+                        sessionSidPositons.clear();
                         ArrayList<String> sids = new ArrayList<String>();
                         sids.clear();
+                        sessionIndex = 0;
                         for (Session session : sessions) {
                             sids.add(session.getSid());
+                            sessionSidPositons.put(session.getSid(),sessionIndex);
+                            sessionIndex++;
                         }
 
                         //1.更新detail
@@ -95,6 +103,12 @@ public class ApplicationRepository {
 
                 /*****删除了数据，对于删除，必须以相反的顺序通知适配器。*******************************************************************************************/
                 {
+                    sessionIndex = 0;
+                    for (Session session : sessions) {
+                        sessionSidPositons.put(session.getSid(),sessionIndex);
+                        sessionIndex++;
+                    }
+
                     OrderedCollectionChangeSet.Range[] deletions = changeSet.getDeletionRanges();
                     ArrayList<Integer> positions = new ArrayList<>();
                     for (int index = deletions.length - 1; index >= 0; index--) {
@@ -103,9 +117,10 @@ public class ApplicationRepository {
                             int position = range.startIndex + i;
                             positions.add(position);
                         }
-
 //                    notifyItemRangeRemoved(range.startIndex, range.length);
                     }
+                    sessionSidPositons.clear();
+
                     if (positions.size() > 0) {
                         //1.删除-不需要更新detail
                         //2.通知监听器
@@ -117,6 +132,11 @@ public class ApplicationRepository {
 
                 /*****增加了数据*******************************************************************************************/
                 {
+                    sessionIndex = 0;
+                    for (Session session : sessions) {
+                        sessionSidPositons.put(session.getSid(),sessionIndex);
+                        sessionIndex++;
+                    }
                     OrderedCollectionChangeSet.Range[] insertions = changeSet.getInsertionRanges();
                     ArrayList<String> sids = new ArrayList<String>();
                     ArrayList<Integer> positions = new ArrayList<>();
@@ -202,6 +222,19 @@ public class ApplicationRepository {
 
     public RealmResults<UserInfo> getFriends() {
         return friends;
+    }
+
+    public void deleteSession(String sid){
+        if(sessionSidPositons.containsKey(sid)){
+            Session session=sessions.get(sessionSidPositons.get(sid));
+            String gid=session.getGid();
+            Long uid=session.getFrom_uid();
+            localDataSource.beginTransaction();
+            session.deleteFromRealm();
+            localDataSource.commitTransaction();
+            localDataSource.deleteAllMsg(uid, gid);
+        }
+
     }
 
 

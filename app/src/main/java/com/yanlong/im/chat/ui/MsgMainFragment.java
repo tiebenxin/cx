@@ -337,7 +337,8 @@ public class MsgMainFragment extends Fragment {
     public void onResume() {
         viewModel.isNeedCloseSwipe.setValue(true);
         //再次关闭，有时候会出现再次加载的情况
-        if(viewModel.isSessionDetailsLoad.getValue())viewModel.isSessionDetailsLoad.setValue(true);
+        if (viewModel.isSessionDetailsLoad.getValue())
+            viewModel.isSessionDetailsLoad.setValue(true);
         super.onResume();
     }
 
@@ -368,21 +369,54 @@ public class MsgMainFragment extends Fragment {
     private OrderedRealmCollectionChangeListener sessionMoresListener = new OrderedRealmCollectionChangeListener<RealmResults<SessionDetail>>() {
         @Override
         public void onChange(RealmResults<SessionDetail> sessionDetails, OrderedCollectionChangeSet changeSet) {
-            /***更新位置信息*********************************************************/
+//            /***更新位置信息*********************************************************/
             viewModel.sessionMoresPositions.clear();
             for (int i = 0; i < viewModel.sessionMores.size(); i++) {
                 viewModel.sessionMoresPositions.put(viewModel.sessionMores.get(i).getSid(), i);
             }
             /***第一次 更新已经被加载了 必须等sessiondetail 全部加载完*********************************************************/
             if (!viewModel.isSessionDetailsLoad.getValue()) {
-                if(sessionDetails.size() == viewModel.sessions.size())
-                viewModel.isSessionDetailsLoad.setValue(true);
+                if (sessionDetails.size() == viewModel.sessions.size())
+                    viewModel.isSessionDetailsLoad.setValue(true);
             }
-            /***更新列表*********************************************************/
-            if (viewModel.sessions == null || viewModel.sessions.size() == 0) {
-                mtListView.getListView().getAdapter().notifyDataSetChanged();
-            } else {
+
+            /*****增加了数据-需要更新全部*******************************************************************************************/
+            if (changeSet.getInsertionRanges().length > 0) {
                 mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+            }
+//            /*****删除了数据，对于删除，必须以相反的顺序通知适配器。*******************************************************************************************/
+//            if (changeSet.getDeletionRanges().length > 0) {
+//                mtListView.getListView().getAdapter().notifyDataSetChanged();
+//            }
+            /*****删除了数据，对于删除，必须以相反的顺序通知适配器。*******************************************************************************************/
+            OrderedCollectionChangeSet.Range[] deletions = changeSet.getDeletionRanges();
+            ArrayList<String> sids = new ArrayList<>();
+            for (int index = deletions.length - 1; index >= 0; index--) {
+                OrderedCollectionChangeSet.Range range = deletions[index];
+                for (int i = 0; i < range.length; i++) {
+                    int position = range.startIndex + i;
+                    String sid=sessionDetails.get(position).getSid();
+                    if(MyAppLication.INSTANCE().repository.sessionSidPositons.containsKey(sid)){
+                        int startId=MyAppLication.INSTANCE().repository.sessionSidPositons.get(sid);
+                        mtListView.getListView().getAdapter().notifyItemRangeRemoved(startId+1, range.length);
+                    }
+
+                }
+            }
+            /*****更新了数据*******************************************************************************************/
+            OrderedCollectionChangeSet.Range[] modifications = changeSet.getChangeRanges();
+            //获取更新信息
+            for (OrderedCollectionChangeSet.Range range : modifications) {
+                for (int i = 0; i < range.length; i++) {
+                    int position = range.startIndex + i;
+                    String sid = sessionDetails.get(position).getSid();
+                    if (MyAppLication.INSTANCE().repository.sessionSidPositons.containsKey(sid)) {
+                        int startId = MyAppLication.INSTANCE().repository.sessionSidPositons.get(sid);
+                        mtListView.getListView().getAdapter().notifyItemRangeChanged(startId+1, range.length);
+                    } else {
+                        mtListView.getListView().getAdapter().notifyDataSetChanged();
+                    }
+                }
             }
         }
     };
@@ -392,27 +426,13 @@ public class MsgMainFragment extends Fragment {
      */
     private void initObserver() {
         //监听删除操作项
-        viewModel.currentDeletePosition.observe(this, new Observer<Integer>() {
+        viewModel.currentDeleteSid.observe(this, new Observer<String>() {
             @Override
-            public void onChanged(@Nullable Integer position) {
-                if (position >= 0 && position < viewModel.sessions.size()) {
-                    viewModel.deleteItem(position);
-                    //通知更新
-                    MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
-                    getView().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-//                        mtListView.getListView().getAdapter().notifyItemRemoved(position + 1);//范围刷新
-                            if (viewModel.sessions != null) {
-                                if (viewModel.sessions.size() > 0)
-                                    mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
-                                if (viewModel.sessions.size() == 0) {
-                                    mtListView.getListView().getAdapter().notifyDataSetChanged();
-                                }
-                            }
-                        }
-                    }, 50);
-                }
+            public void onChanged(@Nullable String sid) {
+                //删除session
+                MyAppLication.INSTANCE().repository.deleteSession(sid);
+                //删除sessionDetail
+                viewModel.deleteItem(sid);
             }
         });
         viewModel.isNeedCloseSwipe.observe(this, new Observer<Boolean>() {
@@ -525,23 +545,23 @@ public class MsgMainFragment extends Fragment {
     }
 
     //滑动到未读消息项
-    public void moveToUnread(){
+    public void moveToUnread() {
         List<Integer> positionList = new ArrayList<>();//保存有未读消息的位置
-        if(viewModel.sessions.size()>0){
-            for(int i=0; i< viewModel.sessions.size(); i++){
+        if (viewModel.sessions.size() > 0) {
+            for (int i = 0; i < viewModel.sessions.size(); i++) {
                 Session bean = viewModel.sessions.get(i);
-                if(bean.getUnread_count()>0){
+                if (bean.getUnread_count() > 0) {
                     positionList.add(i);
                 }
             }
         }
         //从首位置开始，多次双击，按未读消息会话的顺序滑动，依次滑动至最后一项，然后重置位置
-        if(positionList.size()>0){
-            mtListView.getLayoutManager().scrollToPositionWithOffset(positionList.get(showPosition)+1,0);
-            if(showPosition < positionList.size()-1){
+        if (positionList.size() > 0) {
+            mtListView.getLayoutManager().scrollToPositionWithOffset(positionList.get(showPosition) + 1, 0);
+            if (showPosition < positionList.size() - 1) {
                 showPosition++;
-            }else {
-                showPosition=0;
+            } else {
+                showPosition = 0;
             }
         }
     }
