@@ -3,6 +3,7 @@ package com.yanlong.im.chat.action;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.bean.ExitGroupUser;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
@@ -83,12 +84,10 @@ public class MsgAction {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {
-                    dao.sessionDel(null, id);
-                    dao.msgDel(null, id);
+                    MyAppLication.INSTANCE().repository.deleteSession(null,id);
                     //删除群成员及秀阿贵群保存逻辑
                     MemberUser memberUser = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), id);
                     dao.removeGroupMember(id, memberUser);
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, id, CoreEnum.ESessionRefreshTag.DELETE, null);
                 }
                 callback.onResponse(call, response);
             }
@@ -127,20 +126,6 @@ public class MsgAction {
         });
     }
 
-    public void groupDestroy(final String id, final CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.groupDestroy(id), new CallBack<ReturnBean>() {
-            @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if (response.body() == null)
-                    return;
-                if (response.body().isOk()) {
-                    dao.sessionDel(null, id);
-                }
-                callback.onResponse(call, response);
-            }
-        });
-
-    }
 
     public void groupAdd(String id, List<UserInfo> members, String nickname, CallBack<ReturnBean<GroupJoinBean>> callback) {
         List<GroupUserInfo> groupUserInfos = new ArrayList<>();

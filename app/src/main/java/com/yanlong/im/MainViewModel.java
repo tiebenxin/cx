@@ -35,9 +35,10 @@ public class MainViewModel extends ViewModel {
     public RealmResults<UserInfo> friends = null;
 
     //当前删除操作位置,为数据源中的位置
-    public MutableLiveData<Integer> currentDeletePosition = new MutableLiveData();
-    //保存session 位置sid/position
+    public MutableLiveData<String> currentDeleteSid = new MutableLiveData();
+    //保存sessionDetial 位置sid/position
     public Map<String, Integer> sessionMoresPositions = new HashMap<>();
+
     //判断网络状态 true在线 false离线
     public MutableLiveData<Boolean> onlineState = new MutableLiveData<>();
     //是否要主动关闭展开的删除按钮
@@ -52,32 +53,33 @@ public class MainViewModel extends ViewModel {
         isSessionDetailsLoad.setValue(false);
     }
 
-    public  void initSession(List<String> sids) {
+    public void initSession(List<String> sids) {
         repository.checkRealmStatus();
         //指向内存堆中同一个对象,session数据变化时，Application中会自动更新session详情
         if (MyAppLication.INSTANCE().iSSessionsLoad()) {
             sessions = MyAppLication.INSTANCE().getSessions();
-            if(sids==null){
-                if (sessions.size()>0) {
+            if (sids == null) {
+                if (sessions.size() > 0) {
                     for (Session session : sessions) {
-                        allSids.add(session.getSid()) ;
+                        allSids.add(session.getSid());
                     }
                     isAllSidsChange.setValue(true);
-                }else{
+                } else {
                     isSessionDetailsLoad.setValue(true);
                 }
-            }else{
-                if(sids.size()>0){
+            } else {
+                if (sids.size() > 0) {
                     allSids.addAll(sids);
                     isAllSidsChange.setValue(true);
-                }else{
+                } else {
                     isSessionDetailsLoad.setValue(true);
                 }
             }
         }
     }
-    public void updateSessionMore(){
-        if(sessionMores!=null)sessionMores.removeAllChangeListeners();
+
+    public void updateSessionMore() {
+        if (sessionMores != null) sessionMores.removeAllChangeListeners();
         sessionMores = repository.getSessionMore(allSids.toArray(new String[allSids.size()]));
     }
 
@@ -97,45 +99,20 @@ public class MainViewModel extends ViewModel {
         repository.updateSessionDetail(allSids.toArray(new String[allSids.size()]));
     }
 
-    /**
-     * 删除指定项数据
-     *
-     * @param position
-     */
-    public void deleteItem(int position) {
-        try {
-            long uid = MyAppLication.INSTANCE().getSessions().get(position).getFrom_uid();
-            String gid = MyAppLication.INSTANCE().getSessions().get(position).getGid();
-            //开始删除事务
-            repository.beginTransaction();
-            String sid = MyAppLication.INSTANCE().getSessions().get(position).getSid();
-            MyAppLication.INSTANCE().getSessions().get(position).deleteFromRealm();
-            if (sessionMoresPositions.containsKey(sid)) {
-                int index = sessionMoresPositions.get(sid);
-                if (index >= 0 && index < sessionMores.size()) {
-                    //删除session详情
-                    sessionMores.get(index).deleteFromRealm();
-                }
-                //删除位置信息
-                sessionMoresPositions.remove(sid);
-            }
-            repository.commitTransaction();
-            repository.deleteAllMsg(uid, gid);
-        } catch (Exception e) {
-        }
-    }
 
     public String getSessionJson() {
         return sessions == null ? "" : repository.getSessionJson(sessions);
     }
+
     /***
      * 获取红点的值
      * @param type
      * @return
      */
-    public int getRemindCount(String type){
+    public int getRemindCount(String type) {
         return repository.getRemindCount(type);
     }
+
     /***
      * 清除红点的值
      * @param type
@@ -150,28 +127,32 @@ public class MainViewModel extends ViewModel {
      * 获取单个用户信息并且缓存到数据库
      * @param usrid
      */
-    public void requestUserInfoAndSave(Long usrid, @ChatEnum.EUserType int type){
-        repository.requestUserInfoAndSave(usrid,type);
+    public void requestUserInfoAndSave(Long usrid, @ChatEnum.EUserType int type) {
+        repository.requestUserInfoAndSave(usrid, type);
     }
+
     /**
      * 设置为陌生人
+     *
      * @param uid
      */
-    public void setToStranger(long uid){
+    public void setToStranger(long uid) {
         repository.setToStranger(uid);
     }
+
     /**
      * 获取通讯录好友在线状态
      */
-    public void requestUsersOnlineStatus(){
+    public void requestUsersOnlineStatus() {
         repository.requestUsersOnlineStatus();
     }
+
     public void onDestory(LifecycleOwner owner) {
         if (sessionMores != null)
             sessionMores.removeAllChangeListeners();
         sessionMores = null;
         repository.onDestory();
-        currentDeletePosition.removeObservers(owner);
+        currentDeleteSid.removeObservers(owner);
         onlineState.removeObservers(owner);
         isNeedCloseSwipe.removeObservers(owner);
         isSessionDetailsLoad.removeObservers(owner);

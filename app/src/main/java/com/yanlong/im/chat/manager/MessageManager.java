@@ -25,9 +25,7 @@ import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.DaoUtil;
-import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.MediaBackUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
@@ -54,14 +52,12 @@ import net.cb.cb.library.utils.TimeToString;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import io.realm.Realm;
-import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -1079,50 +1075,6 @@ public class MessageManager {
         EventBus.getDefault().post(event);
     }
 
-
-    public void deleteSessionAndMsg(Long uid, String gid) {
-        msgDao.sessionDel(uid, gid);
-        Realm realm = DaoUtil.open();
-        //异步线程删除
-        realm.executeTransactionAsync(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                try {
-                    RealmResults<MsgAllBean> list;
-                    if (StringUtil.isNotNull(gid)) {
-                        list = realm.where(MsgAllBean.class)
-                                .beginGroup().equalTo("gid", gid).endGroup()
-                                .and()
-                                .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
-                                .findAll();
-                    } else {
-                        list = realm.where(MsgAllBean.class)
-                                .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
-                                .and()
-                                .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
-                                .and()
-                                .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
-                                .findAll();
-                    }
-
-                    //删除前先把子表数据干掉!!切记
-                    if (list != null) {
-                        for (MsgAllBean msg : list) {
-                            msgDao.deleteRealmMsg(msg);
-                        }
-                        list.deleteAllFromRealm();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    DaoUtil.reportException(e);
-                } finally {
-                    DaoUtil.close(realm);
-                }
-            }
-        });
-
-    }
-
     /*
      * 刷新通讯录
      * @param isLocal 是否是本地刷新
@@ -1653,7 +1605,7 @@ public class MessageManager {
             taskMaps.clear();
         }
         //用户退出登录需清除阅后即焚数据
-        BurnManager.getInstance().clear();
+//        BurnManager.getInstance().clear();
     }
 
     /*

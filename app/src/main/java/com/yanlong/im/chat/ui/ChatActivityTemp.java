@@ -157,7 +157,6 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
-import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.ExpressionUtil;
@@ -5882,7 +5881,7 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
         boolean isMe = msgbean.isMe();
         //单聊 自己发的消息，需等待对方已读
         boolean checkNotGroupAndNotRead = !isGroup && isMe && msgbean.getRead() != 1;
-        if (msgbean == null || BurnManager.getInstance().isContainMsg(msgbean) || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL
+        if (msgbean == null || msgbean.getEndTime()>0 || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL
                 || checkNotGroupAndNotRead) {
             return;
         }
@@ -5903,7 +5902,7 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
     }
 
     public void addSurvivalTimeAndRead(MsgAllBean msgbean) {
-        if (msgbean == null || BurnManager.getInstance().isContainMsg(msgbean) || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL) {
+        if (msgbean == null || msgbean.getEndTime()>0 || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL) {
             return;
         }
         if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0 && msgbean.getRead() == 1) {

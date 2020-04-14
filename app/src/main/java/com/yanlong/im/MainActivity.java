@@ -46,7 +46,6 @@ import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
-import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.EnvelopeInfo;
 import com.yanlong.im.chat.bean.Group;
@@ -78,7 +77,6 @@ import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
-import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.socket.ExecutorManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
@@ -265,7 +263,6 @@ public class MainActivity extends AppActivity {
         if (isCreate) {
             LogUtil.getLog().i("MainActivity", "isCreate=" + isCreate);
             uploadApp();
-            getSurvivalTimeData();
             checkRosters();
             checkNeteaseLogin();
             checkPermission();
@@ -281,17 +278,17 @@ public class MainActivity extends AppActivity {
         }
 
         @Override
-        public void delete(List<Integer> positions) {
+        public void delete(int[] positions) {
             updateUnReadCount();
         }
 
         @Override
-        public void insert(List<Integer> positions, List<String> sids) {
+        public void insert(int[] positions, List<String> sids) {
             updateUnReadCount();
         }
 
         @Override
-        public void update(List<Integer> positions, List<String> sids) {
+        public void update(int[] positions, List<String> sids) {
             updateUnReadCount();
         }
 
@@ -332,7 +329,7 @@ public class MainActivity extends AppActivity {
     private void findViews() {
         viewPage = findViewById(R.id.viewPage);
         bottomTab = findViewById(R.id.bottom_tab);
-        BurnManager.getInstance().RunTimer();
+//        BurnManager.getInstance().RunTimer();
         mBtnMinimizeVoice = findViewById(R.id.btn_minimize_voice);
     }
 
@@ -589,7 +586,7 @@ public class MainActivity extends AppActivity {
         // 关闭浮动窗口
         mBtnMinimizeVoice.close(this);
         mHandler.removeCallbacks(runnable);
-        BurnManager.getInstance().cancel();
+//        BurnManager.getInstance().cancel();
         super.onDestroy();
         // 在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
         if (listener != null) {
@@ -1069,34 +1066,24 @@ public class MainActivity extends AppActivity {
     }
 
 
-    private void getSurvivalTimeData() {
-        //延时操作，等待数据库初始化
-        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    //子线程延时 等待myapplication初始化完成
-                    //查询所有阅后即焚消息加入定时器
-                    List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
-                    if (list != null && list.size() > 0) {
-                        BurnManager.getInstance().addMsgAllBeans(list);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-    }
-
-    @Subscribe(threadMode = ThreadMode.ASYNC)
-    public void addSurvivalTimeList(EventSurvivalTimeAdd survivalTimeAdd) {
-        if (survivalTimeAdd.msgAllBean != null) {
-            BurnManager.getInstance().addMsgAllBean(survivalTimeAdd.msgAllBean);
-        } else if (survivalTimeAdd.list != null && survivalTimeAdd.list.size() > 0) {
-            BurnManager.getInstance().addMsgAllBeans(survivalTimeAdd.list);
-        }
-    }
+//    private void getSurvivalTimeData() {
+//        //延时操作，等待数据库初始化
+//        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    //子线程延时 等待myapplication初始化完成
+//                    //查询所有阅后即焚消息加入定时器
+//                    List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
+//                    if (list != null && list.size() > 0) {
+////                        BurnManager.getInstance().addMsgAllBeans(list);
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//    }
 
     /**
      * 检查是否开启悬浮窗权限
@@ -1157,7 +1144,7 @@ public class MainActivity extends AppActivity {
     //删除临时红包信息
     private void deleteEnvelopInfo(EnvelopeInfo envelopeInfo) {
         msgDao.deleteEnvelopeInfo(envelopeInfo.getRid(), envelopeInfo.getGid(), envelopeInfo.getUid(), false);
-        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(envelopeInfo.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, envelopeInfo.getUid(), envelopeInfo.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, null);
+        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(envelopeInfo.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, envelopeInfo.getUid(), envelopeInfo.getGid(), CoreEnum.ESessionRefreshTag.ALL, null);
     }
 
     /**

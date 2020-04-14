@@ -600,6 +600,13 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".BurnBroadcastReceiver">
+            <intent-filter>
+                <action android:name="com.yanlong.im.burn.action" />
+            </intent-filter>
+        </receiver>
+
+
         <activity
             android:name=".user.ui.image.PictureExternalPreviewActivity"
             android:launchMode="singleTask"
