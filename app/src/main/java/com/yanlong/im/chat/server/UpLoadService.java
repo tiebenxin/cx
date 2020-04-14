@@ -81,11 +81,11 @@ public class UpLoadService extends Service {
             public void run() {
                 while (queue.size() > 0) {
                     UpProgress upProgress = queue.poll();
-                    LogUtil.getLog().d("ChatActivity--上传", "上传: " + upProgress.getId());
+                    LogUtil.getLog().d("ChatActivityTemp--上传", "上传: " + upProgress.getId());
                     upFileAction.upFileSyn(UpFileAction.PATH.IMG, getApplicationContext(), upProgress.getCallback(), upProgress.getFile());
                 }
                 stopSelf();
-                LogUtil.getLog().d("ChatActivity-上传", "上传结束");
+                LogUtil.getLog().d("ChatActivityTemp-上传", "上传结束");
             }
         }).start();
 

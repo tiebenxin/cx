@@ -50,7 +50,7 @@ public class ChatCellNotice extends ChatCellBase {
                         || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF
                         || notice.getMsgType() == ChatEnum.ENoticeType.SNAPSHOT_SCREEN) {
                     tv_content.setText(Html.fromHtml(notice.getNote(), null,
-                            new MsgTagHandler(AppConfig.getContext(), true, message.getMsg_id(), (IActionTagClickListener) getContext())));
+                            new MsgTagHandler(AppConfig.getContext(), true, message.getMsg_id(), actionTagClickListener)));
                 } else {
                     tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgNotice().getNote(), message.getMsgNotice().getMsgType()));
                 }

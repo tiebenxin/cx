@@ -26,7 +26,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
-import com.yanlong.im.chat.ui.chat.ChatActivity2;
+import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.wight.avatar.MultiImageView;
 
@@ -262,7 +262,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             holder.viewIt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    context.startActivity(new Intent(context, ChatActivity2.class)
+                    context.startActivity(new Intent(context, ChatActivity.class)
                             .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
                             .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
                             .putExtra(ChatActivity.ONLINE_STATE, viewModel.onlineState.getValue())

@@ -29,12 +29,12 @@ import net.cb.cb.library.utils.ViewUtils;
 public class ForwardRosterAdapter extends AbstractRecyclerAdapter {
     private Context context;
     private IForwardRosterListener listener;
-    private final ForwardViewModel viewModel;
+//    private final ForwardViewModel viewModel;
 
     public ForwardRosterAdapter(Context ctx, ForwardViewModel viewModel) {
         super(ctx);
         context = ctx;
-        this.viewModel = viewModel;
+//        this.viewModel = viewModel;
     }
 
     @Override
@@ -50,7 +50,8 @@ public class ForwardRosterAdapter extends AbstractRecyclerAdapter {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         if (holder instanceof RCViewHolder) {
-            UserInfo info = viewModel.users.get(position - 1);
+//            UserInfo info = viewModel.users.get(position - 1);
+            UserInfo info = (UserInfo) mBeanList.get(position - 1);
             RCViewHolder viewHolder = (RCViewHolder) holder;
             viewHolder.bindData(info, position);
         }
@@ -61,10 +62,10 @@ public class ForwardRosterAdapter extends AbstractRecyclerAdapter {
         return position == 0 ? 0 : 1;
     }
 
-    @Override
-    public int getItemCount() {
-        return viewModel.users != null ? viewModel.users.size() + 1 : 0;
-    }
+//    @Override
+//    public int getItemCount() {
+//        return viewModel.users != null ? viewModel.users.size() + 1 : 0;
+//    }
 
     public void setForwardListener(IForwardRosterListener l) {
         listener = l;
@@ -72,7 +73,8 @@ public class ForwardRosterAdapter extends AbstractRecyclerAdapter {
 
     public UserInfo getUserByPosition(int position) {
         if (position < getItemCount() - 1) {
-            return viewModel.users.get(position);
+//            return viewModel.users.get(position);
+            return (UserInfo) mBeanList.get(position);
         }
         return null;
     }

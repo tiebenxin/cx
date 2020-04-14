@@ -206,20 +206,16 @@
             android:screenOrientation="portrait" />
         <!--聊天界面-->
         <!--        <activity-->
-        <!--            android:name=".chat.ui.ChatActivity"-->
+        <!--            android:name=".chat.ui.ChatActivityTemp"-->
         <!--            android:launchMode="singleTask"-->
         <!--            android:configChanges="orientation|screenSize"-->
         <!--            android:windowSoftInputMode="adjustUnspecified|stateHidden|adjustPan"-->
         <!--            android:screenOrientation="portrait" />-->
         <activity
-            android:name=".chat.ui.ChatActivity"
+            android:name=".chat.ui.ChatActivityTemp"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustNothing" />
-        <activity
-            android:name=".chat.ui.chat.ChatActivity3"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
 
 
         <!--好友,群搜索-->
@@ -706,7 +702,7 @@
                 <!--                <data android:mimeType="*/*" />-->
             </intent-filter>
         </activity>
-        <activity android:name=".chat.ui.chat.ChatActivity2" />
+        <activity android:name=".chat.ui.chat.ChatActivity" />
 
     </application>
 

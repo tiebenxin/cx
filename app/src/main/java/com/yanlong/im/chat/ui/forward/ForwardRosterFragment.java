@@ -100,8 +100,8 @@ public class ForwardRosterFragment extends BaseMvpFragment<ForwardModel, Forward
         }
 
         userlist=list;
-//        List<UserInfo> temp=searchSessionBykey(userlist,MsgForwardActivity.searchKey);
-//        adapter.bindData(temp);
+        List<UserInfo> temp=searchSessionBykey(userlist,MsgForwardActivity.searchKey);
+        adapter.bindData(temp);
         ui.listView.init(adapter);
     }
 

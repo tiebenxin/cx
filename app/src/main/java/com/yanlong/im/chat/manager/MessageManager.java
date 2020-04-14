@@ -1592,6 +1592,26 @@ public class MessageManager {
      * */
     public boolean isGroupValid(Group group) {
         if (group != null) {
+            if (group.getStat() != ChatEnum.EGroupStatus.NORMAL) {
+                return false;
+            } else {
+                List<MemberUser> users = group.getUsers();
+                if (users != null) {
+                    MemberUser member = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), group.getGid());
+                    if (member != null && !users.contains(member)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /*
+     * 检测该群是否还有效，即自己是否还在该群中,有效为true，无效为false
+     * */
+    public boolean isGroupValid2(Group group) {
+        if (group != null) {
             List<MemberUser> users = group.getUsers();
             if (users != null) {
                 MemberUser member = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), group.getGid());
@@ -1719,10 +1739,8 @@ public class MessageManager {
     //聊天界面是否存活
     public boolean isChatAlive() {
         if (SESSION_TYPE == 1 || SESSION_TYPE == 2) {
-            LogUtil.getLog().i(TAG, "聊天界面alive");
             return true;
         }
-        LogUtil.getLog().i(TAG, "聊天界面关闭");
         return false;
     }
 

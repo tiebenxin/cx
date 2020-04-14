@@ -230,15 +230,15 @@ public class MsgAction {
                         newGroup.getMygroupName();
                         Group group = DaoUtil.findOne(Group.class, "gid", gid);
                         if (group != null && group.getUsers() != null) {
-                            if (MessageManager.getInstance().isGroupValid(group)) {//在群中，才更新
-                                if (MessageManager.getInstance().isGroupValid(newGroup)) {
+                            if (MessageManager.getInstance().isGroupValid2(group)) {//在群中，才更新
+                                if (MessageManager.getInstance().isGroupValid2(newGroup)) {
                                     dao.groupNumberSave(newGroup);
                                     MessageManager.getInstance().updateCacheGroup(group);
                                 } else {
                                     dao.removeGroupMember(group.getGid(), UserAction.getMyId());
                                 }
                             } else {
-                                if (MessageManager.getInstance().isGroupValid(newGroup)) {//重新被拉进群，更新
+                                if (MessageManager.getInstance().isGroupValid2(newGroup)) {//重新被拉进群，更新
                                     dao.groupNumberSave(newGroup);
                                     MessageManager.getInstance().updateCacheGroup(group);
                                 }

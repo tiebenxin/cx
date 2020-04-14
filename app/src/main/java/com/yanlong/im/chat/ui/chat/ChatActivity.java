@@ -194,6 +194,7 @@ import net.cb.cb.library.bean.EventUpFileLoadEvent;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
+import net.cb.cb.library.bean.GroupStatusChangeEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.dialog.DialogEnvelopePast;
@@ -256,8 +257,8 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static net.cb.cb.library.utils.FileUtils.SIZETYPE_B;
 
-public class ChatActivity2 extends AppActivity implements IActionTagClickListener, ICellEventListener {
-    private static String TAG = "ChatActivity";
+public class ChatActivity extends AppActivity implements IActionTagClickListener, ICellEventListener {
+    private static String TAG = "ChatActivityTemp";
     public final static int MIN_TEXT = 1000;//
     private final int RELINQUISH_TIME = 5;// 5分钟内显示重新编辑
     private final String REST_EDIT = "重新编辑";
@@ -318,7 +319,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
     private int textPosition;
     private int contactIntimately;
     private String master = "";
-    private TextView tv_ban;
+    private TextView tvBan;
     private String draft;
     private int isFirst;
     private UserInfo userInfo;// 聊天用户信息，刷新时更新
@@ -383,7 +384,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
         initEvent();
         initSurvivaltime4Uid();
         getOftenUseFace();
-        builder = new ChangeSelectDialog.Builder(ChatActivity2.this);
+        builder = new ChangeSelectDialog.Builder(ChatActivity.this);
     }
 
     private Runnable mPanelRecoverySoftInputModeRunnable = new Runnable() {
@@ -627,7 +628,13 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
     private boolean checkSnapshotPower() {
         if (isGroup()) {
             if (groupInfo != null) {
-                return groupInfo.getScreenshotNotification() == 1;
+                //群被封，全禁言，单个禁言，无截屏权限
+                if (groupInfo.getStat() != ChatEnum.EGroupStatus.NORMAL || groupInfo.getWordsNotAllowed() == 1
+                        || (singleMeberInfoBean != null && singleMeberInfoBean.getShutUpDuration() == 1) || groupInfo.getScreenshotNotification() == 0) {
+                    return false;
+                } else {
+                    return true;
+                }
             }
         } else {
             if (userInfo != null) {
@@ -650,7 +657,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
         viewChatBottomc = findViewById(R.id.view_chat_bottom_c);
         btnSend = findViewById(R.id.btn_send);
         txtVoice = findViewById(R.id.txt_voice);
-        tv_ban = findViewById(R.id.tv_ban);
+        tvBan = findViewById(R.id.tv_ban);
         viewFaceView = findViewById(R.id.chat_view_faceview);
         viewNewMessage = new ControllerNewMessage(findViewById(R.id.viewNewMessage));
         setChatImageBackground();
@@ -945,7 +952,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
             }
             bitmap = Bitmap.createScaledBitmap(bitmap, ExpressionUtil.dip2px(this, ExpressionUtil.DEFAULT_SIZE),
                     ExpressionUtil.dip2px(this, ExpressionUtil.DEFAULT_SIZE), true);
-            ImageSpan imageSpan = new ImageSpan(ChatActivity2.this, bitmap);
+            ImageSpan imageSpan = new ImageSpan(ChatActivity.this, bitmap);
             String str = bean.getName();
             SpannableString spannableString = new SpannableString(str);
             spannableString.setSpan(imageSpan, 0, PatternUtil.FACE_EMOJI_LENGTH, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -1072,7 +1079,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                 //test 8.
                 String text = editChat.getText().toString().trim();
                 if (TextUtils.isEmpty(text)) {
-                    ToastUtil.show(ChatActivity2.this, "不能发送空白消息");
+                    ToastUtil.show(ChatActivity.this, "不能发送空白消息");
                     editChat.getText().clear();
                     return;
                 }
@@ -1098,7 +1105,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                 int totalSize = text.length();
                 if (isGroup() && editChat.getUserIdList() != null && editChat.getUserIdList().size() > 0) {
                     if (totalSize > MIN_TEXT) {
-                        ToastUtil.show(ChatActivity2.this, "@消息长度不能超过" + MIN_TEXT);
+                        ToastUtil.show(ChatActivity.this, "@消息长度不能超过" + MIN_TEXT);
                         editChat.getText().clear();
                         return;
                     }
@@ -1117,7 +1124,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                     if (!TextUtils.isEmpty(text)) {
                         int per = totalSize / MIN_TEXT;
                         if (per > 10) {
-                            ToastUtil.show(ChatActivity2.this, "文本长度不能超过" + 10 * MIN_TEXT);
+                            ToastUtil.show(ChatActivity.this, "文本长度不能超过" + 10 * MIN_TEXT);
                             editChat.getText().clear();
                             return;
                         }
@@ -1174,7 +1181,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                 if (isGroup() && isFirst != 0) {
                     if (count == 1 && (s.charAt(s.length() - 1) == "@".charAt(0) || s.charAt(s.length() - (s.length() - start)) == "@".charAt(0))) { //添加一个字
                         //跳转到@界面
-                        Intent intent = new Intent(ChatActivity2.this, GroupSelectUserActivity.class);
+                        Intent intent = new Intent(ChatActivity.this, GroupSelectUserActivity.class);
                         intent.putExtra(GroupSelectUserActivity.TYPE, 1);
                         intent.putExtra(GroupSelectUserActivity.GID, toGid);
 
@@ -1305,6 +1312,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
 
         mAdapter = new MessageAdapter(this, this, isGroup());
         mAdapter.setCellFactory(new FactoryChatCell(context, mAdapter, this));
+        mAdapter.setTagListener(this);
         mtListView.init(mAdapter);
         mtListView.getLoadView().setStateNormal();
         mtListView.setEvent(new MultiListView.Event() {
@@ -1429,13 +1437,13 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                         return;
                     }
                 }
-                destroyTimeView = new DestroyTimeView(ChatActivity2.this);
+                destroyTimeView = new DestroyTimeView(ChatActivity.this);
                 destroyTimeView.initView();
                 destroyTimeView.setPostion(survivaltime);
                 destroyTimeView.setListener(new DestroyTimeView.OnClickItem() {
                     @Override
                     public void onClickItem(String content, int survivaltime) {
-                        if (ChatActivity2.this.survivaltime != survivaltime) {
+                        if (ChatActivity.this.survivaltime != survivaltime) {
                             util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
                             if (isGroup()) {
                                 changeSurvivalTime(toGid, survivaltime);
@@ -1529,13 +1537,13 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
     }
 
     private void toLocation() {
-        LocationActivity.openActivity(ChatActivity2.this, false, null);
+        LocationActivity.openActivity(ChatActivity.this, false, null);
     }
 
     private void toVideoCall() {
         //重置所有状态值
         mViewModel.recoveryOtherValue(null);
-        DialogHelper.getInstance().createSelectDialog(ChatActivity2.this, new ICustomerItemClick() {
+        DialogHelper.getInstance().createSelectDialog(ChatActivity.this, new ICustomerItemClick() {
             @Override
             public void onClickItemVideo() {// 视频
                 gotoVideoActivity(AVChatType.VIDEO.getValue());
@@ -1565,7 +1573,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
 
     private void toVoice() {
         //申请权限 7.2
-        permission2Util.requestPermissions(ChatActivity2.this, new CheckPermission2Util.Event() {
+        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
             @Override
             public void onSuccess() {
                 if (!checkNetConnectStatus()) {
@@ -1587,7 +1595,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
 
     private void toStamp() {
         AlertTouch alertTouch = new AlertTouch();
-        alertTouch.init(ChatActivity2.this, "请输入戳一下消息", "确定", R.mipmap.ic_chat_actionme, new AlertTouch.Event() {
+        alertTouch.init(ChatActivity.this, "请输入戳一下消息", "确定", R.mipmap.ic_chat_actionme, new AlertTouch.Event() {
             @Override
             public void onON() {
 
@@ -1634,7 +1642,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
             name = userInfo.getName();
             avatar = userInfo.getHead();
         }
-        Intent intent = TransferActivity.newIntent(ChatActivity2.this, toUId, name, avatar);
+        Intent intent = TransferActivity.newIntent(ChatActivity.this, toUId, name, avatar);
         startActivity(intent);
     }
 
@@ -1654,16 +1662,16 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
             }
         }
         if (isGroup()) {
-            Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivity2.this, toGid, groupInfo.getUsers().size());
+            Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivity.this, toGid, groupInfo.getUsers().size());
             startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
         } else {
-            Intent intentMulti = SingleRedPacketActivity.newIntent(ChatActivity2.this, toUId);
+            Intent intentMulti = SingleRedPacketActivity.newIntent(ChatActivity.this, toUId);
             startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
         }
     }
 
     private void toGallery() {
-        PictureSelector.create(ChatActivity2.this)
+        PictureSelector.create(ChatActivity.this)
 //                        .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                 .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                 .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
@@ -1677,15 +1685,15 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
     }
 
     private void toCamera() {
-        permission2Util.requestPermissions(ChatActivity2.this, new CheckPermission2Util.Event() {
+        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
             @Override
             public void onSuccess() {
                 // 判断是否正在音视频通话
                 if (AVChatProfile.getInstance().isCallIng() || AVChatProfile.getInstance().isCallEstablished()) {
                     if (AVChatProfile.getInstance().isChatType() == AVChatType.VIDEO.getValue()) {
-                        ToastUtil.show(ChatActivity2.this, getString(R.string.avchat_peer_busy_video));
+                        ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_video));
                     } else {
-                        ToastUtil.show(ChatActivity2.this, getString(R.string.avchat_peer_busy_voice));
+                        ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_voice));
                     }
                 } else {
                     if (!checkNetConnectStatus()) {
@@ -1694,7 +1702,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                     if (ViewUtils.isFastDoubleClick()) {
                         return;
                     }
-                    Intent intent = new Intent(ChatActivity2.this, RecordedActivity.class);
+                    Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
                     startActivityForResult(intent, VIDEO_RP);
                 }
             }
@@ -1997,7 +2005,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
      * @param aVChatType
      */
     private void gotoVideoActivity(int aVChatType) {
-        permission2Util.requestPermissions(ChatActivity2.this, new CheckPermission2Util.Event() {
+        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
             @Override
             public void onSuccess() {
                 if (NetUtil.isNetworkConnected()) {
@@ -2019,7 +2027,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                             bundle.putInt(Preferences.AVCHA_TTYPE, aVChatType);
                             bundle.putString(Preferences.TOGID, toGid);
                             bundle.putLong(Preferences.TOUID, toUId);
-                            IntentUtil.gotoActivity(ChatActivity2.this, VideoActivity.class, bundle);
+                            IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class, bundle);
                         }
                     }
                 } else {
@@ -2039,7 +2047,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
      */
     private void showNetworkDialog() {
         AlertYesNo alertYesNo = new AlertYesNo();
-        alertYesNo.init(ChatActivity2.this, null, "当前网络不可用，请检查你的网络设置", "确定", null, new AlertYesNo.Event() {
+        alertYesNo.init(ChatActivity.this, null, "当前网络不可用，请检查你的网络设置", "确定", null, new AlertYesNo.Event() {
             @Override
             public void onON() {
 
@@ -2060,7 +2068,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
         new UpFileAction().upFile(UpFileAction.PATH.VOICE, context, new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String url) {
-                LogUtil.getLog().e(ChatActivity2.class.getSimpleName(), "上传语音成功--" + url);
+                LogUtil.getLog().e(ChatActivity.class.getSimpleName(), "上传语音成功--" + url);
                 VoiceMessage voice = bean.getVoiceMessage();
                 voice.setUrl(url);
                 SocketData.sendAndSaveMessage(bean);
@@ -2317,6 +2325,20 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventGroupStatusChange(GroupStatusChangeEvent event) {
+        if (isGroup()) {
+            if (event.getData() instanceof Group) {
+                Group group = (Group) event.getData();
+                if (group != null && group.getGid().equals(toGid)) {
+                    groupInfo = group;
+                    boolean forbid = groupInfo.getStat() == ChatEnum.EGroupStatus.BANED;
+                    setBanView(false, forbid);
+                }
+            }
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventCheckVoice(EventVoicePlay event) {
         checkMoreVoice(event.getPosition(), (MsgAllBean) event.getBean());
     }
@@ -2356,7 +2378,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventCheckVoice(ActivityForwordEvent event) {
-        PictureSelector.create(ChatActivity2.this)
+        PictureSelector.create(ChatActivity.this)
                 .openCamera(PictureMimeType.ofImage())
                 .compress(true)
                 .forResult(PictureConfig.REQUEST_CAMERA);
@@ -2459,9 +2481,9 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
             @Override
             public void onMain() {
                 if (s.contains("+")) {
-                    actionbar.setTxtLeft(s, R.drawable.shape_unread_oval_bg, DensityUtil.sp2px(ChatActivity2.this, 5));
+                    actionbar.setTxtLeft(s, R.drawable.shape_unread_oval_bg, DensityUtil.sp2px(ChatActivity.this, 5));
                 } else {
-                    actionbar.setTxtLeft(s, R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity2.this, 5));
+                    actionbar.setTxtLeft(s, R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
                 }
             }
         }).run();
@@ -3037,7 +3059,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                 break;
             }
         }
-        PictureSelector.create(ChatActivity2.this)
+        PictureSelector.create(ChatActivity.this)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
                 .openExternalPreview1(pos, selectList);
@@ -3175,7 +3197,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
     public void clickEnvelope(String rid) {
         long tradeId = StringUtil.getLong(rid);
         if (tradeId > 0) {
-            Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity2.this, tradeId, 1);
+            Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, tradeId, 1);
             startActivity(intent);
         }
     }
@@ -3619,7 +3641,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
      */
     private void onDelete(final MsgAllBean msgbean) {
         AlertYesNo alertYesNo = new AlertYesNo();
-        alertYesNo.init(ChatActivity2.this, "删除", "确定删除吗?", "确定", "取消", new AlertYesNo.Event() {
+        alertYesNo.init(ChatActivity.this, "删除", "确定删除吗?", "确定", "取消", new AlertYesNo.Event() {
             @Override
             public void onON() {
 
@@ -3768,7 +3790,8 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                         isExit = true;
                     }
                 }
-                setBanView(!isExit);
+                boolean forbid = groupInfo.getStat() == ChatEnum.EGroupStatus.BANED;
+                setBanView(!isExit, forbid);
             }
             //6.15 设置右上角点击
             taskGroupConf();
@@ -4141,7 +4164,11 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                             } else {
                                 isExited = false;
                             }
-                            setBanView(isExited);
+                            boolean forbid = false;
+                            if (groupInfo != null) {
+                                forbid = groupInfo.getStat() == ChatEnum.EGroupStatus.BANED;
+                            }
+                            setBanView(isExited, forbid);
                         }
                     }
                 });
@@ -4149,12 +4176,21 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
     }
 
     /*
-     * 是否已经退出
+     * 是否已经退出,是否被封
      * */
-    private void setBanView(boolean isExited) {
-        actionbar.getBtnRight().setVisibility(isExited ? View.GONE : View.VISIBLE);
-        tv_ban.setVisibility(isExited ? VISIBLE : GONE);
-        viewChatBottomc.setVisibility(isExited ? GONE : VISIBLE);
+    private void setBanView(boolean isExited, boolean isForbid) {
+        if (isExited || isForbid) {
+            // 关闭软键盘
+            InputUtil.hideKeyboard(editChat);
+        }
+        actionbar.getBtnRight().setVisibility(isExited || isForbid ? View.GONE : View.VISIBLE);
+        tvBan.setVisibility(isExited || isForbid ? VISIBLE : GONE);
+        if (isExited) {
+            tvBan.setText("你已经被移除群聊，无法发送消息");
+        } else if (isForbid) {
+            tvBan.setText(AppConfig.getString(R.string.group_forbid));
+        }
+        viewChatBottomc.setVisibility(isExited || isForbid ? GONE : VISIBLE);
         llMore.setVisibility(GONE);
     }
 
@@ -4163,11 +4199,11 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
      * */
     private void showViewMore(boolean b) {
         if (b) {
-            tv_ban.setVisibility(GONE);
+            tvBan.setVisibility(GONE);
             viewChatBottomc.setVisibility(GONE);
             llMore.setVisibility(VISIBLE);
         } else {
-            tv_ban.setVisibility(GONE);
+            tvBan.setVisibility(GONE);
             viewChatBottomc.setVisibility(VISIBLE);
             llMore.setVisibility(GONE);
         }
@@ -4197,10 +4233,10 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                         if (group != null && group.getUsers() != null) {
                             totalSize = group.getUsers().size();
                         }
-                        JrmfRpClient.sendGroupEnvelopeForResult(ChatActivity2.this, "" + toGid, "" + UserAction.getMyId(), token,
+                        JrmfRpClient.sendGroupEnvelopeForResult(ChatActivity.this, "" + toGid, "" + UserAction.getMyId(), token,
                                 totalSize, info.getName(), info.getHead(), REQ_RP);
                     } else {
-                        JrmfRpClient.sendSingleEnvelopeForResult(ChatActivity2.this, "" + toUId, "" + info.getUid(), token,
+                        JrmfRpClient.sendSingleEnvelopeForResult(ChatActivity.this, "" + toUId, "" + info.getUid(), token,
                                 info.getName(), info.getHead(), REQ_RP);
                     }
                     LogUtil.writeEnvelopeLog("准备发红包");
@@ -4244,11 +4280,11 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                     }
                     if (isGroup()) {
                         UserInfo minfo = UserAction.getMyInfo();
-                        JrmfRpClient.openGroupRp(ChatActivity2.this, "" + minfo.getUid(), token,
+                        JrmfRpClient.openGroupRp(ChatActivity.this, "" + minfo.getUid(), token,
                                 minfo.getName(), minfo.getHead(), rbid, callBack);
                     } else {
                         UserInfo minfo = UserAction.getMyInfo();
-                        JrmfRpClient.openSingleRp(ChatActivity2.this, "" + minfo.getUid(), token,
+                        JrmfRpClient.openSingleRp(ChatActivity.this, "" + minfo.getUid(), token,
                                 minfo.getName(), minfo.getHead(), rbid, callBack);
                     }
 
@@ -4277,7 +4313,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                     SignatureBean sign = response.body().getData();
                     String token = sign.getSign();
                     UserInfo minfo = UserAction.getMyInfo();
-                    JrmfRpClient.openRpDetail(ChatActivity2.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead());
+                    JrmfRpClient.openRpDetail(ChatActivity.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead());
                 }
             }
         });
@@ -4346,10 +4382,6 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
         msgAction.groupInfo(toGid, true, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-//                if (response.body() == null)
-//                    return;
-
-//                groupInfo = response.body().getData();
                 groupInfo = msgDao.getGroup4Id(toGid);
                 if (groupInfo != null) {
                     contactIntimately = groupInfo.getContactIntimately();
@@ -4529,7 +4561,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                     return;
                 }
                 if (response.body().isOk()) {
-                    ChatActivity2.this.survivaltime = survivalTime;
+                    ChatActivity.this.survivaltime = survivalTime;
                     userDao.updateReadDestroy(friend, survivalTime);
                     msgDao.noteMsgAddSurvivaltime(toUId, null);
                 }
@@ -4549,7 +4581,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                     return;
                 }
                 if (response.body().isOk()) {
-                    ChatActivity2.this.survivaltime = survivalTime;
+                    ChatActivity.this.survivaltime = survivalTime;
                     userDao.updateGroupReadDestroy(gid, survivalTime);
                     msgDao.noteMsgAddSurvivaltime(groupInfo.getUsers().get(0).getUid(), gid);
                 } else {
@@ -4686,7 +4718,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
     }
 
     private void showEnvelopeDialog(String token, int status, MsgAllBean msgBean, int reType) {
-        DialogEnvelope dialogEnvelope = new DialogEnvelope(ChatActivity2.this, com.hm.cxpay.R.style.MyDialogTheme);
+        DialogEnvelope dialogEnvelope = new DialogEnvelope(ChatActivity.this, com.hm.cxpay.R.style.MyDialogTheme);
         dialogEnvelope.setEnvelopeListener(new DialogEnvelope.IEnvelopeListener() {
             @Override
             public void onOpen(long rid, int envelopeStatus) {
@@ -4759,7 +4791,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                             if (bean != null) {
                                 bean.setChatType(isGroup() ? 1 : 0);
                                 bean.setEnvelopeStatus(envelopeStatus);
-                                Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity2.this, bean);
+                                Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, bean);
                                 startActivity(intent);
                             }
                         } else {
@@ -4831,7 +4863,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                 .setListener(new DialogDefault.IDialogListener() {
                     @Override
                     public void onSure() {
-                        startActivity(new Intent(ChatActivity2.this, BindPhoneNumActivity.class));
+                        startActivity(new Intent(ChatActivity.this, BindPhoneNumActivity.class));
                     }
 
                     @Override
@@ -4873,7 +4905,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                 .setListener(new DialogDefault.IDialogListener() {
                     @Override
                     public void onSure() {
-                        startActivity(new Intent(ChatActivity2.this, SetPaywordActivity.class));
+                        startActivity(new Intent(ChatActivity.this, SetPaywordActivity.class));
 
                     }
 
@@ -4902,9 +4934,9 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                             TransferDetailBean detailBean = baseResponse.getData();
                             Intent intent;
                             if (opType == PayEnum.ETransferOpType.TRANS_SEND) {
-                                intent = TransferDetailActivity.newIntent(ChatActivity2.this, detailBean, tradeId, msgBean.isMe(), GsonUtils.optObject(msgBean));
+                                intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, msgBean.isMe(), GsonUtils.optObject(msgBean));
                             } else {
-                                intent = TransferDetailActivity.newIntent(ChatActivity2.this, detailBean, tradeId, msgBean.isMe());
+                                intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, msgBean.isMe());
                             }
                             startActivity(intent);
                         } else {
@@ -5031,7 +5063,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
             screenShotListenManager.startListen();
             return;
         }
-        screenShotListenManager = ScreenShotListenManager.newInstance(ChatActivity2.this);
+        screenShotListenManager = ScreenShotListenManager.newInstance(ChatActivity.this);
         screenShotListenManager.setListener(
                 new ScreenShotListenManager.OnScreenShotListener() {
                     public void onShot(String imagePath) {
@@ -5169,10 +5201,10 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                         if (groupInfo.getWordsNotAllowed() == 0) {
                             resendFileMsg(reMsg);
                         } else {
-                            ToastUtil.showCenter(ChatActivity2.this, "本群全员禁言中");
+                            ToastUtil.showCenter(ChatActivity.this, "本群全员禁言中");
                         }
                     } else {
-                        ToastUtil.showCenter(ChatActivity2.this, "你已被禁言，暂时无法发送文件");
+                        ToastUtil.showCenter(ChatActivity.this, "你已被禁言，暂时无法发送文件");
                     }
                 }
             }
@@ -5180,7 +5212,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
             @Override
             public void onFailure(Call<ReturnBean<SingleMeberInfoBean>> call, Throwable t) {
                 super.onFailure(call, t);
-                ToastUtil.show(ChatActivity2.this, t.getMessage());
+                ToastUtil.show(ChatActivity.this, t.getMessage());
                 //2 该群是否全员禁言
                 if (groupInfo.getWordsNotAllowed() == 0) {
                     toSelectFile();
@@ -5277,9 +5309,9 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
             case ChatEnum.ECellEventType.VOICE_CLICK:
                 if (AVChatProfile.getInstance().isCallIng() || AVChatProfile.getInstance().isCallEstablished()) {
                     if (AVChatProfile.getInstance().isChatType() == AVChatType.VIDEO.getValue()) {
-                        ToastUtil.show(ChatActivity2.this, getString(R.string.avchat_peer_busy_video));
+                        ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_video));
                     } else {
-                        ToastUtil.show(ChatActivity2.this, getString(R.string.avchat_peer_busy_voice));
+                        ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_voice));
                     }
                 } else {
                     int position = (int) args[1];
@@ -5350,14 +5382,14 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                 }
                 BalanceAssistantMessage balance = (BalanceAssistantMessage) args[0];
                 if (balance.getDetailType() == MsgBean.BalanceAssistantMessage.DetailType.RED_ENVELOPE_VALUE) {//红包详情
-                    Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity2.this, balance.getTradeId(), 1);
+                    Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, balance.getTradeId(), 1);
                     startActivity(intent);
                 } else if (balance.getDetailType() == MsgBean.BalanceAssistantMessage.DetailType.TRANS_VALUE) {//订单详情
-                    BillDetailActivity.jumpToBillDetail(ChatActivity2.this, balance.getTradeId() + "");
+                    BillDetailActivity.jumpToBillDetail(ChatActivity.this, balance.getTradeId() + "");
                 }
                 break;
             case ChatEnum.ECellEventType.MAP_CLICK:
-                LocationActivity.openActivity(ChatActivity2.this, true, message);
+                LocationActivity.openActivity(ChatActivity.this, true, message);
                 break;
             case ChatEnum.ECellEventType.FILE_CLICK:
                 if (args[0] == null) {
@@ -5377,7 +5409,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                 String uri = (String) args[0];
                 Bundle bundle = new Bundle();
                 bundle.putString(Preferences.DATA, uri);
-                IntentUtil.gotoActivity(ChatActivity2.this, ShowBigFaceActivity.class, bundle);
+                IntentUtil.gotoActivity(ChatActivity.this, ShowBigFaceActivity.class, bundle);
                 break;
             case ChatEnum.ECellEventType.RESEND_CLICK:
                 resendMessage(message);
@@ -5399,7 +5431,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                     openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
                 } else {
                     if (!TextUtils.isEmpty(fileMessage.getUrl())) {
-                        Intent intent = new Intent(ChatActivity2.this, FileDownloadActivity.class);
+                        Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
                         intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
                         startActivity(intent);
                     } else {
@@ -5421,7 +5453,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                 openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
             } else {
                 if (!TextUtils.isEmpty(fileMessage.getUrl())) {
-                    Intent intent = new Intent(ChatActivity2.this, FileDownloadActivity.class);
+                    Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
                     intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
                     startActivity(intent);
                 } else {
@@ -5448,9 +5480,9 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
     private void clickVideo(MsgAllBean msg) {
         if (AVChatProfile.getInstance().isCallIng() || AVChatProfile.getInstance().isCallEstablished()) {
             if (AVChatProfile.getInstance().isChatType() == AVChatType.VIDEO.getValue()) {
-                ToastUtil.show(ChatActivity2.this, getString(R.string.avchat_peer_busy_video));
+                ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_video));
             } else {
-                ToastUtil.show(ChatActivity2.this, getString(R.string.avchat_peer_busy_voice));
+                ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_voice));
             }
         } else if (clickAble) {
             clickAble = false;
@@ -5463,7 +5495,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
             } else {
                 localUrl = msg.getVideoMessage().getUrl();
             }
-            Intent intent = new Intent(ChatActivity2.this, VideoPlayActivity.class);
+            Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
             intent.putExtra("videopath", localUrl);
             intent.putExtra("videomsg", new Gson().toJson(msg));
             intent.putExtra("msg_id", msg.getMsg_id());
@@ -5491,7 +5523,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                 if (checkCanOpenUpRedEnv()) {
                     taskPayRbGet(msg, touid, rid);
                 } else {
-                    ToastUtil.show(ChatActivity2.this, "您已被禁止领取该群红包");
+                    ToastUtil.show(ChatActivity.this, "您已被禁止领取该群红包");
                 }
             }
         } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
@@ -5501,7 +5533,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                 return;
             }
             if (!checkCanOpenUpRedEnv()) {
-                ToastUtil.show(ChatActivity2.this, "您已被禁止领取该群红包");
+                ToastUtil.show(ChatActivity.this, "您已被禁止领取该群红包");
                 return;
             }
             long tradeId = rb.getTraceId();
@@ -5513,7 +5545,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                 }
             }
             if (tradeId == 0) {
-                ToastUtil.show(ChatActivity2.this, "无红包id");
+                ToastUtil.show(ChatActivity.this, "无红包id");
                 return;
             }
             int envelopeStatus = rb.getEnvelopStatus();

@@ -99,10 +99,10 @@ import com.luck.picture.lib.tools.DoubleUtils;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.BuildConfig;
-import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.AdapterPopMenu;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.MsgTagHandler;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AtMessage;
@@ -156,6 +156,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.ExpressionUtil;
@@ -267,8 +268,11 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static net.cb.cb.library.utils.FileUtils.SIZETYPE_B;
 
-public class ChatActivity extends AppActivity implements IActionTagClickListener {
-    private static String TAG = "ChatActivity";
+/*
+ * 旧ChatActivity,备份
+ * */
+public class ChatActivityTemp extends AppActivity implements IActionTagClickListener {
+    private static String TAG = "ChatActivityTemp";
     public final static int MIN_TEXT = 1000;//
     private final int RELINQUISH_TIME = 5;// 5分钟内显示重新编辑
     private final String REST_EDIT = "重新编辑";
@@ -395,7 +399,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         initEvent();
         initSurvivaltime4Uid();
         getOftenUseFace();
-        builder = new ChangeSelectDialog.Builder(ChatActivity.this);
+        builder = new ChangeSelectDialog.Builder(ChatActivityTemp.this);
     }
 
     private Runnable mPanelRecoverySoftInputModeRunnable = new Runnable() {
@@ -580,8 +584,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mAdapter.onDestory();
         //关闭窗口，避免内存溢出
         dismissPop();
-        //保存退出即焚消息
-        MyAppLication.INSTANCE().repository.saveExitSurvivalMsg(toGid,toUId);
+
+        List<MsgAllBean> list = msgDao.getMsg4SurvivalTimeAndExit(toGid, toUId);
+        EventBus.getDefault().post(new EventSurvivalTimeAdd(null, list));
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
@@ -640,7 +645,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private boolean checkSnapshotPower() {
         if (isGroup()) {
             if (groupInfo != null) {
-                return groupInfo.getScreenshotNotification() == 1;
+                //群被封，全禁言，单个禁言，无截屏权限
+                if (groupInfo.getStat() != ChatEnum.EGroupStatus.NORMAL || groupInfo.getWordsNotAllowed() == 1
+                        || (singleMeberInfoBean != null && singleMeberInfoBean.getShutUpDuration() == 1) || groupInfo.getScreenshotNotification() == 0) {
+                    return false;
+                } else {
+                    return true;
+                }
             }
         } else {
             if (userInfo != null) {
@@ -961,7 +972,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
             bitmap = Bitmap.createScaledBitmap(bitmap, ExpressionUtil.dip2px(this, ExpressionUtil.DEFAULT_SIZE),
                     ExpressionUtil.dip2px(this, ExpressionUtil.DEFAULT_SIZE), true);
-            ImageSpan imageSpan = new ImageSpan(ChatActivity.this, bitmap);
+            ImageSpan imageSpan = new ImageSpan(ChatActivityTemp.this, bitmap);
             String str = bean.getName();
             SpannableString spannableString = new SpannableString(str);
             spannableString.setSpan(imageSpan, 0, PatternUtil.FACE_EMOJI_LENGTH, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -1088,7 +1099,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 //test 8.
                 String text = editChat.getText().toString().trim();
                 if (TextUtils.isEmpty(text)) {
-                    ToastUtil.show(ChatActivity.this, "不能发送空白消息");
+                    ToastUtil.show(ChatActivityTemp.this, "不能发送空白消息");
                     editChat.getText().clear();
                     return;
                 }
@@ -1114,7 +1125,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 int totalSize = text.length();
                 if (isGroup() && editChat.getUserIdList() != null && editChat.getUserIdList().size() > 0) {
                     if (totalSize > MIN_TEXT) {
-                        ToastUtil.show(ChatActivity.this, "@消息长度不能超过" + MIN_TEXT);
+                        ToastUtil.show(ChatActivityTemp.this, "@消息长度不能超过" + MIN_TEXT);
                         editChat.getText().clear();
                         return;
                     }
@@ -1133,7 +1144,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (!TextUtils.isEmpty(text)) {
                         int per = totalSize / MIN_TEXT;
                         if (per > 10) {
-                            ToastUtil.show(ChatActivity.this, "文本长度不能超过" + 10 * MIN_TEXT);
+                            ToastUtil.show(ChatActivityTemp.this, "文本长度不能超过" + 10 * MIN_TEXT);
                             editChat.getText().clear();
                             return;
                         }
@@ -1190,7 +1201,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (isGroup() && isFirst != 0) {
                     if (count == 1 && (s.charAt(s.length() - 1) == "@".charAt(0) || s.charAt(s.length() - (s.length() - start)) == "@".charAt(0))) { //添加一个字
                         //跳转到@界面
-                        Intent intent = new Intent(ChatActivity.this, GroupSelectUserActivity.class);
+                        Intent intent = new Intent(ChatActivityTemp.this, GroupSelectUserActivity.class);
                         intent.putExtra(GroupSelectUserActivity.TYPE, 1);
                         intent.putExtra(GroupSelectUserActivity.GID, toGid);
 
@@ -1463,13 +1474,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         return;
                     }
                 }
-                destroyTimeView = new DestroyTimeView(ChatActivity.this);
+                destroyTimeView = new DestroyTimeView(ChatActivityTemp.this);
                 destroyTimeView.initView();
                 destroyTimeView.setPostion(survivaltime);
                 destroyTimeView.setListener(new DestroyTimeView.OnClickItem() {
                     @Override
                     public void onClickItem(String content, int survivaltime) {
-                        if (ChatActivity.this.survivaltime != survivaltime) {
+                        if (ChatActivityTemp.this.survivaltime != survivaltime) {
                             util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
                             if (isGroup()) {
                                 changeSurvivalTime(toGid, survivaltime);
@@ -1562,13 +1573,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void toLocation() {
-        LocationActivity.openActivity(ChatActivity.this, false, null);
+        LocationActivity.openActivity(ChatActivityTemp.this, false, null);
     }
 
     private void toVideoCall() {
         //重置所有状态值
         mViewModel.recoveryOtherValue(null);
-        DialogHelper.getInstance().createSelectDialog(ChatActivity.this, new ICustomerItemClick() {
+        DialogHelper.getInstance().createSelectDialog(ChatActivityTemp.this, new ICustomerItemClick() {
             @Override
             public void onClickItemVideo() {// 视频
                 gotoVideoActivity(AVChatType.VIDEO.getValue());
@@ -1598,7 +1609,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private void toVoice() {
         //申请权限 7.2
-        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
+        permission2Util.requestPermissions(ChatActivityTemp.this, new CheckPermission2Util.Event() {
             @Override
             public void onSuccess() {
                 if (!checkNetConnectStatus()) {
@@ -1620,7 +1631,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private void toStamp() {
         AlertTouch alertTouch = new AlertTouch();
-        alertTouch.init(ChatActivity.this, "请输入戳一下消息", "确定", R.mipmap.ic_chat_actionme, new AlertTouch.Event() {
+        alertTouch.init(ChatActivityTemp.this, "请输入戳一下消息", "确定", R.mipmap.ic_chat_actionme, new AlertTouch.Event() {
             @Override
             public void onON() {
 
@@ -1667,7 +1678,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             name = userInfo.getName();
             avatar = userInfo.getHead() == null ? "" : userInfo.getHead();
         }
-        Intent intent = TransferActivity.newIntent(ChatActivity.this, toUId, name, avatar);
+        Intent intent = TransferActivity.newIntent(ChatActivityTemp.this, toUId, name, avatar);
         startActivity(intent);
     }
 
@@ -1687,16 +1698,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
         if (isGroup()) {
-            Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivity.this, toGid, groupInfo.getUsers().size());
+            Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivityTemp.this, toGid, groupInfo.getUsers().size());
             startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
         } else {
-            Intent intentMulti = SingleRedPacketActivity.newIntent(ChatActivity.this, toUId);
+            Intent intentMulti = SingleRedPacketActivity.newIntent(ChatActivityTemp.this, toUId);
             startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
         }
     }
 
     private void toGallery() {
-        PictureSelector.create(ChatActivity.this)
+        PictureSelector.create(ChatActivityTemp.this)
 //                        .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                 .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                 .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
@@ -1710,15 +1721,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void toCamera() {
-        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
+        permission2Util.requestPermissions(ChatActivityTemp.this, new CheckPermission2Util.Event() {
             @Override
             public void onSuccess() {
                 // 判断是否正在音视频通话
                 if (AVChatProfile.getInstance().isCallIng() || AVChatProfile.getInstance().isCallEstablished()) {
                     if (AVChatProfile.getInstance().isChatType() == AVChatType.VIDEO.getValue()) {
-                        ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_video));
+                        ToastUtil.show(ChatActivityTemp.this, getString(R.string.avchat_peer_busy_video));
                     } else {
-                        ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_voice));
+                        ToastUtil.show(ChatActivityTemp.this, getString(R.string.avchat_peer_busy_voice));
                     }
                 } else {
                     if (!checkNetConnectStatus()) {
@@ -1727,7 +1738,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (ViewUtils.isFastDoubleClick()) {
                         return;
                     }
-                    Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+                    Intent intent = new Intent(ChatActivityTemp.this, RecordedActivity.class);
                     startActivityForResult(intent, VIDEO_RP);
                 }
             }
@@ -2035,7 +2046,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * @param aVChatType
      */
     private void gotoVideoActivity(int aVChatType) {
-        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
+        permission2Util.requestPermissions(ChatActivityTemp.this, new CheckPermission2Util.Event() {
             @Override
             public void onSuccess() {
                 if (NetUtil.isNetworkConnected()) {
@@ -2057,7 +2068,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             bundle.putInt(Preferences.AVCHA_TTYPE, aVChatType);
                             bundle.putString(Preferences.TOGID, toGid);
                             bundle.putLong(Preferences.TOUID, toUId);
-                            IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class, bundle);
+                            IntentUtil.gotoActivity(ChatActivityTemp.this, VideoActivity.class, bundle);
                         }
                     }
                 } else {
@@ -2077,7 +2088,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void showNetworkDialog() {
         AlertYesNo alertYesNo = new AlertYesNo();
-        alertYesNo.init(ChatActivity.this, null, "当前网络不可用，请检查你的网络设置", "确定", null, new AlertYesNo.Event() {
+        alertYesNo.init(ChatActivityTemp.this, null, "当前网络不可用，请检查你的网络设置", "确定", null, new AlertYesNo.Event() {
             @Override
             public void onON() {
 
@@ -2098,7 +2109,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         new UpFileAction().upFile(UpFileAction.PATH.VOICE, context, new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String url) {
-                LogUtil.getLog().e(ChatActivity.class.getSimpleName(), "上传语音成功--" + url);
+                LogUtil.getLog().e(ChatActivityTemp.class.getSimpleName(), "上传语音成功--" + url);
                 VoiceMessage voice = bean.getVoiceMessage();
                 voice.setUrl(url);
                 SocketData.sendAndSaveMessage(bean);
@@ -2414,7 +2425,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventCheckVoice(ActivityForwordEvent event) {
-        PictureSelector.create(ChatActivity.this)
+        PictureSelector.create(ChatActivityTemp.this)
                 .openCamera(PictureMimeType.ofImage())
                 .compress(true)
                 .forResult(PictureConfig.REQUEST_CAMERA);
@@ -2517,9 +2528,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onMain() {
                 if (s.contains("+")) {
-                    actionbar.setTxtLeft(s, R.drawable.shape_unread_oval_bg, DensityUtil.sp2px(ChatActivity.this, 5));
+                    actionbar.setTxtLeft(s, R.drawable.shape_unread_oval_bg, DensityUtil.sp2px(ChatActivityTemp.this, 5));
                 } else {
-                    actionbar.setTxtLeft(s, R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
+                    actionbar.setTxtLeft(s, R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivityTemp.this, 5));
                 }
             }
         }).run();
@@ -3180,7 +3191,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 break;
             }
         }
-        PictureSelector.create(ChatActivity.this)
+        PictureSelector.create(ChatActivityTemp.this)
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
                 .openExternalPreview1(pos, selectList);
@@ -3319,7 +3330,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     public void clickEnvelope(String rid) {
         long tradeId = StringUtil.getLong(rid);
         if (tradeId > 0) {
-            Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, tradeId, 1);
+            Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivityTemp.this, tradeId, 1);
             startActivity(intent);
         }
     }
@@ -3355,7 +3366,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         /****************************************************************************/
 
         public RecyclerViewAdapter() {
-            mViewModel.adapterCount.observe(ChatActivity.this, new Observer<Integer>() {
+            mViewModel.adapterCount.observe(ChatActivityTemp.this, new Observer<Integer>() {
                 @Override
                 public void onChanged(@Nullable Integer integer) {
                     mPositionMsgIds.clear();
@@ -3769,9 +3780,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                     || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF
                                     || notice.getMsgType() == ChatEnum.ENoticeType.SNAPSHOT_SCREEN) {
                                 holder.viewChatItem.setNoticeString(Html.fromHtml(notice.getNote(), null,
-                                        new MsgTagHandler(AppConfig.getContext(), true, msgbean.getMsg_id(), ChatActivity.this)));
+                                        new MsgTagHandler(AppConfig.getContext(), true, msgbean.getMsg_id(), ChatActivityTemp.this)));
                             } else {
-                                holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this, notice.getNote(), notice.getMsgType()));
+                                holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivityTemp.this, notice.getNote(), notice.getMsgType()));
                             }
                         }
                         //8.22 如果是红包消息类型则显示红包图
@@ -3809,7 +3820,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             if (msgbean.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
                                 holder.viewChatItem.setData0(msgbean.getMsgCancel().getNote());
                             } else {
-                                holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
+                                holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivityTemp.this,
                                         msgbean.getMsgCancel().getNote(), msgbean.getMsgCancel().getMsgType()));
                             }
                         }
@@ -3827,7 +3838,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             }
                             Bundle bundle = new Bundle();
                             bundle.putString(Preferences.DATA, uri);
-                            IntentUtil.gotoActivity(ChatActivity.this, ShowBigFaceActivity.class, bundle);
+                            IntentUtil.gotoActivity(ChatActivityTemp.this, ShowBigFaceActivity.class, bundle);
                         }
                     });
                     break;
@@ -3981,7 +3992,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     break;
                 case ChatEnum.EMessageType.LOCK:
 //                    holder.viewChatItem.setLock(msgbean.getChat().getMsg());
-                    holder.viewChatItem.setLock(new HtmlTransitonUtils().getSpannableString(ChatActivity.this, msgbean.getChat().getMsg(), ChatEnum.ENoticeType.LOCK));
+                    holder.viewChatItem.setLock(new HtmlTransitonUtils().getSpannableString(ChatActivityTemp.this, msgbean.getChat().getMsg(), ChatEnum.ENoticeType.LOCK));
                     break;
                 case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
                     LogUtil.getLog().d("CHANGE_SURVIVAL_TIME", msgbean.getMsg_id() + "------" + msgbean.getChangeSurvivalTimeMessage().getSurvival_time());
@@ -4004,7 +4015,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     holder.viewChatItem.setDataLocation(msgbean.getLocationMessage(), new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            LocationActivity.openActivity(ChatActivity.this, true, msgbean);
+                            LocationActivity.openActivity(ChatActivityTemp.this, true, msgbean);
                         }
                     });
                     break;
@@ -4043,7 +4054,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 case ChatEnum.EMessageType.TRANSFER_NOTICE:
                     TransferNoticeMessage transNotifyMessage = msgbean.getTransferNoticeMessage();
                     holder.viewChatItem.setTransferNotice(Html.fromHtml(transNotifyMessage.getContent(), null,
-                            new MsgTagHandler(AppConfig.getContext(), true, msgbean.getMsg_id(), ChatActivity.this)));
+                            new MsgTagHandler(AppConfig.getContext(), true, msgbean.getMsg_id(), ChatActivityTemp.this)));
                     break;
             }
 
@@ -4097,7 +4108,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     Long mss = System.currentTimeMillis() - timesTamp;
                     long minutes = (mss % (1000 * 60 * 60)) / (1000 * 60);
                     if (minutes >= RELINQUISH_TIME) {
-                        ToastUtil.show(ChatActivity.this, "重新编辑不能超过5分钟");
+                        ToastUtil.show(ChatActivityTemp.this, "重新编辑不能超过5分钟");
                     } else {
                         if (ViewUtils.isFastDoubleClick()) {
                             return;
@@ -4216,7 +4227,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (checkCanOpenUpRedEnv()) {
                     taskPayRbGet(msgbean, touid, rid);
                 } else {
-                    ToastUtil.show(ChatActivity.this, "您已被禁止领取该群红包");
+                    ToastUtil.show(ChatActivityTemp.this, "您已被禁止领取该群红包");
                 }
             }
         } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
@@ -4226,7 +4237,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 return;
             }
             if (!checkCanOpenUpRedEnv()) {
-                ToastUtil.show(ChatActivity.this, "您已被禁止领取该群红包");
+                ToastUtil.show(ChatActivityTemp.this, "您已被禁止领取该群红包");
                 return;
             }
             long tradeId = rb.getTraceId();
@@ -4238,7 +4249,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
             }
             if (tradeId == 0) {
-                ToastUtil.show(ChatActivity.this, "无红包id");
+                ToastUtil.show(ChatActivityTemp.this, "无红包id");
                 return;
             }
             int envelopeStatus = rb.getEnvelopStatus();
@@ -4283,9 +4294,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void clickVideo(MsgAllBean msgbean) {
         if (AVChatProfile.getInstance().isCallIng() || AVChatProfile.getInstance().isCallEstablished()) {
             if (AVChatProfile.getInstance().isChatType() == AVChatType.VIDEO.getValue()) {
-                ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_video));
+                ToastUtil.show(ChatActivityTemp.this, getString(R.string.avchat_peer_busy_video));
             } else {
-                ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_voice));
+                ToastUtil.show(ChatActivityTemp.this, getString(R.string.avchat_peer_busy_voice));
             }
         } else if (clickAble) {
             clickAble = false;
@@ -4298,7 +4309,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else {
                 localUrl = msgbean.getVideoMessage().getUrl();
             }
-            Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
+            Intent intent = new Intent(ChatActivityTemp.this, VideoPlayActivity.class);
             intent.putExtra("videopath", localUrl);
             intent.putExtra("videomsg", new Gson().toJson(msgbean));
             intent.putExtra("msg_id", msgbean.getMsg_id());
@@ -4318,7 +4329,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
                 } else {
                     if (!TextUtils.isEmpty(fileMessage.getUrl())) {
-                        Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
+                        Intent intent = new Intent(ChatActivityTemp.this, FileDownloadActivity.class);
                         intent.putExtra("file_msg", new Gson().toJson(msgbean));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
                         startActivity(intent);
                     } else {
@@ -4340,7 +4351,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
             } else {
                 if (!TextUtils.isEmpty(fileMessage.getUrl())) {
-                    Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
+                    Intent intent = new Intent(ChatActivityTemp.this, FileDownloadActivity.class);
                     intent.putExtra("file_msg", new Gson().toJson(msgbean));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
                     startActivity(intent);
                 } else {
@@ -4353,10 +4364,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private void clickBalanceAssistant(long tradeId, int detailType) {
         if (detailType == MsgBean.BalanceAssistantMessage.DetailType.RED_ENVELOPE_VALUE) {//红包详情
-            Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, tradeId, 1);
+            Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivityTemp.this, tradeId, 1);
             startActivity(intent);
         } else if (detailType == MsgBean.BalanceAssistantMessage.DetailType.TRANS_VALUE) {//订单详情
-            BillDetailActivity.jumpToBillDetail(ChatActivity.this, tradeId + "");
+            BillDetailActivity.jumpToBillDetail(ChatActivityTemp.this, tradeId + "");
         }
     }
 
@@ -4374,9 +4385,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void clickVoice(MsgAllBean msgbean, int position) {
         if (AVChatProfile.getInstance().isCallIng() || AVChatProfile.getInstance().isCallEstablished()) {
             if (AVChatProfile.getInstance().isChatType() == AVChatType.VIDEO.getValue()) {
-                ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_video));
+                ToastUtil.show(ChatActivityTemp.this, getString(R.string.avchat_peer_busy_video));
             } else {
-                ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_voice));
+                ToastUtil.show(ChatActivityTemp.this, getString(R.string.avchat_peer_busy_voice));
             }
         } else {
             playVoice(msgbean, position);
@@ -4836,7 +4847,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void onDelete(final MsgAllBean msgbean) {
         AlertYesNo alertYesNo = new AlertYesNo();
-        alertYesNo.init(ChatActivity.this, "删除", "确定删除吗?", "确定", "取消", new AlertYesNo.Event() {
+        alertYesNo.init(ChatActivityTemp.this, "删除", "确定删除吗?", "确定", "取消", new AlertYesNo.Event() {
             @Override
             public void onON() {
 
@@ -5464,10 +5475,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (group != null && group.getUsers() != null) {
                             totalSize = group.getUsers().size();
                         }
-                        JrmfRpClient.sendGroupEnvelopeForResult(ChatActivity.this, "" + toGid, "" + UserAction.getMyId(), token,
+                        JrmfRpClient.sendGroupEnvelopeForResult(ChatActivityTemp.this, "" + toGid, "" + UserAction.getMyId(), token,
                                 totalSize, info.getName(), info.getHead() == null ? "" : info.getHead(), REQ_RP);
                     } else {
-                        JrmfRpClient.sendSingleEnvelopeForResult(ChatActivity.this, "" + toUId, "" + info.getUid(), token,
+                        JrmfRpClient.sendSingleEnvelopeForResult(ChatActivityTemp.this, "" + toUId, "" + info.getUid(), token,
                                 info.getName(), info.getHead() == null ? "" : info.getHead(), REQ_RP);
                     }
                     LogUtil.writeEnvelopeLog("准备发红包");
@@ -5511,11 +5522,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                     if (isGroup()) {
                         UserInfo minfo = UserAction.getMyInfo();
-                        JrmfRpClient.openGroupRp(ChatActivity.this, "" + minfo.getUid(), token,
+                        JrmfRpClient.openGroupRp(ChatActivityTemp.this, "" + minfo.getUid(), token,
                                 minfo.getName(), minfo.getHead() == null ? "" : minfo.getHead(), rbid, callBack);
                     } else {
                         UserInfo minfo = UserAction.getMyInfo();
-                        JrmfRpClient.openSingleRp(ChatActivity.this, "" + minfo.getUid(), token,
+                        JrmfRpClient.openSingleRp(ChatActivityTemp.this, "" + minfo.getUid(), token,
                                 minfo.getName(), minfo.getHead() == null ? "" : minfo.getHead(), rbid, callBack);
                     }
 
@@ -5539,7 +5550,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     String token = sign.getSign();
                     UserInfo minfo = UserAction.getMyInfo();
 
-                    JrmfRpClient.openTransDetail(ChatActivity.this, "" + minfo.getUid(), token,
+                    JrmfRpClient.openTransDetail(ChatActivityTemp.this, "" + minfo.getUid(), token,
                             rbid, new TransAccountCallBack() {
                                 @Override
                                 public void transResult(TransAccountBean transAccountBean) {
@@ -5580,7 +5591,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     SignatureBean sign = response.body().getData();
                     String token = sign.getSign();
                     UserInfo minfo = UserAction.getMyInfo();
-                    JrmfRpClient.openRpDetail(ChatActivity.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead() == null ? "" : minfo.getHead());
+                    JrmfRpClient.openRpDetail(ChatActivityTemp.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead() == null ? "" : minfo.getHead());
                 }
             }
         });
@@ -5832,7 +5843,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     return;
                 }
                 if (response.body().isOk()) {
-                    ChatActivity.this.survivaltime = survivalTime;
+                    ChatActivityTemp.this.survivaltime = survivalTime;
                     userDao.updateReadDestroy(friend, survivalTime);
                     msgDao.noteMsgAddSurvivaltime(toUId, null);
                 }
@@ -5852,7 +5863,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     return;
                 }
                 if (response.body().isOk()) {
-                    ChatActivity.this.survivaltime = survivalTime;
+                    ChatActivityTemp.this.survivaltime = survivalTime;
                     userDao.updateGroupReadDestroy(gid, survivalTime);
                     msgDao.noteMsgAddSurvivaltime(groupInfo.getUsers().get(0).getUid(), gid);
                 } else {
@@ -5870,7 +5881,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         boolean isMe = msgbean.isMe();
         //单聊 自己发的消息，需等待对方已读
         boolean checkNotGroupAndNotRead = !isGroup && isMe && msgbean.getRead() != 1;
-        if (msgbean == null || msgbean.getEndTime()>0 || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL
+        if (msgbean == null || BurnManager.getInstance().isContainMsg(msgbean) || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL
                 || checkNotGroupAndNotRead) {
             return;
         }
@@ -5885,9 +5896,24 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000), date, msgbean.getMsg_id());
             msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
             msgbean.setStartTime(date);
+            EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean, null));
+            LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间1----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
         }
     }
 
+    public void addSurvivalTimeAndRead(MsgAllBean msgbean) {
+        if (msgbean == null || BurnManager.getInstance().isContainMsg(msgbean) || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL) {
+            return;
+        }
+        if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0 && msgbean.getRead() == 1) {
+            long date = DateUtils.getSystemTime();
+            msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000), date, msgbean.getMsg_id());
+            msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
+            msgbean.setStartTime(date);
+            EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean, null));
+            LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间2----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
+        }
+    }
 
 
     public void addSurvivalTimeForList(List<MsgAllBean> list) {
@@ -5901,8 +5927,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000), date, msgbean.getMsg_id());
                 msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
                 msgbean.setStartTime(date);
+                LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间3----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
             }
         }
+        EventBus.getDefault().post(new EventSurvivalTimeAdd(null, list));
     }
 
     /*
@@ -5990,7 +6018,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void showEnvelopeDialog(String token, int status, MsgAllBean msgBean, int reType) {
-        DialogEnvelope dialogEnvelope = new DialogEnvelope(ChatActivity.this, com.hm.cxpay.R.style.MyDialogTheme);
+        DialogEnvelope dialogEnvelope = new DialogEnvelope(ChatActivityTemp.this, com.hm.cxpay.R.style.MyDialogTheme);
         dialogEnvelope.setEnvelopeListener(new DialogEnvelope.IEnvelopeListener() {
             @Override
             public void onOpen(long rid, int envelopeStatus) {
@@ -6063,7 +6091,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             if (bean != null) {
                                 bean.setChatType(isGroup() ? 1 : 0);
                                 bean.setEnvelopeStatus(envelopeStatus);
-                                Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivity.this, bean);
+                                Intent intent = SingleRedPacketDetailsActivity.newIntent(ChatActivityTemp.this, bean);
                                 startActivity(intent);
                             }
                         } else {
@@ -6135,7 +6163,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 .setListener(new DialogDefault.IDialogListener() {
                     @Override
                     public void onSure() {
-                        startActivity(new Intent(ChatActivity.this, BindPhoneNumActivity.class));
+                        startActivity(new Intent(ChatActivityTemp.this, BindPhoneNumActivity.class));
                     }
 
                     @Override
@@ -6177,7 +6205,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 .setListener(new DialogDefault.IDialogListener() {
                     @Override
                     public void onSure() {
-                        startActivity(new Intent(ChatActivity.this, SetPaywordActivity.class));
+                        startActivity(new Intent(ChatActivityTemp.this, SetPaywordActivity.class));
 
                     }
 
@@ -6206,9 +6234,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             TransferDetailBean detailBean = baseResponse.getData();
                             Intent intent;
                             if (opType == PayEnum.ETransferOpType.TRANS_SEND) {
-                                intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, msgBean.isMe(), GsonUtils.optObject(msgBean));
+                                intent = TransferDetailActivity.newIntent(ChatActivityTemp.this, detailBean, tradeId, msgBean.isMe(), GsonUtils.optObject(msgBean));
                             } else {
-                                intent = TransferDetailActivity.newIntent(ChatActivity.this, detailBean, tradeId, msgBean.isMe());
+                                intent = TransferDetailActivity.newIntent(ChatActivityTemp.this, detailBean, tradeId, msgBean.isMe());
                             }
                             startActivity(intent);
                         } else {
@@ -6395,7 +6423,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             screenShotListenManager.startListen();
             return;
         }
-        screenShotListenManager = ScreenShotListenManager.newInstance(ChatActivity.this);
+        screenShotListenManager = ScreenShotListenManager.newInstance(ChatActivityTemp.this);
         screenShotListenManager.setListener(
                 new ScreenShotListenManager.OnScreenShotListener() {
                     public void onShot(String imagePath) {
@@ -6538,10 +6566,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (groupInfo.getWordsNotAllowed() == 0) {
                             resendFileMsg(reMsg);
                         } else {
-                            ToastUtil.showCenter(ChatActivity.this, "本群全员禁言中");
+                            ToastUtil.showCenter(ChatActivityTemp.this, "本群全员禁言中");
                         }
                     } else {
-                        ToastUtil.showCenter(ChatActivity.this, "你已被禁言，暂时无法发送文件");
+                        ToastUtil.showCenter(ChatActivityTemp.this, "你已被禁言，暂时无法发送文件");
                     }
                 }
             }
@@ -6549,7 +6577,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onFailure(Call<ReturnBean<SingleMeberInfoBean>> call, Throwable t) {
                 super.onFailure(call, t);
-                ToastUtil.show(ChatActivity.this, t.getMessage());
+                ToastUtil.show(ChatActivityTemp.this, t.getMessage());
                 //2 该群是否全员禁言
                 if (groupInfo.getWordsNotAllowed() == 0) {
                     toSelectFile();
