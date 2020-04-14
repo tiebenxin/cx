@@ -214,7 +214,7 @@ public class TagAliasOperatorHelper {
             case ACTION_SET:
                 return "set";
             case ACTION_DELETE:
-                return "delete";
+                return "deleteSession";
             case ACTION_GET:
                 return "get";
             case ACTION_CLEAN:

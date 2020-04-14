@@ -961,7 +961,7 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         if (StringUtil.isNotNull(gid)) {//群消息
-            realm.where(Session.class).equalTo("gid", gid).findAll().deleteAllFromRealm();
+           realm.where(Session.class).equalTo("gid", gid).findAll().deleteAllFromRealm();
         } else {
             realm.where(Session.class).equalTo("from_uid", from_uid).findAll().deleteAllFromRealm();
         }

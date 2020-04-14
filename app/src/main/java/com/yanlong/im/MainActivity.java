@@ -277,17 +277,17 @@ public class MainActivity extends AppActivity {
         }
 
         @Override
-        public void delete(List<Integer> positions) {
+        public void delete(int[] positions) {
             updateUnReadCount();
         }
 
         @Override
-        public void insert(List<Integer> positions, List<String> sids) {
+        public void insert(int[] positions, List<String> sids) {
             updateUnReadCount();
         }
 
         @Override
-        public void update(List<Integer> positions, List<String> sids) {
+        public void update(int[] positions, List<String> sids) {
             updateUnReadCount();
         }
 
@@ -1143,7 +1143,7 @@ public class MainActivity extends AppActivity {
     //删除临时红包信息
     private void deleteEnvelopInfo(EnvelopeInfo envelopeInfo) {
         msgDao.deleteEnvelopeInfo(envelopeInfo.getRid(), envelopeInfo.getGid(), envelopeInfo.getUid(), false);
-        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(envelopeInfo.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, envelopeInfo.getUid(), envelopeInfo.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, null);
+        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(envelopeInfo.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, envelopeInfo.getUid(), envelopeInfo.getGid(), CoreEnum.ESessionRefreshTag.ALL, null);
     }
 
     /**

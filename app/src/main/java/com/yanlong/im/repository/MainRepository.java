@@ -90,9 +90,6 @@ public class MainRepository {
         return localDataSource.checkRealmStatus();
     }
 
-    public void deleteAllMsg(Long uid, String gid) {
-        localDataSource.deleteAllMsg(uid, gid);
-    }
     /***
      * 获取红点的值
      * @param type

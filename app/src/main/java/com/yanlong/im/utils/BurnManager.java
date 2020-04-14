@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.text.TextUtils;
 
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.BurnBroadcastReceiver;
@@ -14,6 +15,7 @@ import com.yanlong.im.chat.manager.MessageManager;
 
 import net.cb.cb.library.CoreEnum;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.OrderedCollectionChangeSet;
@@ -32,6 +34,7 @@ public class BurnManager {
     private Realm realm;
     private AlarmManager alarmManager = null;
     private PendingIntent pendingIntent = null;
+    private UpdateDetailListener updateDetailListener = null;
 
     private void initPendingIntent() {
         Intent intent = new Intent(MyAppLication.getInstance(), BurnBroadcastReceiver.class);
@@ -39,8 +42,9 @@ public class BurnManager {
         pendingIntent = PendingIntent.getBroadcast(MyAppLication.getInstance(), 0, intent, 0);
     }
 
-    public BurnManager(Realm realm) {
+    public BurnManager(Realm realm,UpdateDetailListener updateDetailListener) {
         this.realm = realm;
+        this.updateDetailListener=updateDetailListener;
         initPendingIntent();
         //异步加载
         toBurnMessages = realm.where(MsgAllBean.class)
@@ -84,7 +88,8 @@ public class BurnManager {
      */
     public void notifyBurnQuene() {
         if (toBurnMessages.size() > 0) {
-            final boolean[] isDeleted = new boolean[1];
+            List<String> toDeletedGroup = new ArrayList<>();
+            List<Long> toDeletedFriend= new ArrayList<>();
             //异步删除
             realm.executeTransactionAsync(new Realm.Transaction() {
                 @Override
@@ -93,21 +98,32 @@ public class BurnManager {
                     RealmResults<MsgAllBean> toDeletedResults = realm.where(MsgAllBean.class)
                             .greaterThan("endTime", 0)
                             .lessThanOrEqualTo("endTime", currentTime).findAll();
+                    //复制一份，为了聊天界面的更新-非数据库对象
+                    List<MsgAllBean> toDeletedResultsTemp = realm.copyToRealm(toDeletedResults);
+                    for(MsgAllBean msg:toDeletedResults){
+                        if(TextUtils.isEmpty(msg.getGid())){
+                            toDeletedGroup.add(msg.getGid());
+                        }else{
+                            toDeletedFriend.add(msg.getFrom_uid());
+                        }
+                    }
                     if (toDeletedResults.size() > 0) {
-                        isDeleted[0] = true;
-                        List<MsgAllBean> tempList = realm.copyFromRealm(toDeletedResults);
                         //批量删除 已到阅后即焚时间
                         toDeletedResults.deleteAllFromRealm();
-                        //通知更新聊天界面
-                        MessageManager.getInstance().notifyRefreshChat(tempList, CoreEnum.ERefreshType.DELETE);
+                        /**
+                         * 通知更新聊天界面
+                         * 因为聊天界面删除的非数据库对象，可以提前通知，若为数据库对象，需在OnSuccess方法中
+                         */
+                        MessageManager.getInstance().notifyRefreshChat(toDeletedResultsTemp, CoreEnum.ERefreshType.DELETE);
                     }
                 }
             }, new Realm.Transaction.OnSuccess() {
                 @Override
                 public void onSuccess() {
-                    if (isDeleted[0]) {//有数据删除
-                        //通知更新主页
-                        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
+                    if (toDeletedGroup.size()>0||toDeletedFriend.size()>0) {//有数据删除
+                        //更新Detial-自动更新主页
+                        if(updateDetailListener!=null)updateDetailListener.updateDetails(toDeletedGroup.toArray(new String[toDeletedGroup.size()]),
+                                toDeletedFriend.toArray(new Long[toDeletedFriend.size()]));
                     }
                     startBurnAlarm();
                 }
@@ -144,4 +160,8 @@ public class BurnManager {
         alarmManager = null;
         toBurnMessages = null;
     }
+    public interface UpdateDetailListener{
+        void updateDetails(String[] gids,Long[] fromUids);
+    }
+
 }
