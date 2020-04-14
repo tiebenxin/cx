@@ -24,8 +24,8 @@ public abstract class CallBack<T> implements Callback<T> {
     public CallBack() {
     }
 
-    public CallBack(boolean isShow) {
-        showErrorMsg = isShow;
+    public CallBack(boolean isShowErrorMsg) {
+        showErrorMsg = isShowErrorMsg;
     }
 
     public CallBack(MultiListView listView) {

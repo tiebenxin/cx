@@ -1051,7 +1051,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 break;
             case AVChatControlCommand.SWITCH_AUDIO_TO_VIDEO_REJECT:
 //                rejectAudioToVideo();
-//                Toast.makeText(AVChatActivity.this, R.string.avchat_switch_video_reject, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(AVChatActivity2.this, R.string.avchat_switch_video_reject, Toast.LENGTH_SHORT).show();
                 break;
             case AVChatControlCommand.SWITCH_VIDEO_TO_AUDIO:
                 onVideoToAudio();

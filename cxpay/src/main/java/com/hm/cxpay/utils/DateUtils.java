@@ -124,6 +124,7 @@ public class DateUtils {
 
     /**
      * 判断时间间隔是否在X小时以内
+     *
      * @param date1 上次时间
      * @param date2 本次时间
      * @param hour  目标小时数
@@ -135,23 +136,43 @@ public class DateUtils {
         Date start = sdf.parse(date1);
         Date end = sdf.parse(date2);
         long cha = end.getTime() - start.getTime();
-        if(cha<0){
+        if (cha < 0) {
             return false;
         }
         double result = cha * 1.0 / (1000 * 60 * 60);
-        if(result<= hour){
+        if (result <= hour) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
     /**
      * 获取当前系统时间，格式如2018-11-27 10:41:47
+     *
      * @return
      */
-    public static String getNowFormatTime(){
+    public static String getNowFormatTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return sdf.format(new Date());
+    }
+
+
+    /**
+     * 判断时间间隔是否在X小时以内
+     *
+     * @param date1 上次时间
+     * @param date2 本次时间
+     * @param hour 目标小时数
+     * @return boolean
+     * @throws Exception
+     */
+    public static boolean isInHours(long date1, long date2, double hour) {
+        long diff = date2 - date1;
+        if (diff < hour * HOUR) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
