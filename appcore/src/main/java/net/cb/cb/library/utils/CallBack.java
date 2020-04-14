@@ -24,8 +24,8 @@ public abstract class CallBack<T> implements Callback<T> {
     public CallBack() {
     }
 
-    public CallBack(boolean isShow) {
-        showErrorMsg = isShow;
+    public CallBack(boolean isShowErrorMsg) {
+        showErrorMsg = isShowErrorMsg;
     }
 
     public CallBack(MultiListView listView) {
@@ -48,8 +48,11 @@ public abstract class CallBack<T> implements Callback<T> {
     @Override
     public void onFailure(Call<T> call, Throwable t) {
         LogUtil.getLog().e("==响应异常=解析异常==" + t.getMessage());
-        if (listView == null && showErrorMsg) {
-            ToastUtil.show(AppConfig.APP_CONTEXT, R.string.app_link_err);
+//        if (listView == null && showErrorMsg) {
+//            ToastUtil.show(AppConfig.APP_CONTEXT, R.string.app_link_err);
+//        }
+        if (showErrorMsg) {
+            ToastUtil.show(AppConfig.APP_CONTEXT, t.getMessage());
         }
 
         if (listView != null) {

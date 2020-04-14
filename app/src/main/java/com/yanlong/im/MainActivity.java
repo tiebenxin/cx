@@ -46,7 +46,6 @@ import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
-import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.EnvelopeInfo;
 import com.yanlong.im.chat.bean.Group;
@@ -68,6 +67,7 @@ import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.shop.ShopFragemnt;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
@@ -77,7 +77,6 @@ import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
-import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.socket.ExecutorManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
@@ -264,7 +263,6 @@ public class MainActivity extends AppActivity {
         if (isCreate) {
             LogUtil.getLog().i("MainActivity", "isCreate=" + isCreate);
             uploadApp();
-            getSurvivalTimeData();
             checkRosters();
             checkNeteaseLogin();
             checkPermission();
@@ -272,24 +270,25 @@ public class MainActivity extends AppActivity {
         }
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
     }
-    private ApplicationRepository.SessionChangeListener sessionChangeListener  = new ApplicationRepository.SessionChangeListener() {
+
+    private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
         @Override
         public void init(RealmResults<Session> sessions, List<String> sids) {
             updateUnReadCount();
         }
 
         @Override
-        public void delete(List<Integer> positions) {
+        public void delete(int[] positions) {
             updateUnReadCount();
         }
 
         @Override
-        public void insert(List<Integer> positions, List<String> sids) {
+        public void insert(int[] positions, List<String> sids) {
             updateUnReadCount();
         }
 
         @Override
-        public void update(List<Integer> positions, List<String> sids) {
+        public void update(int[] positions, List<String> sids) {
             updateUnReadCount();
         }
 
@@ -298,9 +297,8 @@ public class MainActivity extends AppActivity {
 
     /**
      * 更新底部未读数
-     *
      */
-    private void updateUnReadCount(){
+    private void updateUnReadCount() {
         LogUtil.getLog().i("未读数", "onChange");
         RealmResults<Session> sessionList = MyAppLication.INSTANCE().getSessions().where().greaterThan("unread_count", 0)
                 .limit(100).findAll();
@@ -331,7 +329,7 @@ public class MainActivity extends AppActivity {
     private void findViews() {
         viewPage = findViewById(R.id.viewPage);
         bottomTab = findViewById(R.id.bottom_tab);
-        BurnManager.getInstance().RunTimer();
+//        BurnManager.getInstance().RunTimer();
         mBtnMinimizeVoice = findViewById(R.id.btn_minimize_voice);
     }
 
@@ -416,7 +414,7 @@ public class MainActivity extends AppActivity {
             public void onTabReselected(TabLayout.Tab tab) {
                 //双击第一个TAB采用此方法监听 (不再重写监听器)
                 //双击消息，小于0.5s不响应，大于0.5s响应
-                if(tab.getPosition()==0){
+                if (tab.getPosition() == 0) {
                     long now = System.currentTimeMillis();
                     if ((now - firstPressTime) > 500) {
                         firstPressTime = now;
@@ -588,7 +586,7 @@ public class MainActivity extends AppActivity {
         // 关闭浮动窗口
         mBtnMinimizeVoice.close(this);
         mHandler.removeCallbacks(runnable);
-        BurnManager.getInstance().cancel();
+//        BurnManager.getInstance().cancel();
         super.onDestroy();
         // 在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
         if (listener != null) {
@@ -604,7 +602,7 @@ public class MainActivity extends AppActivity {
     public void eventNetStatus(EventNetStatus event) {
         EventFactory.EventNetStatus eventNetStatus = new EventFactory.EventNetStatus(event.getStatus());
         EventBus.getDefault().post(eventNetStatus);
-        System.out.println(MainActivity.class.getSimpleName() + "---" + NetWorkUtils.getLocalIpAddress(this));
+        reportIP(NetWorkUtils.getLocalIpAddress(this));
     }
 
     @Override
@@ -622,7 +620,7 @@ public class MainActivity extends AppActivity {
     //检测支付环境的初始化
     private void checkPayEnvironmentInit() {
         checkPayToken();
-        UserInfo info = UserAction.getMyInfo();
+        IUser info = UserAction.getMyInfo();
         if (info != null) {
             PayEnvironment.getInstance().setPhone(info.getPhone());
             PayEnvironment.getInstance().setNick(info.getName());
@@ -893,7 +891,7 @@ public class MainActivity extends AppActivity {
     };
 
     public void loginoutComment() {
-        UserInfo userInfo = UserAction.getMyInfo();
+        IUser userInfo = UserAction.getMyInfo();
         if (userInfo != null) {
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead() + "");
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone() + "");
@@ -1068,34 +1066,24 @@ public class MainActivity extends AppActivity {
     }
 
 
-    private void getSurvivalTimeData() {
-        //延时操作，等待数据库初始化
-        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    //子线程延时 等待myapplication初始化完成
-                    //查询所有阅后即焚消息加入定时器
-                    List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
-                    if (list != null && list.size() > 0) {
-                        BurnManager.getInstance().addMsgAllBeans(list);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-    }
-
-    @Subscribe(threadMode = ThreadMode.ASYNC)
-    public void addSurvivalTimeList(EventSurvivalTimeAdd survivalTimeAdd) {
-        if (survivalTimeAdd.msgAllBean != null) {
-            BurnManager.getInstance().addMsgAllBean(survivalTimeAdd.msgAllBean);
-        } else if (survivalTimeAdd.list != null && survivalTimeAdd.list.size() > 0) {
-            BurnManager.getInstance().addMsgAllBeans(survivalTimeAdd.list);
-        }
-    }
+//    private void getSurvivalTimeData() {
+//        //延时操作，等待数据库初始化
+//        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    //子线程延时 等待myapplication初始化完成
+//                    //查询所有阅后即焚消息加入定时器
+//                    List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
+//                    if (list != null && list.size() > 0) {
+////                        BurnManager.getInstance().addMsgAllBeans(list);
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//    }
 
     /**
      * 检查是否开启悬浮窗权限
@@ -1156,7 +1144,7 @@ public class MainActivity extends AppActivity {
     //删除临时红包信息
     private void deleteEnvelopInfo(EnvelopeInfo envelopeInfo) {
         msgDao.deleteEnvelopeInfo(envelopeInfo.getRid(), envelopeInfo.getGid(), envelopeInfo.getUid(), false);
-        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(envelopeInfo.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, envelopeInfo.getUid(), envelopeInfo.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, null);
+        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(envelopeInfo.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, envelopeInfo.getUid(), envelopeInfo.getGid(), CoreEnum.ESessionRefreshTag.ALL, null);
     }
 
     /**
@@ -1360,7 +1348,7 @@ public class MainActivity extends AppActivity {
 
     }
 
-    public boolean check() {
+    public final boolean check() {
         TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
         if (token == null || TextUtils.isEmpty(token.getBankReqSignKey())) {
             return false;
@@ -1369,7 +1357,7 @@ public class MainActivity extends AppActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void parseFile(File file) {
+    public final void parseFile(File file) {
         System.out.println("PC同步--2--文件" + file.length());
         byte[] bytes = FileManager.getInstance().readFileBytes(file);
         if (bytes != null) {
@@ -1388,9 +1376,32 @@ public class MainActivity extends AppActivity {
         }
     }
 
-    public void updateMsgUnread(int num) {
+    public final void updateMsgUnread(int num) {
         LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + num);
         sbmsg.setNum(num, true);
         BadgeUtil.setBadgeCount(getApplicationContext(), num);
+    }
+
+    //上报IP
+    private void reportIP(String ip) {
+//        LogUtil.getLog().i("MainActivity", "上报IP--" + ip);
+        if (TextUtils.isEmpty(ip)) {
+            return;
+        }
+        long time = SpUtil.getSpUtil().getSPValue("reportIPTime", 0L);
+        if (time <= 0 || !DateUtils.isInHours(time, System.currentTimeMillis(), 4)) {
+            userAction.reportIP(ip, new CallBack<ReturnBean>(false) {
+                @Override
+                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                    super.onResponse(call, response);
+                    if (response != null && response.body() != null && response.body().isOk()) {
+                        SpUtil.getSpUtil().putSPValue("reportIPTime", System.currentTimeMillis());
+                    }
+//                    if (response != null && response.body() != null) {
+//                        LogUtil.getLog().i("MainActivity", "上报IP--" + response.body().getMsg());
+//                    }
+                }
+            });
+        }
     }
 }

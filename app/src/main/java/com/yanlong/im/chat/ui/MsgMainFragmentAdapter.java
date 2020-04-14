@@ -26,7 +26,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
-import com.yanlong.im.chat.ui.chat.ChatActivity2;
+import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.wight.avatar.MultiImageView;
 
@@ -274,7 +274,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 public void onClick(View v) {
                     holder.swipeLayout.quickClose();
                     //删除数据
-                    viewModel.currentDeletePosition.setValue(position - 1);
+                    viewModel.currentDeleteSid.setValue(bean.getSid());
                 }
             });
             holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#F2F2F2"));

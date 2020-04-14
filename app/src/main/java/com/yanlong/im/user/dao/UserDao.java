@@ -4,6 +4,8 @@ import android.text.TextUtils;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.user.bean.IUser;
+import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
@@ -25,8 +27,8 @@ public class UserDao {
      * 获取自己的信息
      * @return
      */
-    public UserInfo myInfo() {
-        return DaoUtil.findOne(UserInfo.class, "uType", 1);
+    public UserBean myInfo() {
+        return DaoUtil.findOne(UserBean.class, "uType", 1);
     }
 
     /***
@@ -34,6 +36,31 @@ public class UserDao {
      * @param userInfo
      */
     public void updateUserinfo(UserInfo userInfo) {
+        if (userInfo == null) {
+            return;
+        }
+        if (TextUtils.isEmpty(userInfo.getTag())) {
+            userInfo.toTag();
+        }
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            realm.copyToRealmOrUpdate(userInfo);
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
+
+    /***
+     * 纯更新用户信息
+     * @param userInfo
+     */
+    public void updateUserBean(UserBean userInfo) {
         if (userInfo == null) {
             return;
         }
@@ -186,6 +213,15 @@ public class UserDao {
     }
 
     /***
+     * 根据id获取用户的信息
+     * @param userid
+     * @return
+     */
+    public UserBean findUserBean(Long userid) {
+        return DaoUtil.findOne(UserBean.class, "uid", userid);
+    }
+
+    /***
      * 根据网易id获取用户的信息
      * @param neteaseAccid
      * @return
@@ -292,7 +328,7 @@ public class UserDao {
     public void friendMeUpdate(List<UserInfo> list) {
         Realm realm = DaoUtil.open();
         try {
-            UserInfo myUserInfo = myInfo();
+            UserBean myUserInfo = myInfo();
             realm.beginTransaction();
             RealmResults<UserInfo> ls = realm.where(UserInfo.class).beginGroup().equalTo("uType", 2).or().equalTo("stat", 9).endGroup().findAll();
             for (UserInfo u : ls) {

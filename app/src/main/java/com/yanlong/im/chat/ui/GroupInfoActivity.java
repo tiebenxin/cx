@@ -348,7 +348,7 @@ public class GroupInfoActivity extends AppActivity {
         viewDestroyTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isAdmin()) {
+                if (!isAdmin() || !isAdministrators()) {
                     ToastUtil.show(context, "只有群主才能修改该选项");
                     return;
                 }
@@ -1127,6 +1127,7 @@ public class GroupInfoActivity extends AppActivity {
         AtMessage atMessage = SocketData.createAtMessage(SocketData.getUUID(), "@所有人 \r\n" + ginfo.getAnnouncement(), ChatEnum.EAtType.ALL, null);
         MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.AT, ChatEnum.ESendStatus.NORMAL, -1L, atMessage);
         if (bean != null) {
+            bean.setIsLocal(1);
             SocketData.saveMessage(bean);
         }
     }

@@ -15,8 +15,10 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.ui.view.YLinkMovementMethod;
+import com.yanlong.im.utils.ExpressionUtil;
 
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.WebPageActivity;
 
@@ -33,10 +35,6 @@ public class ChatCellText extends ChatCellBase {
         super(context, view, listener, adapter);
     }
 
-//    protected ChatCellText(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
-//        super(context, cellLayout, listener, adapter, viewGroup);
-//    }
-
     @Override
     protected void initView() {
         super.initView();
@@ -48,10 +46,10 @@ public class ChatCellText extends ChatCellBase {
         super.showMessage(message);
         if (message.getMsg_type() == ChatEnum.EMessageType.TEXT) {
 //            setText(message.getChat().getMsg());
-            tv_content.setText(message.getChat().getMsg());
+            tv_content.setText(getSpan(message.getChat().getMsg()));
         } else if (message.getMsg_type() == ChatEnum.EMessageType.AT) {
 //            setText(message.getAtMessage().getMsg());
-            tv_content.setText(message.getAtMessage().getMsg());
+            tv_content.setText(getSpan(message.getAtMessage().getMsg()));
         } else if (message.getMsg_type() == ChatEnum.EMessageType.ASSISTANT) {
             setText(message.getAssistantMessage().getMsg());
         }
@@ -68,7 +66,7 @@ public class ChatCellText extends ChatCellBase {
             int len = msg.length();
             SpannableStringBuilder builder = new SpannableStringBuilder();
             while (matcher.find()) {
-                LogUtil.getLog().d("a=","====" );
+                LogUtil.getLog().d("a=", "====");
                 int groupCount = matcher.groupCount();
                 if (groupCount >= 0) {
                     int start = matcher.start();
@@ -117,5 +115,16 @@ public class ChatCellText extends ChatCellBase {
         }, 0, url.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         span.setSpan(new ForegroundColorSpan(Color.BLUE), 0, url.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         return span;
+    }
+
+    private SpannableString getSpan(String msg) {
+        Integer fontSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+        SpannableString spannableString = null;
+        if (fontSize != null) {
+            spannableString = ExpressionUtil.getExpressionString(getContext(), fontSize.intValue(), msg);
+        } else {
+            spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, msg);
+        }
+        return spannableString;
     }
 }

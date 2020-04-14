@@ -11,16 +11,13 @@ import android.view.ViewGroup;
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.server.UpLoadService;
-import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.utils.LogUtil;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,6 +56,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
     //msg_id，Indext 记录计时器中12张图片的Index
     private Map<String, Integer> mTimersIndexs = new HashMap<>();
     private MsgDao msgDao = new MsgDao();
+    private IActionTagClickListener actionListener;
 
 
     public MessageAdapter(Context c, ICellEventListener l, boolean isG) {
@@ -66,11 +64,15 @@ public class MessageAdapter extends RecyclerView.Adapter {
         eventListener = l;
         mList = new ArrayList<>();
         isGroup = isG;
-
     }
 
     public MessageAdapter setCellFactory(FactoryChatCell factory) {
         factoryChatCell = factory;
+        return this;
+    }
+
+    public MessageAdapter setTagListener(IActionTagClickListener l) {
+        actionListener = l;
         return this;
     }
 
@@ -103,6 +105,12 @@ public class MessageAdapter extends RecyclerView.Adapter {
         ChatCellBase cellBase = (ChatCellBase) viewHolder;
         savePositions(msg.getMsg_id(), position, msg.isMe(), cellBase);
         addSurvivalTime(msg);
+        if (msg.getSurvival_time() > 0 && msg.getStartTime() > 0 && msg.getEndTime() > 0) {
+            bindTimer(msg.getMsg_id(), msg.isMe(), msg.getStartTime(), msg.getEndTime());
+            ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), false, msg.isMe());
+        } else {
+            ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), true, msg.isMe());
+        }
         cellBase.putMessage(mList.get(position), position);
         viewMap.put(position, cellBase.itemView);
         cellMap.put(position, cellBase);
@@ -313,7 +321,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
                                     String name = "icon_st_" + Math.min(COUNT, index + 1);
                                     int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
                                     updateSurvivalTimeImage(msgId, id, isMe);
-                                    LogUtil.getLog().i("CountDownView", "isME=" + index);
+                                    LogUtil.getLog().i("SurvivalTime--CountDownView", "isME=" + index);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -374,7 +382,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         boolean isMe = msg.isMe();
         //单聊 自己发的消息，需等待对方已读
         boolean checkNotGroupAndNotRead = !isGroup && isMe && msg.getRead() != 1;
-        if (msg == null || BurnManager.getInstance().isContainMsg(msg) || msg.getSend_state() != ChatEnum.ESendStatus.NORMAL
+        if (msg == null || msg.getEndTime()>0 || msg.getSend_state() != ChatEnum.ESendStatus.NORMAL
                 || checkNotGroupAndNotRead) {
             return;
         }
@@ -389,8 +397,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
             msgDao.setMsgEndTime((date + msg.getSurvival_time() * 1000), date, msg.getMsg_id());
             msg.setEndTime(date + msg.getSurvival_time() * 1000);
             msg.setStartTime(date);
-            EventBus.getDefault().post(new EventSurvivalTimeAdd(msg, null));
-            LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间1----> end:" + (date + msg.getSurvival_time() * 1000) + "---msgid:" + msg.getMsg_id());
         }
     }
 

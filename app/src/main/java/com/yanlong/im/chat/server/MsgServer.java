@@ -67,7 +67,7 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> setScreenShotSwitch(@Field("gid") String gid, @Field("screenshotNotification") Integer screeshotNotification);
 
-    @POST("group/get-my-saved")
+    @POST("group/my-bookmark")
     Call<ReturnBean<List<Group>>> getMySaved();
 
     @POST("/friends/set-friend-disturb")
@@ -141,7 +141,7 @@ public interface MsgServer {
 
     @POST("/group/change-admins")
     @FormUrlEncoded
-    Call<ReturnBean> groupChangeAdmins(@Field("@admins") String adminsJson,@Field("gid") String gid,@Field("opt") int opt);
+    Call<ReturnBean> groupChangeAdmins(@Field("@admins") String adminsJson, @Field("gid") String gid, @Field("opt") int opt);
 
     @POST("/group/get-gone-members")
     @FormUrlEncoded
@@ -149,7 +149,7 @@ public interface MsgServer {
 
     @POST("/group/toggle-open-up-red-envelope")
     @FormUrlEncoded
-    Call<ReturnBean> toggleOpenUpRedEnvelope(@Field("@uidList") String uidJson,@Field("gid") String gid,@Field("ops") int ops);
+    Call<ReturnBean> toggleOpenUpRedEnvelope(@Field("@uidList") String uidJson, @Field("gid") String gid, @Field("ops") int ops);
 
     @POST("/group/get-cant-open-up-red-envelope-members")
     @FormUrlEncoded
@@ -157,7 +157,7 @@ public interface MsgServer {
 
     @POST("/group/toggle-words-not-allowed")
     @FormUrlEncoded
-    Call<ReturnBean> toggleWordsNotAllowed(@Field("@uidList") String uidJson,@Field("gid") String gid,@Field("duration") int duration);
+    Call<ReturnBean> toggleWordsNotAllowed(@Field("@uidList") String uidJson, @Field("gid") String gid, @Field("duration") int duration);
 
     @POST("/friends/get-partial-friends")
     @FormUrlEncoded

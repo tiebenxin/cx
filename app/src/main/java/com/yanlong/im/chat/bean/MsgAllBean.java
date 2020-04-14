@@ -51,9 +51,9 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private long startTime;
 
     private long serverTime; //服务器时间
+    private int isLocal;//是否是本地创建消息：0，不是本地，1 是本地消息
 
     private ChatMessage chat;
-
     private ImageMessage image;
     private VideoMessage videoMessage;
     private RedEnvelopeMessage red_envelope;
@@ -299,6 +299,14 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         this.gid = gid;
     }
 
+    public int getIsLocal() {
+        return isLocal;
+    }
+
+    public void setIsLocal(int isLocal) {
+        this.isLocal = isLocal;
+    }
+
     @ChatEnum.EMessageType
     public Integer getMsg_type() {
         if (msg_type == null) {
@@ -503,30 +511,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     public void setTransferNoticeMessage(TransferNoticeMessage transferNoticeMessage) {
         this.transferNoticeMessage = transferNoticeMessage;
     }
-    /* public RequestFriendMessage getRequest_friend() {
-        return request_friend;
-    }
 
-    public void setRequest_friend(RequestFriendMessage request_friend) {
-        this.request_friend = request_friend;
-    }
-
-    public AcceptBeFriendsMessage getAccept_be_friends() {
-        return accept_be_friends;
-    }
-
-    public void setAccept_be_friends(AcceptBeFriendsMessage accept_be_friends) {
-        this.accept_be_friends = accept_be_friends;
-    }
-
-    public AckMessage getAck() {
-        return ack;
-    }
-
-    public void setAck(AckMessage ack) {
-        this.ack = ack;
-    }
-*/
 
     public AtMessage getAtMessage() {
         return atMessage;

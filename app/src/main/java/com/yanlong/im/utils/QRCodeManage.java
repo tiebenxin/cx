@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +18,6 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
 import com.google.zxing.Result;
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.R;
@@ -27,10 +25,10 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.eventbus.EventMsgSync;
-import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.ui.AddGroupActivity;
-import com.yanlong.im.chat.ui.ChatActivity;
+import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.MyselfInfoActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
@@ -44,21 +42,12 @@ import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.IOException;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import io.realm.RealmList;
-import okhttp3.Callback;
-import okhttp3.Headers;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -181,7 +170,7 @@ public class QRCodeManage {
                         boolean isNot = false;
                         Group bean = response.body().getData();
                         RealmList<MemberUser> users = bean.getUsers();
-                        UserInfo userInfo = new UserAction().getMyInfo();
+                        IUser userInfo = new UserAction().getMyInfo();
                         for (MemberUser user : users) {
                             if (userInfo.getUid().longValue() == user.getUid()) {
                                 isNot = true;

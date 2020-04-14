@@ -16,7 +16,7 @@ import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
-public class UserInfo extends RealmObject implements Comparable<UserInfo> {
+public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser {
     @PrimaryKey
     private Long uid;
     @SerializedName("nickname")
@@ -63,7 +63,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private String sayHi;//待同意好友招呼语
     //通讯录存储数字的tag
     @Ignore
-    public static final String FRIEND_NUMBER_TAG ="Z1";
+    public static final String FRIEND_NUMBER_TAG ="Z1";//存到数据库符号，方便排序
+    @Ignore
+    public static final String FRIEND_NUMBER_SHOW_TAG ="#";//显示的符号
     private Long lastonline;
     private int activeType; //是否在线（0：离线|1：在线）
     private String describe; //用户描述
@@ -506,11 +508,12 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public String getTag() {
+
         if (TextUtils.isEmpty(tag)) {
             toTag();
         }
-        //数据库中存储的是a>Z，便于排序
-        return TextUtils.isEmpty(tag) ? FRIEND_NUMBER_TAG : tag;
+        //数据库中存储的是Z1，便于排序
+        return TextUtils.isEmpty(tag)||tag.equals(FRIEND_NUMBER_TAG)?FRIEND_NUMBER_SHOW_TAG:tag;
     }
 
     public String getDescribe() {

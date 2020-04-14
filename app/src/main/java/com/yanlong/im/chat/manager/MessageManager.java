@@ -21,11 +21,11 @@ import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.task.TaskDealWithMsgList;
 import com.yanlong.im.chat.ui.ChatActionActivity;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
+import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.DaoUtil;
-import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.MediaBackUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
@@ -52,14 +52,12 @@ import net.cb.cb.library.utils.TimeToString;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import io.realm.Realm;
-import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -183,7 +181,9 @@ public class MessageManager {
         boolean hasNotified = false;//已经通知刷新了
         boolean isCancelValid = false;//是否是有效撤销信息
         boolean isFromSelf = false;
+        UserBean userBean = null;//自己的用户信息
         if (UserAction.getMyId() != null) {
+            userBean = (UserBean) UserAction.getMyInfo();
             isFromSelf = wrapMessage.getFromUid() == UserAction.getMyId().intValue();
         }
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
@@ -296,7 +296,7 @@ public class MessageManager {
                         refreshGroupInfo(bean.getGid());
                     }
                 } else {
-                    MemberUser memberUser = userToMember(UserAction.getMyInfo(), bean.getGid());
+                    MemberUser memberUser = userToMember(userBean, bean.getGid());
                     msgDao.removeGroupMember(bean.getGid(), memberUser);
                     notifyGroupChange(false);
                     hasNotified = true;
@@ -305,7 +305,7 @@ public class MessageManager {
             case REMOVE_GROUP_MEMBER://自己被移除群聊，如果该群是已保存群聊，需要改为未保存
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
-                    MemberUser memberUser = userToMember(UserAction.getMyInfo(), bean.getGid());
+                    MemberUser memberUser = userToMember(userBean, bean.getGid());
                     msgDao.removeGroupMember(bean.getGid(), memberUser);
                     changeGroupAvatar(bean.getGid());
                     notifyGroupChange(false);
@@ -537,9 +537,10 @@ public class MessageManager {
                         EventBus.getDefault().post(new EventIsShowRead());
                         break;
                     case 1: //vip
-                        userInfo = UserAction.getMyInfo();
-                        userInfo.setVip(wrapMessage.getSwitchChange().getSwitchValue() + "");
-                        userDao.updateUserinfo(userInfo);
+                        if (userBean != null) {
+                            userBean.setVip(wrapMessage.getSwitchChange().getSwitchValue() + "");
+                            userDao.updateUserBean(userBean);
+                        }
                         // 刷新用户信息
                         EventFactory.FreshUserStateEvent event = new EventFactory.FreshUserStateEvent();
                         event.vip = wrapMessage.getSwitchChange().getSwitchValue() + "";
@@ -680,11 +681,12 @@ public class MessageManager {
             MsgBean.ResourceLockMessage.ResourceLockType type = lock.getResourceLockType();
             switch (type) {
                 case CLOUDREDENVELOPE:
-                    UserDao userDao = new UserDao();
-                    userDao.updateUserLockRedEnvelope(UserAction.getMyId(), lock.getLock());
-                    UserInfo info = UserAction.getMyInfo();
+//                    UserDao userDao = new UserDao();
+//                    userDao.updateUserLockRedEnvelope(UserAction.getMyId(), lock.getLock());
+                    UserBean info = (UserBean) UserAction.getMyInfo();
                     if (info != null) {
                         info.setLockCloudRedEnvelope(lock.getLock());
+                        userDao.updateUserBean(info);
                     }
                     break;
             }
@@ -1071,50 +1073,6 @@ public class MessageManager {
     public void notifyRefreshChat() {
         EventRefreshChat event = new EventRefreshChat();
         EventBus.getDefault().post(event);
-    }
-
-
-    public void deleteSessionAndMsg(Long uid, String gid) {
-        msgDao.sessionDel(uid, gid);
-        Realm realm = DaoUtil.open();
-        //异步线程删除
-        realm.executeTransactionAsync(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                try {
-                    RealmResults<MsgAllBean> list;
-                    if (StringUtil.isNotNull(gid)) {
-                        list = realm.where(MsgAllBean.class)
-                                .beginGroup().equalTo("gid", gid).endGroup()
-                                .and()
-                                .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
-                                .findAll();
-                    } else {
-                        list = realm.where(MsgAllBean.class)
-                                .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
-                                .and()
-                                .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
-                                .and()
-                                .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
-                                .findAll();
-                    }
-
-                    //删除前先把子表数据干掉!!切记
-                    if (list != null) {
-                        for (MsgAllBean msg : list) {
-                            msgDao.deleteRealmMsg(msg);
-                        }
-                        list.deleteAllFromRealm();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    DaoUtil.reportException(e);
-                } finally {
-                    DaoUtil.close(realm);
-                }
-            }
-        });
-
     }
 
     /*
@@ -1545,7 +1503,7 @@ public class MessageManager {
     /*
      * UserInfo 转变为 MemberUser
      * */
-    public MemberUser userToMember(UserInfo user, String gid) {
+    public MemberUser userToMember(IUser user, String gid) {
         MemberUser info = null;
         if (user != null) {
             info = new MemberUser();
@@ -1559,16 +1517,16 @@ public class MessageManager {
             info.setJoinType(user.getJoinType());
             info.setImid(user.getImid());
             info.setSex(user.getSex());
-//            info.setTag(user.getTag());//tag不能直接用userInfo的
             info.init(gid);
         }
         return info;
     }
 
+
     /*
      * UserInfo 转变为 MemberUser
      * */
-    public List<MemberUser> getMemberList(List<UserInfo> list, String gid) {
+    public List<MemberUser> getMemberList(List<IUser> list, String gid) {
         List<MemberUser> memberUsers = null;
         if (list == null) {
             return memberUsers;
@@ -1578,7 +1536,7 @@ public class MessageManager {
             memberUsers = new ArrayList<>();
         }
         for (int i = 0; i < len; i++) {
-            UserInfo user = list.get(i);
+            IUser user = list.get(i);
             if (user != null) {
                 memberUsers.add(userToMember(user, gid));
             }
@@ -1591,6 +1549,26 @@ public class MessageManager {
      * 检测该群是否还有效，即自己是否还在该群中,有效为true，无效为false
      * */
     public boolean isGroupValid(Group group) {
+        if (group != null) {
+            if (group.getStat() != ChatEnum.EGroupStatus.NORMAL) {
+                return false;
+            } else {
+                List<MemberUser> users = group.getUsers();
+                if (users != null) {
+                    MemberUser member = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), group.getGid());
+                    if (member != null && !users.contains(member)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /*
+     * 检测该群是否还有效，即自己是否还在该群中,有效为true，无效为false
+     * */
+    public boolean isGroupValid2(Group group) {
         if (group != null) {
             List<MemberUser> users = group.getUsers();
             if (users != null) {
@@ -1627,7 +1605,7 @@ public class MessageManager {
             taskMaps.clear();
         }
         //用户退出登录需清除阅后即焚数据
-        BurnManager.getInstance().clear();
+//        BurnManager.getInstance().clear();
     }
 
     /*
@@ -1719,10 +1697,8 @@ public class MessageManager {
     //聊天界面是否存活
     public boolean isChatAlive() {
         if (SESSION_TYPE == 1 || SESSION_TYPE == 2) {
-            LogUtil.getLog().i(TAG, "聊天界面alive");
             return true;
         }
-        LogUtil.getLog().i(TAG, "聊天界面关闭");
         return false;
     }
 

@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.eventbus;
 
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.event.BaseEvent;
@@ -10,9 +11,9 @@ import net.cb.cb.library.event.BaseEvent;
  * Description 登陆成功后,获取自己信息后通知刷新MyFragment
  */
 public class EventRefreshUser extends BaseEvent {
-    private UserInfo info;
+    private IUser info;
 
-    public UserInfo getInfo() {
+    public IUser getInfo() {
         return info;
     }
 

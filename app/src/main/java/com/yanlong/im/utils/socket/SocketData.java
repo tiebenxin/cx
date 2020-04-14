@@ -32,6 +32,7 @@ import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -404,7 +405,7 @@ public class SocketData {
     }
 
     private static void initWrapMessage(String msgId, Long fromId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value, MsgBean.UniversalMessage.WrapMessage.Builder wrap) {
-        UserInfo userInfo = UserAction.getMyInfo();
+        IUser userInfo = UserAction.getMyInfo();
         if (fromId == null) {
             wrap.setFromUid(userInfo.getUid());
         } else {
@@ -662,7 +663,7 @@ public class SocketData {
         //前保存
         MsgAllBean msgAllBean = new MsgAllBean();
         msgAllBean.setMsg_id(msgId);
-        UserInfo mInfo = UserAction.getMyInfo();
+        IUser mInfo = UserAction.getMyInfo();
         msgAllBean.setFrom_uid(mInfo.getUid());
         msgAllBean.setFrom_avatar(mInfo.getHead());
         msgAllBean.setFrom_nickname(mInfo.getName());
@@ -958,6 +959,7 @@ public class SocketData {
             msg.setFrom_nickname(bean.getFrom_nickname());
             msg.setFrom_group_nickname(bean.getFrom_group_nickname());
             msg.setMsgNotice(createMsgNotice(msgId, type, getNoticeString(bean, type)));
+            msg.setIsLocal(1);
         }
         return msg;
     }
@@ -1072,7 +1074,12 @@ public class SocketData {
         msg.setFrom_nickname(UserAction.getMyInfo().getName());
         int survivaltime = new UserDao().getReadDestroy(uid, gid);
         msg.setSurvival_time(survivaltime);
-
+        //是否是本地构建的消息
+        if (msgType != ChatEnum.EMessageType.NOTICE) {
+            msg.setIsLocal(0);
+        } else {
+            msg.setIsLocal(1);
+        }
         msg.setRead(true);//已读
         if (isGroup) {
             Group group = msgDao.getGroup4Id(gid);
@@ -1243,7 +1250,12 @@ public class SocketData {
         msg.setRead(false);
         int survivaltime = new UserDao().getReadDestroy(wrap.getFromUid(), wrap.getGid());
         msg.setSurvival_time(survivaltime);
-
+        //是否是本地构建的消息
+        if (msgType != ChatEnum.EMessageType.NOTICE) {
+            msg.setIsLocal(0);
+        } else {
+            msg.setIsLocal(1);
+        }
         if (isGroup) {
             Group group = msgDao.getGroup4Id(wrap.getGid());
             if (group != null) {
@@ -1427,6 +1439,7 @@ public class SocketData {
         }
         bean.setMsg_type(ChatEnum.EMessageType.LOCK);
         bean.setMsg_id(SocketData.getUUID());
+        bean.setIsLocal(1);
         bean.setTimestamp(0L);
         ChatMessage message = SocketData.createChatMessage(bean.getMsg_id(), getNoticeString(bean, ChatEnum.ENoticeType.LOCK));
         bean.setChat(message);

@@ -114,6 +114,26 @@ public class UpdateSessionDetail {
         }
     }
 
+    public void update(String[] gids, Long[] fromUids) {
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                if(gids.length>0){
+                    RealmResults<Session> groupSessions = realm.where(Session.class).in("gid",gids).findAll();
+                    for (Session session:groupSessions) {
+                        synchGroupMsgSession(realm, session);
+                    }
+                }
+                if(fromUids.length>0){
+                    RealmResults<Session> friendSessions = realm.where(Session.class).in("from_uid",fromUids).findAll();
+                    for (Session session:friendSessions) {
+                        synchFriendMsgSession(realm, session);
+                    }
+                }
+            }
+        });
+    }
+
     /**
      * 同步群聊数据
      */
@@ -269,4 +289,6 @@ public class UpdateSessionDetail {
         realm.copyToRealmOrUpdate(sessionMore);
 
     }
+
+
 }

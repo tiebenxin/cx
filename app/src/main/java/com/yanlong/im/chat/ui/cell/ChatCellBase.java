@@ -17,6 +17,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.GlideOptionsUtil;
@@ -63,6 +64,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     private View viewRead;
     private TextView tvRead;
     private TextView tvReadTime;
+    public IActionTagClickListener actionTagClickListener;
 
     protected ChatCellBase(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(view);
@@ -72,6 +74,10 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         mAdapter = adapter;
         isGroup = mAdapter.isGroup();
         initView();
+    }
+
+    protected void setActionClickListener(IActionTagClickListener l){
+        actionTagClickListener = l;
     }
 
 
@@ -373,7 +379,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         }
         if (isMe) {
             if (isRecovery) {
-                ivBell.setBackgroundResource(R.mipmap.icon_st_1);
+                ivBell.setImageResource(R.mipmap.icon_st_1);
             }
             if (type == -1) {
                 ivBell.setVisibility(View.VISIBLE);
@@ -384,7 +390,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
             }
         } else {
             if (isRecovery) {
-                ivBell.setBackgroundResource(R.mipmap.icon_st_1);
+                ivBell.setImageResource(R.mipmap.icon_st_1);
             }
             if (type == -1) {
                 ivBell.setVisibility(View.VISIBLE);

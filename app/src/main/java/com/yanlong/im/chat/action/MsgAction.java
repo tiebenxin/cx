@@ -3,6 +3,7 @@ package com.yanlong.im.chat.action;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.bean.ExitGroupUser;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
@@ -17,6 +18,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.MsgServer;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.SocketData;
@@ -48,20 +50,15 @@ public class MsgAction {
     }
 
 
-    public void groupCreate(final String nickname, final String name, final String avatar, final List<UserInfo> listDataTop, final CallBack<ReturnBean<Group>> callback) {
+    public void groupCreate(final String nickname, final String name, final String avatar, final List<IUser> listDataTop, final CallBack<ReturnBean<Group>> callback) {
         List<GroupUserInfo> listDataTop2 = new ArrayList<>();
-//        List<MemberUser> memberUsers = new ArrayList<>();
         for (int i = 0; i < listDataTop.size(); i++) {
-            UserInfo info = listDataTop.get(i);
+            IUser info = listDataTop.get(i);
             GroupUserInfo userInfo = new GroupUserInfo();
             userInfo.setUid(info.getUid() + "");
             userInfo.setNickname(info.getName());
             userInfo.setAvatar(info.getHead());
             listDataTop2.add(userInfo);
-//            MemberUser memberUser = MessageManager.getInstance().memberToUser(info);
-//            memberUsers.add(memberUser);
-
-
         }
         NetUtil.getNet().exec(server.groupCreate(nickname, name, avatar, gson.toJson(listDataTop2)), new CallBack<ReturnBean<Group>>() {
             @Override
@@ -87,12 +84,10 @@ public class MsgAction {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {
-                    dao.sessionDel(null, id);
-                    dao.msgDel(null, id);
+                    MyAppLication.INSTANCE().repository.deleteSession(null,id);
                     //删除群成员及秀阿贵群保存逻辑
                     MemberUser memberUser = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), id);
                     dao.removeGroupMember(id, memberUser);
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, id, CoreEnum.ESessionRefreshTag.DELETE, null);
                 }
                 callback.onResponse(call, response);
             }
@@ -131,20 +126,6 @@ public class MsgAction {
         });
     }
 
-    public void groupDestroy(final String id, final CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.groupDestroy(id), new CallBack<ReturnBean>() {
-            @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if (response.body() == null)
-                    return;
-                if (response.body().isOk()) {
-                    dao.sessionDel(null, id);
-                }
-                callback.onResponse(call, response);
-            }
-        });
-
-    }
 
     public void groupAdd(String id, List<UserInfo> members, String nickname, CallBack<ReturnBean<GroupJoinBean>> callback) {
         List<GroupUserInfo> groupUserInfos = new ArrayList<>();
@@ -230,15 +211,15 @@ public class MsgAction {
                         newGroup.getMygroupName();
                         Group group = DaoUtil.findOne(Group.class, "gid", gid);
                         if (group != null && group.getUsers() != null) {
-                            if (MessageManager.getInstance().isGroupValid(group)) {//在群中，才更新
-                                if (MessageManager.getInstance().isGroupValid(newGroup)) {
+                            if (MessageManager.getInstance().isGroupValid2(group)) {//在群中，才更新
+                                if (MessageManager.getInstance().isGroupValid2(newGroup)) {
                                     dao.groupNumberSave(newGroup);
                                     MessageManager.getInstance().updateCacheGroup(group);
                                 } else {
                                     dao.removeGroupMember(group.getGid(), UserAction.getMyId());
                                 }
                             } else {
-                                if (MessageManager.getInstance().isGroupValid(newGroup)) {//重新被拉进群，更新
+                                if (MessageManager.getInstance().isGroupValid2(newGroup)) {//重新被拉进群，更新
                                     dao.groupNumberSave(newGroup);
                                     MessageManager.getInstance().updateCacheGroup(group);
                                 }

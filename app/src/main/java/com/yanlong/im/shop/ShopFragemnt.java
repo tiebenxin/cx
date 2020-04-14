@@ -45,6 +45,7 @@ import com.hm.cxpay.widget.PswView;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.LoginActivity;
@@ -347,7 +348,7 @@ public class ShopFragemnt extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
             if (PayEnvironment.getInstance().getUserId() <= 0) {
-                UserInfo info = UserAction.getMyInfo();
+                IUser info = UserAction.getMyInfo();
                 if (info != null && info.getUid() != null) {
                     PayEnvironment.getInstance().setUserId(info.getUid().longValue());
                 }
@@ -389,7 +390,7 @@ public class ShopFragemnt extends Fragment {
      * 请求->获取用户信息
      */
     private void httpGetUserInfo() {
-        UserInfo info = UserAction.getMyInfo();
+        IUser info = UserAction.getMyInfo();
         if (info == null) {
             return;
         }

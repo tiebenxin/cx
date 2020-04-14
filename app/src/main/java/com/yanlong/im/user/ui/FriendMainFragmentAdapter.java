@@ -16,8 +16,8 @@ import com.yanlong.im.MainViewModel;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.chat.ui.GroupSaveActivity;
+import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
@@ -93,7 +93,7 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
         } else if (holder instanceof RCViewHolder) {
             final UserInfo bean = viewModel.friends.get(position-1);
             RCViewHolder hd = (RCViewHolder) holder;
-            hd.txtType.setText(bean.getTag().equals(UserInfo.FRIEND_NUMBER_TAG)?"#":bean.getTag());
+            hd.txtType.setText(bean.getTag());
             //      hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
 
             Glide.with(context).load(bean.getHead())

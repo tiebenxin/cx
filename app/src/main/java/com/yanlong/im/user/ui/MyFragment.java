@@ -4,23 +4,16 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -36,15 +29,15 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.BindPhoneNumActivity;
 import com.hm.cxpay.ui.LooseChangeActivity;
 import com.jrmf360.walletlib.JrmfWalletClient;
-import com.yanlong.im.BuildConfig;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
-import com.yanlong.im.chat.ui.ChatActivity;
+import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.user.dao.UserDao;
@@ -56,7 +49,6 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ClickFilter;
-import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -140,7 +132,7 @@ public class MyFragment extends Fragment {
     public void refreshUser(EventRefreshUser event) {
         LogUtil.getLog().d("a=", MyFragment.class.getSimpleName() + "刷新用户信息");
         if (event.getInfo() != null) {
-            initData(event.getInfo());
+            initData((com.yanlong.im.user.bean.UserBean) event.getInfo());
         }
     }
 
@@ -228,7 +220,7 @@ public class MyFragment extends Fragment {
     }
 
 
-    private void initData(UserInfo userInfo) {
+    private void initData(com.yanlong.im.user.bean.UserBean userInfo) {
         if (userInfo != null) {
             if (imgHead != null) {
                 Glide.with(this).load(userInfo.getHead() + "").apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
@@ -293,7 +285,7 @@ public class MyFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        initData(UserAction.getMyInfo());
+        initData((com.yanlong.im.user.bean.UserBean)UserAction.getMyInfo());
     }
 
     @Override
@@ -328,7 +320,10 @@ public class MyFragment extends Fragment {
 
     //钱包
     private void taskWallet() {
-        UserInfo info = UserAction.getMyInfo();
+        IUser info = UserAction.getMyInfo();
+        if (info == null){
+            return;
+        }
         if (info != null && info.getLockCloudRedEnvelope() == 1) {//红包功能被锁定
             ToastUtil.show(getActivity(), "您的云红包功能已暂停使用，如有疑问请咨询官方客服号");
             return;
@@ -340,9 +335,8 @@ public class MyFragment extends Fragment {
                     return;
                 if (response.body().isOk()) {
                     String token = response.body().getData().getSign();
-                    UserInfo minfo = UserAction.getMyInfo();
                     if (getActivity() != null && !getActivity().isFinishing()) {
-                        JrmfWalletClient.intentWallet(getActivity(), "" + UserAction.getMyId(), token, minfo.getName(), minfo.getHead());
+                        JrmfWalletClient.intentWallet(getActivity(), "" + UserAction.getMyId(), token, info.getName(), info.getHead());
                     }
                 }
             }
@@ -413,7 +407,7 @@ public class MyFragment extends Fragment {
      * 请求->获取用户信息
      */
     private void httpGetUserInfo() {
-        UserInfo info = UserAction.getMyInfo();
+        IUser info = UserAction.getMyInfo();
         if (info == null) {
             return;
         }

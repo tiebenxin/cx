@@ -19,6 +19,7 @@ import com.yanlong.im.databinding.ActivityServiceAgreementBinding;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.AppConfig;
@@ -149,7 +150,7 @@ public class ServiceAgreementActivity extends AppActivity {
      * 钱包
      */
     private void taskWallet() {
-        UserInfo info = UserAction.getMyInfo();
+        IUser info = UserAction.getMyInfo();
         if (info != null && info.getLockCloudRedEnvelope() == 1) {//红包功能被锁定
             ToastUtil.show(this, "您的云红包功能已暂停使用，如有疑问请咨询官方客服号");
             return;

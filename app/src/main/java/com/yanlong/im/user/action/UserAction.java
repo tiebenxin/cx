@@ -20,9 +20,11 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.IdCardBean;
 import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.TokenBean;
+import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.server.UserServer;
@@ -60,7 +62,7 @@ import retrofit2.Response;
 public class UserAction {
     private UserServer server;
     private UserDao dao = new UserDao();
-    private static UserInfo myInfo;
+    private static UserBean myInfo;
 
     public UserAction() {
         server = NetUtil.getNet().create(UserServer.class);
@@ -78,9 +80,20 @@ public class UserAction {
      * 获取我的信息
      * @return
      */
-    public static UserInfo getMyInfo() {
+    public static IUser getMyInfo() {
         if (myInfo == null) {
             myInfo = new UserDao().myInfo();
+        }
+        if (myInfo == null) {
+            Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
+            if (uid != null) {
+                UserInfo info = new UserDao().findUserInfo(uid);
+                //不是文件小助手
+                if (info != null && (!TextUtils.isEmpty(info.getName()) && !info.getName().contains("文件"))) {
+                    myInfo = convertToUserBean(info);
+                    new UserDao().updateUserBean(myInfo);
+                }
+            }
         }
         return myInfo;
     }
@@ -137,9 +150,9 @@ public class UserAction {
     }*/
 
 
-    public void updateUserinfo2DB(UserInfo userInfo) {
-        userInfo.setuType(1);
-        dao.updateUserinfo(userInfo);
+    public void updateUser2DB(UserBean user) {
+        user.setuType(1);
+        dao.updateUserBean(user);
     }
 
     /**
@@ -211,11 +224,11 @@ public class UserAction {
      * 拉取服务器的自己的信息到数据库
      */
     private void getMyInfo4Web(Long usrid, String imid) {
-        NetUtil.getNet().exec(server.getUserInfo(usrid), new CallBack<ReturnBean<UserInfo>>() {
+        NetUtil.getNet().exec(server.getUserBean(usrid), new CallBack<ReturnBean<UserBean>>() {
             @Override
-            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+            public void onResponse(Call<ReturnBean<UserBean>> call, Response<ReturnBean<UserBean>> response) {
                 if (response.body() != null && response.body().isOk()) {
-                    UserInfo userInfo = response.body().getData();
+                    UserBean userInfo = response.body().getData();
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead() + "");
                     //保存手机或常信号登录
                     if (StringUtil.isNotNull(imid)) {
@@ -224,8 +237,8 @@ public class UserAction {
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone());
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).save2Json(userInfo.getUid());
                     userInfo.toTag();
-                    updateUserinfo2DB(userInfo);
-                    MessageManager.getInstance().notifyRefreshUser(userInfo);
+                    updateUser2DB(userInfo);
+//                    MessageManager.getInstance().notifyRefreshUser(userInfo);
                 }
             }
         });
@@ -567,7 +580,7 @@ public class UserAction {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {
-                    myInfo = dao.findUserInfo(getMyId());
+                    myInfo = dao.findUserBean(getMyId());
                     if (!TextUtils.isEmpty(imid))
                         myInfo.setImid(imid);
                     if (!TextUtils.isEmpty(avatar))
@@ -576,7 +589,7 @@ public class UserAction {
                         myInfo.setName(nickname);
                     if (gender != null)
                         myInfo.setSex(gender);
-                    updateUserinfo2DB(myInfo);
+                    updateUser2DB(myInfo);
                     upMyinfoToPay();
                 }
                 callback.onResponse(call, response);
@@ -715,9 +728,9 @@ public class UserAction {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {
-                    myInfo = dao.findUserInfo(getMyId());
+                    myInfo = dao.findUserBean(getMyId());
                     myInfo.setAuthStat(1);
-                    updateUserinfo2DB(myInfo);
+                    updateUser2DB(myInfo);
                 }
                 callback.onResponse(call, response);
             }
@@ -750,9 +763,9 @@ public class UserAction {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {
-                    myInfo = dao.findUserInfo(getMyId());
+                    myInfo = dao.findUserBean(getMyId());
                     myInfo.setAuthStat(2);
-                    updateUserinfo2DB(myInfo);
+                    updateUser2DB(myInfo);
                 }
                 callback.onResponse(call, response);
             }
@@ -915,12 +928,13 @@ public class UserAction {
 
     /**
      * 二维码登录 - 确认登录
+     *
      * @param code
-     * @param sync  1 同步 0 不同步
+     * @param sync     1 同步 0 不同步
      * @param callback
      */
-    public void sweepCodeLoginSure(String code,String sync, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.sweepCodeLoginSure(code,sync), callback);
+    public void sweepCodeLoginSure(String code, String sync, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.sweepCodeLoginSure(code, sync), callback);
     }
 
     /**
@@ -929,5 +943,60 @@ public class UserAction {
     public void sweepCodeLoginCancel(String code, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.sweepCodeLoginCancel(code), callback);
     }
+
+
+    /**
+     * 上报IP
+     */
+    public void reportIP(String ip, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.reportIPChange(ip), callback);
+    }
+
+    private static UserBean convertToUserBean(UserInfo info) {
+        if (info == null) {
+            return null;
+        }
+        UserBean userBean = new UserBean();
+        userBean.setUid(info.getUid());
+        userBean.setName(info.getName());
+        userBean.setMkName(info.getMkName());
+        userBean.setVip(info.getVip());
+        userBean.setHead(info.getHead());
+        userBean.setActiveType(info.getActiveType());
+        userBean.setAuthStat(info.getAuthStat());
+        userBean.setDisturb(info.getDisturb());
+        userBean.setTag(info.getTag());
+        userBean.setIstop(info.getIstop());
+        userBean.setDestroy(info.getDestroy());
+        userBean.setSex(info.getSex());
+        userBean.setEmptyPassword(info.isEmptyPassword());
+        userBean.setLockCloudRedEnvelope(info.getLockCloudRedEnvelope());
+        userBean.setDisplaydetail(info.getDisplaydetail());
+        userBean.setFriendRead(info.getFriendRead());
+        userBean.setMasterRead(info.getMasterRead());
+        userBean.setFriendvalid(info.getFriendvalid());
+        userBean.setGroupvalid(info.getGroupvalid());
+        userBean.setImid(info.getImid());
+        userBean.setOldimid(info.getOldimid());
+        userBean.setInviter(info.getInviter());
+        userBean.setInviterName(info.getInviterName());
+        userBean.setMessagenotice(info.getMessagenotice());
+        userBean.setJoinTime(info.getJoinTime());
+        userBean.setJoinType(info.getJoinType());
+        userBean.setImidfind(info.getImidfind());
+        userBean.setDestroyTime(info.getDestroyTime());
+        userBean.setMyRead(info.getMyRead());
+        userBean.setNeteaseAccid(info.getNeteaseAccid());
+        userBean.setLastonline(info.getLastonline());
+        userBean.setPhone(info.getPhone());
+        userBean.setPhonefind(info.getPhonefind());
+        userBean.setSayHi(info.getSayHi());
+        userBean.setScreenshotNotification(info.getScreenshotNotification());
+        userBean.setStat(info.getStat());
+        userBean.setuType(info.getuType());
+        userBean.setBankReqSignKey(info.getBankReqSignKey());
+        return userBean;
+    }
+
 
 }

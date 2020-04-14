@@ -4,10 +4,15 @@ package net.cb.cb.library.utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.huawei.hms.common.ApiException;
+
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.bean.ProxyException;
 import net.cb.cb.library.constant.AppHostUtil;
 
 import java.util.concurrent.TimeUnit;
@@ -136,7 +141,12 @@ public class NetUtil {
      * @param <T>
      */
     public <T> Call exec(Call<T> call, final Callback<T> callBack) {
-
+        //开启了代理，直接返回失败
+        if (isWifiProxy(AppConfig.getContext())) {
+            LogUtil.getLog().e("NetUtil", "网络代理异常，请求失败");
+            callBack.onFailure(call, new ProxyException("网络代理异常，请求失败"));
+            return call;
+        }
         Callback<T> cb = new CallBack<T>() {
             @Override
             public void onResponse(Call<T> call, Response<T> response) {
@@ -244,6 +254,22 @@ public class NetUtil {
             }
         }
         return "";
+    }
+
+    //是否开启了网络代理
+    private boolean isWifiProxy(Context context) {
+        final boolean IS_ICS_OR_LATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+        String proxyAddress;
+        int proxyPort;
+        if (IS_ICS_OR_LATER) {
+            proxyAddress = System.getProperty("http.proxyHost");
+            String portStr = System.getProperty("http.proxyPort");
+            proxyPort = Integer.parseInt((portStr != null ? portStr : "-1"));
+        } else {
+            proxyAddress = android.net.Proxy.getHost(context);
+            proxyPort = android.net.Proxy.getPort(context);
+        }
+        return (!TextUtils.isEmpty(proxyAddress)) && (proxyPort != -1);
     }
 
 }

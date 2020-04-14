@@ -38,12 +38,12 @@ public class ForwardSessionAdapter extends AbstractRecyclerAdapter {
     private MsgDao msgDao;
     private IForwardListener listener;
     private Context context;
-    private final ForwardViewModel viewModel;
+//    private final ForwardViewModel viewModel;
 
     public ForwardSessionAdapter(Context ctx, ForwardViewModel viewModel) {
         super(ctx);
         context = ctx;
-        this.viewModel = viewModel;
+//        this.viewModel = viewModel;
 
     }
 
@@ -52,10 +52,10 @@ public class ForwardSessionAdapter extends AbstractRecyclerAdapter {
         msgDao = msg;
     }
 
-    @Override
-    public int getItemCount() {
-        return viewModel.sessions == null ? 0 : viewModel.sessions.size();
-    }
+//    @Override
+//    public int getItemCount() {
+//        return viewModel.sessions == null ? 0 : viewModel.sessions.size();
+//    }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -66,7 +66,7 @@ public class ForwardSessionAdapter extends AbstractRecyclerAdapter {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         RCViewHolder viewHolder = (RCViewHolder) holder;
-        Session session = viewModel.sessions.get(position);
+        Session session = (Session) mBeanList.get(position);
         viewHolder.bindData(session);
     }
 

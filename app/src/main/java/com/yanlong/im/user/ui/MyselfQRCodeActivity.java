@@ -1,17 +1,12 @@
 package com.yanlong.im.user.ui;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
@@ -28,8 +23,9 @@ import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.umeng.socialize.media.UMImage;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.ui.ChatActivity;
+import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.ImageUtils;
@@ -132,7 +128,7 @@ public class MyselfQRCodeActivity extends AppActivity {
 
     private void initData() {
         QRCodeBean qrCodeBean = new QRCodeBean();
-        UserInfo userInfo = UserAction.getMyInfo();
+        IUser userInfo = UserAction.getMyInfo();
         if (type == 0) {
             String uid = userInfo.getUid() + "";
             // mImgHead.setImageURI(userInfo.getHead() + "");

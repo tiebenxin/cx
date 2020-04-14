@@ -9,6 +9,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 
@@ -31,7 +32,7 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
     private CheckBox mCbMessageVoice;
     private CheckBox mCbMessageShake;
     private UserAction userAction;
-    private UserInfo userInfo;
+    private UserBean userInfo;
     private UserDao userDao;
     private long uid;
     private int isClick;
@@ -74,7 +75,7 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
     private void initData() {
         userAction = new UserAction();
         uid = UserAction.getMyId();
-        userInfo = UserAction.getMyInfo();
+        userInfo = (UserBean) UserAction.getMyInfo();
         userDao = new UserDao();
         if (userInfo.getMessagenotice() == 0) {
             mCbReceiveMessage.setChecked(false);
@@ -129,10 +130,10 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
                 }
                 if(userInfo.getMessagenotice() == 0){
                     userInfo.setMessagenotice(1);
-                    userDao.updateUserinfo(userInfo);
+                    userDao.updateUserBean(userInfo);
                 }else{
                     userInfo.setMessagenotice(0);
-                    userDao.updateUserinfo(userInfo);
+                    userDao.updateUserBean(userInfo);
                 }
 
                 ToastUtil.show(NewMessageActivity.this, response.body().getMsg());
@@ -150,10 +151,10 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
                 }
                 if(userInfo.getDisplaydetail() == 0){
                     userInfo.setDisplaydetail(1);
-                    userDao.updateUserinfo(userInfo);
+                    userDao.updateUserBean(userInfo);
                 }else{
                     userInfo.setDisplaydetail(0);
-                    userDao.updateUserinfo(userInfo);
+                    userDao.updateUserBean(userInfo);
                 }
 
                 ToastUtil.show(NewMessageActivity.this, response.body().getMsg());
