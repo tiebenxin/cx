@@ -32,6 +32,7 @@ import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -404,7 +405,7 @@ public class SocketData {
     }
 
     private static void initWrapMessage(String msgId, Long fromId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value, MsgBean.UniversalMessage.WrapMessage.Builder wrap) {
-        UserInfo userInfo = UserAction.getMyInfo();
+        IUser userInfo = UserAction.getMyInfo();
         if (fromId == null) {
             wrap.setFromUid(userInfo.getUid());
         } else {
@@ -662,7 +663,7 @@ public class SocketData {
         //前保存
         MsgAllBean msgAllBean = new MsgAllBean();
         msgAllBean.setMsg_id(msgId);
-        UserInfo mInfo = UserAction.getMyInfo();
+        IUser mInfo = UserAction.getMyInfo();
         msgAllBean.setFrom_uid(mInfo.getUid());
         msgAllBean.setFrom_avatar(mInfo.getHead());
         msgAllBean.setFrom_nickname(mInfo.getName());

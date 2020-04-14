@@ -19,6 +19,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
@@ -324,7 +325,7 @@ public class GroupCreateActivity extends AppActivity {
             alert.dismiss();
             return;
         }
-        final ArrayList<UserInfo> templist = new ArrayList<>();
+        final ArrayList<IUser> templist = new ArrayList<>();
         templist.addAll(listDataTop);
         templist.add(0, UserAction.getMyInfo());
         String name = "";
@@ -335,8 +336,7 @@ public class GroupCreateActivity extends AppActivity {
         //头像地址
         String url[] = new String[i];
         for (int j = 0; j < i; j++) {
-            UserInfo userInfo = templist.get(j);
-
+            IUser userInfo = templist.get(j);
             url[j] = userInfo.getHead();
         }
         msgACtion.groupCreate(UserAction.getMyInfo().getName(), "", "", templist, new CallBack<ReturnBean<Group>>() {

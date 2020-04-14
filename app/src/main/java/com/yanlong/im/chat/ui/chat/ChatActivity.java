@@ -148,6 +148,7 @@ import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.SelectUserActivity;
@@ -1764,7 +1765,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         boolean isVip = false;
         boolean isSystemUser = false;
         if (!isGroup) {
-            UserInfo userInfo = UserAction.getMyInfo();
+            IUser userInfo = UserAction.getMyInfo();
             if (userInfo != null && IS_VIP.equals(userInfo.getVip())) {
                 isVip = true;
             }
@@ -4214,7 +4215,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 发红包
      */
     private void taskPayRb() {
-        UserInfo info = UserAction.getMyInfo();
+        IUser info = UserAction.getMyInfo();
         if (info != null && info.getLockCloudRedEnvelope() == 1) {//红包功能被锁定
             ToastUtil.show(this, "您的云红包功能已暂停使用，如有疑问请咨询官方客服号");
             return;
@@ -4279,11 +4280,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         return;
                     }
                     if (isGroup()) {
-                        UserInfo minfo = UserAction.getMyInfo();
+                        IUser minfo = UserAction.getMyInfo();
                         JrmfRpClient.openGroupRp(ChatActivity.this, "" + minfo.getUid(), token,
                                 minfo.getName(), minfo.getHead(), rbid, callBack);
                     } else {
-                        UserInfo minfo = UserAction.getMyInfo();
+                        IUser minfo = UserAction.getMyInfo();
                         JrmfRpClient.openSingleRp(ChatActivity.this, "" + minfo.getUid(), token,
                                 minfo.getName(), minfo.getHead(), rbid, callBack);
                     }
@@ -4312,7 +4313,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                     SignatureBean sign = response.body().getData();
                     String token = sign.getSign();
-                    UserInfo minfo = UserAction.getMyInfo();
+                    IUser minfo = UserAction.getMyInfo();
                     JrmfRpClient.openRpDetail(ChatActivity.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead());
                 }
             }
@@ -4538,7 +4539,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         int friendRead = userInfo.getFriendRead();
         int myRead = userInfo.getMyRead();
 
-        UserInfo myUserInfo = userDao.myInfo();
+        IUser myUserInfo = userDao.myInfo();
         int masterRead = myUserInfo.getMasterRead();
         if (friendMasterRead == 1 && friendRead == 1 && myRead == 1 && masterRead == 1) {
             return true;
@@ -5358,16 +5359,22 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 httpGetTransferDetail(transfer.getId(), transfer.getOpType(), message);
                 break;
             case ChatEnum.ECellEventType.AVATAR_CLICK:
+                if (isGroup() && !MessageManager.getInstance().isGroupValid(groupInfo)) {
+                    return;
+                }
                 toUserInfoActivity(message.getFrom_uid());
                 break;
             case ChatEnum.ECellEventType.AVATAR_LONG_CLICK:
                 if (isGroup()) {
+                    if (!MessageManager.getInstance().isGroupValid(groupInfo)) {
+                        return;
+                    }
                     doAtInput(message);
                 }
                 break;
             case ChatEnum.ECellEventType.VOICE_VIDEO_CALL:
                 // 只有Vip才可以视频通话
-                UserInfo userInfo = UserAction.getMyInfo();
+                IUser userInfo = UserAction.getMyInfo();
                 if (userInfo != null && IS_VIP.equals(userInfo.getVip())) {
                     if (message.getP2PAuVideoMessage().getAv_type() == MsgBean.AuVideoType.Audio.getNumber()) {
                         gotoVideoActivity(AVChatType.AUDIO.getValue());
@@ -5412,6 +5419,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 IntentUtil.gotoActivity(ChatActivity.this, ShowBigFaceActivity.class, bundle);
                 break;
             case ChatEnum.ECellEventType.RESEND_CLICK:
+                if (isGroup() && !MessageManager.getInstance().isGroupValid(groupInfo)) {
+                    return;
+                }
                 resendMessage(message);
                 break;
             case ChatEnum.ECellEventType.WEB_CLICK:

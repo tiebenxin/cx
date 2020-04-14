@@ -16,7 +16,7 @@ import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
-public class UserInfo extends RealmObject implements Comparable<UserInfo> {
+public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser {
     @PrimaryKey
     private Long uid;
     @SerializedName("nickname")

@@ -37,6 +37,7 @@ import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
@@ -208,7 +209,7 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                             }
                         }
                     };
-                    UserInfo minfo = UserAction.getMyInfo();
+                    IUser minfo = UserAction.getMyInfo();
                     JrmfRpClient.openGroupRp(NoRedBagActivity.this, "" + minfo.getUid(), token,
                             minfo.getName(), minfo.getHead(), message.getId(), callBack);
 

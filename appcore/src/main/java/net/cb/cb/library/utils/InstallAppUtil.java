@@ -70,19 +70,6 @@ public class InstallAppUtil {
     }
 
 
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        Log.v("InstallAppUtil","install111111111111");
-//        switch (requestCode) {
-//            case GET_UNKNOWN_APP_SOURCES:
-//                Log.v("InstallAppUtil","install");
-//                install();
-//                break;
-//
-//            default:
-//                break;
-//        }
-//    }
-
     /***
      * 只支持缓存目录安装
      */

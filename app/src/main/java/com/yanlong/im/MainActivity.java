@@ -67,6 +67,7 @@ import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.shop.ShopFragemnt;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
@@ -619,7 +620,7 @@ public class MainActivity extends AppActivity {
     //检测支付环境的初始化
     private void checkPayEnvironmentInit() {
         checkPayToken();
-        UserInfo info = UserAction.getMyInfo();
+        IUser info = UserAction.getMyInfo();
         if (info != null) {
             PayEnvironment.getInstance().setPhone(info.getPhone());
             PayEnvironment.getInstance().setNick(info.getName());
@@ -890,7 +891,7 @@ public class MainActivity extends AppActivity {
     };
 
     public void loginoutComment() {
-        UserInfo userInfo = UserAction.getMyInfo();
+        IUser userInfo = UserAction.getMyInfo();
         if (userInfo != null) {
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead() + "");
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone() + "");

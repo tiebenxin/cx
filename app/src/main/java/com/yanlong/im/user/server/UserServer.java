@@ -8,6 +8,7 @@ import com.yanlong.im.user.bean.IdCardBean;
 import com.yanlong.im.user.bean.LoginBean;
 import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.TokenBean;
+import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.bean.OnlineBean;
@@ -55,6 +56,10 @@ public interface UserServer {
     @POST("/user/get-user-info-by-uid")
     @FormUrlEncoded
     Call<ReturnBean<UserInfo>> getUserInfo(@Field("uid") Long uid);
+
+    @POST("/user/get-user-info-by-uid")
+    @FormUrlEncoded
+    Call<ReturnBean<UserBean>> getUserBean(@Field("uid") Long uid);
 
     @POST("/user/logout")
     @FormUrlEncoded
