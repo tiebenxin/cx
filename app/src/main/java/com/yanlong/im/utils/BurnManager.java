@@ -102,9 +102,9 @@ public class BurnManager {
                     List<MsgAllBean> toDeletedResultsTemp = realm.copyFromRealm(toDeletedResults);
                     for(MsgAllBean msg:toDeletedResults){
                         if(TextUtils.isEmpty(msg.getGid())){
-                            toDeletedGroup.add(msg.getGid());
-                        }else{
                             toDeletedFriend.add(msg.getFrom_uid());
+                        }else{
+                            toDeletedGroup.add(msg.getGid());
                         }
                     }
                     if (toDeletedResults.size() > 0) {
