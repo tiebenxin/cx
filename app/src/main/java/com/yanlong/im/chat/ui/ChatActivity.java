@@ -642,7 +642,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private boolean checkSnapshotPower() {
         if (isGroup()) {
             if (groupInfo != null) {
-                return groupInfo.getScreenshotNotification() == 1;
+                //群被封，全禁言，单个禁言，无截屏权限
+                if (groupInfo.getStat() != ChatEnum.EGroupStatus.NORMAL || groupInfo.getWordsNotAllowed() == 1
+                        || (singleMeberInfoBean != null && singleMeberInfoBean.getShutUpDuration() == 1) || groupInfo.getScreenshotNotification() == 0) {
+                    return false;
+                } else {
+                    return true;
+                }
             }
         } else {
             if (userInfo != null) {
