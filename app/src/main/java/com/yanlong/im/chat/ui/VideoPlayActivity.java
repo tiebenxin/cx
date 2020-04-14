@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -37,6 +38,7 @@ import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
+import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.MyDiskCache;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 
@@ -52,6 +54,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Locale;
 import java.util.Timer;
@@ -90,6 +93,8 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     private int mCurrentTime = 0;
     private int mLastTime = 0;
     private Timer mTimer;
+    private boolean ifPause = false;//视频是否暂停，默认未暂停，如果有HOME/锁屏操作，重进恢复播放
+    private boolean dontShake = false;//视频播放完成后禁止抖动(暂时处理)
 
 
     @Override
@@ -224,9 +229,11 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             if (!isFinishing() && mMediaPlayer != null) {
                 DecimalFormat df = new DecimalFormat("0.00");
                 String result = df.format((double) mCurrentTime / mMediaPlayer.getDuration());
-
-                activity_video_seek.setProgress((int) (Double.parseDouble(result) * 100));
-
+                if(dontShake){
+                    activity_video_seek.setProgress(100);
+                }else {
+                    activity_video_seek.setProgress((int) (Double.parseDouble(result) * 100));
+                }
                 mCurrentTime = mCurrentTime / 1000;
                 mHour = mCurrentTime / 3600;
                 mMin = mCurrentTime % 3600 / 60;
@@ -242,34 +249,38 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     };
 
     private void getProgress() {
-        mTimer = new Timer();
-        mTimer.schedule(new TimerTask() {
+//        if(mTimer==null){
+            mTimer = new Timer();
+            mTimer.schedule(new TimerTask() {
 
-            @Override
-            public void run() {
+                @Override
+                public void run() {
 
-                if (null != mMediaPlayer) {
-                    try {
-                        // TODO OPPO等个别手机获取不到最后一秒
-                        mCurrentTime = mMediaPlayer.getCurrentPosition();
-                        // TODO 处理OPPO手机无法播放到最后一秒问题
-                        if (mLastTime >= mCurrentTime) {
-                            if ((mMediaPlayer.getDuration() - mCurrentTime) < 1000) {
-                                mCurrentTime = mMediaPlayer.getDuration();
-                                activity_video_seek.setProgress(1);
+                    if (null != mMediaPlayer) {
+                        try {
+                            if(!ifPause){
+                                // TODO OPPO等个别手机获取不到最后一秒
+                                mCurrentTime = mMediaPlayer.getCurrentPosition();
+                                // TODO 处理OPPO手机无法播放到最后一秒问题
+//                                if (mLastTime >= mCurrentTime) {
+//                                    if ((mMediaPlayer.getDuration() - mCurrentTime) < 1000) {
+//                                        mCurrentTime = mMediaPlayer.getDuration();
+//                                        activity_video_seek.setProgress(1);
+//                                    }
+//                                }
+                                mLastTime = mCurrentTime;
+                                if (!isFinishing()) {
+                                    handler.sendEmptyMessage(0);
+                                }
                             }
+                        } catch (Exception e) {
+                            if (null != mTimer)
+                                mTimer.cancel();
                         }
-                        mLastTime = mCurrentTime;
-                        if (!isFinishing()) {
-                            handler.sendEmptyMessage(0);
-                        }
-                    } catch (Exception e) {
-                        if (null != mTimer)
-                            mTimer.cancel();
                     }
                 }
-            }
-        }, 0, 1000);
+            }, 0, 1000);
+//        }
     }
 
     private void initView() {
@@ -300,19 +311,20 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 @Override
                 public void onPrepared(MediaPlayer mp) {
                     if (!isFinishing()) {
-                        mMediaPlayer.start();
-                        // 转成秒
-                        mTempTime = mMediaPlayer.getDuration() / 1000;
-                        mHour = mTempTime / 3600;
-                        mMin = mTempTime % 3600 / 60;
-                        mSecond = mTempTime % 60;
-                        if (mHour > 0) {
-                            activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
-                        } else {
-                            activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
+                        if(!ifPause){
+                            mMediaPlayer.start();
+                            // 转成秒
+                            mTempTime = mMediaPlayer.getDuration() / 1000;
+                            mHour = mTempTime / 3600;
+                            mMin = mTempTime % 3600 / 60;
+                            mSecond = mTempTime % 60;
+                            if (mHour > 0) {
+                                activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
+                            } else {
+                                activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
+                            }
+                            getProgress();
                         }
-
-                        getProgress();
                     }
                 }
             });
@@ -329,7 +341,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 }
             });
             mMediaPlayer.prepareAsync();
-
             if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
                 surfaceWidth = textureView.getWidth();
                 surfaceHeight = textureView.getHeight();
@@ -353,6 +364,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         public void run() {
                             activity_video_big_con.setVisibility(View.VISIBLE);
                             activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
+                            dontShake = true;
                         }
                     }, 500);
                 }
@@ -367,21 +379,23 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         super.onPause();
         if (null != mMediaPlayer) {
             mMediaPlayer.pause();
-            activity_video_big_con.setVisibility(View.VISIBLE);
             activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
         }
-//        if (null != mTimer) {
-//            mTimer.cancel();
-//            mTimer = null;
-//        }
+        ifPause = true;
+        if (null != mTimer) {
+            mTimer.cancel();
+            mTimer = null;
+        }
     }
 
-//    @Override
-//    protected void onRestart() {
-//        super.onRestart();
-//        activity_video_big_con.setVisibility(View.VISIBLE);
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        activity_video_big_con.setVisibility(View.VISIBLE);
+        img_bg.setVisibility(View.VISIBLE);
+//        replay();
 //        activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
-//    }
+    }
 
     @Override
     protected void onStop() {
@@ -428,8 +442,15 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     if (mMediaPlayer.isPlaying()) {
                         mMediaPlayer.pause();
                     } else {
-                        mMediaPlayer.start();
                         activity_video_big_con.setVisibility(View.INVISIBLE);
+                        if(ifPause){
+                            replay();
+                        }else {
+                            mMediaPlayer.start();
+                        }
+                        ifPause = false;
+                        dontShake = false;
+
                     }
                     activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
                 }
@@ -441,10 +462,16 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         activity_video_big_con.setVisibility(View.VISIBLE);
                         activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
                     } else {
-                        mMediaPlayer.start();
+                        if(ifPause){
+                            replay();
+                        }else {
+                            mMediaPlayer.start();
+                        }
                         activity_video_big_con.setVisibility(View.INVISIBLE);
                         activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
-                        getProgress();
+//                        getProgress();
+                        ifPause = false;
+                        dontShake = false;
                     }
                 }
                 break;
@@ -657,4 +684,33 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
         changeVideoSize();
     }
+
+    private void replay() {
+        try {
+            mMediaPlayer.reset();
+            mMediaPlayer.setDataSource(mPath);
+            mMediaPlayer.setDisplay(textureView.getHolder());
+            mMediaPlayer.setLooping(false);
+            mMediaPlayer.prepareAsync();
+            mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mMediaPlayer.seekTo(mLastTime);
+                    mMediaPlayer.start();
+                    getProgress();
+                }
+            });
+            mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                @Override
+                public boolean onError(MediaPlayer mp, int what, int extra) {
+
+                    return false;
+                }
+            });
+        } catch (Exception e) {
+            LogUtil.getLog().d("TAG",e.getMessage());
+        }
+    }
+
+
 }
