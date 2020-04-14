@@ -99,7 +99,7 @@ public class BurnManager {
                             .greaterThan("endTime", 0)
                             .lessThanOrEqualTo("endTime", currentTime).findAll();
                     //复制一份，为了聊天界面的更新-非数据库对象
-                    List<MsgAllBean> toDeletedResultsTemp = realm.copyToRealm(toDeletedResults);
+                    List<MsgAllBean> toDeletedResultsTemp = realm.copyFromRealm(toDeletedResults);
                     for(MsgAllBean msg:toDeletedResults){
                         if(TextUtils.isEmpty(msg.getGid())){
                             toDeletedGroup.add(msg.getGid());
