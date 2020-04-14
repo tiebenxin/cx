@@ -65,6 +65,7 @@ public class ApplicationRepository {
     public synchronized void loadMoreSessions() {
         //是PAGE_COUNT的倍数才加载
         currentCount = currentCount + PAGE_COUNT;
+        if(sessions!=null)sessions.removeAllChangeListeners();
         sessions = localDataSource.getSessions(currentCount);
         /**集合通知OrderedRealmCollectionChangeListener
          * 该对象保存有关受删除，插入和更改影响的索引的信息。
