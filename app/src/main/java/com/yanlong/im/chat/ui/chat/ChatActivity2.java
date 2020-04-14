@@ -79,9 +79,7 @@ import com.hm.cxpay.ui.transfer.TransferDetailActivity;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
 import com.jrmf360.rplib.bean.GrabRpBean;
-import com.jrmf360.rplib.bean.TransAccountBean;
 import com.jrmf360.rplib.utils.callback.GrabRpCallBack;
-import com.jrmf360.rplib.utils.callback.TransAccountCallBack;
 import com.jrmf360.tools.utils.ThreadUtil;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
@@ -131,7 +129,6 @@ import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.UpLoadService;
-import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.chat.ui.ChatInfoActivity;
 import com.yanlong.im.chat.ui.FileDownloadActivity;
 import com.yanlong.im.chat.ui.GroupInfoActivity;
@@ -198,6 +195,7 @@ import net.cb.cb.library.bean.EventUpFileLoadEvent;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
+import net.cb.cb.library.bean.GroupStatusChangeEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.dialog.DialogEnvelopePast;
@@ -322,7 +320,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
     private int textPosition;
     private int contactIntimately;
     private String master = "";
-    private TextView tv_ban;
+    private TextView tvBan;
     private String draft;
     private int isFirst;
     private UserInfo userInfo;// 聊天用户信息，刷新时更新
@@ -655,7 +653,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
         viewChatBottomc = findViewById(R.id.view_chat_bottom_c);
         btnSend = findViewById(R.id.btn_send);
         txtVoice = findViewById(R.id.txt_voice);
-        tv_ban = findViewById(R.id.tv_ban);
+        tvBan = findViewById(R.id.tv_ban);
         viewFaceView = findViewById(R.id.chat_view_faceview);
         viewNewMessage = new ControllerNewMessage(findViewById(R.id.viewNewMessage));
         setChatImageBackground();
@@ -1310,6 +1308,7 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
 
         mAdapter = new MessageAdapter(this, this, isGroup());
         mAdapter.setCellFactory(new FactoryChatCell(context, mAdapter, this));
+        mAdapter.setTagListener(this);
         mtListView.init(mAdapter);
         mtListView.getLoadView().setStateNormal();
         mtListView.setEvent(new MultiListView.Event() {
@@ -2316,6 +2315,20 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                 if (info != null && info.getUid().intValue() == toUId.intValue()) {
                     userInfo = info;
                     updateUserOnlineStatus(info);
+                }
+            }
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventGroupStatusChange(GroupStatusChangeEvent event) {
+        if (isGroup()) {
+            if (event.getData() instanceof Group) {
+                Group group = (Group) event.getData();
+                if (group != null && group.getGid().equals(toGid)) {
+                    groupInfo = group;
+                    boolean forbid = groupInfo.getStat() == ChatEnum.EGroupStatus.BANED;
+                    setBanView(false, forbid);
                 }
             }
         }
@@ -3773,7 +3786,8 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                         isExit = true;
                     }
                 }
-                setBanView(!isExit);
+                boolean forbid = groupInfo.getStat() == ChatEnum.EGroupStatus.BANED;
+                setBanView(!isExit, forbid);
             }
             //6.15 设置右上角点击
             taskGroupConf();
@@ -4146,7 +4160,11 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
                             } else {
                                 isExited = false;
                             }
-                            setBanView(isExited);
+                            boolean forbid = false;
+                            if (groupInfo != null) {
+                                forbid = groupInfo.getStat() == ChatEnum.EGroupStatus.BANED;
+                            }
+                            setBanView(isExited, forbid);
                         }
                     }
                 });
@@ -4154,12 +4172,21 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
     }
 
     /*
-     * 是否已经退出
+     * 是否已经退出,是否被封
      * */
-    private void setBanView(boolean isExited) {
-        actionbar.getBtnRight().setVisibility(isExited ? View.GONE : View.VISIBLE);
-        tv_ban.setVisibility(isExited ? VISIBLE : GONE);
-        viewChatBottomc.setVisibility(isExited ? GONE : VISIBLE);
+    private void setBanView(boolean isExited, boolean isForbid) {
+        if (isExited || isForbid) {
+            // 关闭软键盘
+            InputUtil.hideKeyboard(editChat);
+        }
+        actionbar.getBtnRight().setVisibility(isExited || isForbid ? View.GONE : View.VISIBLE);
+        tvBan.setVisibility(isExited || isForbid ? VISIBLE : GONE);
+        if (isExited) {
+            tvBan.setText("你已经被移除群聊，无法发送消息");
+        } else if (isForbid) {
+            tvBan.setText(AppConfig.getString(R.string.group_forbid));
+        }
+        viewChatBottomc.setVisibility(isExited || isForbid ? GONE : VISIBLE);
         llMore.setVisibility(GONE);
     }
 
@@ -4168,11 +4195,11 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
      * */
     private void showViewMore(boolean b) {
         if (b) {
-            tv_ban.setVisibility(GONE);
+            tvBan.setVisibility(GONE);
             viewChatBottomc.setVisibility(GONE);
             llMore.setVisibility(VISIBLE);
         } else {
-            tv_ban.setVisibility(GONE);
+            tvBan.setVisibility(GONE);
             viewChatBottomc.setVisibility(VISIBLE);
             llMore.setVisibility(GONE);
         }
@@ -4351,10 +4378,6 @@ public class ChatActivity2 extends AppActivity implements IActionTagClickListene
         msgAction.groupInfo(toGid, true, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-//                if (response.body() == null)
-//                    return;
-
-//                groupInfo = response.body().getData();
                 groupInfo = msgDao.getGroup4Id(toGid);
                 if (groupInfo != null) {
                     contactIntimately = groupInfo.getContactIntimately();

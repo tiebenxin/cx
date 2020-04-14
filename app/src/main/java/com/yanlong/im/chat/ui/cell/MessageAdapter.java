@@ -14,6 +14,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.utils.BurnManager;
 import com.yanlong.im.utils.audio.AudioPlayManager;
@@ -59,6 +60,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
     //msg_id，Indext 记录计时器中12张图片的Index
     private Map<String, Integer> mTimersIndexs = new HashMap<>();
     private MsgDao msgDao = new MsgDao();
+    private IActionTagClickListener actionListener;
 
 
     public MessageAdapter(Context c, ICellEventListener l, boolean isG) {
@@ -66,11 +68,15 @@ public class MessageAdapter extends RecyclerView.Adapter {
         eventListener = l;
         mList = new ArrayList<>();
         isGroup = isG;
-
     }
 
     public MessageAdapter setCellFactory(FactoryChatCell factory) {
         factoryChatCell = factory;
+        return this;
+    }
+
+    public MessageAdapter setTagListener(IActionTagClickListener l) {
+        actionListener = l;
         return this;
     }
 

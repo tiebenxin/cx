@@ -100,9 +100,8 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
             return;
         }
         sessionsList = sessions;
-
-//        List<Session> temp = searchSessionBykey(sessionsList, MsgForwardActivity.searchKey);
-//        adapter.bindData(temp);
+        List<Session> temp = searchSessionBykey(sessionsList, MsgForwardActivity.searchKey);
+        adapter.bindData(temp);
         ui.listView.init(adapter);
     }
 
