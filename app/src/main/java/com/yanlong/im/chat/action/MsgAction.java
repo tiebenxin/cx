@@ -17,6 +17,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.MsgServer;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.SocketData;
@@ -48,20 +49,15 @@ public class MsgAction {
     }
 
 
-    public void groupCreate(final String nickname, final String name, final String avatar, final List<UserInfo> listDataTop, final CallBack<ReturnBean<Group>> callback) {
+    public void groupCreate(final String nickname, final String name, final String avatar, final List<IUser> listDataTop, final CallBack<ReturnBean<Group>> callback) {
         List<GroupUserInfo> listDataTop2 = new ArrayList<>();
-//        List<MemberUser> memberUsers = new ArrayList<>();
         for (int i = 0; i < listDataTop.size(); i++) {
-            UserInfo info = listDataTop.get(i);
+            IUser info = listDataTop.get(i);
             GroupUserInfo userInfo = new GroupUserInfo();
             userInfo.setUid(info.getUid() + "");
             userInfo.setNickname(info.getName());
             userInfo.setAvatar(info.getHead());
             listDataTop2.add(userInfo);
-//            MemberUser memberUser = MessageManager.getInstance().memberToUser(info);
-//            memberUsers.add(memberUser);
-
-
         }
         NetUtil.getNet().exec(server.groupCreate(nickname, name, avatar, gson.toJson(listDataTop2)), new CallBack<ReturnBean<Group>>() {
             @Override

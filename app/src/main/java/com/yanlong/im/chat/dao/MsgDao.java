@@ -33,6 +33,7 @@ import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
@@ -2215,7 +2216,7 @@ public class MsgDao {
             msgAllBean.setMsg_id(msgid);
             gid = gid == null ? "" : gid;
             msgAllBean.setGid(gid);
-            UserInfo userinfo = UserAction.getMyInfo();
+            IUser userinfo = UserAction.getMyInfo();
             msgAllBean.setFrom_uid(toUid);
             msgAllBean.setTo_uid(userinfo.getUid());
         }
@@ -2244,7 +2245,7 @@ public class MsgDao {
         MsgAllBean msgAllBean = new MsgAllBean();
         msgAllBean.setMsg_id(msgid);
         msgAllBean.setGid(gid);
-        UserInfo userinfo = UserAction.getMyInfo();
+        IUser userinfo = UserAction.getMyInfo();
         msgAllBean.setFrom_uid(toUid);
         msgAllBean.setTo_uid(userinfo.getUid());
         int survivaltime = new UserDao().getReadDestroy(toUid, gid);

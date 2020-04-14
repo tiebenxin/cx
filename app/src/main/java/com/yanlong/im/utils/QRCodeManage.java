@@ -28,6 +28,7 @@ import com.yanlong.im.chat.eventbus.EventMsgSync;
 import com.yanlong.im.chat.ui.AddGroupActivity;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.MyselfInfoActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
@@ -169,7 +170,7 @@ public class QRCodeManage {
                         boolean isNot = false;
                         Group bean = response.body().getData();
                         RealmList<MemberUser> users = bean.getUsers();
-                        UserInfo userInfo = new UserAction().getMyInfo();
+                        IUser userInfo = new UserAction().getMyInfo();
                         for (MemberUser user : users) {
                             if (userInfo.getUid().longValue() == user.getUid()) {
                                 isNot = true;

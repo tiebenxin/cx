@@ -17,6 +17,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
@@ -118,7 +119,7 @@ public class AddGroupActivity extends AppActivity {
 
 
     private void taskAddGroup(final String gid, final String inviter, String inviterName) {
-        UserInfo userInfo = UserAction.getMyInfo();
+        IUser userInfo = UserAction.getMyInfo();
         Long uid = userInfo.getUid();
         String path = userInfo.getHead();
         String name = userInfo.getName();

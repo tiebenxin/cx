@@ -37,6 +37,7 @@ import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.user.dao.UserDao;
@@ -131,7 +132,7 @@ public class MyFragment extends Fragment {
     public void refreshUser(EventRefreshUser event) {
         LogUtil.getLog().d("a=", MyFragment.class.getSimpleName() + "刷新用户信息");
         if (event.getInfo() != null) {
-            initData(event.getInfo());
+            initData((com.yanlong.im.user.bean.UserBean) event.getInfo());
         }
     }
 
@@ -219,7 +220,7 @@ public class MyFragment extends Fragment {
     }
 
 
-    private void initData(UserInfo userInfo) {
+    private void initData(com.yanlong.im.user.bean.UserBean userInfo) {
         if (userInfo != null) {
             if (imgHead != null) {
                 Glide.with(this).load(userInfo.getHead() + "").apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
@@ -284,7 +285,7 @@ public class MyFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        initData(UserAction.getMyInfo());
+        initData((com.yanlong.im.user.bean.UserBean)UserAction.getMyInfo());
     }
 
     @Override
@@ -319,7 +320,10 @@ public class MyFragment extends Fragment {
 
     //钱包
     private void taskWallet() {
-        UserInfo info = UserAction.getMyInfo();
+        IUser info = UserAction.getMyInfo();
+        if (info == null){
+            return;
+        }
         if (info != null && info.getLockCloudRedEnvelope() == 1) {//红包功能被锁定
             ToastUtil.show(getActivity(), "您的云红包功能已暂停使用，如有疑问请咨询官方客服号");
             return;
@@ -331,9 +335,8 @@ public class MyFragment extends Fragment {
                     return;
                 if (response.body().isOk()) {
                     String token = response.body().getData().getSign();
-                    UserInfo minfo = UserAction.getMyInfo();
                     if (getActivity() != null && !getActivity().isFinishing()) {
-                        JrmfWalletClient.intentWallet(getActivity(), "" + UserAction.getMyId(), token, minfo.getName(), minfo.getHead());
+                        JrmfWalletClient.intentWallet(getActivity(), "" + UserAction.getMyId(), token, info.getName(), info.getHead());
                     }
                 }
             }
@@ -404,7 +407,7 @@ public class MyFragment extends Fragment {
      * 请求->获取用户信息
      */
     private void httpGetUserInfo() {
-        UserInfo info = UserAction.getMyInfo();
+        IUser info = UserAction.getMyInfo();
         if (info == null) {
             return;
         }

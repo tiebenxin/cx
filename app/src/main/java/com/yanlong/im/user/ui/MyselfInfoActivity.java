@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventMyUserInfo;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
@@ -51,7 +52,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     private TextView mTvIdentity;
     private LinearLayout mViewHead;
     private HeadView mHeadView;
-    private UserInfo userInfo;
+    private IUser userInfo;
     private UserAction userAction;
     private ImageView mIvProductNumber;
     private int sex;

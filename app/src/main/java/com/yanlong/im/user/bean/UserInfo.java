@@ -16,7 +16,7 @@ import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
-public class UserInfo extends RealmObject implements Comparable<UserInfo> {
+public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser {
     @PrimaryKey
     private Long uid;
     @SerializedName("nickname")
@@ -63,7 +63,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private String sayHi;//待同意好友招呼语
     //通讯录存储数字的tag
     @Ignore
-    public static final String FRIEND_NUMBER_TAG ="Z1";
+    public static final String FRIEND_NUMBER_TAG = "Z1";
     private Long lastonline;
     private int activeType; //是否在线（0：离线|1：在线）
     private String describe; //用户描述

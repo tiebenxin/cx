@@ -2,12 +2,16 @@ package com.yanlong.im.utils;
 
 import androidx.annotation.Nullable;
 
+import com.google.gson.annotations.SerializedName;
+
 import net.cb.cb.library.utils.LogUtil;
 
 import io.realm.DynamicRealm;
 import io.realm.FieldAttribute;
 import io.realm.RealmMigration;
 import io.realm.RealmSchema;
+import io.realm.annotations.Ignore;
+import io.realm.annotations.PrimaryKey;
 
 // 1.建bean  继承 RealmObject 2.DaoMigration 写schema 升级updateVxx  3. DaoUtil 升级dbVer
 public class DaoMigration implements RealmMigration {
@@ -130,6 +134,10 @@ public class DaoMigration implements RealmMigration {
             }
             if (newVersion > oldVersion && oldVersion == 27) {
                 updateV28(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 28) {
+                updateV29(schema);
                 oldVersion++;
             }
         }
@@ -482,6 +490,49 @@ public class DaoMigration implements RealmMigration {
     private void updateV28(RealmSchema schema) {
         schema.get("MsgAllBean")
                 .addField("isLocal", int.class);
+    }
+
+    private void updateV29(RealmSchema schema) {
+        schema.create("UserBean")
+                .addField("uid", Long.class, FieldAttribute.PRIMARY_KEY)
+                .addField("name", String.class)
+                .addField("mkName", String.class)
+                .addField("sex", int.class)
+                .addField("imid", String.class)
+                .addField("tag", String.class)
+                .addField("head", String.class)
+                .addField("uType", Integer.class)
+                .addField("phone", String.class)
+                .addField("oldimid", String.class)
+                .addField("neteaseAccid", String.class)
+                .addField("vip", String.class)
+                .addField("disturb", Integer.class)
+                .addField("istop", Integer.class)
+                .addField("phonefind", Integer.class)
+                .addField("imidfind", Integer.class)
+                .addField("friendvalid", Integer.class)
+                .addField("groupvalid", Integer.class)
+                .addField("messagenotice", Integer.class)
+                .addField("displaydetail", Integer.class)
+                .addField("stat", Integer.class)
+                .addField("authStat", Integer.class)
+                .addField("screenshotNotification", int.class)
+                .addField("masterRead", int.class)
+                .addField("myRead", int.class)
+                .addField("friendRead", int.class)
+                .addField("emptyPassword", boolean.class)
+                .addField("sayHi", String.class)
+                .addField("lastonline", Long.class)
+                .addField("activeType", int.class)
+                .addField("describe", String.class)
+                .addField("lockCloudRedEnvelope", int.class)
+                .addField("destroy", int.class)
+                .addField("destroyTime", long.class)
+                .addField("joinType", int.class)
+                .addField("joinTime", String.class)
+                .addField("inviter", String.class)
+                .addField("inviterName", String.class)
+                .addField("bankReqSignKey", String.class);
     }
 
 

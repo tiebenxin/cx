@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 
@@ -35,7 +36,7 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
     private LinearLayout mViewBlacklist;
     private HeadView mHeadView;
     private UserAction userAction;
-    private UserInfo userInfo;
+    private UserBean userInfo;
     private UserDao userDao;
     private long uid;
     private int isClick;
@@ -90,7 +91,7 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
         userDao = new UserDao();
         userAction = new UserAction();
         uid = UserAction.getMyId();
-        userInfo = UserAction.getMyInfo();
+        userInfo = (UserBean) UserAction.getMyInfo();
         if (userInfo.getPhonefind() == 0) {
             mCbFindPhone.setChecked(false);
         } else {
@@ -178,10 +179,10 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
                 }
                 if (userInfo.getPhonefind() == 0) {
                     userInfo.setPhonefind(1);
-                    userDao.updateUserinfo(userInfo);
+                    userDao.updateUserBean(userInfo);
                 } else {
                     userInfo.setPhonefind(0);
-                    userDao.updateUserinfo(userInfo);
+                    userDao.updateUserBean(userInfo);
                 }
             }
         });
@@ -196,10 +197,10 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
                 }
                 if (userInfo.getImidfind() == 0) {
                     userInfo.setImidfind(1);
-                    userDao.updateUserinfo(userInfo);
+                    userDao.updateUserBean(userInfo);
                 } else {
                     userInfo.setImidfind(0);
-                    userDao.updateUserinfo(userInfo);
+                    userDao.updateUserBean(userInfo);
                 }
             }
         });
@@ -216,10 +217,10 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
 
                 if (userInfo.getFriendvalid() == 0) {
                     userInfo.setFriendvalid(1);
-                    userDao.updateUserinfo(userInfo);
+                    userDao.updateUserBean(userInfo);
                 } else {
                     userInfo.setFriendvalid(0);
-                    userDao.updateUserinfo(userInfo);
+                    userDao.updateUserBean(userInfo);
                 }
 
             }
@@ -237,10 +238,10 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
                 EventBus.getDefault().post(new EventIsShowRead());
                 if (userInfo.getMasterRead() == 0) {
                     userInfo.setMasterRead(1);
-                    userDao.updateUserinfo(userInfo);
+                    userDao.updateUserBean(userInfo);
                 } else {
                     userInfo.setMasterRead(0);
-                    userDao.updateUserinfo(userInfo);
+                    userDao.updateUserBean(userInfo);
                 }
             }
         });

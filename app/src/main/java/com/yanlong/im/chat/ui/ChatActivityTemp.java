@@ -151,6 +151,7 @@ import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.SelectUserActivity;
@@ -1800,7 +1801,7 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
         boolean isVip = false;
         boolean isSystemUser = false;
         if (!isGroup) {
-            UserInfo userInfo = UserAction.getMyInfo();
+            IUser userInfo = UserAction.getMyInfo();
             if (userInfo != null && IS_VIP.equals(userInfo.getVip())) {
                 isVip = true;
             }
@@ -4372,7 +4373,7 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
     }
 
     private void clickVoiceOrVideoCall(MsgAllBean msgbean) {
-        UserInfo userInfo = UserAction.getMyInfo();
+        IUser userInfo = UserAction.getMyInfo();
         if (userInfo != null && IS_VIP.equals(userInfo.getVip())) {
             if (msgbean.getP2PAuVideoMessage().getAv_type() == MsgBean.AuVideoType.Audio.getNumber()) {
                 gotoVideoActivity(AVChatType.AUDIO.getValue());
@@ -5456,7 +5457,7 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
      * 发红包
      */
     private void taskPayRb() {
-        UserInfo info = UserAction.getMyInfo();
+        IUser info = UserAction.getMyInfo();
         if (info != null && info.getLockCloudRedEnvelope() == 1) {//红包功能被锁定
             ToastUtil.show(this, "您的云红包功能已暂停使用，如有疑问请咨询官方客服号");
             return;
@@ -5521,11 +5522,11 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
                         return;
                     }
                     if (isGroup()) {
-                        UserInfo minfo = UserAction.getMyInfo();
+                        IUser minfo = UserAction.getMyInfo();
                         JrmfRpClient.openGroupRp(ChatActivityTemp.this, "" + minfo.getUid(), token,
                                 minfo.getName(), minfo.getHead() == null ? "" : minfo.getHead(), rbid, callBack);
                     } else {
-                        UserInfo minfo = UserAction.getMyInfo();
+                        IUser minfo = UserAction.getMyInfo();
                         JrmfRpClient.openSingleRp(ChatActivityTemp.this, "" + minfo.getUid(), token,
                                 minfo.getName(), minfo.getHead() == null ? "" : minfo.getHead(), rbid, callBack);
                     }
@@ -5548,7 +5549,7 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
                 if (response.body().isOk()) {
                     SignatureBean sign = response.body().getData();
                     String token = sign.getSign();
-                    UserInfo minfo = UserAction.getMyInfo();
+                    IUser minfo = UserAction.getMyInfo();
 
                     JrmfRpClient.openTransDetail(ChatActivityTemp.this, "" + minfo.getUid(), token,
                             rbid, new TransAccountCallBack() {
@@ -5590,7 +5591,7 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
                     }
                     SignatureBean sign = response.body().getData();
                     String token = sign.getSign();
-                    UserInfo minfo = UserAction.getMyInfo();
+                    IUser minfo = UserAction.getMyInfo();
                     JrmfRpClient.openRpDetail(ChatActivityTemp.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead() == null ? "" : minfo.getHead());
                 }
             }
@@ -5820,7 +5821,7 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
         int friendRead = userInfo.getFriendRead();
         int myRead = userInfo.getMyRead();
 
-        UserInfo myUserInfo = userDao.myInfo();
+        IUser myUserInfo = userDao.myInfo();
         int masterRead = myUserInfo.getMasterRead();
         if (friendMasterRead == 1 && friendRead == 1 && myRead == 1 && masterRead == 1) {
             return true;
