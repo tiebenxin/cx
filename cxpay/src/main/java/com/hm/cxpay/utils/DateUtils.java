@@ -154,4 +154,21 @@ public class DateUtils {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return sdf.format(new Date());
     }
+    /**
+     * 判断时间间隔是否在X小时以内
+     *
+     * @param date1 上次时间
+     * @param date2 本次时间
+     * @param hour 目标小时数
+     * @return boolean
+     * @throws Exception
+     */
+    public static boolean isInHours(long date1, long date2, double hour) {
+        long diff = date2 - date1;
+        if (diff < hour * HOUR) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
