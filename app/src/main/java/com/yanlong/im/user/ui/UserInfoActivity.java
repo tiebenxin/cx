@@ -24,7 +24,7 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.ui.ChatActivity;
+import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.chat.ui.groupmanager.GroupMemPowerSetActivity;
 import com.yanlong.im.chat.ui.groupmanager.SetupGroupMemberLableActivity;
 import com.yanlong.im.user.action.UserAction;
