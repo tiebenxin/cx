@@ -10,7 +10,6 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.repository.MainRepository;
 import com.yanlong.im.user.bean.UserInfo;
-import com.yanlong.im.utils.DaoUtil;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -100,28 +99,6 @@ public class MainViewModel extends ViewModel {
         repository.updateSessionDetail(allSids.toArray(new String[allSids.size()]));
     }
 
-    /**
-     * 删除指定项数据
-     *
-     * @param sid
-     */
-    public void deleteItem(String sid) {
-        try {
-            if (sessionMoresPositions.containsKey(sid)) {
-                int index = sessionMoresPositions.get(sid);
-                if (index >= 0 && index < sessionMores.size()) {
-                    //删除session详情
-                    sessionMores.get(index).deleteFromRealm();
-                }
-                //删除位置信息
-                sessionMoresPositions.remove(sid);
-            }
-            repository.commitTransaction();
-        } catch (Exception e) {
-            e.printStackTrace();
-            DaoUtil.reportException(e);
-        }
-    }
 
     public String getSessionJson() {
         return sessions == null ? "" : repository.getSessionJson(sessions);

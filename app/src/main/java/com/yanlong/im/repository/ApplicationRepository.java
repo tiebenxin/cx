@@ -1,6 +1,8 @@
 package com.yanlong.im.repository;
 
 
+import android.text.TextUtils;
+
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.data.local.ApplicationLocalDataSource;
 import com.yanlong.im.user.bean.UserInfo;
@@ -100,14 +102,19 @@ public class ApplicationRepository {
                         return;
                     }
                 }
-
-                /*****删除了数据，对于删除，必须以相反的顺序通知适配器。*******************************************************************************************/
-                {
+                //更新位置信息
+                if( changeSet.getDeletionRanges().length>0|| changeSet.getInsertionRanges().length>0){
+                    sessionSidPositons.clear();
                     sessionIndex = 0;
                     for (Session session : sessions) {
                         sessionSidPositons.put(session.getSid(),sessionIndex);
                         sessionIndex++;
                     }
+                }
+
+                /*****删除了数据，对于删除，必须以相反的顺序通知适配器。*******************************************************************************************/
+                {
+
 
                     OrderedCollectionChangeSet.Range[] deletions = changeSet.getDeletionRanges();
                     ArrayList<Integer> positions = new ArrayList<>();
@@ -119,7 +126,7 @@ public class ApplicationRepository {
                         }
 //                    notifyItemRangeRemoved(range.startIndex, range.length);
                     }
-                    sessionSidPositons.clear();
+
 
                     if (positions.size() > 0) {
                         //1.删除-不需要更新detail
@@ -132,11 +139,7 @@ public class ApplicationRepository {
 
                 /*****增加了数据*******************************************************************************************/
                 {
-                    sessionIndex = 0;
-                    for (Session session : sessions) {
-                        sessionSidPositons.put(session.getSid(),sessionIndex);
-                        sessionIndex++;
-                    }
+
                     OrderedCollectionChangeSet.Range[] insertions = changeSet.getInsertionRanges();
                     ArrayList<String> sids = new ArrayList<String>();
                     ArrayList<Integer> positions = new ArrayList<>();
@@ -232,11 +235,32 @@ public class ApplicationRepository {
             localDataSource.beginTransaction();
             session.deleteFromRealm();
             localDataSource.commitTransaction();
-            localDataSource.deleteAllMsg(uid, gid);
+            localDataSource.deleteAllMsg(sid,uid, gid);
         }
-
     }
 
+    public void deleteSession(Long uid,String gid){
+            if(TextUtils.isEmpty(gid)){
+                Session session=sessions.where().equalTo("from_uid",uid).findFirst();
+                if(session!=null&&!TextUtils.isEmpty(session.getSid())){
+                    String sid=session.getSid();
+                    localDataSource.beginTransaction();
+                    session.deleteFromRealm();
+                    localDataSource.commitTransaction();
+                    localDataSource.deleteAllMsg(sid,uid, gid);
+                }
+            }else{
+                Session session=sessions.where().equalTo("gid",gid).findFirst();
+                if(session!=null&&!TextUtils.isEmpty(session.getSid())) {
+                    String sid = session.getSid();
+                    localDataSource.beginTransaction();
+                    session.deleteFromRealm();
+                    localDataSource.commitTransaction();
+                    localDataSource.deleteAllMsg(sid, uid, gid);
+                }
+            }
+
+    }
 
     public void onDestory() {
         sessions.removeAllChangeListeners();

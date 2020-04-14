@@ -369,6 +369,7 @@ public class MsgMainFragment extends Fragment {
     private OrderedRealmCollectionChangeListener sessionMoresListener = new OrderedRealmCollectionChangeListener<RealmResults<SessionDetail>>() {
         @Override
         public void onChange(RealmResults<SessionDetail> sessionDetails, OrderedCollectionChangeSet changeSet) {
+
 //            /***更新位置信息*********************************************************/
             viewModel.sessionMoresPositions.clear();
             for (int i = 0; i < viewModel.sessionMores.size(); i++) {
@@ -384,24 +385,9 @@ public class MsgMainFragment extends Fragment {
             if (changeSet.getInsertionRanges().length > 0) {
                 mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
             }
-//            /*****删除了数据，对于删除，必须以相反的顺序通知适配器。*******************************************************************************************/
-//            if (changeSet.getDeletionRanges().length > 0) {
-//                mtListView.getListView().getAdapter().notifyDataSetChanged();
-//            }
-            /*****删除了数据，对于删除，必须以相反的顺序通知适配器。*******************************************************************************************/
-            OrderedCollectionChangeSet.Range[] deletions = changeSet.getDeletionRanges();
-            ArrayList<String> sids = new ArrayList<>();
-            for (int index = deletions.length - 1; index >= 0; index--) {
-                OrderedCollectionChangeSet.Range range = deletions[index];
-                for (int i = 0; i < range.length; i++) {
-                    int position = range.startIndex + i;
-                    String sid=sessionDetails.get(position).getSid();
-                    if(MyAppLication.INSTANCE().repository.sessionSidPositons.containsKey(sid)){
-                        int startId=MyAppLication.INSTANCE().repository.sessionSidPositons.get(sid);
-                        mtListView.getListView().getAdapter().notifyItemRangeRemoved(startId+1, range.length);
-                    }
-
-                }
+            /*****删除了数据，*******************************************************************************************/
+            if (changeSet.getDeletionRanges().length > 0) {
+                mtListView.getListView().getAdapter().notifyDataSetChanged();
             }
             /*****更新了数据*******************************************************************************************/
             OrderedCollectionChangeSet.Range[] modifications = changeSet.getChangeRanges();
@@ -431,8 +417,6 @@ public class MsgMainFragment extends Fragment {
             public void onChanged(@Nullable String sid) {
                 //删除session
                 MyAppLication.INSTANCE().repository.deleteSession(sid);
-                //删除sessionDetail
-                viewModel.deleteItem(sid);
             }
         });
         viewModel.isNeedCloseSwipe.observe(this, new Observer<Boolean>() {

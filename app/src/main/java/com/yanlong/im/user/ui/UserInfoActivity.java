@@ -15,6 +15,7 @@ import com.example.nim_lib.config.Preferences;
 import com.google.gson.Gson;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
@@ -753,9 +754,8 @@ public class UserInfoActivity extends AppActivity {
                     userDao.updateReadDestroy(id, 0);
                     // 删除好友后，取消置顶状态
                     msgDao.updateUserSessionTop(id, 0);
-
+                    MyAppLication.INSTANCE().repository.deleteSession(id,"");
                     MessageManager.getInstance().setMessageChange(true);
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.DELETE, null);
                     notifyRefreshRoster(id, CoreEnum.ERosterAction.REMOVE_FRIEND);
                     EventBus.getDefault().post(new CloseActivityEvent("ChatInfoActivity,GroupInfoActivity"));
                     EventBus.getDefault().post(new EventExitChat());

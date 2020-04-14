@@ -7,6 +7,7 @@ import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.BurnManager;
@@ -159,12 +160,15 @@ public class ApplicationLocalDataSource {
      * @param uid
      * @param gid
      */
-    public void deleteAllMsg(Long uid, String gid) {
+    public void deleteAllMsg(String sid,Long uid, String gid) {
         //异步线程删除
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 try {
+                    //删除某个session detial
+                    realm.where(SessionDetail.class).equalTo("sid",sid).findFirst().deleteFromRealm();
+                    //删除某个session所有消息
                     RealmResults<MsgAllBean> list;
                     if (StringUtil.isNotNull(gid)) {
                         list = realm.where(MsgAllBean.class)
@@ -204,8 +208,8 @@ public class ApplicationLocalDataSource {
             public void onError(Throwable error) {
             }
         });
-
     }
+
 
 
     public void beginTransaction(){
