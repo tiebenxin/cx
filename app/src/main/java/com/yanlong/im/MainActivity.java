@@ -272,7 +272,8 @@ public class MainActivity extends AppActivity {
         }
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
     }
-    private ApplicationRepository.SessionChangeListener sessionChangeListener  = new ApplicationRepository.SessionChangeListener() {
+
+    private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
         @Override
         public void init(RealmResults<Session> sessions, List<String> sids) {
             updateUnReadCount();
@@ -298,9 +299,8 @@ public class MainActivity extends AppActivity {
 
     /**
      * 更新底部未读数
-     *
      */
-    private void updateUnReadCount(){
+    private void updateUnReadCount() {
         LogUtil.getLog().i("未读数", "onChange");
         RealmResults<Session> sessionList = MyAppLication.INSTANCE().getSessions().where().greaterThan("unread_count", 0)
                 .limit(100).findAll();
@@ -416,7 +416,7 @@ public class MainActivity extends AppActivity {
             public void onTabReselected(TabLayout.Tab tab) {
                 //双击第一个TAB采用此方法监听 (不再重写监听器)
                 //双击消息，小于0.5s不响应，大于0.5s响应
-                if(tab.getPosition()==0){
+                if (tab.getPosition() == 0) {
                     long now = System.currentTimeMillis();
                     if ((now - firstPressTime) > 500) {
                         firstPressTime = now;
@@ -604,7 +604,7 @@ public class MainActivity extends AppActivity {
     public void eventNetStatus(EventNetStatus event) {
         EventFactory.EventNetStatus eventNetStatus = new EventFactory.EventNetStatus(event.getStatus());
         EventBus.getDefault().post(eventNetStatus);
-        System.out.println(MainActivity.class.getSimpleName() + "---" + NetWorkUtils.getLocalIpAddress(this));
+        reportIP(NetWorkUtils.getLocalIpAddress(this));
     }
 
     @Override
@@ -1360,7 +1360,7 @@ public class MainActivity extends AppActivity {
 
     }
 
-    public boolean check() {
+    public final boolean check() {
         TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
         if (token == null || TextUtils.isEmpty(token.getBankReqSignKey())) {
             return false;
@@ -1369,7 +1369,7 @@ public class MainActivity extends AppActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void parseFile(File file) {
+    public final void parseFile(File file) {
         System.out.println("PC同步--2--文件" + file.length());
         byte[] bytes = FileManager.getInstance().readFileBytes(file);
         if (bytes != null) {
@@ -1388,9 +1388,32 @@ public class MainActivity extends AppActivity {
         }
     }
 
-    public void updateMsgUnread(int num) {
+    public final void updateMsgUnread(int num) {
         LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + num);
         sbmsg.setNum(num, true);
         BadgeUtil.setBadgeCount(getApplicationContext(), num);
+    }
+
+    //上报IP
+    private void reportIP(String ip) {
+//        LogUtil.getLog().i("MainActivity", "上报IP--" + ip);
+        if (TextUtils.isEmpty(ip)) {
+            return;
+        }
+        long time = SpUtil.getSpUtil().getSPValue("reportIPTime", 0);
+        if (time <= 0 || !DateUtils.isInHours(time, System.currentTimeMillis(), 4)) {
+            userAction.reportIP(ip, new CallBack<ReturnBean>(false) {
+                @Override
+                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                    super.onResponse(call, response);
+                    if (response != null && response.body() != null && response.body().isOk()) {
+                        SpUtil.getSpUtil().putSPValue("reportIPTime", System.currentTimeMillis());
+                    }
+//                    if (response != null && response.body() != null) {
+//                        LogUtil.getLog().i("MainActivity", "上报IP--" + response.body().getMsg());
+//                    }
+                }
+            });
+        }
     }
 }

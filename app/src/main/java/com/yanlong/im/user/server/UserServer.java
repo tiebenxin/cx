@@ -213,4 +213,8 @@ public interface UserServer {
 
     @POST("/user/cancel_login")
     Call<ReturnBean> sweepCodeLoginCancel(@Query("code") String code);
+
+    @POST("/user/report-ip-variation")
+    @FormUrlEncoded
+    Call<ReturnBean> reportIPChange(@Field("ip") String code);
 }

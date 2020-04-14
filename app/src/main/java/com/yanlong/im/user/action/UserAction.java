@@ -915,12 +915,13 @@ public class UserAction {
 
     /**
      * 二维码登录 - 确认登录
+     *
      * @param code
-     * @param sync  1 同步 0 不同步
+     * @param sync     1 同步 0 不同步
      * @param callback
      */
-    public void sweepCodeLoginSure(String code,String sync, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.sweepCodeLoginSure(code,sync), callback);
+    public void sweepCodeLoginSure(String code, String sync, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.sweepCodeLoginSure(code, sync), callback);
     }
 
     /**
@@ -929,5 +930,14 @@ public class UserAction {
     public void sweepCodeLoginCancel(String code, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.sweepCodeLoginCancel(code), callback);
     }
+
+
+    /**
+     * 上报IP
+     */
+    public void reportIP(String ip, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.reportIPChange(ip), callback);
+    }
+
 
 }
