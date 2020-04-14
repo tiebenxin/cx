@@ -1388,7 +1388,7 @@ public class MainActivity extends AppActivity {
         if (TextUtils.isEmpty(ip)) {
             return;
         }
-        long time = SpUtil.getSpUtil().getSPValue("reportIPTime", 0);
+        long time = SpUtil.getSpUtil().getSPValue("reportIPTime", 0L);
         if (time <= 0 || !DateUtils.isInHours(time, System.currentTimeMillis(), 4)) {
             userAction.reportIP(ip, new CallBack<ReturnBean>(false) {
                 @Override
