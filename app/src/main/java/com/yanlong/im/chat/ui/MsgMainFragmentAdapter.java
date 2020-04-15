@@ -139,15 +139,15 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     SpannableString style = new SpannableString("[红包发送失败]" + info);
                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
                     style.setSpan(protocolColorSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    showMessage(holder.txtInfo, info, style, msginfo == null && TextUtils.isEmpty(bean.getDraft()));
+                    showMessage(holder.txtInfo, info, style);
                 } else {
                     if (StringUtil.isNotNull(bean.getDraft())) {
                         SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
                         ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
                         style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        showMessage(holder.txtInfo, bean.getDraft(), style, msginfo == null && TextUtils.isEmpty(bean.getDraft()));
+                        showMessage(holder.txtInfo, bean.getDraft(), style);
                     } else {
-                        showMessage(holder.txtInfo, info, null, msginfo == null && TextUtils.isEmpty(bean.getDraft()));
+                        showMessage(holder.txtInfo, info, null);
                     }
                 }
                 headList.add(icon);
@@ -193,7 +193,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                             SpannableString style = new SpannableString("[有人@我]" + info);
                             ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
                             style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            showMessage(holder.txtInfo, info, style, msginfo == null && TextUtils.isEmpty(bean.getDraft()));
+                            showMessage(holder.txtInfo, info, style);
                             //原2020/4/1前
 //                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
 //                                SpannableString style = new SpannableString("[有人@我]" + info);
@@ -207,7 +207,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 //                                showMessage(holder.txtInfo, info, style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
 //                            }
                         } else {
-                            showMessage(holder.txtInfo, info, null, msginfo == null && TextUtils.isEmpty(bean.getDraft()));
+                            showMessage(holder.txtInfo, info, null);
                         }
                         break;
                     case 2:
@@ -215,9 +215,9 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                             SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
                             ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
                             style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            showMessage(holder.txtInfo, bean.getDraft(), style, msginfo == null && TextUtils.isEmpty(bean.getDraft()));
+                            showMessage(holder.txtInfo, bean.getDraft(), style);
                         } else {
-                            showMessage(holder.txtInfo, info, null, msginfo == null && TextUtils.isEmpty(bean.getDraft()));
+                            showMessage(holder.txtInfo, info, null);
 
                         }
                         break;
@@ -225,10 +225,10 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                         SpannableString style = new SpannableString("[红包发送失败]" + info);
                         ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
                         style.setSpan(protocolColorSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        showMessage(holder.txtInfo, info, style, msginfo == null && TextUtils.isEmpty(bean.getDraft()));
+                        showMessage(holder.txtInfo, info, style);
                         break;
                     default:
-                        showMessage(holder.txtInfo, info, null, msginfo == null && TextUtils.isEmpty(bean.getDraft()));
+                        showMessage(holder.txtInfo, info, null);
                         break;
 
                 }
@@ -321,21 +321,17 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
      * @param message
      * @param spannableString
      */
-    protected void showMessage(TextView txtInfo, String message, SpannableString spannableString, boolean msgIsClear) {
-        if (msgIsClear) {
-            txtInfo.setText("");
-        } else {
-            if (spannableString == null) {
+    protected void showMessage(TextView txtInfo, String message, SpannableString spannableString) {
+        if (spannableString == null) {
 //                if (StringUtil.isNotNull(message) && message.startsWith("@所有人  ")) {
 //                    message = message.replace("@所有人  ", "");
 //                }
-                spannableString = ExpressionUtil.getExpressionString(context, ExpressionUtil.DEFAULT_SMALL_SIZE, message);
-            } else {
-                spannableString = ExpressionUtil.getExpressionString(context, ExpressionUtil.DEFAULT_SMALL_SIZE, spannableString);
-            }
-            txtInfo.setText(spannableString, TextView.BufferType.SPANNABLE);
-//            txtInfo.invalidate();
+            spannableString = ExpressionUtil.getExpressionString(context, ExpressionUtil.DEFAULT_SMALL_SIZE, message);
+        } else {
+            spannableString = ExpressionUtil.getExpressionString(context, ExpressionUtil.DEFAULT_SMALL_SIZE, spannableString);
         }
+        txtInfo.setText(spannableString, TextView.BufferType.SPANNABLE);
+//            txtInfo.invalidate();
     }
 
     /**

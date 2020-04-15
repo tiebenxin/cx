@@ -101,6 +101,7 @@ public class BurnManager {
                     //复制一份，为了聊天界面的更新-非数据库对象
                     List<MsgAllBean> toDeletedResultsTemp = realm.copyFromRealm(toDeletedResults);
                     for(MsgAllBean msg:toDeletedResults){
+                        updateDetailListener.updateLastSecondDetail(realm,msg.getGid(),msg.getFrom_uid(),msg.getMsg_id());
                         if(TextUtils.isEmpty(msg.getGid())){
                             toDeletedFriend.add(msg.getFrom_uid());
                         }else{
@@ -120,11 +121,11 @@ public class BurnManager {
             }, new Realm.Transaction.OnSuccess() {
                 @Override
                 public void onSuccess() {
-                    if (toDeletedGroup.size()>0||toDeletedFriend.size()>0) {//有数据删除
-                        //更新Detial-自动更新主页
-                        if(updateDetailListener!=null)updateDetailListener.updateDetails(toDeletedGroup.toArray(new String[toDeletedGroup.size()]),
-                                toDeletedFriend.toArray(new Long[toDeletedFriend.size()]));
-                    }
+//                    if (toDeletedGroup.size()>0||toDeletedFriend.size()>0) {//有数据删除
+////                        //更新Detial-自动更新主页
+////                        if(updateDetailListener!=null)updateDetailListener.updateDetails(toDeletedGroup.toArray(new String[toDeletedGroup.size()]),
+////                                toDeletedFriend.toArray(new Long[toDeletedFriend.size()]));
+////                    }
                     startBurnAlarm();
                 }
             });
@@ -161,7 +162,10 @@ public class BurnManager {
         toBurnMessages = null;
     }
     public interface UpdateDetailListener{
+        //主线程中调用
         void updateDetails(String[] gids,Long[] fromUids);
+        //异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
+        void updateLastSecondDetail(Realm realm, String gid, Long fromUid,String mgsId);
     }
 
 }
