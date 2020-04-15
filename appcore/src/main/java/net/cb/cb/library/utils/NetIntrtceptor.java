@@ -117,7 +117,7 @@ public class NetIntrtceptor implements Interceptor {
                 CrashReport.postCatchedException(new BuglyException());
                 EventBus.getDefault().post(new EventLoginOut());
                 if (headers != null) {
-                    LogUtil.writeLog("网络请求401" + "--token=" + headers.get("X-Access-Token"));
+                    LogUtil.writeLog("网络请求401" + "--token=" + headers.get("X-Access-Token") + "--time=" + System.currentTimeMillis());
                 }
                 break;
             case 403:
@@ -129,7 +129,7 @@ public class NetIntrtceptor implements Interceptor {
                 CrashReport.postCatchedException(new BuglyException());
                 EventBus.getDefault().post(new EventLoginOut());
                 if (headers != null) {
-                    LogUtil.writeLog("网络请求403" + "--token=" + headers.get("X-Access-Token"));
+                    LogUtil.writeLog("网络请求403" + "--token=" + headers.get("X-Access-Token") + "--time=" + System.currentTimeMillis());
                 }
                 break;
             case 404:
