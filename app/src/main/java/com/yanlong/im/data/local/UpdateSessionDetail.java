@@ -113,26 +113,6 @@ public class UpdateSessionDetail {
         }
     }
 
-    public void update(String[] gids, Long[] fromUids) {
-        realm.executeTransactionAsync(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                if (gids.length > 0) {
-                    RealmResults<Session> groupSessions = realm.where(Session.class).in("gid", gids).findAll();
-                    for (Session session : groupSessions) {
-                        synchGroupMsgSession(realm, session, null);
-                    }
-                }
-                if (fromUids.length > 0) {
-                    RealmResults<Session> friendSessions = realm.where(Session.class).in("from_uid", fromUids).findAll();
-                    for (Session session : friendSessions) {
-                        synchFriendMsgSession(realm, session, null);
-                    }
-                }
-            }
-        });
-    }
-
     /**
      * //异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
      *

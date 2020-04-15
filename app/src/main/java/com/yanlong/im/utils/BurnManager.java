@@ -5,7 +5,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.text.TextUtils;
 
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.BurnBroadcastReceiver;
@@ -15,7 +14,6 @@ import com.yanlong.im.chat.manager.MessageManager;
 
 import net.cb.cb.library.CoreEnum;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.OrderedCollectionChangeSet;
@@ -88,8 +86,6 @@ public class BurnManager {
      */
     public void notifyBurnQuene() {
         if (toBurnMessages.size() > 0) {
-            List<String> toDeletedGroup = new ArrayList<>();
-            List<Long> toDeletedFriend= new ArrayList<>();
             //异步删除
             realm.executeTransactionAsync(new Realm.Transaction() {
                 @Override
@@ -102,11 +98,6 @@ public class BurnManager {
                     List<MsgAllBean> toDeletedResultsTemp = realm.copyFromRealm(toDeletedResults);
                     for(MsgAllBean msg:toDeletedResults){
                         updateDetailListener.updateLastSecondDetail(realm,msg.getGid(),msg.getFrom_uid(),msg.getMsg_id());
-                        if(TextUtils.isEmpty(msg.getGid())){
-                            toDeletedFriend.add(msg.getFrom_uid());
-                        }else{
-                            toDeletedGroup.add(msg.getGid());
-                        }
                     }
                     if (toDeletedResults.size() > 0) {
                         //批量删除 已到阅后即焚时间
@@ -121,11 +112,6 @@ public class BurnManager {
             }, new Realm.Transaction.OnSuccess() {
                 @Override
                 public void onSuccess() {
-//                    if (toDeletedGroup.size()>0||toDeletedFriend.size()>0) {//有数据删除
-////                        //更新Detial-自动更新主页
-////                        if(updateDetailListener!=null)updateDetailListener.updateDetails(toDeletedGroup.toArray(new String[toDeletedGroup.size()]),
-////                                toDeletedFriend.toArray(new Long[toDeletedFriend.size()]));
-////                    }
                     startBurnAlarm();
                 }
             });
@@ -162,8 +148,6 @@ public class BurnManager {
         toBurnMessages = null;
     }
     public interface UpdateDetailListener{
-        //主线程中调用
-        void updateDetails(String[] gids,Long[] fromUids);
         //异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
         void updateLastSecondDetail(Realm realm, String gid, Long fromUid,String mgsId);
     }
