@@ -571,7 +571,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         //关闭窗口，避免内存溢出
         dismissPop();
         //保存退出即焚消息
-        MyAppLication.INSTANCE().repository.saveExitSurvivalMsg(toGid,toUId);
+        MyAppLication.INSTANCE().repository.saveExitSurvivalMsg(toGid, toUId);
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
@@ -3549,17 +3549,19 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 break;
         }
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && type != ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
-            if (msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue() && msgAllBean.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE && !isAtBanedCancel(msgAllBean)) {
-                if (System.currentTimeMillis() - msgAllBean.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
-                    boolean isExist = false;
-                    for (OptionMenu optionMenu : menus) {
-                        if (optionMenu.getTitle().equals("撤回")) {
-                            isExist = true;
+            if (!isGroupBanCancel()) {
+                if (msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid().longValue() == UserAction.getMyId().longValue() && msgAllBean.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE && !isAtBanedCancel(msgAllBean)) {
+                    if (System.currentTimeMillis() - msgAllBean.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
+                        boolean isExist = false;
+                        for (OptionMenu optionMenu : menus) {
+                            if (optionMenu.getTitle().equals("撤回")) {
+                                isExist = true;
+                            }
                         }
-                    }
 
-                    if (!isExist) {
-                        menus.add(new OptionMenu("撤回"));
+                        if (!isExist) {
+                            menus.add(new OptionMenu("撤回"));
+                        }
                     }
                 }
             }
@@ -4600,7 +4602,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         boolean isMe = msgbean.isMe();
         //单聊 自己发的消息，需等待对方已读
         boolean checkNotGroupAndNotRead = !isGroup && isMe && msgbean.getRead() != 1;
-        if (msgbean == null || msgbean.getEndTime()>0|| msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL
+        if (msgbean == null || msgbean.getEndTime() > 0 || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL
                 || checkNotGroupAndNotRead) {
             return;
         }
@@ -5586,6 +5588,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
             }
         }
+    }
+
+    //群聊是否可以cancel
+    private boolean isGroupBanCancel() {
+        if (isGroup()) {
+            if (groupInfo != null && groupInfo.getStat() != ChatEnum.EGroupStatus.NORMAL) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

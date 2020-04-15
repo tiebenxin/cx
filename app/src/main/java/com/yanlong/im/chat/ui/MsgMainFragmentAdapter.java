@@ -32,6 +32,7 @@ import com.yanlong.im.wight.avatar.MultiImageView;
 
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.EllipsizedTextView;
 import net.cb.cb.library.view.StrikeButton;
 
@@ -262,6 +263,9 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             holder.viewIt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (ViewUtils.isFastDoubleClick()) {
+                        return;
+                    }
                     context.startActivity(new Intent(context, ChatActivity.class)
                             .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
                             .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
