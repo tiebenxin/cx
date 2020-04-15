@@ -140,6 +140,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     if (config.isCompress && pictureType.startsWith(PictureConfig.IMAGE)) {
                         compressImage(medias);
                     } else {
+                        RxBus.getDefault().post(new EventEntity(PictureConfig.CLOSE_PREVIEW_FLAG));
                         onResult(medias);
                     }
                 }

@@ -41,6 +41,7 @@ public class SimpleFragmentAdapter extends PagerAdapter {
     private List<LocalMedia> images;
     private Context mContext;
     private OnCallBackActivity onBackPressed;
+    private ShowEditListner listner;
 
     public interface OnCallBackActivity {
         /**
@@ -55,6 +56,11 @@ public class SimpleFragmentAdapter extends PagerAdapter {
         this.images = images;
         this.mContext = context;
         this.onBackPressed = onBackPressed;
+    }
+
+
+    public void setShowEditListner(ShowEditListner listner) {
+        this.listner = listner;
     }
 
     @Override
@@ -93,6 +99,11 @@ public class SimpleFragmentAdapter extends PagerAdapter {
             final String pictureType = media.getPictureType();
             boolean eqVideo = pictureType.startsWith(PictureConfig.VIDEO);
             iv_play.setVisibility(eqVideo ? View.VISIBLE : View.GONE);
+            if(eqVideo){
+                listner.showEditItem(false);//视频不展示编辑项
+            }else {
+                listner.showEditItem(true);//图片展示编辑项
+            }
             final String path;
             if (media.isCut() && !media.isCompressed()) {
                 // 裁剪过
@@ -188,5 +199,10 @@ public class SimpleFragmentAdapter extends PagerAdapter {
     @Override
     public int getItemPosition(@NonNull Object object) {
         return POSITION_NONE;
+    }
+
+    //视频不展示编辑
+    public interface ShowEditListner{
+        void showEditItem(boolean ifShow);
     }
 }
