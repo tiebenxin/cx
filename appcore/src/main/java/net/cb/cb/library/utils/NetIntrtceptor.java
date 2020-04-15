@@ -116,8 +116,10 @@ public class NetIntrtceptor implements Interceptor {
                 BuglyLog.i(BuglyTag.BUGLY_TAG_3, "401：" + resp.message());
                 CrashReport.postCatchedException(new BuglyException());
                 EventBus.getDefault().post(new EventLoginOut());
+                if (headers != null) {
+                    LogUtil.writeLog("网络请求401" + "--token=" + headers.get("X-Access-Token"));
+                }
                 break;
-
             case 403:
                 LogUtil.getLog().e(TAG, "<<拦截器:403 url:" + resp.request().url().url().toString());
                 // 上报后的Crash会显示该标签
@@ -126,6 +128,9 @@ public class NetIntrtceptor implements Interceptor {
                 BuglyLog.e(BuglyTag.BUGLY_TAG_3, "403：" + resp.message() /*+ " " + resp.body()*/);
                 CrashReport.postCatchedException(new BuglyException());
                 EventBus.getDefault().post(new EventLoginOut());
+                if (headers != null) {
+                    LogUtil.writeLog("网络请求403" + "--token=" + headers.get("X-Access-Token"));
+                }
                 break;
             case 404:
                 LogUtil.getLog().e(TAG, "<<拦截器:404 url:" + resp.request().url().url().toString());
