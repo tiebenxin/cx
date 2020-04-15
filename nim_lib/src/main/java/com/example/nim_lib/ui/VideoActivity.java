@@ -327,8 +327,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             } else {
                 sendEventBus(Preferences.CANCLE, AVChatExitCode.CANCEL);
                 Toast.makeText(VideoActivity.this, R.string.avchat_cancel, Toast.LENGTH_SHORT).show();
-                finish();
             }
+            finish();
         } else if (v.getId() == R.id.img_answer) {// 接听
             if (avChatData != null) {
                 receiveInComingCall();
@@ -826,9 +826,9 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
     private void sendEventBus(String operation, int operationType) {
         //网络连接有问题，则不发送
-        if (!checkNetConnectStatus()) {
-            return;
-        }
+//        if (!checkNetConnectStatus()) {
+//            return;
+//        }
         Log.i(TAG, "sendEventBus operation:" + operation + " operationType:" + operationType);
         EventFactory.CloseVoiceMinimizeEvent event = new EventFactory.CloseVoiceMinimizeEvent();
         event.avChatType = mAVChatType;
