@@ -20,6 +20,8 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
+import com.yanlong.im.chat.bean.P2PAuVideoDialMessage;
+import com.yanlong.im.chat.bean.P2PAuVideoMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
@@ -534,6 +536,15 @@ public class SocketData {
 
         return send4Base(toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO, chat);
 
+    }
+
+    public static P2PAuVideoMessage createCallMessage(String msgId, int auType, String option, String desc) {
+        P2PAuVideoMessage message = new P2PAuVideoMessage();
+        message.setMsgId(msgId);
+        message.setAv_type(auType);
+        message.setOperation(option);
+        message.setDesc(desc);
+        return message;
     }
 
     /**
@@ -1214,6 +1225,11 @@ public class SocketData {
                     return null;
                 }
                 break;
+            case ChatEnum.EMessageType.MSG_VOICE_VIDEO:
+                if (obj instanceof P2PAuVideoMessage) {
+                    msg.setP2PAuVideoMessage((P2PAuVideoMessage) obj);
+                }
+                break;
 
         }
 
@@ -1847,6 +1863,15 @@ public class SocketData {
                         value = noticeBuilder.build();
                         type = MsgBean.MessageType.TRANS_NOTIFY;
                     }
+                case ChatEnum.EMessageType.MSG_VOICE_VIDEO:
+                    P2PAuVideoMessage p2pMessage = bean.getP2PAuVideoMessage();
+                    MsgBean.P2PAuVideoMessage.Builder p2pBuild = MsgBean.P2PAuVideoMessage.newBuilder();
+                    p2pBuild.setAvType(p2pMessage.getAv_type() == 1 ? MsgBean.AuVideoType.Vedio : MsgBean.AuVideoType.Audio);
+                    p2pBuild.setDesc(p2pMessage.getDesc());
+                    p2pBuild.setOperation(p2pMessage.getOperation());
+                    value = p2pBuild.build();
+                    type = MsgBean.MessageType.P2P_AU_VIDEO;
+                    break;
             }
             return this;
         }

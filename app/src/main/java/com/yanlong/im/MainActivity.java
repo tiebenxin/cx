@@ -46,11 +46,13 @@ import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.StatusCode;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.EnvelopeInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.NotificationConfig;
+import com.yanlong.im.chat.bean.P2PAuVideoMessage;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventMsgSync;
@@ -780,9 +782,15 @@ public class MainActivity extends AppActivity {
             if (event != null) {
                 MsgAllBean msgAllbean = null;
                 if (event.avChatType == AVChatType.AUDIO.getValue()) {
-                    msgAllbean = SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation);
+                    P2PAuVideoMessage message = SocketData.createCallMessage(SocketData.getUUID(), 0, event.operation, event.txt);
+                    msgAllbean = SocketData.createMessageBean(event.toUId, event.toGid, ChatEnum.EMessageType.MSG_VOICE_VIDEO, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+                    SocketData.sendAndSaveMessage(msgAllbean);
+//                    msgAllbean = SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation);
                 } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
-                    msgAllbean = SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);
+                    P2PAuVideoMessage message = SocketData.createCallMessage(SocketData.getUUID(), 0, event.operation, event.txt);
+                    msgAllbean = SocketData.createMessageBean(event.toUId, event.toGid, ChatEnum.EMessageType.MSG_VOICE_VIDEO, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+                    SocketData.sendAndSaveMessage(msgAllbean);
+//                    msgAllbean = SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);
                 }
                 EventRefreshChat eventRefreshChat = new EventRefreshChat();
                 eventRefreshChat.isScrollBottom = true;

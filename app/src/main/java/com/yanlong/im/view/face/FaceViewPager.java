@@ -140,7 +140,7 @@ public class FaceViewPager extends RelativeLayout {
      * @updateAuthor CodeApe
      * @updateInfo (此处输入修改内容, 若无修改可不写.)
      */
-    public void setOnItemClikListener(final FaceClickListener listener) {
+    public void setOnItemClickListener(final FaceClickListener listener) {
         mGridView.setOnItemClickListener(new OnItemClickListener() {
 
             @Override

@@ -1513,13 +1513,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     }
 
+    //设置键盘高度
     private void setPanelHeight(int h, View view) {
-        LinearLayout.LayoutParams linearParams = (LinearLayout.LayoutParams) view.getLayoutParams(); //取控
-        if (linearParams.height != h) {
-            int minHeight = getResources().getDimensionPixelSize(R.dimen.chat_fuction_panel_height);
-            linearParams.height = Math.max(h, minHeight);
-            view.setLayoutParams(linearParams);
-        }
+//        LinearLayout.LayoutParams linearParams = (LinearLayout.LayoutParams) view.getLayoutParams(); //取控
+//        if (linearParams.height != h) {
+//            int minHeight = getResources().getDimensionPixelSize(R.dimen.chat_fuction_panel_height);
+//            linearParams.height = Math.max(h, minHeight);
+//            view.setLayoutParams(linearParams);
+//        }
     }
 
     private void checkScrollFirst(int first) {
@@ -1777,10 +1778,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         list.add(createItemMode("相册", R.mipmap.ic_chat_pic, ChatEnum.EFunctionId.GALLERY));
         list.add(createItemMode("拍摄", R.mipmap.ic_chat_pt, ChatEnum.EFunctionId.TAKE_PHOTO));
         if (!isSystemUser) {
-            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
+//            list.add(createItemMode("零钱红包", R.mipmap.ic_chat_rb, ChatEnum.EFunctionId.ENVELOPE_SYS));
         }
         if (!isGroup && !isSystemUser) {
-            list.add(createItemMode("零钱转账", R.mipmap.ic_chat_transfer, ChatEnum.EFunctionId.TRANSFER));
+//            list.add(createItemMode("零钱转账", R.mipmap.ic_chat_transfer, ChatEnum.EFunctionId.TRANSFER));
         }
         if (!isGroup && isVip) {
             list.add(createItemMode("视频通话", R.mipmap.ic_chat_video, ChatEnum.EFunctionId.VIDEO_CALL));
@@ -5422,6 +5423,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 break;
             case ChatEnum.ECellEventType.RESEND_CLICK:
                 if (isGroup() && !MessageManager.getInstance().isGroupValid(groupInfo)) {
+                    ToastUtil.show(this, "该群已被封，不能重发");
                     return;
                 }
                 resendMessage(message);

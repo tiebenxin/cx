@@ -666,9 +666,9 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 break;
             case ChatEnum.EMessageType.LOCATION:
                 if (isMe) {
-                    layout = ChatEnum.EChatCellLayout.MAP_RECEIVED;
-                } else {
                     layout = ChatEnum.EChatCellLayout.MAP_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.MAP_RECEIVED;
                 }
                 break;
             case ChatEnum.EMessageType.MSG_VOICE_VIDEO:

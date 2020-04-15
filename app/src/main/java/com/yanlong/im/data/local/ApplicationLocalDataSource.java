@@ -35,8 +35,20 @@ public class ApplicationLocalDataSource {
         updateSessionDetail = new UpdateSessionDetail(realm);
         burnManager = new BurnManager(realm, new BurnManager.UpdateDetailListener() {
             @Override
-            public void updateDetails(String[] gids, Long[] fromUids) {
-                updateSessionDetail.update(gids,fromUids);
+            public void update(String[] gids, Long[] uids) {
+                updateSessionDetail.update(gids,uids);
+            }
+
+            @Override
+            public void updateLastSecondDetail(Realm realm, String gid, String[] mgsIds) {
+                //异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
+                updateSessionDetail.updateLastDetail(realm,gid,mgsIds);
+            }
+
+            @Override
+            public void updateLastSecondDetail(Realm realm, Long fromUid, String[] mgsIds) {
+//异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
+                updateSessionDetail.updateLastDetail(realm,fromUid,mgsIds);
             }
         });
     }

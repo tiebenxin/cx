@@ -87,9 +87,9 @@ public class UserAction {
         if (myInfo == null) {
             Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
             if (uid != null) {
-                UserInfo info = new UserDao().findUserInfo(uid);
+                UserInfo info = new UserDao().findUserInfoOfMe(uid);
                 //不是文件小助手
-                if (info != null && (!TextUtils.isEmpty(info.getName()) && !info.getName().contains("文件"))) {
+                if (info != null) {
                     myInfo = convertToUserBean(info);
                     new UserDao().updateUserBean(myInfo);
                 }

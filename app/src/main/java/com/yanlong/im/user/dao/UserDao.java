@@ -181,35 +181,38 @@ public class UserDao {
 
 
     /***
-     * 如果存在了就不更新
-     * @param userInfo
-     */
-    public void saveUserinfo(UserInfo userInfo) {
-        Realm realm = DaoUtil.open();
-        try {
-            realm.beginTransaction();
-            UserInfo u = realm.where(UserInfo.class).equalTo("uid", userInfo.getUid()).findFirst();
-            if (u == null) {
-                realm.insertOrUpdate(userInfo);
-            }
-            realm.commitTransaction();
-            realm.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            DaoUtil.close(realm);
-            DaoUtil.reportException(e);
-        }
-
-    }
-
-
-    /***
      * 根据id获取用户的信息
      * @param userid
      * @return
      */
     public UserInfo findUserInfo(Long userid) {
         return DaoUtil.findOne(UserInfo.class, "uid", userid);
+    }
+
+    /***
+     * 获取UserInfo 表中自己的用户信息
+     * @param userid
+     * @return
+     */
+    public UserInfo findUserInfoOfMe(Long userid) {
+        UserInfo info = null;
+        Realm realm = DaoUtil.open();
+        try {
+            UserInfo u = realm.where(UserInfo.class)
+                    .equalTo("uid", userid)
+                    .and()
+                    .equalTo("uType", 1)
+                    .findFirst();
+            if (u != null) {
+                info = realm.copyFromRealm(u);
+            }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return info;
     }
 
     /***
