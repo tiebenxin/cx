@@ -43,14 +43,11 @@ public class MainViewModel extends ViewModel {
     public MutableLiveData<Boolean> onlineState = new MutableLiveData<>();
     //是否要主动关闭展开的删除按钮
     public MutableLiveData<Boolean> isNeedCloseSwipe = new MutableLiveData<>();
-    //session数据是否已经加载
-    public MutableLiveData<Boolean> isSessionDetailsLoad = new MutableLiveData<>();
     public Set<String> allSids = new HashSet<>();
     public MutableLiveData<Boolean> isAllSidsChange = new MutableLiveData<>();
 
     public MainViewModel() {
         repository = new MainRepository();
-        isSessionDetailsLoad.setValue(false);
     }
 
     public void initSession(List<String> sids) {
@@ -64,15 +61,11 @@ public class MainViewModel extends ViewModel {
                         allSids.add(session.getSid());
                     }
                     isAllSidsChange.setValue(true);
-                } else {
-                    isSessionDetailsLoad.setValue(true);
                 }
             } else {
                 if (sids.size() > 0) {
                     allSids.addAll(sids);
                     isAllSidsChange.setValue(true);
-                } else {
-                    isSessionDetailsLoad.setValue(true);
                 }
             }
         }
@@ -155,7 +148,6 @@ public class MainViewModel extends ViewModel {
         currentDeleteSid.removeObservers(owner);
         onlineState.removeObservers(owner);
         isNeedCloseSwipe.removeObservers(owner);
-        isSessionDetailsLoad.removeObservers(owner);
         isAllSidsChange.removeObservers(owner);
     }
 }

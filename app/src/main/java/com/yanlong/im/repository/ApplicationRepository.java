@@ -203,6 +203,15 @@ public class ApplicationRepository {
         localDataSource.saveExitSurvivalMsg(gid, userid);
     }
 
+    /**
+     * 更新指定一些消息对应的session详情
+     *
+     * @param
+     */
+    public void updateSessionDetail(String[] gids,Long[] uids) {
+        localDataSource.updateSessionDetail(gids,uids);
+    }
+
     public RealmResults<UserInfo> getFriends() {
         return friends;
     }

@@ -151,7 +151,7 @@ public class FriendMainFragment extends Fragment {
 
             @Override
             public void onLoadMore() {
-                MyAppLication.INSTANCE().loadMoreFriends();
+                MyAppLication.INSTANCE().repository.loadMoreFriends();
                 updateFriends();
             }
 

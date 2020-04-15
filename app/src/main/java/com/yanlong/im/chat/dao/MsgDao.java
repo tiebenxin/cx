@@ -1,10 +1,13 @@
 package com.yanlong.im.chat.dao;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.hm.cxpay.global.PayEnum;
 import com.luck.picture.lib.tools.DateUtils;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.AssistantMessage;
@@ -962,7 +965,7 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         if (StringUtil.isNotNull(gid)) {//群消息
-           realm.where(Session.class).equalTo("gid", gid).findAll().deleteAllFromRealm();
+            realm.where(Session.class).equalTo("gid", gid).findAll().deleteAllFromRealm();
         } else {
             realm.where(Session.class).equalTo("from_uid", from_uid).findAll().deleteAllFromRealm();
         }
@@ -1285,6 +1288,8 @@ public class MsgDao {
                 session.setMessageType(2);
                 session.setUp_time(SocketData.getSysTime());
                 realm.insertOrUpdate(session);
+                //通知刷新某个session by sid-草稿
+                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE,session.getSid(), CoreEnum.ESessionRefreshTag.SINGLE);
             }
             realm.commitTransaction();
             realm.close();
@@ -2276,6 +2281,23 @@ public class MsgDao {
         realm.commitTransaction();
         realm.close();
         EventBus.getDefault().post(new EventRefreshChat());
+        //回主线程调用更新session详情
+        Handler mainHandler = new Handler(Looper.getMainLooper());
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                //更新Detail详情
+                if (MyAppLication.INSTANCE().repository != null) {
+                    //因为msg对象 uid有两个，都得添加
+                    String[] gids = new String[1];
+                    Long[] uids = new Long[2];
+                    gids[0] = msgAllBean.getGid();
+                    uids[0] = msgAllBean.getFrom_uid();
+                    uids[1] = msgAllBean.getTo_uid();
+                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+                }
+            }
+        });
         return msgAllBean;
     }
 

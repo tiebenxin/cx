@@ -14,7 +14,6 @@ import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import java.util.List;
@@ -65,12 +64,10 @@ public class UpdateSessionDetail {
             }, new Realm.Transaction.OnSuccess() {
                 @Override
                 public void onSuccess() {
-                    LogUtil.writeLog("UpdateSessionDetail executeTransactionAsync Success");
                 }
             }, new Realm.Transaction.OnError() {
                 @Override
                 public void onError(Throwable error) {
-                    LogUtil.writeLog("UpdateSessionDetail error");
                 }
             });
         } catch (Exception e) {
@@ -100,12 +97,10 @@ public class UpdateSessionDetail {
             }, new Realm.Transaction.OnSuccess() {
                 @Override
                 public void onSuccess() {
-                    LogUtil.writeLog("UpdateSessionDetail executeTransactionAsync Success");
                 }
             }, new Realm.Transaction.OnError() {
                 @Override
                 public void onError(Throwable error) {
-                    LogUtil.writeLog("UpdateSessionDetail error");
                 }
             });
         } catch (Exception e) {

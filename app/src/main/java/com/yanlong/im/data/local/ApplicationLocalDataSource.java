@@ -78,7 +78,14 @@ public class ApplicationLocalDataSource {
     public void updateSessionDetail(String[] sids) {
         updateSessionDetail.update(sids);
     }
-
+    /**
+     * 更新指定一些消息对应的session详情
+     *
+     * @param
+     */
+    public void updateSessionDetail(String[] gids,Long[] uids) {
+        updateSessionDetail.update(gids,uids);
+    }
     /**
      * 获取session 列表-异步
      *

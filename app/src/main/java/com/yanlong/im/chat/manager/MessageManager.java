@@ -1042,6 +1042,20 @@ public class MessageManager {
         EventBus.getDefault().post(eventRefreshMainMsg);
     }
 
+    /**
+     * 通过sid 刷新某个session
+     * @param chatType
+     * @param sid
+     * @param refreshTag
+     */
+    public void notifyRefreshMsg(@CoreEnum.EChatType int chatType,  String sid, @CoreEnum.ESessionRefreshTag int refreshTag) {
+        setMessageChange(true);
+        EventRefreshMainMsg eventRefreshMainMsg = new EventRefreshMainMsg();
+        eventRefreshMainMsg.setType(chatType);
+        eventRefreshMainMsg.setSid(sid);
+        eventRefreshMainMsg.setRefreshTag(refreshTag);
+        EventBus.getDefault().post(eventRefreshMainMsg);
+    }
     /*
      * 通知刷新消息列表，及未读数
      * @param chatType 单聊群聊
