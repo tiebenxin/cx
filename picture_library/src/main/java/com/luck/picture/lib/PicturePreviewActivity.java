@@ -274,6 +274,16 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     private void initViewPageAdapterData() {
         tv_title.setText(position + 1 + "/" + images.size());
         adapter = new SimpleFragmentAdapter(images, this, this);
+        adapter.setShowEditListner(new SimpleFragmentAdapter.ShowEditListner() {
+            @Override
+            public void showEditItem(boolean ifShow) {
+                if(ifShow){
+                    tvEdit.setVisibility(View.VISIBLE);
+                }else {
+                    tvEdit.setVisibility(View.GONE);
+                }
+            }
+        });
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(position);
         onSelectNumChange(false);
