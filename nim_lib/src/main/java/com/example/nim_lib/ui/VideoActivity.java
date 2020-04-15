@@ -825,10 +825,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     };
 
     private void sendEventBus(String operation, int operationType) {
-        //网络连接有问题，则不发送
-//        if (!checkNetConnectStatus()) {
-//            return;
-//        }
         Log.i(TAG, "sendEventBus operation:" + operation + " operationType:" + operationType);
         EventFactory.CloseVoiceMinimizeEvent event = new EventFactory.CloseVoiceMinimizeEvent();
         event.avChatType = mAVChatType;
