@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -63,6 +64,8 @@ public class FileDownloadActivity extends AppActivity {
     private SendFileMessage sendFileMessage;
 
     private int downloadStatus = 0; //0 下载中 1 下载完成 2 下载失败
+    private static int currentFileProgressValue = 0;//记录当前文件下载任务的进度
+    private Handler handler;//如果下载过程中退出，下次进来需要轮训查询下载进度
 
 
     @Override
@@ -140,6 +143,7 @@ public class FileDownloadActivity extends AppActivity {
                             sendFileMessage.setRealFileRename(fileName);
                             eventFileRename.setMsgAllBean(msgAllBean);
                             EventBus.getDefault().post(eventFileRename);
+                            currentFileProgressValue = 100;
 
 //                            //如果用户退出当前界面，则只提示已经完成；若仍在当前界面，则打开文件
 //                            if(activity==null || activity.isFinishing()){
@@ -153,6 +157,7 @@ public class FileDownloadActivity extends AppActivity {
                             LogUtil.getLog().i("DownloadUtil", "progress:" + progress);
                             tvDownload.setText("下载中 "+progress+"%");
                             downloadStatus = 0;
+                            currentFileProgressValue = progress;
 
                         }
 
@@ -162,6 +167,7 @@ public class FileDownloadActivity extends AppActivity {
                             tvDownload.setText("下载失败");
                             LogUtil.getLog().i("DownloadUtil", "Exception下载失败:" + e.getMessage());
                             downloadStatus = 2;
+                            currentFileProgressValue = 0;
                         }
                     });
 
@@ -170,6 +176,7 @@ public class FileDownloadActivity extends AppActivity {
                     tvDownload.setText("下载失败");
                     LogUtil.getLog().i("DownloadUtil", "Exception:" + e.getMessage());
                     downloadStatus = 2;
+                    currentFileProgressValue = 0;
                 }
             }
 
@@ -190,7 +197,7 @@ public class FileDownloadActivity extends AppActivity {
         tvFileName = findViewById(R.id.tv_file_name);
         ivFileImage = findViewById(R.id.iv_file_image);
         tvDownload = findViewById(R.id.tv_download);
-
+        handler = new Handler();
     }
 
     private void initData() {
@@ -206,6 +213,39 @@ public class FileDownloadActivity extends AppActivity {
             }
         });
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //说明还有文件正在下载
+        if(currentFileProgressValue !=0){
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if(currentFileProgressValue<100){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                tvDownload.setText("下载中 "+currentFileProgressValue+"%");
+                                downloadStatus = 0;
+                            }
+                        });
+                        handler.postDelayed(this,200);
+                    }else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                tvDownload.setText("打开文件");
+                                downloadStatus = 1;
+                            }
+                        });
+                        handler.removeCallbacks(this);
+                    }
+                }
+            },200);
+        }
+    }
+
     /**
      * 选择已有程序打开文件
      *
