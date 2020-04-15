@@ -512,7 +512,7 @@ public class MessageManager {
                     gid = gid == null ? "" : gid;
                     msgDao.sessionReadClean(gid, uids);
                     boolean isGroup = isGroup(wrapMessage.getFromUid(), gid);
-                    //更新UI
+                    //更新未读数UI
                     notifyRefreshMsg(isGroup ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, uids, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                 }
                 break;
@@ -781,6 +781,11 @@ public class MessageManager {
             LogUtil.getLog().d("a=", TAG + "--消息存储失败--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
         }
 //        LogUtil.getLog().d("a=", TAG + "--消息存储成功--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
+        if(isFromSelf){
+            //自己PC 端发的消息刷新session
+            notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, -1L, "", CoreEnum.ESessionRefreshTag.ALL, null);
+        }
+
         return result;
     }
 

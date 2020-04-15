@@ -16,7 +16,9 @@ import com.yanlong.im.chat.manager.MessageManager;
 import net.cb.cb.library.CoreEnum;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
@@ -42,9 +44,9 @@ public class BurnManager {
         pendingIntent = PendingIntent.getBroadcast(MyAppLication.getInstance(), 0, intent, 0);
     }
 
-    public BurnManager(Realm realm,UpdateDetailListener updateDetailListener) {
+    public BurnManager(Realm realm, UpdateDetailListener updateDetailListener) {
         this.realm = realm;
-        this.updateDetailListener=updateDetailListener;
+        this.updateDetailListener = updateDetailListener;
         initPendingIntent();
         //异步加载
         toBurnMessages = realm.where(MsgAllBean.class)
@@ -88,8 +90,8 @@ public class BurnManager {
      */
     public void notifyBurnQuene() {
         if (toBurnMessages.size() > 0) {
-            List<String> toDeletedGroup = new ArrayList<>();
-            List<Long> toDeletedFriend= new ArrayList<>();
+            Map<String, List<String>> gids = new HashMap<>();
+            Map<Long, List<String>> uids = new HashMap<>();
             //异步删除
             realm.executeTransactionAsync(new Realm.Transaction() {
                 @Override
@@ -100,12 +102,40 @@ public class BurnManager {
                             .lessThanOrEqualTo("endTime", currentTime).findAll();
                     //复制一份，为了聊天界面的更新-非数据库对象
                     List<MsgAllBean> toDeletedResultsTemp = realm.copyFromRealm(toDeletedResults);
-                    for(MsgAllBean msg:toDeletedResults){
-                        if(TextUtils.isEmpty(msg.getGid())){
-                            toDeletedFriend.add(msg.getFrom_uid());
-                        }else{
-                            toDeletedGroup.add(msg.getGid());
+                    for (MsgAllBean msg : toDeletedResults) {
+                        if (TextUtils.isEmpty(msg.getGid())) {
+                            Long uid=msg.getFrom_uid();
+                            int index=0;
+                            while (index<2){
+                                if(uid!=-1L){
+                                    if (uids.containsKey(msg.getGid())) {
+                                        uids.get(uid).add(msg.getMsg_id());
+                                    }else{
+                                        List<String> msgIds=new ArrayList<>();
+                                        msgIds.add(msg.getMsg_id());
+                                        uids.put(uid,msgIds);
+                                    }
+                                }
+                                uid=msg.getTo_uid();
+                                index++;
+                            }
+
+
+                        } else {
+                            if (gids.containsKey(msg.getGid())) {
+                                gids.get(msg.getGid()).add(msg.getMsg_id());
+                            }else{
+                                List<String> msgIds=new ArrayList<>();
+                                msgIds.add(msg.getMsg_id());
+                                gids.put(msg.getGid(),msgIds);
+                            }
                         }
+                    }
+                    for(String gid :gids.keySet()){
+                        updateDetailListener.updateLastSecondDetail(realm, gid,  gids.get(gid).toArray(new String[gids.get(gid).size()]));
+                    }
+                    for(Long uid :uids.keySet()){
+                        updateDetailListener.updateLastSecondDetail(realm, uid,  uids.get(uid).toArray(new String[uids.get(uid).size()]));
                     }
                     if (toDeletedResults.size() > 0) {
                         //批量删除 已到阅后即焚时间
@@ -120,11 +150,8 @@ public class BurnManager {
             }, new Realm.Transaction.OnSuccess() {
                 @Override
                 public void onSuccess() {
-                    if (toDeletedGroup.size()>0||toDeletedFriend.size()>0) {//有数据删除
-                        //更新Detial-自动更新主页
-                        if(updateDetailListener!=null)updateDetailListener.updateDetails(toDeletedGroup.toArray(new String[toDeletedGroup.size()]),
-                                toDeletedFriend.toArray(new Long[toDeletedFriend.size()]));
-                    }
+                    if(gids.keySet().size()>0||uids.keySet().size()>0)
+                        updateDetailListener.update(gids.keySet().toArray(new String[gids.keySet().size()]),uids.keySet().toArray(new Long[uids.keySet().size()]));
                     startBurnAlarm();
                 }
             });
@@ -160,8 +187,14 @@ public class BurnManager {
         alarmManager = null;
         toBurnMessages = null;
     }
-    public interface UpdateDetailListener{
-        void updateDetails(String[] gids,Long[] fromUids);
+
+    public interface UpdateDetailListener {
+        void update(String[] gids, Long[] uids);
+        //异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
+        void updateLastSecondDetail(Realm realm, String gid, String[] mgsIds);
+
+        //异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
+        void updateLastSecondDetail(Realm realm, Long fromUid,  String[] mgsIds);
     }
 
 }
