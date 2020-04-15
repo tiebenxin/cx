@@ -310,7 +310,7 @@ public class FaceView extends RelativeLayout {
             map_FaceEmoji.put(animo_pandaNames[i], animo_pandaIds[i]);
             addFace(pandaFaceBeans, face_animo, animo_pandaIds[i], animo_pandaNames[i]);
         }
-//        getFaceData(false);
+        map_FaceEmoji.put("删除", R.mipmap.ic_emoj_del);
     }
 
     /**
@@ -328,6 +328,23 @@ public class FaceView extends RelativeLayout {
         bean.setName(name);
         faceBeans.add(bean);
     }
+
+    /**
+     * 添加删除表情
+     *
+     * @param faceBeans
+     * @param group
+     * @param resId
+     * @param name
+     */
+    private static void addDeleteFace(ArrayList<FaceBean> faceBeans, String group, int resId, String name) {
+        FaceBean bean = new FaceBean();
+        bean.setGroup(group);
+        bean.setResId(resId);
+        bean.setName(name);
+        faceBeans.add(bean);
+    }
+
 
     /**
      * 初始化表情列表
@@ -380,6 +397,7 @@ public class FaceView extends RelativeLayout {
         if (emojiUseBeans.size() > pagerSize) {
             list_CurrentBeans.clear();
             list_CurrentBeans.addAll(emojiUseBeans.subList(0, pagerSize));
+//            addDeleteFace(list_CurrentBeans, face_emoji, R.mipmap.ic_emoj_del, "删除");
         } else {
             list_CurrentBeans.clear();
             list_CurrentBeans.addAll(emojiUseBeans.subList(0, emojiUseBeans.size()));
@@ -402,7 +420,7 @@ public class FaceView extends RelativeLayout {
 
     private void addViewPager(int typeEmoji) {
         FaceViewPager view = new FaceViewPager(context, typeEmoji);
-        view.setOnItemClikListener(faceClickListener);
+        view.setOnItemClickListener(faceClickListener);
         view.setOnItemLongClickListener(faceLongClickListener);
         view.setOnDeleteListener(mOnDeleteListener);
         list_Views.add(view);
@@ -505,10 +523,12 @@ public class FaceView extends RelativeLayout {
                     list_CurrentBeans.clear();
                     if ((currentItem * pagerSize + pagerSize) >= emojiUseBeans.size() && emojiUseBeans.size() >= (currentItem * pagerSize)) {
                         list_CurrentBeans.addAll(emojiUseBeans.subList(currentItem * pagerSize, emojiUseBeans.size()));
+//                        addDeleteFace(list_CurrentBeans, face_emoji, R.mipmap.ic_emoj_del, "删除");
                     } else {
                         if (emojiUseBeans.size() >= (currentItem * pagerSize + pagerSize)) {
                             list_CurrentBeans.clear();
                             list_CurrentBeans.addAll(emojiUseBeans.subList(currentItem * pagerSize, currentItem * pagerSize + pagerSize));
+//                            addDeleteFace(list_CurrentBeans, face_emoji, R.mipmap.ic_emoj_del, "删除");
                         }
                     }
                     mCurViewPager.setFaceList(list_CurrentBeans);
@@ -576,7 +596,7 @@ public class FaceView extends RelativeLayout {
         }
         for (int i = 0; i < list_Views.size(); i++) {
             FaceViewPager view = (FaceViewPager) list_Views.get(i);
-            view.setOnItemClikListener(this.faceClickListener);
+            view.setOnItemClickListener(this.faceClickListener);
         }
     }
 

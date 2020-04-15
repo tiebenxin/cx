@@ -1513,13 +1513,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     }
 
+    //设置键盘高度
     private void setPanelHeight(int h, View view) {
-        LinearLayout.LayoutParams linearParams = (LinearLayout.LayoutParams) view.getLayoutParams(); //取控
-        if (linearParams.height != h) {
-            int minHeight = getResources().getDimensionPixelSize(R.dimen.chat_fuction_panel_height);
-            linearParams.height = Math.max(h, minHeight);
-            view.setLayoutParams(linearParams);
-        }
+//        LinearLayout.LayoutParams linearParams = (LinearLayout.LayoutParams) view.getLayoutParams(); //取控
+//        if (linearParams.height != h) {
+//            int minHeight = getResources().getDimensionPixelSize(R.dimen.chat_fuction_panel_height);
+//            linearParams.height = Math.max(h, minHeight);
+//            view.setLayoutParams(linearParams);
+//        }
     }
 
     private void checkScrollFirst(int first) {
@@ -5422,6 +5423,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 break;
             case ChatEnum.ECellEventType.RESEND_CLICK:
                 if (isGroup() && !MessageManager.getInstance().isGroupValid(groupInfo)) {
+                    ToastUtil.show(this, "该群已被封，不能重发");
                     return;
                 }
                 resendMessage(message);
