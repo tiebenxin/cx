@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.text.TextUtils;
 
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.BurnBroadcastReceiver;
@@ -14,7 +15,10 @@ import com.yanlong.im.chat.manager.MessageManager;
 
 import net.cb.cb.library.CoreEnum;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
@@ -40,9 +44,9 @@ public class BurnManager {
         pendingIntent = PendingIntent.getBroadcast(MyAppLication.getInstance(), 0, intent, 0);
     }
 
-    public BurnManager(Realm realm,UpdateDetailListener updateDetailListener) {
+    public BurnManager(Realm realm, UpdateDetailListener updateDetailListener) {
         this.realm = realm;
-        this.updateDetailListener=updateDetailListener;
+        this.updateDetailListener = updateDetailListener;
         initPendingIntent();
         //异步加载
         toBurnMessages = realm.where(MsgAllBean.class)
@@ -96,8 +100,43 @@ public class BurnManager {
                             .lessThanOrEqualTo("endTime", currentTime).findAll();
                     //复制一份，为了聊天界面的更新-非数据库对象
                     List<MsgAllBean> toDeletedResultsTemp = realm.copyFromRealm(toDeletedResults);
-                    for(MsgAllBean msg:toDeletedResults){
-                        updateDetailListener.updateLastSecondDetail(realm,msg.getGid(),msg.getFrom_uid(),msg.getMsg_id());
+
+                    Map<String, List<String>> gids = new HashMap<>();
+                    Map<Long, List<String>> uids = new HashMap<>();
+                    for (MsgAllBean msg : toDeletedResults) {
+                        if (TextUtils.isEmpty(msg.getGid())) {
+                            Long uid=msg.getFrom_uid();
+                            int index=0;
+                            while (index<2){
+                                if(uid!=-1L){
+                                    if (uids.containsKey(msg.getGid())) {
+                                        uids.get(uid).add(msg.getMsg_id());
+                                    }else{
+                                        List<String> msgIds=new ArrayList<>();
+                                        msgIds.add(msg.getMsg_id());
+                                        uids.put(uid,msgIds);
+                                    }
+                                }
+                                uid=msg.getTo_uid();
+                                index++;
+                            }
+
+
+                        } else {
+                            if (gids.containsKey(msg.getGid())) {
+                                gids.get(msg.getGid()).add(msg.getMsg_id());
+                            }else{
+                                List<String> msgIds=new ArrayList<>();
+                                msgIds.add(msg.getMsg_id());
+                                gids.put(msg.getGid(),msgIds);
+                            }
+                        }
+                    }
+                    for(String gid :gids.keySet()){
+                        updateDetailListener.updateLastSecondDetail(realm, gid,  gids.get(gid).toArray(new String[gids.get(gid).size()]));
+                    }
+                    for(Long uid :uids.keySet()){
+                        updateDetailListener.updateLastSecondDetail(realm, uid,  uids.get(uid).toArray(new String[uids.get(uid).size()]));
                     }
                     if (toDeletedResults.size() > 0) {
                         //批量删除 已到阅后即焚时间
@@ -147,9 +186,13 @@ public class BurnManager {
         alarmManager = null;
         toBurnMessages = null;
     }
-    public interface UpdateDetailListener{
+
+    public interface UpdateDetailListener {
         //异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
-        void updateLastSecondDetail(Realm realm, String gid, Long fromUid,String mgsId);
+        void updateLastSecondDetail(Realm realm, String gid, String[] mgsIds);
+
+        //异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
+        void updateLastSecondDetail(Realm realm, Long fromUid,  String[] mgsIds);
     }
 
 }

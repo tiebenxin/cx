@@ -118,22 +118,31 @@ public class UpdateSessionDetail {
      *
      * @param realm
      * @param gid
+     */
+    public void updateLastDetail(Realm realm, String gid, String[] msgIds) {
+        if (!TextUtils.isEmpty(gid)) {
+            Session session = realm.where(Session.class).equalTo("gid", gid).findFirst();
+            if (session != null) synchGroupMsgSession(realm, session, msgIds);
+        }
+    }
+
+    /**
+     * //异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
+     *
+     * @param realm
      * @param fromUid
      */
-    public void updateLastDetail(Realm realm, String gid, Long fromUid, String msgId) {
-        if (TextUtils.isEmpty(gid)) {
-            Session session = realm.where(Session.class).equalTo("from_uid", fromUid).findFirst();
-            if(session!=null)synchFriendMsgSession(realm, session, msgId);
-        } else {
-            Session session = realm.where(Session.class).equalTo("gid", gid).findFirst();
-            if(session!=null)synchGroupMsgSession(realm, session, msgId);
-        }
+    public void updateLastDetail(Realm realm, Long fromUid, String[] msgIds) {
+        Session session = realm.where(Session.class)
+                .equalTo("from_uid", fromUid)
+                .findFirst();
+        if (session != null) synchFriendMsgSession(realm, session, msgIds);
     }
 
     /**
      * 同步群聊数据
      */
-    private void synchGroupMsgSession(Realm realm, Session session, String msgId) {
+    private void synchGroupMsgSession(Realm realm, Session session, String[] msgIds) {
         try {
             Group group = realm.where(Group.class).equalTo("gid", session.getGid()).findFirst();
             SessionDetail sessionMore = new SessionDetail();
@@ -158,13 +167,13 @@ public class UpdateSessionDetail {
                 }
             }
             MsgAllBean msg = null;
-            if (TextUtils.isEmpty(msgId)) {//最新一条
+            if (msgIds==null||msgIds.length==0) {//最新一条
                 msg = realm.where(MsgAllBean.class).equalTo("gid", session.getGid())
                         .sort("timestamp", Sort.DESCENDING).findFirst();
             } else {//过滤指定消息后的最新一条-解决阅后即焚更新问题
                 msg = realm.where(MsgAllBean.class).equalTo("gid", session.getGid())
                         .and()
-                        .notEqualTo("msg_id", msgId)
+                        .not().in("msg_id",msgIds)
                         .sort("timestamp", Sort.DESCENDING).findFirst();
 
             }
@@ -177,7 +186,7 @@ public class UpdateSessionDetail {
                 } else {
                     if (msg.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
                         //8.9 处理群昵称
-                        String name = getUsername4Show(realm,msg.getGid(), msg.getFrom_uid(), msg.getFrom_nickname(), msg.getFrom_group_nickname()) + " : ";
+                        String name = getUsername4Show(realm, msg.getGid(), msg.getFrom_uid(), msg.getFrom_nickname(), msg.getFrom_group_nickname()) + " : ";
                         sessionMore.setSenderName(name);
                     }
                 }
@@ -193,7 +202,7 @@ public class UpdateSessionDetail {
      *
      * @param realm
      */
-    private void synchFriendMsgSession(Realm realm, Session session, String msgId) {
+    private void synchFriendMsgSession(Realm realm, Session session, String[] msgIds) {
         try {
             UserInfo info = realm.where(UserInfo.class).equalTo("uid", session.getFrom_uid()).findFirst();
             SessionDetail sessionMore = new SessionDetail();
@@ -204,7 +213,7 @@ public class UpdateSessionDetail {
             }
 
             MsgAllBean msg = null;
-            if (TextUtils.isEmpty(msgId)) {//最新一条
+            if (msgIds==null||msgIds.length==0) {//最新一条
                 msg = realm.where(MsgAllBean.class)
                         .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                         .and()
@@ -216,7 +225,7 @@ public class UpdateSessionDetail {
                         .and()
                         .beginGroup().equalTo("from_uid", session.getFrom_uid()).or().equalTo("to_uid", session.getFrom_uid()).endGroup()
                         .and()
-                        .notEqualTo("msg_id", msgId)
+                        .not().in("msg_id",msgIds)
                         .sort("timestamp", Sort.DESCENDING).findFirst();
             }
             if (msg != null) {
@@ -224,7 +233,7 @@ public class UpdateSessionDetail {
                 sessionMore.setMessageContent(msg.getMsg_typeStr());
             }
             realm.copyToRealmOrUpdate(sessionMore);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -238,7 +247,7 @@ public class UpdateSessionDetail {
      * @param groupName 群最新的昵称
      * @return
      */
-    public String getUsername4Show(Realm realm,String gid, Long uid, String uname, String groupName) {
+    public String getUsername4Show(Realm realm, String gid, Long uid, String uname, String groupName) {
         String name = "";
         UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
         if (userInfo != null) {
