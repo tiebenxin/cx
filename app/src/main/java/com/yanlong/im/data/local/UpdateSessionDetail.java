@@ -122,11 +122,11 @@ public class UpdateSessionDetail {
      */
     public void updateLastDetail(Realm realm, String gid, Long fromUid, String msgId) {
         if (TextUtils.isEmpty(gid)) {
-            Session session = realm.where(Session.class).equalTo("gid", gid).findFirst();
-            if(session!=null)synchGroupMsgSession(realm, session, msgId);
-        } else {
             Session session = realm.where(Session.class).equalTo("from_uid", fromUid).findFirst();
             if(session!=null)synchFriendMsgSession(realm, session, msgId);
+        } else {
+            Session session = realm.where(Session.class).equalTo("gid", gid).findFirst();
+            if(session!=null)synchGroupMsgSession(realm, session, msgId);
         }
     }
 
