@@ -1,5 +1,6 @@
 package net.cb.cb.library.utils;
 
+import android.text.TextUtils;
 import android.view.View;
 
 import net.cb.cb.library.AppConfig;
@@ -51,7 +52,7 @@ public abstract class CallBack<T> implements Callback<T> {
 //        if (listView == null && showErrorMsg) {
 //            ToastUtil.show(AppConfig.APP_CONTEXT, R.string.app_link_err);
 //        }
-        if (showErrorMsg) {
+        if (showErrorMsg && (!TextUtils.isEmpty(t.getMessage()) && !t.getMessage().equals("Canceled"))) {
             ToastUtil.show(AppConfig.APP_CONTEXT, t.getMessage());
         }
 
