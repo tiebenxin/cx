@@ -90,6 +90,8 @@ public class BurnManager {
      */
     public void notifyBurnQuene() {
         if (toBurnMessages.size() > 0) {
+            Map<String, List<String>> gids = new HashMap<>();
+            Map<Long, List<String>> uids = new HashMap<>();
             //异步删除
             realm.executeTransactionAsync(new Realm.Transaction() {
                 @Override
@@ -100,9 +102,6 @@ public class BurnManager {
                             .lessThanOrEqualTo("endTime", currentTime).findAll();
                     //复制一份，为了聊天界面的更新-非数据库对象
                     List<MsgAllBean> toDeletedResultsTemp = realm.copyFromRealm(toDeletedResults);
-
-                    Map<String, List<String>> gids = new HashMap<>();
-                    Map<Long, List<String>> uids = new HashMap<>();
                     for (MsgAllBean msg : toDeletedResults) {
                         if (TextUtils.isEmpty(msg.getGid())) {
                             Long uid=msg.getFrom_uid();
@@ -151,6 +150,8 @@ public class BurnManager {
             }, new Realm.Transaction.OnSuccess() {
                 @Override
                 public void onSuccess() {
+                    if(gids.keySet().size()>0||uids.keySet().size()>0)
+                        updateDetailListener.update(gids.keySet().toArray(new String[gids.keySet().size()]),uids.keySet().toArray(new Long[uids.keySet().size()]));
                     startBurnAlarm();
                 }
             });
@@ -188,6 +189,7 @@ public class BurnManager {
     }
 
     public interface UpdateDetailListener {
+        void update(String[] gids, Long[] uids);
         //异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
         void updateLastSecondDetail(Realm realm, String gid, String[] mgsIds);
 
