@@ -28,7 +28,7 @@ public class Session extends RealmObject implements Comparable<Session> {
     private int isTop = 0;
     //是否静音，是，免打扰
     private int isMute = 0;
-    //  0.单个人 1.所有人 2.草稿 3 红包发送失败
+    // 1000普通消息  0.@单个人 1.@所有人 2.草稿 3 红包发送失败
     private int messageType = 1000;
 
     private String atMessage;

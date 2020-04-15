@@ -13,7 +13,6 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
-import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -56,9 +55,9 @@ public class UpdateSessionDetail {
                         Session session = sessions.get(i);
 //                        realm.beginTransaction();
                         if (session.getType() == 1) {//群聊
-                            synchGroupMsgSession(realm, session);
+                            synchGroupMsgSession(realm, session, null);
                         } else {//单聊
-                            synchFriendMsgSession(realm, session);
+                            synchFriendMsgSession(realm, session, null);
                         }
                     }
 
@@ -91,9 +90,9 @@ public class UpdateSessionDetail {
                         Session session = sessions.get(i);
 //                        realm.beginTransaction();
                         if (session.getType() == 1) {//群聊
-                            synchGroupMsgSession(realm, session);
+                            synchGroupMsgSession(realm, session, null);
                         } else {//单聊
-                            synchFriendMsgSession(realm, session);
+                            synchFriendMsgSession(realm, session, null);
                         }
                     }
 
@@ -118,16 +117,16 @@ public class UpdateSessionDetail {
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                if(gids.length>0){
-                    RealmResults<Session> groupSessions = realm.where(Session.class).in("gid",gids).findAll();
-                    for (Session session:groupSessions) {
-                        synchGroupMsgSession(realm, session);
+                if (gids.length > 0) {
+                    RealmResults<Session> groupSessions = realm.where(Session.class).in("gid", gids).findAll();
+                    for (Session session : groupSessions) {
+                        synchGroupMsgSession(realm, session, null);
                     }
                 }
-                if(fromUids.length>0){
-                    RealmResults<Session> friendSessions = realm.where(Session.class).in("from_uid",fromUids).findAll();
-                    for (Session session:friendSessions) {
-                        synchFriendMsgSession(realm, session);
+                if (fromUids.length > 0) {
+                    RealmResults<Session> friendSessions = realm.where(Session.class).in("from_uid", fromUids).findAll();
+                    for (Session session : friendSessions) {
+                        synchFriendMsgSession(realm, session, null);
                     }
                 }
             }
@@ -135,9 +134,26 @@ public class UpdateSessionDetail {
     }
 
     /**
+     * //异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
+     *
+     * @param realm
+     * @param gid
+     * @param fromUid
+     */
+    public void updateLastDetail(Realm realm, String gid, Long fromUid, String msgId) {
+        if (TextUtils.isEmpty(gid)) {
+            Session session = realm.where(Session.class).equalTo("gid", gid).findFirst();
+            if(session!=null)synchGroupMsgSession(realm, session, msgId);
+        } else {
+            Session session = realm.where(Session.class).equalTo("from_uid", fromUid).findFirst();
+            if(session!=null)synchFriendMsgSession(realm, session, msgId);
+        }
+    }
+
+    /**
      * 同步群聊数据
      */
-    private void synchGroupMsgSession(Realm realm, Session session) {
+    private void synchGroupMsgSession(Realm realm, Session session, String msgId) {
         try {
             Group group = realm.where(Group.class).equalTo("gid", session.getGid()).findFirst();
             SessionDetail sessionMore = new SessionDetail();
@@ -160,14 +176,19 @@ public class UpdateSessionDetail {
                         sessionMore.setAvatarList(Joiner.on(",").join(headList));
                     }
                 }
-            } else {
-//            sessionMore.setName(getGroupName(group));
             }
-            MsgAllBean msg = session.getMessage();
-            if (msg == null) {
+            MsgAllBean msg = null;
+            if (TextUtils.isEmpty(msgId)) {//最新一条
                 msg = realm.where(MsgAllBean.class).equalTo("gid", session.getGid())
                         .sort("timestamp", Sort.DESCENDING).findFirst();
+            } else {//过滤指定消息后的最新一条-解决阅后即焚更新问题
+                msg = realm.where(MsgAllBean.class).equalTo("gid", session.getGid())
+                        .and()
+                        .notEqualTo("msg_id", msgId)
+                        .sort("timestamp", Sort.DESCENDING).findFirst();
+
             }
+
             if (msg != null) {
                 sessionMore.setMessage(msg);
                 sessionMore.setMessageContent(msg.getMsg_typeStr());
@@ -176,7 +197,7 @@ public class UpdateSessionDetail {
                 } else {
                     if (msg.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
                         //8.9 处理群昵称
-                        String name = getUsername4Show(msg.getGid(), msg.getFrom_uid(), msg.getFrom_nickname(), msg.getFrom_group_nickname()) + " : ";
+                        String name = getUsername4Show(realm,msg.getGid(), msg.getFrom_uid(), msg.getFrom_nickname(), msg.getFrom_group_nickname()) + " : ";
                         sessionMore.setSenderName(name);
                     }
                 }
@@ -187,6 +208,48 @@ public class UpdateSessionDetail {
         }
     }
 
+    /**
+     * 同步单聊数据-session
+     *
+     * @param realm
+     */
+    private void synchFriendMsgSession(Realm realm, Session session, String msgId) {
+        try {
+            UserInfo info = realm.where(UserInfo.class).equalTo("uid", session.getFrom_uid()).findFirst();
+            SessionDetail sessionMore = new SessionDetail();
+            sessionMore.setSid(session.getSid());
+            if (info != null) {
+                sessionMore.setName(info.getName4Show());
+                sessionMore.setAvatar(info.getHead());
+            }
+
+            MsgAllBean msg = null;
+            if (TextUtils.isEmpty(msgId)) {//最新一条
+                msg = realm.where(MsgAllBean.class)
+                        .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                        .and()
+                        .beginGroup().equalTo("from_uid", session.getFrom_uid()).or().equalTo("to_uid", session.getFrom_uid()).endGroup()
+                        .sort("timestamp", Sort.DESCENDING).findFirst();
+            } else {//过滤指定消息后的最新一条-解决阅后即焚更新问题
+                msg = realm.where(MsgAllBean.class)
+                        .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                        .and()
+                        .beginGroup().equalTo("from_uid", session.getFrom_uid()).or().equalTo("to_uid", session.getFrom_uid()).endGroup()
+                        .and()
+                        .notEqualTo("msg_id", msgId)
+                        .sort("timestamp", Sort.DESCENDING).findFirst();
+            }
+            if (msg != null) {
+                sessionMore.setMessage(msg);
+                sessionMore.setMessageContent(msg.getMsg_typeStr());
+            }
+            realm.copyToRealmOrUpdate(sessionMore);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
     /***
      * 获取用户需要展示的群名字
      * @param gid
@@ -195,9 +258,8 @@ public class UpdateSessionDetail {
      * @param groupName 群最新的昵称
      * @return
      */
-    public String getUsername4Show(String gid, Long uid, String uname, String groupName) {
+    public String getUsername4Show(Realm realm,String gid, Long uid, String uname, String groupName) {
         String name = "";
-        Realm realm = DaoUtil.open();
         UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
         if (userInfo != null) {
             //1.获取本地用户昵称
@@ -227,10 +289,7 @@ public class UpdateSessionDetail {
             if (memberUser != null) {
                 name = StringUtil.isNotNull(memberUser.getMembername()) ? memberUser.getMembername() : memberUser.getName();
             }
-
         }
-        realm.close();
-
         return name;
     }
 
@@ -257,37 +316,6 @@ public class UpdateSessionDetail {
             }
         }
         return result;
-    }
-
-    /**
-     * 同步单聊数据-session
-     *
-     * @param realm
-     */
-    private void synchFriendMsgSession(Realm realm, Session session) {
-        UserInfo info = realm.where(UserInfo.class).equalTo("uid", session.getFrom_uid()).findFirst();
-        SessionDetail sessionMore = new SessionDetail();
-        sessionMore.setSid(session.getSid());
-        if (info != null) {
-            sessionMore.setName(info.getName4Show());
-            sessionMore.setAvatar(info.getHead());
-        }
-
-        MsgAllBean msg = session.getMessage();
-        if (msg == null) {
-            msg = realm.where(MsgAllBean.class)
-                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
-                    .and()
-                    .beginGroup().equalTo("from_uid", session.getFrom_uid()).or().equalTo("to_uid", session.getFrom_uid()).endGroup()
-                    .sort("timestamp", Sort.DESCENDING).findFirst();
-
-            if (msg != null) {
-                sessionMore.setMessage(msg);
-                sessionMore.setMessageContent(msg.getMsg_typeStr());
-            }
-        }
-        realm.copyToRealmOrUpdate(sessionMore);
-
     }
 
 
