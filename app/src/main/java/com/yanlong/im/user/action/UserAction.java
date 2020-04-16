@@ -170,7 +170,7 @@ public class UserAction {
                         saveNeteaseAccid(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
                     }
                     initDB("" + response.body().getData().getUid());
-                    setToken(response.body().getData());
+                    setToken(response.body().getData(), true);
                     //如果是手机号码登录，则删除上次常信号登陆的账号
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).save2Json("");
                     getMyInfo4Web(response.body().getData().getUid(), "");
@@ -204,7 +204,7 @@ public class UserAction {
                     }
 
                     initDB("" + response.body().getData().getUid());
-                    setToken(response.body().getData());
+                    setToken(response.body().getData(), true);
                     getMyInfo4Web(response.body().getData().getUid(), imid);
                 }
 
@@ -331,14 +331,13 @@ public class UserAction {
      */
     public void login4tokenNotNet(TokenBean token) {
         initDB("" + token.getUid());
-        setToken(token);
-//        NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
-//        TokenManager.initToken(token.getAccessToken());
-//        PayEnvironment.getInstance().setToken(token.getAccessToken());
-
+        setToken(token, false);
     }
 
-    public void login4token(String dev_id, final Callback<ReturnBean<TokenBean>> callback) {
+    /*
+     * 用就token刷新新token
+     * */
+    public void updateToken(String dev_id, final Callback<ReturnBean<TokenBean>> callback) {
         //判断有没有token信息
         TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
         if (token == null || !StringUtil.isNotNull(token.getAccessToken())) {
@@ -347,18 +346,15 @@ public class UserAction {
         }
 
         //设置token
-        setToken(token);
-//        NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
-//        TokenManager.initToken(token.getAccessToken());
-//        PayEnvironment.getInstance().setToken(token.getAccessToken());
-        //或者把token传给后端
-
-        NetUtil.getNet().exec(server.login4token(dev_id, "android"), new CallBack<ReturnBean<TokenBean>>() {
+        setToken(token, false);
+        NetUtil.getNet().exec(server.updateToken(dev_id, "android"), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
-                    setToken(response.body().getData());
+                    setToken(response.body().getData(), true);
+                    LogUtil.getLog().i("updateToken--成功", "--token=" + response.body().getData().getAccessToken());
+                    LogUtil.writeLog("updateToken--成功" + "--token=" + response.body().getData().getAccessToken() + "--time=" + System.currentTimeMillis());
                     getMyInfo4Web(response.body().getData().getUid(), "");
                     callback.onResponse(call, response);
                 } else {
@@ -372,6 +368,8 @@ public class UserAction {
             public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
                 super.onFailure(call, t);
                 callback.onFailure(call, t);
+                LogUtil.getLog().i("updateToken--失败", "--token=" + token.getAccessToken() + "--msg=" + t.getMessage());
+                LogUtil.writeLog("updateToken--失败" + "--token=" + token.getAccessToken() + "--msg=" + t.getMessage());
             }
         });
 
@@ -404,14 +402,18 @@ public class UserAction {
 
     /***
      * 应用和保存token,添加到http请求头
+     * 服务端有效期是7天，客户端3天刷新一次
      */
-    private void setToken(TokenBean token) {
-        long validTime = System.currentTimeMillis() + TimeToString.DAY * 7;
-        token.setValidTime(validTime);
+    private void setToken(TokenBean token, boolean isUpdate) {
+        if (isUpdate) {
+            long validTime = System.currentTimeMillis() + TimeToString.DAY * 3;
+            token.setValidTime(validTime);
+        }
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
         NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
         PayEnvironment.getInstance().setToken(token.getAccessToken());
-        LogUtil.writeLog("获取新token" + "--token=" + token.getAccessToken() + "--time=" + System.currentTimeMillis());
+        LogUtil.getLog().i("设置token", "--token=" + token.getAccessToken());
+        LogUtil.writeLog("设置token" + "--token=" + token.getAccessToken() + "--time=" + System.currentTimeMillis());
         //银行签名，加密存储
         if (!TextUtils.isEmpty(token.getBankReqSignKey())) {
             String key = token.getBankReqSignKey();
@@ -635,7 +637,7 @@ public class UserAction {
                 super.onResponse(call, response);
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
-                    setToken(response.body().getData());
+                    setToken(response.body().getData(), true);
                     getMyInfo4Web(response.body().getData().getUid(), "");
                 }
                 callback.onResponse(call, response);
@@ -660,7 +662,7 @@ public class UserAction {
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
-                    setToken(response.body().getData());
+                    setToken(response.body().getData(), true);
                     getMyInfo4Web(response.body().getData().getUid(), "");
                 }
                 callback.onResponse(call, response);

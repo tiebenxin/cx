@@ -48,7 +48,7 @@ public interface UserServer {
 
     @POST("/user/refresh-access-token")
     @FormUrlEncoded
-    Call<ReturnBean<TokenBean>> login4token(@Field("devid") String devid, @Field("platform") String platform);
+    Call<ReturnBean<TokenBean>> updateToken(@Field("devid") String devid, @Field("platform") String platform);
 
     @POST("/user/get-user-info")
     Call<ReturnBean<UserInfo>> getMyInfo();

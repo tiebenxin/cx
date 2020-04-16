@@ -617,6 +617,7 @@ public class MainActivity extends AppActivity {
         if (AppConfig.isOnline()) {
             checkHasEnvelopeSendFailed();
         }
+        checkTokenValid();
     }
 
     //检测支付环境的初始化
@@ -1418,6 +1419,20 @@ public class MainActivity extends AppActivity {
 //                    if (response != null && response.body() != null) {
 //                        LogUtil.getLog().i("MainActivity", "上报IP--" + response.body().getMsg());
 //                    }
+                }
+            });
+        }
+    }
+
+    //检测是否需要更新token
+    private void checkTokenValid() {
+        TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+        Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
+        if ((!token.isTokenValid(uid) /*|| token.getBankReqSignKey()==null*/) && NetUtil.isNetworkConnected()) {
+            userAction.updateToken(userAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>(false) {
+                @Override
+                public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                    super.onResponse(call, response);
                 }
             });
         }

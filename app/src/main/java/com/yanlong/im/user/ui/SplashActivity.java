@@ -174,19 +174,21 @@ public class SplashActivity extends AppActivity {
 
             @Override
             public void onMain() {
-                userAction.login4token(devId, new Callback<ReturnBean<TokenBean>>() {
+                userAction.updateToken(devId, new Callback<ReturnBean<TokenBean>>() {
                     @Override
                     public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                        LogUtil.getLog().e("youmeng", "SplashActivity---->updateToken---->onResponse");
-                        if (isFirst) {
-                            startActivity(new Intent(SplashActivity.this, SelectLoginActivity.class));
-                            setFinishFlags();
-                            finish();
-                        } else {
-                            startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                            setFinishFlags();
-                            finish();
-                        }
+                        startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                        setFinishFlags();
+                        finish();
+//                        if (isFirst) {
+//                            startActivity(new Intent(SplashActivity.this, SelectLoginActivity.class));
+//                            setFinishFlags();
+//                            finish();
+//                        } else {
+//                            startActivity(new Intent(SplashActivity.this, MainActivity.class));
+//                            setFinishFlags();
+//                            finish();
+//                        }
                     }
 
                     @Override
