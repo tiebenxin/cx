@@ -35,7 +35,6 @@ import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.eventbus.AckEvent;
-import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.forward.vm.ForwardViewModel;
 import com.yanlong.im.chat.ui.view.AlertForward;
@@ -47,7 +46,6 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
 
-import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.dialog.DialogCommon2;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.FileUtils;
@@ -712,7 +710,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         sendMessage(allBean);
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
-                    notifyRefreshMsg(bean.getGid(), bean.getUid());
                 }
                 isSingleSelected = true;
             }
@@ -726,7 +723,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     sendMessage(allBean);
                 }
                 sendLeaveMessage(content, toUid, toGid);
-                notifyRefreshMsg(toGid, toUid);
             } else {
                 for (int i = 0; i < moreSessionBeanList.size(); i++) {
                     MoreSessionBean bean = moreSessionBeanList.get(i);
@@ -737,7 +733,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         sendMessage(allBean);
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
-                    notifyRefreshMsg(bean.getGid(), bean.getUid());
                 }
                 isSingleSelected = true;
             }
@@ -757,7 +752,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     sendMessage(allBean);
                 }
                 sendLeaveMessage(content, toUid, toGid);
-                notifyRefreshMsg(toGid, toUid);
             } else {
                 for (int i = 0; i < moreSessionBeanList.size(); i++) {
                     MoreSessionBean bean = moreSessionBeanList.get(i);
@@ -768,7 +762,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         sendMessage = allBean;
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
-                    notifyRefreshMsg(bean.getGid(), bean.getUid());
                 }
                 isSingleSelected = true;
             }
@@ -780,7 +773,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     sendMessage(allBean);
                 }
                 sendLeaveMessage(content, toUid, toGid);
-                notifyRefreshMsg(toGid, toUid);
             } else {
                 for (int i = 0; i < moreSessionBeanList.size(); i++) {
                     MoreSessionBean bean = moreSessionBeanList.get(i);
@@ -791,7 +783,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         sendMessage = allBean;
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
-                    notifyRefreshMsg(bean.getGid(), bean.getUid());
                 }
                 isSingleSelected = true;
             }
@@ -814,11 +805,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     public void doSendSuccess() {
         ToastUtil.show(this, getResources().getString(R.string.forward_success));
         finish();
-    }
-
-    private void notifyRefreshMsg(String toGid, long toUid) {
-        MessageManager.getInstance().setMessageChange(true);
-        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(toGid) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUid, toGid, CoreEnum.ESessionRefreshTag.SINGLE, sendMessage);
     }
 
     @Override

@@ -13,21 +13,20 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.luck.picture.lib.utils.PicSaveUtils;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.utils.PicSaveUtils;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventMyUserInfo;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 
-import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
@@ -302,8 +301,13 @@ public class ImageHeadActivity extends AppActivity {
 
                     new MsgDao().updateGroupHead(gid, url);
 
-                    MessageManager.getInstance().setMessageChange(true);
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+                    /********通知更新sessionDetail************************************/
+                    //因为msg对象 uid有两个，都得添加
+                    String[] gids = new String[1];
+                    gids[0] = gid;
+                    //回主线程调用更新session详情
+                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
+                    /********通知更新sessionDetail end************************************/
                 }
                 imageHead = url;
                 ToastUtil.show(ImageHeadActivity.this, response.body().getMsg());
