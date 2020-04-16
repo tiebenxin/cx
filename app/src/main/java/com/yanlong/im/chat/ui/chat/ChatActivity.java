@@ -1942,39 +1942,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        if (event.getKeyCode() == KeyEvent.KEYCODE_DEL
-                && event.getAction() == KeyEvent.ACTION_DOWN
-                && event.getRepeatCount() == 0) {
-            //具体的操作代码
-            // 获取光标的位置。如果在最末，则同字符串长度
-            int start = editChat.getSelectionStart();
-            // 光标之前至少有一个字符。尽管显示的是图片，其实内容仍是字符
-            if (start > 0) {
-                String body = editChat.getText().toString();
-                if(body.charAt(start-1)==']') {//最后一个位置是]
-                    // 包括起始位置，不包括结束位置
-                    String substring = body.substring(0, start);
-                    // 预提取光标前最后一个表情的位置
-                    int i = substring.lastIndexOf("[");
-                    // 提取到了
-                    if (i != -1) {
-                        // 从预提取位置到光标直接的字符
-                        CharSequence cs = substring.subSequence(i, start);
-                        // 是不是表情占位符
-                        if (FaceView.map_FaceEmoji.containsKey(cs)) {
-                            // 是，就删除完整占位符
-                            editChat.getEditableText().delete(i, start);
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return super.dispatchKeyEvent(event);
-    }
-
-    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             finish();
