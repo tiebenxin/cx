@@ -23,7 +23,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.MainActivity;
-import com.yanlong.im.MainViewModel;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -608,7 +607,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     sendMessage(allBean);
                 }
                 sendLeaveMessage(content, toUid, toGid);
-                notifyRefreshMsg(toGid, toUid);
             } else {
                 for (int i = 0; i < moreSessionBeanList.size(); i++) {
                     MoreSessionBean bean = moreSessionBeanList.get(i);
@@ -619,7 +617,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         sendMessage(allBean);
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
-                    notifyRefreshMsg(bean.getGid(), bean.getUid());
                 }
                 isSingleSelected = true;
             }
@@ -635,7 +632,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     sendMessage(allBean);
                 }
                 sendLeaveMessage(content, toUid, toGid);
-                notifyRefreshMsg(toGid, toUid);
             } else {
                 for (int i = 0; i < moreSessionBeanList.size(); i++) {
                     MoreSessionBean bean = moreSessionBeanList.get(i);
@@ -649,7 +645,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         sendMessage(allBean);
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
-                    notifyRefreshMsg(bean.getGid(), bean.getUid());
                 }
                 isSingleSelected = true;
             }
@@ -661,7 +656,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     sendMessage(allBean);
                 }
                 sendLeaveMessage(content, toUid, toGid);
-                notifyRefreshMsg(toGid, toUid);
             } else {
                 for (int i = 0; i < moreSessionBeanList.size(); i++) {
                     MoreSessionBean bean = moreSessionBeanList.get(i);
@@ -672,7 +666,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         sendMessage(allBean);
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
-                    notifyRefreshMsg(bean.getGid(), bean.getUid());
                 }
                 isSingleSelected = true;
             }
@@ -685,7 +678,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     sendMessage(allBean);
                 }
                 sendLeaveMessage(content, toUid, toGid);
-                notifyRefreshMsg(toGid, toUid);
             } else {
                 for (int i = 0; i < moreSessionBeanList.size(); i++) {
                     MoreSessionBean bean = moreSessionBeanList.get(i);
@@ -696,7 +688,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         sendMessage(allBean);
                     }
                     sendLeaveMessage(content, bean.getUid(), bean.getGid());
-                    notifyRefreshMsg(bean.getGid(), bean.getUid());
                 }
                 isSingleSelected = true;
             }
@@ -710,7 +701,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     sendMessage(allBean);
                 }
                 sendLeaveMessage(content, toUid, toGid);
-                notifyRefreshMsg(toGid, toUid);
             } else {
                 for (int i = 0; i < moreSessionBeanList.size(); i++) {
                     MoreSessionBean bean = moreSessionBeanList.get(i);

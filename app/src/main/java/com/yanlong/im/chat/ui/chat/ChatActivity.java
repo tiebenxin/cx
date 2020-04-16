@@ -549,10 +549,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
         boolean hasChange = updateSessionDraftAndAtMessage();
 //        LogUtil.getLog().e("===hasClear="+hasClear+"==hasUpdate="+hasUpdate+"==hasChange="+hasChange);
-        if (hasClear || hasUpdate || hasChange) {
-            MessageManager.getInstance().setMessageChange(true);
-            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
-        }
     }
 
     private void stopScreenShotListener() {
@@ -979,7 +975,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     SocketData.send4Image(imgMsgId, toUId, toGid, bean.getServerPath(), true, img, -1);
                 }
                 notifyData2Bottom(true);
-                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
             }
         }
     }
@@ -1840,9 +1835,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
         if (msgAllBean != null) {
             SocketData.sendAndSaveMessage(msgAllBean);
-            //撤销是最后一条消息，则需要刷新
+            //撤回消息是最后一条消息，则需要刷新
             if (mAdapter != null && position == mAdapter.getItemCount() - 1) {
-                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
+                //因为msg对象 uid有两个，都得添加
+                String[] gids = new String[1];
+                Long[] uids = new Long[1];
+                gids[0] = toGid;
+                uids[0] = toUId;
+                //回主线程调用更新sessionDetial
+                MyAppLication.INSTANCE().repository.updateSessionDetail(gids,uids);
             }
         }
     }
@@ -1859,7 +1860,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
             //cancel消息发送前不需要更新
             mAdapter.addMessage(msgAllBean);
-            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
         }
     }
 
@@ -1876,7 +1876,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if (msgType != ChatEnum.EMessageType.MSG_CANCEL) {
                 showSendObj(msgAllBean);
             }
-            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
         }
     }
 
@@ -1899,11 +1898,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
             SocketData.sendAndSaveMessage(msgAllBean, canSend);
             showSendObj(msgAllBean);
-            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
         } else {
             SocketData.saveMessage(msgAllBean);
             showSendObj(msgAllBean);
-            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
         }
         return msgAllBean;
     }
@@ -1922,11 +1919,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (msgAllBean != null && canSend) {
             SocketData.sendAndSaveMessage(msgAllBean, canSend);
             replaceListDataAndNotify(msgAllBean);
-            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
         } else {
             SocketData.saveMessage(msgAllBean);
             replaceListDataAndNotify(msgAllBean);
-            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
         }
         return msgAllBean;
     }
@@ -2157,7 +2152,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                 }
 
-                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, imgMsgBean);
                 notifyData2Bottom(true);
 
                 if (i % 10 == 0) {
@@ -2676,7 +2670,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             }
                         }
                     }
-                    MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, imgMsgBean);
                     notifyData2Bottom(true);
 
                     break;
@@ -2796,7 +2789,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     }
                     //刷新首页消息列表
-                    MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, fileMsgBean);
                     notifyData2Bottom(true);
                     break;
 
@@ -3658,7 +3650,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (position >= 0) {
                     mAdapter.removeItem(msgbean);
                     mtListView.getListView().getAdapter().notifyItemRemoved(position);//删除刷新
-                    MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                 }
             }
         });
@@ -4077,10 +4068,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 unreadCount = session.getUnread_count();
             }
             dao.sessionReadClean(session);
-            if (isFirst) {
-                MessageManager.getInstance().setMessageChange(true);
-                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
-            }
             return true;
         }
         return false;
@@ -4271,7 +4258,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             if (envelopeStatus == 0 && grabRpBean.isHadGrabRp()) {
                                 MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE);
                                 showSendObj(msgAllbean);
-                                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+                                /********通知更新sessionDetail************************************/
+                                //因为msg对象 uid有两个，都得添加
+                                String[] gids = new String[1];
+                                Long[] uids = new Long[2];
+                                gids[0] = msgAllbean.getGid();
+                                uids[0] = msgAllbean.getFrom_uid();
+                                uids[1] = msgAllbean.getTo_uid();
+                                //回主线程调用更新session详情
+                                MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+                                /********通知更新sessionDetail end************************************/
                                 taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
                             }
                             if (envelopeStatus == 2 || envelopeStatus == 3) {
@@ -5045,7 +5041,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         envelopeInfo.setSendStatus(0);
         envelopeInfo.setSign("");
         msgDao.updateEnvelopeInfo(envelopeInfo);
-        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
     }
 
     //删除临时红包信息
@@ -5056,7 +5051,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             int len = mAdapter.getItemCount();
             lastMsg = mAdapter.getMessage(len - 1);
         }
-        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, lastMsg);
     }
 
     /**

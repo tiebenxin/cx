@@ -1,7 +1,5 @@
 package com.yanlong.im.chat.dao;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -2281,23 +2279,16 @@ public class MsgDao {
         realm.commitTransaction();
         realm.close();
         EventBus.getDefault().post(new EventRefreshChat());
+        /********通知更新sessionDetail************************************/
+        //因为msg对象 uid有两个，都得添加
+        String[] gids = new String[1];
+        Long[] uids = new Long[2];
+        gids[0] = msgAllBean.getGid();
+        uids[0] = msgAllBean.getFrom_uid();
+        uids[1] = msgAllBean.getTo_uid();
         //回主线程调用更新session详情
-        Handler mainHandler = new Handler(Looper.getMainLooper());
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                //更新Detail详情
-                if (MyAppLication.INSTANCE().repository != null) {
-                    //因为msg对象 uid有两个，都得添加
-                    String[] gids = new String[1];
-                    Long[] uids = new Long[2];
-                    gids[0] = msgAllBean.getGid();
-                    uids[0] = msgAllBean.getFrom_uid();
-                    uids[1] = msgAllBean.getTo_uid();
-                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
-                }
-            }
-        });
+        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        /********通知更新sessionDetail end************************************/
         return msgAllBean;
     }
 

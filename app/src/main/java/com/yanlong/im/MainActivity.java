@@ -796,7 +796,16 @@ public class MainActivity extends AppActivity {
                 eventRefreshChat.isScrollBottom = true;
                 EventBus.getDefault().post(eventRefreshChat);
                 if (msgAllbean != null) {
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, event.toUId, event.toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+                    /********通知更新sessionDetail************************************/
+                    //因为msg对象 uid有两个，都得添加
+                    String[] gids = new String[1];
+                    Long[] uids = new Long[2];
+                    gids[0] = msgAllbean.getGid();
+                    uids[0] = msgAllbean.getFrom_uid();
+                    uids[1] = msgAllbean.getTo_uid();
+                    //回主线程调用更新session详情
+                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+                    /********通知更新sessionDetail end************************************/
                 }
             }
         }
@@ -905,6 +914,7 @@ public class MainActivity extends AppActivity {
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone() + "");
         }
         userAction.cleanInfo();
+        MyAppLication.INSTANCE().destoryRepository();
     }
 
     private void uploadApp() {

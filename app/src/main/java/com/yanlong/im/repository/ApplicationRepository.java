@@ -1,6 +1,8 @@
 package com.yanlong.im.repository;
 
 
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 
 import com.yanlong.im.chat.bean.Session;
@@ -209,7 +211,15 @@ public class ApplicationRepository {
      * @param
      */
     public void updateSessionDetail(String[] gids,Long[] uids) {
-        localDataSource.updateSessionDetail(gids,uids);
+        //回主线程调用更新session详情
+        Handler mainHandler = new Handler(Looper.getMainLooper());
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                //更新Detail详情
+                localDataSource.updateSessionDetail(gids,uids);
+            }
+        });
     }
 
     public RealmResults<UserInfo> getFriends() {
