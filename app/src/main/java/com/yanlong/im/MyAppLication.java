@@ -63,7 +63,7 @@ public class MyAppLication extends MainApplication {
     private final String U_APP_KEY = "5d53659c570df3d281000225";
 
     public LocationService locationService;
-//    public Vibrator mVibrator;
+    //    public Vibrator mVibrator;
     //全局数据仓库
     public ApplicationRepository repository;
 
@@ -169,25 +169,6 @@ public class MyAppLication extends MainApplication {
     }
     public void removeSessionChangeListener(ApplicationRepository.SessionChangeListener sessionChangeListener){
         if(repository!=null)repository.removeSessionChangeListener(sessionChangeListener);
-    }
-
-    /**
-     * 加载更多session,每100条递增
-     */
-    public void loadMoreSessions(){
-        if(repository!=null)repository.loadMoreSessions();
-    }
-
-    /**
-     * 加载更多通讯录好友,每1000条递增
-     */
-    public void loadMoreFriends(){
-        if(repository!=null)repository.loadMoreFriends();
-    }
-
-
-    public void notifyBurnQuene(){
-        if(repository!=null)repository.notifyBurnQuene();
     }
     private void initBuildType() {
         switch (BuildConfig.BUILD_TYPE) {

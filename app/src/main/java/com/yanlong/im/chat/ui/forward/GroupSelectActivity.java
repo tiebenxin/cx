@@ -22,14 +22,12 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityGroupSaveBinding;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.wight.avatar.MultiImageView;
 
-import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -208,7 +206,6 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
             sendLeaveMessage(content, uid, gid);
             ToastUtil.show(GroupSelectActivity.this, getResources().getString(net.cb.cb.library.R.string.forward_success));
             setResult(RESULT_OK);
-            notifyRefreshMsg(gid, uid);
         } else if (msgAllBean.getAtMessage() != null) {
             sendMessage(uid, gid, msgAllBean.getAtMessage().getMsg(), content);
         } else if (msgAllBean.getVideoMessage() != null) {
@@ -222,7 +219,6 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
             sendLeaveMessage(content, uid, gid);
             ToastUtil.show(GroupSelectActivity.this, getResources().getString(net.cb.cb.library.R.string.forward_success));
             setResult(RESULT_OK);
-            notifyRefreshMsg(gid, uid);
         } else if (msgAllBean.getLocationMessage() != null) {
             LocationMessage location = msgAllBean.getLocationMessage();
             LocationMessage locationMessage = SocketData.createLocationMessage(SocketData.getUUID(), location);
@@ -232,7 +228,6 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                 sendMesage = allBean;
             }
             sendLeaveMessage(content, uid, gid);
-            notifyRefreshMsg(gid, uid);
         } else if (msgAllBean.getShippedExpressionMessage() != null) {
             ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(), msgAllBean.getShippedExpressionMessage().getId());
             MsgAllBean allBean = SocketData.createMessageBean(uid, gid, ChatEnum.EMessageType.SHIPPED_EXPRESSION, ChatEnum.ESendStatus.SENDING,
@@ -242,7 +237,6 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                 sendMesage = allBean;
             }
             sendLeaveMessage(content, uid, gid);
-            notifyRefreshMsg(gid, uid);
         }
     }
 
@@ -260,12 +254,6 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
         }
         sendLeaveMessage(comments, msgUid, msgGid);
         setResult(RESULT_OK);
-        notifyRefreshMsg(msgGid, msgUid);
-    }
-
-    private void notifyRefreshMsg(String toGid, long toUid) {
-        MessageManager.getInstance().setMessageChange(true);
-        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(toGid) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUid, toGid, CoreEnum.ESessionRefreshTag.SINGLE, sendMesage);
     }
 
     //自动生成RecyclerViewAdapter

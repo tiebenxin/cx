@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.text.TextUtils;
 
 import com.hm.cxpay.eventbus.PayResultEvent;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ApplyBean;
@@ -63,7 +64,6 @@ import retrofit2.Response;
 
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACCEPT_BE_FRIENDS;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACTIVE_STAT_CHANGE;
-import static com.yanlong.im.utils.socket.MsgBean.MessageType.CANCEL;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.P2P_AU_VIDEO_DIAL;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REMOVE_FRIEND;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REQUEST_FRIEND;
@@ -512,8 +512,6 @@ public class MessageManager {
                     gid = gid == null ? "" : gid;
                     msgDao.sessionReadClean(gid, uids);
                     boolean isGroup = isGroup(wrapMessage.getFromUid(), gid);
-                    //更新未读数UI
-                    notifyRefreshMsg(isGroup ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, uids, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                 }
                 break;
             case SWITCH_CHANGE: //开关变更
@@ -595,13 +593,6 @@ public class MessageManager {
             if (!isGroup && isFromSelf) {
                 chatterId = wrapMessage.getToUid();
             }
-            if (wrapMessage.getMsgType() == CANCEL) {//撤销消息不能传值，因为撤销消息不一定是当前会话最后一条消息
-                if (isCancelValid) {
-                    notifyRefreshMsg(isGroup ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, chatterId, bean.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, null);
-                }
-            } else {
-                notifyRefreshMsg(isGroup ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, chatterId, bean.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, bean);
-            }
         }
 
         //记录批量信息来源
@@ -652,12 +643,11 @@ public class MessageManager {
 
     //重新生成群头像
     public void changeGroupAvatar(String gid) {
-//        Group group = msgDao.getGroup4Id(gid);
-//        if (group != null) {
-//            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
-//        }
-        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
-
+        //撤回消息更新session详情
+        String[] gids = new String[1];
+        gids[0] = gid;
+        //回主线程调用更新sessionDetial
+        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
     }
 
     private void removeGroupMember(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
@@ -781,9 +771,18 @@ public class MessageManager {
             LogUtil.getLog().d("a=", TAG + "--消息存储失败--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
         }
 //        LogUtil.getLog().d("a=", TAG + "--消息存储成功--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
-        if(isFromSelf){
+        if (isFromSelf) {
             //自己PC 端发的消息刷新session
-            notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, -1L, "", CoreEnum.ESessionRefreshTag.ALL, null);
+            /********通知更新sessionDetail************************************/
+            //因为msg对象 uid有两个，都得添加
+            String[] gids = new String[1];
+            Long[] uids = new Long[2];
+            gids[0] = msgAllBean.getGid();
+            uids[0] = msgAllBean.getFrom_uid();
+            uids[1] = msgAllBean.getTo_uid();
+            //回主线程调用更新session详情
+            MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+            /********通知更新sessionDetail end************************************/
         }
 
         return result;
@@ -813,8 +812,6 @@ public class MessageManager {
                     }
                 } else {
                     updateSessionUnread(gid, uid, bean, null);
-                    setMessageChange(true);
-                    notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
                 }
             }
 
@@ -829,7 +826,6 @@ public class MessageManager {
                     }
                 } else {
                     updateSessionUnread(gid, uid, bean, null);
-                    notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
                 }
             }
         });
@@ -859,8 +855,6 @@ public class MessageManager {
                     }
                 } else {
                     updateSessionUnread(gid, uid, bean, "first");
-                    setMessageChange(true);
-                    notifyRefreshMsg(CoreEnum.EChatType.GROUP, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
                 }
             }
 
@@ -1039,6 +1033,22 @@ public class MessageManager {
 
             }
         }
+        EventBus.getDefault().post(eventRefreshMainMsg);
+    }
+
+    /**
+     * 通过sid 刷新某个session
+     *
+     * @param chatType
+     * @param sid
+     * @param refreshTag
+     */
+    public void notifyRefreshMsg(@CoreEnum.EChatType int chatType, String sid, @CoreEnum.ESessionRefreshTag int refreshTag) {
+        setMessageChange(true);
+        EventRefreshMainMsg eventRefreshMainMsg = new EventRefreshMainMsg();
+        eventRefreshMainMsg.setType(chatType);
+        eventRefreshMainMsg.setSid(sid);
+        eventRefreshMainMsg.setRefreshTag(refreshTag);
         EventBus.getDefault().post(eventRefreshMainMsg);
     }
 
@@ -1622,7 +1632,11 @@ public class MessageManager {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
                 notifyGroupChange(false);
-                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+                //因为msg对象 uid有两个，都得添加
+                String[] gids = new String[1];
+                gids[0] = gid;
+                //回主线程调用更新sessionDetial
+                MyAppLication.INSTANCE().repository.updateSessionDetail(gids,null);
             }
 
             @Override
