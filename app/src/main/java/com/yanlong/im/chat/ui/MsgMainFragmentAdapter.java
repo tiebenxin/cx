@@ -263,7 +263,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     if (ViewUtils.isFastDoubleClick()) {
                         return;
                     }
-                    context.startActivity(new Intent(context, ChatActivity.class)
+                    context.startActivity(new Intent(context, ChatActivityTemp.class)
                             .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
                             .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
                             .putExtra(ChatActivity.ONLINE_STATE, viewModel.onlineState.getValue())
