@@ -13,12 +13,12 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
@@ -27,8 +27,6 @@ import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.RefreshApplyEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.GsonUtils;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -305,7 +303,13 @@ public class FriendApplyAcitvity extends AppActivity {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+                    /********通知更新sessionDetail************************************/
+                    //因为msg对象 uid有两个，都得添加
+                    String[] gids = new String[1];
+                    gids[0] = gid;
+                    //回主线程调用更新session详情
+                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
+                    /********通知更新sessionDetail end************************************/
                 }
             }
         });

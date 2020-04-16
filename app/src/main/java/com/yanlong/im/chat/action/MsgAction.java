@@ -23,7 +23,6 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
-import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
@@ -381,11 +380,6 @@ public class MsgAction {
                             dao.updateGroupAndSessionDisturb(gid, notNotify.intValue());
 //                            MessageManager.getInstance().updateCacheTopOrDisturb(gid, 0, notNotify.intValue());
                             isTop = false;
-                        }
-                        //置顶通知刷新，面打扰在activity onStop时再刷新，避免快速点击开关的时候，造成刷新异常
-                        if (isTop) {
-                            MessageManager.getInstance().setMessageChange(true);
-                            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, session, isTop);
                         }
                     }
                 }

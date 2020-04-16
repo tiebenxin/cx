@@ -26,7 +26,6 @@ import com.yanlong.im.chat.ui.groupmanager.SetupSysManagerActivity;
 import com.yanlong.im.databinding.ActivityGroupManageBinding;
 import com.yanlong.im.utils.socket.SocketData;
 
-import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -393,7 +392,6 @@ public class GroupManageActivity extends BaseBindActivity<ActivityGroupManageBin
             MsgNotice notice = SocketData.createMsgNoticeOfBanWords(SocketData.getUUID(), flag);
             MsgAllBean msgAllBean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
             MessageManager.getInstance().saveMessage(msgAllBean);
-            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
             MessageManager.getInstance().notifyRefreshChat();
         }
     }

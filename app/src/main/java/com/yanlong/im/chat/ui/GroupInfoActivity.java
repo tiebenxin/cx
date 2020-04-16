@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
@@ -42,7 +43,6 @@ import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.GlideOptionsUtil;
-import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
@@ -66,7 +66,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -327,7 +326,6 @@ public class GroupInfoActivity extends AppActivity {
                         MsgDao msgDao = new MsgDao();
                         msgDao.msgDel(null, gid);
                         EventBus.getDefault().post(new EventRefreshChat());
-                        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                         ToastUtil.show(GroupInfoActivity.this, "删除成功");
                     }
                 });
@@ -670,7 +668,6 @@ public class GroupInfoActivity extends AppActivity {
 //                    updateAndGetGroup();
                     setGroupNote(ginfo.getAnnouncement());
                     createAndSaveMsg();
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, null, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                     isBackValue = true;
                     break;
                 case GROUP_MANAGER:
@@ -808,7 +805,10 @@ public class GroupInfoActivity extends AppActivity {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
                     if (isMemberChange) {
-                        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+                        String[] gids = new String[1];
+                        gids[0] =  ginfo.getGid();
+                        //回主线程调用更新sessionDetial
+                        MyAppLication.INSTANCE().repository.updateSessionDetail(gids,null);
                     }
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
                     setGroupNote(ginfo.getAnnouncement());

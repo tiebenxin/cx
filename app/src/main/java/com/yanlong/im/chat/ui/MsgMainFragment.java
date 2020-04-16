@@ -455,14 +455,6 @@ public class MsgMainFragment extends Fragment {
         if (MessageManager.getInstance().isMessageChange()) {
             MessageManager.getInstance().setMessageChange(false);
             int refreshTag = event.getRefreshTag();
-//            if (refreshTag == CoreEnum.ESessionRefreshTag.DELETE) {
-//                //阅后即焚 -更新
-//                viewModel.updateItemSessionDetail();
-//                LogUtil.getLog().d("a==", "MsgMainFragment --删除session");
-//                MessageManager.getInstance().deleteSessionAndMsg(event.getUid(), event.getGid());
-//                MessageManager.getInstance().notifyRefreshMsg();//更新main界面未读数
-//            } else
-//
             //刷新 单个记录 by sid
             if (refreshTag == CoreEnum.ESessionRefreshTag.SINGLE) {
                 String sid=event.getSid();//刷新页面-暂时是为了及时刷新草稿用的

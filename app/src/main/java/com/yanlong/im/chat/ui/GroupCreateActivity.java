@@ -16,7 +16,6 @@ import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
@@ -25,7 +24,6 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
 
-import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.StringUtil;
@@ -356,8 +354,6 @@ public class GroupCreateActivity extends AppActivity {
                     return;
                 }
                 if (response.body().isOk()) {
-                    MessageManager.getInstance().setMessageChange(true);
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, response.body().getData().getGid(), CoreEnum.ESessionRefreshTag.SINGLE, null);
                     startActivity(new Intent(getContext(), ChatActivity.class).putExtra(ChatActivity.AGM_TOGID, response.body().getData().getGid()).putExtra(ChatActivity.GROUP_CREAT, "creat"));
                     finish();
                 } else {

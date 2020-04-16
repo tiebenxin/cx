@@ -35,7 +35,6 @@ import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
-import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.CloseActivityEvent;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventIsShowRead;
@@ -389,7 +388,6 @@ public class ChatInfoActivity extends AppActivity {
     private void taskDelMsg() {
         msgDao.msgDel(fuid, null);
         EventBus.getDefault().post(new EventRefreshChat());
-        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, fuid, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
         ToastUtil.show(ChatInfoActivity.this, "删除成功");
     }
 
@@ -412,7 +410,6 @@ public class ChatInfoActivity extends AppActivity {
 //                        msgDao.updateUserDisturb(fuid, isMute.intValue());TODO 消息列表没数据时会报java.lang.IllegalStateException异常
                     }
                     MessageManager.getInstance().setMessageChange(true);
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, fuid, "", CoreEnum.ESessionRefreshTag.SINGLE, session, true);
                     MessageManager.getInstance().notifySwitchDisturb();
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());
