@@ -10,7 +10,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,8 +21,6 @@ import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MainViewModel;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
@@ -113,7 +110,6 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             String name = "";
             List<String> avatarList = null;
             String info = "";
-            Log.e("raleigh_test", "sessionMoresPositions=" + viewModel.sessionMoresPositions.size());
             if (viewModel.sessionMoresPositions.containsKey(bean.getSid())) {
                 Integer index = viewModel.sessionMoresPositions.get(bean.getSid());
                 if (index != null && index >= 0) {
@@ -130,6 +126,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     info = viewModel.sessionMores.get(index).getMessageContent();
                 }
             }
+
             // 头像集合
             List<String> headList = new ArrayList<>();
 
@@ -238,11 +235,11 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     headList.add(icon);
                     holder.imgHead.setList(headList);
                 } else {
-                    if (avatarList != null && avatarList.size() > 0) {
-                        holder.imgHead.setList(avatarList);
-                    } else {
-                        loadGroupHeads(bean, holder.imgHead);
+                    if (avatarList == null || avatarList.size() == 0) {//没有头像，设个默认的，否则会出现头像为全灰色
+                        avatarList = new ArrayList<>();
+                        avatarList.add("");
                     }
+                    holder.imgHead.setList(avatarList);
                 }
             }
 
@@ -337,29 +334,6 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         txtInfo.setText(spannableString, TextView.BufferType.SPANNABLE);
 //            txtInfo.invalidate();
     }
-
-    /**
-     * 加载群头像
-     *
-     * @param bean
-     * @param imgHead
-     */
-    public synchronized void loadGroupHeads(Session bean, MultiImageView imgHead) {
-//            LogUtil.getLog().d(MsgMainFragment.class.getSimpleName(), "loadGroupAvatar--" + bean.getGid());
-        Group gginfo = viewModel.getGroup4Id(bean.getGid());
-        if (gginfo != null) {
-            int i = gginfo.getUsers().size();
-            i = i > 9 ? 9 : i;
-            //头像地址
-            List<String> headList = new ArrayList<>();
-            for (int j = 0; j < i; j++) {
-                MemberUser userInfo = gginfo.getUsers().get(j);
-                headList.add(userInfo.getHead());
-            }
-            imgHead.setList(headList);
-        }
-    }
-
 
     public class RCViewHolder extends RecyclerView.ViewHolder {
         private MultiImageView imgHead;
