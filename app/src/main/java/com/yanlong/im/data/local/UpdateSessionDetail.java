@@ -111,13 +111,13 @@ public class UpdateSessionDetail {
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                if (gids.length > 0) {
+                if (gids!=null &&gids.length > 0) {
                     RealmResults<Session> groupSessions = realm.where(Session.class).in("gid", gids).findAll();
                     for (Session session : groupSessions) {
                         synchGroupMsgSession(realm, session, null);
                     }
                 }
-                if (fromUids.length > 0) {
+                if (fromUids!=null &&fromUids.length > 0) {
                     RealmResults<Session> friendSessions = realm.where(Session.class).in("from_uid", fromUids).findAll();
                     for (Session session : friendSessions) {
                         synchFriendMsgSession(realm, session, null);
