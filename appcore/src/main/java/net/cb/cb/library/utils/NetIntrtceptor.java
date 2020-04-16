@@ -1,5 +1,9 @@
 package net.cb.cb.library.utils;
 
+import android.content.Context;
+import android.os.Build;
+import android.text.TextUtils;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tencent.bugly.crashreport.BuglyLog;
@@ -24,6 +28,7 @@ import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 
 /***
@@ -40,30 +45,32 @@ public class NetIntrtceptor implements Interceptor {
 
     @Override
     public Response intercept(Chain chain) throws IOException {
-        if (AppConfig.DEBUG)
+        if (AppConfig.DEBUG) {
             LogUtil.getLog().i(TAG, "<<进入拦截器");
+        }
+        //wifi开启代理的情况下，取消请求
+//        if (isWifiProxy(AppConfig.getContext())) {
+//            try {
+//                LogUtil.getLog().e(TAG + "--网络代理", "token==" + headers.get("X-Access-Token"));
+//                LogUtil.writeLog(TAG + "--网络代理--token=" + headers.get("X-Access-Token") + "--time=" + System.currentTimeMillis());
+//            } catch (Exception e) {
+//            }
+//            chain.call().cancel();
+//        }
         Request request = chain.request().newBuilder()
                 .headers(headers)
                 .build();
-
         request = interceptor4Front(chain, request);
-
         Response resp = chain.proceed(request);
-
         resp = interceptor4After(resp);
-
-
         return resp;
     }
 
     //前拦截
     private Request interceptor4Front(Chain chain, Request request) {
         String url = request.url().encodedPath();
-
-
         //post自动追加platform 参数
         RequestBody reqbody = request.body();
-
         if (request.method().equals("POST")) {
             String json = "";
             if (reqbody instanceof FormBody) {
@@ -116,8 +123,10 @@ public class NetIntrtceptor implements Interceptor {
                 BuglyLog.i(BuglyTag.BUGLY_TAG_3, "401：" + resp.message());
                 CrashReport.postCatchedException(new BuglyException());
                 EventBus.getDefault().post(new EventLoginOut());
+                if (headers != null) {
+                    LogUtil.writeLog("网络请求401" + "--token=" + headers.get("X-Access-Token") + "--time=" + System.currentTimeMillis());
+                }
                 break;
-
             case 403:
                 LogUtil.getLog().e(TAG, "<<拦截器:403 url:" + resp.request().url().url().toString());
                 // 上报后的Crash会显示该标签
@@ -126,6 +135,9 @@ public class NetIntrtceptor implements Interceptor {
                 BuglyLog.e(BuglyTag.BUGLY_TAG_3, "403：" + resp.message() /*+ " " + resp.body()*/);
                 CrashReport.postCatchedException(new BuglyException());
                 EventBus.getDefault().post(new EventLoginOut());
+                if (headers != null) {
+                    LogUtil.writeLog("网络请求403" + "--token=" + headers.get("X-Access-Token") + "--time=" + System.currentTimeMillis());
+                }
                 break;
             case 404:
                 LogUtil.getLog().e(TAG, "<<拦截器:404 url:" + resp.request().url().url().toString());
@@ -136,6 +148,22 @@ public class NetIntrtceptor implements Interceptor {
         }
 
         return resp;
+    }
+
+    //是否开启了网络代理
+    private boolean isWifiProxy(Context context) {
+        final boolean IS_ICS_OR_LATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+        String proxyAddress;
+        int proxyPort;
+        if (IS_ICS_OR_LATER) {
+            proxyAddress = System.getProperty("http.proxyHost");
+            String portStr = System.getProperty("http.proxyPort");
+            proxyPort = Integer.parseInt((portStr != null ? portStr : "-1"));
+        } else {
+            proxyAddress = android.net.Proxy.getHost(context);
+            proxyPort = android.net.Proxy.getPort(context);
+        }
+        return (!TextUtils.isEmpty(proxyAddress)) && (proxyPort != -1);
     }
 
 }

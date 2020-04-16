@@ -1,6 +1,5 @@
 package com.hm.cxpay.rx;
 
-import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.constant.AppHostUtil;
 
 /**
