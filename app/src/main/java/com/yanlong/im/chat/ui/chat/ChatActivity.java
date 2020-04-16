@@ -1835,16 +1835,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
         if (msgAllBean != null) {
             SocketData.sendAndSaveMessage(msgAllBean);
-            //撤回消息是最后一条消息，则需要刷新
-            if (mAdapter != null && position == mAdapter.getItemCount() - 1) {
-                //因为msg对象 uid有两个，都得添加
-                String[] gids = new String[1];
-                Long[] uids = new Long[1];
-                gids[0] = toGid;
-                uids[0] = toUId;
-                //回主线程调用更新sessionDetial
-                MyAppLication.INSTANCE().repository.updateSessionDetail(gids,uids);
-            }
         }
     }
 
