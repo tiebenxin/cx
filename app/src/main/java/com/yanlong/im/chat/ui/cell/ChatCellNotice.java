@@ -1,8 +1,15 @@
 package com.yanlong.im.chat.ui.cell;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,14 +19,19 @@ import com.yanlong.im.chat.MsgTagHandler;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
+import com.yanlong.im.chat.ui.ChatActivityTemp;
 import com.yanlong.im.utils.HtmlTransitonUtils;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 
 /*
  * 通知消息, 撤回消息
  * */
 public class ChatCellNotice extends ChatCellBase {
+    private final int RELINQUISH_TIME = 5;// 5分钟内显示重新编辑
+    private final String REST_EDIT = "重新编辑";
 
     private TextView tv_content;
     private ImageView iv_icon;
@@ -88,4 +100,5 @@ public class ChatCellNotice extends ChatCellBase {
             }
         }
     }
+
 }

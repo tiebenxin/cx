@@ -105,6 +105,8 @@ public class HtmlTransitonUtils {
                     } else {
                         setType19(context, style, bean);
                     }
+                case ChatEnum.ENoticeType.CANCEL_CAN_EDIT://撤销能重新编辑
+
                     break;
             }
         }
@@ -471,7 +473,12 @@ public class HtmlTransitonUtils {
         ClickableSpan clickProtocol = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-                showLockDialog(context);
+//                ThreadUtil.getInstance().runMainThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        showLockDialog(context);
+//                    }
+//                });
             }
 
             @Override
@@ -483,7 +490,6 @@ public class HtmlTransitonUtils {
         builder.setSpan(clickProtocol, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#1f5305"));
         builder.setSpan(protocolColorSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
         builder.append("保护");
 
     }
@@ -821,11 +827,6 @@ public class HtmlTransitonUtils {
         LockDialog lockDialog = new LockDialog(context, R.style.MyDialogNoFadedTheme);
         lockDialog.setCancelable(true);
         lockDialog.setCanceledOnTouchOutside(true);
-//        WindowManager windowManager = ((Activity) context).getWindowManager();
-//        Display display = windowManager.getDefaultDisplay();
-//        WindowManager.LayoutParams lp = lockDialog.getWindow().getAttributes();
-//        lp.width = (int) (display.getWidth()); //设置宽度
-//        lockDialog.getWindow().setAttributes(lp);
         lockDialog.create();
         lockDialog.show();
     }
@@ -892,4 +893,6 @@ public class HtmlTransitonUtils {
         ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#cc5944"));
         builder.setSpan(protocolColorSpan, builder.toString().length() - 3, builder.toString().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
+
 }
+
