@@ -149,6 +149,11 @@ public class MessageAdapter extends RecyclerView.Adapter {
                 videoCell.updateMessage(msg);
                 int progress = UpLoadService.getProgress(msg.getMsg_id());
                 videoCell.updateProgress(msg.getSend_state(), progress);
+            } else if (msg.getMsg_type() == ChatEnum.EMessageType.FILE) {
+                ChatCellFile fileCell = (ChatCellFile) viewHolder;
+                fileCell.updateMessage(msg);
+                int progress = UpLoadService.getProgress(msg.getMsg_id());
+                fileCell.updateProgress(msg.getSend_state(), progress);
             } else {
                 onBindViewHolder(viewHolder, position);
             }
