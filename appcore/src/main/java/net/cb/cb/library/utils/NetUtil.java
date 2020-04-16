@@ -144,6 +144,10 @@ public class NetUtil {
         //开启了代理，直接返回失败
         if (isWifiProxy(AppConfig.getContext())) {
             LogUtil.getLog().e("NetUtil", "网络代理异常，请求失败");
+            try {
+                LogUtil.writeLog("NetUtil" + "--网络代理--token=" + NetIntrtceptor.headers.get("X-Access-Token") + "--time=" + System.currentTimeMillis());
+            } catch (Exception e) {
+            }
             callBack.onFailure(call, new ProxyException("网络代理异常，请求失败"));
             return call;
         }

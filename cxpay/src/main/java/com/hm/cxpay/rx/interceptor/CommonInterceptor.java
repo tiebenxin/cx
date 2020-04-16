@@ -1,11 +1,15 @@
 package com.hm.cxpay.rx.interceptor;
 
+import android.content.Context;
+import android.os.Build;
 import android.text.TextUtils;
 
 
 import com.hm.cxpay.global.PayEnvironment;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.manager.TokenManager;
+import net.cb.cb.library.utils.LogUtil;
 
 import java.io.IOException;
 
@@ -27,6 +31,12 @@ public class CommonInterceptor implements Interceptor {
 
     @Override
     public Response intercept(Chain chain) throws IOException {
+        //wifi开启代理的情况下，取消请求
+        if (isWifiProxy(AppConfig.getContext())) {
+            LogUtil.getLog().e("CommonInterceptor--网络代理", "token==" + PayEnvironment.getInstance().getToken());
+            LogUtil.writeLog("CommonInterceptor--网络代理--token=" + PayEnvironment.getInstance().getToken() + "--time=" + System.currentTimeMillis());
+            chain.call().cancel();
+        }
         Request oldRequest = chain.request();
         /**
          * 公共参数
@@ -34,7 +44,6 @@ public class CommonInterceptor implements Interceptor {
         HttpUrl.Builder authorizedUrlBuilder = oldRequest.url()
                 .newBuilder()
                 .scheme(oldRequest.url().scheme())
-
                 .host(oldRequest.url().host());
 
         /**
@@ -53,5 +62,21 @@ public class CommonInterceptor implements Interceptor {
             requestBuilder.header(TokenManager.TOKEN_KEY, PayEnvironment.getInstance().getToken());
         }
         return chain.proceed(requestBuilder.build());
+    }
+
+    //是否开启了网络代理
+    private boolean isWifiProxy(Context context) {
+        final boolean IS_ICS_OR_LATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+        String proxyAddress;
+        int proxyPort;
+        if (IS_ICS_OR_LATER) {
+            proxyAddress = System.getProperty("http.proxyHost");
+            String portStr = System.getProperty("http.proxyPort");
+            proxyPort = Integer.parseInt((portStr != null ? portStr : "-1"));
+        } else {
+            proxyAddress = android.net.Proxy.getHost(context);
+            proxyPort = android.net.Proxy.getPort(context);
+        }
+        return (!TextUtils.isEmpty(proxyAddress)) && (proxyPort != -1);
     }
 }

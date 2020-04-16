@@ -411,6 +411,7 @@ public class UserAction {
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
         NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
         PayEnvironment.getInstance().setToken(token.getAccessToken());
+        LogUtil.writeLog("获取新token" + "--token=" + token.getAccessToken() + "--time=" + System.currentTimeMillis());
         //银行签名，加密存储
         if (!TextUtils.isEmpty(token.getBankReqSignKey())) {
             String key = token.getBankReqSignKey();
