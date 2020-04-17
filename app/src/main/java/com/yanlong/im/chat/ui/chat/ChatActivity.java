@@ -1336,7 +1336,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }));
 
         mAdapter = new MessageAdapter(this, this, isGroup());
-        mAdapter.setCellFactory(new FactoryChatCell(context, mAdapter, this));
+        mAdapter.setCellFactory(new FactoryChatCell(this, mAdapter, this));
         mAdapter.setTagListener(this);
         mtListView.init(mAdapter);
         mtListView.getLoadView().setStateNormal();
