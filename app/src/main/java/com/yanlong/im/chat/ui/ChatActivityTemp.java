@@ -3347,6 +3347,16 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
         }
     }
 
+    @Override
+    public void clickLock() {
+
+    }
+
+    @Override
+    public void clickEditAgain(String content) {
+
+    }
+
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {

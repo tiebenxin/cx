@@ -1,15 +1,10 @@
 package com.yanlong.im.chat.ui.cell;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.text.Html;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.TextPaint;
-import android.text.style.ClickableSpan;
-import android.text.style.ForegroundColorSpan;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,13 +13,11 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.MsgTagHandler;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgNotice;
-import com.yanlong.im.chat.interf.IActionTagClickListener;
-import com.yanlong.im.chat.ui.ChatActivityTemp;
 import com.yanlong.im.utils.HtmlTransitonUtils;
+import com.yanlong.im.utils.PatternUtil;
 
-import net.cb.cb.library.AppConfig;
-import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.utils.ViewUtils;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /*
  * 通知消息, 撤回消息
@@ -62,7 +55,7 @@ public class ChatCellNotice extends ChatCellBase {
                         || notice.getMsgType() == ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED_SELF
                         || notice.getMsgType() == ChatEnum.ENoticeType.SNAPSHOT_SCREEN) {
                     tv_content.setText(Html.fromHtml(notice.getNote(), null,
-                            new MsgTagHandler(AppConfig.getContext(), true, message.getMsg_id(), actionTagClickListener)));
+                            new MsgTagHandler(getContext(), true, message.getMsg_id(), actionTagClickListener)));
                 } else {
                     tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgNotice().getNote(), message.getMsgNotice().getMsgType()));
                 }
@@ -81,13 +74,30 @@ public class ChatCellNotice extends ChatCellBase {
             }
         } else if (messageType == ChatEnum.EMessageType.MSG_CANCEL) {
             iv_icon.setVisibility(View.GONE);
-            tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
-            if (message.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
-                tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
-            } else {
-                tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType()));
+            String content = message.getMsgCancel().getNote();
+            Long mss = System.currentTimeMillis() - message.getTimestamp();
+            long minutes = (mss % (1000 * 60 * 60)) / (1000 * 60);
+            boolean isCustoerFace = false;
+            Integer cancelMsgType = message.getMsgCancel().getCancelContentType();
+            if (!TextUtils.isEmpty(content) && content.length() == PatternUtil.FACE_CUSTOMER_LENGTH) {// 自定义表情不给重新编辑
+                Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
+                Matcher matcher = patten.matcher(content);
+                if (matcher.matches()) {
+                    isCustoerFace = true;
+                }
             }
-            iv_icon.setVisibility(View.GONE);
+            if (isMe && cancelMsgType != null && (cancelMsgType == ChatEnum.EMessageType.TEXT || cancelMsgType == ChatEnum.EMessageType.AT)
+                    && minutes < RELINQUISH_TIME && !TextUtils.isEmpty(content) && !isCustoerFace) {
+                content = content + "<cancel content='" + message.getMsgCancel().getCancelContent() + "'> 重新编辑</cancel>";
+                tv_content.setText(Html.fromHtml(content, null,
+                        new MsgTagHandler(getContext(), true, message.getMsg_id(), actionTagClickListener)));
+            } else {
+                if (message.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
+                    tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
+                } else {
+                    tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getMsgCancel().getNote(), message.getMsgCancel().getMsgType()));
+                }
+            }
         } else if (messageType == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME) {
             iv_icon.setVisibility(View.GONE);
             if (message.getMsgCancel() != null) {
@@ -99,6 +109,6 @@ public class ChatCellNotice extends ChatCellBase {
                 tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
             }
         }
+        tv_content.setMovementMethod(LinkMovementMethod.getInstance());
     }
-
 }

@@ -96,6 +96,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         ChatEnum.EChatCellLayout layout = ChatEnum.EChatCellLayout.fromOrdinal(viewType);
         View view = LayoutInflater.from(context).inflate(layout.LayoutId, viewGroup, false);
         ChatCellBase cell = factoryChatCell.createCell(layout, view);
+        cell.setActionClickListener(actionListener);
         return cell;
     }
 

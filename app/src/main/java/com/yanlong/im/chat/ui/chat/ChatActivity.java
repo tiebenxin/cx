@@ -142,6 +142,7 @@ import com.yanlong.im.chat.ui.cell.MessageAdapter;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.chat.ui.view.ControllerLinearList;
 import com.yanlong.im.dialog.ForwardDialog;
+import com.yanlong.im.dialog.LockDialog;
 import com.yanlong.im.location.LocationActivity;
 import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.action.PayAction;
@@ -3198,6 +3199,29 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
+    @Override
+    public void clickLock() {
+        if (ViewUtils.isFastDoubleClick()) {
+            return;
+        }
+        showLockDialog();
+    }
+
+    @Override
+    public void clickEditAgain(String content) {
+        if (ViewUtils.isFastDoubleClick()) {
+            return;
+        }
+        showDraftContent(editChat.getText().toString() + content);
+        editChat.setSelection(editChat.getText().length());
+        //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
+        if (!mViewModel.isOpenValue()) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
+        mViewModel.isInputText.setValue(true);
+
+    }
+
     private String getEnvelopeInfo(@PayEnum.EEnvelopeStatus int envelopStatus) {
         String info = "";
         switch (envelopStatus) {
@@ -5584,6 +5608,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
         return false;
+    }
+
+    public void showLockDialog() {
+        LockDialog lockDialog = new LockDialog(this, R.style.MyDialogNoFadedTheme);
+        lockDialog.setCancelable(true);
+        lockDialog.setCanceledOnTouchOutside(true);
+        lockDialog.create();
+        lockDialog.show();
     }
 
 }
