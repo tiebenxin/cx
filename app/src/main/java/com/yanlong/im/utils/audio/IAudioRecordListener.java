@@ -58,4 +58,6 @@ public interface IAudioRecordListener {
      */
     void onAudioDBChanged(int db);
 
+    void cancelRecord();
+
 }

@@ -8,11 +8,13 @@ import com.example.nim_lib.controll.AVChatProfile;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yanlong.im.R;
 
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 
 public class IAdioTouch implements View.OnTouchListener {
     private Context context;
     private MTouchListener listener;
+    private boolean isCancel = false;
 
     public IAdioTouch(Context context, MTouchListener listener) {
         this.context = context;
@@ -21,7 +23,10 @@ public class IAdioTouch implements View.OnTouchListener {
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        //LogUtil.getLog().d("-------", "_______onTouch: "+event.getAction());
+        LogUtil.getLog().d("IAdioTouch", "_______onTouch--开始: " + event.getAction());
+        if (isCancel) {
+            return true;
+        }
         // 判断是否正在音视频通话
         if (AVChatProfile.getInstance().isCallIng() || AVChatProfile.getInstance().isCallEstablished()) {
             if (AVChatProfile.getInstance().isChatType() == AVChatType.VIDEO.getValue()) {
@@ -31,7 +36,7 @@ public class IAdioTouch implements View.OnTouchListener {
             }
             return true;
         }
-        //Log.d("-------", "_______onTouch: "+event.getAction());
+        LogUtil.getLog().d("IAdioTouch", "_______onTouch--成功: " + event.getAction());
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 AudioPlayManager.getInstance().stopPlay();
@@ -70,6 +75,14 @@ public class IAdioTouch implements View.OnTouchListener {
             return true;
         }
         return false;
+    }
+
+    public void cancelRecord() {
+        isCancel = true;
+    }
+
+    public void restartRecord() {
+        isCancel = false;
     }
 
 

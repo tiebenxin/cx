@@ -36,27 +36,37 @@ public class IAudioRecord implements IAudioRecordListener {
 
     @Override
     public void setTimeoutTipView(int counter) {
-        audioPopupWindow.setTimeout(counter);
+        if (audioPopupWindow != null) {
+            audioPopupWindow.setTimeout(counter);
+        }
     }
 
     @Override
     public void setRecordingTipView() {
-        audioPopupWindow.startAudio();
+        if (audioPopupWindow != null) {
+            audioPopupWindow.startAudio();
+        }
     }
 
     @Override
     public void setAudioShortTipView() {
-        audioPopupWindow.setAudioShort();
+        if (audioPopupWindow != null) {
+            audioPopupWindow.setAudioShort();
+        }
     }
 
     @Override
     public void setCancelTipView() {
-        audioPopupWindow.setCancel();
+        if (audioPopupWindow != null) {
+            audioPopupWindow.setCancel();
+        }
     }
 
     @Override
     public void destroyTipView() {
-        audioPopupWindow.destroy();
+        if (audioPopupWindow != null) {
+            audioPopupWindow.destroy();
+        }
     }
 
     @Override
@@ -66,35 +76,24 @@ public class IAudioRecord implements IAudioRecordListener {
 
     @Override
     public void onFinish(final Uri audioPath, final int duration) {
-
         if (audioPath != null) {
-//            new UpFileAction().upFile(UpFileAction.PATH.VOICE, context, new UpFileUtil.OssUpCallback() {
-//                @Override
-//                public void success(String url) {
-//                    if (callback != null) {
-//                        LogUtil.getLog().e("AudioUploadPath", url + "");
-//                        callback.getUrl(url, duration);
-//                    }
-//                }
-//
-//                @Override
-//                public void fail() {
-//                    ToastUtil.show(context, "发送失败!");
-//                }
-//
-//                @Override
-//                public void inProgress(long progress, long zong) {
-//
-//                }
-//            }, audioPath.getPath());
-            callback.completeRecord(audioPath.getPath(),duration);
+            callback.completeRecord(audioPath.getPath(), duration);
         }
 
     }
 
     @Override
     public void onAudioDBChanged(int db) {
-        audioPopupWindow.audioDBChanged(db);
+        if (audioPopupWindow != null) {
+            audioPopupWindow.audioDBChanged(db);
+        }
+    }
+
+    @Override
+    public void cancelRecord() {
+        if (audioPopupWindow != null) {
+            audioPopupWindow.destroy();
+        }
     }
 
 
@@ -102,7 +101,7 @@ public class IAudioRecord implements IAudioRecordListener {
 //        void getUrl(String url, int duration);
 
         //录制完成
-        void completeRecord(String file,int duration);
+        void completeRecord(String file, int duration);
 
     }
 
