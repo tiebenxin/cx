@@ -197,6 +197,7 @@ public class ApplicationRepository {
             }
         });
     }
+
     /**
      * 更新指定主键的
      *
@@ -218,25 +219,37 @@ public class ApplicationRepository {
      *
      * @param
      */
-    public void updateSessionDetail(String[] gids,Long[] uids) {
+    public void updateSessionDetail(String[] gids, Long[] uids) {
         //回主线程调用更新session详情
         Handler mainHandler = new Handler(Looper.getMainLooper());
         mainHandler.post(new Runnable() {
             @Override
             public void run() {
                 //更新Detail详情
-                localDataSource.updateSessionDetail(gids,uids);
+                localDataSource.updateSessionDetail(gids, uids);
             }
         });
     }
+
+    /**
+     * 清除会话详情的内容
+     */
+    public void clearSessionDetailContent(List<String> gids, List<Long> uids) {
+        //回主线程调用清除session详情
+        //更新Detail详情
+        localDataSource.clearContent(gids!=null&&gids.size()>0?gids.toArray(new String[gids.size()]):null, uids!=null&&uids.size()>0?uids.toArray(new Long[uids.size()]):null);
+
+    }
+
     /**
      * 更新指定一些消息对应的session详情
      *
      * @param
      */
-    public void updateSessionDetail(List<String> gids,List<Long> uids) {
-      updateSessionDetail(gids.toArray(new String[gids.size()]),uids.toArray(new Long[uids.size()]));
+    public void updateSessionDetail(List<String> gids, List<Long> uids) {
+        updateSessionDetail(gids!=null&&gids.size()>0?gids.toArray(new String[gids.size()]):null, uids!=null&&uids.size()>0?uids.toArray(new Long[uids.size()]):null);
     }
+
     public RealmResults<UserInfo> getFriends() {
         return friends;
     }

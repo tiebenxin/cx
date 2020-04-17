@@ -127,6 +127,36 @@ public class UpdateSessionDetail {
         });
     }
     /**
+     *清除会话详情的内容
+     *
+     * @param
+     */
+    public void clearContent(String[] gids, Long[] fromUids) {
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                if (gids!=null &&gids.length > 0) {
+                    RealmResults<Session> groupSessions = realm.where(Session.class).in("gid", gids).findAll();
+                    for (Session session : groupSessions) {
+                        SessionDetail sessionDetail=realm.where(SessionDetail.class).equalTo("sid",session.getSid()).findFirst();
+                        sessionDetail.setMessage(null);
+                        sessionDetail.setMessageContent(null);
+                        sessionDetail.setSenderName(null);
+                    }
+                }
+                if (fromUids!=null &&fromUids.length > 0) {
+                    RealmResults<Session> friendSessions = realm.where(Session.class).in("from_uid", fromUids).findAll();
+                    for (Session session : friendSessions) {
+                        SessionDetail sessionDetail=realm.where(SessionDetail.class).equalTo("sid",session.getSid()).findFirst();
+                        sessionDetail.setMessage(null);
+                        sessionDetail.setMessageContent(null);
+                        sessionDetail.setSenderName(null);
+                    }
+                }
+            }
+        });
+    }
+    /**
      * //异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
      *
      * @param realm

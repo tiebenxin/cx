@@ -644,8 +644,9 @@ public class MessageManager {
     //重新生成群头像
     public void changeGroupAvatar(String gid) {
         //撤回消息更新session详情
-        String[] gids = new String[1];
-        gids[0] = gid;
+        List<String> gids = new ArrayList<>();
+        if (!TextUtils.isEmpty(gid))
+            gids.add(gid);
         //回主线程调用更新sessionDetial
         MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
     }
@@ -775,11 +776,16 @@ public class MessageManager {
             //自己PC 端发的消息刷新session
             /********通知更新sessionDetail************************************/
             //因为msg对象 uid有两个，都得添加
-            String[] gids = new String[1];
-            Long[] uids = new Long[2];
-            gids[0] = msgAllBean.getGid();
-            uids[0] = msgAllBean.getFrom_uid();
-            uids[1] = msgAllBean.getTo_uid();
+            //因为msg对象 uid有两个，都得添加
+            List<String> gids = new ArrayList<>();
+            List<Long> uids = new ArrayList<>();
+            //gid存在时，不取uid
+            if(TextUtils.isEmpty(msgAllBean.getGid())){
+                uids.add(msgAllBean.getTo_uid());
+                uids.add(msgAllBean.getFrom_uid());
+            }else{
+                gids.add(msgAllBean.getGid());
+            }
             //回主线程调用更新session详情
             MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
             /********通知更新sessionDetail end************************************/
@@ -1632,11 +1638,12 @@ public class MessageManager {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
                 notifyGroupChange(false);
-                //因为msg对象 uid有两个，都得添加
-                String[] gids = new String[1];
-                gids[0] = gid;
+                List<String> gids = new ArrayList<>();
+                if(!TextUtils.isEmpty(gid)){
+                    gids.add(gid);
+                }
                 //回主线程调用更新sessionDetial
-                MyAppLication.INSTANCE().repository.updateSessionDetail(gids,null);
+                MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
             }
 
             @Override

@@ -44,6 +44,7 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -1541,11 +1542,15 @@ public class SocketData {
             if(msgAllBean.getMsg_type()== ChatEnum.EMessageType.MSG_CANCEL){
                 /********通知更新sessionDetail************************************/
                 //因为msg对象 uid有两个，都得添加
-                String[] gids = new String[1];
-                Long[] uids = new Long[2];
-                gids[0] = msgAllBean.getGid();
-                uids[0] = msgAllBean.getFrom_uid();
-                uids[1] = msgAllBean.getTo_uid();
+                List<String> gids = new ArrayList<>();
+                List<Long> uids = new ArrayList<>();
+                //gid存在时，不取uid
+                if(TextUtils.isEmpty(msgAllBean.getGid())){
+                    uids.add(msgAllBean.getTo_uid());
+                    uids.add(msgAllBean.getFrom_uid());
+                }else{
+                    gids.add(msgAllBean.getGid());
+                }
                 //回主线程调用更新session详情
                 MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
                 /********通知更新sessionDetail end************************************/

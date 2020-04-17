@@ -4303,11 +4303,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 showSendObj(msgAllbean);
                                 /********通知更新sessionDetail************************************/
                                 //因为msg对象 uid有两个，都得添加
-                                String[] gids = new String[1];
-                                Long[] uids = new Long[2];
-                                gids[0] = msgAllbean.getGid();
-                                uids[0] = msgAllbean.getFrom_uid();
-                                uids[1] = msgAllbean.getTo_uid();
+                                List<String> gids = new ArrayList<>();
+                                List<Long> uids = new ArrayList<>();
+                                //gid存在时，不取uid
+                                if(TextUtils.isEmpty(msgAllbean.getGid())){
+                                    uids.add(msgAllbean.getTo_uid());
+                                    uids.add(msgAllbean.getFrom_uid());
+                                }else{
+                                    gids.add(msgAllbean.getGid());
+                                }
                                 //回主线程调用更新session详情
                                 MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
                                 /********通知更新sessionDetail end************************************/

@@ -129,6 +129,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -799,11 +800,15 @@ public class MainActivity extends AppActivity {
                 if (msgAllbean != null) {
                     /********通知更新sessionDetail************************************/
                     //因为msg对象 uid有两个，都得添加
-                    String[] gids = new String[1];
-                    Long[] uids = new Long[2];
-                    gids[0] = msgAllbean.getGid();
-                    uids[0] = msgAllbean.getFrom_uid();
-                    uids[1] = msgAllbean.getTo_uid();
+                    List<String> gids = new ArrayList<>();
+                    List<Long> uids = new ArrayList<>();
+                    //gid存在时，不取uid
+                    if(TextUtils.isEmpty(msgAllbean.getGid())){
+                        uids.add(msgAllbean.getFrom_uid());
+                        uids.add(msgAllbean.getTo_uid());
+                    }else{
+                        gids.add(msgAllbean.getGid());
+                    }
                     //回主线程调用更新session详情
                     MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
                     /********通知更新sessionDetail end************************************/
@@ -1165,10 +1170,14 @@ public class MainActivity extends AppActivity {
         msgDao.deleteEnvelopeInfo(envelopeInfo.getRid(), envelopeInfo.getGid(), envelopeInfo.getUid(), false);
         /********通知更新sessionDetail************************************/
         //因为msg对象 uid有两个，都得添加
-        String[] gids = new String[1];
-        Long[] uids = new Long[1];
-        gids[0] = envelopeInfo.getGid();
-        uids[0] = envelopeInfo.getUid();
+        List<String> gids = new ArrayList<>();
+        List<Long> uids = new ArrayList<>();
+        //gid存在时，不取uid
+        if(TextUtils.isEmpty(envelopeInfo.getGid())){
+            uids.add(envelopeInfo.getUid());
+        }else{
+            gids.add(envelopeInfo.getGid());
+        }
         //回主线程调用更新session详情
         MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
         /********通知更新sessionDetail end************************************/
