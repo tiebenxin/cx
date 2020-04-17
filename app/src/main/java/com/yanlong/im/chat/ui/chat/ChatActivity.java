@@ -410,6 +410,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onChanged(@Nullable Boolean value) {
                 if (value) {//打开
+                    if(!TextUtils.isEmpty(originalText)){
+                        showDraftContent(originalText);
+                    }
                     editChat.requestFocus();
                     InputUtil.showKeyboard(editChat);
                     //重置其他状态
@@ -494,6 +497,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onChanged(@Nullable Boolean value) {
                 if (value) {//打开
+                    //保存原有文字
+                    originalText=editChat.getText().toString();
                     editChat.setText("");
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isOpenSpeak);
@@ -504,7 +509,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         });
     }
-
+    private String originalText="";
     @Override
     protected void onResume() {
         super.onResume();
