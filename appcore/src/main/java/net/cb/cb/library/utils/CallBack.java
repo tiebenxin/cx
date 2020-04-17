@@ -48,11 +48,13 @@ public abstract class CallBack<T> implements Callback<T> {
 
     @Override
     public void onFailure(Call<T> call, Throwable t) {
-        LogUtil.getLog().e("==响应异常=解析异常==" + t.getMessage());
+        if (t != null) {
+            LogUtil.getLog().e("==响应异常=解析异常==" + t.getMessage());
+        }
 //        if (listView == null && showErrorMsg) {
 //            ToastUtil.show(AppConfig.APP_CONTEXT, R.string.app_link_err);
 //        }
-        if (showErrorMsg && (!TextUtils.isEmpty(t.getMessage()) && !t.getMessage().equals("Canceled"))) {
+        if (showErrorMsg && (t != null && !TextUtils.isEmpty(t.getMessage()) && !t.getMessage().equals("Canceled"))) {
             ToastUtil.show(AppConfig.APP_CONTEXT, t.getMessage());
         }
 

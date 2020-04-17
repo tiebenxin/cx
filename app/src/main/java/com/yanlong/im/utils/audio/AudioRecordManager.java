@@ -41,6 +41,7 @@ public class AudioRecordManager implements Handler.Callback {
     private IAudioRecordListener mAudioRecordListener;
 
     public static AudioRecordManager mInstance;
+    private boolean isCancel;
 
     public static AudioRecordManager getInstance(Context context) {
         if (mInstance == null) {
@@ -137,9 +138,11 @@ public class AudioRecordManager implements Handler.Callback {
 
     private void destroyView() {
         LogUtil.getLog().d(TAG, "destroyTipView");
-        this.mHandler.removeMessages(7);
-        this.mHandler.removeMessages(8);
-        this.mHandler.removeMessages(2);
+        if (mHandler != null) {
+            this.mHandler.removeMessages(7);
+            this.mHandler.removeMessages(8);
+            this.mHandler.removeMessages(2);
+        }
         if (mAudioRecordListener != null) {
             mAudioRecordListener.destroyTipView();
         }
@@ -173,7 +176,7 @@ public class AudioRecordManager implements Handler.Callback {
             public void onAudioFocusChange(int focusChange) {
                 LogUtil.getLog().d(TAG, "OnAudioFocusChangeListener " + focusChange);
                 if (focusChange == -1) {
-                   AudioRecordManager.this.mAudioManager.abandonAudioFocus(AudioRecordManager.this.mAfChangeListener);
+                    AudioRecordManager.this.mAudioManager.abandonAudioFocus(AudioRecordManager.this.mAfChangeListener);
                     AudioRecordManager.this.mAfChangeListener = null;
                     AudioRecordManager.this.sendEmptyMessage(6);
                 }
@@ -244,7 +247,9 @@ public class AudioRecordManager implements Handler.Callback {
             Message e1 = Message.obtain();
             e1.what = 7;
             e1.obj = Integer.valueOf(10);
-            this.mHandler.sendMessageDelayed(e1, (long) (this.RECORD_INTERVAL * 1000 - 10000));
+            if (mHandler != null) {
+                this.mHandler.sendMessageDelayed(e1, (long) (this.RECORD_INTERVAL * 1000 - 10000));
+            }
         } catch (Exception var4) {
             var4.printStackTrace();
         }
@@ -260,7 +265,9 @@ public class AudioRecordManager implements Handler.Callback {
         LogUtil.getLog().d(TAG, "stopRec");
 
         try {
-            this.muteAudioFocus(this.mAudioManager, false);
+            if (mAudioManager != null) {
+                this.muteAudioFocus(this.mAudioManager, false);
+            }
             if (this.mMediaRecorder != null) {
                 this.mMediaRecorder.stop();
                 this.mMediaRecorder.release();
@@ -280,10 +287,12 @@ public class AudioRecordManager implements Handler.Callback {
                 file.delete();
             }
         }
-
     }
 
     private void finishRecord() {
+        if (!isFileExist()) {
+            return;
+        }
         LogUtil.getLog().d(TAG, "finishRecord path = " + this.mAudioPath);
         if (mAudioRecordListener != null) {
             int duration = (int) (SystemClock.elapsedRealtime() - this.smStartRecTime) / 1000;
@@ -329,15 +338,18 @@ public class AudioRecordManager implements Handler.Callback {
                 default:
                     break;
                 case 5:
+                    if (mHandler == null) {
+                        return;
+                    }
                     AudioRecordManager.this.mHandler.postDelayed(new Runnable() {
                         public void run() {
                             AudioRecordManager.this.stopRec();
-                           AudioRecordManager.this.finishRecord();
+                            AudioRecordManager.this.finishRecord();
                             AudioRecordManager.this.destroyView();
                         }
                     }, 500L);
                     AudioRecordManager.this.mCurAudioState = AudioRecordManager.this.idleState;
-                   AudioRecordManager.this.idleState.enter();
+                    AudioRecordManager.this.idleState.enter();
                     break;
                 case 6:
                     AudioRecordManager.this.stopRec();
@@ -347,6 +359,9 @@ public class AudioRecordManager implements Handler.Callback {
                     AudioRecordManager.this.idleState.enter();
                     break;
                 case 7:
+                    if (mHandler == null) {
+                        return;
+                    }
                     int counter = ((Integer) msg.obj).intValue();
                     if (counter > 0) {
                         Message message = Message.obtain();
@@ -395,6 +410,9 @@ public class AudioRecordManager implements Handler.Callback {
                     AudioRecordManager.this.idleState.enter();
                     break;
                 case 7:
+                    if (mHandler == null) {
+                        return;
+                    }
                     int counter = ((Integer) msg.obj).intValue();
                     if (counter > 0) {
                         Message message = Message.obtain();
@@ -446,7 +464,9 @@ public class AudioRecordManager implements Handler.Callback {
             switch (msg.what) {
                 case 2:
                     AudioRecordManager.this.audioDBChanged();
-                    AudioRecordManager.this.mHandler.sendEmptyMessageDelayed(2, 150L);
+                    if (AudioRecordManager.this.mHandler != null) {
+                        AudioRecordManager.this.mHandler.sendEmptyMessageDelayed(2, 150L);
+                    }
                     break;
                 case 3:
                     AudioRecordManager.this.setCancelView();
@@ -465,7 +485,9 @@ public class AudioRecordManager implements Handler.Callback {
                         if (mAudioRecordListener != null) {
                             mAudioRecordListener.setAudioShortTipView();
                         }
-                        AudioRecordManager.this.mHandler.removeMessages(2);
+                        if (AudioRecordManager.this.mHandler != null) {
+                            AudioRecordManager.this.mHandler.removeMessages(2);
+                        }
                     }
 
                     if (!activityFinished && AudioRecordManager.this.mHandler != null) {
@@ -496,6 +518,9 @@ public class AudioRecordManager implements Handler.Callback {
                     AudioRecordManager.this.idleState.enter();
                     break;
                 case 7:
+                    if (AudioRecordManager.this.mHandler == null) {
+                        return;
+                    }
                     int counter = ((Integer) msg.obj).intValue();
                     AudioRecordManager.this.setTimeoutView(counter);
                     AudioRecordManager.this.mCurAudioState = AudioRecordManager.this.timerState;
@@ -555,5 +580,38 @@ public class AudioRecordManager implements Handler.Callback {
 
     public void setAudioRecordListener(IAudioRecordListener audioRecordListener) {
         mAudioRecordListener = audioRecordListener;
+    }
+
+    //取消录制
+    public void cancelRecord() {
+        LogUtil.getLog().i(TAG, "cancelRecord");
+        this.sendEmptyMessage(3);
+        stopRec();
+        deleteAudioFile();
+        if (mHandler != null) {
+            this.mHandler.removeMessages(7);
+            this.mHandler.removeMessages(8);
+            this.mHandler.removeMessages(6);
+            this.mHandler.removeMessages(5);
+            this.mHandler.removeMessages(4);
+            this.mHandler.removeMessages(3);
+            this.mHandler.removeMessages(2);
+            this.mHandler.removeMessages(1);
+//            AudioRecordManager.this.mHandler = null;
+        }
+    }
+
+    public void resumeRecord() {
+        isCancel = false;
+    }
+
+    public boolean isFileExist() {
+        if (mAudioPath != null) {
+            File file = new File(this.mAudioPath.getPath());
+            if (file.exists()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -803,8 +803,10 @@ public class GroupInfoActivity extends AppActivity {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
                     if (isMemberChange) {
-                        String[] gids = new String[1];
-                        gids[0] =  ginfo.getGid();
+                        List<String> gids = new ArrayList<>();
+                        if(!TextUtils.isEmpty(ginfo.getGid())){
+                            gids.add(ginfo.getGid());
+                        }
                         //回主线程调用更新sessionDetial
                         MyAppLication.INSTANCE().repository.updateSessionDetail(gids,null);
                     }
@@ -1156,8 +1158,10 @@ public class GroupInfoActivity extends AppActivity {
         if (isSessionChange) {//免打扰，群名变化
             /********通知更新sessionDetail************************************/
             //因为msg对象 uid有两个，都得添加
-            String[] gids = new String[1];
-            gids[0] = gid;
+            List<String> gids = new ArrayList<>();
+            if(!TextUtils.isEmpty(gid)){
+                gids.add(gid);
+            }
             //回主线程调用更新session详情
             MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
             /********通知更新sessionDetail end************************************/

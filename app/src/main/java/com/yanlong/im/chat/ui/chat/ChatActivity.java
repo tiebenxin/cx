@@ -142,6 +142,7 @@ import com.yanlong.im.chat.ui.cell.MessageAdapter;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.chat.ui.view.ControllerLinearList;
 import com.yanlong.im.dialog.ForwardDialog;
+import com.yanlong.im.dialog.LockDialog;
 import com.yanlong.im.location.LocationActivity;
 import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.action.PayAction;
@@ -361,6 +362,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private ChangeSelectDialog.Builder builder;
     private ChangeSelectDialog dialogOne;//通用提示选择弹框：实名认证
+    private IAudioRecord audioRecord;
+    private IAdioTouch audioTouchListerner;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -525,6 +528,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             initScreenShotListener();
         }
         editChat.clearFocus();
+        resumeRecord();
+    }
+
+    private void resumeRecord() {
+        if (audioTouchListerner != null) {
+            audioTouchListerner.restartRecord();
+        }
+        AudioRecordManager.getInstance(this).resumeRecord();
     }
 
 
@@ -542,6 +553,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     protected void onStop() {
         super.onStop();
         AudioPlayManager.getInstance().stopPlay();
+        stopRecordVoice();
         if (currentPlayBean != null) {
             updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
         }
@@ -549,6 +561,22 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
         boolean hasChange = updateSessionDraftAndAtMessage();
 //        LogUtil.getLog().e("===hasClear="+hasClear+"==hasUpdate="+hasUpdate+"==hasChange="+hasChange);
+    }
+
+    //停止录音
+    private void stopRecordVoice() {
+        if (audioTouchListerner != null) {
+            audioTouchListerner.cancelRecord();
+        }
+        if (audioRecord != null) {
+            audioRecord.cancelRecord();
+        }
+        AudioRecordManager.getInstance(this).cancelRecord();
+        txtVoice.setText("按住 说话");
+        txtVoice.setBackgroundResource(R.drawable.bg_edt_chat);
+        btnVoice.setEnabled(true);
+        btnEmj.setEnabled(true);
+        btnFunc.setEnabled(true);
     }
 
     private void stopScreenShotListener() {
@@ -991,6 +1019,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     //自动生成的控件事件
+    @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void initEvent() {
         //读取软键盘高度
@@ -1257,7 +1286,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         });
 
-        txtVoice.setOnTouchListener(new IAdioTouch(this, new IAdioTouch.MTouchListener() {
+        txtVoice.setOnTouchListener(audioTouchListerner = new IAdioTouch(this, new IAdioTouch.MTouchListener() {
             @Override
             public void onDown() {
                 txtVoice.setText("松开 结束");
@@ -1291,7 +1320,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }));
 
-        AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
+        AudioRecordManager.getInstance(this).setAudioRecordListener(audioRecord = new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
             @Override
             public void completeRecord(String file, int duration) {
                 if (!checkNetConnectStatus()) {
@@ -1307,7 +1336,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }));
 
         mAdapter = new MessageAdapter(this, this, isGroup());
-        mAdapter.setCellFactory(new FactoryChatCell(context, mAdapter, this));
+        mAdapter.setCellFactory(new FactoryChatCell(this, mAdapter, this));
         mAdapter.setTagListener(this);
         mtListView.init(mAdapter);
         mtListView.getLoadView().setStateNormal();
@@ -3199,6 +3228,29 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
+    @Override
+    public void clickLock() {
+        if (ViewUtils.isFastDoubleClick()) {
+            return;
+        }
+        showLockDialog();
+    }
+
+    @Override
+    public void clickEditAgain(String content) {
+        if (ViewUtils.isFastDoubleClick()) {
+            return;
+        }
+        showDraftContent(editChat.getText().toString() + content);
+        editChat.setSelection(editChat.getText().length());
+        //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
+        if (!mViewModel.isOpenValue()) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
+        mViewModel.isInputText.setValue(true);
+
+    }
+
     private String getEnvelopeInfo(@PayEnum.EEnvelopeStatus int envelopStatus) {
         String info = "";
         switch (envelopStatus) {
@@ -4251,11 +4303,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 showSendObj(msgAllbean);
                                 /********通知更新sessionDetail************************************/
                                 //因为msg对象 uid有两个，都得添加
-                                String[] gids = new String[1];
-                                Long[] uids = new Long[2];
-                                gids[0] = msgAllbean.getGid();
-                                uids[0] = msgAllbean.getFrom_uid();
-                                uids[1] = msgAllbean.getTo_uid();
+                                List<String> gids = new ArrayList<>();
+                                List<Long> uids = new ArrayList<>();
+                                //gid存在时，不取uid
+                                if(TextUtils.isEmpty(msgAllbean.getGid())){
+                                    uids.add(msgAllbean.getTo_uid());
+                                    uids.add(msgAllbean.getFrom_uid());
+                                }else{
+                                    gids.add(msgAllbean.getGid());
+                                }
                                 //回主线程调用更新session详情
                                 MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
                                 /********通知更新sessionDetail end************************************/
@@ -5565,6 +5621,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
         return false;
+    }
+
+    public void showLockDialog() {
+        LockDialog lockDialog = new LockDialog(this, R.style.MyDialogNoFadedTheme);
+        lockDialog.setCancelable(true);
+        lockDialog.setCanceledOnTouchOutside(true);
+        lockDialog.create();
+        lockDialog.show();
     }
 
 }

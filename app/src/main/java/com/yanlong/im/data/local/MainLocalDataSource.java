@@ -11,6 +11,7 @@ import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.bean.OnlineBean;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
@@ -175,8 +176,8 @@ public class MainLocalDataSource {
             public void onSuccess() {
                 /********通知更新sessionDetail************************************/
                 //因为msg对象 uid有两个，都得添加
-                Long[] uids = new Long[1];
-                uids[0] = uid;
+                List<Long> uids = new ArrayList<>();
+                uids.add(uid);
                 //回主线程调用更新session详情
                 MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
                 /********通知更新sessionDetail end************************************/

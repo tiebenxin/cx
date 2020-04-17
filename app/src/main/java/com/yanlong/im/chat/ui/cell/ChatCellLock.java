@@ -31,7 +31,7 @@ public class ChatCellLock extends ChatCellBase {
     protected void showMessage(MsgAllBean message) {
         super.showMessage(message);
         if (messageType == ChatEnum.EMessageType.LOCK) {
-            tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getChat().getMsg(), ChatEnum.ENoticeType.LOCK));
+            tv_content.setText(new HtmlTransitonUtils().getSpannableString(mContext, message.getChat().getMsg(), ChatEnum.ENoticeType.LOCK, actionTagClickListener));
             tv_content.setMovementMethod(LinkMovementMethod.getInstance());
         }
     }

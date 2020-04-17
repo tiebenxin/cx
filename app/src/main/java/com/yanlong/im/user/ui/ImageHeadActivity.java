@@ -43,6 +43,8 @@ import net.cb.cb.library.view.PopupSelectView;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.annotations.NonNull;
 import retrofit2.Call;
@@ -303,8 +305,8 @@ public class ImageHeadActivity extends AppActivity {
 
                     /********通知更新sessionDetail************************************/
                     //因为msg对象 uid有两个，都得添加
-                    String[] gids = new String[1];
-                    gids[0] = gid;
+                    List<String> gids = new ArrayList<>();
+                    gids.add(gid);
                     //回主线程调用更新session详情
                     MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
                     /********通知更新sessionDetail end************************************/
