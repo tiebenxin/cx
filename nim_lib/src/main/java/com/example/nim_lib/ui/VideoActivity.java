@@ -1377,7 +1377,15 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 sensorManager.registerListener(sensorEventListener, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
             }
         }
-        EventBus.getDefault().post(new EventFactory.StopJPushResumeEvent());
+        // 延迟1.5秒在关闭，解决可能会先弹出音视频界面，后弹出通知的情况
+        if (!isFinishing()) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    EventBus.getDefault().post(new EventFactory.StopJPushResumeEvent());
+                }
+            }, 1500);
+        }
         mAVChatController.taskClearNotification(this);
         if (mIsCheckPersion) {
             permissionCheck(false);

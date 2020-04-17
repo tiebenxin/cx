@@ -362,6 +362,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private ChangeSelectDialog.Builder builder;
     private ChangeSelectDialog dialogOne;//通用提示选择弹框：实名认证
+    private IAudioRecord audioRecord;
+    private IAdioTouch audioTouchListerner;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -526,6 +528,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             initScreenShotListener();
         }
         editChat.clearFocus();
+        resumeRecord();
+    }
+
+    private void resumeRecord() {
+        if (audioTouchListerner != null) {
+            audioTouchListerner.restartRecord();
+        }
+        AudioRecordManager.getInstance(this).resumeRecord();
     }
 
 
@@ -543,6 +553,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     protected void onStop() {
         super.onStop();
         AudioPlayManager.getInstance().stopPlay();
+        stopRecordVoice();
         if (currentPlayBean != null) {
             updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
         }
@@ -550,6 +561,22 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
         boolean hasChange = updateSessionDraftAndAtMessage();
 //        LogUtil.getLog().e("===hasClear="+hasClear+"==hasUpdate="+hasUpdate+"==hasChange="+hasChange);
+    }
+
+    //停止录音
+    private void stopRecordVoice() {
+        if (audioTouchListerner != null) {
+            audioTouchListerner.cancelRecord();
+        }
+        if (audioRecord != null) {
+            audioRecord.cancelRecord();
+        }
+        AudioRecordManager.getInstance(this).cancelRecord();
+        txtVoice.setText("按住 说话");
+        txtVoice.setBackgroundResource(R.drawable.bg_edt_chat);
+        btnVoice.setEnabled(true);
+        btnEmj.setEnabled(true);
+        btnFunc.setEnabled(true);
     }
 
     private void stopScreenShotListener() {
@@ -992,6 +1019,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     //自动生成的控件事件
+    @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void initEvent() {
         //读取软键盘高度
@@ -1258,7 +1286,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         });
 
-        txtVoice.setOnTouchListener(new IAdioTouch(this, new IAdioTouch.MTouchListener() {
+        txtVoice.setOnTouchListener(audioTouchListerner = new IAdioTouch(this, new IAdioTouch.MTouchListener() {
             @Override
             public void onDown() {
                 txtVoice.setText("松开 结束");
@@ -1292,7 +1320,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }));
 
-        AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
+        AudioRecordManager.getInstance(this).setAudioRecordListener(audioRecord = new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
             @Override
             public void completeRecord(String file, int duration) {
                 if (!checkNetConnectStatus()) {
