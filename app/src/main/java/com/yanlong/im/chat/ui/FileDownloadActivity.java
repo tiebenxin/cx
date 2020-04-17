@@ -67,6 +67,34 @@ public class FileDownloadActivity extends AppActivity {
     private static int currentFileProgressValue = 0;//记录当前文件下载任务的进度
     private Handler handler;//如果下载过程中退出，下次进来需要轮训查询下载进度
 
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (currentFileProgressValue < 100) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                tvDownload.setText("下载中 " + currentFileProgressValue + "%");
+                                downloadStatus = 0;
+                            }
+                        });
+                        handler.postDelayed(this, 200);
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                tvDownload.setText("打开文件");
+                                downloadStatus = 1;
+                            }
+                        });
+                    }
+                }
+            }, 200);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -219,31 +247,14 @@ public class FileDownloadActivity extends AppActivity {
         super.onResume();
         //说明还有文件正在下载
         if(currentFileProgressValue !=0){
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if(currentFileProgressValue<100){
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                tvDownload.setText("下载中 "+currentFileProgressValue+"%");
-                                downloadStatus = 0;
-                            }
-                        });
-                        handler.postDelayed(this,200);
-                    }else {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                tvDownload.setText("打开文件");
-                                downloadStatus = 1;
-                            }
-                        });
-                        handler.removeCallbacks(this);
-                    }
-                }
-            },200);
+            new Thread(runnable).start();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        handler.removeCallbacks(runnable);
     }
 
     /**
