@@ -494,6 +494,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onChanged(@Nullable Boolean value) {
                 if (value) {//打开
+                    editChat.setText("");
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isOpenSpeak);
                     showVoice(true);
@@ -3520,7 +3521,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         // 获取View在屏幕的位置
         int[] locationView = new int[2];
         v.getLocationOnScreen(locationView);
-
+        if (mPopupWindow != null && mPopupWindow.isShowing()) mPopupWindow.dismiss();
+        mPopupWindow = null;
         mPopupWindow = new PopupWindow(mRootView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         // 设置弹窗外可点击
         mPopupWindow.setTouchable(true);
