@@ -57,7 +57,7 @@ public class BurnManager {
             public void onChange(RealmResults realmResults, OrderedCollectionChangeSet changeSet) {
                 /*****初始化、新增通知更新*******************************************************************************************/
                 if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL
-                        || changeSet.getInsertionRanges().length > 0) {
+                        || changeSet.getInsertions().length > 0|| changeSet.getChanges().length > 0) {
                     //初始化
                     notifyBurnQuene();
                 }
