@@ -494,6 +494,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onChanged(@Nullable Boolean value) {
                 if (value) {//打开
+                    editChat.setText("");
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isOpenSpeak);
                     showVoice(true);
