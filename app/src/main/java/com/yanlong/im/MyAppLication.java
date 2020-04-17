@@ -63,7 +63,7 @@ public class MyAppLication extends MainApplication {
     private final String U_APP_KEY = "5d53659c570df3d281000225";
 
     public LocationService locationService;
-//    public Vibrator mVibrator;
+    //    public Vibrator mVibrator;
     //全局数据仓库
     public ApplicationRepository repository;
 
@@ -79,8 +79,8 @@ public class MyAppLication extends MainApplication {
             return;
         }
         initBuildType();
-        //初始化日志
-//        LogUtil.getLog().init(AppConfig.DEBUG);
+        //初始化日志:开启本地日志
+        LogUtil.getLog().init(/*AppConfig.DEBUG*/true);
 
         //初始化数据库
         Realm.init(getApplicationContext());
@@ -90,7 +90,7 @@ public class MyAppLication extends MainApplication {
         initRunstate();
         initRedPacket();
         LogcatHelper.getInstance(this).start();
-        initException();
+//        initException();
         initUploadUtils();
         if ("release".equals(BuildConfig.BUILD_TYPE)) {
             initBugly();
@@ -109,12 +109,12 @@ public class MyAppLication extends MainApplication {
      * 2.刚登录用户-在MainActivity onCreate中创建
      * 3.退出登录时，销毁数据仓库
      */
-    public void createRepository(){
-        if(repository==null){
+    public void createRepository() {
+        if (repository == null) {
             //同步使用友盟设备号,如果同步失败使用自己设备号
             TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-            if(token!=null){//用户已经登录
-                repository=new ApplicationRepository();
+            if (token != null) {//用户已经登录
+                repository = new ApplicationRepository();
             }
         }
     }
@@ -124,8 +124,8 @@ public class MyAppLication extends MainApplication {
      * 1.退出登录
      * 2.Application终止
      */
-    public void destoryRepository(){
-        if(repository!=null){
+    public void destoryRepository() {
+        if (repository != null) {
             repository.onDestory();
             repository = null;
         }
@@ -133,62 +133,48 @@ public class MyAppLication extends MainApplication {
 
 
     public static MyAppLication INSTANCE() {
-        return (MyAppLication)instance;
+        return (MyAppLication) instance;
     }
 
     /**
      * 获取所有session会话列表数据
+     *
      * @return
      */
-    public RealmResults<Session> getSessions(){
-        return repository==null?null:repository.getSesisons();
+    public RealmResults<Session> getSessions() {
+        return repository == null ? null : repository.getSesisons();
     }
 
     /**
      * 获取所有通讯录好友
+     *
      * @return
      */
-    public RealmResults<UserInfo> getFriends(){
-        return repository==null?null:repository.getFriends();
+    public RealmResults<UserInfo> getFriends() {
+        return repository == null ? null : repository.getFriends();
     }
 
     /**
      * sessions对象是否已经加载
+     *
      * @return
      */
-    public boolean iSSessionsLoad(){
-        boolean result=false;
-        if(repository!=null&&repository.getSesisons().isLoaded()){
-            result=true;
+    public boolean iSSessionsLoad() {
+        boolean result = false;
+        if (repository != null && repository.getSesisons().isLoaded()) {
+            result = true;
         }
         return result;
     }
 
-    public void addSessionChangeListener(ApplicationRepository.SessionChangeListener sessionChangeListener){
-        if(repository!=null)repository.addSessionChangeListener(sessionChangeListener);
-    }
-    public void removeSessionChangeListener(ApplicationRepository.SessionChangeListener sessionChangeListener){
-        if(repository!=null)repository.removeSessionChangeListener(sessionChangeListener);
+    public void addSessionChangeListener(ApplicationRepository.SessionChangeListener sessionChangeListener) {
+        if (repository != null) repository.addSessionChangeListener(sessionChangeListener);
     }
 
-    /**
-     * 加载更多session,每100条递增
-     */
-    public void loadMoreSessions(){
-        if(repository!=null)repository.loadMoreSessions();
+    public void removeSessionChangeListener(ApplicationRepository.SessionChangeListener sessionChangeListener) {
+        if (repository != null) repository.removeSessionChangeListener(sessionChangeListener);
     }
 
-    /**
-     * 加载更多通讯录好友,每1000条递增
-     */
-    public void loadMoreFriends(){
-        if(repository!=null)repository.loadMoreFriends();
-    }
-
-
-    public void notifyBurnQuene(){
-        if(repository!=null)repository.notifyBurnQuene();
-    }
     private void initBuildType() {
         switch (BuildConfig.BUILD_TYPE) {
             case "debug":

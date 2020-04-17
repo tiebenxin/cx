@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.hm.cxpay.global.PayEnum;
 import com.luck.picture.lib.tools.DateUtils;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.AssistantMessage;
@@ -606,8 +607,15 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
-        //通知主页刷新
-        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
+        /********通知更新sessionDetail************************************/
+        //因为msg对象 uid有两个，都得添加
+        String[] gids = new String[1];
+        Long[] uids = new Long[1];
+        gids[0] = gid;
+        uids[0] = toUid;
+        //回主线程调用更新session详情
+        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        /********通知更新sessionDetail end************************************/
     }
 
     /***
@@ -616,18 +624,30 @@ public class MsgDao {
      */
     public void msgDel4MsgId(String msgId) {
         Realm realm = DaoUtil.open();
+        //因为msg对象 uid有两个，都得添加
+        List<String> gids = new ArrayList<>();
+        List<Long> uids = new ArrayList<>();
         try {
             realm.beginTransaction();
             RealmResults<MsgAllBean> list = null;
 
+
             list = realm.where(MsgAllBean.class).equalTo("msg_id", msgId).findAll();
             //删除前先把子表数据干掉!!切记
             if (list != null) {
+                if (list.size() > 0) {
+                    gids.add(list.get(0).getGid());
+                    uids.add(list.get(0).getFrom_uid());
+                    uids.add(list.get(0).getTo_uid());
+                }
+
                 for (MsgAllBean msg : list) {
                     deleteRealmMsg(msg);
                 }
                 list.deleteAllFromRealm();
+
             }
+
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
@@ -635,8 +655,11 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
-        //通知主页刷新
-        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
+
+        /********通知更新sessionDetail************************************/
+        //回主线程调用更新session详情
+        MyAppLication.INSTANCE().repository.updateSessionDetail(gids.toArray(new String[gids.size()]), uids.toArray(new Long[uids.size()]));
+        /********通知更新sessionDetail end************************************/
     }
 
 
@@ -699,8 +722,19 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
-        //通知主页刷新
-        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
+        if(msgAllBean!=null){
+            /********通知更新sessionDetail************************************/
+            //因为msg对象 uid有两个，都得添加
+            String[] gids = new String[1];
+            Long[] uids = new Long[2];
+            gids[0] = msgAllBean.getGid();
+            uids[0] = msgAllBean.getTo_uid();
+            uids[0] = msgAllBean.getFrom_uid();
+            //回主线程调用更新session详情
+            MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+            /********通知更新sessionDetail end************************************/
+        }
+
         return msgAllBean;
     }
 
@@ -962,7 +996,7 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         if (StringUtil.isNotNull(gid)) {//群消息
-           realm.where(Session.class).equalTo("gid", gid).findAll().deleteAllFromRealm();
+            realm.where(Session.class).equalTo("gid", gid).findAll().deleteAllFromRealm();
         } else {
             realm.where(Session.class).equalTo("from_uid", from_uid).findAll().deleteAllFromRealm();
         }
@@ -1285,6 +1319,8 @@ public class MsgDao {
                 session.setMessageType(2);
                 session.setUp_time(SocketData.getSysTime());
                 realm.insertOrUpdate(session);
+                //通知刷新某个session by sid-草稿
+                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, session.getSid(), CoreEnum.ESessionRefreshTag.SINGLE);
             }
             realm.commitTransaction();
             realm.close();
@@ -2276,6 +2312,16 @@ public class MsgDao {
         realm.commitTransaction();
         realm.close();
         EventBus.getDefault().post(new EventRefreshChat());
+        /********通知更新sessionDetail************************************/
+        //因为msg对象 uid有两个，都得添加
+        String[] gids = new String[1];
+        Long[] uids = new Long[2];
+        gids[0] = msgAllBean.getGid();
+        uids[0] = msgAllBean.getFrom_uid();
+        uids[1] = msgAllBean.getTo_uid();
+        //回主线程调用更新session详情
+        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        /********通知更新sessionDetail end************************************/
         return msgAllBean;
     }
 
@@ -3249,6 +3295,8 @@ public class MsgDao {
         if (list == null) {
             return true;
         }
+        List<String> gids=new ArrayList<>();
+        List<Long> uids=new ArrayList<>();
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -3257,6 +3305,10 @@ public class MsgDao {
                 MsgAllBean bean = list.get(i);
                 MsgAllBean msg = realm.where(MsgAllBean.class).equalTo("msg_id", bean.getMsg_id()).findFirst();
                 if (msg != null) {
+                    gids.add(msg.getGid());
+                    uids.add(msg.getFrom_uid());
+                    uids.add(msg.getTo_uid());
+
                     deleteRealmMsg(msg);
                     msg.deleteFromRealm();
                 }
@@ -3268,8 +3320,10 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
-        //通知主页刷新
-        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, 0L, "", CoreEnum.ESessionRefreshTag.ALL, null);
+        /********通知更新sessionDetail************************************/
+        //回主线程调用更新session详情
+        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        /********通知更新sessionDetail end************************************/
         return false;
 
     }

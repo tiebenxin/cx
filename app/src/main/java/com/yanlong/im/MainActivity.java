@@ -617,6 +617,7 @@ public class MainActivity extends AppActivity {
         if (AppConfig.isOnline()) {
             checkHasEnvelopeSendFailed();
         }
+        checkTokenValid();
     }
 
     //检测支付环境的初始化
@@ -796,7 +797,16 @@ public class MainActivity extends AppActivity {
                 eventRefreshChat.isScrollBottom = true;
                 EventBus.getDefault().post(eventRefreshChat);
                 if (msgAllbean != null) {
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, event.toUId, event.toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+                    /********通知更新sessionDetail************************************/
+                    //因为msg对象 uid有两个，都得添加
+                    String[] gids = new String[1];
+                    Long[] uids = new Long[2];
+                    gids[0] = msgAllbean.getGid();
+                    uids[0] = msgAllbean.getFrom_uid();
+                    uids[1] = msgAllbean.getTo_uid();
+                    //回主线程调用更新session详情
+                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+                    /********通知更新sessionDetail end************************************/
                 }
             }
         }
@@ -905,6 +915,7 @@ public class MainActivity extends AppActivity {
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone() + "");
         }
         userAction.cleanInfo();
+        MyAppLication.INSTANCE().destoryRepository();
     }
 
     private void uploadApp() {
@@ -1152,7 +1163,15 @@ public class MainActivity extends AppActivity {
     //删除临时红包信息
     private void deleteEnvelopInfo(EnvelopeInfo envelopeInfo) {
         msgDao.deleteEnvelopeInfo(envelopeInfo.getRid(), envelopeInfo.getGid(), envelopeInfo.getUid(), false);
-        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(envelopeInfo.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, envelopeInfo.getUid(), envelopeInfo.getGid(), CoreEnum.ESessionRefreshTag.ALL, null);
+        /********通知更新sessionDetail************************************/
+        //因为msg对象 uid有两个，都得添加
+        String[] gids = new String[1];
+        Long[] uids = new Long[1];
+        gids[0] = envelopeInfo.getGid();
+        uids[0] = envelopeInfo.getUid();
+        //回主线程调用更新session详情
+        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        /********通知更新sessionDetail end************************************/
     }
 
     /**
@@ -1408,6 +1427,20 @@ public class MainActivity extends AppActivity {
 //                    if (response != null && response.body() != null) {
 //                        LogUtil.getLog().i("MainActivity", "上报IP--" + response.body().getMsg());
 //                    }
+                }
+            });
+        }
+    }
+
+    //检测是否需要更新token
+    private void checkTokenValid() {
+        TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+        Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
+        if ((!token.isTokenValid(uid) /*|| token.getBankReqSignKey()==null*/) && NetUtil.isNetworkConnected()) {
+            userAction.updateToken(userAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>(false) {
+                @Override
+                public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                    super.onResponse(call, response);
                 }
             });
         }

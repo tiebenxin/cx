@@ -15,7 +15,6 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
 
-import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.constant.BuglyTag;
 import net.cb.cb.library.utils.LogUtil;
 
@@ -108,16 +107,6 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
 
     private void notifyUIRefresh() {
         MessageManager.getInstance().setMessageChange(true);
-        if (checkIsFromSingle()) {
-            if (gids.size() > 0) {
-                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, null, gids.get(0), CoreEnum.ESessionRefreshTag.SINGLE, null);
-            } else {
-                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uids.get(0), "", CoreEnum.ESessionRefreshTag.SINGLE, null);
-            }
-
-        } else {
-            MessageManager.getInstance().notifyRefreshMsg();
-        }
         MessageManager.getInstance().notifyRefreshChat();
 
         clearIds();

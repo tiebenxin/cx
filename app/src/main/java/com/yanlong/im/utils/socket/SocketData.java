@@ -3,10 +3,10 @@ package com.yanlong.im.utils.socket;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hm.cxpay.global.PayEnum;
 import com.yalantis.ucrop.util.FileUtils;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.AssistantMessage;
 import com.yanlong.im.chat.bean.AtMessage;
@@ -20,7 +20,6 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
-import com.yanlong.im.chat.bean.P2PAuVideoDialMessage;
 import com.yanlong.im.chat.bean.P2PAuVideoMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.SendFileMessage;
@@ -36,7 +35,6 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.TokenBean;
-import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 
@@ -1537,8 +1535,21 @@ public class SocketData {
                     msgAllBean.setMsg_id(cancelId);
                     msgAllBean.getMsgCancel().setMsgid(cancelId);
                 }
+
             }
             DaoUtil.update(msgAllBean);
+            if(msgAllBean.getMsg_type()== ChatEnum.EMessageType.MSG_CANCEL){
+                /********通知更新sessionDetail************************************/
+                //因为msg对象 uid有两个，都得添加
+                String[] gids = new String[1];
+                Long[] uids = new Long[2];
+                gids[0] = msgAllBean.getGid();
+                uids[0] = msgAllBean.getFrom_uid();
+                uids[1] = msgAllBean.getTo_uid();
+                //回主线程调用更新session详情
+                MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+                /********通知更新sessionDetail end************************************/
+            }
             return msgAllBean;
         }
         return null;

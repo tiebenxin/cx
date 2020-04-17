@@ -12,7 +12,6 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
@@ -121,7 +120,6 @@ public class BlacklistActivity extends AppActivity {
                         updateUserStatus(uid);
                         MessageManager.getInstance().notifyRefreshFriend(true, uid, CoreEnum.ERosterAction.BLACK);
                         new MsgDao().sessionCreate("", uid);
-                        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
                     } else {
                         getUserInfo(uid);
                     }
@@ -203,7 +201,6 @@ public class BlacklistActivity extends AppActivity {
                     userDao.updateUserinfo(info);
                     MessageManager.getInstance().notifyRefreshFriend(true, uid, CoreEnum.ERosterAction.BLACK);
                     new MsgDao().sessionCreate("", uid);
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
                 }
             }
         });

@@ -15,7 +15,6 @@ import com.bumptech.glide.Glide;
 import com.yanlong.im.MainViewModel;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.GroupSaveActivity;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.bean.UserInfo;
@@ -55,7 +54,6 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
                     // ToastUtil.show(getContext(), "添加朋友");
                     //清除红点值
                     viewModel.clearRemindCount("friend_apply");
-                    MessageManager.getInstance().notifyRefreshMsg();
                     hd.sbApply.setNum(0, false);
                     context.startActivity(new Intent(context, FriendApplyAcitvity.class));
                 }

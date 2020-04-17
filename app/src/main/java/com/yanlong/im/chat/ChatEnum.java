@@ -280,7 +280,7 @@ public class ChatEnum {
             ENoticeType.RECEIVE_RED_ENVELOPE, ENoticeType.CANCEL, ENoticeType.BLACK_ERROR, ENoticeType.NO_FRI_ERROR, ENoticeType.LOCK, ENoticeType.CHANGE_VICE_ADMINS_ADD,
             ENoticeType.CHANGE_VICE_ADMINS_CANCEL, ENoticeType.FORBIDDEN_WORDS_OPEN, ENoticeType.FORBIDDEN_WORDS_CLOSE, ENoticeType.RED_ENVELOPE_RECEIVED_SELF,
             ENoticeType.FORBIDDEN_WORDS_SINGE, ENoticeType.OPEN_UP_RED_ENVELOPER, ENoticeType.SYS_ENVELOPE_RECEIVED_SELF, ENoticeType.RECEIVE_SYS_ENVELOPE, ENoticeType.SYS_ENVELOPE_RECEIVED,
-            ENoticeType.GROUP_FORBID, ENoticeType.GROUP_BAN_WORDS})
+            ENoticeType.GROUP_FORBID, ENoticeType.GROUP_BAN_WORDS, ENoticeType.CANCEL_CAN_EDIT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ENoticeType {
         int ENTER_BY_QRCODE = 1; //扫二维码进群
@@ -308,6 +308,7 @@ public class ChatEnum {
         int SNAPSHOT_SCREEN = 23;//截屏通知
         int GROUP_FORBID = 24;//封群通知
         int GROUP_BAN_WORDS = 25;//自己开启或者关闭群禁言
+        int CANCEL_CAN_EDIT = 26;//能重新编辑的撤销消息
     }
 
     /*

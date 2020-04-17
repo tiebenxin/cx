@@ -1,6 +1,8 @@
 package com.yanlong.im.repository;
 
 
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 
 import com.yanlong.im.chat.bean.Session;
@@ -195,6 +197,14 @@ public class ApplicationRepository {
             }
         });
     }
+    /**
+     * 更新指定主键的
+     *
+     * @param sids
+     */
+    public void updateSessionDetail(String[] sids) {
+        localDataSource.updateSessionDetail(sids);
+    }
 
     /**
      * 保存当前会话退出即焚消息，endTime到数据库-自动会加入焚队列，存入数据库
@@ -203,6 +213,30 @@ public class ApplicationRepository {
         localDataSource.saveExitSurvivalMsg(gid, userid);
     }
 
+    /**
+     * 更新指定一些消息对应的session详情
+     *
+     * @param
+     */
+    public void updateSessionDetail(String[] gids,Long[] uids) {
+        //回主线程调用更新session详情
+        Handler mainHandler = new Handler(Looper.getMainLooper());
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                //更新Detail详情
+                localDataSource.updateSessionDetail(gids,uids);
+            }
+        });
+    }
+    /**
+     * 更新指定一些消息对应的session详情
+     *
+     * @param
+     */
+    public void updateSessionDetail(List<String> gids,List<Long> uids) {
+      updateSessionDetail(gids.toArray(new String[gids.size()]),uids.toArray(new Long[uids.size()]));
+    }
     public RealmResults<UserInfo> getFriends() {
         return friends;
     }

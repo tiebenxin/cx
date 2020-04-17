@@ -13,7 +13,7 @@ public class BurnBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if(intent.getAction().equals("com.yanlong.im.burn.action")){
-            ((MyAppLication)MyAppLication.getInstance()).notifyBurnQuene();
+            if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.notifyBurnQuene();
         }
     }
 }

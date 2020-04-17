@@ -14,7 +14,6 @@ import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import java.util.List;
@@ -65,12 +64,10 @@ public class UpdateSessionDetail {
             }, new Realm.Transaction.OnSuccess() {
                 @Override
                 public void onSuccess() {
-                    LogUtil.writeLog("UpdateSessionDetail executeTransactionAsync Success");
                 }
             }, new Realm.Transaction.OnError() {
                 @Override
                 public void onError(Throwable error) {
-                    LogUtil.writeLog("UpdateSessionDetail error");
                 }
             });
         } catch (Exception e) {
@@ -100,12 +97,10 @@ public class UpdateSessionDetail {
             }, new Realm.Transaction.OnSuccess() {
                 @Override
                 public void onSuccess() {
-                    LogUtil.writeLog("UpdateSessionDetail executeTransactionAsync Success");
                 }
             }, new Realm.Transaction.OnError() {
                 @Override
                 public void onError(Throwable error) {
-                    LogUtil.writeLog("UpdateSessionDetail error");
                 }
             });
         } catch (Exception e) {
@@ -116,13 +111,13 @@ public class UpdateSessionDetail {
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                if (gids.length > 0) {
+                if (gids!=null &&gids.length > 0) {
                     RealmResults<Session> groupSessions = realm.where(Session.class).in("gid", gids).findAll();
                     for (Session session : groupSessions) {
                         synchGroupMsgSession(realm, session, null);
                     }
                 }
-                if (fromUids.length > 0) {
+                if (fromUids!=null &&fromUids.length > 0) {
                     RealmResults<Session> friendSessions = realm.where(Session.class).in("from_uid", fromUids).findAll();
                     for (Session session : friendSessions) {
                         synchFriendMsgSession(realm, session, null);
@@ -170,18 +165,23 @@ public class UpdateSessionDetail {
                 if (!TextUtils.isEmpty(group.getAvatar())) {
                     sessionMore.setAvatar(group.getAvatar());
                 } else {
-                    if (group.getUsers() != null) {
-                        int i = group.getUsers().size();
-                        i = i > 9 ? 9 : i;
-                        //头像地址
-                        List<String> headList = new RealmList<>();
-                        for (int j = 0; j < i; j++) {
-                            MemberUser userInfo = group.getUsers().get(j);
-                            headList.add(userInfo.getHead().length() == 0 ? "-" : userInfo.getHead());
+                    if(group.getStat()==1){//群已被解散，不显示头像
+                        sessionMore.setAvatarList(null);
+                    }else {
+                        if (group.getUsers() != null) {
+                            int i = group.getUsers().size();
+                            i = i > 9 ? 9 : i;
+                            //头像地址
+                            List<String> headList = new RealmList<>();
+                            for (int j = 0; j < i; j++) {
+                                MemberUser userInfo = group.getUsers().get(j);
+                                headList.add(userInfo.getHead().length() == 0 ? "-" : userInfo.getHead());
+                            }
+                            //将list转string,逗号分隔的字符串
+                            sessionMore.setAvatarList(Joiner.on(",").join(headList));
                         }
-                        //将list转string,逗号分隔的字符串
-                        sessionMore.setAvatarList(Joiner.on(",").join(headList));
                     }
+
                 }
             }
             MsgAllBean msg = null;

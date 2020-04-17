@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
@@ -29,7 +30,6 @@ import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
-import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -42,11 +42,9 @@ import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.GlideOptionsUtil;
-import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
-import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.CloseActivityEvent;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventGroupChange;
@@ -66,7 +64,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -327,7 +324,6 @@ public class GroupInfoActivity extends AppActivity {
                         MsgDao msgDao = new MsgDao();
                         msgDao.msgDel(null, gid);
                         EventBus.getDefault().post(new EventRefreshChat());
-                        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                         ToastUtil.show(GroupInfoActivity.this, "删除成功");
                     }
                 });
@@ -670,7 +666,6 @@ public class GroupInfoActivity extends AppActivity {
 //                    updateAndGetGroup();
                     setGroupNote(ginfo.getAnnouncement());
                     createAndSaveMsg();
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, null, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                     isBackValue = true;
                     break;
                 case GROUP_MANAGER:
@@ -808,7 +803,10 @@ public class GroupInfoActivity extends AppActivity {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
                     if (isMemberChange) {
-                        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+                        String[] gids = new String[1];
+                        gids[0] =  ginfo.getGid();
+                        //回主线程调用更新sessionDetial
+                        MyAppLication.INSTANCE().repository.updateSessionDetail(gids,null);
                     }
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
                     setGroupNote(ginfo.getAnnouncement());
@@ -1156,7 +1154,13 @@ public class GroupInfoActivity extends AppActivity {
     protected void onStop() {
         super.onStop();
         if (isSessionChange) {//免打扰，群名变化
-            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.ALL, null);
+            /********通知更新sessionDetail************************************/
+            //因为msg对象 uid有两个，都得添加
+            String[] gids = new String[1];
+            gids[0] = gid;
+            //回主线程调用更新session详情
+            MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
+            /********通知更新sessionDetail end************************************/
         }
     }
 

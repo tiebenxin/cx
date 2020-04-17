@@ -5,9 +5,14 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -242,6 +247,32 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
     private AlertYesNo mAlertYesNo;
     private boolean mIsCheckPersion = false;// 是否检查悬浮窗权限
+    private SensorManager sensorManager;
+    private Sensor proximitySensor;
+
+    private SensorEventListener sensorEventListener = new SensorEventListener() {
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            float[] dis = event.values;
+            //听筒模式，靠近则息屏，远离则亮屏
+            LogUtil.getLog().i(TAG, "语音播放模式--" + AVChatManager.getInstance().speakerEnabled());
+            if (AVChatManager.getInstance().speakerEnabled()) {
+                if (0.0f == dis[0]) {
+                    //靠近，设置为听筒模式
+                    switchWakeLock(false);
+                } else {
+                    //离开，复原
+                    switchWakeLock(true);
+                }
+            }
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+        }
+    };
+    private PowerManager.WakeLock mWakeLock;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -261,6 +292,9 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         initData();
         registerObserves(true);
         EventBus.getDefault().post(new CanStampEvent(false));
+        if (mAVChatType == AVChatType.AUDIO.getValue()) {
+            initSensor();
+        }
     }
 
     public void setStatusBarColor(int color) {
@@ -498,8 +532,17 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 EventBus.getDefault().unregister(this);
             }
         }
-
         EventBus.getDefault().post(new CanStampEvent(true));
+        releaseWakeLock();
+    }
+
+    private void releaseWakeLock() {
+        if (mWakeLock != null) {
+            if (mWakeLock.isHeld()) {
+                mWakeLock.release();
+            }
+            mWakeLock = null;
+        }
     }
 
     /**
@@ -1329,6 +1372,10 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         Log.i(TAG, "onResume");
         if (mAVChatType == AVChatType.VIDEO.getValue()) {
             surfaceViewFixBefore43(smallSizePreviewLayout, largeSizePreviewLayout);
+        } else {
+            if (proximitySensor != null && sensorManager != null) {
+                sensorManager.registerListener(sensorEventListener, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
+            }
         }
         EventBus.getDefault().post(new EventFactory.StopJPushResumeEvent());
         mAVChatController.taskClearNotification(this);
@@ -1342,6 +1389,14 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         super.onStart();
         returnVideoActivity = true;
         Log.i(TAG, "onStart");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (proximitySensor != null && sensorManager != null) {
+            sensorManager.unregisterListener(sensorEventListener);
+        }
     }
 
     private void surfaceViewFixBefore43(ViewGroup front, ViewGroup back) {
@@ -1929,6 +1984,36 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             }
         }
         return isOk;
+    }
+
+    //初始化距离传感器
+    private void initSensor() {
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        if (sensorManager != null) {
+            proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        }
+        //息屏设置
+        PowerManager mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        mWakeLock = mPowerManager.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, TAG);
+    }
+
+    /**
+     * @param flag true 亮屏， false 息屏
+     */
+    private void switchWakeLock(boolean flag) {
+        if (mWakeLock != null) {
+            if (flag) {
+                //唤醒设备
+                if (mWakeLock.isHeld()) {
+                    mWakeLock.release();
+                }
+            } else {
+                //息屏
+                if (!mWakeLock.isHeld()) {
+                    mWakeLock.acquire();
+                }
+            }
+        }
     }
 }
 

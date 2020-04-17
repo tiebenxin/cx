@@ -148,7 +148,7 @@ public class AVChatController {
             try {
                 // 设置自己需要的可选参数
                 AVChatManager.getInstance().setParameters(avChatConfigs.getAvChatParameters());
-            }catch (IllegalArgumentException e){
+            } catch (IllegalArgumentException e) {
 
             }
         }
@@ -232,6 +232,13 @@ public class AVChatController {
     }
 
     /**
+     * 设置扬声器是否开启
+     */
+    public void toggleSpeaker(boolean flag) {
+        AVChatManager.getInstance().setSpeaker(flag);
+    }
+
+    /**
      * 音频开关
      */
     public void toggleMute() {
@@ -299,7 +306,7 @@ public class AVChatController {
                     @Override
                     public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                         super.onResponse(call, response);
-                        LogUtil.getLog().i(TAG,"点对点语音挂断(已完成)");
+                        LogUtil.getLog().i(TAG, "点对点语音挂断(已完成)");
                     }
 
                     @Override
@@ -319,7 +326,7 @@ public class AVChatController {
      * 清理通知栏
      */
     public void taskClearNotification(Context context) {
-        Log.i("VideoActivity","taskClearNotification");
+        Log.i("VideoActivity", "taskClearNotification");
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancelAll();
     }

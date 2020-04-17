@@ -17,6 +17,8 @@ public class EventRefreshMainMsg extends BaseEvent {
     private Session session;//需要刷新整个session
     private boolean isRefreshTop;//是否刷新置顶
 
+    private String sid;//session id
+
     @CoreEnum.ESessionRefreshTag
     private int refreshTag = CoreEnum.ESessionRefreshTag.ALL;//刷新类型，单个刷新还是全部刷新,默认刷新all
 
@@ -34,6 +36,14 @@ public class EventRefreshMainMsg extends BaseEvent {
             uid = -1L;
         }
         return uid;
+    }
+
+    public String getSid() {
+        return sid;
+    }
+
+    public void setSid(String sid) {
+        this.sid = sid;
     }
 
     public void setUid(Long uid) {
