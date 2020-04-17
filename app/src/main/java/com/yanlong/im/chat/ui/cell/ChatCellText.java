@@ -18,6 +18,7 @@ import com.yanlong.im.chat.ui.view.YLinkMovementMethod;
 import com.yanlong.im.utils.ExpressionUtil;
 
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.ScreenUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.WebPageActivity;
@@ -44,6 +45,7 @@ public class ChatCellText extends ChatCellBase {
     @Override
     protected void showMessage(MsgAllBean message) {
         super.showMessage(message);
+//        updateWidth();
         if (message.getMsg_type() == ChatEnum.EMessageType.TEXT) {
 //            setText(message.getChat().getMsg());
             tv_content.setText(getSpan(message.getChat().getMsg()));
@@ -126,5 +128,14 @@ public class ChatCellText extends ChatCellBase {
             spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, msg);
         }
         return spannableString;
+    }
+
+    private void updateWidth() {
+        int width = ScreenUtils.getScreenWidth(getContext());
+        double maxWidth = 0.6 * width;
+        if (maxWidth > 0 && tv_content != null) {
+            tv_content.setMaxWidth((int) maxWidth);
+            LogUtil.getLog().i("ChatCellText","");
+        }
     }
 }

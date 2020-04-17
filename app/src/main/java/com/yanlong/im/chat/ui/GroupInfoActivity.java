@@ -344,14 +344,10 @@ public class GroupInfoActivity extends AppActivity {
         viewDestroyTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isAdmin() || !isAdministrators()) {
-                    ToastUtil.show(context, "只有群主才能修改该选项");
+                if (!isAdmin() && !isAdministrators()) {
+                    ToastUtil.show(context, "只有群主和管理员才能修改该选项");
                     return;
                 }
-//                if (!isAdmin()&&!isAdministrators()) {
-//                    ToastUtil.show(context, "只有群主和管理员才能修改该选项");
-//                    return;
-//                }
                 DestroyTimeView destroyTimeView = new DestroyTimeView(GroupInfoActivity.this);
                 destroyTimeView.initView();
                 destroyTimeView.setPostion(destroyTime);
