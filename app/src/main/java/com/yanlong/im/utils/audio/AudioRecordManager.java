@@ -280,8 +280,8 @@ public class AudioRecordManager implements Handler.Callback {
     }
 
     private void deleteAudioFile() {
-        LogUtil.getLog().d(TAG, "deleteAudioFile");
         if (this.mAudioPath != null) {
+            LogUtil.getLog().d(TAG, "deleteAudioFile");
             File file = new File(this.mAudioPath.getPath());
             if (file.exists()) {
                 file.delete();
@@ -297,6 +297,7 @@ public class AudioRecordManager implements Handler.Callback {
         if (mAudioRecordListener != null) {
             int duration = (int) (SystemClock.elapsedRealtime() - this.smStartRecTime) / 1000;
             mAudioRecordListener.onFinish(this.mAudioPath, duration);
+            mAudioPath = null;
         }
     }
 

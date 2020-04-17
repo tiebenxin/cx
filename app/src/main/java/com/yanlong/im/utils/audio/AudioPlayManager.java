@@ -25,6 +25,7 @@ import com.yanlong.im.utils.MyDiskCacheUtils;
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -91,8 +92,6 @@ public class AudioPlayManager implements SensorEventListener {
                         String path = context.getExternalCacheDir().getAbsolutePath();
                         File file = new File(path, getFileName(this._playingUri.toString()));
                         if (file.exists()) {
-//                            LogUtil.getLog().v(TAG, "本地播放" + file.getPath());
-
                             this._mediaPlayer.setDataSource(context, Uri.parse(file.getPath()));
                         } else {
 //                            LogUtil.getLog().v(TAG, "在线播放--" + this._playingUri);
@@ -290,6 +289,7 @@ public class AudioPlayManager implements SensorEventListener {
 //                    LogUtil.getLog().v(TAG, "在线播放--" + bean.getVoiceMessage().getUrl());
 //                    this._mediaPlayer.setDataSource(context, audioUri);
 //                    downloadAudio(context, audioUri.toString());
+                    ToastUtil.show(context, "文件不存在或者已损坏");
                 }
 
                 this._mediaPlayer.setAudioStreamType(CONTENT_TYPE_UNKNOWN);

@@ -3402,7 +3402,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     public void onDownloadSuccess(File file) {
                         updatePlayStatus(bean, position, ChatEnum.EPlayStatus.NO_PLAY);
                         startPlayVoice(bean, canAutoPlay, position);
-
                     }
 
                     @Override
