@@ -389,7 +389,12 @@ public class MsgMainFragment extends Fragment {
             }
             /*****删除了数据，*******************************************************************************************/
             if (changeSet.getDeletionRanges().length > 0) {
-                mtListView.getListView().getAdapter().notifyDataSetChanged();
+                if(viewModel.sessions.size()==0){
+                    mtListView.getListView().getAdapter().notifyDataSetChanged();
+                }else{
+                    mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                }
+
             }
             /*****更新了数据*******************************************************************************************/
             int[] modifications = changeSet.getChanges();
@@ -400,7 +405,7 @@ public class MsgMainFragment extends Fragment {
                     int startId = MyAppLication.INSTANCE().repository.sessionSidPositons.get(sid);
                     mtListView.getListView().getAdapter().notifyItemRangeChanged(startId + 1, 1);
                 } else {
-                    mtListView.getListView().getAdapter().notifyDataSetChanged();
+                    mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
                 }
             }
             //详情未全部加载时，1秒后再次请求
