@@ -3746,16 +3746,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * @param v
      */
     public void showPopupWindowUp(View v, int gravity) {
-        //获取需要在其上方显示的控件的位置信息
-        int[] location = new int[2];
-        v.getLocationOnScreen(location);
-        if (gravity == 1) {
-            DisplayMetrics dm = getResources().getDisplayMetrics();
-            mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, (location[0] + v.getWidth() / 2) - popupWidth / 2, dm.heightPixels / 2);
-        } else {
-            //在控件上方显示
-            mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, (location[0] + v.getWidth() / 2) - popupWidth / 2, location[1] - popupHeight);
-        }
+        try {
+            //获取需要在其上方显示的控件的位置信息
+            int[] location = new int[2];
+            v.getLocationOnScreen(location);
+            if (gravity == 1) {
+                DisplayMetrics dm = getResources().getDisplayMetrics();
+                mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, (location[0] + v.getWidth() / 2) - popupWidth / 2, dm.heightPixels / 2);
+            } else {
+                //在控件上方显示
+                mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, (location[0] + v.getWidth() / 2) - popupWidth / 2, location[1] - popupHeight);
+            }
+        } catch (Exception e) { }
     }
 
     /**
