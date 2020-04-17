@@ -1,6 +1,5 @@
 package com.yanlong.im.user.ui;
 
-import android.arch.lifecycle.ViewModelProvider;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -80,7 +79,7 @@ public class FriendMainFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         //MainActivity的viewModel
-        viewModel = new ViewModelProvider(getActivity(), ViewModelProvider.AndroidViewModelFactory.getInstance(MyAppLication.getInstance())).get(MainViewModel.class);
+        viewModel = new MainViewModel();
         updateFriends();
         initEvent();
     }

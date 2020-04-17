@@ -1,7 +1,6 @@
 package com.yanlong.im.chat.dao;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.hm.cxpay.global.PayEnum;
 import com.luck.picture.lib.tools.DateUtils;
@@ -1652,7 +1651,6 @@ public class MsgDao {
             if (friendChatMessages != null) {
                 //每次修改后，friendChatMessages的size 会变化，直到全部修改完，friendChatMessages的size 为0
                 while (friendChatMessages.size() != 0) {
-                    Log.e("raleigh_test", "friendChatMessages=" + friendChatMessages.size());
                     MsgAllBean msgAllBean = friendChatMessages.get(0);
                     long endTime = timestamp + msgAllBean.getSurvival_time() * 1000;
                     realm.beginTransaction();
@@ -1665,7 +1663,6 @@ public class MsgDao {
                             msgAllBean.setEndTime(endTime);
                         } else {//已经到阅后即焚时间点，删除消息
                             msgAllBean.deleteFromRealm();
-                            Log.e("raleigh_test", "deleteFromRealm");
                         }
                     } else {//普通消息，记录已读状态和时间
                         msgAllBean.setRead(1);

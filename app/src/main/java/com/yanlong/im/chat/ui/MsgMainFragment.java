@@ -2,7 +2,6 @@ package com.yanlong.im.chat.ui;
 
 import android.Manifest;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -91,7 +90,7 @@ public class MsgMainFragment extends Fragment {
     private UserDao userDao = new UserDao();
     //    private MsgAction msgAction = new MsgAction();
 //    private List<Session> listData = new ArrayList<>();
-    private MainViewModel viewModel;
+    private MainViewModel viewModel = null;
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -329,7 +328,7 @@ public class MsgMainFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //MainActivity的viewModel
-        viewModel = new ViewModelProvider(getActivity(), ViewModelProvider.AndroidViewModelFactory.getInstance(MyAppLication.getInstance())).get(MainViewModel.class);
+        viewModel = new MainViewModel();
         EventBus.getDefault().register(this);
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
         viewModel.initSession(null);
