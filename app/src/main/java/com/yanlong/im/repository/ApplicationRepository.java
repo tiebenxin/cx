@@ -237,7 +237,8 @@ public class ApplicationRepository {
     public void clearSessionDetailContent(List<String> gids, List<Long> uids) {
         //回主线程调用清除session详情
         //更新Detail详情
-        localDataSource.clearContent(gids.toArray(new String[gids.size()]), uids.toArray(new Long[uids.size()]));
+        localDataSource.clearContent(gids!=null&&gids.size()>0?gids.toArray(new String[gids.size()]):null, uids!=null&&uids.size()>0?uids.toArray(new Long[uids.size()]):null);
+
     }
 
     /**
@@ -246,7 +247,7 @@ public class ApplicationRepository {
      * @param
      */
     public void updateSessionDetail(List<String> gids, List<Long> uids) {
-        updateSessionDetail(gids.toArray(new String[gids.size()]), uids.toArray(new Long[uids.size()]));
+        updateSessionDetail(gids!=null&&gids.size()>0?gids.toArray(new String[gids.size()]):null, uids!=null&&uids.size()>0?uids.toArray(new Long[uids.size()]):null);
     }
 
     public RealmResults<UserInfo> getFriends() {

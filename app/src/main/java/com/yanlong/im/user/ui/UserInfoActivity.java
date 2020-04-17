@@ -772,12 +772,10 @@ public class UserInfoActivity extends AppActivity {
                     notifyRefreshRoster(0, CoreEnum.ERosterAction.UPDATE_INFO);// TODO　id改成0 需要全部刷新，改变通讯录的位置
                     /********通知更新sessionDetail************************************/
                     //因为msg对象 uid有两个，都得添加
-                    String[] gids = new String[1];
-                    Long[] uids = new Long[1];
-                    gids[0] = gid;
-                    uids[0] = id;
+                    List<Long> uids= new ArrayList<>();
+                    uids.add(id);
                     //回主线程调用更新session详情
-                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+                    MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
                     /********通知更新sessionDetail end************************************/
                 }
                 taskUserInfo(id);

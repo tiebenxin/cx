@@ -639,9 +639,13 @@ public class MsgDao {
             //删除前先把子表数据干掉!!切记
             if (list != null) {
                 if (list.size() > 0) {
-                    gids.add(list.get(0).getGid());
-                    uids.add(list.get(0).getFrom_uid());
-                    uids.add(list.get(0).getTo_uid());
+                    //gid存在时，不取uid
+                    if(TextUtils.isEmpty(list.get(0).getGid())){
+                        uids.add(list.get(0).getFrom_uid());
+                        uids.add(list.get(0).getTo_uid());
+                    }else{
+                        gids.add(list.get(0).getGid());
+                    }
                 }
 
                 for (MsgAllBean msg : list) {
@@ -728,11 +732,15 @@ public class MsgDao {
         if(msgAllBean!=null){
             /********通知更新sessionDetail************************************/
             //因为msg对象 uid有两个，都得添加
-            String[] gids = new String[1];
-            Long[] uids = new Long[2];
-            gids[0] = msgAllBean.getGid();
-            uids[0] = msgAllBean.getTo_uid();
-            uids[1] = msgAllBean.getFrom_uid();
+            List<String> gids = new ArrayList<>();
+            List<Long> uids = new ArrayList<>();
+            //gid存在时，不取uid
+            if(TextUtils.isEmpty(msgAllBean.getGid())){
+                uids.add(msgAllBean.getTo_uid());
+                uids.add(msgAllBean.getFrom_uid());
+            }else{
+                gids.add(msgAllBean.getGid());
+            }
             //回主线程调用更新session详情
             MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
             /********通知更新sessionDetail end************************************/
@@ -2317,11 +2325,15 @@ public class MsgDao {
         EventBus.getDefault().post(new EventRefreshChat());
         /********通知更新sessionDetail************************************/
         //因为msg对象 uid有两个，都得添加
-        String[] gids = new String[1];
-        Long[] uids = new Long[2];
-        gids[0] = msgAllBean.getGid();
-        uids[0] = msgAllBean.getFrom_uid();
-        uids[1] = msgAllBean.getTo_uid();
+        List<String> gids = new ArrayList<>();
+        List<Long> uids = new ArrayList<>();
+        //gid存在时，不取uid
+        if(TextUtils.isEmpty(msgAllBean.getGid())){
+            uids.add(msgAllBean.getTo_uid());
+            uids.add(msgAllBean.getFrom_uid());
+        }else{
+            gids.add(msgAllBean.getGid());
+        }
         //回主线程调用更新session详情
         MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
         /********通知更新sessionDetail end************************************/
@@ -3308,9 +3320,13 @@ public class MsgDao {
                 MsgAllBean bean = list.get(i);
                 MsgAllBean msg = realm.where(MsgAllBean.class).equalTo("msg_id", bean.getMsg_id()).findFirst();
                 if (msg != null) {
-                    gids.add(msg.getGid());
-                    uids.add(msg.getFrom_uid());
-                    uids.add(msg.getTo_uid());
+                    //gid存在时，不取uid
+                    if(TextUtils.isEmpty(msg.getGid())){
+                        uids.add(msg.getFrom_uid());
+                        uids.add(msg.getTo_uid());
+                    }else{
+                        gids.add(msg.getGid());
+                    }
 
                     deleteRealmMsg(msg);
                     msg.deleteFromRealm();
