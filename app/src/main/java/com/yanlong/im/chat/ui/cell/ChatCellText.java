@@ -45,7 +45,7 @@ public class ChatCellText extends ChatCellBase {
     @Override
     protected void showMessage(MsgAllBean message) {
         super.showMessage(message);
-//        updateWidth();
+        updateWidth();
         if (message.getMsg_type() == ChatEnum.EMessageType.TEXT) {
 //            setText(message.getChat().getMsg());
             tv_content.setText(getSpan(message.getChat().getMsg()));
