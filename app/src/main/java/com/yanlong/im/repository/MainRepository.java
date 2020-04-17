@@ -59,12 +59,7 @@ public class MainRepository {
         return localDataSource.getSessionJson(sessions);
     }
 
-    /**
-     * 更新详情
-     */
-    public void updateSessionDetail(String[] sids) {
-        localDataSource.updateSessionDetail(sids);
-    }
+     
 
     /**
      * 数据库开始事务处理

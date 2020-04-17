@@ -2571,6 +2571,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
                         int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
                         int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME, 0);
+                        //app内拍摄的视频经检查已经实现了自动压缩
                         VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + file, getVideoAttBitmap(file), false, time, width, height, file);
                         videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
                         // 不等于常信小助手，需要上传到服务器
@@ -4864,7 +4865,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     /**
-     * 实名认证提示弹框
+     * 手机认证提示弹框
      */
     private void showBindPhoneDialog() {
         DialogDefault dialogIdentify = new DialogDefault(this, R.style.MyDialogTheme);
@@ -4886,26 +4887,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                 });
         dialogIdentify.show();
-        dialogOne = builder.setTitle("根据国家法律法规要求，你需要进行身份认证后\n，才能继续使用该功能。")
-                .setLeftText("取消")
-                .setRightText("去认证")
-                .setLeftOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //取消
-                        dialogOne.dismiss();
-                    }
-                })
-                .setRightOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //去认证(需要先同意协议)
-                        dialogOne.dismiss();
-                        startActivity(new Intent(context, ServiceAgreementActivity.class));
-                    }
-                })
-                .build();
-        dialogOne.show();
     }
 
     public void showSettingPswDialog() {

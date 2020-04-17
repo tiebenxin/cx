@@ -30,7 +30,6 @@ import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
-import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -46,7 +45,6 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
-import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.CloseActivityEvent;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventGroupChange;
@@ -1156,7 +1154,13 @@ public class GroupInfoActivity extends AppActivity {
     protected void onStop() {
         super.onStop();
         if (isSessionChange) {//免打扰，群名变化
-            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.ALL, null);
+            /********通知更新sessionDetail************************************/
+            //因为msg对象 uid有两个，都得添加
+            String[] gids = new String[1];
+            gids[0] = gid;
+            //回主线程调用更新session详情
+            MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
+            /********通知更新sessionDetail end************************************/
         }
     }
 

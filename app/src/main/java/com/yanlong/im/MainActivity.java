@@ -1163,7 +1163,15 @@ public class MainActivity extends AppActivity {
     //删除临时红包信息
     private void deleteEnvelopInfo(EnvelopeInfo envelopeInfo) {
         msgDao.deleteEnvelopeInfo(envelopeInfo.getRid(), envelopeInfo.getGid(), envelopeInfo.getUid(), false);
-        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(envelopeInfo.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, envelopeInfo.getUid(), envelopeInfo.getGid(), CoreEnum.ESessionRefreshTag.ALL, null);
+        /********通知更新sessionDetail************************************/
+        //因为msg对象 uid有两个，都得添加
+        String[] gids = new String[1];
+        Long[] uids = new Long[1];
+        gids[0] = envelopeInfo.getGid();
+        uids[0] = envelopeInfo.getUid();
+        //回主线程调用更新session详情
+        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        /********通知更新sessionDetail end************************************/
     }
 
     /**

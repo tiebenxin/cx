@@ -165,18 +165,23 @@ public class UpdateSessionDetail {
                 if (!TextUtils.isEmpty(group.getAvatar())) {
                     sessionMore.setAvatar(group.getAvatar());
                 } else {
-                    if (group.getUsers() != null) {
-                        int i = group.getUsers().size();
-                        i = i > 9 ? 9 : i;
-                        //头像地址
-                        List<String> headList = new RealmList<>();
-                        for (int j = 0; j < i; j++) {
-                            MemberUser userInfo = group.getUsers().get(j);
-                            headList.add(userInfo.getHead().length() == 0 ? "-" : userInfo.getHead());
+                    if(group.getStat()==1){//群已被解散，不显示头像
+                        sessionMore.setAvatarList(null);
+                    }else {
+                        if (group.getUsers() != null) {
+                            int i = group.getUsers().size();
+                            i = i > 9 ? 9 : i;
+                            //头像地址
+                            List<String> headList = new RealmList<>();
+                            for (int j = 0; j < i; j++) {
+                                MemberUser userInfo = group.getUsers().get(j);
+                                headList.add(userInfo.getHead().length() == 0 ? "-" : userInfo.getHead());
+                            }
+                            //将list转string,逗号分隔的字符串
+                            sessionMore.setAvatarList(Joiner.on(",").join(headList));
                         }
-                        //将list转string,逗号分隔的字符串
-                        sessionMore.setAvatarList(Joiner.on(",").join(headList));
                     }
+
                 }
             }
             MsgAllBean msg = null;

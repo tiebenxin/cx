@@ -501,10 +501,6 @@ public class UserInfoActivity extends AppActivity {
                     setData(userInfo);
                     if (userInfo != null) {
                         Session session = new MsgDao().sessionGet("", userInfo.getUid());
-                        if (session != null) {
-                            MessageManager.getInstance().setMessageChange(true);
-                            MessageManager.getInstance().notifyRefreshMsg();
-                        }
                     }
 
                 }
@@ -707,7 +703,6 @@ public class UserInfoActivity extends AppActivity {
                 new MsgDao().sessionDel(id, "");
                 ToastUtil.show(context, response.body().getMsg());
                 notifyRefreshRoster(id, CoreEnum.ERosterAction.BLACK);
-                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.ALL, null);
             }
         });
     }
@@ -726,7 +721,6 @@ public class UserInfoActivity extends AppActivity {
                 new MsgDao().sessionCreate("", id);
                 ToastUtil.show(context, response.body().getMsg());
                 notifyRefreshRoster(uid, CoreEnum.ERosterAction.BLACK);
-                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.ALL, null);
             }
         });
     }
@@ -776,8 +770,15 @@ public class UserInfoActivity extends AppActivity {
                 if (response.body().isOk()) {
                     updateUserInfo(mark);
                     notifyRefreshRoster(0, CoreEnum.ERosterAction.UPDATE_INFO);// TODO　id改成0 需要全部刷新，改变通讯录的位置
-                    MessageManager.getInstance().setMessageChange(true);
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.ALL, null);
+                    /********通知更新sessionDetail************************************/
+                    //因为msg对象 uid有两个，都得添加
+                    String[] gids = new String[1];
+                    Long[] uids = new Long[1];
+                    gids[0] = gid;
+                    uids[0] = id;
+                    //回主线程调用更新session详情
+                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+                    /********通知更新sessionDetail end************************************/
                 }
                 taskUserInfo(id);
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
