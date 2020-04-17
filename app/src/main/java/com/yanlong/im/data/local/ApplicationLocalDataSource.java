@@ -47,12 +47,17 @@ public class ApplicationLocalDataSource {
 
             @Override
             public void updateLastSecondDetail(Realm realm, Long fromUid, String[] mgsIds) {
-//异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
+                //异步数据库线程事务中调用，当前即将被删除，更新为不包含消息mgsIds
                 updateSessionDetail.updateLastDetail(realm, fromUid, mgsIds);
             }
         });
     }
-
+    /**
+     * 清除某个会话详情的内容
+     */
+    public void clearSessionDetailContent(String[] gid, Long[] uids){
+        updateSessionDetail.clearContent(gid,uids);
+    }
     /**
      * 通知更新阅后即焚队列
      */
@@ -86,7 +91,7 @@ public class ApplicationLocalDataSource {
      * @param
      */
     public void updateSessionDetail(String[] gids, Long[] uids) {
-        updateSessionDetail.update(gids, uids);
+        updateSessionDetail.clearContent(gids, uids);
     }
 
     /**
