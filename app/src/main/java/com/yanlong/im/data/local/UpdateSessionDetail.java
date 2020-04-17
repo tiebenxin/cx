@@ -126,7 +126,11 @@ public class UpdateSessionDetail {
             }
         });
     }
-
+    /**
+     *清除会话详情的内容
+     *
+     * @param
+     */
     public void clearContent(String[] gids, Long[] fromUids) {
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override

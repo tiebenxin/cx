@@ -91,9 +91,16 @@ public class ApplicationLocalDataSource {
      * @param
      */
     public void updateSessionDetail(String[] gids, Long[] uids) {
+        updateSessionDetail.update(gids, uids);
+    }
+    /**
+     *清除会话详情的内容
+     *
+     * @param
+     */
+    public void clearContent(String[] gids, Long[] uids) {
         updateSessionDetail.clearContent(gids, uids);
     }
-
     /**
      * 获取session 列表-异步
      *

@@ -232,12 +232,12 @@ public class ApplicationRepository {
     }
 
     /**
-     * 清除某个会话详情的内容
+     * 清除会话详情的内容
      */
     public void clearSessionDetailContent(List<String> gids, List<Long> uids) {
         //回主线程调用清除session详情
         //更新Detail详情
-        localDataSource.updateSessionDetail(gids.toArray(new String[gids.size()]), uids.toArray(new Long[uids.size()]));
+        localDataSource.clearContent(gids.toArray(new String[gids.size()]), uids.toArray(new Long[uids.size()]));
     }
 
     /**

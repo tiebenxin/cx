@@ -732,7 +732,7 @@ public class MsgDao {
             Long[] uids = new Long[2];
             gids[0] = msgAllBean.getGid();
             uids[0] = msgAllBean.getTo_uid();
-            uids[0] = msgAllBean.getFrom_uid();
+            uids[1] = msgAllBean.getFrom_uid();
             //回主线程调用更新session详情
             MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
             /********通知更新sessionDetail end************************************/
