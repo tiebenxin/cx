@@ -38,7 +38,7 @@ public class SplashActivity extends AppActivity {
     private static final String TAG = "SplashActivity";
     private UserAction userAction = new UserAction();
     private final static long TIME = 200; //启动页时间
-//    private ConstraintLayout mLayoutGuidance;
+    //    private ConstraintLayout mLayoutGuidance;
 //    private ViewPager mViewPager;
 //    private ImageView mBtnStart;
     //    private ImageView mIvStart;
@@ -229,16 +229,16 @@ public class SplashActivity extends AppActivity {
         Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
 //        String imId = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).get4Json(String.class);
         if (token != null) {
-            if ((!token.isTokenValid(uid) /*|| token.getBankReqSignKey()==null*/) && NetUtil.isNetworkConnected()) {
-                updateToken(isFirst);
-            } else {
-                userAction.login4tokenNotNet(token);
-                //6.17 无网处理
-                startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                // 提前将全屏切换为非全屏状态，解决从全屏进入非全屏标题栏闪动的问题
-                setFinishFlags();
-                finish();
-            }
+//            if ((!token.isTokenValid(uid) /*|| token.getBankReqSignKey()==null*/) && NetUtil.isNetworkConnected()) {
+//                updateToken(isFirst);
+//            } else {
+            userAction.login4tokenNotNet(token);
+            //6.17 无网处理
+            startActivity(new Intent(SplashActivity.this, MainActivity.class));
+            // 提前将全屏切换为非全屏状态，解决从全屏进入非全屏标题栏闪动的问题
+            setFinishFlags();
+            finish();
+//            }
         } else {
             if (TextUtils.isEmpty(phone)) {
                 startActivity(new Intent(SplashActivity.this, SelectLoginActivity.class));//PasswordLoginActivity.class
@@ -293,9 +293,9 @@ public class SplashActivity extends AppActivity {
                 startTimer();
             }
         }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ,Manifest.permission.READ_EXTERNAL_STORAGE
-                ,Manifest.permission.ACCESS_FINE_LOCATION
-                ,Manifest.permission.ACCESS_COARSE_LOCATION});
+                , Manifest.permission.READ_EXTERNAL_STORAGE
+                , Manifest.permission.ACCESS_FINE_LOCATION
+                , Manifest.permission.ACCESS_COARSE_LOCATION});
     }
 
 
