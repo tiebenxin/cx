@@ -661,7 +661,7 @@ public class MsgDao {
 
         /********通知更新sessionDetail************************************/
         //回主线程调用更新session详情
-        MyAppLication.INSTANCE().repository.updateSessionDetail(gids.toArray(new String[gids.size()]), uids.toArray(new Long[uids.size()]));
+        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
         /********通知更新sessionDetail end************************************/
     }
 
