@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -371,6 +372,7 @@ public class MsgMainFragment extends Fragment {
     private OrderedRealmCollectionChangeListener sessionMoresListener = new OrderedRealmCollectionChangeListener<RealmResults<SessionDetail>>() {
         @Override
         public void onChange(RealmResults<SessionDetail> sessionDetails, OrderedCollectionChangeSet changeSet) {
+
             /*****第一次初始化******************************************************************************************/
             if(changeSet.getState()== OrderedCollectionChangeSet.State.INITIAL){
                 mtListView.getListView().getAdapter().notifyDataSetChanged();
@@ -402,9 +404,21 @@ public class MsgMainFragment extends Fragment {
                     mtListView.getListView().getAdapter().notifyDataSetChanged();
                 }
             }
+            //详情未全部加载时，1秒后再次请求
+            if(sessionDetails.size()!=viewModel.sessions.size()){
+                handler.removeCallbacks(updateSessionMoreAgain);
+                handler.postDelayed(updateSessionMoreAgain,1000);
+            }
+        }
+    };
+    private Runnable updateSessionMoreAgain=new Runnable() {
+        @Override
+        public void run() {
+            viewModel.updateSessionMore();
         }
     };
 
+    private Handler handler=new Handler();
     /**
      * 初始化观察器
      */
@@ -462,9 +476,9 @@ public class MsgMainFragment extends Fragment {
                     int startId = MyAppLication.INSTANCE().repository.sessionSidPositons.get(sid);
                     mtListView.getListView().getAdapter().notifyItemRangeChanged(startId + 1, 1);
                 }
-            }else if (refreshTag == CoreEnum.ESessionRefreshTag.ALL) {
-                //阅后即焚 -更新
-                viewModel.updateItemSessionDetail();
+//            }else if (refreshTag == CoreEnum.ESessionRefreshTag.ALL) {
+//                // 更新所有详情
+//                MyAppLication.INSTANCE().repository.updateSessionDetail(viewModel.allSids.toArray(new String[viewModel.allSids.size()]));
             }
         }
     }

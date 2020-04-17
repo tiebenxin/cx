@@ -197,6 +197,14 @@ public class ApplicationRepository {
             }
         });
     }
+    /**
+     * 更新指定主键的
+     *
+     * @param sids
+     */
+    public void updateSessionDetail(String[] sids) {
+        localDataSource.updateSessionDetail(sids);
+    }
 
     /**
      * 保存当前会话退出即焚消息，endTime到数据库-自动会加入焚队列，存入数据库
@@ -221,7 +229,14 @@ public class ApplicationRepository {
             }
         });
     }
-
+    /**
+     * 更新指定一些消息对应的session详情
+     *
+     * @param
+     */
+    public void updateSessionDetail(List<String> gids,List<Long> uids) {
+      updateSessionDetail(gids.toArray(new String[gids.size()]),uids.toArray(new Long[uids.size()]));
+    }
     public RealmResults<UserInfo> getFriends() {
         return friends;
     }

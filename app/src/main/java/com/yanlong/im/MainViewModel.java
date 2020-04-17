@@ -87,12 +87,6 @@ public class MainViewModel extends ViewModel {
         return repository.getGroup4Id(gid);
     }
 
-    public void updateItemSessionDetail() {
-        //更新当前sessionDetail对象的所有数据
-        repository.updateSessionDetail(allSids.toArray(new String[allSids.size()]));
-    }
-
-
     public String getSessionJson() {
         return sessions == null ? "" : repository.getSessionJson(sessions);
     }

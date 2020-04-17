@@ -36,19 +36,19 @@ public class ApplicationLocalDataSource {
         burnManager = new BurnManager(realm, new BurnManager.UpdateDetailListener() {
             @Override
             public void update(String[] gids, Long[] uids) {
-                updateSessionDetail.update(gids,uids);
+                updateSessionDetail.update(gids, uids);
             }
 
             @Override
             public void updateLastSecondDetail(Realm realm, String gid, String[] mgsIds) {
                 //异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
-                updateSessionDetail.updateLastDetail(realm,gid,mgsIds);
+                updateSessionDetail.updateLastDetail(realm, gid, mgsIds);
             }
 
             @Override
             public void updateLastSecondDetail(Realm realm, Long fromUid, String[] mgsIds) {
 //异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
-                updateSessionDetail.updateLastDetail(realm,fromUid,mgsIds);
+                updateSessionDetail.updateLastDetail(realm, fromUid, mgsIds);
             }
         });
     }
@@ -56,9 +56,10 @@ public class ApplicationLocalDataSource {
     /**
      * 通知更新阅后即焚队列
      */
-    public void notifyBurnQuene(){
+    public void notifyBurnQuene() {
         burnManager.notifyBurnQuene();
     }
+
     public Realm getRealm() {
         return realm;
     }
@@ -78,14 +79,16 @@ public class ApplicationLocalDataSource {
     public void updateSessionDetail(String[] sids) {
         updateSessionDetail.update(sids);
     }
+
     /**
      * 更新指定一些消息对应的session详情
      *
      * @param
      */
-    public void updateSessionDetail(String[] gids,Long[] uids) {
-        updateSessionDetail.update(gids,uids);
+    public void updateSessionDetail(String[] gids, Long[] uids) {
+        updateSessionDetail.update(gids, uids);
     }
+
     /**
      * 获取session 列表-异步
      *
@@ -103,9 +106,9 @@ public class ApplicationLocalDataSource {
      * @return
      */
     public RealmResults<UserInfo> getFriends(int limit) {
-        boolean isNeedResetFriendTag= MyAppLication.getInstance().getSharedPreferences(SharedPreferencesUtil.SPName.USER_SETTING.toString(), Context.MODE_PRIVATE)
-                .getBoolean("isNeedResetFriendTag",true);
-        if(isNeedResetFriendTag){
+        boolean isNeedResetFriendTag = MyAppLication.getInstance().getSharedPreferences(SharedPreferencesUtil.SPName.USER_SETTING.toString(), Context.MODE_PRIVATE)
+                .getBoolean("isNeedResetFriendTag", true);
+        if (isNeedResetFriendTag) {
             //兼容老用户，需要第一次将tage-#更改为a,方便排序
             realm.executeTransactionAsync(new Realm.Transaction() {
                 @Override
@@ -117,8 +120,8 @@ public class ApplicationLocalDataSource {
                             .beginGroup().equalTo("uType", 2).or().equalTo("uType", 4).endGroup()
                             .findAll();
                     //批量更新
-                    if (userInfos != null && userInfos.size() > 0){
-                        for(UserInfo userInfo:userInfos){
+                    if (userInfos != null && userInfos.size() > 0) {
+                        for (UserInfo userInfo : userInfos) {
                             userInfo.setTag(UserInfo.FRIEND_NUMBER_TAG);
                         }
                     }
@@ -128,7 +131,7 @@ public class ApplicationLocalDataSource {
                 public void onSuccess() {
                     //记住，下次不用再重置了
                     MyAppLication.getInstance().getSharedPreferences(SharedPreferencesUtil.SPName.USER_SETTING.toString(), Context.MODE_PRIVATE)
-                            .edit().putBoolean("isNeedResetFriendTag",false).apply();
+                            .edit().putBoolean("isNeedResetFriendTag", false).apply();
                 }
             });
         }
@@ -152,7 +155,7 @@ public class ApplicationLocalDataSource {
                             .beginGroup().lessThan("survival_time", 0).endGroup()
                             .findAll();
                     //更新为当前时间删除（batch update批量更新大数据会报错-慎用）
-                    for(MsgAllBean msg:list){
+                    for (MsgAllBean msg : list) {
                         msg.setStartTime(System.currentTimeMillis());
                         msg.setEndTime(System.currentTimeMillis());
                     }
@@ -165,7 +168,7 @@ public class ApplicationLocalDataSource {
                             .beginGroup().lessThan("survival_time", 0).endGroup()
                             .findAll();
                     //更新为当前时间删除（batch update批量更新大数据会报错-慎用）
-                    for(MsgAllBean msg:list){
+                    for (MsgAllBean msg : list) {
                         msg.setStartTime(System.currentTimeMillis());
                         msg.setEndTime(System.currentTimeMillis());
                     }
@@ -176,17 +179,18 @@ public class ApplicationLocalDataSource {
 
     /**
      * 删除某个session 所有消息
+     *
      * @param uid
      * @param gid
      */
-    public void deleteAllMsg(String sid,Long uid, String gid) {
+    public void deleteAllMsg(String sid, Long uid, String gid) {
         //异步线程删除
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 try {
                     //删除某个session detial
-                    realm.where(SessionDetail.class).equalTo("sid",sid).findFirst().deleteFromRealm();
+                    realm.where(SessionDetail.class).equalTo("sid", sid).findFirst().deleteFromRealm();
                     //删除某个session所有消息
                     RealmResults<MsgAllBean> list;
                     if (StringUtil.isNotNull(gid)) {
@@ -230,21 +234,24 @@ public class ApplicationLocalDataSource {
     }
 
 
-
-    public void beginTransaction(){
+    public void beginTransaction() {
         realm.beginTransaction();
     }
-    public void commitTransaction(){
+
+    public void commitTransaction() {
         realm.commitTransaction();
     }
 
     public void onDestory() {
         burnManager.onDestory();
         if (realm != null) {
-            DaoUtil.close(realm);
+            if (realm.isInTransaction()) {
+                realm.cancelTransaction();
+            }
+            realm.close();
         }
         realm = null;
         updateSessionDetail = null;
-        burnManager=null;
+        burnManager = null;
     }
 }

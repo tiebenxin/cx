@@ -1,22 +1,15 @@
 package com.yanlong.im.data.local;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
-import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Remind;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
-import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
-import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.OnlineBean;
-import net.cb.cb.library.utils.StringUtil;
 
 import java.util.List;
 
@@ -30,15 +23,9 @@ import io.realm.RealmResults;
  */
 public class MainLocalDataSource {
     private Realm realm = null;
-    private UpdateSessionDetail updateSessionDetail = null;
 
     public MainLocalDataSource() {
         realm = DaoUtil.open();
-        updateSessionDetail = new UpdateSessionDetail(realm);
-    }
-
-    public void updateSessionDetail(String[] sids) {
-        updateSessionDetail.update(sids);
     }
 
     public String getSessionJson(RealmResults<Session> sessions) {
@@ -186,17 +173,26 @@ public class MainLocalDataSource {
         }, new Realm.Transaction.OnSuccess() {
             @Override
             public void onSuccess() {
-                // 刷新列表
-                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, "", CoreEnum.ESessionRefreshTag.ALL, null);
+                /********通知更新sessionDetail************************************/
+                //因为msg对象 uid有两个，都得添加
+                Long[] uids = new Long[1];
+                uids[0] = uid;
+                //回主线程调用更新session详情
+                MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
+                /********通知更新sessionDetail end************************************/
             }
         });
     }
 
 
     public void onDestory() {
-        updateSessionDetail = null;
         if (realm != null) {
-            DaoUtil.close(realm);
+            if (realm != null) {
+                if (realm.isInTransaction()) {
+                    realm.cancelTransaction();
+                }
+                realm.close();
+            }
         }
     }
 }
