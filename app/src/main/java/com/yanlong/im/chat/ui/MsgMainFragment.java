@@ -372,16 +372,15 @@ public class MsgMainFragment extends Fragment {
     private OrderedRealmCollectionChangeListener sessionMoresListener = new OrderedRealmCollectionChangeListener<RealmResults<SessionDetail>>() {
         @Override
         public void onChange(RealmResults<SessionDetail> sessionDetails, OrderedCollectionChangeSet changeSet) {
-
-            /*****第一次初始化******************************************************************************************/
-            if(changeSet.getState()== OrderedCollectionChangeSet.State.INITIAL){
-                mtListView.getListView().getAdapter().notifyDataSetChanged();
-            }
-
 //            /***更新位置信息*********************************************************/
             viewModel.sessionMoresPositions.clear();
             for (int i = 0; i < viewModel.sessionMores.size(); i++) {
                 viewModel.sessionMoresPositions.put(viewModel.sessionMores.get(i).getSid(), i);
+            }
+
+            /*****第一次初始化******************************************************************************************/
+            if(changeSet.getState()== OrderedCollectionChangeSet.State.INITIAL){
+                mtListView.getListView().getAdapter().notifyDataSetChanged();
             }
 
             /*****增加了数据-需要更新全部*******************************************************************************************/
@@ -405,7 +404,7 @@ public class MsgMainFragment extends Fragment {
                 }
             }
             //详情未全部加载时，1秒后再次请求
-            if(sessionDetails.size()!=viewModel.sessions.size()){
+            if(sessionDetails.size() < viewModel.sessions.size()){
                 handler.removeCallbacks(updateSessionMoreAgain);
                 handler.postDelayed(updateSessionMoreAgain,1000);
             }
