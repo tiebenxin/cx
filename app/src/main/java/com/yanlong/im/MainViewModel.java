@@ -135,13 +135,13 @@ public class MainViewModel extends ViewModel {
     }
 
     public void onDestory(LifecycleOwner owner) {
-        if (sessionMores != null)
-            sessionMores.removeAllChangeListeners();
-        sessionMores = null;
-        repository.onDestory();
         currentDeleteSid.removeObservers(owner);
         onlineState.removeObservers(owner);
         isNeedCloseSwipe.removeObservers(owner);
         isAllSidsChange.removeObservers(owner);
+        if (sessionMores != null)
+            sessionMores.removeAllChangeListeners();
+        sessionMores = null;
+        repository.onDestory();
     }
 }
