@@ -593,11 +593,22 @@ public class MsgDao {
 
             }
 
+            /********通知更新sessionDetail-清空msg************************************/
+            //因为msg对象 uid有两个，都得添加
+            List<String> gids = new ArrayList<>();
+            List<Long> uids = new ArrayList<Long>();
+            /********通知更新sessionDetail end************************************/
+
             //删除前先把子表数据干掉!!切记
             if (list != null) {
                 for (MsgAllBean msg : list) {
                     deleteRealmMsg(msg);
+                    gids.add(msg.getGid());
+                    uids.add(msg.getTo_uid());
+                    uids.add(msg.getFrom_uid());
                 }
+                //调用清除session详情
+                MyAppLication.INSTANCE().repository.clearSessionDetailContent(gids, uids);
                 list.deleteAllFromRealm();
             }
             realm.commitTransaction();
@@ -607,15 +618,7 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
-        /********通知更新sessionDetail************************************/
-        //因为msg对象 uid有两个，都得添加
-        String[] gids = new String[1];
-        Long[] uids = new Long[1];
-        gids[0] = gid;
-        uids[0] = toUid;
-        //回主线程调用更新session详情
-        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
-        /********通知更新sessionDetail end************************************/
+
     }
 
     /***
