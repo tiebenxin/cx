@@ -3429,6 +3429,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                   @ChatEnum.EPlayStatus int status) {
 //        LogUtil.getLog().i(TAG, "updatePlayStatus--" + status + "--position=" + position);
         bean = amendMsgALlBean(position, bean);
+        if (bean == null || bean.getVoiceMessage() == null) {
+            return;
+        }
         VoiceMessage voiceMessage = bean.getVoiceMessage();
         if (status == ChatEnum.EPlayStatus.NO_PLAY || status == ChatEnum.EPlayStatus.PLAYING) {//已点击下载，或者正在播
             if (bean.isRead() == false) {
