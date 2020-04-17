@@ -263,7 +263,6 @@ public class AudioPlayManager implements SensorEventListener {
                 AudioPlayManager.this.voicePlayListener = playListener;
                 this._playingUri = audioUri;
                 this._mediaPlayer = new MediaPlayer();
-                this._mediaPlayer = new MediaPlayer();
                 this._mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     public void onCompletion(MediaPlayer mp) {
                         LogUtil.getLog().i(TAG, "onCompletion--" + (AudioPlayManager.this.voicePlayListener == null));
@@ -376,7 +375,7 @@ public class AudioPlayManager implements SensorEventListener {
                         currentDownBean = null;
                         LogUtil.getLog().i(TAG, "语音下载成功");
 
-                        MyDiskCacheUtils.getInstance().putFileNmae(path,url);
+                        MyDiskCacheUtils.getInstance().putFileNmae(path, url);
                     }
 
                     @Override
