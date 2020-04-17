@@ -654,7 +654,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (isGroup()) {
             if (groupInfo != null) {
                 //群被封，全禁言，单个禁言，无截屏权限
-                if (groupInfo.getStat() != ChatEnum.EGroupStatus.NORMAL || groupInfo.getWordsNotAllowed() == 1
+                if (groupInfo.getStat() != ChatEnum.EGroupStatus.NORMAL || (!isAdmin() && groupInfo.getWordsNotAllowed() == 1)
                         || (singleMeberInfoBean != null && singleMeberInfoBean.getShutUpDuration() == 1) || groupInfo.getScreenshotNotification() == 0) {
                     return false;
                 } else {
@@ -3402,7 +3402,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     public void onDownloadSuccess(File file) {
                         updatePlayStatus(bean, position, ChatEnum.EPlayStatus.NO_PLAY);
                         startPlayVoice(bean, canAutoPlay, position);
-
                     }
 
                     @Override
@@ -4306,10 +4305,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 List<String> gids = new ArrayList<>();
                                 List<Long> uids = new ArrayList<>();
                                 //gid存在时，不取uid
-                                if(TextUtils.isEmpty(msgAllbean.getGid())){
+                                if (TextUtils.isEmpty(msgAllbean.getGid())) {
                                     uids.add(msgAllbean.getTo_uid());
                                     uids.add(msgAllbean.getFrom_uid());
-                                }else{
+                                } else {
                                     gids.add(msgAllbean.getGid());
                                 }
                                 //回主线程调用更新session详情
