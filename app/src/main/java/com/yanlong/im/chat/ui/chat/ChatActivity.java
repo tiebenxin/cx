@@ -142,6 +142,7 @@ import com.yanlong.im.chat.ui.cell.MessageAdapter;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.chat.ui.view.ControllerLinearList;
 import com.yanlong.im.dialog.ForwardDialog;
+import com.yanlong.im.dialog.LockDialog;
 import com.yanlong.im.location.LocationActivity;
 import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.action.PayAction;
@@ -2570,6 +2571,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
                         int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
                         int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME, 0);
+                        //app内拍摄的视频经检查已经实现了自动压缩
                         VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + file, getVideoAttBitmap(file), false, time, width, height, file);
                         videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
                         // 不等于常信小助手，需要上传到服务器
@@ -3196,6 +3198,29 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 httpGetTransferDetail(rid, PayEnum.ETransferOpType.TRANS_SEND, msgAllBean);
             }
         }
+    }
+
+    @Override
+    public void clickLock() {
+        if (ViewUtils.isFastDoubleClick()) {
+            return;
+        }
+        showLockDialog();
+    }
+
+    @Override
+    public void clickEditAgain(String content) {
+        if (ViewUtils.isFastDoubleClick()) {
+            return;
+        }
+        showDraftContent(editChat.getText().toString() + content);
+        editChat.setSelection(editChat.getText().length());
+        //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
+        if (!mViewModel.isOpenValue()) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
+        mViewModel.isInputText.setValue(true);
+
     }
 
     private String getEnvelopeInfo(@PayEnum.EEnvelopeStatus int envelopStatus) {
@@ -4840,7 +4865,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     /**
-     * 实名认证提示弹框
+     * 手机认证提示弹框
      */
     private void showBindPhoneDialog() {
         DialogDefault dialogIdentify = new DialogDefault(this, R.style.MyDialogTheme);
@@ -4862,26 +4887,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                 });
         dialogIdentify.show();
-        dialogOne = builder.setTitle("根据国家法律法规要求，你需要进行身份认证后\n，才能继续使用该功能。")
-                .setLeftText("取消")
-                .setRightText("去认证")
-                .setLeftOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //取消
-                        dialogOne.dismiss();
-                    }
-                })
-                .setRightOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //去认证(需要先同意协议)
-                        dialogOne.dismiss();
-                        startActivity(new Intent(context, ServiceAgreementActivity.class));
-                    }
-                })
-                .build();
-        dialogOne.show();
     }
 
     public void showSettingPswDialog() {
@@ -5584,6 +5589,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
         return false;
+    }
+
+    public void showLockDialog() {
+        LockDialog lockDialog = new LockDialog(this, R.style.MyDialogNoFadedTheme);
+        lockDialog.setCancelable(true);
+        lockDialog.setCanceledOnTouchOutside(true);
+        lockDialog.create();
+        lockDialog.show();
     }
 
 }

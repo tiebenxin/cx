@@ -10,15 +10,19 @@ import android.text.TextUtils;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
+import android.view.WindowManager;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.HtmlBean;
 import com.yanlong.im.chat.bean.HtmlBeanList;
+import com.yanlong.im.chat.interf.IActionTagClickListener;
+import com.yanlong.im.chat.ui.ChatActivityTemp;
 import com.yanlong.im.dialog.LockDialog;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 
 import org.jsoup.Jsoup;
@@ -36,6 +40,8 @@ import java.util.List;
 public class HtmlTransitonUtils {
     private static final String TAG = "HtmlTransitonUtils";
     private final String REST_EDIT = "重新编辑";
+    private final int RELINQUISH_TIME = 5;// 5分钟内显示重新编辑
+
 
     public SpannableStringBuilder getSpannableString(Context context, String html, int type) {
         SpannableStringBuilder style = new SpannableStringBuilder();
@@ -72,8 +78,54 @@ public class HtmlTransitonUtils {
                 case ChatEnum.ENoticeType.NO_FRI_ERROR://被好友删除，消息发送失败
                     setType11(context, style, bean);
                     break;
+//                case ChatEnum.ENoticeType.LOCK://端到端加密
+//                    setType12(context, style, bean);
+//                    break;
+                case ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED: // xxx领取了你的云红包
+                    setTypeEnvelopSend(context, style, bean, 1);
+                    break;
+                case ChatEnum.ENoticeType.RECEIVE_SYS_ENVELOPE: // 你领取的xxx的云红包
+                    setTypeEnvelopeReceived(context, style, bean, 1);
+                    break;
+                case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_ADD://群管理变更通知
+                    setType13(context, style, bean);
+                    break;
+                case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL:
+                    setType14(context, style, bean);
+                    break;
+                case ChatEnum.ENoticeType.FORBIDDEN_WORDS_OPEN:// 群禁言
+                case ChatEnum.ENoticeType.FORBIDDEN_WORDS_CLOSE:// 群禁言
+                    setType15(context, style, bean, type);
+                    break;
+                case ChatEnum.ENoticeType.FORBIDDEN_WORDS_SINGE:// 单人禁言
+                    if (html.contains("解除")) {
+                        setType17(context, style, bean);
+                    } else {
+                        String value = html.substring(html.lastIndexOf("禁言"), html.indexOf("<div"));
+                        setType16(context, style, bean, value);
+                    }
+                    break;
+                case ChatEnum.ENoticeType.OPEN_UP_RED_ENVELOPER:// 领取群红包
+                    if (html.contains("允许")) {
+                        setType18(context, style, bean);
+                    } else {
+                        setType19(context, style, bean);
+                    }
+                case ChatEnum.ENoticeType.CANCEL_CAN_EDIT://撤销能重新编辑
+
+                    break;
+            }
+        }
+        return style;
+    }
+
+    public SpannableStringBuilder getSpannableString(Context context, String html, int type, IActionTagClickListener listener) {
+        SpannableStringBuilder style = new SpannableStringBuilder();
+        if (!TextUtils.isEmpty(html)) {
+            HtmlBean bean = htmlTransition(html);
+            switch (type) {
                 case ChatEnum.ENoticeType.LOCK://端到端加密
-                    setType12(context, style, bean);
+                    setType12(context, style, bean, listener);
                     break;
                 case ChatEnum.ENoticeType.SYS_ENVELOPE_RECEIVED: // xxx领取了你的云红包
                     setTypeEnvelopSend(context, style, bean, 1);
@@ -399,7 +451,6 @@ public class HtmlTransitonUtils {
 //                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
 //                    intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
 //                    context.startActivity(intent);
-
 //                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
                 }
 
@@ -462,7 +513,7 @@ public class HtmlTransitonUtils {
     }
 
     //端到端加密
-    private void setType12(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+    private void setType12(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean, IActionTagClickListener listener) {
         builder.append("聊天中所有信息已进行");
         String content = "端对端加密";
         builder.append(content);
@@ -473,12 +524,7 @@ public class HtmlTransitonUtils {
         ClickableSpan clickProtocol = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-//                ThreadUtil.getInstance().runMainThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        showLockDialog(context);
-//                    }
-//                });
+                listener.clickLock();
             }
 
             @Override
@@ -799,13 +845,13 @@ public class HtmlTransitonUtils {
             HtmlBeanList bean = new HtmlBeanList();
             String id = element.id();
             if (!TextUtils.isEmpty(element.id())) {
-                LogUtil.getLog().e(TAG, "id------------>" + element.id());
+//                LogUtil.getLog().e(TAG, "id------------>" + element.id());
                 bean.setId(id);
             }
             String name = element.text();
             if (!TextUtils.isEmpty(element.val())) {
                 bean.setType(Integer.valueOf(element.val()));
-                LogUtil.getLog().e(TAG, "type------------>" + element.val());
+//                LogUtil.getLog().e(TAG, "type------------>" + element.val());
             }
             bean.setId(id);
             bean.setName(name);
@@ -815,20 +861,12 @@ public class HtmlTransitonUtils {
         Elements divs = doc.select("div");
         if (divs != null && divs.size() > 0) {
             for (int i = 0; i < divs.size(); i++) {
-                LogUtil.getLog().e(TAG, "gid------------>" + divs.get(i).id());
+//                LogUtil.getLog().e(TAG, "gid------------>" + divs.get(i).id());
                 htmlBean.setGid(divs.get(i).id());
             }
         }
 
         return htmlBean;
-    }
-
-    public void showLockDialog(Context context) {
-        LockDialog lockDialog = new LockDialog(context, R.style.MyDialogNoFadedTheme);
-        lockDialog.setCancelable(true);
-        lockDialog.setCanceledOnTouchOutside(true);
-        lockDialog.create();
-        lockDialog.show();
     }
 
     //别人领取你的
@@ -893,6 +931,5 @@ public class HtmlTransitonUtils {
         ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#cc5944"));
         builder.setSpan(protocolColorSpan, builder.toString().length() - 3, builder.toString().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
-
 }
 
