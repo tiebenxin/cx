@@ -605,7 +605,7 @@ public class MsgDao {
                     Session session = realm.where(Session.class)
                             .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                             .and()
-                            .beginGroup().equalTo("from_uid", fromUid).or().equalTo("from_uid", new UserDao().myInfo().getUid()).endGroup()
+                            .beginGroup().equalTo("from_uid", fromUid).or().equalTo("from_uid", new UserAction().getMyInfo().getUid()).endGroup()
                             .findFirst();
                     session.setUnread_count(session.getUnread_count() - deleteUnReadCount);
                 }
