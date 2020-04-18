@@ -13,6 +13,7 @@ import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.LoginInfo;
+import com.yanlong.im.MainActivity;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
@@ -238,7 +239,6 @@ public class UserAction {
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).save2Json(userInfo.getUid());
                     userInfo.toTag();
                     updateUser2DB(userInfo);
-//                    MessageManager.getInstance().notifyRefreshUser(userInfo);
                 }
             }
         });

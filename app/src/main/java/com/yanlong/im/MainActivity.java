@@ -15,6 +15,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -181,6 +182,7 @@ public class MainActivity extends AppActivity {
     @EMainTab
     private int currentTab = EMainTab.MSG;
     private long firstPressTime = 0;//第一次双击时间
+    private boolean isFromLogin;
 
 
     @Override
@@ -270,6 +272,7 @@ public class MainActivity extends AppActivity {
             checkNeteaseLogin();
             checkPermission();
             initLocation();
+            getMsgToPC("123456");
         }
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
     }
@@ -507,7 +510,7 @@ public class MainActivity extends AppActivity {
             public void run() {
                 try {
                     Intent intent = getIntent();
-                    boolean isFromLogin = intent.getBooleanExtra(IS_LOGIN, false);
+                    isFromLogin = intent.getBooleanExtra(IS_LOGIN, false);
                     if (isFromLogin) {//从登陆页面过来，从网络获取最新数据
                         taskLoadFriends();
 //                    taskLoadSavedGroups();
@@ -803,10 +806,10 @@ public class MainActivity extends AppActivity {
                     List<String> gids = new ArrayList<>();
                     List<Long> uids = new ArrayList<>();
                     //gid存在时，不取uid
-                    if(TextUtils.isEmpty(msgAllbean.getGid())){
+                    if (TextUtils.isEmpty(msgAllbean.getGid())) {
                         uids.add(msgAllbean.getFrom_uid());
                         uids.add(msgAllbean.getTo_uid());
-                    }else{
+                    } else {
                         gids.add(msgAllbean.getGid());
                     }
                     //回主线程调用更新session详情
@@ -861,7 +864,7 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void msgSync(EventMsgSync event) {
-        getMsgToPC();
+        getMsgToPC(event.getCode());
     }
 
     /**
@@ -1173,9 +1176,9 @@ public class MainActivity extends AppActivity {
         List<String> gids = new ArrayList<>();
         List<Long> uids = new ArrayList<>();
         //gid存在时，不取uid
-        if(TextUtils.isEmpty(envelopeInfo.getGid())){
+        if (TextUtils.isEmpty(envelopeInfo.getGid())) {
             uids.add(envelopeInfo.getUid());
-        }else{
+        } else {
             gids.add(envelopeInfo.getGid());
         }
         //回主线程调用更新session详情
@@ -1299,7 +1302,7 @@ public class MainActivity extends AppActivity {
     }
 
     @SuppressLint("CheckResult")
-    private void getMsgToPC() {
+    private void getMsgToPC(String code) {
         ThreadUtil.getInstance().execute(new Runnable() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
@@ -1328,7 +1331,7 @@ public class MainActivity extends AppActivity {
                         File file = FileManager.getInstance().saveMsgFile(bytes);
                         if (file != null) {
 //                            parseFile(file);
-                            uploadMsgFile(file);
+                            uploadMsgFile(file, code);
                         }
                     }
                 }
@@ -1336,9 +1339,12 @@ public class MainActivity extends AppActivity {
         });
     }
 
-    private void uploadMsgFile(File file) {
+    private void uploadMsgFile(File file, String fileName) {
+        if (TextUtils.isEmpty(fileName)) {
+            return;
+        }
         UpFileAction upFileAction = new UpFileAction();
-        upFileAction.upFile(UserAction.getMyId() + "", UpFileAction.PATH.PC_MSG, MainActivity.this, new UpFileUtil.OssUpCallback() {
+        upFileAction.upFile(UserAction.getMyId() + "", UpFileAction.PATH.PC_MSG, fileName, MainActivity.this, new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String url) {
                 LogUtil.getLog().i("PC同步消息", "文件上传成功--" + url);
@@ -1443,15 +1449,18 @@ public class MainActivity extends AppActivity {
 
     //检测是否需要更新token
     private void checkTokenValid() {
-        TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-        Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
-        if ((!token.isTokenValid(uid) /*|| token.getBankReqSignKey()==null*/) && NetUtil.isNetworkConnected()) {
-            userAction.updateToken(userAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>(false) {
-                @Override
-                public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                    super.onResponse(call, response);
-                }
-            });
+        if (!isFromLogin) {
+            TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+            Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
+            if ((!token.isTokenValid(uid) /*|| token.getBankReqSignKey()==null*/) && NetUtil.isNetworkConnected()) {
+                LogUtil.getLog().i(MainActivity.class.getSimpleName(), "--token=" + token.getAccessToken() + "--uid" + uid);
+                userAction.updateToken(userAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>(false) {
+                    @Override
+                    public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                        super.onResponse(call, response);
+                    }
+                });
+            }
         }
     }
 }
