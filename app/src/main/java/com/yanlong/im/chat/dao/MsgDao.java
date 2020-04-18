@@ -602,9 +602,12 @@ public class MsgDao {
             if (list != null) {
                 for (MsgAllBean msg : list) {
                     deleteRealmMsg(msg);
-                    gids.add(msg.getGid());
-                    uids.add(msg.getTo_uid());
-                    uids.add(msg.getFrom_uid());
+                    if(TextUtils.isEmpty(msg.getGid())){
+                        uids.add(msg.getTo_uid());
+                        uids.add(msg.getFrom_uid());
+                    }else{
+                        gids.add(msg.getGid());
+                    }
                 }
                 //调用清除session详情
                 MyAppLication.INSTANCE().repository.clearSessionDetailContent(gids, uids);
