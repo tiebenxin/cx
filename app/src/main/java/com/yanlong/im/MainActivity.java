@@ -105,6 +105,7 @@ import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
@@ -272,7 +273,7 @@ public class MainActivity extends AppActivity {
             checkNeteaseLogin();
             checkPermission();
             initLocation();
-            getMsgToPC("123456");
+//            getMsgToPC("123456");
         }
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
     }
@@ -1348,6 +1349,7 @@ public class MainActivity extends AppActivity {
             @Override
             public void success(String url) {
                 LogUtil.getLog().i("PC同步消息", "文件上传成功--" + url);
+                downloadFile();
             }
 
             @Override
@@ -1462,5 +1464,30 @@ public class MainActivity extends AppActivity {
                 });
             }
         }
+    }
+
+    private void downloadFile() {
+        String file = "http://zx-im-img.oss-accelerate.aliyuncs.com/test-environment/file/msg/100105/123456.txt";
+        String desrFile = FileManager.getInstance().getOtherRoot() + "12345.txt";
+        File file2 = new File(desrFile);
+        DownloadUtil.get().downLoadFile(file, file2, new DownloadUtil.OnDownloadListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onDownloadSuccess(File file) {
+                System.out.println("PC同步 --" + "下载成功--");
+
+                parseFile(file);
+            }
+
+            @Override
+            public void onDownloading(int progress) {
+
+            }
+
+            @Override
+            public void onDownloadFailed(Exception e) {
+                System.out.println("PC同步 --" + e.getMessage());
+            }
+        });
     }
 }
