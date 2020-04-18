@@ -103,7 +103,7 @@ public class MessageManager {
      * 保存接收了双向清除指令的from_uid-待最后一条消息时间戳
      * 用于丢弃在此时间戳之前的消息
      */
-    private Map<Long,Long> historyCleanMsg = new HashMap<>();
+    private Map<Long, Long> historyCleanMsg = new HashMap<>();
 
 
     public static MessageManager getInstance() {
@@ -181,10 +181,19 @@ public class MessageManager {
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
             return true;
         }
-        //丢弃消息-执行过双向删除，在指令之前的消息
-        if(historyCleanMsg.containsKey(wrapMessage.getFromUid())&&historyCleanMsg.get(wrapMessage.getFromUid())>=wrapMessage.getTimestamp()){
-            return true;
+        /******丢弃消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
+        if (TextUtils.isEmpty(wrapMessage.getGid())) {
+            if ((historyCleanMsg.containsKey(wrapMessage.getFromUid()) && historyCleanMsg.get(wrapMessage.getFromUid()) >= wrapMessage.getTimestamp())
+                    || (historyCleanMsg.containsKey(wrapMessage.getToUid()) && historyCleanMsg.get(wrapMessage.getToUid()) >= wrapMessage.getTimestamp())) {
+                return true;
+            }
         }
+        //historyCleanMsg的消息时间，比当前接收消息时间超过10分钟的消息，移除historyCleanMsg
+        for (Long key : historyCleanMsg.keySet()) {
+            if (wrapMessage.getTimestamp() - historyCleanMsg.get(key) > 10 * 60 * 1000)
+                historyCleanMsg.remove(key);
+        }
+        /******end 丢弃消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
         LogUtil.getLog().e(TAG, "接收到消息: " + wrapMessage.getMsgId() + "--type=" + wrapMessage.getMsgType());
         boolean result = true;
         boolean hasNotified = false;//已经通知刷新了
@@ -235,11 +244,11 @@ public class MessageManager {
                 break;
             case HISTORY_CLEAN://双向清除
                 //最后一条需要清除的聊天记录时间戳
-                long lastNeedCleanTimestamp=wrapMessage.getTimestamp();
-                //保存双向清除指令，用于丢弃在此时间戳之前的消息
-                historyCleanMsg.put(wrapMessage.getFromUid(),lastNeedCleanTimestamp);
+                long lastNeedCleanTimestamp = wrapMessage.getTimestamp();
+                //保存双向清除指令发送方和时间戳，用于丢弃在此时间戳之前的消息
+                historyCleanMsg.put(wrapMessage.getFromUid(), lastNeedCleanTimestamp);
                 //清除好友历史记录
-                msgDao.msgDel(wrapMessage.getFromUid(),wrapMessage.getToUid(),lastNeedCleanTimestamp);
+                msgDao.msgDel(wrapMessage.getFromUid(), lastNeedCleanTimestamp);
                 break;
             case P2P_AU_VIDEO:// 音视频消息
                 if (bean != null) {
@@ -633,6 +642,16 @@ public class MessageManager {
         return result;
     }
 
+    /**
+     * 清除双向删除消息
+     */
+    public void clearHistoryMsg() {
+        if (historyCleanMsg.size()>0) {
+            for (Long key : historyCleanMsg.keySet()) {
+                msgDao.msgDel(key,historyCleanMsg.get(key));
+            }
+        }
+    }
 
     private void updateGroupApply(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
         //被邀请进群，表示已经同意了
@@ -798,10 +817,10 @@ public class MessageManager {
             List<String> gids = new ArrayList<>();
             List<Long> uids = new ArrayList<>();
             //gid存在时，不取uid
-            if(TextUtils.isEmpty(msgAllBean.getGid())){
+            if (TextUtils.isEmpty(msgAllBean.getGid())) {
                 uids.add(msgAllBean.getTo_uid());
                 uids.add(msgAllBean.getFrom_uid());
-            }else{
+            } else {
                 gids.add(msgAllBean.getGid());
             }
             //回主线程调用更新session详情
@@ -1657,7 +1676,7 @@ public class MessageManager {
                 super.onResponse(call, response);
                 notifyGroupChange(false);
                 List<String> gids = new ArrayList<>();
-                if(!TextUtils.isEmpty(gid)){
+                if (!TextUtils.isEmpty(gid)) {
                     gids.add(gid);
                 }
                 //回主线程调用更新sessionDetial

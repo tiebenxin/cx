@@ -567,10 +567,10 @@ public class MsgDao {
 
     /***双向删除
      * 删除好友某时间戳之前的聊天记录-单聊
-     * @param toUid
+     * @param fromUid 发的指令对方
      * @param beforeTimestamp 最后时间戳
      */
-    public void msgDel(Long fromUid, Long toUid, long beforeTimestamp) {
+    public void msgDel(Long fromUid, long beforeTimestamp) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -579,7 +579,7 @@ public class MsgDao {
                     .and()
                     .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
                     .and()
-                    .beginGroup().equalTo("from_uid", fromUid).or().equalTo("to_uid", toUid).endGroup()
+                    .beginGroup().equalTo("from_uid", fromUid).or().equalTo("to_uid", fromUid).endGroup()
                     .lessThanOrEqualTo("serverTime", beforeTimestamp)
                     .findAll();
 
@@ -599,26 +599,27 @@ public class MsgDao {
                     deleteRealmMsg(msg);
                 }
                 list.deleteAllFromRealm();
-            }
 
-            if (deleteUnReadCount > 0) {
-                /***更新未读数-Session更新，自动会更新sessionDetail****/
-                Session session = realm.where(Session.class)
-                        .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
-                        .and()
-                        .beginGroup().equalTo("from_uid", fromUid).or().equalTo("from_uid", toUid).endGroup()
-                        .findFirst();
-                session.setUnread_count(session.getUnread_count() - deleteUnReadCount);
-            }
+                if (deleteUnReadCount > 0) {
+                    /***更新未读数-Session更新，自动会更新sessionDetail****/
+                    Session session = realm.where(Session.class)
+                            .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                            .and()
+                            .beginGroup().equalTo("from_uid", fromUid).or().equalTo("from_uid", new UserDao().myInfo().getUid()).endGroup()
+                            .findFirst();
+                    session.setUnread_count(session.getUnread_count() - deleteUnReadCount);
+                }
 
-            realm.commitTransaction();
-            //更新session
-            realm.beginTransaction();
+                realm.commitTransaction();
+                //更新session
+                realm.beginTransaction();
+
+                if (uids.size() > 0 && deleteUnReadCount == 0) {//没有更新session,则需手动更新sessiondetail
+                    /********通知更新sessionDetail************************************/
+                    MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
+                }
+            }
             realm.close();
-            if (deleteUnReadCount == 0) {
-                /********通知更新sessionDetail************************************/
-                MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
-            }
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);

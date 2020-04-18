@@ -102,6 +102,9 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
         super.onPostExecute(aBoolean);
         if (aBoolean) {
             saveAndRefresh();
+            //对于批量消息，需要在此清除数据库双向消息
+            MessageManager.getInstance().clearCache();
+
         }
     }
 
