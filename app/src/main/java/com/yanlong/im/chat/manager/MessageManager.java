@@ -224,6 +224,11 @@ public class MessageManager {
                     result = saveMessageNew(bean, isList);
                 }
                 break;
+            case HISTORY_CLEAN://双向清除
+                //最后一条需要清除的聊天记录时间戳
+                long lastNeedCleanTimestamp=wrapMessage.getTimestamp();
+                cleanHistory(bean,lastNeedCleanTimestamp);
+                break;
             case P2P_AU_VIDEO:// 音视频消息
                 if (bean != null) {
                     if (bean.getP2PAuVideoMessage() != null && "cancel".equals(bean.getP2PAuVideoMessage().getOperation())) {
@@ -614,6 +619,9 @@ public class MessageManager {
         }
         checkNotifyVoice(wrapMessage, isList, canNotify);
         return result;
+    }
+    private void cleanHistory(MsgAllBean bean,long lastNeedCleanTimestamp){
+
     }
 
     private void updateGroupApply(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
