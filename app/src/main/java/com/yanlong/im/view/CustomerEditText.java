@@ -11,7 +11,6 @@ import android.text.style.MetricAffectingSpan;
 import android.util.AttributeSet;
 
 import com.yanlong.im.utils.ExpressionUtil;
-import com.yanlong.im.view.face.FaceView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,28 +130,28 @@ public class CustomerEditText extends AppCompatEditText {
                 }
             }
         }
-        if (lengthBefore>lengthAfter) {//删除操作，即字符减少
-            //具体的操作代码
-            // 获取光标的位置。如果在最末，则同字符串长度
-            // 光标之前至少有一个字符。尽管显示的是图片，其实内容仍是字符
-            if (start > 0) {
-                String body = this.getText().toString();
-                    // 包括起始位置，不包括结束位置
-                    String substring = body.substring(0, start);
-                    // 预提取光标前最后一个表情的位置
-                    int i = substring.lastIndexOf("[");
-                    // 提取到了
-                    if (i != -1) {
-                        // 从预提取位置到光标直接的字符
-                        CharSequence cs = substring.subSequence(i, start);
-                        // 是不是表情占位符
-                        if (FaceView.map_FaceEmoji.containsKey(cs.toString()+"]")) {
-                            // 是，就删除完整占位符
-                            this.getEditableText().delete(i, start);
-                        }
-                    }
-            }
-        }
+//        if (lengthBefore>lengthAfter) {//删除操作，即字符减少
+//            //具体的操作代码
+//            // 获取光标的位置。如果在最末，则同字符串长度
+//            // 光标之前至少有一个字符。尽管显示的是图片，其实内容仍是字符
+//            if (start > 0) {
+//                String body = this.getText().toString();
+//                    // 包括起始位置，不包括结束位置
+//                    String substring = body.substring(0, start);
+//                    // 预提取光标前最后一个表情的位置
+//                    int i = substring.lastIndexOf("[");
+//                    // 提取到了
+//                    if (i != -1) {
+//                        // 从预提取位置到光标直接的字符
+//                        CharSequence cs = substring.subSequence(i, start);
+//                        // 是不是表情占位符
+//                        if (FaceView.map_FaceEmoji.containsKey(cs.toString()+"]")) {
+//                            // 是，就删除完整占位符
+//                            this.getEditableText().delete(i, start);
+//                        }
+//                    }
+//            }
+//        }
     }
 
     @Override
