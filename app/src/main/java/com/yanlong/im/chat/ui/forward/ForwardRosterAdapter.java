@@ -62,10 +62,10 @@ public class ForwardRosterAdapter extends AbstractRecyclerAdapter {
         return position == 0 ? 0 : 1;
     }
 
-//    @Override
-//    public int getItemCount() {
-//        return viewModel.users != null ? viewModel.users.size() + 1 : 0;
-//    }
+    @Override
+    public int getItemCount() {
+        return mBeanList != null ? mBeanList.size() + 1 : 0;
+    }
 
     public void setForwardListener(IForwardRosterListener l) {
         listener = l;
