@@ -99,6 +99,11 @@ public class MessageManager {
     private long playVBTimeOld = 0; //当前震动时间
 
     private Boolean CAN_STAMP = true;//true 允许戳一戳弹窗 ,false 不允许
+    /**
+     * 保存接收了双向清除指令的from_uid-待最后一条消息时间戳
+     * 用于丢弃在此时间戳之前的消息
+     */
+    private Map<Long,Long> historyCleanMsg = new HashMap<>();
 
 
     public static MessageManager getInstance() {
@@ -176,6 +181,10 @@ public class MessageManager {
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
             return true;
         }
+        //丢弃消息-执行过双向删除，在指令之前的消息
+        if(historyCleanMsg.containsKey(wrapMessage.getFromUid())&&historyCleanMsg.get(wrapMessage.getFromUid())>=wrapMessage.getTimestamp()){
+            return true;
+        }
         LogUtil.getLog().e(TAG, "接收到消息: " + wrapMessage.getMsgId() + "--type=" + wrapMessage.getMsgType());
         boolean result = true;
         boolean hasNotified = false;//已经通知刷新了
@@ -227,7 +236,10 @@ public class MessageManager {
             case HISTORY_CLEAN://双向清除
                 //最后一条需要清除的聊天记录时间戳
                 long lastNeedCleanTimestamp=wrapMessage.getTimestamp();
-                msgDao.msgDel(wrapMessage.getFromUid(),lastNeedCleanTimestamp);
+                //保存双向清除指令，用于丢弃在此时间戳之前的消息
+                historyCleanMsg.put(wrapMessage.getFromUid(),lastNeedCleanTimestamp);
+                //清除好友历史记录
+                msgDao.msgDel(wrapMessage.getFromUid(),wrapMessage.getToUid(),lastNeedCleanTimestamp);
                 break;
             case P2P_AU_VIDEO:// 音视频消息
                 if (bean != null) {
