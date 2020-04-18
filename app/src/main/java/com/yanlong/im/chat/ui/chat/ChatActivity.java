@@ -495,8 +495,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onChanged(@Nullable Boolean value) {
                 if (value) {//打开
                     //保存原有草稿
-                    originalText=editChat.getText().toString();
-                    if(originalText.length()>0){
+                    originalText = editChat.getText().toString();
+                    if (originalText.length() > 0) {
                         editChat.setText("");
                     }
                     //重置其他状态
@@ -504,7 +504,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     showVoice(true);
                 } else {//关闭
                     //显示草稿
-                    if(!TextUtils.isEmpty(originalText)){
+                    if (!TextUtils.isEmpty(originalText)) {
                         showDraftContent(originalText);
                     }
                     showVoice(false);
@@ -512,7 +512,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         });
     }
-    private String originalText="";
+
+    private String originalText = "";
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -1463,8 +1465,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         headView.getActionbar().getRightImage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (userAction.getMyInfo() == null) {
+                    return;
+                }
                 if (isGroup()) {
-                    long id = userDao.myInfo().getUid();
+                    long id = userAction.getMyInfo().getUid();
                     long masterId = Long.valueOf(groupInfo.getMaster());
                     if (masterId != id) {
                         ToastUtil.show(context, "只有群主才能修改该选项");
@@ -3803,6 +3808,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private MsgAction msgAction = new MsgAction();
+    private UserAction userAction = new UserAction();
     private UserDao userDao = new UserDao();
     private MsgDao msgDao = new MsgDao();
     private PayAction payAction = new PayAction();
@@ -4580,29 +4586,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 msg.setTimestamp(SocketData.getFixTime());
                 DaoUtil.update(msg);
             }
-        }
-
-    }
-
-
-    /**
-     * 检查是否显示已读
-     */
-    private boolean checkIsRead() {
-        UserInfo userInfo = userDao.findUserInfo(toUId);
-        if (userInfo == null) {
-            return false;
-        }
-        int friendMasterRead = userInfo.getMasterRead();
-        int friendRead = userInfo.getFriendRead();
-        int myRead = userInfo.getMyRead();
-
-        IUser myUserInfo = userDao.myInfo();
-        int masterRead = myUserInfo.getMasterRead();
-        if (friendMasterRead == 1 && friendRead == 1 && myRead == 1 && masterRead == 1) {
-            return true;
-        } else {
-            return false;
         }
 
     }
