@@ -796,7 +796,7 @@ public class MsgConversionBean {
                         } else {
                             if (userInfo == null) {
                                 userInfo = new UserDao().findUserInfo(bean.getFromUid());
-                                if (!TextUtils.isEmpty(userInfo.getMkName())) {
+                                if (userInfo != null && !TextUtils.isEmpty(userInfo.getMkName())) {
                                     name = userInfo.getMkName();
                                 }
                             }
