@@ -330,8 +330,11 @@ public class UserDao {
      */
     public void friendMeUpdate(List<UserInfo> list) {
         Realm realm = DaoUtil.open();
+        UserBean myUserInfo = myInfo();
+        if (myUserInfo == null) {
+            return;
+        }
         try {
-            UserBean myUserInfo = myInfo();
             realm.beginTransaction();
             RealmResults<UserInfo> ls = realm.where(UserInfo.class).beginGroup().equalTo("uType", 2).or().equalTo("stat", 9).endGroup().findAll();
             for (UserInfo u : ls) {
