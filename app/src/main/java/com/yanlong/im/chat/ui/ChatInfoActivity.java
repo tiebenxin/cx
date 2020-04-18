@@ -82,7 +82,7 @@ public class ChatInfoActivity extends AppActivity {
 
     private ReadDestroyUtil readDestroyUtil = new ReadDestroyUtil();
     private LinearLayout viewDestroyTime;
-    private TextView tvDestroyTime;
+    private TextView tvDestroyTime,tvTwoWayClearChat;
     private CheckBox ckSetRead;
 
 
@@ -114,6 +114,7 @@ public class ChatInfoActivity extends AppActivity {
         ckSetRead = findViewById(R.id.ck_set_read);
         read_destroy_ll = findViewById(R.id.read_destroy_ll);
         ckScreenshot = findViewById(R.id.ck_screenshot);
+        tvTwoWayClearChat = findViewById(R.id.tv_two_way_clear_chat);
     }
 
 

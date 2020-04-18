@@ -33,5 +33,8 @@
     <string name="view_animo">传情动漫</string>
     <string name="view_custom">收藏表情</string>
 
+    <string name="two_way_clear_chat">双向清除聊天记录</string>
+    <string name="two_way_clear_chat_hint">清除双方的聊天记录，请谨慎操作</string>
+
 
 </resources>

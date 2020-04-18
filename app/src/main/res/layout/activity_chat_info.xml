@@ -232,7 +232,31 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <TextView
+                    android:id="@+id/tv_two_way_clear_chat"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dip"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/item_default_trans"
+                    android:layout_marginTop="@dimen/margin_top"
+                    android:text="@string/two_way_clear_chat"
+                    android:textSize="14sp"
+                    android:textColor="@color/red_400"
+                    android:paddingLeft="@dimen/app_margin_main"
+                    android:paddingRight="@dimen/app_margin_main"
+                    />
 
+                <TextView
+                    android:id="@+id/tv_two_way_clear_chat_hint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:text="@string/two_way_clear_chat_hint"
+                    android:textSize="14sp"
+                    android:layout_marginTop="3dp"
+                    android:paddingLeft="@dimen/app_margin_main"
+                    android:paddingRight="@dimen/app_margin_main"
+                    />
             </LinearLayout>
     </ScrollView>
 </net.cb.cb.library.view.HeadView>
