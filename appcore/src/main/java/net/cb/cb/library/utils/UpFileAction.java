@@ -53,6 +53,11 @@ public class UpFileAction {
         upFile(type, context, callback, filePath, null, id);
     }
 
+    //置顶固定文件名，使用pc消息同步
+    public void upFile(String id, PATH type, String fileName, Context context, UpFileUtil.OssUpCallback callback, String filePath) {
+        upFile(type, context, callback, filePath, null, id, fileName);
+    }
+
     public void upFile(PATH type, Context context, UpFileUtil.OssUpCallback callback, byte[] fileByte) {
         upFile(type, context, callback, null, fileByte);
     }
@@ -97,6 +102,20 @@ public class UpFileAction {
             default:
                 data.setTime(System.currentTimeMillis());
                 pt = "/" + AppConfig.UP_PATH + "/android/";
+                break;
+
+        }
+        return pt;
+    }
+
+    public String getPath(PATH type, String id, String fileName) {
+        String pt = "";
+        switch (type) {
+            case PC_MSG:
+                pt = AppConfig.UP_PATH + "/file/msg/" + id + "/" + fileName;
+                break;
+            default:
+                pt = "/" + AppConfig.UP_PATH + "/android/" + fileName;
                 break;
 
         }
@@ -199,6 +218,65 @@ public class UpFileAction {
                                         endpoint = configBean.getEndpoint();
                                     }
                                     UpFileUtil.getInstance().upFile(getPath(type, id), context, configBean.getAccessKeyId(),
+                                            configBean.getAccessKeySecret(), configBean.getSecurityToken(), endpoint,
+                                            configBean.getBucket(), callback, filePath, fileByte);
+
+                                    UpLoadUtils.getInstance().upLoadLog(timeCost + "--------" + configBean.toString());
+                                }
+                            }).start();
+                        } else {
+                            ToastUtil.show(context, "上传失败");
+                        }
+
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean<AliObsConfigBean>> call, Throwable t) {
+                        super.onFailure(call, t);
+                        callback.fail();
+                        long timeCost = SystemClock.currentThreadTimeMillis() - startTime;
+                        UpLoadUtils.getInstance().upLoadLog(timeCost + "--------失败" + call.request().body().toString());
+                    }
+                });
+
+
+    }
+
+    private void upFile(final PATH type, final Context context, final UpFileUtil.OssUpCallback callback, final String filePath, final byte[] fileByte, final String id, final String fileName) {
+        startTime = SystemClock.currentThreadTimeMillis();
+        NetUtil.getNet().exec(
+                server.aliObs()
+                , new CallBack<ReturnBean<AliObsConfigBean>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<AliObsConfigBean>> call, Response<ReturnBean<AliObsConfigBean>> response) {
+                        if (response.body() == null) {
+                            callback.fail();
+                            return;
+                        }
+                        if (response.body().isOk()) {
+                            final AliObsConfigBean configBean = response.body().getData();
+                            if (!StringUtil.isNotNull(configBean.getSecurityToken())) {
+
+                                callback.fail();
+                                return;
+                            }
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    long timeCost = SystemClock.currentThreadTimeMillis() - startTime;
+                                    String endpoint;
+//                                    String textToken="CAISmQJ1q6Ft5B2yfSjIr4nRCOvagOxqwLPZMGfB3TIGb9trm5TGuzz2IHtLfXhvAu8Zs/oyn29Z5/sflqZiQplBQkrLKMp1q4ha6h/51G8UT3bwv9I+k5SANTW5OXyShb3vAYjQSNfaZY3aCTTtnTNyxr3XbCirW0ffX7SClZ9gaKZ4PGS/diEURq0VRG1YpdQdKGHaONu0LxfumRCwNkdzvRdmgm4Njsbay8aHuB3Flw+4mK1H5aaJe8j7NZcyZcgvC4rsg7UrL5CsinAAt0J4k45tl7FB9Dv9udWQPkJc+R3uMZCPqYI2fVAiOfdnRfMf86mtyKBiyeXXlpXqzRFWJv1SUCnZS42mzdHNBOSzLNE9eKYM8cVEal1OXRqAAakBtm9ZuHW+cnfVxK4PJgmkPwBpMXLZ99oYyk+5E8jbZ4ArgAtdawN2i/syq8GrlHbVwOkvgeeF+nesQdgbKb86a7ZTHsawGZjzvi+xN6FlQwXMw2EA1tb/Wokcz3+EUxE3RLt6CuQ7PNxk65mvIgWqiyFLUozRV3sAUbElSds+";
+//                                    UpFileUtil.getInstance().upFile(getPath(type), context, configBean.getAccessKeyId(),
+//                                            configBean.getAccessKeySecret(), "", configBean.getEndpoint(),
+//                                            configBean.getBucket(), callback, filePath, fileByte);
+
+                                    if (PATH.VIDEO == type) {
+                                        endpoint = configBean.getCdnEndpoint();
+                                    } else {
+                                        endpoint = configBean.getEndpoint();
+                                    }
+                                    UpFileUtil.getInstance().upFile(getPath(type, id, fileName), context, configBean.getAccessKeyId(),
                                             configBean.getAccessKeySecret(), configBean.getSecurityToken(), endpoint,
                                             configBean.getBucket(), callback, filePath, fileByte);
 

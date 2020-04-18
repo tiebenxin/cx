@@ -219,16 +219,18 @@ public class ApplicationRepository {
      *
      * @param
      */
-    public void updateSessionDetail(String[] gids, Long[] uids) {
-        //回主线程调用更新session详情
-        Handler mainHandler = new Handler(Looper.getMainLooper());
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                //更新Detail详情
-                localDataSource.updateSessionDetail(gids, uids);
-            }
-        });
+    private void updateSessionDetail(String[] gids, Long[] uids) {
+        if(gids!=null||uids!=null){
+            //回主线程调用更新session详情
+            Handler mainHandler = new Handler(Looper.getMainLooper());
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    //更新Detail详情
+                    localDataSource.updateSessionDetail(gids, uids);
+                }
+            });
+        }
     }
 
     /**
@@ -237,7 +239,7 @@ public class ApplicationRepository {
     public void clearSessionDetailContent(List<String> gids, List<Long> uids) {
         //回主线程调用清除session详情
         //更新Detail详情
-        localDataSource.clearContent(gids!=null&&gids.size()>0?gids.toArray(new String[gids.size()]):null, uids!=null&&uids.size()>0?uids.toArray(new Long[uids.size()]):null);
+        localDataSource.clearContent(gids==null||gids.size()==0?null:gids.toArray(new String[gids.size()]), uids==null||uids.size()==0?null:uids.toArray(new Long[uids.size()]));
 
     }
 
@@ -247,7 +249,7 @@ public class ApplicationRepository {
      * @param
      */
     public void updateSessionDetail(List<String> gids, List<Long> uids) {
-        updateSessionDetail(gids!=null&&gids.size()>0?gids.toArray(new String[gids.size()]):null, uids!=null&&uids.size()>0?uids.toArray(new Long[uids.size()]):null);
+        updateSessionDetail(gids==null||gids.size()==0?null:gids.toArray(new String[gids.size()]), uids==null||uids.size()==0?null:uids.toArray(new Long[uids.size()]));
     }
 
     public RealmResults<UserInfo> getFriends() {

@@ -125,7 +125,7 @@ public class ChatCellVoice extends ChatCellBase {
             float x = DensityUtil.dip2px(getContext(), 94);//viewOtP.getX();//原始值60
             int w = new Float((wsum - x) / 60 * (s)).intValue();
             ViewGroup.LayoutParams layoutParams = bubbleLayout.getLayoutParams();
-            layoutParams.width = w + DensityUtil.dip2px(getContext(), 60);
+            layoutParams.width = w + DensityUtil.dip2px(getContext(), 65);
             bubbleLayout.setMinimumWidth(w);
             LogUtil.getLog().i(ChatCellVoice.class.getSimpleName(), "updateBubbleWidth--width=" + w);
         }

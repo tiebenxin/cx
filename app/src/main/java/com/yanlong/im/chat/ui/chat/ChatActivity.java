@@ -410,9 +410,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onChanged(@Nullable Boolean value) {
                 if (value) {//打开
-                    if(!TextUtils.isEmpty(originalText)){
-                        showDraftContent(originalText);
-                    }
                     editChat.requestFocus();
                     InputUtil.showKeyboard(editChat);
                     //重置其他状态
@@ -497,13 +494,19 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onChanged(@Nullable Boolean value) {
                 if (value) {//打开
-                    //保存原有文字
+                    //保存原有草稿
                     originalText=editChat.getText().toString();
-                    editChat.setText("");
+                    if(originalText.length()>0){
+                        editChat.setText("");
+                    }
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isOpenSpeak);
                     showVoice(true);
                 } else {//关闭
+                    //显示草稿
+                    if(!TextUtils.isEmpty(originalText)){
+                        showDraftContent(originalText);
+                    }
                     showVoice(false);
                 }
             }
@@ -3435,6 +3438,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                   @ChatEnum.EPlayStatus int status) {
 //        LogUtil.getLog().i(TAG, "updatePlayStatus--" + status + "--position=" + position);
         bean = amendMsgALlBean(position, bean);
+        if (bean == null || bean.getVoiceMessage() == null) {
+            return;
+        }
         VoiceMessage voiceMessage = bean.getVoiceMessage();
         if (status == ChatEnum.EPlayStatus.NO_PLAY || status == ChatEnum.EPlayStatus.PLAYING) {//已点击下载，或者正在播
             if (bean.isRead() == false) {
