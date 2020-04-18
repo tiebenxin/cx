@@ -570,7 +570,55 @@ public class MsgDao {
      * @param toUid
      * @param gid
      */
-    public void msgDel(Long toUid, String gid) {
+    public void msgDel(Long toUid) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            RealmResults<MsgAllBean> list = null;
+            list = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
+                    .and()
+                    .beginGroup().equalTo("from_uid", toUid).or().equalTo("to_uid", toUid).endGroup()
+                    .findAll();
+
+
+            /********通知更新sessionDetail-清空msg************************************/
+            //因为msg对象 uid有两个，都得添加
+            List<String> gids = new ArrayList<>();
+            List<Long> uids = new ArrayList<Long>();
+            /********通知更新sessionDetail end************************************/
+
+            //删除前先把子表数据干掉!!切记
+            if (list != null) {
+                for (MsgAllBean msg : list) {
+                    deleteRealmMsg(msg);
+                    gids.add(msg.getGid());
+                    uids.add(msg.getTo_uid());
+                    uids.add(msg.getFrom_uid());
+                }
+                //调用清除session详情
+                MyAppLication.INSTANCE().repository.clearSessionDetailContent(gids, uids);
+                list.deleteAllFromRealm();
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+
+    }
+
+    /***
+     * 删除好友某时间戳之前的聊天记录-单聊
+     * @param toUid
+     * @param gid
+     * @param beforeTimestamp 最后时间戳
+     */
+    public void msgDel(Long toUid, String gid, long beforeTimestamp) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -639,10 +687,10 @@ public class MsgDao {
             if (list != null) {
                 if (list.size() > 0) {
                     //gid存在时，不取uid
-                    if(TextUtils.isEmpty(list.get(0).getGid())){
+                    if (TextUtils.isEmpty(list.get(0).getGid())) {
                         uids.add(list.get(0).getFrom_uid());
                         uids.add(list.get(0).getTo_uid());
-                    }else{
+                    } else {
                         gids.add(list.get(0).getGid());
                     }
                 }
@@ -728,16 +776,16 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
-        if(msgAllBean!=null){
+        if (msgAllBean != null) {
             /********通知更新sessionDetail************************************/
             //因为msg对象 uid有两个，都得添加
             List<String> gids = new ArrayList<>();
             List<Long> uids = new ArrayList<>();
             //gid存在时，不取uid
-            if(TextUtils.isEmpty(msgAllBean.getGid())){
+            if (TextUtils.isEmpty(msgAllBean.getGid())) {
                 uids.add(msgAllBean.getTo_uid());
                 uids.add(msgAllBean.getFrom_uid());
-            }else{
+            } else {
                 gids.add(msgAllBean.getGid());
             }
             //回主线程调用更新session详情
@@ -2325,10 +2373,10 @@ public class MsgDao {
         List<String> gids = new ArrayList<>();
         List<Long> uids = new ArrayList<>();
         //gid存在时，不取uid
-        if(TextUtils.isEmpty(msgAllBean.getGid())){
+        if (TextUtils.isEmpty(msgAllBean.getGid())) {
             uids.add(msgAllBean.getTo_uid());
             uids.add(msgAllBean.getFrom_uid());
-        }else{
+        } else {
             gids.add(msgAllBean.getGid());
         }
         //回主线程调用更新session详情
@@ -3307,8 +3355,8 @@ public class MsgDao {
         if (list == null) {
             return true;
         }
-        List<String> gids=new ArrayList<>();
-        List<Long> uids=new ArrayList<>();
+        List<String> gids = new ArrayList<>();
+        List<Long> uids = new ArrayList<>();
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -3318,10 +3366,10 @@ public class MsgDao {
                 MsgAllBean msg = realm.where(MsgAllBean.class).equalTo("msg_id", bean.getMsg_id()).findFirst();
                 if (msg != null) {
                     //gid存在时，不取uid
-                    if(TextUtils.isEmpty(msg.getGid())){
+                    if (TextUtils.isEmpty(msg.getGid())) {
                         uids.add(msg.getFrom_uid());
                         uids.add(msg.getTo_uid());
-                    }else{
+                    } else {
                         gids.add(msg.getGid());
                     }
 

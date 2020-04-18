@@ -35,6 +35,7 @@
 
     <string name="two_way_clear_chat">双向清除聊天记录</string>
     <string name="two_way_clear_chat_hint">清除双方的聊天记录，请谨慎操作</string>
-
+    <string name="two_way_clear_chat_dialog_hint">将同时清除双方的聊天记录，\n请谨慎操作</string>
+    <string name="two_way_clear_chat_success">已双向清除聊天记录</string>
 
 </resources>

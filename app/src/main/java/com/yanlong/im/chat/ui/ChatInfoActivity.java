@@ -192,7 +192,7 @@ public class ChatInfoActivity extends AppActivity {
 
                     @Override
                     public void onYes() {
-                        taskDelMsg();
+                        taskDelMsg("删除成功");
                     }
                 });
                 alertYesNo.show();
@@ -225,6 +225,28 @@ public class ChatInfoActivity extends AppActivity {
                         }
                     }
                 });
+            }
+        });
+
+        tvTwoWayClearChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //双向清除(单聊),包括常信客服-显示提示框
+                AlertYesNo alertYesNo = new AlertYesNo();
+                alertYesNo.init(ChatInfoActivity.this, "提示", getString(R.string.two_way_clear_chat_dialog_hint), "确定", "取消", new AlertYesNo.Event() {
+                    @Override
+                    public void onON() {
+
+                    }
+
+                    @Override
+                    public void onYes() {
+                        taskDelMsg(getString(R.string.two_way_clear_chat_success));//删除本地记录
+                        //发送双向删除请求
+                        SocketData.send4TwoWayClean(fuid,System.currentTimeMillis());
+                    }
+                });
+                alertYesNo.show();
             }
         });
 
@@ -386,10 +408,10 @@ public class ChatInfoActivity extends AppActivity {
         DaoUtil.update(fUserInfo);
     }
 
-    private void taskDelMsg() {
+    private void taskDelMsg(String hint) {
         msgDao.msgDel(fuid, null);
         EventBus.getDefault().post(new EventRefreshChat());
-        ToastUtil.show(ChatInfoActivity.this, "删除成功");
+        ToastUtil.show(ChatInfoActivity.this, hint);
     }
 
     /*

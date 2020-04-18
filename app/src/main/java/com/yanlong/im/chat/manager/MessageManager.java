@@ -621,6 +621,7 @@ public class MessageManager {
         return result;
     }
     private void cleanHistory(MsgAllBean bean,long lastNeedCleanTimestamp){
+        msgDao.msgDel(bean.getTo_uid(),lastNeedCleanTimestamp);
 
     }
 

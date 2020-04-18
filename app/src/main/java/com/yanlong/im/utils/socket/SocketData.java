@@ -875,6 +875,16 @@ public class SocketData {
 
 
     /**
+     * 双向删除
+     */
+    public static MsgAllBean send4TwoWayClean(Long toId, long timestamp) {
+        MsgBean.ReadMessage msg = MsgBean.ReadMessage.newBuilder()
+                .setTimestamp(timestamp)
+                .build();
+        LogUtil.writeLog(">>>双向删除 toId:" + toId + " timestamp:" + timestamp);
+        return send4Base(false, toId, null, MsgBean.MessageType.HISTORY_CLEAN, msg);
+    }
+    /**
      * 已读消息
      */
     public static MsgAllBean send4Read(Long toId, long timestamp) {
@@ -884,7 +894,6 @@ public class SocketData {
         LogUtil.writeLog(">>>已读消息 toId:" + toId + " timestamp:" + timestamp);
         return send4Base(false, toId, null, MsgBean.MessageType.READ, msg);
     }
-
 
     public static MsgCancel createCancelMsg(MsgAllBean cancelMsg) {
         if (cancelMsg == null) {
