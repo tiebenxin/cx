@@ -1647,7 +1647,7 @@ public class MsgDao {
             RealmResults<MsgAllBean> friendChatMessages = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                     .and()
-                    .beginGroup().equalTo("to_uid", uid).endGroup()
+                    .beginGroup().equalTo("to_uid", uid).or().equalTo("from_uid", uid).endGroup()
                     .and()
                     .beginGroup().notEqualTo("read", 1).endGroup()
                     .findAll();
@@ -1657,7 +1657,7 @@ public class MsgDao {
                     MsgAllBean msgAllBean = friendChatMessages.get(0);
                     long endTime = timestamp + msgAllBean.getSurvival_time() * 1000;
                     realm.beginTransaction();
-                    if (msgAllBean.getServerTime() > 0) {//有设置阅后即焚
+                    if (msgAllBean.getSurvival_time() > 0) {//有设置阅后即焚
                         if (endTime > DateUtils.getSystemTime()) {//还未到阅后即焚时间点，记录已读
                             msgAllBean.setRead(1);
                             msgAllBean.setReadTime(timestamp);
