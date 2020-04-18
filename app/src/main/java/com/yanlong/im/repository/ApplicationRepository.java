@@ -107,7 +107,7 @@ public class ApplicationRepository {
                     }
                 }
                 //更新位置信息
-                if (changeSet.getDeletionRanges().length > 0 || changeSet.getInsertionRanges().length > 0) {
+                if (changeSet.getDeletionRanges().length > 0 || changeSet.getInsertionRanges().length > 0||changeSet.getChangeRanges().length>0) {
                     sessionSidPositons.clear();
                     sessionIndex = 0;
                     for (Session session : sessions) {
