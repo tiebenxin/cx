@@ -566,16 +566,45 @@ public class MsgDao {
     }
 
     /***
-     * 删除聊天记录
+     * 删除好友某时间戳之前的聊天记录-单聊
      * @param toUid
-     * @param gid
+     * @param beforeTimestamp 最后时间戳
      */
-    public void msgDel(Long toUid) {
+    public void msgDel(Long toUid, long beforeTimestamp) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
-            RealmResults<MsgAllBean> list = null;
-            list = realm.where(MsgAllBean.class)
+            RealmResults<MsgAllBean> list = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
+                    .and()
+                    .beginGroup().equalTo("from_uid", toUid).or().equalTo("to_uid", toUid).endGroup()
+                    .lessThanOrEqualTo("serverTime",beforeTimestamp)
+                    .findAll();
+
+
+            /********通知更新sessionDetail-清空msg************************************/
+            //因为msg对象 uid有两个，都得添加
+            List<Long> uids = new ArrayList<Long>();
+            /********通知更新sessionDetail end************************************/
+
+            //删除前先把子表数据干掉!!切记
+            if (list != null) {
+                for (MsgAllBean msg : list) {
+                    uids.add(msg.getTo_uid());
+                    uids.add(msg.getFrom_uid());
+                    deleteRealmMsg(msg);
+                }
+                //调用更新session详情
+                MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
+                list.deleteAllFromRealm();
+            }
+            realm.commitTransaction();
+            //更新session
+            realm.beginTransaction();
+            //统计剩余消息
+            RealmResults<MsgAllBean> msgs = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                     .and()
                     .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
@@ -584,25 +613,6 @@ public class MsgDao {
                     .findAll();
 
 
-            /********通知更新sessionDetail-清空msg************************************/
-            //因为msg对象 uid有两个，都得添加
-            List<String> gids = new ArrayList<>();
-            List<Long> uids = new ArrayList<Long>();
-            /********通知更新sessionDetail end************************************/
-
-            //删除前先把子表数据干掉!!切记
-            if (list != null) {
-                for (MsgAllBean msg : list) {
-                    deleteRealmMsg(msg);
-                    gids.add(msg.getGid());
-                    uids.add(msg.getTo_uid());
-                    uids.add(msg.getFrom_uid());
-                }
-                //调用清除session详情
-                MyAppLication.INSTANCE().repository.clearSessionDetailContent(gids, uids);
-                list.deleteAllFromRealm();
-            }
-            realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -613,12 +623,11 @@ public class MsgDao {
     }
 
     /***
-     * 删除好友某时间戳之前的聊天记录-单聊
+     * 删除聊天记录
      * @param toUid
      * @param gid
-     * @param beforeTimestamp 最后时间戳
      */
-    public void msgDel(Long toUid, String gid, long beforeTimestamp) {
+    public void msgDel(Long toUid, String gid) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -649,13 +658,13 @@ public class MsgDao {
             //删除前先把子表数据干掉!!切记
             if (list != null) {
                 for (MsgAllBean msg : list) {
-                    deleteRealmMsg(msg);
-                    if(TextUtils.isEmpty(msg.getGid())){
+                    if (TextUtils.isEmpty(msg.getGid())) {
                         uids.add(msg.getTo_uid());
                         uids.add(msg.getFrom_uid());
-                    }else{
+                    } else {
                         gids.add(msg.getGid());
                     }
+                    deleteRealmMsg(msg);
                 }
                 //调用清除session详情
                 MyAppLication.INSTANCE().repository.clearSessionDetailContent(gids, uids);

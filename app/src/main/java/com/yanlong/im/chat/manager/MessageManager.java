@@ -227,7 +227,7 @@ public class MessageManager {
             case HISTORY_CLEAN://双向清除
                 //最后一条需要清除的聊天记录时间戳
                 long lastNeedCleanTimestamp=wrapMessage.getTimestamp();
-                cleanHistory(bean,lastNeedCleanTimestamp);
+                msgDao.msgDel(wrapMessage.getFromUid(),lastNeedCleanTimestamp);
                 break;
             case P2P_AU_VIDEO:// 音视频消息
                 if (bean != null) {
@@ -620,10 +620,7 @@ public class MessageManager {
         checkNotifyVoice(wrapMessage, isList, canNotify);
         return result;
     }
-    private void cleanHistory(MsgAllBean bean,long lastNeedCleanTimestamp){
-        msgDao.msgDel(bean.getTo_uid(),lastNeedCleanTimestamp);
 
-    }
 
     private void updateGroupApply(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
         //被邀请进群，表示已经同意了
