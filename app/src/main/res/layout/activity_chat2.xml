@@ -165,8 +165,9 @@
                         android:layout_height="48dp"
                         android:gravity="center"
                         android:text="你已经被移除群聊，无法发送消息"
-                        android:textColor="@color/black"
-                        android:textSize="14sp"
+                        android:textColor="#707070"
+                        android:background="#c4cccf"
+                        android:textSize="15sp"
                         android:visibility="gone" />
 
                 </FrameLayout>
