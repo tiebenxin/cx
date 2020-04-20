@@ -170,6 +170,25 @@ public class MessageManager {
 //        }
     }
 
+    /**
+     * 丢弃双向清除消息
+     *
+     * @param uid
+     * @param timestamp
+     */
+    private boolean discardHistoryCleanMessage(Long uid, Long timestamp) {
+        boolean result = false;
+        if (historyCleanMsg.containsKey(uid) && historyCleanMsg.get(uid) >= timestamp) {
+            if(historyCleanMsg.get(uid) >= timestamp){
+                result = true;
+            }
+            //historyCleanMsg的消息时间，比当前接收消息时间超过10分钟的消息，从historyCleanMsg移除
+            if (timestamp - historyCleanMsg.get(uid) >10*60*1000)
+                historyCleanMsg.remove(uid);
+        }
+        return result;
+    }
+
     /*
      * 处理接收到的消息
      * 分两类处理，一类是需要产生本地消息记录的，一类是相关指令，无需产生消息记录
@@ -182,16 +201,9 @@ public class MessageManager {
             return true;
         }
         /******丢弃消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
-        if (TextUtils.isEmpty(wrapMessage.getGid())) {
-            if ((historyCleanMsg.containsKey(wrapMessage.getFromUid()) && historyCleanMsg.get(wrapMessage.getFromUid()) >= wrapMessage.getTimestamp())
-                    || (historyCleanMsg.containsKey(wrapMessage.getToUid()) && historyCleanMsg.get(wrapMessage.getToUid()) >= wrapMessage.getTimestamp())) {
-                return true;
-            }
-        }
-        //historyCleanMsg的消息时间，比当前接收消息时间超过10分钟的消息，移除historyCleanMsg
-        for (Long key : historyCleanMsg.keySet()) {
-            if (wrapMessage.getTimestamp() - historyCleanMsg.get(key) > 10 * 60 * 1000)
-                historyCleanMsg.remove(key);
+        if (TextUtils.isEmpty(wrapMessage.getGid())&&historyCleanMsg.size()>0) {//单聊
+            return  discardHistoryCleanMessage(wrapMessage.getFromUid(), wrapMessage.getTimestamp())||
+                    discardHistoryCleanMessage(wrapMessage.getToUid(), wrapMessage.getTimestamp());
         }
         /******end 丢弃消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
         LogUtil.getLog().e(TAG, "接收到消息: " + wrapMessage.getMsgId() + "--type=" + wrapMessage.getMsgType());
@@ -646,9 +658,9 @@ public class MessageManager {
      * 清除双向删除消息
      */
     public void clearHistoryMsg() {
-        if (historyCleanMsg.size()>0) {
+        if (historyCleanMsg.size() > 0) {
             for (Long key : historyCleanMsg.keySet()) {
-                msgDao.msgDel(key,historyCleanMsg.get(key));
+                msgDao.msgDel(key, historyCleanMsg.get(key));
             }
         }
     }
