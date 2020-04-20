@@ -580,7 +580,7 @@ public class MsgDao {
                     .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
                     .and()
                     .beginGroup().equalTo("from_uid", fromUid).or().equalTo("to_uid", fromUid).endGroup()
-                    .lessThanOrEqualTo("serverTime", beforeTimestamp)
+                    .lessThan("timestamp", beforeTimestamp)
                     .findAll();
 
 
@@ -612,8 +612,6 @@ public class MsgDao {
 
                 realm.commitTransaction();
                 //更新session
-                realm.beginTransaction();
-
                 if (uids.size() > 0 && deleteUnReadCount == 0) {//没有更新session,则需手动更新sessiondetail
                     /********通知更新sessionDetail************************************/
                     MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
