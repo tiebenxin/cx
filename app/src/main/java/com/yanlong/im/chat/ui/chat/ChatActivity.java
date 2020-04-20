@@ -3705,12 +3705,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void onYes() {
-                msgDao.msgDel4MsgId(msgbean.getMsg_id());
-                int position = mAdapter.getPosition(msgbean);
-                if (position >= 0) {
-                    mAdapter.removeItem(msgbean);
-                    mtListView.getListView().getAdapter().notifyItemRemoved(position);//删除刷新
-                }
+//                msgDao.msgDel4MsgId(msgbean.getMsg_id());
+//                int position = mAdapter.getPosition(msgbean);
+//                if (position >= 0) {
+//                    mAdapter.removeItem(msgbean);
+//                    mtListView.getListView().getAdapter().notifyItemRemoved(position);//删除刷新
+//                }
+                deleteMsg(msgbean);
             }
         });
         alertYesNo.show();
@@ -3742,6 +3743,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         MsgCancel cancel = SocketData.createCancelMsg(msgBean);
         if (cancel != null) {
             sendMessage(cancel, ChatEnum.EMessageType.MSG_CANCEL, position);
+        }
+        if (msgBean.getMsg_type() == ChatEnum.EMessageType.VOICE) {
+            AudioPlayManager.getInstance().stopPlay();
         }
     }
 
@@ -5136,6 +5140,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         int position = mAdapter.getPosition(bean);
         if (position < 0) {
             return;
+        }
+        if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE) {
+            AudioPlayManager.getInstance().stopPlay();
         }
         mAdapter.removeItem(bean);
         mtListView.getListView().getAdapter().notifyItemRemoved(position);//删除刷新
