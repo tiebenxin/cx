@@ -135,8 +135,9 @@ public class MessageAdapter extends RecyclerView.Adapter {
             if (msg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {
                 ChatCellImage imageCell = (ChatCellImage) viewHolder;
                 imageCell.updateMessage(msg);
-                int progress = UpLoadService.getProgress(msg.getMsg_id());
-                imageCell.updateProgress(msg.getSend_state(), progress);
+                if(UpLoadService.getProgress(msg.getMsg_id())!=null){
+                    imageCell.updateProgress(msg.getSend_state(), UpLoadService.getProgress(msg.getMsg_id()));
+                }
             } else if (msg.getMsg_type() == ChatEnum.EMessageType.VOICE) {
                 ChatCellVoice voiceCell = (ChatCellVoice) viewHolder;
                 if (msg == null && msg.getVoiceMessage() == null) {
@@ -148,13 +149,15 @@ public class MessageAdapter extends RecyclerView.Adapter {
             } else if (msg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
                 ChatCellVideo videoCell = (ChatCellVideo) viewHolder;
                 videoCell.updateMessage(msg);
-                int progress = UpLoadService.getProgress(msg.getMsg_id());
-                videoCell.updateProgress(msg.getSend_state(), progress);
+                if(UpLoadService.getProgress(msg.getMsg_id())!=null){
+                    videoCell.updateProgress(msg.getSend_state(), UpLoadService.getProgress(msg.getMsg_id()));
+                }
             } else if (msg.getMsg_type() == ChatEnum.EMessageType.FILE) {
                 ChatCellFile fileCell = (ChatCellFile) viewHolder;
                 fileCell.updateMessage(msg);
-                int progress = UpLoadService.getProgress(msg.getMsg_id());
-                fileCell.updateProgress(msg.getSend_state(), progress);
+                if(UpLoadService.getProgress(msg.getMsg_id())!=null){
+                    fileCell.updateProgress(msg.getSend_state(), UpLoadService.getProgress(msg.getMsg_id()));
+                }
             } else {
                 onBindViewHolder(viewHolder, position);
             }
