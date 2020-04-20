@@ -162,7 +162,7 @@ public class FileDownloadActivity extends AppActivity {
                             tvDownload.setText("打开文件");
                             downloadStatus = 1;
                             //下载成功后
-                            //1 数据库本地保存一个新增属性-真实文件名，方便后续聊天界面直接打开重名文件
+                            //1 数据库本地保存一个新增属性-真实文件名，主要用于多个同名文件区分保存，防止重名，方便后续聊天界面直接打开重名文件
                             MsgAllBean reMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", fileMsgId);
                             reMsg.getSendFileMessage().setRealFileRename(fileName);
                             DaoUtil.update(reMsg);

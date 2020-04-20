@@ -5429,7 +5429,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     return;
                 }
                 SendFileMessage fileMessage = (SendFileMessage) args[0];
-                //1 如果是我发的文件
                 clickFile(message, fileMessage);
                 break;
             case ChatEnum.ECellEventType.EXPRESS_CLICK:
@@ -5460,10 +5459,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void clickFile(MsgAllBean message, SendFileMessage fileMessage) {
+        //1 如果是我发的文件
         if (message.isMe()) {
             //2 判断是否为转发
             //若是转发他人，则需要先从下载路径里找，有则代表已下载直接打开，没有则需要下载
             if (fileMessage.isFromOther()) {
+                //通过真实文件名去下载路径找，真实文件名主要用于区分同一重名文件，如123.txt 123(1).txt 123(2).txt
                 if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
                     openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
                 } else {

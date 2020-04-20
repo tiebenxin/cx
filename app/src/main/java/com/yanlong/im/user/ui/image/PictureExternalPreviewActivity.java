@@ -72,6 +72,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.QRCodeManage;
+import com.zhaoss.weixinrecorded.activity.ImageShowActivity;
 
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.DeviceUtils;
@@ -123,7 +124,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private RxPermissions rxPermissions;
     private LoadDataThread loadDataThread;
     //    private String[] strings = {"识别二维码", "保存图片", "取消"};
-    private String[] strings = {"发送给朋友", "保存图片", "识别二维码", "取消"};
+    private String[] strings = {"发送给朋友", "保存图片", "识别二维码", "编辑", "取消"};
 
 
     @Override
@@ -930,6 +931,12 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     saveImage(path);
                 } else if (postsion == 2) {//识别二维码
                     scanningQrImage(path);
+                } else if (postsion == 3) {//编辑
+                    Intent intent = new Intent(PictureExternalPreviewActivity.this, ImageShowActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("imgpath",path);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
                 }
                 popupSelectView.dismiss();
 
