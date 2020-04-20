@@ -674,7 +674,7 @@
             android:name=".share.CXEntryActivity"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoDisplay">
+            android:theme="@style/no_display">
             <intent-filter>
                 <data
                     android:host="changxin.zhixun6.com"
