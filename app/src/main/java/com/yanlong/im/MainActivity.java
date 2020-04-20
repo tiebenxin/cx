@@ -1451,15 +1451,17 @@ public class MainActivity extends AppActivity {
     private void checkTokenValid() {
         if (!isFromLogin) {
             TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-            Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
-            if ((!token.isTokenValid(uid) /*|| token.getBankReqSignKey()==null*/) && NetUtil.isNetworkConnected()) {
-                LogUtil.getLog().i(MainActivity.class.getSimpleName(), "--token=" + token.getAccessToken() + "--uid" + uid);
-                userAction.updateToken(userAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>(false) {
-                    @Override
-                    public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                        super.onResponse(call, response);
-                    }
-                });
+            if (token != null) {
+                Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
+                if ((!token.isTokenValid(uid) /*|| token.getBankReqSignKey()==null*/) && NetUtil.isNetworkConnected()) {
+                    LogUtil.getLog().i(MainActivity.class.getSimpleName(), "--token=" + token.getAccessToken() + "--uid" + uid);
+                    userAction.updateToken(userAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>(false) {
+                        @Override
+                        public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                            super.onResponse(call, response);
+                        }
+                    });
+                }
             }
         }
     }

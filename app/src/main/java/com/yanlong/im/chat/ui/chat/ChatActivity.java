@@ -571,7 +571,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         boolean hasClear = taskCleanRead(false);
         boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
         boolean hasChange = updateSessionDraftAndAtMessage();
-//        LogUtil.getLog().e("===hasClear="+hasClear+"==hasUpdate="+hasUpdate+"==hasChange="+hasChange);
+        //停止图片文件等上传
+        UpLoadService.stopUpload();
     }
 
     //停止录音
