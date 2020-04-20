@@ -607,7 +607,8 @@ public class MsgDao {
                             .and()
                             .beginGroup().equalTo("from_uid", fromUid).or().equalTo("from_uid", new UserAction().getMyInfo().getUid()).endGroup()
                             .findFirst();
-                    session.setUnread_count(session.getUnread_count() - deleteUnReadCount);
+                    int unreadCount=session.getUnread_count() - deleteUnReadCount;
+                    session.setUnread_count(unreadCount>0?unreadCount:0);
                 }
 
                 realm.commitTransaction();
