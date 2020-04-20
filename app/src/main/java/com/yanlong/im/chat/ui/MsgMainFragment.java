@@ -419,6 +419,8 @@ public class MsgMainFragment extends Fragment {
         @Override
         public void run() {
             viewModel.updateSessionMore();
+            if(viewModel.sessionMores!=null)
+                viewModel.sessionMores.addChangeListener(sessionMoresListener);
         }
     };
 
@@ -451,7 +453,8 @@ public class MsgMainFragment extends Fragment {
             public void onChanged(@Nullable Boolean aBoolean) {
                 viewModel.updateSessionMore();
                 //监听列表数据变化
-                viewModel.sessionMores.addChangeListener(sessionMoresListener);
+                if(viewModel.sessionMores!=null)
+                    viewModel.sessionMores.addChangeListener(sessionMoresListener);
 
             }
         });
