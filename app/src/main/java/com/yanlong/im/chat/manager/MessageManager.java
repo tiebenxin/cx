@@ -2,6 +2,7 @@ package com.yanlong.im.chat.manager;
 
 import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.MyAppLication;
@@ -185,6 +186,7 @@ public class MessageManager {
                 //historyCleanMsg的消息时间，比当前接收消息时间超过10分钟的消息，从historyCleanMsg移除
                 historyCleanMsg.remove(uid);
         }
+        Log.e("raleigh_test",""+historyCleanMsg.size());
         return result;
     }
 
@@ -201,8 +203,10 @@ public class MessageManager {
         }
         /******丢弃消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
         if (TextUtils.isEmpty(wrapMessage.getGid())&&historyCleanMsg.size()>0) {//单聊
-            return  discardHistoryCleanMessage(wrapMessage.getFromUid(), wrapMessage.getTimestamp())||
-                    discardHistoryCleanMessage(wrapMessage.getToUid(), wrapMessage.getTimestamp());
+            if(discardHistoryCleanMessage(wrapMessage.getFromUid(), wrapMessage.getTimestamp())||
+                    discardHistoryCleanMessage(wrapMessage.getToUid(), wrapMessage.getTimestamp())){
+                return true;
+            }
         }
         /******end 丢弃消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
         LogUtil.getLog().e(TAG, "接收到消息: " + wrapMessage.getMsgId() + "--type=" + wrapMessage.getMsgType());
