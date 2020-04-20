@@ -181,9 +181,8 @@ public class MessageManager {
         if (historyCleanMsg.containsKey(uid) && historyCleanMsg.get(uid) >= timestamp) {
             if(historyCleanMsg.get(uid) >= timestamp){
                 result = true;
-            }
-            //historyCleanMsg的消息时间，比当前接收消息时间超过10分钟的消息，从historyCleanMsg移除
-            if (timestamp - historyCleanMsg.get(uid) >10*60*1000)
+            }else if (timestamp - historyCleanMsg.get(uid) >10*60*1000)
+                //historyCleanMsg的消息时间，比当前接收消息时间超过10分钟的消息，从historyCleanMsg移除
                 historyCleanMsg.remove(uid);
         }
         return result;
