@@ -47,6 +47,7 @@ public class SocketUtil {
     private long recontTime = 5 * 1000;
     //心跳步长
     private long heartbeatStep = 30 * 1000;
+    private boolean keepConnect = false;//是否保持连接
 
     private static List<SocketEvent> eventLists = new CopyOnWriteArrayList<>();
     //事件分发
@@ -811,4 +812,11 @@ public class SocketUtil {
         EventBus.getDefault().post(event);
     }
 
+    public boolean isKeepConnect() {
+        return keepConnect;
+    }
+
+    public void setKeepConnect(boolean keepConnect) {
+        this.keepConnect = keepConnect;
+    }
 }

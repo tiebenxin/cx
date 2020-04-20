@@ -11,6 +11,8 @@ import com.yanlong.im.chat.tcp.TcpConnection;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.ui.LoginActivity;
+import com.yanlong.im.utils.socket.SocketData;
+import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.LogUtil;
@@ -31,6 +33,10 @@ public class CXEntryActivity extends AppActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //app处于前台的时候，连接并未断开，这时候，保持连接即可
+        if (SocketUtil.getSocketUtil().isRun()) {
+            SocketUtil.getSocketUtil().setKeepConnect(true);
+        }
         super.onCreate(savedInstanceState);
 //        showLoadingDialog();
         Intent intent = getIntent();
@@ -121,7 +127,9 @@ public class CXEntryActivity extends AppActivity {
 
     private void startChatServer() {
         // 启动聊天服务
-//        startService(new Intent(getContext(), ChatServer.class));
+        if (!SocketUtil.getSocketUtil().isRun()) {
+            return;
+        }
         TcpConnection.getInstance(AppConfig.getContext()).startConnect(TcpConnection.EFrom.OTHER);
     }
 
@@ -151,7 +159,7 @@ public class CXEntryActivity extends AppActivity {
 
     private boolean isSupportType(String type) {
         if (!TextUtils.isEmpty(type)) {
-            if (type.startsWith("image/") || type.startsWith("text/")|| type.startsWith("application/")) {
+            if (type.startsWith("image/") || type.startsWith("text/") || type.startsWith("application/")) {
                 return true;
             }
         }
