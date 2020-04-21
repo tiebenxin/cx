@@ -707,6 +707,9 @@ public class MessageManager {
 
             } else {
                 DaoUtil.update(msgAllBean);
+                if (isMsgFromCurrentChat(msgAllBean.getFrom_uid())) {
+                    notifyRefreshChat(msgAllBean, CoreEnum.ERefreshType.ADD);
+                }
             }
             boolean isCancel = msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL;
             if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid())) {
@@ -780,10 +783,10 @@ public class MessageManager {
             List<String> gids = new ArrayList<>();
             List<Long> uids = new ArrayList<>();
             //gid存在时，不取uid
-            if(TextUtils.isEmpty(msgAllBean.getGid())){
+            if (TextUtils.isEmpty(msgAllBean.getGid())) {
                 uids.add(msgAllBean.getTo_uid());
                 uids.add(msgAllBean.getFrom_uid());
-            }else{
+            } else {
                 gids.add(msgAllBean.getGid());
             }
             //回主线程调用更新session详情
@@ -1639,7 +1642,7 @@ public class MessageManager {
                 super.onResponse(call, response);
                 notifyGroupChange(false);
                 List<String> gids = new ArrayList<>();
-                if(!TextUtils.isEmpty(gid)){
+                if (!TextUtils.isEmpty(gid)) {
                     gids.add(gid);
                 }
                 //回主线程调用更新sessionDetial
@@ -1713,6 +1716,19 @@ public class MessageManager {
         EventBus.getDefault().post(event);
     }
 
+    /*
+     * 通知刷新聊天界面
+     * */
+    public void notifyRefreshChat(MsgAllBean bean, @CoreEnum.ERefreshType int type) {
+        if (bean == null || type < 0) {
+            return;
+        }
+        EventRefreshChat event = new EventRefreshChat();
+        event.setObject(bean);
+        event.setRefreshType(type);
+        EventBus.getDefault().post(event);
+    }
+
     //群属性变化
     public void notifyGroupMetaChange(Group group) {
         GroupStatusChangeEvent event = new GroupStatusChangeEvent();
@@ -1728,5 +1744,15 @@ public class MessageManager {
         return false;
     }
 
+    //是否消息来自当前会话
+    public boolean isMsgFromCurrentChat(Long fromUid) {
+        if (fromUid == null || SESSION_FUID == null) {
+            return false;
+        }
+        if (fromUid.longValue() == SESSION_FUID.longValue()) {
+            return true;
+        }
+        return false;
+    }
 
 }

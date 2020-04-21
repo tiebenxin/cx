@@ -108,7 +108,6 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
     private void notifyUIRefresh() {
         MessageManager.getInstance().setMessageChange(true);
         MessageManager.getInstance().notifyRefreshChat();
-
         clearIds();
     }
 

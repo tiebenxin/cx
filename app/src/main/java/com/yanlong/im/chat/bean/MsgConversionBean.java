@@ -829,6 +829,8 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.TRANSFER_NOTICE);
                 msgAllBean.setTransferNoticeMessage(transferNoticeMessage);
                 break;
+            case READ:
+                break;
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;
         }

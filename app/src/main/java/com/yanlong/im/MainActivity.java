@@ -273,7 +273,6 @@ public class MainActivity extends AppActivity {
             checkNeteaseLogin();
             checkPermission();
             initLocation();
-            getMsgToPC("123456");
         }
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
     }

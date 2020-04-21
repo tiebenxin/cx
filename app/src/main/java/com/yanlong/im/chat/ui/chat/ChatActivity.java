@@ -110,6 +110,7 @@ import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
+import com.yanlong.im.chat.bean.ReadMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.SendFileMessage;
@@ -168,6 +169,7 @@ import com.yanlong.im.utils.audio.IAdioTouch;
 import com.yanlong.im.utils.audio.IAudioRecord;
 import com.yanlong.im.utils.audio.IVoicePlayListener;
 import com.yanlong.im.utils.socket.MsgBean;
+import com.yanlong.im.utils.socket.SendList;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
@@ -260,7 +262,7 @@ import static android.view.View.VISIBLE;
 import static net.cb.cb.library.utils.FileUtils.SIZETYPE_B;
 
 public class ChatActivity extends AppActivity implements IActionTagClickListener, ICellEventListener {
-    private static String TAG = "ChatActivityTemp";
+    private static String TAG = "ChatActivity";
     public final static int MIN_TEXT = 1000;//
     private final int RELINQUISH_TIME = 5;// 5分钟内显示重新编辑
     private final String REST_EDIT = "重新编辑";
@@ -630,7 +632,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         //9.17 进去后就清理会话的阅读数量,初始化unreadCount
         taskCleanRead(true);
         initViewNewMsg();
-        if (!isLoadHistory) {
+        if (!isLoadHistory && !hasData()) {
             taskRefreshMessage(false);
         }
         initUnreadCount();
@@ -792,10 +794,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                         onMsgbranch(msg);
                     }
-                    //从数据库读取消息
-                    if (needRefresh) {
-                        taskRefreshMessage(false);
-                    }
+                    //从数据库读取消息，修改未通过eventbus来刷新
+//                    if (needRefresh) {
+//                        taskRefreshMessage(false);
+//                    }
                     initUnreadCount();
                 }
             });
@@ -1392,6 +1394,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         } else if (isRun == 0) {
                             isRun = 1;
                         }
+                        dismissPop();
                         break;
 
                 }
@@ -2850,7 +2853,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void EtaskRefreshMessagevent(EventRefreshChat event) {
-
         int type = event.getRefreshType();
         if (type == CoreEnum.ERefreshType.ALL) {
             taskRefreshMessage(event.isScrollBottom);
@@ -2861,6 +2863,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else if (event.getList() != null) {
                 deleteMsgList(event.getList());
             }
+        } else if (type == CoreEnum.ERefreshType.ADD) {
+            if (event.getObject() != null && event.getObject() instanceof MsgAllBean) {
+                addMsg((MsgAllBean) event.getObject());
+            } else if (event.getList() != null) {
+                addMsg(event.getList());
+            }
+            initUnreadCount();
         }
     }
 
@@ -3804,6 +3813,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void notifyData() {
+        LogUtil.getLog().i(TAG, "刷新数据");
 //        mtListView.notifyDataSetChange();
         if (mAdapter.getMsgList() != null) {
             //调用该方法，有面板或软键盘弹出时，会使列表跳转到第一项
@@ -3929,12 +3939,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (TextUtils.isEmpty(toGid)) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
             if (bean != null) {
-//                LogUtil.getLog().e("===sendRead==msg=====" + bean.getMsg_id() + "===msgid=" + msgid + "==bean.getRead()=" + bean.getRead() + "==bean.getTimestamp()=" + bean.getTimestamp());
                 if (bean.getRead() == 0) {
-//                if ((TextUtils.isEmpty(msgid) || !msgid.equals(bean.getMsg_id())) && bean.getRead() == 0) {
                     msgid = bean.getMsg_id();
-//                    LogUtil.getLog().e("=sendRead=2=msg="+ bean.getMsg_id());
-                    SocketData.send4Read(toUId, bean.getTimestamp());
+//                    MsgAllBean msgAllBean = SocketData.send4Read(toUId, bean.getTimestamp());
+                    ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
+                    MsgAllBean message = SocketData.createMessageBean(toUId, "", ChatEnum.EMessageType.READ, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), read);
+                    SocketData.sendAndSaveMessage(message);
                     msgDao.setRead(msgid);
                 }
             }
@@ -5633,6 +5643,36 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         lockDialog.setCanceledOnTouchOutside(true);
         lockDialog.create();
         lockDialog.show();
+    }
+
+
+    private boolean hasData() {
+        if (mAdapter != null && mAdapter.getItemCount() > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    //添加单条消息
+    private void addMsg(MsgAllBean bean) {
+        if (mAdapter == null) {
+            return;
+        }
+        int position = mAdapter.getItemCount();
+        mAdapter.addMessage(bean);
+        mtListView.getListView().getAdapter().notifyItemRangeInserted(position, 1);
+        scrollListView(false);
+    }
+
+    //添加单条消息
+    private void addMsg(List<MsgAllBean> list) {
+        if (mAdapter == null) {
+            return;
+        }
+        int position = mAdapter.getItemCount();
+        mAdapter.addMessageList(position, list);
+        mtListView.getListView().getAdapter().notifyItemRangeInserted(position, list.size());//删除刷新
+        scrollListView(false);
     }
 
 }
