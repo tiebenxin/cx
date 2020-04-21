@@ -48,6 +48,7 @@ public class SocketUtil {
     //心跳步长
     private long heartbeatStep = 30 * 1000;
     private boolean keepConnect = false;//是否保持连接
+    private boolean isMainLive = false;//是否主界面存活
 
     private static List<SocketEvent> eventLists = new CopyOnWriteArrayList<>();
     //事件分发
@@ -820,6 +821,16 @@ public class SocketUtil {
     }
 
     public void setKeepConnect(boolean keepConnect) {
+        LogUtil.getLog().i("跟踪", "keep--" + keepConnect);
         this.keepConnect = keepConnect;
+    }
+
+    public boolean isMainLive() {
+        LogUtil.getLog().i("跟踪", "main-live--" + isMainLive);
+        return isMainLive;
+    }
+
+    public void setMainLive(boolean mainLive) {
+        isMainLive = mainLive;
     }
 }

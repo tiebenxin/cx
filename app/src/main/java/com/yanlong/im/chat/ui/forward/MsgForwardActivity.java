@@ -36,6 +36,7 @@ import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.eventbus.AckEvent;
 import com.yanlong.im.chat.server.UpLoadService;
+import com.yanlong.im.chat.tcp.TcpConnection;
 import com.yanlong.im.chat.ui.forward.vm.ForwardViewModel;
 import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityMsgForwardBinding;
@@ -46,6 +47,7 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.dialog.DialogCommon2;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.FileUtils;
@@ -145,9 +147,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (SocketUtil.getSocketUtil().isKeepConnect()) {
-            SocketUtil.getSocketUtil().setKeepConnect(false);
-        }
         ui = DataBindingUtil.setContentView(this, R.layout.activity_msg_forward);
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
@@ -166,11 +165,27 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         if (viewModel != null) {
             viewModel.checkRealmStatus();
         }
+        if (!SocketUtil.getSocketUtil().isRun()) {
+            TcpConnection.getInstance(AppConfig.getContext()).startConnect();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LogUtil.getLog().i("跟踪", "MsgForward--stop--" + SocketUtil.getSocketUtil().isKeepConnect());
+        if (SocketUtil.getSocketUtil().isKeepConnect()) {
+            SocketUtil.getSocketUtil().setKeepConnect(false);
+            if (!SocketUtil.getSocketUtil().isMainLive()) {
+                TcpConnection.getInstance(AppConfig.getContext()).destroyConnect();
+            }
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
         dismissSendProgress();
         if (viewModel != null) {
             viewModel.onDestroy();

@@ -231,8 +231,8 @@ public class QRCodeManage {
                 openAliPay2Pay(mContext, result);
             } else if (result.contains(DOWNLOAD_APP_URL)) {
                 openUri(mContext, result);
-            } else if (result.contains(PC_LOGIN_URL)){
-                httpSweepCodeLoginCommit(result,(Activity)mContext);
+            } else if (result.contains(PC_LOGIN_URL)) {
+                httpSweepCodeLoginCommit(result, (Activity) mContext);
             } else {
                 QRCodeBean bean = QRCodeManage.getQRCodeBean(mContext, result);
                 QRCodeManage.goToActivity((Activity) mContext, bean);
@@ -284,20 +284,21 @@ public class QRCodeManage {
 
     /**
      * 二维码登录 - 扫描认领
+     *
      * @param result
      */
-    private static void httpSweepCodeLoginCommit(String result,Activity activity){
-        code = result.substring(result.lastIndexOf("/")+1);//截取参数
+    private static void httpSweepCodeLoginCommit(String result, Activity activity) {
+        code = result.substring(result.lastIndexOf("/") + 1);//截取参数
         new UserAction().sweepCodeLoginCommit(code, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
                     return;
                 }
-                if(response.body().isOk()){
+                if (response.body().isOk()) {
                     ToastUtil.show("扫码成功!");
                     showSweepCodeLoginDialog(activity);
-                }else {
+                } else {
                     ToastUtil.show(response.body().getMsg());
                 }
             }
@@ -314,7 +315,7 @@ public class QRCodeManage {
     /**
      * 扫码登录弹框(特殊样式/暂不复用/加底部弹出动画效果)
      */
-    private static void showSweepCodeLoginDialog(Activity activity){
+    private static void showSweepCodeLoginDialog(Activity activity) {
         synck = "0";
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setCancelable(true);
@@ -330,10 +331,10 @@ public class QRCodeManage {
         ivCheck.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(synck.equals("0")){
+                if (synck.equals("0")) {
                     ivCheck.setImageResource(R.drawable.ic_check);
                     synck = "1";
-                }else {
+                } else {
                     ivCheck.setImageResource(R.drawable.ic_uncheck);
                     synck = "0";
                 }
@@ -351,19 +352,19 @@ public class QRCodeManage {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
-                new UserAction().sweepCodeLoginSure(code,synck, new CallBack<ReturnBean>() {
+                new UserAction().sweepCodeLoginSure(code, synck, new CallBack<ReturnBean>() {
                     @Override
                     public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                         if (response.body() == null) {
                             return;
                         }
-                        if(response.body().isOk()){
+                        if (response.body().isOk()) {
                             ToastUtil.show("登录成功!");
                             //TODO 如果选择了同步，则通知MainActivity同步消息
-                            if(synck.equals("1")){
-                                EventBus.getDefault().post(new EventMsgSync());
+                            if (synck.equals("1")) {
+                                EventBus.getDefault().post(new EventMsgSync(code));
                             }
-                        }else {
+                        } else {
                             ToastUtil.show(response.body().getMsg());
                         }
                     }
@@ -387,9 +388,9 @@ public class QRCodeManage {
                         if (response.body() == null) {
                             return;
                         }
-                        if(response.body().isOk()){
-                            LogUtil.getLog().d(TAG,"取消登录成功!");
-                        }else {
+                        if (response.body().isOk()) {
+                            LogUtil.getLog().d(TAG, "取消登录成功!");
+                        } else {
                             ToastUtil.show(response.body().getMsg());
                         }
                     }
