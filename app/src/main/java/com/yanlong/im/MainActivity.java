@@ -197,7 +197,7 @@ public class MainActivity extends AppActivity {
         initEvent();
         isCreate = true;
         doRegisterNetReceiver();
-
+        SocketUtil.getSocketUtil().setMainLive(true);
     }
 
     private void checkPermission() {
@@ -586,6 +586,7 @@ public class MainActivity extends AppActivity {
         if (!SocketUtil.getSocketUtil().isKeepConnect()) {
             stopChatService();
         }
+        SocketUtil.getSocketUtil().setMainLive(false);
         if (mNetworkReceiver != null) {
             unregisterReceiver(mNetworkReceiver);
         }
