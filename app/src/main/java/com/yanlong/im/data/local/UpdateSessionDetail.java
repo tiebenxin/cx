@@ -1,7 +1,6 @@
 package com.yanlong.im.data.local;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -98,12 +97,10 @@ public class UpdateSessionDetail {
             }, new Realm.Transaction.OnSuccess() {
                 @Override
                 public void onSuccess() {
-                    Log.e("raleigh_test", "success");
                 }
             }, new Realm.Transaction.OnError() {
                 @Override
                 public void onError(Throwable error) {
-                    Log.e("raleigh_test", "error+" + error.getMessage());
                 }
             });
         } catch (Exception e) {
@@ -252,7 +249,6 @@ public class UpdateSessionDetail {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e("raleigh_test", "error2+" + e.getMessage());
         }
     }
 
@@ -298,7 +294,6 @@ public class UpdateSessionDetail {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e("raleigh_test", "error1+" + e.getMessage());
         }
 
     }
