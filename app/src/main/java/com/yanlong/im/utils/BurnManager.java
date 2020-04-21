@@ -5,7 +5,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.BurnBroadcastReceiver;
@@ -73,19 +75,41 @@ public class BurnManager {
      * 解决强制退出时，删除退出即焚消息
      */
     private void deleteExitSurvival() {
-        realm.executeTransactionAsync(new Realm.Transaction() {
+        Map<String, List<String>> gids = new HashMap<>();
+        Map<Long, List<String>> uids = new HashMap<>();
+        /**
+         * 有些手机启动报错deleteAllFromRealm java.lang.IllegalStateException Must be in a write transaction
+         * 这里做一下延迟1秒再操作
+         */
+        new Handler().postDelayed(new Runnable() {
             @Override
-            public void execute(Realm realm) {
-                try {
-                    RealmResults<MsgAllBean> toDeletedResults = realm.where(MsgAllBean.class)
-                            .equalTo("survival_time", -1).findAll();
-                    if (toDeletedResults.size() > 0)
-                        toDeletedResults.deleteAllFromRealm();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            public void run() {
+                realm.executeTransactionAsync(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        try {
+                            RealmResults<MsgAllBean> toDeletedResults = realm.where(MsgAllBean.class)
+                                    .equalTo("survival_time", -1).findAll();
+                            //保存待删除的gids和uids,以及msgId
+                            getGidsAndUids(toDeletedResults,gids,uids);
+                            //更新session详情
+                            for (String gid : gids.keySet()) {
+                                updateDetailListener.updateLastSecondDetail(realm, gid, gids.get(gid).toArray(new String[gids.get(gid).size()]));
+                            }
+                            for (Long uid : uids.keySet()) {
+                                updateDetailListener.updateLastSecondDetail(realm, uid, uids.get(uid).toArray(new String[uids.get(uid).size()]));
+                            }
+                            //删除消息
+                            if (toDeletedResults.size() > 0)
+                                toDeletedResults.deleteAllFromRealm();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Log.e("raleigh_test", "deleteExitSurvival" + e.getMessage());
+                        }
+                    }
+                });
             }
-        });
+        },1000);
     }
 
 
@@ -107,35 +131,9 @@ public class BurnManager {
                                 .lessThanOrEqualTo("endTime", currentTime).findAll();
                         //复制一份，为了聊天界面的更新-非数据库对象
                         List<MsgAllBean> toDeletedResultsTemp = realm.copyFromRealm(toDeletedResults);
-                        for (MsgAllBean msg : toDeletedResults) {
-                            if (TextUtils.isEmpty(msg.getGid())) {
-                                Long uid = msg.getFrom_uid();
-                                int index = 0;
-                                while (index < 2) {
-                                    if (uid != -1L) {
-                                        if (uids.containsKey(msg.getGid())) {
-                                            uids.get(uid).add(msg.getMsg_id());
-                                        } else {
-                                            List<String> msgIds = new ArrayList<>();
-                                            msgIds.add(msg.getMsg_id());
-                                            uids.put(uid, msgIds);
-                                        }
-                                    }
-                                    uid = msg.getTo_uid();
-                                    index++;
-                                }
-
-
-                            } else {
-                                if (gids.containsKey(msg.getGid())) {
-                                    gids.get(msg.getGid()).add(msg.getMsg_id());
-                                } else {
-                                    List<String> msgIds = new ArrayList<>();
-                                    msgIds.add(msg.getMsg_id());
-                                    gids.put(msg.getGid(), msgIds);
-                                }
-                            }
-                        }
+                        //保存待删除的gids和uids,以及msgId
+                        getGidsAndUids(toDeletedResults,gids,uids);
+                        //更新session详情
                         for (String gid : gids.keySet()) {
                             updateDetailListener.updateLastSecondDetail(realm, gid, gids.get(gid).toArray(new String[gids.get(gid).size()]));
                         }
@@ -158,11 +156,45 @@ public class BurnManager {
             }, new Realm.Transaction.OnSuccess() {
                 @Override
                 public void onSuccess() {
-                    if (gids.keySet().size() > 0 || uids.keySet().size() > 0)
-                        updateDetailListener.update(gids.keySet().toArray(new String[gids.keySet().size()]), uids.keySet().toArray(new Long[uids.keySet().size()]));
                     startBurnAlarm();
                 }
             });
+        }
+    }
+
+    /**
+     * 获取Gids And Uids
+     * @param toDeletedResults
+     * @param gids
+     * @param uids
+     */
+    private void getGidsAndUids( RealmResults<MsgAllBean> toDeletedResults,Map<String, List<String>> gids,Map<Long, List<String>> uids){
+        for (MsgAllBean msg : toDeletedResults) {
+            if (TextUtils.isEmpty(msg.getGid())) {//单聊
+                Long uid = msg.getFrom_uid();
+                int index = 0;
+                while (index < 2) {//进行两次取值，To_uid、from_uid
+                    if (uid != -1L) {
+                        if (uids.containsKey(uid)) {
+                            uids.get(uid).add(msg.getMsg_id());
+                        } else {
+                            List<String> msgIds = new ArrayList<>();
+                            msgIds.add(msg.getMsg_id());
+                            uids.put(uid, msgIds);
+                        }
+                    }
+                    uid = msg.getTo_uid();
+                    index++;
+                }
+            } else {//群聊
+                if (gids.containsKey(msg.getGid())) {
+                    gids.get(msg.getGid()).add(msg.getMsg_id());
+                } else {
+                    List<String> msgIds = new ArrayList<>();
+                    msgIds.add(msg.getMsg_id());
+                    gids.put(msg.getGid(), msgIds);
+                }
+            }
         }
     }
 

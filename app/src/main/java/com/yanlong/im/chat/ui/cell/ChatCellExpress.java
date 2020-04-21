@@ -120,9 +120,9 @@ public class ChatCellExpress extends ChatCellFileBase {
         switch (model.getSend_state()) {
             case ChatEnum.ESendStatus.ERROR:
             case ChatEnum.ESendStatus.NORMAL:
+            case ChatEnum.ESendStatus.PRE_SEND:
                 ll_progress.setVisibility(View.GONE);
                 break;
-            case ChatEnum.ESendStatus.PRE_SEND:
             case ChatEnum.ESendStatus.SENDING:
                 ll_progress.setVisibility(VISIBLE);
                 break;
