@@ -15,7 +15,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -197,7 +196,7 @@ public class MainActivity extends AppActivity {
         initEvent();
         isCreate = true;
         doRegisterNetReceiver();
-
+        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
     }
 
     private void checkPermission() {
@@ -275,7 +274,7 @@ public class MainActivity extends AppActivity {
             initLocation();
             getMsgToPC("123456");
         }
-        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
+
     }
 
     private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
@@ -559,7 +558,7 @@ public class MainActivity extends AppActivity {
 
     @Override
     protected void onStop() {
-        MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
+
         super.onStop();
         updateNetStatus();
         isActivityStop = true;
@@ -583,6 +582,7 @@ public class MainActivity extends AppActivity {
 
     @Override
     protected void onDestroy() {
+        MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
         LogUtil.getLog().i("MainActivity--跟踪--Main", "onDestroy--" + SocketUtil.getSocketUtil().isKeepConnect());
         if (!SocketUtil.getSocketUtil().isKeepConnect()) {
             stopChatService();
