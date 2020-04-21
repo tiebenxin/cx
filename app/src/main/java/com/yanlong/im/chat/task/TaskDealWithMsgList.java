@@ -202,6 +202,9 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
                 while (iterator.hasNext()) {
                     MsgAllBean bean = mapCancel.get(iterator.next().toString());
                     msgDao.msgDel4Cancel(bean.getMsg_id(), bean.getMsgCancel().getMsgidCancel());
+                    if(!TextUtils.isEmpty(bean.getGid())){
+                        msgDao.CancelMsgCheckUnReadAtMsg(bean.getGid(), bean.getMsgCancel().getMsgidCancel());
+                    }
                 }
             }
 

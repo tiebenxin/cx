@@ -602,10 +602,10 @@ public class MsgDao {
             if (list != null) {
                 for (MsgAllBean msg : list) {
                     deleteRealmMsg(msg);
-                    if(TextUtils.isEmpty(msg.getGid())){
+                    if (TextUtils.isEmpty(msg.getGid())) {
                         uids.add(msg.getTo_uid());
                         uids.add(msg.getFrom_uid());
-                    }else{
+                    } else {
                         gids.add(msg.getGid());
                     }
                 }
@@ -642,10 +642,10 @@ public class MsgDao {
             if (list != null) {
                 if (list.size() > 0) {
                     //gid存在时，不取uid
-                    if(TextUtils.isEmpty(list.get(0).getGid())){
+                    if (TextUtils.isEmpty(list.get(0).getGid())) {
                         uids.add(list.get(0).getFrom_uid());
                         uids.add(list.get(0).getTo_uid());
-                    }else{
+                    } else {
                         gids.add(list.get(0).getGid());
                     }
                 }
@@ -731,16 +731,16 @@ public class MsgDao {
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
         }
-        if(msgAllBean!=null){
+        if (msgAllBean != null) {
             /********通知更新sessionDetail************************************/
             //因为msg对象 uid有两个，都得添加
             List<String> gids = new ArrayList<>();
             List<Long> uids = new ArrayList<>();
             //gid存在时，不取uid
-            if(TextUtils.isEmpty(msgAllBean.getGid())){
+            if (TextUtils.isEmpty(msgAllBean.getGid())) {
                 uids.add(msgAllBean.getTo_uid());
                 uids.add(msgAllBean.getFrom_uid());
-            }else{
+            } else {
                 gids.add(msgAllBean.getGid());
             }
             //回主线程调用更新session详情
@@ -1061,7 +1061,7 @@ public class MsgDao {
                 if (canChangeUnread) {
                     if (session.getIsMute() != 1) {//非免打扰
                         int num = 0;
-                        if (StringUtil.isNotNull(cancelId)) {
+                        if (StringUtil.isNotNull(cancelId)) {//撤销消息
                             MsgAllBean cancel = getMsgById(cancelId);
 //                            LogUtil.getLog().e("群==isRead===="+cancel.isRead()+"==getRead="+cancel.getRead());
                             if (cancel != null && !cancel.isRead()) {//撤回的是未读消息 红点-1
@@ -1069,6 +1069,7 @@ public class MsgDao {
                             } else {
                                 num = session.getUnread_count();
                             }
+
                         } else {
                             num = session.getUnread_count() + 1;
                         }
@@ -1131,7 +1132,13 @@ public class MsgDao {
         }
 
         if (StringUtil.isNotNull(cancelId)) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
-            session.setMessageType(1000);
+            if (StringUtil.isNotNull(gid)) {//群聊
+                if (!checkUnReadAtMsg(session, cancelId)) {//检查是否还有未读的@我的消息
+                    session.setMessageType(1000);
+                }
+            } else {
+                session.setMessageType(1000);
+            }
         } else if ("first".equals(firstFlag) && bean != null && bean.getAtMessage() != null && bean.getAtMessage().getAt_type() != 1000) {
             //对at消息处理 而且不是撤回消息
             int messageType = bean.getAtMessage().getAt_type();
@@ -1141,6 +1148,119 @@ public class MsgDao {
         }
         LogUtil.getLog().e("更新session未读数", "msgDao");
         return DaoUtil.update(session);
+    }
+
+    /**
+     * 对方撤回消息时，检查是否还有未读的@消息，有就显示上一个
+     *
+     * @param session
+     */
+    private boolean checkUnReadAtMsg(Session session, String cancelId) {
+        boolean result = false;
+        Realm realm = DaoUtil.open();
+        try {
+            //检查是否存在未读的@我的消息,保存上一个未读的@消息
+            MsgAllBean unReadAtMessage = realm.where(MsgAllBean.class).equalTo("gid", session.getGid())
+                    .notEqualTo("msg_id", cancelId)
+                    .equalTo("msg_type", ChatEnum.EMessageType.AT)
+                    .equalTo("atMessage.at_type", 1)
+                    .equalTo("isRead", false)
+                    .findFirst();
+            if (unReadAtMessage != null && unReadAtMessage.getAtMessage() != null) {//包含群@所有人消息
+                realm.beginTransaction();
+                int messageType = unReadAtMessage.getAtMessage().getAt_type();
+                String atMessage = unReadAtMessage.getAtMessage().getMsg();
+                session.setAtMessage(atMessage);
+                session.setMessageType(messageType);
+                realm.commitTransaction();
+                result = true;
+            } else {
+                RealmResults<MsgAllBean> unReadAtSigleMessages = realm.where(MsgAllBean.class).equalTo("gid", session.getGid())
+                        .notEqualTo("msg_id", cancelId)
+                        .equalTo("msg_type", ChatEnum.EMessageType.AT)
+                        .equalTo("atMessage.at_type", 0)
+                        .equalTo("isRead", false)
+                        .findAll();
+                if (unReadAtSigleMessages != null && unReadAtSigleMessages.size() > 0) {
+                    for (MsgAllBean msgAllBean : unReadAtSigleMessages) {
+                        //@的人是自己
+                        if (msgAllBean.getAtMessage() != null && msgAllBean.getAtMessage().getUid().contains(UserAction.getMyId())) {
+                            realm.beginTransaction();
+                            int messageType = msgAllBean.getAtMessage().getAt_type();
+                            String atMessage = msgAllBean.getAtMessage().getMsg();
+                            session.setAtMessage(atMessage);
+                            session.setMessageType(messageType);
+                            realm.commitTransaction();
+                            result = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DaoUtil.close(realm);
+        }
+        return result;
+    }
+
+    /**
+     * 对方撤回消息时，检查是否还有未读的@消息，有就显示上一个
+     */
+    public boolean CancelMsgCheckUnReadAtMsg(String gid, String cancelId) {
+        boolean result = false;
+        Realm realm = DaoUtil.open();
+        try {
+            Session session = realm.where(Session.class).equalTo("gid", gid).findFirst();
+            realm.beginTransaction();
+            if (session != null) {//@群
+                //检查是否存在未读的@我的消息,保存上一个未读的@消息
+                MsgAllBean unReadAtMessage = realm.where(MsgAllBean.class).equalTo("gid", session.getGid())
+                        .notEqualTo("msg_id", cancelId)
+                        .equalTo("msg_type", ChatEnum.EMessageType.AT)
+                        .equalTo("atMessage.at_type", 1)
+                        .equalTo("isRead", false)
+                        .findFirst();
+                if (unReadAtMessage != null && unReadAtMessage.getAtMessage() != null) {//包含群@所有人消息
+                    int messageType = unReadAtMessage.getAtMessage().getAt_type();
+                    String atMessage = unReadAtMessage.getAtMessage().getMsg();
+                    session.setAtMessage(atMessage);
+                    session.setMessageType(messageType);
+                    result = true;
+                } else {//@单人
+                    RealmResults<MsgAllBean> unReadAtSigleMessages = realm.where(MsgAllBean.class).equalTo("gid", session.getGid())
+                            .notEqualTo("msg_id", cancelId)
+                            .equalTo("msg_type", ChatEnum.EMessageType.AT)
+                            .equalTo("atMessage.at_type", 0)
+                            .equalTo("isRead", false)
+                            .findAll();
+                    if (unReadAtSigleMessages != null && unReadAtSigleMessages.size() > 0) {
+                        for (MsgAllBean msgAllBean : unReadAtSigleMessages) {
+                            //@的人是自己
+                            if (msgAllBean.getAtMessage() != null && msgAllBean.getAtMessage().getUid().contains(UserAction.getMyId())) {
+                                int messageType = msgAllBean.getAtMessage().getAt_type();
+                                String atMessage = msgAllBean.getAtMessage().getMsg();
+                                session.setAtMessage(atMessage);
+                                session.setMessageType(messageType);
+                                result = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if(result==false){
+                    session.setAtMessage(null);
+                    session.setMessageType(1000);
+                }
+                realm.commitTransaction();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DaoUtil.close(realm);
+        }
+        return result;
     }
 
     /*
@@ -2328,10 +2448,10 @@ public class MsgDao {
         List<String> gids = new ArrayList<>();
         List<Long> uids = new ArrayList<>();
         //gid存在时，不取uid
-        if(TextUtils.isEmpty(msgAllBean.getGid())){
+        if (TextUtils.isEmpty(msgAllBean.getGid())) {
             uids.add(msgAllBean.getTo_uid());
             uids.add(msgAllBean.getFrom_uid());
-        }else{
+        } else {
             gids.add(msgAllBean.getGid());
         }
         //回主线程调用更新session详情
@@ -3310,8 +3430,8 @@ public class MsgDao {
         if (list == null) {
             return true;
         }
-        List<String> gids=new ArrayList<>();
-        List<Long> uids=new ArrayList<>();
+        List<String> gids = new ArrayList<>();
+        List<Long> uids = new ArrayList<>();
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -3321,10 +3441,10 @@ public class MsgDao {
                 MsgAllBean msg = realm.where(MsgAllBean.class).equalTo("msg_id", bean.getMsg_id()).findFirst();
                 if (msg != null) {
                     //gid存在时，不取uid
-                    if(TextUtils.isEmpty(msg.getGid())){
+                    if (TextUtils.isEmpty(msg.getGid())) {
                         uids.add(msg.getFrom_uid());
                         uids.add(msg.getTo_uid());
-                    }else{
+                    } else {
                         gids.add(msg.getGid());
                     }
 

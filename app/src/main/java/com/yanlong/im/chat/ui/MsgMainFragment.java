@@ -365,8 +365,7 @@ public class MsgMainFragment extends Fragment {
 
         @Override
         public void update(int[] positions, List<String> sids) {
-            viewModel.allSids.addAll(sids);
-            viewModel.isAllSidsChange.setValue(true);
+            mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
         }
     };
     private OrderedRealmCollectionChangeListener sessionMoresListener = new OrderedRealmCollectionChangeListener<RealmResults<SessionDetail>>() {
@@ -419,6 +418,8 @@ public class MsgMainFragment extends Fragment {
         @Override
         public void run() {
             viewModel.updateSessionMore();
+            if(viewModel.sessionMores!=null)
+                viewModel.sessionMores.addChangeListener(sessionMoresListener);
         }
     };
 
@@ -451,7 +452,8 @@ public class MsgMainFragment extends Fragment {
             public void onChanged(@Nullable Boolean aBoolean) {
                 viewModel.updateSessionMore();
                 //监听列表数据变化
-                viewModel.sessionMores.addChangeListener(sessionMoresListener);
+                if(viewModel.sessionMores!=null)
+                    viewModel.sessionMores.addChangeListener(sessionMoresListener);
 
             }
         });

@@ -28,6 +28,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private int send_state = 0;
     //重发的数据对象
     private byte[] send_data;
+    //自己是否已读
     private boolean isRead = false;
     private String request_id;
     private Long from_uid;
@@ -38,6 +39,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private Long to_uid;
     //   private UserInfo to_user;
     private String gid;
+    //对方已读
     private int read = 0; //0 未读  ， 1  已读
 
     @ChatEnum.EMessageType
