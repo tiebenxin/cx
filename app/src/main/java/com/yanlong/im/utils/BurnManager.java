@@ -57,7 +57,7 @@ public class BurnManager {
             public void onChange(RealmResults realmResults, OrderedCollectionChangeSet changeSet) {
                 /*****初始化、新增通知更新*******************************************************************************************/
                 if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL
-                        || changeSet.getInsertions().length > 0|| changeSet.getChanges().length > 0) {
+                        || changeSet.getInsertions().length > 0 || changeSet.getChanges().length > 0) {
                     //初始化
                     notifyBurnQuene();
                 }
@@ -76,10 +76,14 @@ public class BurnManager {
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                RealmResults<MsgAllBean> toDeletedResults = realm.where(MsgAllBean.class)
-                        .equalTo("survival_time", -1).findAll();
-                if (toDeletedResults.size() > 0)
-                    toDeletedResults.deleteAllFromRealm();
+                try {
+                    RealmResults<MsgAllBean> toDeletedResults = realm.where(MsgAllBean.class)
+                            .equalTo("survival_time", -1).findAll();
+                    if (toDeletedResults.size() > 0)
+                        toDeletedResults.deleteAllFromRealm();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -96,62 +100,66 @@ public class BurnManager {
             realm.executeTransactionAsync(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
-                    long currentTime = DateUtils.getSystemTime();
-                    RealmResults<MsgAllBean> toDeletedResults = realm.where(MsgAllBean.class)
-                            .greaterThan("endTime", 0)
-                            .lessThanOrEqualTo("endTime", currentTime).findAll();
-                    //复制一份，为了聊天界面的更新-非数据库对象
-                    List<MsgAllBean> toDeletedResultsTemp = realm.copyFromRealm(toDeletedResults);
-                    for (MsgAllBean msg : toDeletedResults) {
-                        if (TextUtils.isEmpty(msg.getGid())) {
-                            Long uid=msg.getFrom_uid();
-                            int index=0;
-                            while (index<2){
-                                if(uid!=-1L){
-                                    if (uids.containsKey(msg.getGid())) {
-                                        uids.get(uid).add(msg.getMsg_id());
-                                    }else{
-                                        List<String> msgIds=new ArrayList<>();
-                                        msgIds.add(msg.getMsg_id());
-                                        uids.put(uid,msgIds);
+                    try {
+                        long currentTime = DateUtils.getSystemTime();
+                        RealmResults<MsgAllBean> toDeletedResults = realm.where(MsgAllBean.class)
+                                .greaterThan("endTime", 0)
+                                .lessThanOrEqualTo("endTime", currentTime).findAll();
+                        //复制一份，为了聊天界面的更新-非数据库对象
+                        List<MsgAllBean> toDeletedResultsTemp = realm.copyFromRealm(toDeletedResults);
+                        for (MsgAllBean msg : toDeletedResults) {
+                            if (TextUtils.isEmpty(msg.getGid())) {
+                                Long uid = msg.getFrom_uid();
+                                int index = 0;
+                                while (index < 2) {
+                                    if (uid != -1L) {
+                                        if (uids.containsKey(msg.getGid())) {
+                                            uids.get(uid).add(msg.getMsg_id());
+                                        } else {
+                                            List<String> msgIds = new ArrayList<>();
+                                            msgIds.add(msg.getMsg_id());
+                                            uids.put(uid, msgIds);
+                                        }
                                     }
+                                    uid = msg.getTo_uid();
+                                    index++;
                                 }
-                                uid=msg.getTo_uid();
-                                index++;
-                            }
 
 
-                        } else {
-                            if (gids.containsKey(msg.getGid())) {
-                                gids.get(msg.getGid()).add(msg.getMsg_id());
-                            }else{
-                                List<String> msgIds=new ArrayList<>();
-                                msgIds.add(msg.getMsg_id());
-                                gids.put(msg.getGid(),msgIds);
+                            } else {
+                                if (gids.containsKey(msg.getGid())) {
+                                    gids.get(msg.getGid()).add(msg.getMsg_id());
+                                } else {
+                                    List<String> msgIds = new ArrayList<>();
+                                    msgIds.add(msg.getMsg_id());
+                                    gids.put(msg.getGid(), msgIds);
+                                }
                             }
                         }
-                    }
-                    for(String gid :gids.keySet()){
-                        updateDetailListener.updateLastSecondDetail(realm, gid,  gids.get(gid).toArray(new String[gids.get(gid).size()]));
-                    }
-                    for(Long uid :uids.keySet()){
-                        updateDetailListener.updateLastSecondDetail(realm, uid,  uids.get(uid).toArray(new String[uids.get(uid).size()]));
-                    }
-                    if (toDeletedResults.size() > 0) {
-                        //批量删除 已到阅后即焚时间
-                        toDeletedResults.deleteAllFromRealm();
-                        /**
-                         * 通知更新聊天界面
-                         * 因为聊天界面删除的非数据库对象，可以提前通知，若为数据库对象，需在OnSuccess方法中
-                         */
-                        MessageManager.getInstance().notifyRefreshChat(toDeletedResultsTemp, CoreEnum.ERefreshType.DELETE);
+                        for (String gid : gids.keySet()) {
+                            updateDetailListener.updateLastSecondDetail(realm, gid, gids.get(gid).toArray(new String[gids.get(gid).size()]));
+                        }
+                        for (Long uid : uids.keySet()) {
+                            updateDetailListener.updateLastSecondDetail(realm, uid, uids.get(uid).toArray(new String[uids.get(uid).size()]));
+                        }
+                        if (toDeletedResults.size() > 0) {
+                            //批量删除 已到阅后即焚时间
+                            toDeletedResults.deleteAllFromRealm();
+                            /**
+                             * 通知更新聊天界面
+                             * 因为聊天界面删除的非数据库对象，可以提前通知，若为数据库对象，需在OnSuccess方法中
+                             */
+                            MessageManager.getInstance().notifyRefreshChat(toDeletedResultsTemp, CoreEnum.ERefreshType.DELETE);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             }, new Realm.Transaction.OnSuccess() {
                 @Override
                 public void onSuccess() {
-                    if(gids.keySet().size()>0||uids.keySet().size()>0)
-                        updateDetailListener.update(gids.keySet().toArray(new String[gids.keySet().size()]),uids.keySet().toArray(new Long[uids.keySet().size()]));
+                    if (gids.keySet().size() > 0 || uids.keySet().size() > 0)
+                        updateDetailListener.update(gids.keySet().toArray(new String[gids.keySet().size()]), uids.keySet().toArray(new Long[uids.keySet().size()]));
                     startBurnAlarm();
                 }
             });
@@ -190,11 +198,12 @@ public class BurnManager {
 
     public interface UpdateDetailListener {
         void update(String[] gids, Long[] uids);
+
         //异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
         void updateLastSecondDetail(Realm realm, String gid, String[] mgsIds);
 
         //异步数据库线程事务中调用，当前即将被删除，更新为不包含当前消息的最新一条消息
-        void updateLastSecondDetail(Realm realm, Long fromUid,  String[] mgsIds);
+        void updateLastSecondDetail(Realm realm, Long fromUid, String[] mgsIds);
     }
 
 }
