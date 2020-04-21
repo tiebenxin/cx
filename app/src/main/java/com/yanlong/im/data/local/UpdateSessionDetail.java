@@ -68,6 +68,7 @@ public class UpdateSessionDetail {
             }, new Realm.Transaction.OnError() {
                 @Override
                 public void onError(Throwable error) {
+
                 }
             });
         } catch (Exception e) {
@@ -76,36 +77,33 @@ public class UpdateSessionDetail {
     }
 
     public void update(String[] sids) {
-        try {
-            //通过使用异步事务，Realm 会在后台线程中进行写入操作，并在事务完成时将结果传回调用线程。
-            realm.executeTransactionAsync(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {//异步线程更新更新
-                    //获取session列表-本地数据
-                    RealmResults<Session> sessions = realm.where(Session.class).in("sid", sids).sort("up_time", Sort.DESCENDING).findAll();
-                    for (int i = 0; i < sessions.size(); i++) {
-                        Session session = sessions.get(i);
+        //通过使用异步事务，Realm 会在后台线程中进行写入操作，并在事务完成时将结果传回调用线程。
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {//异步线程更新更新
+                //获取session列表-本地数据
+                RealmResults<Session> sessions = realm.where(Session.class).in("sid", sids).sort("up_time", Sort.DESCENDING).findAll();
+                for (int i = 0; i < sessions.size(); i++) {
+                    Session session = sessions.get(i);
 //                        realm.beginTransaction();
-                        if (session.getType() == 1) {//群聊
-                            synchGroupMsgSession(realm, session, null);
-                        } else {//单聊
-                            synchFriendMsgSession(realm, session, null);
-                        }
+                    if (session.getType() == 1) {//群聊
+                        synchGroupMsgSession(realm, session, null);
+                    } else {//单聊
+                        synchFriendMsgSession(realm, session, null);
                     }
+                }
 
-                }
-            }, new Realm.Transaction.OnSuccess() {
-                @Override
-                public void onSuccess() {
-                }
-            }, new Realm.Transaction.OnError() {
-                @Override
-                public void onError(Throwable error) {
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(Throwable error) {
+            }
+        });
+
     }
 
     public void update(String[] gids, Long[] fromUids) {
@@ -124,6 +122,16 @@ public class UpdateSessionDetail {
                         synchFriendMsgSession(realm, session, null);
                     }
                 }
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(Throwable error) {
+
             }
         });
     }
@@ -155,6 +163,16 @@ public class UpdateSessionDetail {
                         sessionDetail.setSenderName(null);
                     }
                 }
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(Throwable error) {
+
             }
         });
     }
