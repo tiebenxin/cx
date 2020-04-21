@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.ui.forward;
 
+import android.annotation.SuppressLint;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,6 +24,12 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author Liszt
@@ -62,10 +69,13 @@ public class ForwardRosterFragment extends BaseMvpFragment<ForwardModel, Forward
     }
 
     private void initAdapter() {
-        adapter = new ForwardRosterAdapter(getActivity(),((MsgForwardActivity) getActivity()).getViewModel());
+        adapter = new ForwardRosterAdapter(getActivity(), ((MsgForwardActivity) getActivity()).getViewModel());
         ui.listView.init(adapter);
         ui.listView.getLoadView().setStateNormal();
         adapter.setForwardListener(listener);
+
+        ui.sortView.setLinearLayoutManager(ui.listView.getLayoutManager());
+        ui.sortView.setListView(ui.listView.getListView());
     }
 
     @Override
@@ -99,29 +109,30 @@ public class ForwardRosterFragment extends BaseMvpFragment<ForwardModel, Forward
             return;
         }
 
-        userlist=list;
-        List<UserInfo> temp=searchSessionBykey(userlist,MsgForwardActivity.searchKey);
+        userlist = list;
+        List<UserInfo> temp = searchSessionBykey(userlist, MsgForwardActivity.searchKey);
         adapter.bindData(temp);
+        userParseString(list);
         ui.listView.init(adapter);
     }
 
 
-    private List<UserInfo> searchSessionBykey(List<UserInfo> list,String key){
-        LogUtil.getLog().e("======转发搜索====通讯录====key=="+key);
-        if(!StringUtil.isNotNull(key)){
+    private List<UserInfo> searchSessionBykey(List<UserInfo> list, String key) {
+        LogUtil.getLog().e("======转发搜索====通讯录====key==" + key);
+        if (!StringUtil.isNotNull(key)) {
             return list;
         }
 
-        List<UserInfo> temp=new ArrayList<>();
+        List<UserInfo> temp = new ArrayList<>();
         for (UserInfo bean : list) {
-            String name=bean.getName4Show();
-            if (StringUtil.isNotNull(name)&&(name.contains(key))) {
+            String name = bean.getName4Show();
+            if (StringUtil.isNotNull(name) && (name.contains(key))) {
 //                LogUtil.getLog().e("====name==="+name);
                 temp.add(bean);
             }
         }
 //        LogUtil.getLog().e("====temp==="+temp.size());
-        return  temp;
+        return temp;
     }
 
 
@@ -132,8 +143,49 @@ public class ForwardRosterFragment extends BaseMvpFragment<ForwardModel, Forward
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void posting(SearchKeyEvent event) {
-        List<UserInfo> temp=searchSessionBykey(userlist,MsgForwardActivity.searchKey);
+        List<UserInfo> temp = searchSessionBykey(userlist, MsgForwardActivity.searchKey);
         adapter.bindData(temp);
+        userParseString(temp);
         ui.listView.init(adapter);
+    }
+
+    /**
+     * 获取用户的首字母列表
+     *
+     * @return
+     */
+    @SuppressLint("CheckResult")
+    public void userParseString(List<UserInfo> friends) {
+        Observable.just(0)
+                .map(new Function<Integer, List<String>>() {
+                    @Override
+                    public List<String> apply(Integer integer) throws Exception {
+                        List<String> list = null;
+                        try {
+                            //数据库中存储的是Z1，便于排序
+                            if (friends != null) {
+                                list = new ArrayList<>();
+                                for (int i = 0; i < friends.size(); i++) {
+                                    String tag = friends.get(i).getTag();
+                                    list.add(tag);
+                                    ui.sortView.putTag(tag, i);
+                                }
+                            }
+                        } catch (Exception e) {
+                        }
+                        return list;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<String>>empty())
+                .subscribe(new Consumer<List<String>>() {
+                    @Override
+                    public void accept(List<String> list) throws Exception {
+                        if (list != null) {
+                            ui.sortView.addItemView(list);
+                        }
+                    }
+                });
+
     }
 }

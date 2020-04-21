@@ -106,12 +106,13 @@ public class ForwardRosterAdapter extends AbstractRecyclerAdapter {
                     .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
 
             txtName.setText(bean.getName4Show());
-            if (bean.getLastonline() > 0) {
-                txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType(), false));
-                txtTime.setVisibility(View.VISIBLE);
-            } else {
-                txtTime.setVisibility(View.GONE);
-            }
+//            if (bean.getLastonline() > 0) {
+//                txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType(), false));
+//                txtTime.setVisibility(View.VISIBLE);
+//            } else {
+//                txtTime.setVisibility(View.GONE);
+//            }
+            txtTime.setVisibility(View.GONE);
 
             if (position > 1) {
                 UserInfo lastBean = getUserByPosition(position - 2);

@@ -21,6 +21,7 @@ import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.P2PAuVideoMessage;
+import com.yanlong.im.chat.bean.ReadMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
@@ -509,7 +510,7 @@ public class SocketData {
      */
     private static boolean msgSendSave4filter(MsgBean.UniversalMessage.WrapMessage.Builder wmsg) {
         if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER || wmsg.getMsgType() == MsgBean.MessageType.P2P_AU_VIDEO_DIAL
-                || wmsg.getMsgType() == MsgBean.MessageType.TAKE_SCREENSHOT) {
+                || wmsg.getMsgType() == MsgBean.MessageType.TAKE_SCREENSHOT || wmsg.getMsgType() == MsgBean.MessageType.READ) {
             return false;
         }
         return true;
@@ -1229,6 +1230,11 @@ public class SocketData {
                     msg.setP2PAuVideoMessage((P2PAuVideoMessage) obj);
                 }
                 break;
+            case ChatEnum.EMessageType.READ:
+                if (obj instanceof ReadMessage) {
+                    msg.setReadMessage((ReadMessage) obj);
+                }
+                break;
 
         }
 
@@ -1523,6 +1529,9 @@ public class SocketData {
         if (msgAllBean != null) {
             SendList.removeMsgFromSendSequence(ackMessage.getRequestId());
             SendList.removeSendListJust(ackMessage.getRequestId());
+            if (msgAllBean.getMsg_type() == ChatEnum.EMessageType.READ) {
+                return msgAllBean;
+            }
             msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
             if (msgAllBean.getVideoMessage() != null && !TextUtils.isEmpty(videoLocalUrl)) {
                 msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
@@ -1539,16 +1548,16 @@ public class SocketData {
 
             }
             DaoUtil.update(msgAllBean);
-            if(msgAllBean.getMsg_type()== ChatEnum.EMessageType.MSG_CANCEL){
+            if (msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {
                 /********通知更新sessionDetail************************************/
                 //因为msg对象 uid有两个，都得添加
                 List<String> gids = new ArrayList<>();
                 List<Long> uids = new ArrayList<>();
                 //gid存在时，不取uid
-                if(TextUtils.isEmpty(msgAllBean.getGid())){
+                if (TextUtils.isEmpty(msgAllBean.getGid())) {
                     uids.add(msgAllBean.getTo_uid());
                     uids.add(msgAllBean.getFrom_uid());
-                }else{
+                } else {
                     gids.add(msgAllBean.getGid());
                 }
                 //回主线程调用更新session详情
@@ -1831,7 +1840,11 @@ public class SocketData {
                     }
                     break;
                 case ChatEnum.EMessageType.READ://已读消息，不需要保存
-
+                    ReadMessage readMessage = bean.getReadMessage();
+                    MsgBean.ReadMessage.Builder readBuilder = MsgBean.ReadMessage.newBuilder();
+                    readBuilder.setTimestamp(readMessage.getTime());
+                    value = readBuilder.build();
+                    type = MsgBean.MessageType.READ;
                     needSave = false;
                     break;
                 case ChatEnum.EMessageType.MSG_CANCEL://撤销消息
@@ -1903,5 +1916,13 @@ public class SocketData {
             note.setNote("你解除了全员禁言");
         }
         return note;
+    }
+
+
+    public static ReadMessage createReadMessage(String msgId, long time) {
+        ReadMessage message = new ReadMessage();
+        message.setMsgId(msgId);
+        message.setTime(time);
+        return message;
     }
 }

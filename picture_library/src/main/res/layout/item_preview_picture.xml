@@ -10,11 +10,11 @@
         android:layout_marginLeft="2dp"
         android:layout_marginRight="2dp" />
 
-<!--    <com.luck.picture.lib.widget.longimage.SubsamplingScaleImageView-->
-<!--        android:id="@+id/iv_long"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:layout_centerInParent="true" />-->
+    <!--    <com.luck.picture.lib.widget.longimage.SubsamplingScaleImageView-->
+    <!--        android:id="@+id/iv_long"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:layout_centerInParent="true" />-->
 
     <com.luck.picture.lib.view.bigImg.LargeImageView
         android:id="@+id/iv_image_large"
@@ -23,17 +23,31 @@
         android:layout_marginLeft="2dp"
         android:layout_marginRight="2dp" />
 
-    <TextView
-        android:id="@+id/tv_view_origin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <LinearLayout
+        android:id="@+id/ll_look"
+        android:layout_width="200dp"
+        android:layout_height="80dp"
         android:layout_gravity="center_horizontal|bottom"
-        android:layout_marginBottom="50dp"
-        android:background="@color/bar_grey_90"
-        android:padding="10dp"
-        android:text="查看原图"
-        android:textColor="#ffffff"
-        android:visibility="gone" />
+        android:gravity="center"
+        android:layout_marginBottom="50dp">
+
+        <TextView
+            android:id="@+id/tv_view_origin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shape_look_origin"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="6dp"
+            android:paddingTop="6dp"
+            android:text="查看原图"
+            android:textColor="#ffffff"
+            android:visibility="visible" />
+
+    </LinearLayout>
+
 
     <ImageView
         android:id="@+id/iv_download"

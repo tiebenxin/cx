@@ -20,6 +20,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.ui.RoundTransform;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
 
 import static android.view.View.VISIBLE;
 
@@ -98,6 +99,7 @@ public class ChatCellImage extends ChatCellFileBase {
     }
 
     public void glide(RequestOptions rOptions, String url) {
+        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
         Glide.with(getContext())
                 .load(url)
                 .apply(rOptions)

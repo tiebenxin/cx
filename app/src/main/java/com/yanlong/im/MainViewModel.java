@@ -47,6 +47,8 @@ public class MainViewModel extends ViewModel {
     public MutableLiveData<Boolean> isAllSidsChange = new MutableLiveData<>();
 
     public MainViewModel() {
+        onlineState.setValue(true);
+        isNeedCloseSwipe.setValue(false);
         repository = new MainRepository();
     }
 

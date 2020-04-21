@@ -553,6 +553,9 @@ public class MsgConversionBean {
                     formName = msgDao.getGroupMemberName(bean.getGid(), bean.getFromUid(), null, null);//能查到群备注
                     formName = "\"" + formName + "\"";
                 }
+                if(bean.getFromUid() == UserAction.getMyId().intValue()){//自己PC 端发送的消息
+                    formName = "您";
+                }
 
                 if (bean.getChangeSurvivalTime().getSurvivalTime() == -1) {
                     if (TextUtils.isEmpty(bean.getGid())) {
@@ -828,6 +831,8 @@ public class MsgConversionBean {
                 transferNoticeMessage.setContent("你有一笔等待收款的<transfer id=" + bean.getTransNotify().getTradeId() + ">转账</transfer>");
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.TRANSFER_NOTICE);
                 msgAllBean.setTransferNoticeMessage(transferNoticeMessage);
+                break;
+            case READ:
                 break;
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;
