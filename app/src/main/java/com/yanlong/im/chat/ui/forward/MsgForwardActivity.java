@@ -145,6 +145,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (SocketUtil.getSocketUtil().isKeepConnect()) {
+            SocketUtil.getSocketUtil().setKeepConnect(false);
+        }
         ui = DataBindingUtil.setContentView(this, R.layout.activity_msg_forward);
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);

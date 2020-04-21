@@ -83,6 +83,7 @@ import com.yanlong.im.user.ui.SplashActivity;
 import com.yanlong.im.utils.socket.ExecutorManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
+import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.utils.update.UpdateManage;
 import com.zhaoss.weixinrecorded.CanStampEventWX;
 
@@ -582,8 +583,10 @@ public class MainActivity extends AppActivity {
 
     @Override
     protected void onDestroy() {
-        LogUtil.getLog().i("跟踪--Main", "onDestroy");
-        stopChatService();
+        LogUtil.getLog().i("MainActivity--跟踪--Main", "onDestroy--" + SocketUtil.getSocketUtil().isKeepConnect());
+        if (!SocketUtil.getSocketUtil().isKeepConnect()) {
+            stopChatService();
+        }
         if (mNetworkReceiver != null) {
             unregisterReceiver(mNetworkReceiver);
         }
@@ -1451,15 +1454,17 @@ public class MainActivity extends AppActivity {
     private void checkTokenValid() {
         if (!isFromLogin) {
             TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-            Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
-            if ((!token.isTokenValid(uid) /*|| token.getBankReqSignKey()==null*/) && NetUtil.isNetworkConnected()) {
-                LogUtil.getLog().i(MainActivity.class.getSimpleName(), "--token=" + token.getAccessToken() + "--uid" + uid);
-                userAction.updateToken(userAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>(false) {
-                    @Override
-                    public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                        super.onResponse(call, response);
-                    }
-                });
+            if (token != null) {
+                Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
+                if ((!token.isTokenValid(uid) /*|| token.getBankReqSignKey()==null*/) && NetUtil.isNetworkConnected()) {
+                    LogUtil.getLog().i(MainActivity.class.getSimpleName(), "--token=" + token.getAccessToken() + "--uid" + uid);
+                    userAction.updateToken(userAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>(false) {
+                        @Override
+                        public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                            super.onResponse(call, response);
+                        }
+                    });
+                }
             }
         }
     }
