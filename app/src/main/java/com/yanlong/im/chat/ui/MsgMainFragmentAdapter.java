@@ -153,24 +153,23 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
             } else if (bean.getType() == 1) {//群
                 if (type == 0) {
-                    if (!TextUtils.isEmpty(bean.getAtMessage()) && !TextUtils.isEmpty(name)) {
-                        info = name + bean.getAtMessage();
-                    } else {
-                        info = name + info;
-
-                    }
+//                    if (!TextUtils.isEmpty(bean.getAtMessage()) && !TextUtils.isEmpty(name)) {
+//                        info = name + bean.getAtMessage();
+//                    } else {
+                    info = name + info;
+//                    }
                 } else if (type == 1) {
-                    if (!TextUtils.isEmpty(bean.getAtMessage()) && !TextUtils.isEmpty(name)) {
-                        if (TextUtils.isEmpty(info)) {
-                            info = bean.getAtMessage();
-                        }
-//                        if (StringUtil.isNotNull(info) && info.startsWith("@所有人")) {
-//                            info = info.replace("@所有人", "");
-//                        }
-                        info = name + info;
-                    } else {
-                        info = name + info;
-                    }
+//                    if (!TextUtils.isEmpty(bean.getAtMessage()) && !TextUtils.isEmpty(name)) {
+////                        if (TextUtils.isEmpty(info)) {
+////                            info = bean.getAtMessage();
+////                        }
+////                        if (StringUtil.isNotNull(info) && info.startsWith("@所有人")) {
+////                            info = info.replace("@所有人", "");
+////                        }
+//                        info = name + info;
+//                    } else {
+                    info = name + info;
+//                    }
                 } else if (msginfo != null && (ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME + "").equals(msginfo.getMsg_type() + "")) {
                     //阅后即焚不通知 不显示谁发的 肯定是群主修改的
                     // info=info;
@@ -186,27 +185,12 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
                 switch (type) {
                     case 0:
-                    case 1:
-                        if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            SpannableString style = new SpannableString("[有人@我]" + info);
-                            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
-                            style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            showMessage(holder.txtInfo, info, style);
-                            //原2020/4/1前
-//                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
-//                                SpannableString style = new SpannableString("[有人@我]" + info);
-//                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
-//                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//                                showMessage(holder.txtInfo, info, style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
-//                            } else {
-//                                SpannableString style = new SpannableString("[@所有人]" + info);
-//                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
-//                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//                                showMessage(holder.txtInfo, info, style,msginfo==null&&TextUtils.isEmpty(bean.getDraft()));
-//                            }
-                        } else {
-                            showMessage(holder.txtInfo, info, null);
-                        }
+                    case 1: {
+                        SpannableString style = new SpannableString("[有人@我]" + info);
+                        ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
+                        style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        showMessage(holder.txtInfo, info, style);
+                    }
                         break;
                     case 2:
                         if (StringUtil.isNotNull(bean.getDraft())) {

@@ -365,8 +365,7 @@ public class MsgMainFragment extends Fragment {
 
         @Override
         public void update(int[] positions, List<String> sids) {
-            viewModel.allSids.addAll(sids);
-            viewModel.isAllSidsChange.setValue(true);
+            mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
         }
     };
     private OrderedRealmCollectionChangeListener sessionMoresListener = new OrderedRealmCollectionChangeListener<RealmResults<SessionDetail>>() {
