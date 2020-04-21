@@ -261,7 +261,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
                     if (null != mMediaPlayer) {
                         try {
-                            if(!ifPause){
                                 // TODO OPPO等个别手机获取不到最后一秒
                                 mCurrentTime = mMediaPlayer.getCurrentPosition();
                                 // TODO 处理OPPO手机无法播放到最后一秒问题
@@ -275,7 +274,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                                 if (!isFinishing()) {
                                     handler.sendEmptyMessage(0);
                                 }
-                            }
+
                         } catch (Exception e) {
                             if (null != mTimer)
                                 mTimer.cancel();
@@ -314,7 +313,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 @Override
                 public void onPrepared(MediaPlayer mp) {
                     if (!isFinishing()) {
-                        if(!ifPause){
                             mMediaPlayer.start();
                             // 转成秒
                             mTempTime = mMediaPlayer.getDuration() / 1000;
@@ -329,7 +327,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                             getProgress();
                         }
                     }
-                }
             });
             mMediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
                 @Override
@@ -382,7 +379,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         super.onPause();
         if (null != mMediaPlayer) {
             mMediaPlayer.pause();
-            activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
         }
         ifPause = true;
         if (null != mTimer) {
@@ -394,10 +390,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     @Override
     protected void onRestart() {
         super.onRestart();
-        activity_video_big_con.setVisibility(View.VISIBLE);
-        img_bg.setVisibility(View.VISIBLE);
-//        replay();
-//        activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
     }
 
     @Override
@@ -446,11 +438,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         mMediaPlayer.pause();
                     } else {
                         activity_video_big_con.setVisibility(View.INVISIBLE);
-                        if(ifPause){
-                            replay();
-                        }else {
-                            mMediaPlayer.start();
-                        }
+                        mMediaPlayer.start();
                         ifPause = false;
                         dontShake = false;
 
@@ -465,15 +453,9 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         activity_video_big_con.setVisibility(View.VISIBLE);
                         activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
                     } else {
-                        if(ifPause){
-                            replay();
-                        }else {
-                            mMediaPlayer.start();
-                        }
+                        mMediaPlayer.start();
                         activity_video_big_con.setVisibility(View.INVISIBLE);
                         activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
-//                        getProgress();
-                        ifPause = false;
                         dontShake = false;
                     }
                 }
@@ -595,7 +577,13 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        initMediaPlay(holder);
+        if(ifPause){
+            replay();
+            ifPause = false;
+        }else {
+            initMediaPlay(holder);
+        }
+
     }
 
     @Override
@@ -690,6 +678,9 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     private void replay() {
         try {
+            if(mMediaPlayer==null){
+                mMediaPlayer = new MediaPlayer();
+            }
             mMediaPlayer.reset();
             mMediaPlayer.setDataSource(mPath);
             mMediaPlayer.setDisplay(textureView.getHolder());
