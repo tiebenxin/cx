@@ -393,6 +393,15 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if(ifPause){
+            replay();
+            ifPause = false;
+        }
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
     }
