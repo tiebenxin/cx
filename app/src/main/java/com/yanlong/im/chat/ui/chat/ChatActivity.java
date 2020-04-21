@@ -1898,7 +1898,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //消息发送
     private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType) {
-        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), message);
         if (msgAllBean != null) {
             if (!filterMessage(message)) {
                 SocketData.sendAndSaveMessage(msgAllBean, false);
