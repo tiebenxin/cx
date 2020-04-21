@@ -707,7 +707,7 @@ public class MessageManager {
 
             } else {
                 DaoUtil.update(msgAllBean);
-                if (isMsgFromCurrentChat(msgAllBean.getFrom_uid())) {
+                if (isMsgFromCurrentChat(msgAllBean.getGid(), msgAllBean.getFrom_uid())) {
                     notifyRefreshChat(msgAllBean, CoreEnum.ERefreshType.ADD);
                 }
             }
@@ -1745,12 +1745,21 @@ public class MessageManager {
     }
 
     //是否消息来自当前会话
-    public boolean isMsgFromCurrentChat(Long fromUid) {
-        if (fromUid == null || SESSION_FUID == null) {
-            return false;
-        }
-        if (fromUid.longValue() == SESSION_FUID.longValue()) {
-            return true;
+    public boolean isMsgFromCurrentChat(String gid, Long fromUid) {
+        if (!TextUtils.isEmpty(gid)) {
+            if (TextUtils.isEmpty(SESSION_GID)) {
+                return false;
+            }
+            if (gid.equals(SESSION_GID)) {
+                return true;
+            }
+        } else {
+            if (fromUid == null || SESSION_FUID == null) {
+                return false;
+            }
+            if (fromUid.longValue() == SESSION_FUID.longValue()) {
+                return true;
+            }
         }
         return false;
     }
