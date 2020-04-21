@@ -206,17 +206,20 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     mMediaPlayer.seekTo(progress * mMediaPlayer.getDuration() / 100);
+                    dontShake = false;
                 }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 mMediaPlayer.pause();
+                activity_video_big_con.setVisibility(View.INVISIBLE);
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 mMediaPlayer.start();
+                activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
             }
         });
 //        initMediaPlay(textureView);
