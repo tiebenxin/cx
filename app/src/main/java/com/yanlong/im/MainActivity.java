@@ -272,7 +272,6 @@ public class MainActivity extends AppActivity {
             checkNeteaseLogin();
             checkPermission();
             initLocation();
-            getMsgToPC("123456");
         }
 
     }

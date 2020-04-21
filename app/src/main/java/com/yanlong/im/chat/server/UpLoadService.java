@@ -16,6 +16,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
+import net.cb.cb.library.bean.EventUploadImg;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.UpFileAction;
@@ -155,6 +156,51 @@ public class UpLoadService extends Service {
         });
         queue.offer(upProgress);
         addMsg(msg);
+    }
+
+
+    /**
+     * 上传图片 (重载)
+     * @param msg               消息体
+     * @param file              图片本地路径
+     * @param isOriginal        是否为原图
+     * @param needSendToFriend  是否需要转发
+     */
+    public static void onAddImage(final MsgAllBean msg, String file, final Boolean isOriginal, boolean needSendToFriend) {
+        if (msg == null) {
+            return;
+        }
+        final UpProgress upProgress = new UpProgress();
+        upProgress.setId(msg.getMsg_id());
+        upProgress.setFile(file);
+        updateProgress(msg.getMsg_id(), new Random().nextInt(5) + 1);//发送图片后默认给个进度，显示阴影表示正在上传
+        upProgress.setCallback(new UpFileUtil.OssUpCallback() {
+
+            @Override
+            public void success(final String url) {
+                EventUploadImg eventUploadImg = new EventUploadImg();
+                eventUploadImg.setState(1);
+                ImageMessage image = msg.getImage();//上传成功后重新设置图片网络url
+                ImageMessage imageMessage = SocketData.createImageMessage(msg.getMsg_id(), file, url, image.getWidth(), image.getHeight(), isOriginal, false, image.getSize());
+                msg.setImage(imageMessage);
+                eventUploadImg.setMsgAllBean(msg);
+                EventBus.getDefault().post(eventUploadImg);
+
+            }
+
+            @Override
+            public void fail() {
+                EventUploadImg eventUploadImg = new EventUploadImg();
+                eventUploadImg.setState(-1);
+                EventBus.getDefault().post(eventUploadImg);
+            }
+
+            @Override
+            public void inProgress(long progress, long zong) {
+
+            }
+        });
+        queue.offer(upProgress);
     }
 
 

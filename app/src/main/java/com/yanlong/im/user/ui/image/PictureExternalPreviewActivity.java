@@ -67,14 +67,23 @@ import com.luck.picture.lib.widget.longimage.ImageViewState;
 import com.luck.picture.lib.widget.longimage.SubsamplingScaleImageView;
 import com.luck.picture.lib.zxing.decoding.RGBLuminanceSource;
 import com.yalantis.ucrop.util.FileUtils;
+import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.server.UpLoadService;
+import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.QRCodeManage;
-import com.zhaoss.weixinrecorded.activity.ImageShowActivity;
+import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.bean.CanStampEvent;
+import net.cb.cb.library.bean.EventCancelDialog;
+import net.cb.cb.library.bean.EventCreateImgAndSend;
+import net.cb.cb.library.bean.EventUploadImg;
 import net.cb.cb.library.event.EventFactory;
+import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.DeviceUtils;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.ImgSizeUtil;
@@ -113,6 +122,7 @@ import okhttp3.Call;
  */
 public class PictureExternalPreviewActivity extends PictureBaseActivity implements View.OnClickListener {
     private static String TAG = "PictureExternalPreviewActivity";
+    public static int IMG_EDIT = 0;//长按图片编辑
     private ImageButton left_back;
     private TextView tv_title;
     private PreviewViewPager viewPager;
@@ -124,8 +134,13 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private RxPermissions rxPermissions;
     private LoadDataThread loadDataThread;
     //    private String[] strings = {"识别二维码", "保存图片", "取消"};
-    private String[] strings = {"发送给朋友", "保存图片", "识别二维码", "编辑", "取消"};
+    private String[] strings = {"发送给朋友", "保存图片", "识别二维码", "取消"};
 
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void cancelDialog(EventCancelDialog event) {
+        dismissDialog();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -931,12 +946,6 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     saveImage(path);
                 } else if (postsion == 2) {//识别二维码
                     scanningQrImage(path);
-                } else if (postsion == 3) {//编辑
-                    Intent intent = new Intent(PictureExternalPreviewActivity.this, ImageShowActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("imgpath",path);
-                    intent.putExtras(bundle);
-                    startActivity(intent);
                 }
                 popupSelectView.dismiss();
 
@@ -1296,4 +1305,18 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK){
+            if(requestCode == IMG_EDIT){
+                if(data!=null){
+                    //拿到编辑后新图片的本地路径
+                    String localPicPath = data.getStringExtra("showPath");
+                    EventBus.getDefault().post(new EventCreateImgAndSend(localPicPath));
+                    showPleaseDialog();
+                }
+            }
+        }
+    }
 }

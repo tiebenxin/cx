@@ -103,6 +103,9 @@ public class SocketUtil {
             }
 
             if (isAccepted && msgAllBean != null) {
+                if (msgAllBean.getMsg_type() != null && msgAllBean.getMsg_type() == ChatEnum.EMessageType.READ) {
+                    return;
+                }
                 notifyAck(msgAllBean);
             } else {
                 notifyAck(bean);
