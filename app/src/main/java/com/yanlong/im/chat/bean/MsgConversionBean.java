@@ -553,6 +553,9 @@ public class MsgConversionBean {
                     formName = msgDao.getGroupMemberName(bean.getGid(), bean.getFromUid(), null, null);//能查到群备注
                     formName = "\"" + formName + "\"";
                 }
+                if(bean.getFromUid() == UserAction.getMyId().intValue()){//自己PC 端发送的消息
+                    formName = "您";
+                }
 
                 if (bean.getChangeSurvivalTime().getSurvivalTime() == -1) {
                     if (TextUtils.isEmpty(bean.getGid())) {
