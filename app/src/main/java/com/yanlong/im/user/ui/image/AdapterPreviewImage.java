@@ -9,6 +9,7 @@ import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
@@ -64,6 +65,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.QRCodeManage;
+import com.zhaoss.weixinrecorded.activity.ImageShowActivity;
 
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.ImgSizeUtil;
@@ -89,16 +91,16 @@ public class AdapterPreviewImage extends PagerAdapter {
 
 
     private List<LocalMedia> datas;
-    private final Context context;
+    private final Activity context;
     private LayoutInflater inflater;
     private MsgDao msgDao = new MsgDao();
     private Call download;
     //    private IPreviewImageListener listener;
-    private String[] strings = {"发送给朋友", "保存图片", "识别二维码", "取消"};
+    private String[] strings = {"发送给朋友", "保存图片", "识别二维码", "编辑", "取消"};
     private View parentView;
 
 
-    public AdapterPreviewImage(Context c) {
+    public AdapterPreviewImage(Activity c) {
         context = c;
         inflater = LayoutInflater.from(c);
     }
@@ -821,8 +823,8 @@ public class AdapterPreviewImage extends PagerAdapter {
         popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
             @Override
             public void onItem(String string, int postsion) {
+                String msgId = media.getMsg_id();
                 if (postsion == 0) {//转发
-                    String msgId = media.getMsg_id();
                     if (!TextUtils.isEmpty(msgId)) {
                         MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
                         if (msgAllBean != null) {
@@ -838,6 +840,13 @@ public class AdapterPreviewImage extends PagerAdapter {
                 } else if (postsion == 2) {//识别二维码
                     // scanningImage(media.getPath());
                     scanningQrImage(media.getCompressPath(), ivZoom);
+                } else if (postsion == 3) {//长按跳编辑界面，编辑完成后，返回新图片的本地路径到PictureExternalPreviewActivity
+                    Intent intent = new Intent(context, ImageShowActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("imgpath",media.getCompressPath());
+                    bundle.putString("msg_id",msgId);
+                    intent.putExtras(bundle);
+                    context.startActivityForResult(intent,PictureExternalPreviewActivity.IMG_EDIT);
                 }
                 popupSelectView.dismiss();
 

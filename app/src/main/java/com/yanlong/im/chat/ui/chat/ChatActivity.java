@@ -155,6 +155,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.user.ui.image.PictureExternalPreviewActivity;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.ExpressionUtil;
@@ -185,6 +186,8 @@ import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.EventCancelDialog;
+import net.cb.cb.library.bean.EventCreateImgAndSend;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFileRename;
 import net.cb.cb.library.bean.EventFindHistory;
@@ -194,6 +197,7 @@ import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventSwitchDisturb;
 import net.cb.cb.library.bean.EventUpFileLoadEvent;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
+import net.cb.cb.library.bean.EventUploadImg;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.bean.GroupStatusChangeEvent;
@@ -2464,6 +2468,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventCreateImgAndSend(EventCreateImgAndSend event) {
+        //生成一个图片消息并本地保存，不发送给任何人，上传图片，成功后本地url更新为服务器url地址，然后跳到转发
+        String localPicPath = event.getNewPicPath();
+        if (!checkNetConnectStatus()) {
+            return;
+        }
+        MsgAllBean msgAllBean = null;
+        String imgMsgId = SocketData.getUUID();
+        ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, localPicPath, true);
+        msgAllBean = SocketData.createMessageBean(0L, "", ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), imageMessage);
+        SocketData.saveMessage(msgAllBean);
+        UpLoadService.onAddImage(msgAllBean, localPicPath, true,true);
+        startService(new Intent(getContext(), UpLoadService.class));
+    }
 
     /**
      * 保存经常使用表情
@@ -2905,6 +2924,22 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             replaceListDataAndNotify(msgAllbean);
         } else {
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void uploadImgEvent(EventUploadImg event) {
+        if (event.getState() == -1) {
+            ToastUtil.show("图片上传失败!");
+        } else if (event.getState() == 1) {
+            //图片上传成功，走转发逻辑
+            MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
+            if (msgAllbean != null) {
+                startActivity(new Intent(ChatActivity.this, MsgForwardActivity.class)
+                        .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllbean)));
+            }
+        }
+        //关掉加载等待框
+        EventBus.getDefault().post(new EventCancelDialog());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
