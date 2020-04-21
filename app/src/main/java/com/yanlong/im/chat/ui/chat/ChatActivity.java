@@ -3706,7 +3706,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void onYes() {
-//                msgDao.msgDel4MsgId(msgbean.getMsg_id());
+                msgDao.msgDel4MsgId(msgbean.getMsg_id());
 //                int position = mAdapter.getPosition(msgbean);
 //                if (position >= 0) {
 //                    mAdapter.removeItem(msgbean);
