@@ -400,21 +400,23 @@ public class SocketData {
     private static MsgBean.UniversalMessage.Builder toMsgBuilder(String requestId, String msgId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
         MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild(requestId);
         MsgBean.UniversalMessage.WrapMessage.Builder wrap = msg.getWrapMsgBuilder(0);
-        initWrapMessage(msgId, null, toId, toGid, time, type, value, wrap);
+        IUser userInfo = UserAction.getMyInfo();
+        if (userInfo == null) {
+            return null;
+        }
+        initWrapMessage(msgId, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), toId, toGid, time, type, value, wrap);
+        if (wrap == null) {
+            return null;
+        }
         MsgBean.UniversalMessage.WrapMessage wm = wrap.build();
         msg.setWrapMsg(0, wm);
         return msg;
     }
 
-    private static void initWrapMessage(String msgId, Long fromId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value, MsgBean.UniversalMessage.WrapMessage.Builder wrap) {
-        IUser userInfo = UserAction.getMyInfo();
-        if (fromId == null) {
-            wrap.setFromUid(userInfo.getUid());
-        } else {
-            wrap.setFromUid(fromId);
-        }
-        wrap.setAvatar(userInfo.getHead());
-        wrap.setNickname(userInfo.getName());
+    private static void initWrapMessage(String msgId, Long fromId, String avatar, String nickName, Long toId, String toGid, long time, MsgBean.MessageType type, Object value, MsgBean.UniversalMessage.WrapMessage.Builder wrap) {
+        wrap.setFromUid(fromId);
+        wrap.setAvatar(avatar);
+        wrap.setNickname(nickName);
         //自动生成uuid
         wrap.setMsgId(msgId == null ? getUUID() : msgId);
         //添加阅后即焚状态
@@ -1708,7 +1710,7 @@ public class SocketData {
             MsgBean.MessageType type = initMsgContentAndType.getType();
             if (value != null && type != null) {
                 MsgBean.UniversalMessage.WrapMessage.Builder wrapBuild = MsgBean.UniversalMessage.WrapMessage.newBuilder();
-                initWrapMessage(bean.getMsg_id(), bean.getFrom_uid(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value, wrapBuild);
+                initWrapMessage(bean.getMsg_id(), bean.getFrom_uid(), bean.getFrom_avatar(), bean.getFrom_nickname(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value, wrapBuild);
                 msg.addWrapMsg(wrapBuild);
             }
         }
