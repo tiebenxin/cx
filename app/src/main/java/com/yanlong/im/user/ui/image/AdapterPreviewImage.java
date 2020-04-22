@@ -827,7 +827,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                     bundle.putString("imgpath",media.getCompressPath());
                     bundle.putString("msg_id",msgId);
                     intent.putExtras(bundle);
-                    context.startActivityForResult(intent,PictureExternalPreviewActivity.IMG_EDIT);
+                    context.startActivity(intent);
                 }
                 popupSelectView.dismiss();
 
