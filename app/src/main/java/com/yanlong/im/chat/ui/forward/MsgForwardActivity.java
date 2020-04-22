@@ -126,6 +126,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     private int preProgress;
     private ForwardViewModel viewModel;
 
+    //图片编辑地址
+    private String editPicPath = "";
+
 
     //单条消息转发
     public static Intent newIntent(Context context, @ChatEnum.EForwardMode int mode, String json) {
@@ -233,6 +236,13 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 appName = intent.getStringExtra("app_name");
                 appIcon = intent.getStringExtra("app_icon");
             }
+        } else if (model == ChatEnum.EForwardMode.EDIT_PIC){
+            if(intent.getExtras()!=null){
+                if(intent.getExtras().getString("edit_pic_path")!=null){
+                    editPicPath = intent.getExtras().getString("edit_pic_path");
+                    mediaType = CxMediaMessage.EMediaType.IMAGE;
+                }
+            }
         }
     }
 
@@ -323,7 +333,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     }
 
     private void resetRightText() {
-        if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI || model == ChatEnum.EForwardMode.SYS_SEND) {
+        if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI || model == ChatEnum.EForwardMode.SYS_SEND ||model == ChatEnum.EForwardMode.EDIT_PIC) {
             actionbar.setTxtRight("");
             return;
         }
@@ -415,6 +425,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         dismissSendProgress();
                         startActivity(new Intent(MsgForwardActivity.this, MainActivity.class));
                         MsgForwardActivity.this.finish();
+                    } else if (model == ChatEnum.EForwardMode.EDIT_PIC) {
+                        ToastUtil.show("转发成功!");
+                        MsgForwardActivity.this.finish();
                     }
                 }
             }
@@ -481,6 +494,16 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 ToastUtil.show(this, "数据异常，分享失败");
                 return;
             }
+        } else if (model == ChatEnum.EForwardMode.EDIT_PIC) { //图片编辑
+            if (TextUtils.isEmpty(editPicPath)) {
+                return;
+            }
+            ImgSizeUtil.ImageSize imgSize = ImgSizeUtil.getAttribute(editPicPath);
+            if (imgSize == null) {
+                return;
+            }
+            ImageMessage image = SocketData.createImageMessage(SocketData.getUUID(), editPicPath, "", imgSize.getWidth(), imgSize.getHeight(), true, false, imgSize.getSize());
+            msgAllBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), image);
         }
 
         String btm = "发送";
@@ -605,6 +628,15 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 //                            }
 //                        }
                     }
+                } else if (model == ChatEnum.EForwardMode.EDIT_PIC) {
+                    UpFileAction.PATH uploadType = getUploadType(mediaType);
+                    if (uploadType != null) {
+                        upload(editPicPath, uploadType, msgAllBean);
+                    } else {
+                        ToastUtil.show(MsgForwardActivity.this, "分享失败，不支持文件类型");
+                        return;
+                    }
+
                 }
             }
         });
@@ -991,7 +1023,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     //等待发送成功
     private boolean isWaitModel() {
-        if (model == ChatEnum.EForwardMode.SHARE || model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
+        if (model == ChatEnum.EForwardMode.SHARE || model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.SYS_SEND_MULTI
+                || model == ChatEnum.EForwardMode.EDIT_PIC) {
             return true;
         }
         return false;
