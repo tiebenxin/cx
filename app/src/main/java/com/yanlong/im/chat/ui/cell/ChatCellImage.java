@@ -6,9 +6,6 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -20,7 +17,6 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.ui.RoundTransform;
 
 import net.cb.cb.library.utils.DensityUtil;
-import net.cb.cb.library.utils.LogUtil;
 
 import static android.view.View.VISIBLE;
 
@@ -99,7 +95,7 @@ public class ChatCellImage extends ChatCellFileBase {
     }
 
     public void glide(RequestOptions rOptions, String url) {
-        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
+//        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
         Glide.with(getContext())
                 .load(url)
                 .apply(rOptions)
