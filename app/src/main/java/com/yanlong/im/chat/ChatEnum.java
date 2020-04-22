@@ -392,7 +392,7 @@ public class ChatEnum {
     /*
      *聊天转发功能id
      * */
-    @IntDef({EForwardMode.DEFAULT, EForwardMode.ONE_BY_ONE, EForwardMode.MERGE, EForwardMode.SHARE, EForwardMode.SYS_SEND, EForwardMode.SYS_SEND_MULTI})
+    @IntDef({EForwardMode.DEFAULT, EForwardMode.ONE_BY_ONE, EForwardMode.MERGE, EForwardMode.SHARE, EForwardMode.SYS_SEND, EForwardMode.SYS_SEND_MULTI, EForwardMode.EDIT_PIC})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EForwardMode {
         int DEFAULT = 0; // 默认，普通单条转发
@@ -401,6 +401,7 @@ public class ChatEnum {
         int SHARE = 3; // 第三方分享
         int SYS_SEND = 4; // 系统分享或发送
         int SYS_SEND_MULTI = 5; // 系统批量分享或发送
+        int EDIT_PIC = 6; // 图片编辑转发
     }
 
 

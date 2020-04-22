@@ -66,6 +66,7 @@ import com.luck.picture.lib.widget.longimage.ImageViewState;
 import com.luck.picture.lib.widget.longimage.SubsamplingScaleImageView;
 import com.luck.picture.lib.zxing.decoding.RGBLuminanceSource;
 import com.yalantis.ucrop.util.FileUtils;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
@@ -104,6 +105,7 @@ import okhttp3.Call;
  */
 public class PictureExternalPreviewActivity extends PictureBaseActivity implements View.OnClickListener {
     private static String TAG = "PictureExternalPreviewActivity";
+    public static int IMG_EDIT = 0;//长按图片编辑
     private ImageButton left_back;
     private TextView tv_title;
     private PreviewViewPager viewPager;
@@ -1281,4 +1283,20 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK){
+            if(requestCode == IMG_EDIT){
+                if(data!=null){
+                    //拿到编辑后新图片的本地路径，走转发逻辑
+                    String path = data.getStringExtra("showPath");
+                    Bundle bundle = new Bundle();
+                    bundle.putString("edit_pic_path",path);
+                    Intent intent = MsgForwardActivity.newIntent(PictureExternalPreviewActivity.this, ChatEnum.EForwardMode.EDIT_PIC, bundle);
+                    startActivity(intent);
+                }
+            }
+        }
+    }
 }
