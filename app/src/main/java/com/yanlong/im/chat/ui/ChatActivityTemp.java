@@ -120,6 +120,7 @@ import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
+import com.yanlong.im.chat.bean.ReadMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.SendFileMessage;
@@ -998,7 +999,6 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
                     SocketData.send4Image(imgMsgId, toUId, toGid, bean.getServerPath(), true, img, -1);
                 }
                 notifyData2Bottom(true);
-//                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
             }
         }
     }
@@ -5107,12 +5107,11 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
         if (TextUtils.isEmpty(toGid)) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
             if (bean != null) {
-//                LogUtil.getLog().e("===sendRead==msg=====" + bean.getMsg_id() + "===msgid=" + msgid + "==bean.getRead()=" + bean.getRead() + "==bean.getTimestamp()=" + bean.getTimestamp());
                 if (bean.getRead() == 0) {
-//                if ((TextUtils.isEmpty(msgid) || !msgid.equals(bean.getMsg_id())) && bean.getRead() == 0) {
                     msgid = bean.getMsg_id();
-//                    LogUtil.getLog().e("=sendRead=2=msg="+ bean.getMsg_id());
-                    SocketData.send4Read(toUId, bean.getTimestamp());
+                    ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
+                    MsgAllBean message = SocketData.createMessageBean(toUId, "", ChatEnum.EMessageType.READ, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), read);
+                    SocketData.sendAndSaveMessage(message);
                     msgDao.setRead(msgid);
                 }
             }
@@ -5891,7 +5890,7 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
         boolean isMe = msgbean.isMe();
         //单聊 自己发的消息，需等待对方已读
         boolean checkNotGroupAndNotRead = !isGroup && isMe && msgbean.getRead() != 1;
-        if (msgbean == null || msgbean.getEndTime()>0 || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL
+        if (msgbean == null || msgbean.getEndTime() > 0 || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL
                 || checkNotGroupAndNotRead) {
             return;
         }
@@ -5912,7 +5911,7 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
     }
 
     public void addSurvivalTimeAndRead(MsgAllBean msgbean) {
-        if (msgbean == null || msgbean.getEndTime()>0 || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL) {
+        if (msgbean == null || msgbean.getEndTime() > 0 || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL) {
             return;
         }
         if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0 && msgbean.getRead() == 1) {
