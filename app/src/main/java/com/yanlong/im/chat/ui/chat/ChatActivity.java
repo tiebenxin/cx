@@ -149,6 +149,7 @@ import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
+import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
@@ -204,6 +205,7 @@ import net.cb.cb.library.dialog.DialogEnvelopePast;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.inter.ICustomerItemClick;
 import net.cb.cb.library.manager.Constants;
+import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
@@ -250,6 +252,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.RealmList;
+import io.realm.RealmResults;
 import me.kareluo.ui.OptionMenu;
 import me.rosuh.filepicker.config.FilePickerManager;
 import retrofit2.Call;
@@ -365,6 +368,30 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private ChangeSelectDialog dialogOne;//通用提示选择弹框：实名认证
     private IAudioRecord audioRecord;
     private IAdioTouch audioTouchListerner;
+
+    private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
+        @Override
+        public void init(RealmResults<Session> sessions, List<String> sids) {
+            updateUnReadCount();
+        }
+
+        @Override
+        public void delete(int[] positions) {
+            updateUnReadCount();
+        }
+
+        @Override
+        public void insert(int[] positions, List<String> sids) {
+            updateUnReadCount();
+        }
+
+        @Override
+        public void update(int[] positions, List<String> sids) {
+            updateUnReadCount();
+        }
+
+
+    };
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -512,6 +539,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
             }
         });
+        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
     }
 
     private String originalText = "";
@@ -527,7 +555,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         //刷新群资料
         taskSessionInfo(false);
-
         clickAble = true;
         //更新阅后即焚状态
         initSurvivaltimeState();
@@ -564,6 +591,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Override
     protected void onStop() {
         super.onStop();
+        MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
         AudioPlayManager.getInstance().stopPlay();
         stopRecordVoice();
         if (currentPlayBean != null) {
@@ -794,7 +822,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         onMsgbranch(msg);
                     }
                     //从数据库读取消息，修改未通过eventbus来刷新
-//                    if (needRefresh) {
+//                    if (needRefresh && !hasData()) {
 //                        taskRefreshMessage(false);
 //                    }
                     initUnreadCount();
@@ -5643,7 +5671,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     private boolean hasData() {
-        if (mAdapter != null && mAdapter.getItemCount() > 0) {
+        if (mAdapter == null) {
+            return false;
+        }
+        MsgAllBean bean;
+        if (isGroup()) {
+            bean = msgDao.msgGetLast4Gid(toGid);
+        } else {
+            bean = msgDao.msgGetLast4FUid(toUId);
+        }
+        if (bean != null && mAdapter.getPosition(bean) >= 0) {
             return true;
         }
         return false;
@@ -5691,4 +5728,27 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         return false;
     }
 
+    /**
+     * 更新底部未读数
+     */
+    private void updateUnReadCount() {
+        LogUtil.getLog().i("未读数", "onChange");
+        RealmResults<Session> sessionList = MyAppLication.INSTANCE().getSessions().where().greaterThan("unread_count", 0)
+                .limit(100).findAll();
+        if (sessionList != null) {
+            Number unreadCount = sessionList.where().sum("unread_count");
+            if (unreadCount != null) {
+                updateMsgUnread(unreadCount.intValue());
+            } else {
+                updateMsgUnread(0);
+            }
+        } else {
+            updateMsgUnread(0);
+        }
+    }
+
+    public final void updateMsgUnread(int num) {
+        LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + num);
+        BadgeUtil.setBadgeCount(getApplicationContext(), num);
+    }
 }
