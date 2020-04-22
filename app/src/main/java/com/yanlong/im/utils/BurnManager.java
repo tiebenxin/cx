@@ -33,7 +33,7 @@ import io.realm.RealmResults;
  */
 public class BurnManager {
     //需要焚的消息-不包括退出即焚
-    private RealmResults toBurnMessages;
+    private RealmResults toBurnMessages = null;
     private Realm realm;
     private AlarmManager alarmManager = null;
     private PendingIntent pendingIntent = null;
@@ -50,6 +50,15 @@ public class BurnManager {
         this.updateDetailListener = updateDetailListener;
         initPendingIntent();
         //异步加载
+        initBurnQueue();
+        //删除退出即焚数据
+        deleteExitSurvival();
+    }
+
+    /**
+     * 初始化
+     */
+    private void initBurnQueue(){
         toBurnMessages = realm.where(MsgAllBean.class)
                 .greaterThan("endTime", 0)
                 .findAllAsync();
@@ -64,7 +73,6 @@ public class BurnManager {
                 }
             }
         });
-        deleteExitSurvival();
     }
 
     //
@@ -124,7 +132,11 @@ public class BurnManager {
      * 处理数据
      */
     public void notifyBurnQuene() {
-        if (toBurnMessages.size() > 0) {
+        if(toBurnMessages == null){
+            initBurnQueue();
+            return;
+        }
+        if (toBurnMessages!=null&&toBurnMessages.size() > 0) {
             Map<String, List<String>> gids = new HashMap<>();
             Map<Long, List<String>> uids = new HashMap<>();
             //异步删除
@@ -163,7 +175,8 @@ public class BurnManager {
                 }
             }, new Realm.Transaction.OnError() {
                 @Override
-                public void onError(Throwable error) {
+                public void onError(Throwable error) {//重试
+                    notifyBurnQuene();
                 }
             });
         }
@@ -208,7 +221,11 @@ public class BurnManager {
 
 
     private void startBurnAlarm() {
-        if (toBurnMessages.size() > 0) {
+        if(toBurnMessages == null){
+            initBurnQueue();
+            return;
+        }
+        if (toBurnMessages!=null&&toBurnMessages.size() > 0) {
             //删除之后，剩下来的数据，获取距离最近的阅后即焚时间点
             long nearlyEndTime = toBurnMessages.where().min("endTime").longValue();
             //大于当前时间
