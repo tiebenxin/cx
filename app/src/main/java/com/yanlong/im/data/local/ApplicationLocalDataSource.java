@@ -53,12 +53,6 @@ public class ApplicationLocalDataSource {
         });
     }
     /**
-     * 清除某个会话详情的内容
-     */
-    public void clearSessionDetailContent(String[] gid, Long[] uids){
-        updateSessionDetail.clearContent(gid,uids);
-    }
-    /**
      * 通知更新阅后即焚队列
      */
     public void notifyBurnQuene() {
@@ -67,13 +61,6 @@ public class ApplicationLocalDataSource {
 
     public Realm getRealm() {
         return realm;
-    }
-
-    /**
-     * 更新全部 session详情
-     */
-    public void updateSessionDetail(int limit) {
-        updateSessionDetail.update(limit);
     }
 
     /**

@@ -15,7 +15,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -198,6 +197,7 @@ public class MainActivity extends AppActivity {
         isCreate = true;
         doRegisterNetReceiver();
         SocketUtil.getSocketUtil().setMainLive(true);
+        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
     }
 
     private void checkPermission() {
@@ -274,7 +274,7 @@ public class MainActivity extends AppActivity {
             checkPermission();
             initLocation();
         }
-        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
+
     }
 
     private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
@@ -353,7 +353,7 @@ public class MainActivity extends AppActivity {
         iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_shop, R.mipmap.ic_me};
         iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_shop_h, R.mipmap.ic_me_h};
         viewPage.setCurrentItem(currentTab);
-        viewPage.setOffscreenPageLimit(2);
+        viewPage.setOffscreenPageLimit(4);
         viewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int i) {
@@ -558,7 +558,7 @@ public class MainActivity extends AppActivity {
 
     @Override
     protected void onStop() {
-        MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
+
         super.onStop();
         updateNetStatus();
         isActivityStop = true;
@@ -582,6 +582,7 @@ public class MainActivity extends AppActivity {
 
     @Override
     protected void onDestroy() {
+        MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
         LogUtil.getLog().i("MainActivity--跟踪--Main", "onDestroy--" + SocketUtil.getSocketUtil().isKeepConnect());
         if (!SocketUtil.getSocketUtil().isKeepConnect()) {
             stopChatService();

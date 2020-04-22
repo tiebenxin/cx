@@ -511,8 +511,8 @@ public class MessageManager {
                     String gid = wrapMessage.getGid();
                     gid = gid == null ? "" : gid;
                     msgDao.sessionReadClean(gid, uids);
-                    boolean isGroup = isGroup(wrapMessage.getFromUid(), gid);
                 }
+                notifyRefreshChat();
                 break;
             case SWITCH_CHANGE: //开关变更
                 // TODO　处理老版本不兼容问题

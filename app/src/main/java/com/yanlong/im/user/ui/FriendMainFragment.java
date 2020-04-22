@@ -85,9 +85,11 @@ public class FriendMainFragment extends Fragment {
     }
 
     private void updateFriends() {
-        if(viewModel.friends!=null)viewModel.friends.removeChangeListener(friendsChangeListener);
+        if(viewModel.friends!=null){
+            viewModel.friends.removeChangeListener(friendsChangeListener);
+        }
         viewModel.friends = MyAppLication.INSTANCE().getFriends();
-        viewModel.friends.addChangeListener(friendsChangeListener);
+        if(viewModel.friends!=null)viewModel.friends.addChangeListener(friendsChangeListener);
     }
 
     private OrderedRealmCollectionChangeListener<RealmResults<UserInfo>> friendsChangeListener = new OrderedRealmCollectionChangeListener<RealmResults<UserInfo>>() {
