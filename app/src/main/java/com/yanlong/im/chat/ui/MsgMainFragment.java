@@ -13,7 +13,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -349,7 +348,6 @@ public class MsgMainFragment extends Fragment {
         public void init(RealmResults<Session> sessions, List<String> sids) {
             //每次session初始化，都需要重新赋值
             viewModel.initSession(sids);
-            Log.e("raleigh_test","init sessions size="+sessions.size());
         }
 
         @Override
@@ -362,7 +360,6 @@ public class MsgMainFragment extends Fragment {
             viewModel.isNeedCloseSwipe.setValue(true);
             viewModel.allSids.addAll(sids);
             viewModel.isAllSidsChange.setValue(true);
-            Log.e("raleigh_test","insert size="+viewModel.sessions.size());
         }
 
         @Override
@@ -385,13 +382,11 @@ public class MsgMainFragment extends Fragment {
             /*****第一次初始化******************************************************************************************/
             if(changeSet.getState()== OrderedCollectionChangeSet.State.INITIAL){
                 mtListView.getListView().getAdapter().notifyDataSetChanged();
-                Log.e("raleigh_test","init sessionDetails size="+sessionDetails.size());
             }
 
             /*****增加了数据-需要更新全部*******************************************************************************************/
             if (changeSet.getInsertionRanges().length > 0) {
                 mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
-                Log.e("raleigh_test","add sessionDetails size="+sessionDetails.size());
             }
             /*****删除了数据，*******************************************************************************************/
             if (changeSet.getDeletionRanges().length > 0) {
@@ -400,7 +395,6 @@ public class MsgMainFragment extends Fragment {
                 }else{
                     mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
                 }
-                Log.e("raleigh_test","delete sessionDetails size="+sessionDetails.size());
             }
             /*****更新了数据*******************************************************************************************/
             int[] modifications = changeSet.getChanges();
@@ -413,7 +407,6 @@ public class MsgMainFragment extends Fragment {
                 } else {
                     mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
                 }
-                Log.e("raleigh_test","change sessionDetails size="+sessionDetails.size());
             }
             //详情未全部加载时，1秒后再次请求
 //            if(sessionDetails.size() < viewModel.sessions.size()){

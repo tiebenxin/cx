@@ -69,6 +69,8 @@ public class BurnManager {
 
     //
 
+    private Handler handler = new Handler();
+
     /**
      * 初始化时，删除退出即焚的消息-异步删除
      * 解决强制退出时，删除退出即焚消息
@@ -80,40 +82,41 @@ public class BurnManager {
          * 有些手机启动报错deleteAllFromRealm java.lang.IllegalStateException Must be in a write transaction
          * 这里做一下延迟1秒再操作
          */
-        new Handler().postDelayed(new Runnable() {
+        realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
-            public void run() {
-                realm.executeTransactionAsync(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-                        RealmResults<MsgAllBean> toDeletedResults = realm.where(MsgAllBean.class)
-                                .equalTo("survival_time", -1).findAll();
-                        //保存待删除的gids和uids,以及msgId
-                        getGidsAndUids(toDeletedResults, gids, uids);
-                        //更新session详情
-                        for (String gid : gids.keySet()) {
-                            updateDetailListener.updateLastSecondDetail(realm, gid, gids.get(gid).toArray(new String[gids.get(gid).size()]));
-                        }
-                        for (Long uid : uids.keySet()) {
-                            updateDetailListener.updateLastSecondDetail(realm, uid, uids.get(uid).toArray(new String[uids.get(uid).size()]));
-                        }
-                        //删除消息
-                        if (toDeletedResults.size() > 0)
-                            toDeletedResults.deleteAllFromRealm();
-                    }
-                }, new Realm.Transaction.OnSuccess() {
-                    @Override
-                    public void onSuccess() {
-
-                    }
-                }, new Realm.Transaction.OnError() {
-                    @Override
-                    public void onError(Throwable error) {
-
-                    }
-                });
+            public void execute(Realm realm) {
+                RealmResults<MsgAllBean> toDeletedResults = realm.where(MsgAllBean.class)
+                        .equalTo("survival_time", -1).findAll();
+                //保存待删除的gids和uids,以及msgId
+                getGidsAndUids(toDeletedResults, gids, uids);
+                //更新session详情
+                for (String gid : gids.keySet()) {
+                    updateDetailListener.updateLastSecondDetail(realm, gid, gids.get(gid).toArray(new String[gids.get(gid).size()]));
+                }
+                for (Long uid : uids.keySet()) {
+                    updateDetailListener.updateLastSecondDetail(realm, uid, uids.get(uid).toArray(new String[uids.get(uid).size()]));
+                }
+                //删除消息
+                if (toDeletedResults.size() > 0)
+                    toDeletedResults.deleteAllFromRealm();
             }
-        }, 1000);
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(Throwable error) {//失败了重试
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        deleteExitSurvival();
+                    }
+                }, 1000);
+
+            }
+        });
     }
 
 
@@ -128,30 +131,30 @@ public class BurnManager {
             realm.executeTransactionAsync(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
-                        long currentTime = DateUtils.getSystemTime();
-                        RealmResults<MsgAllBean> toDeletedResults = realm.where(MsgAllBean.class)
-                                .greaterThan("endTime", 0)
-                                .lessThanOrEqualTo("endTime", currentTime).findAll();
-                        //复制一份，为了聊天界面的更新-非数据库对象
-                        List<MsgAllBean> toDeletedResultsTemp = realm.copyFromRealm(toDeletedResults);
-                        //保存待删除的gids和uids,以及msgId
-                        getGidsAndUids(toDeletedResults, gids, uids);
-                        //更新session详情
-                        for (String gid : gids.keySet()) {
-                            updateDetailListener.updateLastSecondDetail(realm, gid, gids.get(gid).toArray(new String[gids.get(gid).size()]));
-                        }
-                        for (Long uid : uids.keySet()) {
-                            updateDetailListener.updateLastSecondDetail(realm, uid, uids.get(uid).toArray(new String[uids.get(uid).size()]));
-                        }
-                        if (toDeletedResults.size() > 0) {
-                            //批量删除 已到阅后即焚时间
-                            toDeletedResults.deleteAllFromRealm();
-                            /**
-                             * 通知更新聊天界面
-                             * 因为聊天界面删除的非数据库对象，可以提前通知，若为数据库对象，需在OnSuccess方法中
-                             */
-                            MessageManager.getInstance().notifyRefreshChat(toDeletedResultsTemp, CoreEnum.ERefreshType.DELETE);
-                        }
+                    long currentTime = DateUtils.getSystemTime();
+                    RealmResults<MsgAllBean> toDeletedResults = realm.where(MsgAllBean.class)
+                            .greaterThan("endTime", 0)
+                            .lessThanOrEqualTo("endTime", currentTime).findAll();
+                    //复制一份，为了聊天界面的更新-非数据库对象
+                    List<MsgAllBean> toDeletedResultsTemp = realm.copyFromRealm(toDeletedResults);
+                    //保存待删除的gids和uids,以及msgId
+                    getGidsAndUids(toDeletedResults, gids, uids);
+                    //更新session详情
+                    for (String gid : gids.keySet()) {
+                        updateDetailListener.updateLastSecondDetail(realm, gid, gids.get(gid).toArray(new String[gids.get(gid).size()]));
+                    }
+                    for (Long uid : uids.keySet()) {
+                        updateDetailListener.updateLastSecondDetail(realm, uid, uids.get(uid).toArray(new String[uids.get(uid).size()]));
+                    }
+                    if (toDeletedResults.size() > 0) {
+                        //批量删除 已到阅后即焚时间
+                        toDeletedResults.deleteAllFromRealm();
+                        /**
+                         * 通知更新聊天界面
+                         * 因为聊天界面删除的非数据库对象，可以提前通知，若为数据库对象，需在OnSuccess方法中
+                         */
+                        MessageManager.getInstance().notifyRefreshChat(toDeletedResultsTemp, CoreEnum.ERefreshType.DELETE);
+                    }
                 }
             }, new Realm.Transaction.OnSuccess() {
                 @Override
