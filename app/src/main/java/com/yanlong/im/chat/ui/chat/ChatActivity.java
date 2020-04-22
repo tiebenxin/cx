@@ -136,11 +136,13 @@ import com.yanlong.im.chat.ui.GroupInfoActivity;
 import com.yanlong.im.chat.ui.GroupRobotActivity;
 import com.yanlong.im.chat.ui.GroupSelectUserActivity;
 import com.yanlong.im.chat.ui.VideoPlayActivity;
+import com.yanlong.im.chat.ui.cell.ChatCellBase;
 import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;
 import com.yanlong.im.chat.ui.cell.ICellEventListener;
 import com.yanlong.im.chat.ui.cell.MessageAdapter;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
+import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.chat.ui.view.ControllerLinearList;
 import com.yanlong.im.dialog.ForwardDialog;
 import com.yanlong.im.dialog.LockDialog;
@@ -5491,6 +5493,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 break;
         }
 
+    }
+
+    @Override
+    public ChatCellBase getChatCellBase(int position) {
+        return mtListView.getListView().findViewHolderForAdapterPosition(position)==null?null:((ChatCellBase) mtListView.getListView().findViewHolderForAdapterPosition(position));
     }
 
     private void clickFile(MsgAllBean message, SendFileMessage fileMessage) {

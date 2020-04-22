@@ -13,7 +13,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -376,7 +375,6 @@ public class MsgMainFragment extends Fragment {
             for (int i = 0; i < viewModel.sessionMores.size(); i++) {
                 viewModel.sessionMoresPositions.put(viewModel.sessionMores.get(i).getSid(), i);
             }
-            Log.e("raleigh_test","sessionDetails="+sessionDetails.size());
             if(viewModel.isShowLoadAnim.getValue()&&sessionDetails.size() >= Math.min(50,viewModel.sessions.size())){
                 //只有第一次加载才会出现，有50条（可调整）数据，短时间内应该是看不到白板情况，可关闭进度条了
                 viewModel.isShowLoadAnim.setValue(false);
