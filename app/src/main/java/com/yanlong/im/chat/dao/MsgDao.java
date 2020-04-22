@@ -1152,56 +1152,57 @@ public class MsgDao {
 
     /**
      * 对方撤回消息时，检查是否还有未读的@消息，有就显示上一个
+     * 4/22 产品决定该功能暂时不上线
      *
      * @param session
      */
     private boolean checkUnReadAtMsg(Session session, String cancelId) {
         boolean result = false;
-        Realm realm = DaoUtil.open();
-        try {
-            //检查是否存在未读的@我的消息,保存上一个未读的@消息
-            MsgAllBean unReadAtMessage = realm.where(MsgAllBean.class).equalTo("gid", session.getGid())
-                    .notEqualTo("msg_id", cancelId)
-                    .equalTo("msg_type", ChatEnum.EMessageType.AT)
-                    .equalTo("atMessage.at_type", 1)
-                    .equalTo("isRead", false)
-                    .findFirst();
-            if (unReadAtMessage != null && unReadAtMessage.getAtMessage() != null) {//包含群@所有人消息
-                realm.beginTransaction();
-                int messageType = unReadAtMessage.getAtMessage().getAt_type();
-                String atMessage = unReadAtMessage.getAtMessage().getMsg();
-                session.setAtMessage(atMessage);
-                session.setMessageType(messageType);
-                realm.commitTransaction();
-                result = true;
-            } else {
-                RealmResults<MsgAllBean> unReadAtSigleMessages = realm.where(MsgAllBean.class).equalTo("gid", session.getGid())
-                        .notEqualTo("msg_id", cancelId)
-                        .equalTo("msg_type", ChatEnum.EMessageType.AT)
-                        .equalTo("atMessage.at_type", 0)
-                        .equalTo("isRead", false)
-                        .findAll();
-                if (unReadAtSigleMessages != null && unReadAtSigleMessages.size() > 0) {
-                    for (MsgAllBean msgAllBean : unReadAtSigleMessages) {
-                        //@的人是自己
-                        if (msgAllBean.getAtMessage() != null && msgAllBean.getAtMessage().getUid().contains(UserAction.getMyId())) {
-                            realm.beginTransaction();
-                            int messageType = msgAllBean.getAtMessage().getAt_type();
-                            String atMessage = msgAllBean.getAtMessage().getMsg();
-                            session.setAtMessage(atMessage);
-                            session.setMessageType(messageType);
-                            realm.commitTransaction();
-                            result = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            DaoUtil.close(realm);
-        }
+//        Realm realm = DaoUtil.open();
+//        try {
+//            //检查是否存在未读的@我的消息,保存上一个未读的@消息
+//            MsgAllBean unReadAtMessage = realm.where(MsgAllBean.class).equalTo("gid", session.getGid())
+//                    .notEqualTo("msg_id", cancelId)
+//                    .equalTo("msg_type", ChatEnum.EMessageType.AT)
+//                    .equalTo("atMessage.at_type", 1)
+//                    .equalTo("isRead", false)
+//                    .findFirst();
+//            if (unReadAtMessage != null && unReadAtMessage.getAtMessage() != null) {//包含群@所有人消息
+//                realm.beginTransaction();
+//                int messageType = unReadAtMessage.getAtMessage().getAt_type();
+//                String atMessage = unReadAtMessage.getAtMessage().getMsg();
+//                session.setAtMessage(atMessage);
+//                session.setMessageType(messageType);
+//                realm.commitTransaction();
+//                result = true;
+//            } else {
+//                RealmResults<MsgAllBean> unReadAtSigleMessages = realm.where(MsgAllBean.class).equalTo("gid", session.getGid())
+//                        .notEqualTo("msg_id", cancelId)
+//                        .equalTo("msg_type", ChatEnum.EMessageType.AT)
+//                        .equalTo("atMessage.at_type", 0)
+//                        .equalTo("isRead", false)
+//                        .findAll();
+//                if (unReadAtSigleMessages != null && unReadAtSigleMessages.size() > 0) {
+//                    for (MsgAllBean msgAllBean : unReadAtSigleMessages) {
+//                        //@的人是自己
+//                        if (msgAllBean.getAtMessage() != null && msgAllBean.getAtMessage().getUid().contains(UserAction.getMyId())) {
+//                            realm.beginTransaction();
+//                            int messageType = msgAllBean.getAtMessage().getAt_type();
+//                            String atMessage = msgAllBean.getAtMessage().getMsg();
+//                            session.setAtMessage(atMessage);
+//                            session.setMessageType(messageType);
+//                            realm.commitTransaction();
+//                            result = true;
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            DaoUtil.close(realm);
+//        }
         return result;
     }
 
