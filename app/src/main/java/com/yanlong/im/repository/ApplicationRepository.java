@@ -41,6 +41,10 @@ public class ApplicationRepository {
 
     //session sid/position 解决主页频繁刷新问题
     public Map<String, Integer> sessionSidPositons = new HashMap<>();
+    //session会话是否正在加载，避免重复操作
+    private boolean isLoadingSessions = false;
+    //通讯录是否正在加载 避免重复操作
+    private boolean isLoadingFriends = false;
 
     public ApplicationRepository() {
         localDataSource = new ApplicationLocalDataSource();
@@ -65,11 +69,14 @@ public class ApplicationRepository {
     }
 
     public synchronized void loadMoreSessions() {
+        if (isLoadingSessions) return;//正在加载
+        isLoadingSessions = true;
         //是PAGE_COUNT的倍数才加载
-        currentCount = sessions==null? PAGE_COUNT:sessions.size()/PAGE_COUNT+1;
-        if (sessions != null)
+        currentCount = sessions == null ? PAGE_COUNT : (sessions.size() / PAGE_COUNT +1)* PAGE_COUNT;
+        if (sessions != null) {
             sessions.removeAllChangeListeners();
-
+            sessions = null;
+        }
         sessions = localDataSource.getSessions(currentCount);
         /**集合通知OrderedRealmCollectionChangeListener
          * 该对象保存有关受删除，插入和更改影响的索引的信息。
@@ -85,6 +92,8 @@ public class ApplicationRepository {
                 /***** 异步查询第一次返回。*******************************************************************************************/
                 {
                     if (changeSet == null || changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
+                        //加载完成
+                        isLoadingSessions = false;
 //                    notifyDataSetChanged();
                         sessionSidPositons.clear();
                         ArrayList<String> sids = new ArrayList<String>();
@@ -104,6 +113,7 @@ public class ApplicationRepository {
                         for (SessionChangeListener sessionChangeListener : mSessionChangeListeners) {
                             sessionChangeListener.init(sessions, sids);
                         }
+
                         return;
                     }
                 }
@@ -188,11 +198,18 @@ public class ApplicationRepository {
     }
 
     public synchronized void loadMoreFriends() {
-        currentFriendCount = friends==null? FRIEND_PAGE_COUNT:friends.size()/FRIEND_PAGE_COUNT+1;
+        if(isLoadingFriends)return;
+        isLoadingFriends=true;
+        currentFriendCount = friends == null ? FRIEND_PAGE_COUNT : (friends.size() / FRIEND_PAGE_COUNT +1)* FRIEND_PAGE_COUNT;
+        if(friends!=null)friends=null;
         friends = localDataSource.getFriends(currentFriendCount);
         friends.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<UserInfo>>() {
             @Override
             public void onChange(RealmResults<UserInfo> userInfos, OrderedCollectionChangeSet changeSet) {
+                if (changeSet == null || changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
+                    //第一次初始化，加载完成
+                    isLoadingFriends=false;
+                }
                 currentFriendCount = userInfos.size();
             }
         });

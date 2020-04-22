@@ -64,13 +64,6 @@ public class ApplicationLocalDataSource {
     }
 
     /**
-     * 更新全部 session详情
-     */
-    public void updateSessionDetail(int limit) {
-        updateSessionDetail.update(limit);
-    }
-
-    /**
      * 更新指定主键的
      *
      * @param sids
