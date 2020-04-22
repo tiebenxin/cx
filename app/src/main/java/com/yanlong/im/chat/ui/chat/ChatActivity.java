@@ -2484,7 +2484,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, localPicPath, true);
         msgAllBean = SocketData.createMessageBean(0L, "", ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), imageMessage);
         SocketData.saveMessage(msgAllBean);
-        UpLoadService.onAddImage(msgAllBean, localPicPath, true,true);
+        UpLoadService.onAddImage(msgAllBean, localPicPath, true, true);
         startService(new Intent(getContext(), UpLoadService.class));
     }
 
@@ -2862,7 +2862,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventRefreshChat(EventGroupChange event) {
+    public void eventRefreshInfo(EventGroupChange event) {
         if (event.isNeedLoad()) {
             taskGroupInfo();
         } else {
@@ -3750,12 +3750,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void onYes() {
-//                msgDao.msgDel4MsgId(msgbean.getMsg_id());
-//                int position = mAdapter.getPosition(msgbean);
-//                if (position >= 0) {
-//                    mAdapter.removeItem(msgbean);
-//                    mtListView.getListView().getAdapter().notifyItemRemoved(position);//删除刷新
-//                }
+                msgDao.msgDel4MsgId(msgbean.getMsg_id());
                 deleteMsg(msgbean);
             }
         });
