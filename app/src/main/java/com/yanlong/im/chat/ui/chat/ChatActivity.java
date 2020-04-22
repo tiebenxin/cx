@@ -2775,7 +2775,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             String fileFormat = net.cb.cb.library.utils.FileUtils.getFileSuffix(fileName);
                             //如果是图片或者视频，按原有旧的方式打开，不调用第三方程序列表
                             if (net.cb.cb.library.utils.FileUtils.isImage(fileFormat)) {
-                                //1.上传图片
+                                 //1.上传图片
                                 final String imgMsgId = SocketData.getUUID();
                                 ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" +*/ filePath, false);//TODO:使用file://路径会使得检测本地路径不存在
                                 imgMsgBean = sendMessage(imageMessage, ChatEnum.EMessageType.IMAGE, false);
@@ -2783,11 +2783,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 if (!Constants.CX_HELPER_UID.equals(toUId)) {
                                     UpLoadService.onAddImage(imgMsgBean, filePath, false);
                                     startService(new Intent(getContext(), UpLoadService.class));
-                                } else {
-                                    //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
-                                    msgDao.fixStataMsg(imgMsgId, ChatEnum.ESendStatus.NORMAL);
                                 }
-                                mAdapter.addMessage(imgMsgBean);
                             } else if (net.cb.cb.library.utils.FileUtils.isVideo(fileFormat)) {
                                 long length = ImgSizeUtil.getVideoSize(filePath);
                                 long duration = Long.parseLong(getVideoAtt(filePath));
@@ -2811,15 +2807,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 //创建文件消息，本地预先准备好这条文件消息，等文件上传成功后刷新
                                 SendFileMessage fileMessage = SocketData.createFileMessage(fileMsgId, filePath, "", fileName, new Double(fileSize).longValue(), fileFormat, false);
                                 fileMsgBean = sendMessage(fileMessage, ChatEnum.EMessageType.FILE, false);
-                                // 若不为常信小助手，消息需要上传到服务端
+                                // 若不为常信小助手，消息需要上传到服务器
                                 if (!Constants.CX_HELPER_UID.equals(toUId)) {
                                     UpLoadService.onAddFile(this.context, fileMsgBean);
                                     startService(new Intent(getContext(), UpLoadService.class));
-                                } else {
-                                    //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
-                                    msgDao.fixStataMsg(fileMsgId, ChatEnum.ESendStatus.NORMAL);
                                 }
-                                mAdapter.addMessage(fileMsgBean);
                             }
                         } else {
                             ToastUtil.show("文件不存在或已被删除");
