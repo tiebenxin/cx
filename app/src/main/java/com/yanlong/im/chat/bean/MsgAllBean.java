@@ -11,6 +11,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import java.util.Arrays;
@@ -698,6 +699,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 }
                 break;
             default://未识别
+                LogUtil.writeLog("MsgAllBean--" +"--不能识别消息--UNRECOGNIZED--" + msg_type);
                 layout = ChatEnum.EChatCellLayout.UNRECOGNIZED;
                 break;
         }
