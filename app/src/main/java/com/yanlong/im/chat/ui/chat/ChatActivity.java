@@ -2863,10 +2863,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         } else if (type == CoreEnum.ERefreshType.ADD) {
             if (event.getObject() != null && event.getObject() instanceof MsgAllBean) {
-                addMsg((MsgAllBean) event.getObject());
-            } else if (event.getList() != null) {
+                MsgAllBean bean = (MsgAllBean) event.getObject();
+                if (isMsgFromCurrentChat(bean.getGid(), bean.getFrom_uid())) {
+                    addMsg(bean);
+                }
+            } /*else if (event.getList() != null) {
                 addMsg(event.getList());
-            }
+            }*/
             initUnreadCount();
         }
     }
@@ -5666,6 +5669,26 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mAdapter.addMessageList(position, list);
         mtListView.getListView().getAdapter().notifyItemRangeInserted(position, list.size());//删除刷新
         scrollListView(false);
+    }
+
+    //是否消息来自当前会话
+    public boolean isMsgFromCurrentChat(String gid, Long fromUid) {
+        if (!TextUtils.isEmpty(gid)) {
+            if (TextUtils.isEmpty(toGid)) {
+                return false;
+            }
+            if (gid.equals(toGid)) {
+                return true;
+            }
+        } else {
+            if (fromUid == null || toUId == null) {
+                return false;
+            }
+            if (fromUid.longValue() == toUId.longValue()) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

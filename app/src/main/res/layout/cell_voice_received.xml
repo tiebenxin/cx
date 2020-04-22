@@ -95,8 +95,8 @@
 
                 <ImageView
                     android:id="@+id/iv_voice_status"
-                    android:layout_width="5dp"
-                    android:layout_height="5dp"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
                     android:layout_gravity="center"
                     android:layout_marginLeft="5dp"
                     android:src="@mipmap/bg_red_num_small"
