@@ -3,6 +3,7 @@ package com.yanlong.im;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
+import android.util.Log;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
@@ -46,10 +47,14 @@ public class MainViewModel extends ViewModel {
     public Set<String> allSids = new HashSet<>();
     public MutableLiveData<Boolean> isAllSidsChange = new MutableLiveData<>();
 
+    //是否进主页显示加载动画
+    public MutableLiveData<Boolean> isShowLoadAnim = new MutableLiveData<>();
+
     public MainViewModel() {
         onlineState.setValue(true);
         isNeedCloseSwipe.setValue(false);
         repository = new MainRepository();
+        isShowLoadAnim.setValue(true);
     }
 
     public void initSession(List<String> sids) {
@@ -57,6 +62,7 @@ public class MainViewModel extends ViewModel {
         //指向内存堆中同一个对象,session数据变化时，Application中会自动更新session详情
         if (MyAppLication.INSTANCE().iSSessionsLoad()) {
             sessions = MyAppLication.INSTANCE().getSessions();
+            Log.e("raleigh_test","initSession"+sessions.size());
             if (sids == null) {
                 if (sessions.size() > 0) {
                     for (Session session : sessions) {

@@ -13,6 +13,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -153,9 +154,6 @@ public class MsgMainFragment extends Fragment {
 
             }
         });
-        mtListView.getLoadView().setStateNormal();
-        //必须在setEvent后调用
-        mtListView.getSwipeLayout().setEnabled(false);
 
         SocketUtil.getSocketUtil().addEvent(socketEvent = new SocketEvent() {
             @Override
@@ -341,6 +339,8 @@ public class MsgMainFragment extends Fragment {
     @Override
     public void onResume() {
         viewModel.isNeedCloseSwipe.setValue(true);
+        //需要触发下，Fragment可能被设置了预加载
+        if(!viewModel.isShowLoadAnim.getValue())viewModel.isShowLoadAnim.setValue(false);
         super.onResume();
     }
 
@@ -349,6 +349,7 @@ public class MsgMainFragment extends Fragment {
         public void init(RealmResults<Session> sessions, List<String> sids) {
             //每次session初始化，都需要重新赋值
             viewModel.initSession(sids);
+            Log.e("raleigh_test","init sessions size="+sessions.size());
         }
 
         @Override
@@ -361,6 +362,7 @@ public class MsgMainFragment extends Fragment {
             viewModel.isNeedCloseSwipe.setValue(true);
             viewModel.allSids.addAll(sids);
             viewModel.isAllSidsChange.setValue(true);
+            Log.e("raleigh_test","insert size="+viewModel.sessions.size());
         }
 
         @Override
@@ -376,15 +378,20 @@ public class MsgMainFragment extends Fragment {
             for (int i = 0; i < viewModel.sessionMores.size(); i++) {
                 viewModel.sessionMoresPositions.put(viewModel.sessionMores.get(i).getSid(), i);
             }
-
+            if(viewModel.isShowLoadAnim.getValue()&&sessionDetails.size() >= Math.min(50,viewModel.sessions.size())){
+                //只有第一次加载才会出现，有50条（可调整）数据，短时间内应该是看不到白板情况，可关闭进度条了
+                viewModel.isShowLoadAnim.setValue(false);
+            }
             /*****第一次初始化******************************************************************************************/
             if(changeSet.getState()== OrderedCollectionChangeSet.State.INITIAL){
                 mtListView.getListView().getAdapter().notifyDataSetChanged();
+                Log.e("raleigh_test","init sessionDetails size="+sessionDetails.size());
             }
 
             /*****增加了数据-需要更新全部*******************************************************************************************/
             if (changeSet.getInsertionRanges().length > 0) {
                 mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                Log.e("raleigh_test","add sessionDetails size="+sessionDetails.size());
             }
             /*****删除了数据，*******************************************************************************************/
             if (changeSet.getDeletionRanges().length > 0) {
@@ -393,7 +400,7 @@ public class MsgMainFragment extends Fragment {
                 }else{
                     mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
                 }
-
+                Log.e("raleigh_test","delete sessionDetails size="+sessionDetails.size());
             }
             /*****更新了数据*******************************************************************************************/
             int[] modifications = changeSet.getChanges();
@@ -406,12 +413,13 @@ public class MsgMainFragment extends Fragment {
                 } else {
                     mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
                 }
+                Log.e("raleigh_test","change sessionDetails size="+sessionDetails.size());
             }
             //详情未全部加载时，1秒后再次请求
-            if(sessionDetails.size() < viewModel.sessions.size()){
-                handler.removeCallbacks(updateSessionMoreAgain);
-                handler.postDelayed(updateSessionMoreAgain,1000);
-            }
+//            if(sessionDetails.size() < viewModel.sessions.size()){
+//                handler.removeCallbacks(updateSessionMoreAgain);
+//                handler.postDelayed(updateSessionMoreAgain,1000);
+//            }
         }
     };
     private Runnable updateSessionMoreAgain=new Runnable() {
@@ -455,6 +463,20 @@ public class MsgMainFragment extends Fragment {
                 if(viewModel.sessionMores!=null)
                     viewModel.sessionMores.addChangeListener(sessionMoresListener);
 
+            }
+        });
+        viewModel.isShowLoadAnim.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean aBoolean) {
+                if(aBoolean){//显示列表加载动画
+                    mtListView.getLoadView().setStateLoading();
+                    //必须在setEvent后调用
+                    mtListView.getSwipeLayout().setEnabled(true);
+                }else{//关闭列表加载动画
+                    mtListView.getLoadView().setStateNormal();
+                    //必须在setEvent后调用
+                    mtListView.getSwipeLayout().setEnabled(false);
+                }
             }
         });
 
