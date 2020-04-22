@@ -4,7 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -381,7 +380,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
         if (mMsgIdPositions.containsKey(msgId)) {
             int position = mMsgIdPositions.get(msgId);
             ChatCellBase cell = getCellByPosition(position);
-            Log.e("raleigh_test","cell="+cell+",position="+position);
             if (cell != null) {
                 cell.setBellId(id);
             }
