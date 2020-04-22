@@ -41,8 +41,6 @@ public class ApplicationRepository {
 
     //session sid/position 解决主页频繁刷新问题
     public Map<String, Integer> sessionSidPositons = new HashMap<>();
-    //是否为第一次启动
-    public boolean isFirstStart = true;
 
     public ApplicationRepository() {
         localDataSource = new ApplicationLocalDataSource();
@@ -68,8 +66,10 @@ public class ApplicationRepository {
 
     public synchronized void loadMoreSessions() {
         //是PAGE_COUNT的倍数才加载
-        currentCount = currentCount + PAGE_COUNT;
-//        if (sessions != null) sessions.removeAllChangeListeners();
+        currentCount = sessions==null? PAGE_COUNT:sessions.size()/PAGE_COUNT+1;
+        if (sessions != null)
+            sessions.removeAllChangeListeners();
+
         sessions = localDataSource.getSessions(currentCount);
         /**集合通知OrderedRealmCollectionChangeListener
          * 该对象保存有关受删除，插入和更改影响的索引的信息。
@@ -98,18 +98,7 @@ public class ApplicationRepository {
 
                         //1.更新detail
                         if (sids.size() > 0) {
-                            if (isFirstStart) {//第一次Application启动，需延迟1秒再更新，否则报错不在事务中操作
-                                isFirstStart = true;
-                                new Handler().postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
-                                    }
-                                }, 1000);
-                            } else {
-                                localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
-                            }
-
+                            localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
                         }
                         //通知监听器
                         for (SessionChangeListener sessionChangeListener : mSessionChangeListeners) {
@@ -199,8 +188,7 @@ public class ApplicationRepository {
     }
 
     public synchronized void loadMoreFriends() {
-        //是PAGE_COUNT的倍数才加载
-        currentFriendCount = currentFriendCount + FRIEND_PAGE_COUNT;
+        currentFriendCount = friends==null? FRIEND_PAGE_COUNT:friends.size()/FRIEND_PAGE_COUNT+1;
         friends = localDataSource.getFriends(currentFriendCount);
         friends.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<UserInfo>>() {
             @Override

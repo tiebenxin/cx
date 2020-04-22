@@ -1,5 +1,6 @@
 package com.yanlong.im.data.local;
 
+import android.os.Handler;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -30,52 +31,14 @@ import io.realm.Sort;
  */
 public class UpdateSessionDetail {
     private Realm realm = null;
-
+    private Handler handler=new Handler();
+    //最大重试次数,刚启动Application时，数据库事务无法立即建立，会出现事务异常
+    private final int MAX_UPDATE_RETRY_TIMES=3;
+    //update(String[] sids) 重试次数
+    private int updateSidsTimes=0;
     public UpdateSessionDetail(@NonNull Realm realm) {
         this.realm = realm;
     }
-
-    /**
-     * 初始化更新
-     *
-     * @param limit
-     */
-    public void update(int limit) {
-        try {
-            //通过使用异步事务，Realm 会在后台线程中进行写入操作，并在事务完成时将结果传回调用线程。
-            realm.executeTransactionAsync(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {//异步线程更新更新
-                    String[] orderFiled = {"isTop", "up_time"};
-                    Sort[] sorts = {Sort.DESCENDING, Sort.DESCENDING};
-                    //获取session列表-本地数据
-                    RealmResults<Session> sessions = realm.where(Session.class).sort(orderFiled, sorts).limit(limit).findAllAsync();
-                    for (int i = 0; i < sessions.size(); i++) {
-                        Session session = sessions.get(i);
-//                        realm.beginTransaction();
-                        if (session.getType() == 1) {//群聊
-                            synchGroupMsgSession(realm, session, null);
-                        } else {//单聊
-                            synchFriendMsgSession(realm, session, null);
-                        }
-                    }
-
-                }
-            }, new Realm.Transaction.OnSuccess() {
-                @Override
-                public void onSuccess() {
-                }
-            }, new Realm.Transaction.OnError() {
-                @Override
-                public void onError(Throwable error) {
-
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public void update(String[] sids) {
         //通过使用异步事务，Realm 会在后台线程中进行写入操作，并在事务完成时将结果传回调用线程。
         realm.executeTransactionAsync(new Realm.Transaction() {
@@ -97,10 +60,24 @@ public class UpdateSessionDetail {
         }, new Realm.Transaction.OnSuccess() {
             @Override
             public void onSuccess() {
+                updateSidsTimes=0;
             }
         }, new Realm.Transaction.OnError() {
             @Override
             public void onError(Throwable error) {
+                if(updateSidsTimes<MAX_UPDATE_RETRY_TIMES){
+                    //1，秒后重试
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            update(sids);
+                        }
+                    },1000);
+                    updateSidsTimes++;
+                }else{//超过最大次数，不再重试
+                    updateSidsTimes=0;
+                }
+
             }
         });
 
