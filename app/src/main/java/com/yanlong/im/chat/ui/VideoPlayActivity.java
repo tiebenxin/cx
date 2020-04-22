@@ -95,7 +95,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     private Timer mTimer;
     private boolean ifPause = false;//视频是否暂停，默认未暂停，如果有HOME/锁屏操作，重进恢复播放
     private boolean dontShake = false;//视频播放完成后禁止抖动(暂时处理)
-
+    private Animation rotateAnimation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +113,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         bgUrl = getIntent().getExtras().getString("bg_url");
         initView();
         initEvent();
-        Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
+        rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
         img_progress.startAnimation(rotateAnimation);
         if (!TextUtils.isEmpty(bgUrl)) {
             Glide.with(this).load(bgUrl).into(img_bg);
@@ -145,6 +145,18 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     MsgDao dao = new MsgDao();
                     dao.fixVideoLocalUrl(msgAllBean.getVideoMessage().getMsgId(), fileVideo.getAbsolutePath());
                     MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
+                    //下载完以后重置为本地资源播放
+                    mPath = fileVideo.getAbsolutePath();
+                    //停止seekbar继续增加播放进度，重置为播放本地视频，更快更流畅
+                    if (null != mMediaPlayer) {
+                        mMediaPlayer.pause();
+                    }
+                    if (null != mTimer) {
+                        mTimer.cancel();
+                        mTimer = null;
+                    }
+                    replay();
+                    ifPause = false;
                 }
 
                 @Override
@@ -207,6 +219,11 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 if (fromUser) {
                     mMediaPlayer.seekTo(progress * mMediaPlayer.getDuration() / 100);
                     dontShake = false;
+                    //网络视频拖动进度条，如果没有播放，则展示加载等待框
+                    if(!mMediaPlayer.isPlaying()){
+                        img_progress.startAnimation(rotateAnimation);
+                        img_progress.setVisibility(View.VISIBLE);
+                    }
                 }
             }
 
@@ -252,13 +269,12 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     };
 
     private void getProgress() {
-//        if(mTimer==null){
+        if(mTimer==null){
             mTimer = new Timer();
             mTimer.schedule(new TimerTask() {
 
                 @Override
                 public void run() {
-
                     if (null != mMediaPlayer) {
                         try {
                                 // TODO OPPO等个别手机获取不到最后一秒
@@ -282,7 +298,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     }
                 }
             }, 0, 1000);
-//        }
+        }
     }
 
     private void initView() {
@@ -390,6 +406,10 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     @Override
     protected void onRestart() {
         super.onRestart();
+        if(ifPause){
+            replay();
+            ifPause = false;
+        }
     }
 
     @Override
