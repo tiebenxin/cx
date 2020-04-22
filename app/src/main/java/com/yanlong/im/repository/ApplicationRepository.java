@@ -41,12 +41,15 @@ public class ApplicationRepository {
 
     //session sid/position 解决主页频繁刷新问题
     public Map<String, Integer> sessionSidPositons = new HashMap<>();
+    //session会话是否正在加载，避免重复操作
+    private boolean isLoadingSessions = false;
+    //通讯录是否正在加载 避免重复操作
+    private boolean isLoadingFriends = false;
 
     public ApplicationRepository() {
         localDataSource = new ApplicationLocalDataSource();
         loadMoreFriends();
         loadMoreSessions();
-        localDataSource.updateSessionDetail(PAGE_COUNT);
     }
 
     /**
@@ -66,9 +69,14 @@ public class ApplicationRepository {
     }
 
     public synchronized void loadMoreSessions() {
+        if (isLoadingSessions) return;//正在加载
+        isLoadingSessions = true;
         //是PAGE_COUNT的倍数才加载
-        currentCount = currentCount + PAGE_COUNT;
-        if (sessions != null) sessions.removeAllChangeListeners();
+        currentCount = sessions == null ? PAGE_COUNT : (sessions.size() / PAGE_COUNT +1)* PAGE_COUNT;
+        if (sessions != null) {
+            sessions.removeAllChangeListeners();
+            sessions = null;
+        }
         sessions = localDataSource.getSessions(currentCount);
         /**集合通知OrderedRealmCollectionChangeListener
          * 该对象保存有关受删除，插入和更改影响的索引的信息。
@@ -84,6 +92,8 @@ public class ApplicationRepository {
                 /***** 异步查询第一次返回。*******************************************************************************************/
                 {
                     if (changeSet == null || changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
+                        //加载完成
+                        isLoadingSessions = false;
 //                    notifyDataSetChanged();
                         sessionSidPositons.clear();
                         ArrayList<String> sids = new ArrayList<String>();
@@ -103,11 +113,12 @@ public class ApplicationRepository {
                         for (SessionChangeListener sessionChangeListener : mSessionChangeListeners) {
                             sessionChangeListener.init(sessions, sids);
                         }
+
                         return;
                     }
                 }
                 //更新位置信息
-                if (changeSet.getDeletionRanges().length > 0 || changeSet.getInsertionRanges().length > 0||changeSet.getChangeRanges().length>0) {
+                if (changeSet.getDeletionRanges().length > 0 || changeSet.getInsertionRanges().length > 0 || changeSet.getChangeRanges().length > 0) {
                     sessionSidPositons.clear();
                     sessionIndex = 0;
                     for (Session session : sessions) {
@@ -187,25 +198,23 @@ public class ApplicationRepository {
     }
 
     public synchronized void loadMoreFriends() {
-        //是PAGE_COUNT的倍数才加载
-        currentFriendCount = currentFriendCount + FRIEND_PAGE_COUNT;
+        if(isLoadingFriends)return;
+        isLoadingFriends=true;
+        currentFriendCount = friends == null ? FRIEND_PAGE_COUNT : (friends.size() / FRIEND_PAGE_COUNT +1)* FRIEND_PAGE_COUNT;
+        if(friends!=null)friends=null;
         friends = localDataSource.getFriends(currentFriendCount);
         friends.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<UserInfo>>() {
             @Override
             public void onChange(RealmResults<UserInfo> userInfos, OrderedCollectionChangeSet changeSet) {
+                if (changeSet == null || changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
+                    //第一次初始化，加载完成
+                    isLoadingFriends=false;
+                }
                 currentFriendCount = userInfos.size();
             }
         });
     }
 
-    /**
-     * 更新指定主键的
-     *
-     * @param sids
-     */
-    public void updateSessionDetail(String[] sids) {
-        localDataSource.updateSessionDetail(sids);
-    }
 
     /**
      * 保存当前会话退出即焚消息，endTime到数据库-自动会加入焚队列，存入数据库
@@ -220,7 +229,7 @@ public class ApplicationRepository {
      * @param
      */
     private void updateSessionDetail(String[] gids, Long[] uids) {
-        if(gids!=null||uids!=null){
+        if (gids != null || uids != null) {
             //回主线程调用更新session详情
             Handler mainHandler = new Handler(Looper.getMainLooper());
             mainHandler.post(new Runnable() {
@@ -239,7 +248,7 @@ public class ApplicationRepository {
     public void clearSessionDetailContent(List<String> gids, List<Long> uids) {
         //回主线程调用清除session详情
         //更新Detail详情
-        localDataSource.clearContent(gids==null||gids.size()==0?null:gids.toArray(new String[gids.size()]), uids==null||uids.size()==0?null:uids.toArray(new Long[uids.size()]));
+        localDataSource.clearContent(gids == null || gids.size() == 0 ? null : gids.toArray(new String[gids.size()]), uids == null || uids.size() == 0 ? null : uids.toArray(new Long[uids.size()]));
 
     }
 
@@ -249,7 +258,7 @@ public class ApplicationRepository {
      * @param
      */
     public void updateSessionDetail(List<String> gids, List<Long> uids) {
-        updateSessionDetail(gids==null||gids.size()==0?null:gids.toArray(new String[gids.size()]), uids==null||uids.size()==0?null:uids.toArray(new Long[uids.size()]));
+        updateSessionDetail(gids == null || gids.size() == 0 ? null : gids.toArray(new String[gids.size()]), uids == null || uids.size() == 0 ? null : uids.toArray(new Long[uids.size()]));
     }
 
     public RealmResults<UserInfo> getFriends() {
