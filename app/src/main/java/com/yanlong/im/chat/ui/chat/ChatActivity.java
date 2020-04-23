@@ -142,7 +142,6 @@ import com.yanlong.im.chat.ui.cell.FactoryChatCell;
 import com.yanlong.im.chat.ui.cell.ICellEventListener;
 import com.yanlong.im.chat.ui.cell.MessageAdapter;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
-import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.chat.ui.view.ControllerLinearList;
 import com.yanlong.im.dialog.ForwardDialog;
 import com.yanlong.im.dialog.LockDialog;
@@ -1381,7 +1380,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mAdapter = new MessageAdapter(this, this, isGroup());
         mAdapter.setCellFactory(new FactoryChatCell(this, mAdapter, this));
         mAdapter.setTagListener(this);
+        mAdapter.setHasStableIds(true);
         mtListView.init(mAdapter);
+        mtListView.setAnimation(null);
+
         mtListView.getLoadView().setStateNormal();
         mtListView.setEvent(new MultiListView.Event() {
 
@@ -1912,6 +1914,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (msgAllBean != null) {
             SocketData.sendAndSaveMessage(msgAllBean);
         }
+        mtListView.getListView().getAdapter().notifyDataSetChanged();
     }
 
     //消息发送

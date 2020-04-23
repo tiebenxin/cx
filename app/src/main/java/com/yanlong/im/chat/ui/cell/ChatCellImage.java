@@ -82,7 +82,7 @@ public class ChatCellImage extends ChatCellFileBase {
         } else {
 //            rOptions.centerCrop();
             rOptions.error(R.mipmap.default_image);
-            rOptions.placeholder(R.mipmap.default_image);
+//            rOptions.placeholder(R.mipmap.default_image);
             if (!TextUtils.equals(tag, thumbnail)) {
                 imageView.setTag(R.id.tag_img, thumbnail);
                 glide(rOptions, thumbnail);
@@ -98,8 +98,6 @@ public class ChatCellImage extends ChatCellFileBase {
 //        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
         Glide.with(getContext())
                 .load(url)
-                .apply(rOptions)
-//                    .thumbnail(0.2f)
                 .into(imageView);
     }
 

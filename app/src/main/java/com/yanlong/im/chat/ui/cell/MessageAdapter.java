@@ -102,6 +102,11 @@ public class MessageAdapter extends RecyclerView.Adapter {
     }
 
 
+    @Override
+    public long getItemId(int position) {
+        return mList.get(position).getMsg_id().hashCode();
+    }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
