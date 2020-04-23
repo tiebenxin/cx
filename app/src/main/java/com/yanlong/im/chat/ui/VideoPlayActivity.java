@@ -197,6 +197,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         activity_video_img_con.setOnClickListener(this);
         activity_video_big_con.setOnClickListener(this);
         activity_video_img_close.setOnClickListener(this);
+        activity_video_seek.setVisibility(View.INVISIBLE);
         activity_video_seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -331,6 +332,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     if (what == mp.MEDIA_INFO_VIDEO_RENDERING_START) {
                         img_progress.clearAnimation();
                         img_progress.setVisibility(View.GONE);
+                        activity_video_seek.setVisibility(View.VISIBLE);
                         //隐藏缩略图
                         img_bg.setVisibility(View.GONE);
                     }

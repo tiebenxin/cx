@@ -186,7 +186,7 @@ public class FileDownloadActivity extends AppActivity {
     protected void onResume() {
         super.onResume();
         //说明还有文件正在下载
-        if(currentFileProgressValue !=0){
+        if(currentFileProgressValue !=0 && currentFileProgressValue !=100){
             new Thread(runnable).start();
         }
     }
@@ -195,6 +195,9 @@ public class FileDownloadActivity extends AppActivity {
     protected void onStop() {
         super.onStop();
         handler.removeCallbacks(runnable);
+        //退出重置状态
+        tvDownload.setText("点击下载");
+        downloadStatus = 3;//默认状态：未下载
     }
 
     /**

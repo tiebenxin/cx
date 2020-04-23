@@ -43,7 +43,7 @@
             android:layout_marginBottom="60dp"
             android:background="@drawable/shape_5radius_solid_32b053"
             android:gravity="center"
-            android:text="下载"
+            android:text="点击下载"
             android:textColor="@color/white"
             android:textSize="18sp" />
 
