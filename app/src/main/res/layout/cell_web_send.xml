@@ -3,6 +3,7 @@
     xmlns:tool="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:paddingLeft="@dimen/app_margin_main"
     android:paddingTop="5dp"
@@ -185,7 +186,8 @@
 
         </LinearLayout>
 
-        <ImageView
+        <com.yanlong.im.wight.avatar.RoundImageView
+            app:radius="3dp"
             android:id="@+id/iv_avatar"
             style="@style/app_img_head"
             android:layout_width="35dp"
