@@ -660,7 +660,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         //9.17 进去后就清理会话的阅读数量,初始化unreadCount
         taskCleanRead(true);
         initViewNewMsg();
-        if (!isLoadHistory && !hasData()) {
+//        if (!isLoadHistory && !hasData()) {
+        if (!isLoadHistory){
             taskRefreshMessage(false);
         }
         initUnreadCount();
