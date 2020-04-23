@@ -1946,7 +1946,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 showSendObj(msgAllBean);
             }
         }
-        mtListView.getListView().getAdapter().notifyDataSetChanged();
     }
 
     //消息发送，canSend--是否需要发送，图片，视频，语音，文件等
@@ -1972,7 +1971,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             SocketData.saveMessage(msgAllBean);
             showSendObj(msgAllBean);
         }
-        mtListView.getListView().getAdapter().notifyDataSetChanged();
         return msgAllBean;
     }
 
@@ -1994,7 +1992,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             SocketData.saveMessage(msgAllBean);
             replaceListDataAndNotify(msgAllBean);
         }
-        mtListView.getListView().getAdapter().notifyDataSetChanged();
         return msgAllBean;
     }
 
