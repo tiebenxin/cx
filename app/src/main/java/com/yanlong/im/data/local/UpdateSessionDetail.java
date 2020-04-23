@@ -239,6 +239,8 @@ public class UpdateSessionDetail {
                         //8.9 处理群昵称
                         String name = getUsername4Show(realm, msg.getGid(), msg.getFrom_uid(), msg.getFrom_nickname(), msg.getFrom_group_nickname()) + " : ";
                         sessionMore.setSenderName(name);
+                    }else{
+                        sessionMore.setSenderName("");
                     }
                 }
             }
