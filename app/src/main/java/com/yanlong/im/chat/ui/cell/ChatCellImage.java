@@ -6,9 +6,6 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -86,7 +83,7 @@ public class ChatCellImage extends ChatCellFileBase {
         } else {
 //            rOptions.centerCrop();
             rOptions.error(R.mipmap.default_image);
-            rOptions.placeholder(R.mipmap.default_image);
+//            rOptions.placeholder(R.mipmap.default_image);
             if (!TextUtils.equals(tag, thumbnail)) {
                 imageView.setTag(R.id.tag_img, thumbnail);
                 glide(rOptions, thumbnail);
@@ -102,8 +99,6 @@ public class ChatCellImage extends ChatCellFileBase {
         LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
         Glide.with(getContext())
                 .load(url)
-                .apply(rOptions)
-//                    .thumbnail(0.2f)
                 .into(imageView);
     }
 

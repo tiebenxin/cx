@@ -95,6 +95,11 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         }
     }
 
+    @Override
+    public long getItemId(int position) {
+        return super.getItemId(position);
+    }
+
     //自动生成控件事件
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, int position) {
