@@ -3,6 +3,7 @@
     xmlns:tool="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:paddingLeft="@dimen/app_margin_main"
     android:paddingTop="5dp"
@@ -64,12 +65,13 @@
                         android:gravity="center">
 
 
-                        <ImageView
+                        <com.yanlong.im.wight.avatar.RoundImageView
                             android:id="@+id/iv_img"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:selectAllOnFocus="true"
                             android:textColor="@color/black"
+                            app:radius="10dp"
                             android:textIsSelectable="false"
                             android:textSize="15sp" />
 
