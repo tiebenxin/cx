@@ -2,9 +2,8 @@ package net.cb.cb.library.utils;
 
 import android.content.Context;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Log;
-
-import com.umeng.analytics.MobclickAgent;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.AliObsConfigBean;
@@ -153,7 +152,7 @@ public class UpFileAction {
 //                                            configBean.getAccessKeySecret(), "", configBean.getEndpoint(),
 //                                            configBean.getBucket(), callback, filePath, fileByte);
                                     if (PATH.VIDEO == type) {
-                                        endpoint = configBean.getCdnEndpoint();
+                                        endpoint = getFixCdn(configBean.getCdnEndpoint());
                                     } else {
                                         endpoint = configBean.getEndpoint();
                                     }
@@ -213,7 +212,7 @@ public class UpFileAction {
 //                                            configBean.getBucket(), callback, filePath, fileByte);
 
                                     if (PATH.VIDEO == type) {
-                                        endpoint = configBean.getCdnEndpoint();
+                                        endpoint = getFixCdn(configBean.getCdnEndpoint());
                                     } else {
                                         endpoint = configBean.getEndpoint();
                                     }
@@ -272,7 +271,7 @@ public class UpFileAction {
 //                                            configBean.getBucket(), callback, filePath, fileByte);
 
                                     if (PATH.VIDEO == type) {
-                                        endpoint = configBean.getCdnEndpoint();
+                                        endpoint = getFixCdn(configBean.getCdnEndpoint());
                                     } else {
                                         endpoint = configBean.getEndpoint();
                                     }
@@ -332,7 +331,7 @@ public class UpFileAction {
                                 public void run() {
                                     String endpoint;
                                     if (PATH.VIDEO == type) {
-                                        endpoint = configBean.getCdnEndpoint();
+                                        endpoint = getFixCdn(configBean.getCdnEndpoint());
                                     } else {
                                         endpoint = configBean.getEndpoint();
                                     }
@@ -387,6 +386,17 @@ public class UpFileAction {
             e.printStackTrace();
         }
 
+    }
+
+
+    private String getFixCdn(String cdn) {
+        if (!TextUtils.isEmpty(cdn)) {
+            if (cdn.contains("oss-accelerate.aliyuncs.com")) {
+                return "http://oss-accelerate.aliyuncs.com";
+            }
+            return cdn;
+        }
+        return "";
     }
 
 }
