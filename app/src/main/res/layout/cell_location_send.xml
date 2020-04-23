@@ -102,7 +102,6 @@
                         android:id="@+id/view_bubble"
                         android:layout_width="210dp"
                         android:layout_height="120dp"
-                        android:background="@color/white"
                         android:visibility="visible">
 
                         <com.yanlong.im.wight.avatar.RoundImageView

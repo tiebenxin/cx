@@ -4141,6 +4141,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     }
                 }
+                if(msg.getFrom_uid().longValue()==UserAction.getMyId().longValue()){
+                    //自己发送的消息,用本地实时头像
+                    userInfo.setHead(UserAction.getMyInfo().getHead());
+                }
                 mks.put(k, userInfo);
             }
             nkname = userInfo.getName();

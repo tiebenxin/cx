@@ -56,7 +56,6 @@
                     android:layout_height="120dp"
                     android:layout_marginRight="4dp"
                     android:layout_marginBottom="4dp"
-                    android:background="@color/white"
                     android:visibility="visible">
 
                     <com.yanlong.im.wight.avatar.RoundImageView
