@@ -96,6 +96,7 @@ public class AdapterPreviewImage extends PagerAdapter {
     //    private IPreviewImageListener listener;
     private String[] strings = {"发送给朋友", "保存图片", "识别二维码", "编辑", "取消"};
     private View parentView;
+    private int preProgress;
 
 
     public AdapterPreviewImage(Activity c) {
@@ -786,6 +787,10 @@ public class AdapterPreviewImage extends PagerAdapter {
      * 更新下载进度
      * */
     public void setDownloadProgress(TextView tvViewOrigin, int progress, LinearLayout llLook) {
+        if (preProgress > progress){
+            return;
+        }
+        preProgress = progress;
         if (tvViewOrigin == null) {
             return;
         }

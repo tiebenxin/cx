@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:paddingLeft="@dimen/app_margin_main"
     android:paddingTop="5dp"
@@ -23,7 +24,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <ImageView
+        <com.yanlong.im.wight.avatar.RoundImageView
+            app:radius="3dp"
             android:id="@+id/iv_avatar"
             style="@style/app_img_head"
             android:layout_width="35dp"
@@ -57,10 +59,12 @@
                     android:background="@color/white"
                     android:visibility="visible">
 
-                    <ImageView
+                    <com.yanlong.im.wight.avatar.RoundImageView
                         android:id="@+id/iv_location_bg"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        app:radius="10dp"
+                        android:src="@mipmap/default_image"
                         android:scaleType="fitXY" />
 
                     <LinearLayout

@@ -3,7 +3,6 @@ package com.yanlong.im;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
-import android.util.Log;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
@@ -62,18 +61,21 @@ public class MainViewModel extends ViewModel {
         //指向内存堆中同一个对象,session数据变化时，Application中会自动更新session详情
         if (MyAppLication.INSTANCE().iSSessionsLoad()) {
             sessions = MyAppLication.INSTANCE().getSessions();
-            Log.e("raleigh_test","initSession"+sessions.size());
             if (sids == null) {
                 if (sessions.size() > 0) {
                     for (Session session : sessions) {
                         allSids.add(session.getSid());
                     }
                     isAllSidsChange.setValue(true);
+                }else{
+                    isShowLoadAnim.setValue(false);
                 }
             } else {
                 if (sids.size() > 0) {
                     allSids.addAll(sids);
                     isAllSidsChange.setValue(true);
+                }else{
+                    isShowLoadAnim.setValue(false);
                 }
             }
         }

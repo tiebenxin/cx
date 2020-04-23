@@ -101,6 +101,7 @@ import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.manager.FileManager;
 import net.cb.cb.library.manager.TokenManager;
+import net.cb.cb.library.net.IRequestListener;
 import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
@@ -612,7 +613,10 @@ public class MainActivity extends AppActivity {
     public void eventNetStatus(EventNetStatus event) {
         EventFactory.EventNetStatus eventNetStatus = new EventFactory.EventNetStatus(event.getStatus());
         EventBus.getDefault().post(eventNetStatus);
-        reportIP(NetWorkUtils.getLocalIpAddress(this));
+        if (event.getStatus() == CoreEnum.ENetStatus.SUCCESS_ON_NET) {
+//            reportIP(NetWorkUtils.getLocalIpAddress(this));
+            getIP();
+        }
     }
 
     @Override
@@ -1430,7 +1434,7 @@ public class MainActivity extends AppActivity {
 
     //上报IP
     private void reportIP(String ip) {
-//        LogUtil.getLog().i("MainActivity", "上报IP--" + ip);
+        LogUtil.getLog().i("MainActivity", "上报IP--" + ip);
         if (TextUtils.isEmpty(ip)) {
             return;
         }
@@ -1468,5 +1472,27 @@ public class MainActivity extends AppActivity {
                 }
             }
         }
+    }
+
+    private void getIP() {
+        ThreadUtil.getInstance().execute(new Runnable() {
+            @Override
+            public void run() {
+                NetUtil.getNet().requestIP(new IRequestListener() {
+                    @Override
+                    public void onSuccess(String content) {
+                        if (!TextUtils.isEmpty(content)) {
+                            reportIP(content);
+                        }
+                    }
+
+                    @Override
+                    public void onFailed(String msg) {
+
+                    }
+                });
+            }
+        });
+
     }
 }

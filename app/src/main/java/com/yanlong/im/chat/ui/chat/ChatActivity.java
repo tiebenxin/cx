@@ -136,6 +136,7 @@ import com.yanlong.im.chat.ui.GroupInfoActivity;
 import com.yanlong.im.chat.ui.GroupRobotActivity;
 import com.yanlong.im.chat.ui.GroupSelectUserActivity;
 import com.yanlong.im.chat.ui.VideoPlayActivity;
+import com.yanlong.im.chat.ui.cell.ChatCellBase;
 import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;
 import com.yanlong.im.chat.ui.cell.ICellEventListener;
@@ -659,7 +660,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         //9.17 进去后就清理会话的阅读数量,初始化unreadCount
         taskCleanRead(true);
         initViewNewMsg();
-        if (!isLoadHistory && !hasData()) {
+//        if (!isLoadHistory && !hasData()) {
+        if (!isLoadHistory){
             taskRefreshMessage(false);
         }
         initUnreadCount();
@@ -1379,7 +1381,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mAdapter = new MessageAdapter(this, this, isGroup());
         mAdapter.setCellFactory(new FactoryChatCell(this, mAdapter, this));
         mAdapter.setTagListener(this);
+        mAdapter.setHasStableIds(true);
         mtListView.init(mAdapter);
+        mtListView.setAnimation(null);
+
         mtListView.getLoadView().setStateNormal();
         mtListView.setEvent(new MultiListView.Event() {
 
@@ -1910,6 +1915,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (msgAllBean != null) {
             SocketData.sendAndSaveMessage(msgAllBean);
         }
+        mtListView.getListView().getAdapter().notifyDataSetChanged();
     }
 
     //消息发送
@@ -5483,6 +5489,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 break;
         }
 
+    }
+
+    @Override
+    public ChatCellBase getChatCellBase(int position) {
+        return mtListView.getListView().findViewHolderForAdapterPosition(position)==null?null:((ChatCellBase) mtListView.getListView().findViewHolderForAdapterPosition(position));
     }
 
     private void clickFile(MsgAllBean message, SendFileMessage fileMessage) {

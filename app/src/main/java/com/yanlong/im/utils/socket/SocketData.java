@@ -632,38 +632,6 @@ public class SocketData {
      */
     private static String videoLocalUrl = null;
 
-    public static MsgAllBean sendVideo(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height, String videoLocalPath) {
-        MsgBean.ShortVideoMessage msg;
-        videoLocalUrl = videoLocalPath;
-        msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth(width).setHeight(height).build();
-        return send4BaseById(msgId, toId, toGid, -1, MsgBean.MessageType.SHORT_VIDEO, msg);
-    }
-
-    /**
-     * 发送文件
-     *
-     * @param msgId
-     * @param url
-     * @param toId
-     * @param toGid
-     * @param fileName
-     * @param fileSize 文件大小
-     * @param format   文件后缀类型
-     * @param time
-     * @return
-     */
-    public static MsgAllBean sendFile(String msgId, String url, Long toId, String toGid, String fileName, Long fileSize, String format, long time, String filePath) {
-        MsgBean.SendFileMessage msg;
-        msg = MsgBean.SendFileMessage.newBuilder()
-                .setUrl(url)
-                .setFileName(fileName)
-                .setFormat(format)
-                .setSize(fileSize.intValue())
-                .build();
-        fileLocalUrl = filePath;
-        return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SEND_FILE, msg);
-    }
-
 
     public static MsgAllBean send4Image(Long toId, String toGid, String url, ImgSizeUtil.ImageSize imgSize, long time) {
 
@@ -863,30 +831,6 @@ public class SocketData {
         return send4Base(toId, toGid, MsgBean.MessageType.RECEIVE_RED_ENVELOPER, msg);
     }
 
-    /***
-     *发转账
-     * @return
-     */
-    public static MsgAllBean send4Trans(Long toId, String rid, String info, String money) {
-        MsgBean.TransferMessage msg = MsgBean.TransferMessage.newBuilder()
-                .setId(rid)
-                .setComment(info)
-                .setTransactionAmount(money)
-                .build();
-        return send4Base(toId, null, MsgBean.MessageType.TRANSFER, msg);
-    }
-
-
-    /**
-     * 已读消息
-     */
-    public static MsgAllBean send4Read(Long toId, long timestamp) {
-        MsgBean.ReadMessage msg = MsgBean.ReadMessage.newBuilder()
-                .setTimestamp(timestamp)
-                .build();
-        LogUtil.writeLog(">>>已读消息 toId:" + toId + " timestamp:" + timestamp);
-        return send4Base(false, toId, null, MsgBean.MessageType.READ, msg);
-    }
 
 
     public static MsgCancel createCancelMsg(MsgAllBean cancelMsg) {
@@ -1230,11 +1174,15 @@ public class SocketData {
             case ChatEnum.EMessageType.MSG_VOICE_VIDEO:
                 if (obj instanceof P2PAuVideoMessage) {
                     msg.setP2PAuVideoMessage((P2PAuVideoMessage) obj);
+                } else {
+                    return null;
                 }
                 break;
             case ChatEnum.EMessageType.READ:
                 if (obj instanceof ReadMessage) {
                     msg.setReadMessage((ReadMessage) obj);
+                } else {
+                    return null;
                 }
                 break;
 

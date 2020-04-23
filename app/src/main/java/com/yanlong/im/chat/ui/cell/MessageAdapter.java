@@ -40,8 +40,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
     private FactoryChatCell factoryChatCell;
     private final boolean isGroup;//是否群聊
 
-    private Map<Integer, View> viewMap = new HashMap<>();
-    private Map<Integer, ChatCellBase> cellMap = new HashMap<>();
+    //    private Map<Integer, ChatCellBase> cellMap = new HashMap<>();
     private boolean isShowCheckBox;
     private int unreadCount = 0;
     private List<MsgAllBean> selectedList = new ArrayList<>();
@@ -49,8 +48,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
     //msg_id,计时器 将计时器绑定到数据
     private Map<String, Disposable> mTimers = new HashMap<>();
     /********为保证Key-value两个值都是唯一，使用两个map 存储，查找删除方便****/
-    //position，msg_id 记住位置对应的Msg_id,用来找Position和保证mMsgIdPositions的position 唯一
-    private Map<Integer, String> mPositionMsgIds = new HashMap<>();
     //msg_id，position 用来找MsgId对应的position ,保证MsgId 唯一
     private Map<String, Integer> mMsgIdPositions = new HashMap<>();
     //msg_id，Indext 记录计时器中12张图片的Index
@@ -64,6 +61,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         eventListener = l;
         mList = new ArrayList<>();
         isGroup = isG;
+        refreshPositions();
     }
 
     public MessageAdapter setCellFactory(FactoryChatCell factory) {
@@ -82,13 +80,32 @@ public class MessageAdapter extends RecyclerView.Adapter {
         } else {
             mList = list;
         }
+        refreshPositions();
         this.notifyDataSetChanged();
     }
+    /**
+     * 遍历列表，并保存msgid位置
+     *
+     */
+    private void refreshPositions() {
+        mMsgIdPositions.clear();
+        if(mList!=null&&mList.size()>0){
+            for(int position=0;position<mList.size();position++){
+                mMsgIdPositions.put(mList.get(position).getMsg_id(), position);
+            }
+        }
+    }
+
 
     public boolean isGroup() {
         return isGroup;
     }
 
+
+    @Override
+    public long getItemId(int position) {
+        return mList.get(position).getMsg_id().hashCode();
+    }
 
     @NonNull
     @Override
@@ -104,7 +121,9 @@ public class MessageAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
         MsgAllBean msg = mList.get(position);
         ChatCellBase cellBase = (ChatCellBase) viewHolder;
-        savePositions(msg.getMsg_id(), position, msg.isMe(), cellBase);
+        //初始化阅后即焚状态
+        initSurvialStatus(msg.getMsg_id(),cellBase);
+        //开始阅后即焚
         addSurvivalTime(msg);
         if (msg.getSurvival_time() > 0 && msg.getStartTime() > 0 && msg.getEndTime() > 0) {
             bindTimer(msg.getMsg_id(), msg.isMe(), msg.getStartTime(), msg.getEndTime());
@@ -113,9 +132,23 @@ public class MessageAdapter extends RecyclerView.Adapter {
             ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), true, msg.isMe());
         }
         cellBase.putMessage(mList.get(position), position);
-        viewMap.put(position, cellBase.itemView);
-        cellMap.put(position, cellBase);
+    }
 
+    /**
+     * 初始化更新阅后即焚状态
+     * @param msgId
+     * @param cellBase
+     */
+    private void initSurvialStatus(String msgId,ChatCellBase cellBase){
+        //及时更新阅后即焚状态
+        if (mTimersIndexs.containsKey(msgId)) {
+            String name = "icon_st_" + Math.min(COUNT, mTimersIndexs.get(msgId) + 1);
+            int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
+            LogUtil.getLog().i(MessageAdapter.class.getSimpleName(), "SurvivalTime--" + name);
+            if (mMsgIdPositions.containsKey(msgId)) {
+                cellBase.setBellId(id);
+            }
+        }
     }
 
     @Override
@@ -124,7 +157,10 @@ public class MessageAdapter extends RecyclerView.Adapter {
             super.onBindViewHolder(viewHolder, position, payloads);
         } else {
             MsgAllBean msg = mList.get(position);
-            savePositions(msg.getMsg_id(), position, msg.isMe(), (ChatCellBase) viewHolder);
+            ChatCellBase cellBase = (ChatCellBase) viewHolder;
+            //初始化阅后即焚状态
+            initSurvialStatus(msg.getMsg_id(),cellBase);
+            //开始阅后即焚
             addSurvivalTime(msg);
             if (msg.getSurvival_time() > 0 && msg.getStartTime() > 0 && msg.getEndTime() > 0) {
                 bindTimer(msg.getMsg_id(), msg.isMe(), msg.getStartTime(), msg.getEndTime());
@@ -135,7 +171,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
             if (msg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {
                 ChatCellImage imageCell = (ChatCellImage) viewHolder;
                 imageCell.updateMessage(msg);
-                if(UpLoadService.getProgress(msg.getMsg_id())!=null){
+                if (UpLoadService.getProgress(msg.getMsg_id()) != null) {
                     imageCell.updateProgress(msg.getSend_state(), UpLoadService.getProgress(msg.getMsg_id()));
                 }
             } else if (msg.getMsg_type() == ChatEnum.EMessageType.VOICE) {
@@ -149,13 +185,13 @@ public class MessageAdapter extends RecyclerView.Adapter {
             } else if (msg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
                 ChatCellVideo videoCell = (ChatCellVideo) viewHolder;
                 videoCell.updateMessage(msg);
-                if(UpLoadService.getProgress(msg.getMsg_id())!=null){
+                if (UpLoadService.getProgress(msg.getMsg_id()) != null) {
                     videoCell.updateProgress(msg.getSend_state(), UpLoadService.getProgress(msg.getMsg_id()));
                 }
             } else if (msg.getMsg_type() == ChatEnum.EMessageType.FILE) {
                 ChatCellFile fileCell = (ChatCellFile) viewHolder;
                 fileCell.updateMessage(msg);
-                if(UpLoadService.getProgress(msg.getMsg_id())!=null){
+                if (UpLoadService.getProgress(msg.getMsg_id()) != null) {
                     fileCell.updateProgress(msg.getSend_state(), UpLoadService.getProgress(msg.getMsg_id()));
                 }
             } else {
@@ -197,18 +233,8 @@ public class MessageAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public View getItemViewByPosition(int position) {
-        if (!viewMap.isEmpty()) {
-            return viewMap.get(position);
-        }
-        return null;
-    }
-
     public ChatCellBase getCellByPosition(int position) {
-        if (!cellMap.isEmpty()) {
-            return cellMap.get(position);
-        }
-        return null;
+        return eventListener.getChatCellBase(position);
     }
 
     public void addMessage(MsgAllBean msg) {
@@ -216,10 +242,12 @@ public class MessageAdapter extends RecyclerView.Adapter {
             mList = new ArrayList<>();
         }
         mList.add(msg);
+        refreshPositions();
     }
 
     public void setMessageList(List<MsgAllBean> msg) {
         mList = msg;
+        refreshPositions();
     }
 
     public void addMessageList(int position, List<MsgAllBean> msg) {
@@ -227,6 +255,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
             mList = new ArrayList<>();
         }
         mList.addAll(position, msg);
+        refreshPositions();
     }
 
     public void setUnreadCount(int position) {
@@ -265,12 +294,14 @@ public class MessageAdapter extends RecyclerView.Adapter {
         if (mList != null && bean != null) {
             mList.remove(bean);
         }
+        refreshPositions();
     }
 
     public void removeMsgList(List<MsgAllBean> list) {
         if (mList != null && list != null) {
             mList.removeAll(list);
         }
+        refreshPositions();
     }
 
     //更新数据
@@ -293,6 +324,8 @@ public class MessageAdapter extends RecyclerView.Adapter {
             timer.dispose();
             timer = null;
         }
+        mMsgIdPositions.clear();
+        mMsgIdPositions = null;
         mTimers.clear();
         mTimers = null;
     }
@@ -329,7 +362,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
                                     long time = nowTimeMillis - DateUtils.getSystemTime();
                                     String name = "icon_st_" + Math.min(COUNT, index + 1);
                                     int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
-                                    updateSurvivalTimeImage(msgId, id, isMe);
+                                    updateSurvivalTimeImage(msgId, id);
                                     LogUtil.getLog().i("SurvivalTime--CountDownView", "isME=" + index);
                                 } catch (Exception e) {
                                     e.printStackTrace();
@@ -338,7 +371,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
                         }).doOnComplete(new Action() {
                             @Override
                             public void run() throws Exception {
-                                updateSurvivalTimeImage(msgId, R.mipmap.icon_st_12, isMe);
+                                updateSurvivalTimeImage(msgId, R.mipmap.icon_st_12);
                             }
                         }).subscribe();
                 mTimers.put(msgId, timer);
@@ -348,7 +381,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         }
     }
 
-    private void updateSurvivalTimeImage(String msgId, int id, boolean isMe) {
+    private void updateSurvivalTimeImage(String msgId, int id) {
         if (mMsgIdPositions.containsKey(msgId)) {
             int position = mMsgIdPositions.get(msgId);
             ChatCellBase cell = getCellByPosition(position);
@@ -358,30 +391,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
         }
     }
 
-    /**
-     * 保存msgid位置
-     *
-     * @param msgId
-     * @param position
-     */
-    private void savePositions(String msgId, int position, boolean isMe, ChatCellBase cellBase) {
-        //已经有MsgId包含该位置，则删除上一个，保证唯一性，更新时
-        if (mMsgIdPositions.containsValue(position)) {
-            mMsgIdPositions.remove(mPositionMsgIds.get(position));
-        }
-        //mPositionMsgIds只记录，不处理
-        mPositionMsgIds.put(position, msgId);
-        mMsgIdPositions.put(msgId, position);
-        //及时更新阅后即焚状态
-        if (mTimersIndexs.containsKey(msgId)) {
-            String name = "icon_st_" + Math.min(COUNT, mTimersIndexs.get(msgId) + 1);
-            int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
-            LogUtil.getLog().i(MessageAdapter.class.getSimpleName(), "SurvivalTime--" + name);
-            if (mMsgIdPositions.containsKey(msgId)) {
-                cellBase.setBellId(id);
-            }
-        }
-    }
 
     /**
      * 添加阅读即焚消息到队列
@@ -391,7 +400,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         boolean isMe = msg.isMe();
         //单聊 自己发的消息，需等待对方已读
         boolean checkNotGroupAndNotRead = !isGroup && isMe && msg.getRead() != 1;
-        if (msg == null || msg.getEndTime()>0 || msg.getSend_state() != ChatEnum.ESendStatus.NORMAL
+        if (msg == null || msg.getEndTime() > 0 || msg.getSend_state() != ChatEnum.ESendStatus.NORMAL
                 || checkNotGroupAndNotRead) {
             return;
         }
