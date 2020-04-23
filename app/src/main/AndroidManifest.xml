@@ -244,7 +244,7 @@
         <activity
             android:name=".chat.ui.ChatActionActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <!--聊天字体设置-->
         <activity
             android:name=".chat.ui.ChatFontActivity"
@@ -694,6 +694,13 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
 
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <!--                <data android:mimeType="image/*" />-->
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+
             <!--多选分享,仅限图片-->
             <intent-filter>
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
@@ -702,10 +709,11 @@
                 <!--                <data android:mimeType="*/*" />-->
             </intent-filter>
         </activity>
-        <activity android:name=".chat.ui.chat.ChatActivity"
+        <activity
+            android:name=".chat.ui.chat.ChatActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustNothing"/>
+            android:windowSoftInputMode="stateHidden|adjustNothing" />
 
     </application>
 
