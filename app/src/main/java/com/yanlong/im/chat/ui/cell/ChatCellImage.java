@@ -123,7 +123,7 @@ public class ChatCellImage extends ChatCellFileBase {
 
     private boolean isGif(String path) {
         if (!TextUtils.isEmpty(path)) {
-            if (path.toLowerCase().endsWith(".gif")) {
+            if (path.toLowerCase().contains(".gif")) {
                 return true;
             }
         }
