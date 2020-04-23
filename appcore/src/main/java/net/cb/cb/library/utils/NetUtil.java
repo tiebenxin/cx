@@ -13,11 +13,16 @@ import com.huawei.hms.common.ApiException;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.ProxyException;
+import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.constant.AppHostUtil;
+import net.cb.cb.library.net.IRequestListener;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -274,6 +279,30 @@ public class NetUtil {
             proxyPort = android.net.Proxy.getPort(context);
         }
         return (!TextUtils.isEmpty(proxyAddress)) && (proxyPort != -1);
+    }
+
+
+    //获取网络IP
+    public void requestIP(final IRequestListener listener) {
+        String url = "http://im-app.zhixun6.com:58888/getIp";
+        OkHttpClient client = new OkHttpClient();
+        final Request request = new Request.Builder().url(url).build();
+        okhttp3.Call call = client.newCall(request);
+        call.enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(okhttp3.Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if (response != null && response.isSuccessful()) {
+                    String result = response.body().string();
+                    listener.onSuccess(result);
+                }
+            }
+        });
+
     }
 
 }
