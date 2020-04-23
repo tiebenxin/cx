@@ -87,6 +87,13 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
     }
 
     private void initEvent() {
+        //默认工具选中画笔
+        binding.mpvView.setEtypeMode(MosaicPaintView.EtypeMode.TUYA);
+        binding.imgShowCut.setVisibility(View.GONE);
+        binding.llColor.setVisibility(View.VISIBLE);
+        binding.mpvView.setPenColor(getResources().getColor(mColors[0]));
+        binding.mpvView.setVisibility(View.VISIBLE);
+
         binding.etTag.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {

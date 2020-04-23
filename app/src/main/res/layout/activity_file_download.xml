@@ -3,7 +3,7 @@
     android:id="@+id/headView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:headview_title="文件下载">
+    app:headview_title="文件详情">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -43,7 +43,7 @@
             android:layout_marginBottom="60dp"
             android:background="@drawable/shape_5radius_solid_32b053"
             android:gravity="center"
-            android:text="下载中"
+            android:text="下载"
             android:textColor="@color/white"
             android:textSize="18sp" />
 
