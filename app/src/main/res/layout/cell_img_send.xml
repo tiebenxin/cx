@@ -100,6 +100,7 @@
                         <com.yanlong.im.wight.avatar.RoundImageView
                             android:id="@+id/iv_img"
                             app:radius="10dp"
+                            android:src="@mipmap/default_image"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
 
@@ -143,7 +144,8 @@
 
         </LinearLayout>
 
-        <ImageView
+        <com.yanlong.im.wight.avatar.RoundImageView
+            app:radius="3dp"
             android:id="@+id/iv_avatar"
             style="@style/app_img_head"
             android:layout_width="35dp"

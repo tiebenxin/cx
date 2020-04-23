@@ -2,6 +2,9 @@ package com.yanlong.im.chat.ui.cell;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -12,6 +15,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.AtMessage;
@@ -20,7 +25,6 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -76,7 +80,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         initView();
     }
 
-    protected void setActionClickListener(IActionTagClickListener l){
+    protected void setActionClickListener(IActionTagClickListener l) {
         actionTagClickListener = l;
     }
 
@@ -304,11 +308,20 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     @SuppressLint("CheckResult")
     private void loadAvatar() {
         if (mContext == null || iv_avatar == null) {
+
             return;
         }
-        Glide.with(mContext).load(model.getFrom_avatar())
-                .apply(GlideOptionsUtil.headImageOptions()).into(iv_avatar);
-
+        iv_avatar.setImageResource(R.mipmap.ic_info_head);
+        Glide.with(mContext)
+                .asBitmap()
+                .load(model.getFrom_avatar())
+//                .apply(GlideOptionsUtil.headImageOptions())
+                .into(new SimpleTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        iv_avatar.setImageBitmap(resource);
+                    }
+                });
     }
 
     /*
