@@ -73,7 +73,7 @@
                             android:selectAllOnFocus="true"
                             android:textColor="@color/black"
                             app:radius="10dp"
-                            android:src="@mipmap/default_image"
+                            android:src="@mipmap/ic_image_bg"
                             android:textIsSelectable="false"
                             android:textSize="15sp" />
 

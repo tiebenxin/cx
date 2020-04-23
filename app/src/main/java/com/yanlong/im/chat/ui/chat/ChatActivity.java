@@ -1058,6 +1058,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     protected void showDraftContent(String message) {
         SpannableString spannableString = ExpressionUtil.getExpressionString(this, ExpressionUtil.DEFAULT_SIZE, message);
         editChat.setText(spannableString);
+        if(message.length()>0)editChat.setSelection(editChat.getText().length());
     }
 
 
@@ -4140,6 +4141,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             userInfo.setName(gname);
                         }
                     }
+                }
+                if(msg.getFrom_uid().longValue()==UserAction.getMyId().longValue()){
+                    //自己发送的消息,用本地实时头像
+                    userInfo.setHead(UserAction.getMyInfo().getHead());
                 }
                 mks.put(k, userInfo);
             }

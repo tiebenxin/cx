@@ -79,9 +79,17 @@ public class ChatCellImage extends ChatCellFileBase {
             if (!TextUtils.equals(tag, gif)) {
                 imageView.setTag(R.id.tag_img, gif);
                 rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
-                glide(rOptions, gif);
+                Glide.with(getContext())
+                        .load(gif)
+                .apply(rOptions)
+//                    .thumbnail(0.2f)
+                        .into(imageView);
             } else {
-                glide(rOptions, tag);
+                Glide.with(getContext())
+                        .load(gif)
+                        .apply(rOptions)
+//                    .thumbnail(0.2f)
+                        .into(imageView);
             }
 
         } else {
@@ -115,7 +123,7 @@ public class ChatCellImage extends ChatCellFileBase {
 
     private boolean isGif(String path) {
         if (!TextUtils.isEmpty(path)) {
-            if (path.toLowerCase().endsWith(".gif")) {
+            if (path.toLowerCase().contains(".gif")) {
                 return true;
             }
         }
