@@ -411,8 +411,7 @@ public class UserAction {
      */
     private void setToken(TokenBean token, boolean isUpdate) {
         if (isUpdate) {
-//            long validTime = System.currentTimeMillis() + TimeToString.DAY * 3;
-            long validTime = System.currentTimeMillis() + TimeToString.MINUTE * 1;
+            long validTime = System.currentTimeMillis() + TimeToString.DAY * 3;
             token.setValidTime(validTime);
         }
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
