@@ -93,6 +93,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         binding.llColor.setVisibility(View.VISIBLE);
         binding.mpvView.setPenColor(getResources().getColor(mColors[0]));
         binding.mpvView.setVisibility(View.VISIBLE);
+        binding.rbPen.setChecked(true);
 
         binding.etTag.addTextChangedListener(new TextWatcher() {
             @Override

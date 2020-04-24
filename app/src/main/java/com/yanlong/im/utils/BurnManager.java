@@ -221,27 +221,32 @@ public class BurnManager {
 
 
     private void startBurnAlarm() {
-        if(toBurnMessages == null){
-            initBurnQueue();
-            return;
-        }
-        if (toBurnMessages!=null&&toBurnMessages.size() > 0) {
-            //删除之后，剩下来的数据，获取距离最近的阅后即焚时间点
-            long nearlyEndTime = toBurnMessages.where().min("endTime").longValue();
-            //大于当前时间
-            if (nearlyEndTime > System.currentTimeMillis()) {
-                if (alarmManager == null)
-                    alarmManager = (AlarmManager) MyAppLication.getInstance().getSystemService(Context.ALARM_SERVICE);
-                else alarmManager.cancel(pendingIntent);
-                if (Build.VERSION.SDK_INT < 19) {
-                    alarmManager.set(AlarmManager.RTC_WAKEUP, nearlyEndTime, pendingIntent);
-                } else {
-                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, nearlyEndTime, pendingIntent);
-                }
-            } else {//小于当前时间-得删除了
-                notifyBurnQuene();
+        try {
+            if (pendingIntent == null || alarmManager == null) {//销毁了数据仓库
+                return;
             }
-        }
+            if (toBurnMessages == null) {
+                initBurnQueue();
+                return;
+            }
+            if (toBurnMessages != null && toBurnMessages.size() > 0) {
+                //删除之后，剩下来的数据，获取距离最近的阅后即焚时间点
+                long nearlyEndTime = toBurnMessages.where().min("endTime").longValue();
+                //大于当前时间
+                if (nearlyEndTime > System.currentTimeMillis()) {
+                    if (alarmManager == null)
+                        alarmManager = (AlarmManager) MyAppLication.getInstance().getSystemService(Context.ALARM_SERVICE);
+                    else alarmManager.cancel(pendingIntent);
+                    if (Build.VERSION.SDK_INT < 19) {
+                        alarmManager.set(AlarmManager.RTC_WAKEUP, nearlyEndTime, pendingIntent);
+                    } else {
+                        alarmManager.setExact(AlarmManager.RTC_WAKEUP, nearlyEndTime, pendingIntent);
+                    }
+                } else {//小于当前时间-得删除了
+                    notifyBurnQuene();
+                }
+            }
+        }catch (Exception e){}
     }
 
     public void onDestory() {

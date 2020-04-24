@@ -632,7 +632,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 } else if (model == ChatEnum.EForwardMode.EDIT_PIC) {
                     UpFileAction.PATH uploadType = getUploadType(mediaType);
                     if (uploadType != null) {
+                        //上传编辑后的图片，发送图片消息+留言消息
                         upload(editPicPath, uploadType, msgAllBean);
+                        sendLeaveMessage(content, toUid, toGid);
                     } else {
                         ToastUtil.show(MsgForwardActivity.this, "分享失败，不支持文件类型");
                         return;
