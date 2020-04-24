@@ -629,7 +629,7 @@ public class MainActivity extends AppActivity {
         if (AppConfig.isOnline()) {
             checkHasEnvelopeSendFailed();
         }
-        checkTokenValid();
+//        checkTokenValid();
     }
 
     //检测支付环境的初始化

@@ -355,6 +355,7 @@ public class UserAction {
                     initDB("" + response.body().getData().getUid());
                     TokenBean newToken = response.body().getData();
                     token.setAccessToken(newToken.getAccessToken());
+                    token.setBankReqSignKey(EncrypUtil.aesDecode(token.getBankReqSignKey()));
                     setToken(token, true);
                     LogUtil.getLog().i("updateToken--成功", "--token=" + response.body().getData().getAccessToken());
                     LogUtil.writeLog("updateToken--成功" + "--token=" + response.body().getData().getAccessToken() + "--time=" + System.currentTimeMillis());
@@ -410,7 +411,8 @@ public class UserAction {
      */
     private void setToken(TokenBean token, boolean isUpdate) {
         if (isUpdate) {
-            long validTime = System.currentTimeMillis() + TimeToString.DAY * 3;
+//            long validTime = System.currentTimeMillis() + TimeToString.DAY * 3;
+            long validTime = System.currentTimeMillis() + TimeToString.MINUTE * 1;
             token.setValidTime(validTime);
         }
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
