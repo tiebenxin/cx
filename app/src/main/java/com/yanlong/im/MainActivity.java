@@ -1438,21 +1438,16 @@ public class MainActivity extends AppActivity {
         if (TextUtils.isEmpty(ip)) {
             return;
         }
-        long time = SpUtil.getSpUtil().getSPValue("reportIPTime", 0L);
-        if (time <= 0 || !DateUtils.isInHours(time, System.currentTimeMillis(), 4)) {
-            userAction.reportIP(ip, new CallBack<ReturnBean>(false) {
-                @Override
-                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                    super.onResponse(call, response);
-                    if (response != null && response.body() != null && response.body().isOk()) {
-                        SpUtil.getSpUtil().putSPValue("reportIPTime", System.currentTimeMillis());
-                    }
-//                    if (response != null && response.body() != null) {
-//                        LogUtil.getLog().i("MainActivity", "上报IP--" + response.body().getMsg());
-//                    }
+        userAction.reportIP(ip, new CallBack<ReturnBean>(false) {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response != null && response.body() != null && response.body().isOk()) {
+                    SpUtil.getSpUtil().putSPValue("reportIPTime", System.currentTimeMillis());
                 }
-            });
-        }
+            }
+        });
+
     }
 
     //检测是否需要更新token
@@ -1475,24 +1470,27 @@ public class MainActivity extends AppActivity {
     }
 
     private void getIP() {
-        ThreadUtil.getInstance().execute(new Runnable() {
-            @Override
-            public void run() {
-                NetUtil.getNet().requestIP(new IRequestListener() {
-                    @Override
-                    public void onSuccess(String content) {
-                        if (!TextUtils.isEmpty(content)) {
-                            reportIP(content);
+        long time = SpUtil.getSpUtil().getSPValue("reportIPTime", 0L);
+        if (time <= 0 || !DateUtils.isInHours(time, System.currentTimeMillis(), 4)) {
+            ThreadUtil.getInstance().execute(new Runnable() {
+                @Override
+                public void run() {
+                    NetUtil.getNet().requestIP(new IRequestListener() {
+                        @Override
+                        public void onSuccess(String content) {
+                            if (!TextUtils.isEmpty(content)) {
+                                reportIP(content);
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onFailed(String msg) {
+                        @Override
+                        public void onFailed(String msg) {
 
-                    }
-                });
-            }
-        });
+                        }
+                    });
+                }
+            });
+        }
 
     }
 }

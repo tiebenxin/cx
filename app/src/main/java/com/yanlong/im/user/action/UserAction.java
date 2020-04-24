@@ -353,7 +353,9 @@ public class UserAction {
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
-                    setToken(response.body().getData(), true);
+                    TokenBean newToken = response.body().getData();
+                    token.setAccessToken(newToken.getAccessToken());
+                    setToken(token, true);
                     LogUtil.getLog().i("updateToken--成功", "--token=" + response.body().getData().getAccessToken());
                     LogUtil.writeLog("updateToken--成功" + "--token=" + response.body().getData().getAccessToken() + "--time=" + System.currentTimeMillis());
                     getMyInfo4Web(response.body().getData().getUid(), "");
