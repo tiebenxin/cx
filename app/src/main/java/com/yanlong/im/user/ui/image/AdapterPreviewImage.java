@@ -310,11 +310,13 @@ public class AdapterPreviewImage extends PagerAdapter {
             Glide.with(context).load(media.getCutPath()).error(Glide.with(context).load(media.getCompressPath())).listener(new RequestListener<Drawable>() {
                 @Override
                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                    pbLoading.setVisibility(View.GONE);
                     return false;
                 }
 
                 @Override
                 public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                    pbLoading.setVisibility(View.GONE);
                     return false;
                 }
             }).into(ivZoom);
@@ -1008,6 +1010,8 @@ public class AdapterPreviewImage extends PagerAdapter {
                     if (!TextUtils.isEmpty(url)) {
                         isGif = FileUtils.isGif(url);
                     }
+                }else {
+                    isGif = FileUtils.isGif(path);
                 }
             } else {
                 isGif = FileUtils.isGif(path);

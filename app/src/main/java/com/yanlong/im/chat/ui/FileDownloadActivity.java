@@ -52,6 +52,7 @@ public class FileDownloadActivity extends AppActivity {
     private TextView tvFileName;
     private ImageView ivFileImage;//文件图片
     private TextView tvDownload;//更新下载进度
+    private TextView tvFileSize;//文件大小
 
     private String fileFormat ="";//文件类型
     private String fileName ="";//文件名
@@ -146,6 +147,11 @@ public class FileDownloadActivity extends AppActivity {
                 fileMsgId = sendFileMessage.getMsgId();
             }
 
+            //获取文件消息id
+            if(sendFileMessage.getSize()!=0L){
+                tvFileSize.setText("文件大小 "+FileUtils.getFileSizeString(sendFileMessage.getSize()));
+            }
+
             tvDownload.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -165,6 +171,7 @@ public class FileDownloadActivity extends AppActivity {
         tvFileName = findViewById(R.id.tv_file_name);
         ivFileImage = findViewById(R.id.iv_file_image);
         tvDownload = findViewById(R.id.tv_download);
+        tvFileSize = findViewById(R.id.tv_file_size);
         handler = new Handler();
     }
 

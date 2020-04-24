@@ -20,6 +20,19 @@
             android:src="@mipmap/ic_unknow" />
 
         <TextView
+            android:id="@+id/tv_file_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/iv_file_image"
+            android:layout_centerHorizontal="true"
+            android:text="文件大小"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:textColor="@color/c_000000"
+            android:textSize="12sp" />
+
+        <TextView
             android:id="@+id/tv_file_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,6 +45,7 @@
             android:textStyle="bold"
             android:textColor="@color/c_000000"
             android:textSize="22sp" />
+
 
         <TextView
             android:id="@+id/tv_download"
