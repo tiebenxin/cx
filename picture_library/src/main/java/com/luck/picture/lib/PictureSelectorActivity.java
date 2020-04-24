@@ -513,7 +513,11 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         }
 
         if (id == R.id.picture_id_preview) {
-            previewImage(adapter.getSelectedImages(), 0);
+            List<LocalMedia> previewList=new ArrayList<>();
+            for(LocalMedia media:adapter.getSelectedImages()){
+                previewList.add(media);
+            }
+            previewImage(previewList,adapter.getSelectedImages(), 0);
             overridePendingTransition(R.anim.a5, 0);
         }
 
@@ -557,15 +561,12 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         }
     }
 
-    private void previewImage(List<LocalMedia> selectedImages, int position) {
-        List<LocalMedia> medias = new ArrayList<>();
-        for (LocalMedia media : selectedImages) {
-            medias.add(media);
-        }
+    private void previewImage(List<LocalMedia> previewImages,List<LocalMedia> selectedImages, int position) {
         Bundle bundle = new Bundle();
-        bundle.putSerializable(PictureConfig.EXTRA_PREVIEW_SELECT_LIST, (Serializable) medias);
+        bundle.putSerializable(PictureConfig.EXTRA_PREVIEW_SELECT_LIST, (Serializable) previewImages);
         bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
         bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
+        bundle.putInt(PictureConfig.EXTRA_POSITION,position);
         startActivity(PicturePreviewActivity.class, bundle,
                 config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCropMulti.REQUEST_MULTI_CROP);
     }
@@ -830,10 +831,22 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
     public void onPictureClick(LocalMedia media, int position) {
 //        List<LocalMedia> images = adapter.getImages();
 //        startPreview(images, position);
-        List<LocalMedia> images = new ArrayList<>();
-        images.add(media);
-//        startPreview(images, 0);
-        previewImage(images, 0);
+
+        List<LocalMedia> previewList=new ArrayList<>();
+        int index=-1;
+        previewList.addAll(adapter.getSelectedImages());
+        for(int i=0;i<adapter.getSelectedImages().size();i++){
+            LocalMedia localMedia=adapter.getSelectedImages().get(i);
+            if(localMedia.getPath()==media.getPath()){//是否在被选中数组中
+                index=adapter.getSelectedImages().indexOf(media);
+                break;
+            }
+        }
+        if(index==-1){//没有找到，没有被选中
+            previewList.add(media);
+            index=previewList.size()-1;
+        }
+        previewImage(previewList,adapter.getSelectedImages(), index);
 
     }
 
