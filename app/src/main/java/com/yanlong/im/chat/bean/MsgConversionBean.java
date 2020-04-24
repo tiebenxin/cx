@@ -553,7 +553,7 @@ public class MsgConversionBean {
                     formName = msgDao.getGroupMemberName(bean.getGid(), bean.getFromUid(), null, null);//能查到群备注
                     formName = "\"" + formName + "\"";
                 }
-                if(bean.getFromUid() == UserAction.getMyId().intValue()){//自己PC 端发送的消息
+                if (bean.getFromUid() == UserAction.getMyId().intValue()) {//自己PC 端发送的消息
                     formName = "您";
                 }
 
@@ -833,6 +833,10 @@ public class MsgConversionBean {
                 msgAllBean.setTransferNoticeMessage(transferNoticeMessage);
                 break;
             case READ:
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.READ);
+                ReadMessage readMessage = new ReadMessage();
+                readMessage.setTime(bean.getRead().getTimestamp());
+                msgAllBean.setReadMessage(readMessage);
                 break;
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;

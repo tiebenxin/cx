@@ -7,6 +7,8 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.R;
 import net.cb.cb.library.view.MultiListView;
 
+import java.net.UnknownHostException;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -51,9 +53,9 @@ public abstract class CallBack<T> implements Callback<T> {
         if (t != null) {
             LogUtil.getLog().e("==响应异常=解析异常==" + t.getMessage());
         }
-//        if (listView == null && showErrorMsg) {
-//            ToastUtil.show(AppConfig.APP_CONTEXT, R.string.app_link_err);
-//        }
+        if (t instanceof UnknownHostException) {
+            return;
+        }
         if (showErrorMsg && (t != null && !TextUtils.isEmpty(t.getMessage()) && !t.getMessage().equals("Canceled"))) {
             ToastUtil.show(AppConfig.APP_CONTEXT, t.getMessage());
         }

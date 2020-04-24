@@ -171,6 +171,7 @@ import com.yanlong.im.utils.audio.IAdioTouch;
 import com.yanlong.im.utils.audio.IAudioRecord;
 import com.yanlong.im.utils.audio.IVoicePlayListener;
 import com.yanlong.im.utils.socket.MsgBean;
+import com.yanlong.im.utils.socket.SendList;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
@@ -843,11 +844,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         ToastUtil.show(getContext(), "撤回失败");
                         return;
                     }
-                    MsgAllBean msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean, true);
+                    MsgAllBean msgAllBean = SendList.getMsgFromSendSequence(bean.getRequestId());
+                    if (msgAllBean == null) {
+                        msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean, true);
+                    }
                     if (msgAllBean == null) {
                         return;
                     }
-                    if (msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.MSG_CANCEL
+                    if (msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.UNRECOGNIZED || msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.MSG_CANCEL
                             || msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.READ) {//取消的指令 已读指令不保存到数据库
                         return;
                     }
