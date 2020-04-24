@@ -519,26 +519,6 @@ public class SocketData {
     }
 
 
-    /**
-     * 发送一条音视频消息
-     *
-     * @param toId
-     * @param toGid
-     * @param txt         操作加时长
-     * @param auVideoType 语音、视频
-     * @param operation   操作
-     * @return
-     */
-    public static MsgAllBean send4VoiceOrVideo(Long toId, String toGid, String txt, MsgBean.AuVideoType auVideoType, String operation) {
-        MsgBean.P2PAuVideoMessage chat = MsgBean.P2PAuVideoMessage.newBuilder()
-                .setAvType(auVideoType)
-                .setOperation(operation)
-                .setDesc(txt)
-                .build();
-
-        return send4Base(toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO, chat);
-
-    }
 
     public static P2PAuVideoMessage createCallMessage(String msgId, int auType, String option, String desc) {
         P2PAuVideoMessage message = new P2PAuVideoMessage();
@@ -567,22 +547,6 @@ public class SocketData {
     }
 
 
-    /**
-     * 戳一戳消息
-     *
-     * @param toId
-     * @param toGid
-     * @param txt
-     * @return
-     */
-    public static MsgAllBean send4action(Long toId, String toGid, String txt) {
-        MsgBean.StampMessage action = MsgBean.StampMessage.newBuilder()
-                .setComment(txt)
-                .build();
-
-        return send4Base(toId, toGid, MsgBean.MessageType.STAMP, action);
-
-    }
 
     /***
      * 发送图片

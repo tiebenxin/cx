@@ -137,7 +137,11 @@ public class SocketUtil {
         @Override
         public void onSendMsgFailure(MsgBean.UniversalMessage.Builder bean) {
             LogUtil.getLog().e(TAG, ">>>>>发送失败了" + bean.getRequestId());
-            LogUtil.writeLog("--发送失败了--requestId=" + bean.getRequestId());
+            try {
+                LogUtil.writeLog("--发送失败了--requestId=" + bean.getRequestId() + "--msgType=" + bean.getWrapMsg(0).getMsgType());
+            } catch (Exception e) {
+
+            }
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {
                     ev.onSendMsgFailure(bean);
