@@ -191,14 +191,12 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 switch (type) {
                     case 0:
                     case 1: {
-                        if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            SpannableString style = new SpannableString("[有人@我]" + info);
-                            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
-                            style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            showMessage(holder.txtInfo, info, style);
-                        }
+                        SpannableString style = new SpannableString("[有人@我]" + info);
+                        ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
+                        style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        showMessage(holder.txtInfo, info, style);
                     }
-                        break;
+                    break;
                     case 2:
                         if (StringUtil.isNotNull(bean.getDraft())) {
                             SpannableString style = new SpannableString("[草稿]" + bean.getDraft());

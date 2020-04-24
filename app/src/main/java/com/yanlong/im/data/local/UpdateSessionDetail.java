@@ -232,6 +232,9 @@ public class UpdateSessionDetail {
             if (msg != null) {
                 sessionMore.setMessage(msg);
                 sessionMore.setMessageContent(msg.getMsg_typeStr());
+                if(msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL){//最后一条是撤销消息，去掉红色标志
+                    session.setMessageType(1000);
+                }
                 if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {//通知不要加谁发的消息
                     sessionMore.setSenderName("");
                 } else {
