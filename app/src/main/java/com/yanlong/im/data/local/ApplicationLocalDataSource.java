@@ -242,13 +242,13 @@ public class ApplicationLocalDataSource {
     }
 
     public void onDestory() {
-        burnManager.onDestory();
         if (realm != null) {
             if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             realm.close();
         }
+        burnManager.onDestory();
         realm = null;
         updateSessionDetail = null;
         burnManager = null;
