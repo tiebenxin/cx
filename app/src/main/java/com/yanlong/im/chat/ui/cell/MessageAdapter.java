@@ -54,6 +54,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
     private Map<String, Integer> mTimersIndexs = new HashMap<>();
     private MsgDao msgDao = new MsgDao();
     private IActionTagClickListener actionListener;
+    private boolean isOpenRead;
 
 
     public MessageAdapter(Context c, ICellEventListener l, boolean isG) {
@@ -83,14 +84,14 @@ public class MessageAdapter extends RecyclerView.Adapter {
         refreshPositions();
         this.notifyDataSetChanged();
     }
+
     /**
      * 遍历列表，并保存msgid位置
-     *
      */
     private void refreshPositions() {
         mMsgIdPositions.clear();
-        if(mList!=null&&mList.size()>0){
-            for(int position=0;position<mList.size();position++){
+        if (mList != null && mList.size() > 0) {
+            for (int position = 0; position < mList.size(); position++) {
                 mMsgIdPositions.put(mList.get(position).getMsg_id(), position);
             }
         }
@@ -113,6 +114,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         ChatEnum.EChatCellLayout layout = ChatEnum.EChatCellLayout.fromOrdinal(viewType);
         View view = LayoutInflater.from(context).inflate(layout.LayoutId, viewGroup, false);
         ChatCellBase cell = factoryChatCell.createCell(layout, view);
+        cell.setReadStatus(isOpenRead);
         cell.setActionClickListener(actionListener);
         return cell;
     }
@@ -121,8 +123,9 @@ public class MessageAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
         MsgAllBean msg = mList.get(position);
         ChatCellBase cellBase = (ChatCellBase) viewHolder;
+        cellBase.setReadStatus(isOpenRead);
         //初始化阅后即焚状态
-        initSurvialStatus(msg.getMsg_id(),cellBase);
+        initSurvialStatus(msg.getMsg_id(), cellBase);
         //开始阅后即焚
         addSurvivalTime(msg);
         if (msg.getSurvival_time() > 0 && msg.getStartTime() > 0 && msg.getEndTime() > 0) {
@@ -136,10 +139,11 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
     /**
      * 初始化更新阅后即焚状态
+     *
      * @param msgId
      * @param cellBase
      */
-    private void initSurvialStatus(String msgId,ChatCellBase cellBase){
+    private void initSurvialStatus(String msgId, ChatCellBase cellBase) {
         //及时更新阅后即焚状态
         if (mTimersIndexs.containsKey(msgId)) {
             String name = "icon_st_" + Math.min(COUNT, mTimersIndexs.get(msgId) + 1);
@@ -159,7 +163,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
             MsgAllBean msg = mList.get(position);
             ChatCellBase cellBase = (ChatCellBase) viewHolder;
             //初始化阅后即焚状态
-            initSurvialStatus(msg.getMsg_id(),cellBase);
+            initSurvialStatus(msg.getMsg_id(), cellBase);
             //开始阅后即焚
             addSurvivalTime(msg);
             if (msg.getSurvival_time() > 0 && msg.getStartTime() > 0 && msg.getEndTime() > 0) {
@@ -416,6 +420,10 @@ public class MessageAdapter extends RecyclerView.Adapter {
             msg.setEndTime(date + msg.getSurvival_time() * 1000);
             msg.setStartTime(date);
         }
+    }
+
+    public void setReadStatus(boolean isOpen) {
+        isOpenRead = isOpen;
     }
 
 }

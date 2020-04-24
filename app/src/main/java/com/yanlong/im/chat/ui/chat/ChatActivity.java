@@ -661,7 +661,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         taskCleanRead(true);
         initViewNewMsg();
 //        if (!isLoadHistory && !hasData()) {
-        if (!isLoadHistory){
+        if (!isLoadHistory) {
             taskRefreshMessage(false);
         }
         initUnreadCount();
@@ -1058,7 +1058,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     protected void showDraftContent(String message) {
         SpannableString spannableString = ExpressionUtil.getExpressionString(this, ExpressionUtil.DEFAULT_SIZE, message);
         editChat.setText(spannableString);
-        if(message.length()>0)editChat.setSelection(editChat.getText().length());
+        if (message.length() > 0) editChat.setSelection(editChat.getText().length());
     }
 
 
@@ -1383,6 +1383,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mAdapter.setCellFactory(new FactoryChatCell(this, mAdapter, this));
         mAdapter.setTagListener(this);
         mAdapter.setHasStableIds(true);
+        mAdapter.setReadStatus(checkIsRead());
         mtListView.init(mAdapter);
         mtListView.setAnimation(null);
 
@@ -2809,7 +2810,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             String fileFormat = net.cb.cb.library.utils.FileUtils.getFileSuffix(fileName);
                             //如果是图片或者视频，按原有旧的方式打开，不调用第三方程序列表
                             if (net.cb.cb.library.utils.FileUtils.isImage(fileFormat)) {
-                                 //1.上传图片
+                                //1.上传图片
                                 final String imgMsgId = SocketData.getUUID();
                                 ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" +*/ filePath, false);//TODO:使用file://路径会使得检测本地路径不存在
                                 imgMsgBean = sendMessage(imageMessage, ChatEnum.EMessageType.IMAGE, false);
@@ -4030,6 +4031,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     public void accept(List<MsgAllBean> list) throws Exception {
                         fixLastPosition(mAdapter.getMsgList(), list);
                         mAdapter.bindData(list, false);
+                        mAdapter.setReadStatus(checkIsRead());
                         int len = list.size();
                         if (len == 0 && lastPosition > len - 1) {//历史数据被清除了
                             lastPosition = 0;
@@ -4142,7 +4144,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     }
                 }
-                if(msg.getFrom_uid().longValue()==UserAction.getMyId().longValue()){
+                if (msg.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
                     //自己发送的消息,用本地实时头像
                     userInfo.setHead(UserAction.getMyInfo().getHead());
                 }
@@ -5498,7 +5500,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     public ChatCellBase getChatCellBase(int position) {
-        return mtListView.getListView().findViewHolderForAdapterPosition(position)==null?null:((ChatCellBase) mtListView.getListView().findViewHolderForAdapterPosition(position));
+        return mtListView.getListView().findViewHolderForAdapterPosition(position) == null ? null : ((ChatCellBase) mtListView.getListView().findViewHolderForAdapterPosition(position));
     }
 
     private void clickFile(MsgAllBean message, SendFileMessage fileMessage) {
@@ -5534,11 +5536,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename());
             } else {
                 if (!TextUtils.isEmpty(fileMessage.getUrl())) {
-                    if(fileMessage.getSize()!=0){
+                    if (fileMessage.getSize() != 0) {
                         //小于10M，自动下载+打开
-                        if(fileMessage.getSize()<10485760){
+                        if (fileMessage.getSize() < 10485760) {
                             DownloadFile(fileMessage);
-                        }else {
+                        } else {
                             //大于10M，跳详情，用户自行选择手动下载
                             Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
                             intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
@@ -5771,6 +5773,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     /**
      * 下载文件 + 打开
+     *
      * @param sendFileMessage
      */
     private void DownloadFile(SendFileMessage sendFileMessage) {
@@ -5779,12 +5782,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         String fileName = "";
 
         //获取文件消息id
-        if(!TextUtils.isEmpty(sendFileMessage.getMsgId())){
+        if (!TextUtils.isEmpty(sendFileMessage.getMsgId())) {
             fileMsgId = sendFileMessage.getMsgId();
         }
 
         //显示文件名
-        if(!TextUtils.isEmpty(sendFileMessage.getFile_name())){
+        if (!TextUtils.isEmpty(sendFileMessage.getFile_name())) {
             fileName = sendFileMessage.getFile_name();
             //若有同名文件，则重命名，保存最终真实文件名，如123.txt若有重名则依次保存为123.txt(1) 123.txt(2)
             //若没有同名文件，则按默认新文件来保存
@@ -5792,7 +5795,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
 
         //获取url，自动开始下载文件，并打开
-        if(!TextUtils.isEmpty(sendFileMessage.getUrl())){
+        if (!TextUtils.isEmpty(sendFileMessage.getUrl())) {
             fileUrl = sendFileMessage.getUrl();
             //指定下载路径文件夹，若不存在则创建
             File fileDir = new File(FileConfig.PATH_DOWNLOAD);
@@ -5806,7 +5809,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 DownloadUtil.get().downLoadFile(fileUrl, file, new DownloadUtil.OnDownloadListener() {
                     @Override
                     public void onDownloadSuccess(File file) {
-                        ToastUtil.showLong(ChatActivity.this,"下载成功! \n文件已保存："+FileConfig.PATH_DOWNLOAD+"目录下");
+                        ToastUtil.showLong(ChatActivity.this, "下载成功! \n文件已保存：" + FileConfig.PATH_DOWNLOAD + "目录下");
                         //下载成功
                         //1 本地数据库刷新：保存一个新增属性-真实文件名，主要用于多个同名文件区分保存，防止重名，方便用户点击打开重名文件
                         MsgAllBean reMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", finalFileMsgId);
@@ -5834,6 +5837,27 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 ToastUtil.show("文件下载失败");
             }
         }
+    }
+
+    /**
+     * 检查是否显示已读
+     */
+    private boolean checkIsRead() {
+        if (userInfo == null) {
+            return false;
+        }
+        int friendMasterRead = userInfo.getMasterRead();
+        int friendRead = userInfo.getFriendRead();
+        int myRead = userInfo.getMyRead();
+
+        IUser myUserInfo = userDao.myInfo();
+        int masterRead = myUserInfo.getMasterRead();
+        if (friendMasterRead == 1 && friendRead == 1 && myRead == 1 && masterRead == 1) {
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
 }

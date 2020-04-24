@@ -69,6 +69,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     private TextView tvRead;
     private TextView tvReadTime;
     public IActionTagClickListener actionTagClickListener;
+    private boolean isOpenRead = true;//是否开启已读开关
 
     protected ChatCellBase(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(view);
@@ -436,13 +437,11 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         if (viewRead == null) {
             return;
         }
-        if (isMe && model.getSend_state() == ChatEnum.ESendStatus.NORMAL && model.getRead() == 1 && model.getReadTime() > 0) {
-//            LogUtil.getLog().i("ChatCellBase", "显示已读 msgId--" + model.getMsg_id());
+        if (isMe && isOpenRead && model.getSend_state() == ChatEnum.ESendStatus.NORMAL && model.getRead() == 1 && model.getReadTime() > 0) {
             viewRead.setVisibility(VISIBLE);
             tvRead.setText("已读");
             tvReadTime.setText(TimeToString.HH_MM(model.getReadTime()));
         } else {
-//            LogUtil.getLog().i("ChatCellBase", "隐藏已读 msgId--" + model.getMsg_id());
             viewRead.setVisibility(View.GONE);
         }
     }
@@ -452,6 +451,10 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         if (ivBell != null) {
             ivBell.setImageResource(rid);
         }
+    }
+
+    public void setReadStatus(boolean isOpen) {
+        isOpenRead = isOpen;
     }
 
 }

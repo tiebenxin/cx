@@ -196,7 +196,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                         style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                         showMessage(holder.txtInfo, info, style);
                     }
-                        break;
+                    break;
                     case 2:
                         if (StringUtil.isNotNull(bean.getDraft())) {
                             SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
