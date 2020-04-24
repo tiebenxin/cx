@@ -140,6 +140,10 @@ public class DaoMigration implements RealmMigration {
                 updateV29(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 29) {
+                updateV30(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -535,6 +539,21 @@ public class DaoMigration implements RealmMigration {
                 .addField("bankReqSignKey", String.class);
     }
 
+    /**
+     * 添加收藏
+     * @param schema
+     */
+    private void updateV30(RealmSchema schema) {
+        schema.create("CollectionInfo")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("imgHead", String.class)
+                .addField("name",String.class)
+                .addField("collectionTime",long.class)
+                .addField("collectionType",int.class)
+                .addField("collectionContent",String.class)
+                .addField("path",String.class)
+                .addField("msgBean",String.class);
+    }
 
     @Override
     public boolean equals(@Nullable Object obj) {

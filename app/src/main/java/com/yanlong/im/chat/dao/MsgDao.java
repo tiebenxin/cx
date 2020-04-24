@@ -34,6 +34,7 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
+import com.yanlong.im.user.bean.CollectionInfo;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
@@ -539,6 +540,67 @@ public class MsgDao {
         }
     }
 
+    /***
+     * 保存收藏信息
+     * @param
+     */
+    public void saveCollection(CollectionInfo collectionInfo) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            realm.insertOrUpdate(collectionInfo);
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
+    /**
+     * 查询收藏数据
+     * @param value
+     * @return
+     */
+    public List<CollectionInfo> findCollectionInfo(String value) {
+        Realm realm = DaoUtil.open();
+        List<CollectionInfo> ret=null;
+        try {
+            ret = new ArrayList<>();
+            RealmResults<CollectionInfo> users = null;
+            if(StringUtil.isNotNull(value)){
+                users = realm.where(CollectionInfo.class).contains("collectionContent",value).or().contains("name",value)
+                        .sort("collectionTime", Sort.DESCENDING).findAll();
+            }else{
+                users = realm.where(CollectionInfo.class).sort("collectionTime", Sort.DESCENDING).findAll();
+            }
+            if (users != null)
+                ret = realm.copyFromRealm(users);
+        }catch (Exception e){
+            DaoUtil.reportException(e);
+        }finally {
+            realm.close();
+        }
+        return ret;
+    }
+
+    /**
+     * 删除收藏记录
+     * @param msgId
+     */
+    public void deleteCollectionInfo(String msgId) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            realm.where(CollectionInfo.class).equalTo("msgId", msgId).findAll().deleteAllFromRealm();
+            realm.commitTransaction();
+        }catch (Exception e){
+            DaoUtil.reportException(e);
+        }finally {
+            realm.close();
+        }
+    }
 
     /***
      * 离线获取群信息
