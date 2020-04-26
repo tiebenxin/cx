@@ -51,6 +51,7 @@ public class ChatCellMap extends ChatCellBase {
         }
         tvLocation.setText(message.getAddress());
         tvLocationDesc.setText(message.getAddressDescribe());
+        ivLocation.setImageResource(R.mipmap.ic_image_bg);
         if (StringUtil.isNotNull(message.getImg())) {
             Glide.with(mContext)
                     .asBitmap()

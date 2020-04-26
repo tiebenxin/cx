@@ -339,7 +339,7 @@ public class MsgMainFragment extends Fragment {
     public void onResume() {
         viewModel.isNeedCloseSwipe.setValue(true);
         //需要触发下，Fragment可能被设置了预加载
-        if(!viewModel.isShowLoadAnim.getValue())viewModel.isShowLoadAnim.setValue(false);
+        if (!viewModel.isShowLoadAnim.getValue()) viewModel.isShowLoadAnim.setValue(false);
         super.onResume();
     }
 
@@ -370,61 +370,65 @@ public class MsgMainFragment extends Fragment {
     private OrderedRealmCollectionChangeListener sessionMoresListener = new OrderedRealmCollectionChangeListener<RealmResults<SessionDetail>>() {
         @Override
         public void onChange(RealmResults<SessionDetail> sessionDetails, OrderedCollectionChangeSet changeSet) {
-            /***必须先更新位置信息*********************************************************/
-            viewModel.sessionMoresPositions.clear();
-            for (int i = 0; i < viewModel.sessionMores.size(); i++) {
-                viewModel.sessionMoresPositions.put(viewModel.sessionMores.get(i).getSid(), i);
-            }
-            if(viewModel.isShowLoadAnim.getValue()&&sessionDetails.size() >= Math.min(50,viewModel.sessions.size())){
-                //只有第一次加载才会出现，有50条（可调整）数据，短时间内应该是看不到白板情况，可关闭进度条了
-                viewModel.isShowLoadAnim.setValue(false);
-            }
-            /*****第一次初始化******************************************************************************************/
-            if(changeSet.getState()== OrderedCollectionChangeSet.State.INITIAL){
-                mtListView.getListView().getAdapter().notifyDataSetChanged();
-            }
-
-            /*****增加了数据-需要更新全部*******************************************************************************************/
-            if (changeSet.getInsertionRanges().length > 0) {
-                mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
-            }
-            /*****删除了数据，*******************************************************************************************/
-            if (changeSet.getDeletionRanges().length > 0) {
-                if(viewModel.sessions.size()==0){
+            try {
+                /***必须先更新位置信息*********************************************************/
+                viewModel.sessionMoresPositions.clear();
+                for (int i = 0; i < viewModel.sessionMores.size(); i++) {
+                    viewModel.sessionMoresPositions.put(viewModel.sessionMores.get(i).getSid(), i);
+                }
+                if (viewModel.isShowLoadAnim.getValue() && sessionDetails.size() >= Math.min(50, viewModel.sessions.size())) {
+                    //只有第一次加载才会出现，有50条（可调整）数据，短时间内应该是看不到白板情况，可关闭进度条了
+                    viewModel.isShowLoadAnim.setValue(false);
+                }
+                /*****第一次初始化******************************************************************************************/
+                if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
                     mtListView.getListView().getAdapter().notifyDataSetChanged();
-                }else{
+                }
+
+                /*****增加了数据-需要更新全部*******************************************************************************************/
+                if (changeSet.getInsertionRanges().length > 0) {
                     mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
                 }
-            }
-            /*****更新了数据*******************************************************************************************/
-            int[] modifications = changeSet.getChanges();
-            //获取更新信息
-            for (int position : modifications) {
-                String sid = sessionDetails.get(position).getSid();
-                if (MyAppLication.INSTANCE().repository.sessionSidPositons.containsKey(sid)) {
-                    int startId = MyAppLication.INSTANCE().repository.sessionSidPositons.get(sid);
-                    mtListView.getListView().getAdapter().notifyItemRangeChanged(startId + 1, 1);
-                } else {
-                    mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                /*****删除了数据，*******************************************************************************************/
+                if (changeSet.getDeletionRanges().length > 0) {
+                    if (viewModel.sessions.size() == 0) {
+                        mtListView.getListView().getAdapter().notifyDataSetChanged();
+                    } else {
+                        mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                    }
                 }
-            }
-            //详情未全部加载时，1秒后再次请求
+                /*****更新了数据*******************************************************************************************/
+                int[] modifications = changeSet.getChanges();
+                //获取更新信息
+                for (int position : modifications) {
+                    String sid = sessionDetails.get(position).getSid();
+                    if (MyAppLication.INSTANCE().repository.sessionSidPositons.containsKey(sid)) {
+                        int startId = MyAppLication.INSTANCE().repository.sessionSidPositons.get(sid);
+                        mtListView.getListView().getAdapter().notifyItemRangeChanged(startId + 1, 1);
+                    } else {
+                        mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                    }
+                }
+                //详情未全部加载时，1秒后再次请求
 //            if(sessionDetails.size() < viewModel.sessions.size()){
 //                handler.removeCallbacks(updateSessionMoreAgain);
 //                handler.postDelayed(updateSessionMoreAgain,1000);
 //            }
+            } catch (Exception e) {
+            }
         }
     };
-    private Runnable updateSessionMoreAgain=new Runnable() {
+    private Runnable updateSessionMoreAgain = new Runnable() {
         @Override
         public void run() {
             viewModel.updateSessionMore();
-            if(viewModel.sessionMores!=null)
+            if (viewModel.sessionMores != null)
                 viewModel.sessionMores.addChangeListener(sessionMoresListener);
         }
     };
 
-    private Handler handler=new Handler();
+    private Handler handler = new Handler();
+
     /**
      * 初始化观察器
      */
@@ -453,7 +457,7 @@ public class MsgMainFragment extends Fragment {
             public void onChanged(@Nullable Boolean aBoolean) {
                 viewModel.updateSessionMore();
                 //监听列表数据变化
-                if(viewModel.sessionMores!=null)
+                if (viewModel.sessionMores != null)
                     viewModel.sessionMores.addChangeListener(sessionMoresListener);
 
             }
@@ -461,11 +465,11 @@ public class MsgMainFragment extends Fragment {
         viewModel.isShowLoadAnim.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean aBoolean) {
-                if(aBoolean){//显示列表加载动画
+                if (aBoolean) {//显示列表加载动画
                     mtListView.getLoadView().setStateLoading();
                     //必须在setEvent后调用
                     mtListView.getSwipeLayout().setEnabled(true);
-                }else{//关闭列表加载动画
+                } else {//关闭列表加载动画
                     mtListView.getLoadView().setStateNormal();
                     //必须在setEvent后调用
                     mtListView.getSwipeLayout().setEnabled(false);
@@ -492,8 +496,8 @@ public class MsgMainFragment extends Fragment {
             int refreshTag = event.getRefreshTag();
             //刷新 单个记录 by sid
             if (refreshTag == CoreEnum.ESessionRefreshTag.SINGLE) {
-                String sid=event.getSid();//刷新页面-暂时是为了及时刷新草稿用的
-                if (!TextUtils.isEmpty(sid)&&MyAppLication.INSTANCE().repository.sessionSidPositons.containsKey(sid)) {
+                String sid = event.getSid();//刷新页面-暂时是为了及时刷新草稿用的
+                if (!TextUtils.isEmpty(sid) && MyAppLication.INSTANCE().repository.sessionSidPositons.containsKey(sid)) {
                     int startId = MyAppLication.INSTANCE().repository.sessionSidPositons.get(sid);
                     mtListView.getListView().getAdapter().notifyItemRangeChanged(startId + 1, 1);
                 }

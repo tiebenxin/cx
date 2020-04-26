@@ -87,99 +87,101 @@ public class ApplicationRepository {
         sessions.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<Session>>() {
             @Override
             public void onChange(RealmResults<Session> sessions, OrderedCollectionChangeSet changeSet) {
-                currentCount = sessions.size();
-                int sessionIndex = 0;
-                /***** 异步查询第一次返回。*******************************************************************************************/
-                {
-                    if (changeSet == null || changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
-                        //加载完成
-                        isLoadingSessions = false;
+                try {
+                    currentCount = sessions.size();
+                    int sessionIndex = 0;
+                    /***** 异步查询第一次返回。*******************************************************************************************/
+                    {
+                        if (changeSet == null || changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
+                            //加载完成
+                            isLoadingSessions = false;
 //                    notifyDataSetChanged();
+                            sessionSidPositons.clear();
+                            ArrayList<String> sids = new ArrayList<String>();
+                            sids.clear();
+                            sessionIndex = 0;
+                            for (Session session : sessions) {
+                                sids.add(session.getSid());
+                                sessionSidPositons.put(session.getSid(), sessionIndex);
+                                sessionIndex++;
+                            }
+
+                            //1.更新detail
+                            if (sids.size() > 0) {
+                                localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
+                            }
+                            //通知监听器
+                            for (SessionChangeListener sessionChangeListener : mSessionChangeListeners) {
+                                sessionChangeListener.init(sessions, sids);
+                            }
+
+                            return;
+                        }
+                    }
+                    //更新位置信息
+                    if (changeSet.getDeletionRanges().length > 0 || changeSet.getInsertionRanges().length > 0 || changeSet.getChangeRanges().length > 0) {
                         sessionSidPositons.clear();
-                        ArrayList<String> sids = new ArrayList<String>();
-                        sids.clear();
                         sessionIndex = 0;
                         for (Session session : sessions) {
-                            sids.add(session.getSid());
                             sessionSidPositons.put(session.getSid(), sessionIndex);
                             sessionIndex++;
                         }
-
-                        //1.更新detail
-                        if (sids.size() > 0) {
-                            localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
-                        }
-                        //通知监听器
-                        for (SessionChangeListener sessionChangeListener : mSessionChangeListeners) {
-                            sessionChangeListener.init(sessions, sids);
-                        }
-
-                        return;
                     }
-                }
-                //更新位置信息
-                if (changeSet.getDeletionRanges().length > 0 || changeSet.getInsertionRanges().length > 0 || changeSet.getChangeRanges().length > 0) {
-                    sessionSidPositons.clear();
-                    sessionIndex = 0;
-                    for (Session session : sessions) {
-                        sessionSidPositons.put(session.getSid(), sessionIndex);
-                        sessionIndex++;
-                    }
-                }
 
-                /*****删除了数据，对于删除，必须以相反的顺序通知适配器。*******************************************************************************************/
-                {
+                    /*****删除了数据，对于删除，必须以相反的顺序通知适配器。*******************************************************************************************/
+                    {
 
 //                    notifyItemRangeRemoved(range.startIndex, range.length);
-                    if (changeSet.getDeletions().length > 0) {
-                        //1.删除-不需要更新detail
-                        //2.通知监听器
-                        for (SessionChangeListener listener : mSessionChangeListeners) {
-                            listener.delete(changeSet.getDeletions());
+                        if (changeSet.getDeletions().length > 0) {
+                            //1.删除-不需要更新detail
+                            //2.通知监听器
+                            for (SessionChangeListener listener : mSessionChangeListeners) {
+                                listener.delete(changeSet.getDeletions());
+                            }
                         }
                     }
-                }
 
-                /*****增加了数据*******************************************************************************************/
-                {
+                    /*****增加了数据*******************************************************************************************/
+                    {
 
-                    int[] insertions = changeSet.getInsertions();
-                    ArrayList<String> sids = new ArrayList<String>();
-                    //获取更新信息
-                    for (int position : insertions) {
-                        sids.add(sessions.get(position).getSid());
+                        int[] insertions = changeSet.getInsertions();
+                        ArrayList<String> sids = new ArrayList<String>();
+                        //获取更新信息
+                        for (int position : insertions) {
+                            sids.add(sessions.get(position).getSid());
 //                    notifyItemRangeInserted(range.startIndex, range.length);
-                    }
-
-                    if (insertions.length > 0) {
-                        //1.更新增加数据的detail详情
-                        localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
-                        //2.通知监听器
-                        for (SessionChangeListener listener : mSessionChangeListeners) {
-                            listener.insert(insertions, sids);
                         }
-                    }
 
-                }
-                /*****数据更改*******************************************************************************************/
-                {
-                    int[] modifications = changeSet.getChanges();
-                    ArrayList<String> sids = new ArrayList<String>();
-                    //获取更新信息
-                    for (int position : modifications) {
-                        sids.add(sessions.get(position).getSid());
+                        if (insertions.length > 0) {
+                            //1.更新增加数据的detail详情
+                            localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
+                            //2.通知监听器
+                            for (SessionChangeListener listener : mSessionChangeListeners) {
+                                listener.insert(insertions, sids);
+                            }
+                        }
+
+                    }
+                    /*****数据更改*******************************************************************************************/
+                    {
+                        int[] modifications = changeSet.getChanges();
+                        ArrayList<String> sids = new ArrayList<String>();
+                        //获取更新信息
+                        for (int position : modifications) {
+                            sids.add(sessions.get(position).getSid());
 //                    notifyItemRangeChanged(range.startIndex, range.length);
-                    }
+                        }
 
-                    if (modifications.length > 0) {
-                        //1.更新增加更改的detail详情
-                        localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
-                        //2.通知监听器
-                        for (SessionChangeListener listener : mSessionChangeListeners) {
-                            listener.update(modifications, sids);
+                        if (modifications.length > 0) {
+                            //1.更新增加更改的detail详情
+                            localDataSource.updateSessionDetail(sids.toArray(new String[sids.size()]));
+                            //2.通知监听器
+                            for (SessionChangeListener listener : mSessionChangeListeners) {
+                                listener.update(modifications, sids);
+                            }
                         }
                     }
-                }
+                }catch (Exception e){}
             }
         });
     }
