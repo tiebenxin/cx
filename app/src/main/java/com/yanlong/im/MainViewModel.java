@@ -82,8 +82,10 @@ public class MainViewModel extends ViewModel {
     }
 
     public void updateSessionMore() {
-        if (sessionMores != null) sessionMores.removeAllChangeListeners();
-        sessionMores = repository.getSessionMore(allSids.toArray(new String[allSids.size()]));
+        try {
+            if (sessionMores != null) sessionMores.removeAllChangeListeners();
+            sessionMores = repository.getSessionMore(allSids.toArray(new String[allSids.size()]));
+        }catch (Exception e){}
     }
 
 

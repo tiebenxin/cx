@@ -213,6 +213,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         tvEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 //如果当前图片存在于已选中列表则编辑后需要更新已选列表的数据；否则不需要更新已选列表的数据
                 int editIndex = getSelectedPosition(images.get(position));
                 ARouter.getInstance().build("/weixinrecorded/ImageShowActivity").withString("imgpath",images.get(position).getPath()).withInt("index",editIndex).navigation(PicturePreviewActivity.this,EDIT_FROM_ALBUM);
@@ -502,6 +503,8 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                         if(data.getIntExtra("index",-1) != -1){
                             int tempIndex = data.getIntExtra("index",-1);
                             selectImages.get(tempIndex).setPath(data.getStringExtra("showPath"));
+                        }else{//没有选中，直接选中
+                            ll_check.performClick();
                         }
                     }
                     break;

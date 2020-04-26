@@ -370,6 +370,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private ChangeSelectDialog dialogOne;//通用提示选择弹框：实名认证
     private IAudioRecord audioRecord;
     private IAdioTouch audioTouchListerner;
+    private boolean isNeedStopVoicePlay = true;
 
     private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
         @Override
@@ -560,7 +561,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         clickAble = true;
         //更新阅后即焚状态
         initSurvivaltimeState();
-        sendRead();
+//        sendRead();
         if (AppConfig.isOnline()) {
             checkHasEnvelopeSendFailed();
         }
@@ -808,7 +809,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                         //8.7 是属于这个会话就刷新
                         if (!needRefresh) {
-                            sendRead();
+//                            sendRead();
                             if (isGroup()) {
                                 needRefresh = msg.getGid().equals(toGid);
                             } else {
@@ -1895,9 +1896,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void scrollChatToPosition(int position) {
+        LogUtil.getLog().i(TAG, "scrollChatToPosition--" + position);
         mtListView.getListView().scrollToPosition(position);
         currentScrollPosition = position;
-
+        initLastPosition();
         View topView = mtListView.getLayoutManager().getChildAt(currentScrollPosition);
         if (topView != null) {
             //获取与该view的底部的偏移量
@@ -1906,8 +1908,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void scrollChatToPositionWithOffset(int position, int offset) {
+        LogUtil.getLog().i(TAG, "scrollChatToPositionWithOffset--" + position + "--offset=" + offset);
         ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).scrollToPositionWithOffset(position, offset);
         currentScrollPosition = position;
+        initLastPosition();
         View topView = mtListView.getLayoutManager().getChildAt(currentScrollPosition);
         if (topView != null) {
             //获取与该view的底部的偏移量
@@ -2314,6 +2318,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             int length = mAdapter.getItemCount();//刷新后当前size
             if (isMustBottom) {
                 mtListView.scrollToEnd();
+                initLastPosition();
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
                     if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
@@ -2898,6 +2903,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 MsgAllBean bean = (MsgAllBean) event.getObject();
                 if (isMsgFromCurrentChat(bean.getGid(), bean.getFrom_uid())) {
                     addMsg(bean);
+                    sendRead(bean);
                 }
             } /*else if (event.getList() != null) {
                 addMsg(event.getList());
@@ -3979,6 +3985,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
+    public void sendRead(MsgAllBean bean) {
+        //发送已读回执
+        if (TextUtils.isEmpty(toGid)) {
+            if (bean != null) {
+                if (bean.getRead() == 0) {
+                    msgid = bean.getMsg_id();
+                    ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
+                    MsgAllBean message = SocketData.createMessageBean(toUId, "", ChatEnum.EMessageType.READ, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), read);
+                    SocketData.sendAndSaveMessage(message);
+                    msgDao.setRead(msgid);
+                }
+            }
+        }
+    }
+
 
     /***
      * 获取最新的
@@ -4044,7 +4065,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                         notifyData2Bottom(isScrollBottom);
                         //单聊发送已读消息
-                        sendRead();
+                        sendRead(list.get(len - 1));
                     }
                 });
 
@@ -5862,6 +5883,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             return false;
         }
 
+    }
+
+    private void initLastPosition() {
+        if (mtListView != null) {
+            lastPosition = ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).findLastVisibleItemPosition();
+        }
     }
 
 }

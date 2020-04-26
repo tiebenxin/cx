@@ -95,9 +95,11 @@ public class FriendMainFragment extends Fragment {
     private OrderedRealmCollectionChangeListener<RealmResults<UserInfo>> friendsChangeListener = new OrderedRealmCollectionChangeListener<RealmResults<UserInfo>>() {
         @Override
         public void onChange(RealmResults<UserInfo> userInfos, OrderedCollectionChangeSet changeSet) {
-            //显示右侧字母
-            viewType.addItemView(userParseString());
-            mtListView.getListView().getAdapter().notifyDataSetChanged();
+            try {
+                //显示右侧字母
+                viewType.addItemView(userParseString());
+                mtListView.getListView().getAdapter().notifyDataSetChanged();
+            }catch (Exception e){}
         }
     };
 
