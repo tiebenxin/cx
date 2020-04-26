@@ -87,7 +87,7 @@ public class FriendMainFragment extends Fragment {
     private ApplicationRepository.FriendChangeListener friendChangeListener = new ApplicationRepository.FriendChangeListener() {
         @Override
         public void init(RealmResults<UserInfo> friends) {
-            init(friends);
+            viewModel.initFriend();
             //显示右侧字母
             updateViewType();
         }
