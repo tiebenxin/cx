@@ -81,11 +81,20 @@ public class MainViewModel extends ViewModel {
         }
     }
 
+    public void initFriend(){
+        friends = MyAppLication.INSTANCE().getFriends();
+    }
     public void updateSessionMore() {
+        RealmResults<SessionDetail> temp = null;
         try {
-            if (sessionMores != null) sessionMores.removeAllChangeListeners();
-            sessionMores = repository.getSessionMore(allSids.toArray(new String[allSids.size()]));
+            //做一层保护，可能会有事务冲突或其他奔溃,引起的无法进行异步查询
+            temp = repository.getSessionMore(allSids.toArray(new String[allSids.size()]));
+            if(temp!=null){
+                if (sessionMores != null) sessionMores.removeAllChangeListeners();
+                sessionMores = temp;
+            }
         }catch (Exception e){}
+
     }
 
 
