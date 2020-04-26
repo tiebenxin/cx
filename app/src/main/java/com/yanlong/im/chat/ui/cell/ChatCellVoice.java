@@ -30,7 +30,8 @@ public class ChatCellVoice extends ChatCellBase {
     private VoiceMessage voiceMessage;
     private ImageView ivVoice;
     private TextView tvTime;
-    private ImageView ivStatus;
+    private ImageView ivStatus;//未读
+    private ImageView ivProgress;//进度
 
     protected ChatCellVoice(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
@@ -42,6 +43,7 @@ public class ChatCellVoice extends ChatCellBase {
         ivVoice = getView().findViewById(R.id.iv_voice);
         tvTime = getView().findViewById(R.id.tv_voice_time);
         ivStatus = getView().findViewById(R.id.iv_voice_status);
+        ivProgress = getView().findViewById(R.id.iv_voice_progress);
     }
 
     @Override
@@ -52,6 +54,7 @@ public class ChatCellVoice extends ChatCellBase {
             updateBubbleWidth(voiceMessage.getTime());
             initTime(voiceMessage.getTime());
             updateUnread(voiceMessage.getPlayStatus());
+            setDownloadStatus(voiceMessage.getPlayStatus());
         }
     }
 
@@ -64,11 +67,11 @@ public class ChatCellVoice extends ChatCellBase {
     }
 
     void updateVoice(boolean isPlay) {
-        LogUtil.getLog().i(ChatCellVoice.class.getSimpleName(), "updateVoice");
+        LogUtil.getLog().i(ChatCellVoice.class.getSimpleName(), "updateVoice--" + model.getSend_state());
         voiceMessage = model.getVoiceMessage();
         if (voiceMessage != null) {
             int playStatus = voiceMessage.getPlayStatus();
-            updateUnread(playStatus);
+//            updateUnread(playStatus);
             if (isPlay && playStatus == ChatEnum.EPlayStatus.PLAYING) {
                 ((AnimationDrawable) ivVoice.getDrawable()).selectDrawable(2);
                 ((AnimationDrawable) ivVoice.getDrawable()).start();
@@ -76,8 +79,8 @@ public class ChatCellVoice extends ChatCellBase {
                 ((AnimationDrawable) ivVoice.getDrawable()).selectDrawable(0);
                 ((AnimationDrawable) ivVoice.getDrawable()).stop();
             }
-            if (!isMe && !model.isRead()) {
-                setDownloadStatus(playStatus, model.isRead());
+            if (!isMe) {
+                setDownloadStatus(playStatus);
             }
         }
     }
@@ -90,18 +93,23 @@ public class ChatCellVoice extends ChatCellBase {
 
     }
 
-    private void setDownloadStatus(int playStatus, boolean isRead) {
+    private void setDownloadStatus(int playStatus) {
+        if (ivProgress == null) {
+            return;
+        }
+        LogUtil.getLog().i(ChatCellVoice.class.getSimpleName(), "setDownloadStatus--" + playStatus);
         switch (playStatus) {
             case ChatEnum.EPlayStatus.DOWNLOADING://正常
-                if (!isRead) {
+                ivStatus.setVisibility(GONE);
+                if (ivProgress != null) {
                     Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
-                    ivStatus.startAnimation(rotateAnimation);
-                    ivStatus.setVisibility(VISIBLE);
+                    ivProgress.startAnimation(rotateAnimation);
+                    ivProgress.setVisibility(VISIBLE);
                 }
                 break;
-            case ChatEnum.EPlayStatus.NO_PLAY:
-                ivStatus.clearAnimation();
-                ivStatus.setVisibility(GONE);
+            default:
+                ivProgress.clearAnimation();
+                ivProgress.setVisibility(GONE);
                 break;
         }
     }
@@ -118,7 +126,7 @@ public class ChatCellVoice extends ChatCellBase {
         if (bubbleLayout == null) {
             return;
         }
-        LogUtil.getLog().i(ChatCellVoice.class.getSimpleName(), "updateBubbleWidth--len=" + len);
+//        LogUtil.getLog().i(ChatCellVoice.class.getSimpleName(), "updateBubbleWidth--len=" + len);
         if (len > 0) {
             int s = len > 60 ? 60 : len;
             int wsum = getScreenWidth() - DensityUtil.dip2px(getContext(), 74) * 2;
@@ -127,7 +135,7 @@ public class ChatCellVoice extends ChatCellBase {
             ViewGroup.LayoutParams layoutParams = bubbleLayout.getLayoutParams();
             layoutParams.width = w + DensityUtil.dip2px(getContext(), 65);
             bubbleLayout.setMinimumWidth(w);
-            LogUtil.getLog().i(ChatCellVoice.class.getSimpleName(), "updateBubbleWidth--width=" + w);
+//            LogUtil.getLog().i(ChatCellVoice.class.getSimpleName(), "updateBubbleWidth--width=" + w);
         }
     }
 
