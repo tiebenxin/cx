@@ -64,6 +64,7 @@ public class FriendMatchActivity extends AppActivity {
     private int needUploadTimes = 0;//批次上传-需要上传的次数
     private int hadUploadTimes = 0;//批次上传-已经上传的次数
     private boolean ifSub = false;//是否存在批次上传
+    private List<List<PhoneBean>> subList;//批次上传-切割后的数据
 
 
     @Override
@@ -159,12 +160,10 @@ public class FriendMatchActivity extends AppActivity {
                         if (list.size() > numberLimit){
                             ifSub = true;
                             progressBar.setVisibility(View.VISIBLE);
-                            List<List<PhoneBean>> finalList = new ArrayList<>();
-                            finalList.addAll(CommonUtils.subWithLen(list,numberLimit));//拆分成多个List按批次上传
-                            needUploadTimes = finalList.size();
-                            for(int i=0;i<needUploadTimes;i++){
-                                taskUserMatchPhone(finalList.get(i));
-                            }
+                            subList = new ArrayList<>();
+                            subList.addAll(CommonUtils.subWithLen(list,numberLimit));//拆分成多个List按批次上传
+                            needUploadTimes = subList.size();
+                            taskUserMatchPhone(subList.get(hadUploadTimes));//默认先传第一部分
                         }else {
                             ifSub = false;
                             progressBar.setVisibility(View.GONE);
@@ -343,6 +342,8 @@ public class FriendMatchActivity extends AppActivity {
                                 ToastUtil.show(context, "没有匹配的手机联系人");
                             }
                             progressBar.setVisibility(View.GONE);
+                        }else {
+                            taskUserMatchPhone(subList.get(hadUploadTimes));
                         }
                     }else {
                         if (listData == null || listData.size() == 0) {
