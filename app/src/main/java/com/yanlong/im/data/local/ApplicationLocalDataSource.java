@@ -173,6 +173,14 @@ public class ApplicationLocalDataSource {
                     }
                 }
             }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(Throwable error) {
+            }
         });
     }
 

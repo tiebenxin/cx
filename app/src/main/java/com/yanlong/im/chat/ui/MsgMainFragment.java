@@ -13,6 +13,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -360,6 +361,7 @@ public class MsgMainFragment extends Fragment {
             viewModel.isNeedCloseSwipe.setValue(true);
             viewModel.allSids.addAll(sids);
             viewModel.isAllSidsChange.setValue(true);
+            Log.e("raleigh_test","setChange");
         }
 
         @Override
@@ -478,10 +480,9 @@ public class MsgMainFragment extends Fragment {
         });
 
     }
-
     @Override
     public void onDestroy() {
-        MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
+        if(sessionChangeListener!=null)MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
         super.onDestroy();
         //释放数据对象
         viewModel.onDestory(this);

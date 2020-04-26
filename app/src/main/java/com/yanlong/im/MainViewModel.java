@@ -3,6 +3,7 @@ package com.yanlong.im;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
+import android.util.Log;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
@@ -67,6 +68,7 @@ public class MainViewModel extends ViewModel {
                         allSids.add(session.getSid());
                     }
                     isAllSidsChange.setValue(true);
+                    Log.e("raleigh_test","isAllSidsChange1");
                 }else{
                     isShowLoadAnim.setValue(false);
                 }
@@ -74,6 +76,7 @@ public class MainViewModel extends ViewModel {
                 if (sids.size() > 0) {
                     allSids.addAll(sids);
                     isAllSidsChange.setValue(true);
+                    Log.e("raleigh_test","isAllSidsChange2");
                 }else{
                     isShowLoadAnim.setValue(false);
                 }
@@ -85,6 +88,7 @@ public class MainViewModel extends ViewModel {
         friends = MyAppLication.INSTANCE().getFriends();
     }
     public void updateSessionMore() {
+        Log.e("raleigh_test","updateSessionMore");
         RealmResults<SessionDetail> temp = null;
         try {
             //做一层保护，可能会有事务冲突或其他奔溃,引起的无法进行异步查询
