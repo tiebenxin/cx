@@ -752,4 +752,20 @@ public class MsgAction {
     public void toggleWordsNotAllowed(String uidJson, String gid, int duration, Callback<ReturnBean> callback) {
         NetUtil.getNet().exec(server.toggleWordsNotAllowed(uidJson, gid, duration), callback);
     }
+
+    /**
+     * 收藏
+     * @param data
+     * @param fromUid
+     * @param fromUsername
+     * @param type
+     * @param fromGid
+     * @param fromGroupName
+     * @param callback
+     */
+    public void collectMsg(String data, long fromUid, String fromUsername,
+                           int type, String fromGid, String fromGroupName,String msgId,
+                           Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.collectMsg(data,fromUid,fromUsername,type,fromGid,fromGroupName,msgId), callback);
+    }
 }

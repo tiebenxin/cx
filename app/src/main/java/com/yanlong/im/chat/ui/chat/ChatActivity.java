@@ -3719,7 +3719,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         } else if ("多选".equals(value)) {
             onMore(msgbean);
         } else if ("收藏".equals(value)) {
-            onCollect(msgbean);
+            if(msgbean.getSend_state()== ChatEnum.ESendStatus.NORMAL){
+                if(msgbean.getSurvival_time()==0){
+                    onCollect(msgbean);
+                }else {
+                    ToastUtil.show("开启阅后即焚的会话，不允许收藏!");
+                }
+            }else {
+                ToastUtil.show("仅支持收藏发送成功的消息");
+            }
+
         }
     }
 
@@ -3808,7 +3817,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //收藏
     private void onCollect(MsgAllBean msgbean){
-//        asd
+        httpCollect(msgbean);
     }
 
 
@@ -5874,6 +5883,54 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             return false;
         }
 
+    }
+
+    /**
+     * 请求->收藏
+     */
+    private void httpCollect(MsgAllBean msgbean) {
+        String fromUsername = "";//用户名称
+        String fromGid = "";//群组id
+        String fromGroupName = "";//群组名称
+
+        if(!TextUtils.isEmpty(msgbean.getFrom_nickname())){
+            fromUsername = msgbean.getFrom_nickname();
+        }else {
+            fromUsername = "";
+        }
+        if(!TextUtils.isEmpty(msgbean.getGid())){
+            fromGid = msgbean.getGid();
+        }else {
+            fromGid = "";
+        }
+        if(msgbean.getGroup()!=null){
+            if(!TextUtils.isEmpty(msgbean.getGroup().getName())){
+                fromGroupName = msgbean.getGroup().getName();
+            }else {
+                fromGroupName = "";
+            }
+        }
+
+        msgAction.collectMsg(new Gson().toJson(msgbean), msgbean.getFrom_uid(), fromUsername,
+                msgbean.getMsg_type(),fromGid,fromGroupName,msgbean.getMsg_id(),
+                new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    ToastUtil.show(ChatActivity.this, "收藏成功!");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show(ChatActivity.this, t.getMessage());
+            }
+        });
     }
 
 }

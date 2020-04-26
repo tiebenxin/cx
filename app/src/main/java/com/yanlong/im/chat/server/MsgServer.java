@@ -163,4 +163,8 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean<List<UserInfo>>> getUserInfo(@Field("@partialFriendsList") String uidJson);
 
+    @POST("/collect/add")
+    @FormUrlEncoded
+    Call<ReturnBean> collectMsg(@Field("data") String data, @Field("fromUid") long fromUid,@Field("fromUsername") String fromUsername,@Field("type") int type,@Field("fromGid") String fromGid,@Field("fromGroupName") String fromGroupName,@Field("msgId") String msgId);
+
 }
