@@ -109,6 +109,7 @@ public class ChatCellImage extends ChatCellFileBase {
 
     public void glide(RequestOptions rOptions, String url) {
 //        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
+        imageView.setImageResource(R.mipmap.ic_image_bg);
         Glide.with(getContext())
                 .asBitmap()
                 .load(url)
