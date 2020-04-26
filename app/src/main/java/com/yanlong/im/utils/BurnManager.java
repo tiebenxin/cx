@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.BurnBroadcastReceiver;
@@ -161,6 +162,7 @@ public class BurnManager {
                     if (toDeletedResults.size() > 0) {
                         //批量删除 已到阅后即焚时间
                         toDeletedResults.deleteAllFromRealm();
+                        Log.e("raleigh_test","raleigh"+toDeletedResults.size()+",toDeletedResultsTemp+"+toDeletedResultsTemp.size());
                         /**
                          * 通知更新聊天界面
                          * 因为聊天界面删除的非数据库对象，可以提前通知，若为数据库对象，需在OnSuccess方法中
@@ -222,7 +224,7 @@ public class BurnManager {
 
     private void startBurnAlarm() {
         try {
-            if (pendingIntent == null || alarmManager == null) {//销毁了数据仓库
+            if (pendingIntent == null) {//销毁了数据仓库
                 return;
             }
             if (toBurnMessages == null) {
@@ -246,7 +248,8 @@ public class BurnManager {
                     notifyBurnQuene();
                 }
             }
-        }catch (Exception e){}
+        }catch (Exception e){
+        }
     }
 
     public void onDestory() {
