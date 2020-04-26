@@ -1896,9 +1896,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void scrollChatToPosition(int position) {
+        LogUtil.getLog().i(TAG, "scrollChatToPosition--" + position);
         mtListView.getListView().scrollToPosition(position);
         currentScrollPosition = position;
-
+        initLastPosition();
         View topView = mtListView.getLayoutManager().getChildAt(currentScrollPosition);
         if (topView != null) {
             //获取与该view的底部的偏移量
@@ -1907,8 +1908,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void scrollChatToPositionWithOffset(int position, int offset) {
+        LogUtil.getLog().i(TAG, "scrollChatToPositionWithOffset--" + position + "--offset=" + offset);
         ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).scrollToPositionWithOffset(position, offset);
         currentScrollPosition = position;
+        initLastPosition();
         View topView = mtListView.getLayoutManager().getChildAt(currentScrollPosition);
         if (topView != null) {
             //获取与该view的底部的偏移量
@@ -2315,6 +2318,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             int length = mAdapter.getItemCount();//刷新后当前size
             if (isMustBottom) {
                 mtListView.scrollToEnd();
+                initLastPosition();
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
                     if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
@@ -4061,7 +4065,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                         notifyData2Bottom(isScrollBottom);
                         //单聊发送已读消息
-                        sendRead();
+                        sendRead(list.get(len - 1));
                     }
                 });
 
@@ -5879,6 +5883,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             return false;
         }
 
+    }
+
+    private void initLastPosition() {
+        if (mtListView != null) {
+            lastPosition = ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).findLastVisibleItemPosition();
+        }
     }
 
 }
