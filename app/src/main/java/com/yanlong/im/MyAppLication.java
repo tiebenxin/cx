@@ -174,7 +174,13 @@ public class MyAppLication extends MainApplication {
     public void removeSessionChangeListener(ApplicationRepository.SessionChangeListener sessionChangeListener) {
         if (repository != null) repository.removeSessionChangeListener(sessionChangeListener);
     }
+    public void addFriendChangeListener(ApplicationRepository.FriendChangeListener friendChangeListener) {
+        if (repository != null) repository.addFriendChangeListener(friendChangeListener);
+    }
 
+    public void removeFriendChangeListener(ApplicationRepository.FriendChangeListener friendChangeListener) {
+        if (repository != null) repository.removeFriendChangeListener(friendChangeListener);
+    }
     private void initBuildType() {
         switch (BuildConfig.BUILD_TYPE) {
             case "debug":
