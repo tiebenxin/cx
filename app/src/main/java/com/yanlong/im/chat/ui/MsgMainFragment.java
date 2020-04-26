@@ -13,7 +13,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -326,7 +325,7 @@ public class MsgMainFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //MainActivity的viewModel
-        viewModel = new MainViewModel();
+        viewModel = new MainViewModel(sessionMoresListener);
         EventBus.getDefault().register(this);
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
         viewModel.initSession(null);
@@ -360,8 +359,7 @@ public class MsgMainFragment extends Fragment {
         public void insert(int[] positions, List<String> sids) {
             viewModel.isNeedCloseSwipe.setValue(true);
             viewModel.allSids.addAll(sids);
-            viewModel.isAllSidsChange.setValue(true);
-            Log.e("raleigh_test","setChange");
+            viewModel.updateSessionMore();
         }
 
         @Override
@@ -424,8 +422,6 @@ public class MsgMainFragment extends Fragment {
         @Override
         public void run() {
             viewModel.updateSessionMore();
-            if (viewModel.sessionMores != null)
-                viewModel.sessionMores.addChangeListener(sessionMoresListener);
         }
     };
 
@@ -452,16 +448,6 @@ public class MsgMainFragment extends Fragment {
                     mtListView.getListView().getAdapter().notifyDataSetChanged();//TODO
                     viewModel.isNeedCloseSwipe.setValue(false);
                 }
-            }
-        });
-        viewModel.isAllSidsChange.observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(@Nullable Boolean aBoolean) {
-                viewModel.updateSessionMore();
-                //监听列表数据变化
-                if (viewModel.sessionMores != null)
-                    viewModel.sessionMores.addChangeListener(sessionMoresListener);
-
             }
         });
         viewModel.isShowLoadAnim.observe(this, new Observer<Boolean>() {

@@ -8,7 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.yanlong.im.MainViewModel;
+import com.yanlong.im.FriendViewModel;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -42,7 +42,7 @@ public class FriendMainFragment extends Fragment {
     private net.cb.cb.library.view.MultiListView mtListView;
     private PySortView viewType;
     private ActionbarView actionbar;
-    private MainViewModel viewModel;
+    private FriendViewModel viewModel;
     private FriendMainFragmentAdapter adapter;
 
     @Override
@@ -60,8 +60,8 @@ public class FriendMainFragment extends Fragment {
 /*            mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);*/
         }
-        MyAppLication.INSTANCE().addFriendChangeListener(friendChangeListener);
         EventBus.getDefault().register(this);
+        MyAppLication.INSTANCE().addFriendChangeListener(friendChangeListener);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class FriendMainFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         //MainActivity的viewModel
-        viewModel = new MainViewModel();
+        viewModel = new FriendViewModel();
         viewModel.initFriend();
         initEvent();
     }
@@ -87,7 +87,7 @@ public class FriendMainFragment extends Fragment {
     private ApplicationRepository.FriendChangeListener friendChangeListener = new ApplicationRepository.FriendChangeListener() {
         @Override
         public void init(RealmResults<UserInfo> friends) {
-            viewModel.initFriend();
+            init(friends);
             //显示右侧字母
             updateViewType();
         }
