@@ -148,9 +148,9 @@ public class FriendMatchActivity extends AppActivity {
     private void initData() {
         userAction = new UserAction();
         //  alert.show("正在匹配中...", false);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
                 phoneListUtil.getPhones(FriendMatchActivity.this, new PhoneListUtil.Event() {
                     @Override
                     public void onList(final List<PhoneBean> list) {
@@ -171,8 +171,8 @@ public class FriendMatchActivity extends AppActivity {
                         }
                     }
                 });
-            }
-        }).start();
+//            }
+//        }).start();
     }
 
 
@@ -334,13 +334,13 @@ public class FriendMatchActivity extends AppActivity {
                     listData.addAll(tempData);
                     adapter.setList(listData);
                     initViewTypeData();
-                    mtListView.notifyDataSetChange();
                     hadUploadTimes++;
                     if(ifSub){
                         if(hadUploadTimes == needUploadTimes){
                             if (listData == null || listData.size() == 0) {
                                 ToastUtil.show(context, "没有匹配的手机联系人");
                             }
+                            mtListView.notifyDataSetChange();
                             progressBar.setVisibility(View.GONE);
                         }else {
                             taskUserMatchPhone(subList.get(hadUploadTimes));
@@ -349,6 +349,7 @@ public class FriendMatchActivity extends AppActivity {
                         if (listData == null || listData.size() == 0) {
                             ToastUtil.show(context, "没有匹配的手机联系人");
                         }
+                        mtListView.notifyDataSetChange();
                     }
                 }
             }
