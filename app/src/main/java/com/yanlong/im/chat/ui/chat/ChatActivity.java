@@ -5871,8 +5871,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         int friendRead = userInfo.getFriendRead();
         int myRead = userInfo.getMyRead();
 
-        IUser myUserInfo = userDao.myInfo();
-        int masterRead = myUserInfo.getMasterRead();
+        IUser myUserInfo = UserAction.getMyInfo();
+        int masterRead = myUserInfo==null? 1:myUserInfo.getMasterRead();
         if (friendMasterRead == 1 && friendRead == 1 && myRead == 1 && masterRead == 1) {
             return true;
         } else {
