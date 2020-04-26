@@ -3632,9 +3632,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         switch (type) {
             case ChatEnum.EMessageType.TEXT:
                 menus.add(0, new OptionMenu("复制"));
-                break;
-            case ChatEnum.EMessageType.IMAGE:
-            case ChatEnum.EMessageType.MSG_VIDEO:
+                menus.add(1, new OptionMenu("收藏"));
                 break;
             case ChatEnum.EMessageType.VOICE:
                 if (msgDao.userSetingGet().getVoicePlayer() == 0) {
@@ -3642,6 +3640,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 } else {
                     menus.add(0, new OptionMenu("扬声器播放"));
                 }
+                menus.add(1, new OptionMenu("收藏"));
+                break;
+            case ChatEnum.EMessageType.AT:
+            case ChatEnum.EMessageType.LOCATION:
+            case ChatEnum.EMessageType.IMAGE:
+            case ChatEnum.EMessageType.MSG_VIDEO:
+                menus.add(1, new OptionMenu("收藏"));
                 break;
         }
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && type != ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
@@ -3713,6 +3718,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             onAnswer(msgbean);
         } else if ("多选".equals(value)) {
             onMore(msgbean);
+        } else if ("收藏".equals(value)) {
+            onCollect(msgbean);
         }
     }
 
@@ -3797,6 +3804,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             case ChatEnum.EMessageType.IMAGE:
                 break;
         }
+    }
+
+    //收藏
+    private void onCollect(MsgAllBean msgbean){
+//        asd
     }
 
 
