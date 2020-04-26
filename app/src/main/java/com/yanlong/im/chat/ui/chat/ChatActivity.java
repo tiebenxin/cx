@@ -370,6 +370,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private ChangeSelectDialog dialogOne;//通用提示选择弹框：实名认证
     private IAudioRecord audioRecord;
     private IAdioTouch audioTouchListerner;
+    private boolean isNeedStopVoicePlay = true;
 
     private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
         @Override
@@ -560,7 +561,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         clickAble = true;
         //更新阅后即焚状态
         initSurvivaltimeState();
-        sendRead();
+//        sendRead();
         if (AppConfig.isOnline()) {
             checkHasEnvelopeSendFailed();
         }
@@ -808,7 +809,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                         //8.7 是属于这个会话就刷新
                         if (!needRefresh) {
-                            sendRead();
+//                            sendRead();
                             if (isGroup()) {
                                 needRefresh = msg.getGid().equals(toGid);
                             } else {
@@ -2898,6 +2899,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 MsgAllBean bean = (MsgAllBean) event.getObject();
                 if (isMsgFromCurrentChat(bean.getGid(), bean.getFrom_uid())) {
                     addMsg(bean);
+                    sendRead(bean);
                 }
             } /*else if (event.getList() != null) {
                 addMsg(event.getList());
@@ -3970,6 +3972,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (bean.getRead() == 0) {
                     msgid = bean.getMsg_id();
 //                    MsgAllBean msgAllBean = SocketData.send4Read(toUId, bean.getTimestamp());
+                    ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
+                    MsgAllBean message = SocketData.createMessageBean(toUId, "", ChatEnum.EMessageType.READ, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), read);
+                    SocketData.sendAndSaveMessage(message);
+                    msgDao.setRead(msgid);
+                }
+            }
+        }
+    }
+
+    public void sendRead(MsgAllBean bean) {
+        //发送已读回执
+        if (TextUtils.isEmpty(toGid)) {
+            if (bean != null) {
+                if (bean.getRead() == 0) {
+                    msgid = bean.getMsg_id();
                     ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
                     MsgAllBean message = SocketData.createMessageBean(toUId, "", ChatEnum.EMessageType.READ, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), read);
                     SocketData.sendAndSaveMessage(message);
