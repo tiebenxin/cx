@@ -237,9 +237,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 appName = intent.getStringExtra("app_name");
                 appIcon = intent.getStringExtra("app_icon");
             }
-        } else if (model == ChatEnum.EForwardMode.EDIT_PIC){
-            if(intent.getExtras()!=null){
-                if(intent.getExtras().getString("edit_pic_path")!=null){
+        } else if (model == ChatEnum.EForwardMode.EDIT_PIC) {
+            if (intent.getExtras() != null) {
+                if (intent.getExtras().getString("edit_pic_path") != null) {
                     editPicPath = intent.getExtras().getString("edit_pic_path");
                     mediaType = CxMediaMessage.EMediaType.IMAGE;
                 }
@@ -334,7 +334,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     }
 
     private void resetRightText() {
-        if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI || model == ChatEnum.EForwardMode.SYS_SEND ||model == ChatEnum.EForwardMode.EDIT_PIC) {
+        if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI || model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.EDIT_PIC) {
             actionbar.setTxtRight("");
             return;
         }
@@ -427,6 +427,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         startActivity(new Intent(MsgForwardActivity.this, MainActivity.class));
                         MsgForwardActivity.this.finish();
                     } else if (model == ChatEnum.EForwardMode.EDIT_PIC) {
+                        ToastUtil.show("转发成功!");
+                        MsgForwardActivity.this.finish();
+                    } else if (model == ChatEnum.EForwardMode.DEFAULT) {
                         ToastUtil.show("转发成功!");
                         MsgForwardActivity.this.finish();
                     }
@@ -1028,7 +1031,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     //等待发送成功
     private boolean isWaitModel() {
         if (model == ChatEnum.EForwardMode.SHARE || model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.SYS_SEND_MULTI
-                || model == ChatEnum.EForwardMode.EDIT_PIC) {
+                || model == ChatEnum.EForwardMode.EDIT_PIC/*|| model == ChatEnum.EForwardMode.DEFAULT*/) {
             return true;
         }
         return false;
