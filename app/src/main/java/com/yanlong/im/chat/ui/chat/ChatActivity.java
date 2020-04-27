@@ -1122,7 +1122,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             .putExtra(GroupInfoActivity.AGM_GID, toGid)
                     );
                 } else {
-                    if (toUId == 1L || toUId == 3L) { //文件传输助手跳转(与常信小助手一致)
+                    if (toUId == 1L || toUId == 3L || (userInfo != null && userInfo.getuType() == ChatEnum.EUserType.ASSISTANT)) { //文件传输助手跳转(与常信小助手一致)
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, toUId)
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1));
@@ -2019,8 +2019,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private boolean filterMessage(IMsgContent message) {
         boolean isSend = true;
         //常信小助手不需要发送到后台(文件传输助手除了文件以外暂时也不需要传到后台)
-        if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_BALANCE_UID.equals(toUId)
-                || Constants.CX_FILE_HELPER_UID.equals(toUId)) {
+        if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_BALANCE_UID.equals(toUId)) {
             isSend = false;
         }
         return isSend;
@@ -3915,7 +3914,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 title = userInfo.getName4Show();
                 if (userInfo.getLastonline() > 0) {
                     // 客服不显示时间状态
-                    if (onlineState && !UserUtil.isSystemUser(toUId)) {
+                    if (onlineState && !UserUtil.isSystemUser(toUId) && userInfo.getuType() != ChatEnum.EUserType.ASSISTANT) {
                         actionbar.setTitleMore(TimeToString.getTimeOnline(userInfo.getLastonline(), userInfo.getActiveType(), true), true);
                     } else {
                         actionbar.setTitleMore(TimeToString.getTimeOnline(userInfo.getLastonline(), userInfo.getActiveType(), true), false);
@@ -3958,7 +3957,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             title = userInfo.getName4Show();
             if (userInfo.getLastonline() > 0) {
                 // 客服不显示时间状态
-                if (onlineState && !UserUtil.isSystemUser(toUId)) {
+                if (onlineState && !UserUtil.isSystemUser(toUId) && userInfo.getuType() != ChatEnum.EUserType.ASSISTANT) {
                     actionbar.setTitleMore(TimeToString.getTimeOnline(userInfo.getLastonline(), userInfo.getActiveType(), true), true);
                 } else {
                     actionbar.setTitleMore(TimeToString.getTimeOnline(userInfo.getLastonline(), userInfo.getActiveType(), true), false);
@@ -4155,47 +4154,51 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void taskMkName(List<MsgAllBean> list) {
         mks.clear();
         for (MsgAllBean msg : list) {
-            if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL || msg.getMsg_type() == ChatEnum.EMessageType.LOCK) {  //通知类型的不处理
-                continue;
-            }
-            String k = msg.getFrom_uid() + "";
-            String nkname = "";
-            String head = "";
-            UserInfo userInfo;
-            if (mks.containsKey(k)) {
-                userInfo = mks.get(k);
+            resetName(msg);
+        }
+    }
+
+    private void resetName(MsgAllBean msg) {
+        if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL || msg.getMsg_type() == ChatEnum.EMessageType.LOCK) {  //通知类型的不处理
+            return;
+        }
+        String k = msg.getFrom_uid() + "";
+        String nkname = "";
+        String head = "";
+        UserInfo userInfo;
+        if (mks.containsKey(k)) {
+            userInfo = mks.get(k);
+        } else {
+            userInfo = msg.getFrom_user();
+            if (userInfo == null) {
+                userInfo = new UserInfo();
+                userInfo.setName(StringUtil.isNotNull(msg.getFrom_group_nickname()) ? msg.getFrom_group_nickname() : msg.getFrom_nickname());
+                userInfo.setHead(msg.getFrom_avatar());
             } else {
-                userInfo = msg.getFrom_user();
-                if (userInfo == null) {
-                    userInfo = new UserInfo();
-                    userInfo.setName(StringUtil.isNotNull(msg.getFrom_group_nickname()) ? msg.getFrom_group_nickname() : msg.getFrom_nickname());
-                    userInfo.setHead(msg.getFrom_avatar());
-                } else {
-                    if (isGroup()) {
-                        String gname = "";//获取对方最新的群昵称
-                        MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(toGid, msg.getFrom_uid());
-                        if (gmsg != null) {
-                            gname = gmsg.getFrom_group_nickname();
-                        }
-                        if (StringUtil.isNotNull(gname)) {
-                            userInfo.setName(gname);
-                        }
+                if (isGroup()) {
+                    String gname = "";//获取对方最新的群昵称
+                    MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(toGid, msg.getFrom_uid());
+                    if (gmsg != null) {
+                        gname = gmsg.getFrom_group_nickname();
+                    }
+                    if (StringUtil.isNotNull(gname)) {
+                        userInfo.setName(gname);
                     }
                 }
-                if (msg.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
-                    //自己发送的消息,用本地实时头像
-                    userInfo.setHead(UserAction.getMyInfo().getHead());
-                }
-                mks.put(k, userInfo);
             }
-            nkname = userInfo.getName();
-            if (StringUtil.isNotNull(userInfo.getMkName())) {
-                nkname = userInfo.getMkName();
+            if (msg.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
+                //自己发送的消息,用本地实时头像
+                userInfo.setHead(UserAction.getMyInfo().getHead());
             }
-            head = userInfo.getHead();
-            msg.setFrom_nickname(nkname);
-            msg.setFrom_avatar(head);
+            mks.put(k, userInfo);
         }
+        nkname = userInfo.getName();
+        if (StringUtil.isNotNull(userInfo.getMkName())) {
+            nkname = userInfo.getMkName();
+        }
+        head = userInfo.getHead();
+        msg.setFrom_nickname(nkname);
+        msg.setFrom_avatar(head);
     }
 
     private MsgDao dao = new MsgDao();
@@ -5747,6 +5750,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (mAdapter == null) {
             return;
         }
+        resetName(bean);
         int position = mAdapter.getItemCount();
         mAdapter.addMessage(bean);
         mtListView.getListView().getAdapter().notifyItemRangeInserted(position, 1);
@@ -5891,7 +5895,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         int myRead = userInfo.getMyRead();
 
         IUser myUserInfo = UserAction.getMyInfo();
-        int masterRead = myUserInfo==null? 1:myUserInfo.getMasterRead();
+        int masterRead = myUserInfo == null ? 1 : myUserInfo.getMasterRead();
         if (friendMasterRead == 1 && friendRead == 1 && myRead == 1 && masterRead == 1) {
             return true;
         } else {

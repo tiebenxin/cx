@@ -1266,6 +1266,9 @@ public class MainActivity extends AppActivity {
             return;
         }
         locService = ((MyAppLication) getApplication()).locationService;
+        if (locService == null){
+            return;
+        }
         LocationClientOption mOption = locService.getDefaultLocationClientOption();
         mOption.setLocationMode(LocationClientOption.LocationMode.Battery_Saving);
         mOption.setCoorType("bd09ll");

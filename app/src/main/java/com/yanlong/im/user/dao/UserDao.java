@@ -261,6 +261,37 @@ public class UserDao {
             DaoUtil.reportException(e);
         }
         return res;
+    }
+
+    /***
+     * 获取能有效转发用户
+     * @return
+     */
+    public List<UserInfo> getForwarUserValid() {
+        List<UserInfo> res = null;
+        Realm realm = DaoUtil.open();
+        try {
+            RealmResults<UserInfo> ls;
+                ls = realm.where(UserInfo.class)
+                        .beginGroup().equalTo("uType", 2).endGroup()
+                        .or()
+                        .beginGroup().equalTo("uType", 4).endGroup()
+                        .and()
+                        .beginGroup().notEqualTo("uid", Constants.CX888_UID).endGroup()
+                        .and()
+                        .beginGroup().notEqualTo("uid", Constants.CX_BALANCE_UID).endGroup()
+                        .and()
+                        .beginGroup().notEqualTo("uid", Constants.CX_HELPER_UID).endGroup()
+                        .sort("tag", Sort.ASCENDING).findAll();
+
+            res = realm.copyFromRealm(ls);
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return res;
 
     }
 
@@ -330,10 +361,6 @@ public class UserDao {
      */
     public void friendMeUpdate(List<UserInfo> list) {
         Realm realm = DaoUtil.open();
-        UserBean myUserInfo = myInfo();
-        if (myUserInfo == null) {
-            return;
-        }
         try {
             realm.beginTransaction();
             RealmResults<UserInfo> ls = realm.where(UserInfo.class).beginGroup().equalTo("uType", 2).or().equalTo("stat", 9).endGroup().findAll();
@@ -355,14 +382,7 @@ public class UserDao {
                         if (u.getLastonline() != null && userInfo != null && userInfo.getLastonline() < u.getLastonline()) {
                             userInfo.setLastonline(u.getLastonline());
                         }
-
-                        //如果是自己只更新在线状态
-                        if (userInfo.getUid().equals(myUserInfo.getUid())) {
-                            myUserInfo.setActiveType(userInfo.getActiveType());
-                            realm.copyToRealmOrUpdate(myUserInfo);
-                        } else {
-                            realm.copyToRealmOrUpdate(userInfo);
-                        }
+                        realm.copyToRealmOrUpdate(userInfo);
                     }
                 }
                 if (!isExt) {//不在好友列表中了,身份改成普通人
@@ -387,14 +407,7 @@ public class UserDao {
                     } else {
                         userInfo.setuType(ChatEnum.EUserType.FRIEND);
                     }
-
-                    //如果是自己只更新在线状态
-                    if (userInfo.getUid().equals(myUserInfo.getUid())) {
-                        myUserInfo.setActiveType(userInfo.getActiveType());
-                        realm.insertOrUpdate(myUserInfo);
-                    } else {
-                        realm.insertOrUpdate(userInfo);
-                    }
+                    realm.insertOrUpdate(userInfo);
                 }
             }
             realm.commitTransaction();
