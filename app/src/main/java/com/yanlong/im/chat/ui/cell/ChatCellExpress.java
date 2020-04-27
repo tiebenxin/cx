@@ -7,19 +7,15 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-import com.luck.picture.lib.glide.CustomGlideModule;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
-import com.yanlong.im.chat.ui.RoundTransform;
 import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.utils.DensityUtil;
-
-import java.io.File;
 
 import static android.view.View.VISIBLE;
 
@@ -40,7 +36,11 @@ public class ChatCellExpress extends ChatCellFileBase {
 
     protected ChatCellExpress(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
-        options = new RequestOptions().centerCrop().transform(new RoundTransform(mContext, 10));
+        options = RequestOptions.centerInsideTransform()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .skipMemoryCache(false)
+                .dontAnimate()
+                .centerCrop();
     }
 
 
@@ -69,30 +69,9 @@ public class ChatCellExpress extends ChatCellFileBase {
         }
     }
 
-
-    public void glide(RequestOptions rOptions, String url) {
-        imageView.setImageResource(R.mipmap.ic_image_bg);
-        File local= CustomGlideModule.getCacheFile(url);
-        if(local==null){
-            Glide.with(getContext())
-                    .load(url)
-                    .apply(rOptions)
-                    .thumbnail(0.2f)
-                    .into(imageView);
-        }else{
-            Glide.with(getContext())
-                    .load(local)
-                    .into(imageView);
-        }
-
-    }
-
     public void glide(RequestOptions rOptions, int id) {
-        Glide.with(getContext())
-                .load(id)
-                .apply(rOptions)
-//                    .thumbnail(0.2f)
-                .into(imageView);
+        //TODO 因目前都是静态图片，以后若有动图，需再调整这边逻辑
+        imageView.setImageResource(id);
     }
 
 

@@ -13,12 +13,12 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.luck.picture.lib.glide.CustomGlideModule;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.location.LocationUtils;
+import com.yanlong.im.utils.ChatBitmapCache;
 
 import net.cb.cb.library.utils.StringUtil;
 
@@ -56,7 +56,7 @@ public class ChatCellMap extends ChatCellBase {
         tvLocationDesc.setText(message.getAddressDescribe());
         ivLocation.setImageResource(R.mipmap.ic_image_bg);
         if (StringUtil.isNotNull(message.getImg())) {//url链接
-            Bitmap localBitmap= CustomGlideModule.getCacheBitmap(message.getImg());
+            Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(message.getImg());
             if(localBitmap==null){
                 RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)

@@ -13,11 +13,11 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.luck.picture.lib.glide.CustomGlideModule;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.utils.ChatBitmapCache;
 
 public class ChatCellBusinessCard extends ChatCellBase {
 
@@ -65,7 +65,7 @@ public class ChatCellBusinessCard extends ChatCellBase {
         if (mContext == null || iv_avatar_card == null) {
             return;
         }
-        Bitmap localBitmap = CustomGlideModule.getCacheBitmap(cardMessage.getAvatar());
+        Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(cardMessage.getAvatar());
         if (localBitmap == null) {
             RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
