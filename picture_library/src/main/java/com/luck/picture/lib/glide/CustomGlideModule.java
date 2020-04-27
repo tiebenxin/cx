@@ -3,6 +3,8 @@ package com.luck.picture.lib.glide;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -12,11 +14,14 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
 import com.bumptech.glide.Registry;
 import com.bumptech.glide.annotation.GlideModule;
+import com.bumptech.glide.disklrucache.DiskLruCache;
 import com.bumptech.glide.load.engine.cache.DiskLruCacheFactory;
 import com.bumptech.glide.load.engine.cache.LruResourceCache;
 import com.bumptech.glide.module.AppGlideModule;
+import com.bumptech.glide.signature.EmptySignature;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @创建人 shenxin
@@ -40,11 +45,51 @@ public class CustomGlideModule extends AppGlideModule {
             } else {
                 builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
             }
-        }else{
+        } else {
 
             builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
         }
 
+    }
+
+    public static File getCacheFile(String url) {
+        int memoryCacheSizeBytes = 1024 * 1024 * 100;
+        OriginalKey originalKey = new OriginalKey(url, EmptySignature.obtain());
+        SafeKeyGenerator safeKeyGenerator = new SafeKeyGenerator();
+        String safeKey = safeKeyGenerator.getSafeKey(originalKey);
+        try {
+            File storageDirectory = Environment.getExternalStorageDirectory();
+            String cachePath = storageDirectory + "/changxin/cache/image/";
+            DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath),
+                    1, 1, memoryCacheSizeBytes * 5);
+            DiskLruCache.Value value = diskLruCache.get(safeKey);
+            if (value != null) {
+                return value.getFile(0);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 适用于缩略图
+     * @param url
+     * @return
+     */
+    public static Bitmap getCacheBitmap(String url) {
+        File localPath = getCacheFile(url);
+        Bitmap bitmap = null;
+        try {
+            if (localPath != null) {
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inSampleSize = 2;
+                bitmap = BitmapFactory.decodeFile(localPath.getAbsolutePath(), options);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bitmap;
     }
 
     @Override

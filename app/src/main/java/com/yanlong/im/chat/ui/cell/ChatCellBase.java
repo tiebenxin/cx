@@ -16,8 +16,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.luck.picture.lib.glide.CustomGlideModule;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.AtMessage;
@@ -319,16 +322,26 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
             iv_avatar.setTag(R.id.iv_avatar, model.getFrom_avatar());
             iv_avatar.setImageResource(R.mipmap.ic_info_head);
         }
-        Glide.with(mContext)
-                .asBitmap()
-                .load(model.getFrom_avatar())
-//                .apply(GlideOptionsUtil.headImageOptions())
-                .into(new SimpleTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                        iv_avatar.setImageBitmap(resource);
-                    }
-                });
+
+        Bitmap localBitmap= CustomGlideModule.getCacheBitmap(model.getFrom_avatar());
+        if(localBitmap==null){
+            RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .skipMemoryCache(false)
+                    .centerCrop();
+            Glide.with(getContext())
+                    .asBitmap()
+                    .load(model.getFrom_avatar())
+                    .apply(mRequestOptions)
+                    .into(new SimpleTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            iv_avatar.setImageBitmap(resource);
+                        }
+                    });
+        }else{
+            iv_avatar.setImageBitmap(localBitmap);
+        }
     }
 
     /*
