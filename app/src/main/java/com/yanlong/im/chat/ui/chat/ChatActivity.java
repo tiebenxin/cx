@@ -3981,7 +3981,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
                     MsgAllBean message = SocketData.createMessageBean(toUId, "", ChatEnum.EMessageType.READ, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), read);
                     SocketData.sendAndSaveMessage(message);
-                    msgDao.setRead(msgid);
+//                    msgDao.setRead(msgid);
                 }
             }
         }
@@ -3996,7 +3996,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
                     MsgAllBean message = SocketData.createMessageBean(toUId, "", ChatEnum.EMessageType.READ, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), read);
                     SocketData.sendAndSaveMessage(message);
-                    msgDao.setRead(msgid);
+//                    msgDao.setRead(msgid);
                 }
             }
         }
