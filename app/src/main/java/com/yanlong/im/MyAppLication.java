@@ -27,6 +27,7 @@ import com.yanlong.im.location.LocationService;
 import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.ChatBitmapCache;
 import com.yanlong.im.utils.EmojBitmapCache;
 import com.yanlong.im.utils.IVolleyInitImp;
 import com.yanlong.im.utils.LogcatHelper;
@@ -394,6 +395,7 @@ public class MyAppLication extends MainApplication {
     public void onTerminate() {
         //清除表情缓存
         EmojBitmapCache.getInstance().clear();
+        ChatBitmapCache.getInstance().clear();
         //清除仓库对象
         destoryRepository();
         super.onTerminate();
