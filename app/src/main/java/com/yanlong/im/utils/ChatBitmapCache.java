@@ -49,6 +49,8 @@ public class ChatBitmapCache {
                 try {
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inSampleSize = 2;
+                    options.inJustDecodeBounds = true; //加载的时候只加载图片的宽高属性，不加载原图
+                    options.inPreferredConfig = Bitmap.Config.RGB_565;//降低色彩模式，如果对透明度没有要求，RGB_565即可满足需求
                     bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
                     if (bitmap != null) mImageCache.put(key, bitmap);
                 } catch (Exception e) {
