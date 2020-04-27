@@ -79,6 +79,7 @@ public class ChatCellImage extends ChatCellFileBase {
             if (!TextUtils.equals(tag, gif)) {
                 imageView.setTag(R.id.tag_img, gif);
                 rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
+                imageView.setImageResource(R.mipmap.ic_image_bg);
                 Glide.with(getContext())
                         .load(gif)
                 .apply(rOptions)
@@ -96,10 +97,11 @@ public class ChatCellImage extends ChatCellFileBase {
 //            rOptions.centerCrop();
             rOptions.error(R.mipmap.default_image);
 //            rOptions.placeholder(R.mipmap.default_image);
-            if (!TextUtils.equals(tag, thumbnail)) {
+            if (!TextUtils.equals(tag, thumbnail)) {//第一次加载
+                imageView.setImageResource(R.mipmap.ic_image_bg);
                 imageView.setTag(R.id.tag_img, thumbnail);
                 glide(rOptions, thumbnail);
-            } else {
+            } else {//复用
                 glide(rOptions, tag);
             }
 
@@ -109,7 +111,6 @@ public class ChatCellImage extends ChatCellFileBase {
 
     public void glide(RequestOptions rOptions, String url) {
 //        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
-        imageView.setImageResource(R.mipmap.ic_image_bg);
         Glide.with(getContext())
                 .asBitmap()
                 .load(url)

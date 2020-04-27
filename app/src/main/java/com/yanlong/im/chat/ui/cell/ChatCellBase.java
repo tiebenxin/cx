@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -303,6 +304,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         }
     }
 
+
     /*
      * 加载发送者头像
      * */
@@ -312,7 +314,11 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
 
             return;
         }
-        iv_avatar.setImageResource(R.mipmap.ic_info_head);
+        String tag = (String) iv_avatar.getTag(R.id.iv_avatar);
+        if (!TextUtils.equals(tag, model.getFrom_avatar())) {//第一次加载
+            iv_avatar.setTag(R.id.iv_avatar, model.getFrom_avatar());
+            iv_avatar.setImageResource(R.mipmap.ic_info_head);
+        }
         Glide.with(mContext)
                 .asBitmap()
                 .load(model.getFrom_avatar())
