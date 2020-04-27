@@ -61,5 +61,19 @@ public class ChatBitmapCache {
         }
         return bitmap;
     }
-
+    public void clear() {
+        if (mImageCache != null) {
+            if (mImageCache.size() > 0) {
+                mImageCache.evictAll();
+            }
+        }
+        mImageCache=null;
+    }
+    public void clearCache() {
+        if (mImageCache != null) {
+            if (mImageCache.size() > 0) {
+                mImageCache.evictAll();
+            }
+        }
+    }
 }

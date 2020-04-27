@@ -79,6 +79,7 @@ import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
+import com.yanlong.im.utils.ChatBitmapCache;
 import com.yanlong.im.utils.socket.ExecutorManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
@@ -102,7 +103,6 @@ import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.manager.FileManager;
 import net.cb.cb.library.manager.TokenManager;
 import net.cb.cb.library.net.IRequestListener;
-import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
@@ -622,6 +622,8 @@ public class MainActivity extends AppActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        //清除聊天界面的bitmap
+        ChatBitmapCache.getInstance().clearCache();
         isActivityStop = false;
         taskGetMsgNum();
         checkNotificationOK();
