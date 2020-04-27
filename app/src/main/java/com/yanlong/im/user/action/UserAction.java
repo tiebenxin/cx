@@ -120,9 +120,10 @@ public class UserAction {
     public static String getDevId(Context context) {
         String uid = JPushInterface.getRegistrationID(context);
         if (TextUtils.isEmpty(uid)) {
-            uid = Installation.id(context);
-            new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).save2Json(uid);
-            return uid;
+//            uid = Installation.id(context);
+//            new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).save2Json(uid);
+//            return uid;
+            return "pushToken";
         }
         LogUtil.getLog().i("getDevId", uid + "");
         return uid;

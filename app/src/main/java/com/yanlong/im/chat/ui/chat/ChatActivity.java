@@ -22,6 +22,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -1899,7 +1900,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         LogUtil.getLog().i(TAG, "scrollChatToPosition--" + position);
         mtListView.getListView().scrollToPosition(position);
         currentScrollPosition = position;
-        initLastPosition();
+//        initLastPosition();
         View topView = mtListView.getLayoutManager().getChildAt(currentScrollPosition);
         if (topView != null) {
             //获取与该view的底部的偏移量
@@ -1911,7 +1912,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         LogUtil.getLog().i(TAG, "scrollChatToPositionWithOffset--" + position + "--offset=" + offset);
         ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).scrollToPositionWithOffset(position, offset);
         currentScrollPosition = position;
-        initLastPosition();
+//        initLastPosition();
         View topView = mtListView.getLayoutManager().getChildAt(currentScrollPosition);
         if (topView != null) {
             //获取与该view的底部的偏移量
@@ -2314,11 +2315,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (isLoadHistory) {
             isLoadHistory = false;
         }
+        LogUtil.getLog().i(TAG, "scrollListView--" + "lastPosition=" + lastPosition);
         if (mAdapter != null) {
             int length = mAdapter.getItemCount();//刷新后当前size
             if (isMustBottom) {
                 mtListView.scrollToEnd();
-                initLastPosition();
+                lastPosition = length - 1;
+//                initLastPosition();
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
                     if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
@@ -4054,18 +4057,26 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 .subscribe(new Consumer<List<MsgAllBean>>() {
                     @Override
                     public void accept(List<MsgAllBean> list) throws Exception {
-                        fixLastPosition(mAdapter.getMsgList(), list);
-                        mAdapter.bindData(list, false);
-                        mAdapter.setReadStatus(checkIsRead());
+//                        fixLastPosition(mAdapter.getMsgList(), list);
                         int len = list.size();
+                        if (mAdapter != null) {
+                            list = isRetainAll(mAdapter.getMsgList(), list);
+                        }
+                        int len2 = list.size();
+                        if (len2 < len) {
+                            addMsg(list);
+                        } else {
+                            mAdapter.bindData(list, false);
+                            mAdapter.setReadStatus(checkIsRead());
+                            notifyData2Bottom(isScrollBottom);
+                        }
                         if (len == 0 && lastPosition > len - 1) {//历史数据被清除了
                             lastPosition = 0;
                             lastOffset = 0;
                             clearScrollPosition();
                         }
-                        notifyData2Bottom(isScrollBottom);
                         //单聊发送已读消息
-                        sendRead(list.get(len - 1));
+                        sendRead(list.get(len2 - 1));
                     }
                 });
 
@@ -4085,6 +4096,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if (lastPosition >= msgList.size() - 3) {
                 lastPosition = len2 - 1;
             }
+            LogUtil.getLog().i(TAG, "scroll--fixLastPosition=" + lastPosition);
+
         }
 
 
@@ -5766,6 +5779,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         int position = mAdapter.getItemCount();
         mAdapter.addMessage(bean);
         mtListView.getListView().getAdapter().notifyItemRangeInserted(position, 1);
+        fixLastPosition(1);
         scrollListView(false);
     }
 
@@ -5777,6 +5791,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         int position = mAdapter.getItemCount();
         mAdapter.addMessageList(position, list);
         mtListView.getListView().getAdapter().notifyItemRangeInserted(position, list.size());//删除刷新
+        fixLastPosition(list.size());
         scrollListView(false);
     }
 
@@ -5904,8 +5919,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         int friendRead = userInfo.getFriendRead();
         int myRead = userInfo.getMyRead();
 
-        IUser myUserInfo = userDao.myInfo();
-        int masterRead = myUserInfo.getMasterRead();
+        IUser myUserInfo = UserAction.getMyInfo();
+        int masterRead = myUserInfo==null? 1:myUserInfo.getMasterRead();
         if (friendMasterRead == 1 && friendRead == 1 && myRead == 1 && masterRead == 1) {
             return true;
         } else {
@@ -5918,6 +5933,24 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (mtListView != null) {
             lastPosition = ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).findLastVisibleItemPosition();
         }
+    }
+
+    //
+    private List<MsgAllBean> isRetainAll(List<MsgAllBean> oldList, List<MsgAllBean> newList) {
+        if (oldList != null && newList != null) {
+            int newLength = newList.size();
+            int oldLength = oldList.size();
+            if (newLength > oldLength) {
+                newList.removeAll(oldList);
+                return newList;
+            }
+        }
+        return newList;
+    }
+
+    private void fixLastPosition(int len) {
+        lastPosition = lastPosition + len;
+        LogUtil.getLog().i(TAG, "scroll--fixLastPosition=" + lastPosition);
     }
 
 }

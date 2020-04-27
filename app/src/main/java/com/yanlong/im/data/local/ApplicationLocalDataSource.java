@@ -137,7 +137,7 @@ public class ApplicationLocalDataSource {
 
         return realm.where(UserInfo.class)
                 .beginGroup().equalTo("uType", 2).or().equalTo("uType", 4).endGroup()
-                .sort("tag", Sort.ASCENDING).limit(1000).findAllAsync();
+                .sort("tag", Sort.ASCENDING).limit(limit).findAllAsync();
     }
 
     /**
@@ -172,6 +172,14 @@ public class ApplicationLocalDataSource {
                         msg.setEndTime(System.currentTimeMillis());
                     }
                 }
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(Throwable error) {
             }
         });
     }

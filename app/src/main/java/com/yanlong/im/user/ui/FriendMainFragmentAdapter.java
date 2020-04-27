@@ -12,7 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.yanlong.im.MainViewModel;
+import com.yanlong.im.FriendViewModel;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.ui.GroupSaveActivity;
@@ -32,8 +32,8 @@ import java.util.List;
  */
 public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private Context context;
-    private MainViewModel viewModel;
-    public FriendMainFragmentAdapter(Context context,MainViewModel viewModel){
+    private FriendViewModel viewModel;
+    public FriendMainFragmentAdapter(Context context,FriendViewModel viewModel){
         this.context=context;
         this.viewModel=viewModel;
     }
