@@ -5228,6 +5228,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mAdapter.removeItem(bean);
         mtListView.getListView().getAdapter().notifyItemRemoved(position);//删除刷新
         removeUnreadCount(1);
+        fixLastPosition(-1);
     }
 
     private void removeUnreadCount(int num) {
@@ -5952,7 +5953,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         return newList;
     }
 
-    private void fixLastPosition(int len) {
+    private synchronized void fixLastPosition(int len) {
         lastPosition = lastPosition + len;
         LogUtil.getLog().i(TAG, "scroll--fixLastPosition=" + lastPosition);
     }
