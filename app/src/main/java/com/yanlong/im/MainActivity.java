@@ -930,6 +930,7 @@ public class MainActivity extends AppActivity {
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead() + "");
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone() + "");
         }
+        LogUtil.writeLog("清除token--MainActivity--loginoutComment");
         userAction.cleanInfo();
         MyAppLication.INSTANCE().destoryRepository();
     }
@@ -1266,7 +1267,7 @@ public class MainActivity extends AppActivity {
             return;
         }
         locService = ((MyAppLication) getApplication()).locationService;
-        if (locService == null){
+        if (locService == null) {
             return;
         }
         LocationClientOption mOption = locService.getDefaultLocationClientOption();

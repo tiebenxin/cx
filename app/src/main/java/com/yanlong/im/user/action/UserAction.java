@@ -357,9 +357,9 @@ public class UserAction {
                     TokenBean newToken = response.body().getData();
                     token.setAccessToken(newToken.getAccessToken());
                     token.setBankReqSignKey(EncrypUtil.aesDecode(token.getBankReqSignKey()));
-                    setToken(token, true);
                     LogUtil.getLog().i("updateToken--成功", "--token=" + response.body().getData().getAccessToken());
                     LogUtil.writeLog("updateToken--成功" + "--token=" + response.body().getData().getAccessToken() + "--time=" + System.currentTimeMillis());
+                    setToken(token, true);
                     getMyInfo4Web(response.body().getData().getUid(), "");
                     callback.onResponse(call, response);
                 } else {
@@ -384,6 +384,7 @@ public class UserAction {
      * 登出
      */
     public void loginOut() {
+        LogUtil.writeLog("清除token--UserAction--loginOut");
         cleanInfo();
         NetUtil.getNet().exec(server.loginOut("android"), new CallBack<ReturnBean>() {
             @Override
@@ -402,7 +403,7 @@ public class UserAction {
     public void cleanInfo() {
         myInfo = null;
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
-        LogUtil.writeLog("清除token");
+//        LogUtil.writeLog("清除token");
     }
 
 
