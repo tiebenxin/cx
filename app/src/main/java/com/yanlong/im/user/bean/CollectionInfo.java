@@ -1,18 +1,22 @@
 package com.yanlong.im.user.bean;
 
+import com.yanlong.im.chat.ChatEnum;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 public class CollectionInfo extends RealmObject {
     @PrimaryKey
-    private String msgId;
-    private String imgHead;
-    private String name;
-    private long collectionTime;
-    private int collectionType;
-    private String collectionContent;
-    private String path;
-    private String msgBean;
+    private String msgId;//消息id
+    private String createTime;//收藏时间
+    private String data;//具体消息，JSON数据，对应类是MsgAllBean
+    private String fromGid;//来源：群组id
+    private String fromGroupName;//来源：群组名称
+    private long fromUid;//来源：用户id
+    private String fromUsername;//来源：用户名称
+    private long id;//数据id
+    @ChatEnum.EMessageType
+    private int type;//消息类型
 
     public String getMsgId() {
         return msgId;
@@ -22,59 +26,67 @@ public class CollectionInfo extends RealmObject {
         this.msgId = msgId;
     }
 
-    public String getImgHead() {
-        return imgHead;
+    public String getCreateTime() {
+        return createTime;
     }
 
-    public void setImgHead(String imgHead) {
-        this.imgHead = imgHead;
+    public void setCreateTime(String createTime) {
+        this.createTime = createTime;
     }
 
-    public String getName() {
-        return name;
+    public String getData() {
+        return data;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setData(String data) {
+        this.data = data;
     }
 
-    public long getCollectionTime() {
-        return collectionTime;
+    public String getFromGid() {
+        return fromGid;
     }
 
-    public String getMsgBean() {
-        return msgBean;
+    public void setFromGid(String fromGid) {
+        this.fromGid = fromGid;
     }
 
-    public void setMsgBean(String msgBean) {
-        this.msgBean = msgBean;
+    public String getFromGroupName() {
+        return fromGroupName;
     }
 
-    public void setCollectionTime(long collectionTime) {
-        this.collectionTime = collectionTime;
+    public void setFromGroupName(String fromGroupName) {
+        this.fromGroupName = fromGroupName;
     }
 
-    public int getCollectionType() {
-        return collectionType;
+    public long getFromUid() {
+        return fromUid;
     }
 
-    public void setCollectionType(int collectionType) {
-        this.collectionType = collectionType;
+    public void setFromUid(long fromUid) {
+        this.fromUid = fromUid;
     }
 
-    public String getCollectionContent() {
-        return collectionContent;
+    public String getFromUsername() {
+        return fromUsername;
     }
 
-    public void setCollectionContent(String collectionContent) {
-        this.collectionContent = collectionContent;
+    public void setFromUsername(String fromUsername) {
+        this.fromUsername = fromUsername;
     }
 
-    public String getPath() {
-        return path;
+    public long getId() {
+        return id;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }

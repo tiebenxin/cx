@@ -5886,7 +5886,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     /**
-     * 请求->收藏
+     * 发请求->收藏
+     * @param msgbean
      */
     private void httpCollect(MsgAllBean msgbean) {
         String fromUsername = "";//用户名称

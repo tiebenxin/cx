@@ -546,13 +546,14 @@ public class DaoMigration implements RealmMigration {
     private void updateV30(RealmSchema schema) {
         schema.create("CollectionInfo")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
-                .addField("imgHead", String.class)
-                .addField("name",String.class)
-                .addField("collectionTime",long.class)
-                .addField("collectionType",int.class)
-                .addField("collectionContent",String.class)
-                .addField("path",String.class)
-                .addField("msgBean",String.class);
+                .addField("createTime", String.class)
+                .addField("data",String.class)
+                .addField("fromGid",String.class)
+                .addField("fromGroupName",String.class)
+                .addField("fromUid",long.class)
+                .addField("fromUsername",String.class)
+                .addField("id",long.class)
+                .addField("type",int.class);
     }
 
     @Override

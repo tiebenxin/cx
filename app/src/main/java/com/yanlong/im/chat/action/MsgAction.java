@@ -18,6 +18,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.MsgServer;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.CollectionInfo;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
@@ -767,5 +768,20 @@ public class MsgAction {
                            int type, String fromGid, String fromGroupName,String msgId,
                            Callback<ReturnBean> callback) {
         NetUtil.getNet().exec(server.collectMsg(data,fromUid,fromUsername,type,fromGid,fromGroupName,msgId), callback);
+    }
+
+    /**
+     * 获取收藏列表
+     */
+    public void getCollectList(Callback<ReturnBean<List<CollectionInfo>>> callback) {
+        NetUtil.getNet().exec(server.getCollectList(), callback);
+    }
+
+    /**
+     * 取消收藏
+     * @param id
+     */
+    public void cancelCollectMsg(long id , Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.cancelCollectMsg(id), callback);
     }
 }
