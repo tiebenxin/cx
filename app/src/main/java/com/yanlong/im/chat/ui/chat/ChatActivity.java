@@ -5563,12 +5563,41 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                 }
             } else {
-                //若不是转发或者自己转发自己，则为本地文件，从本地路径里找，有则打开，没有提示文件已被删除
-                if (net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getLocalPath())) {
-                    openAndroidFile(fileMessage.getLocalPath());
-                } else {
-                    ToastUtil.show("文件不存在或者已被删除");
+                //若不是转发或者自己转发自己
+                //1-1 没有本地路径，代表为PC端发的文件，需要下载
+                if(TextUtils.isEmpty(fileMessage.getLocalPath())){
+                    //从下载路径里找，若存在该文件，则直接打开；否则需要下载
+                    if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
+                        openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename());
+                    } else {
+                        if (!TextUtils.isEmpty(fileMessage.getUrl())) {
+                            if (fileMessage.getSize() != 0) {
+                                //小于10M，自动下载+打开
+                                if (fileMessage.getSize() < 10485760) {
+                                    ToastUtil.show("检测到该文件来源于PC端，本地即将开启下载");
+                                    DownloadFile(fileMessage);
+                                } else {
+                                    //大于10M，跳详情，用户自行选择手动下载
+                                    ToastUtil.show("检测到该文件来源于PC端，请点击下载");
+                                    Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
+                                    intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
+                                    startActivity(intent);
+                                }
+                            }
+                        } else {
+                            ToastUtil.show("文件下载地址错误，请联系客服");
+                        }
+                    }
+                }else {
+                    //1-2 有本地路径，则为手机本地文件，从本地路径里找，有则打开，没有提示文件已被删除
+                    if (net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getLocalPath())) {
+                        openAndroidFile(fileMessage.getLocalPath());
+                    } else {
+                        ToastUtil.show("文件不存在或者已被删除");
+                    }
                 }
+
+
             }
         } else {
             //如果是别人发的文件
