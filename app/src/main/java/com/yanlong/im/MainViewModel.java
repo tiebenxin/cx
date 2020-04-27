@@ -160,6 +160,8 @@ public class MainViewModel extends ViewModel {
         isNeedCloseSwipe.removeObservers(owner);
         if (sessionMores != null)
             sessionMores.removeAllChangeListeners();
+        sessionMoresPositions.clear();
+        sessionMoresPositions = null;
         sessionMores = null;
         repository.onDestory();
     }

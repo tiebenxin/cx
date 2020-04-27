@@ -369,9 +369,11 @@ public class ApplicationRepository {
         sessions.removeAllChangeListeners();
         localDataSource.onDestory();
         friends.removeAllChangeListeners();
+        sessionSidPositons.clear();
         sessions = null;
         friends = null;
 
+        sessionSidPositons = null;
         mSessionChangeListeners = null;
         mFriendChangeListeners = null;
         localDataSource = null;
