@@ -404,6 +404,10 @@ public class SocketData {
         if (userInfo == null) {
             return null;
         }
+        //是否是发送给文件传输助手
+        if (toId != null && toId.longValue() == -userInfo.getUid()) {
+            toId = userInfo.getUid().longValue();
+        }
         initWrapMessage(msgId, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), toId, toGid, time, type, value, wrap);
         if (wrap == null) {
             return null;
@@ -519,7 +523,6 @@ public class SocketData {
     }
 
 
-
     public static P2PAuVideoMessage createCallMessage(String msgId, int auType, String option, String desc) {
         P2PAuVideoMessage message = new P2PAuVideoMessage();
         message.setMsgId(msgId);
@@ -545,7 +548,6 @@ public class SocketData {
         return send4Base(false, toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO_DIAL, chat);
 
     }
-
 
 
     /***
@@ -794,7 +796,6 @@ public class SocketData {
         msgDao.noteMsgAddRb(mid, toId, toGid, note);
         return send4Base(toId, toGid, MsgBean.MessageType.RECEIVE_RED_ENVELOPER, msg);
     }
-
 
 
     public static MsgCancel createCancelMsg(MsgAllBean cancelMsg) {

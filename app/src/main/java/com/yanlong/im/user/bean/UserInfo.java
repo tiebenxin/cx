@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
+import com.yanlong.im.chat.ChatEnum;
 
 import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.PinyinUtil;
@@ -63,9 +64,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     private String sayHi;//待同意好友招呼语
     //通讯录存储数字的tag
     @Ignore
-    public static final String FRIEND_NUMBER_TAG ="Z1";//存到数据库符号，方便排序
+    public static final String FRIEND_NUMBER_TAG = "Z1";//存到数据库符号，方便排序
     @Ignore
-    public static final String FRIEND_NUMBER_SHOW_TAG ="#";//显示的符号
+    public static final String FRIEND_NUMBER_SHOW_TAG = "#";//显示的符号
     private Long lastonline;
     private int activeType; //是否在线（0：离线|1：在线）
     private String describe; //用户描述
@@ -513,7 +514,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
             toTag();
         }
         //数据库中存储的是Z1，便于排序
-        return TextUtils.isEmpty(tag)||tag.equals(FRIEND_NUMBER_TAG)?FRIEND_NUMBER_SHOW_TAG:tag;
+        return TextUtils.isEmpty(tag) || tag.equals(FRIEND_NUMBER_TAG) ? FRIEND_NUMBER_SHOW_TAG : tag;
     }
 
     public String getDescribe() {
@@ -558,7 +559,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
         if (uid == null) {
             return false;
         }
-        if (uid.equals(Constants.CX888_UID) || uid.equals(Constants.CX999_UID) || uid.equals(Constants.CX_HELPER_UID)) {
+        if (uid.equals(Constants.CX888_UID) || uid.equals(Constants.CX999_UID) || uid.equals(Constants.CX_HELPER_UID) || (uType != null && uType.intValue() == ChatEnum.EUserType.ASSISTANT)) {
             return true;
         }
         return false;

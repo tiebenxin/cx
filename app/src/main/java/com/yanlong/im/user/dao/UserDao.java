@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
@@ -12,7 +13,6 @@ import com.yanlong.im.utils.DaoUtil;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.manager.Constants;
-import net.cb.cb.library.utils.LogUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -272,17 +272,17 @@ public class UserDao {
         Realm realm = DaoUtil.open();
         try {
             RealmResults<UserInfo> ls;
-                ls = realm.where(UserInfo.class)
-                        .beginGroup().equalTo("uType", 2).endGroup()
-                        .or()
-                        .beginGroup().equalTo("uType", 4).endGroup()
-                        .and()
-                        .beginGroup().notEqualTo("uid", Constants.CX888_UID).endGroup()
-                        .and()
-                        .beginGroup().notEqualTo("uid", Constants.CX_BALANCE_UID).endGroup()
-                        .and()
-                        .beginGroup().notEqualTo("uid", Constants.CX_HELPER_UID).endGroup()
-                        .sort("tag", Sort.ASCENDING).findAll();
+            ls = realm.where(UserInfo.class)
+                    .beginGroup().equalTo("uType", 2).endGroup()
+                    .or()
+                    .beginGroup().equalTo("uType", 4).endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("uid", Constants.CX888_UID).endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("uid", Constants.CX_BALANCE_UID).endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("uid", Constants.CX_HELPER_UID).endGroup()
+                    .sort("tag", Sort.ASCENDING).findAll();
 
             res = realm.copyFromRealm(ls);
             realm.close();
@@ -361,6 +361,10 @@ public class UserDao {
      */
     public void friendMeUpdate(List<UserInfo> list) {
         Realm realm = DaoUtil.open();
+        IUser user = UserAction.getMyInfo();
+        if (user == null) {
+            return;
+        }
         try {
             realm.beginTransaction();
             RealmResults<UserInfo> ls = realm.where(UserInfo.class).beginGroup().equalTo("uType", 2).or().equalTo("stat", 9).endGroup().findAll();
@@ -381,6 +385,11 @@ public class UserDao {
                         //服务器用户最后在线时间小于本地最后在线时间，则不更新最后在线时间
                         if (u.getLastonline() != null && userInfo != null && userInfo.getLastonline() < u.getLastonline()) {
                             userInfo.setLastonline(u.getLastonline());
+                        }
+                        //文件传输助手
+                        if (user.getUid().longValue() == userInfo.getUid().longValue()) {
+                            long uid = userInfo.getUid().longValue();
+                            userInfo.setUid(-uid);
                         }
                         realm.copyToRealmOrUpdate(userInfo);
                     }
@@ -406,6 +415,11 @@ public class UserDao {
                         userInfo.setLastonline(System.currentTimeMillis());
                     } else {
                         userInfo.setuType(ChatEnum.EUserType.FRIEND);
+                    }
+                    //文件传输助手
+                    if (user.getUid().longValue() == userInfo.getUid().longValue()) {
+                        long uid = userInfo.getUid().longValue();
+                        userInfo.setUid(-uid);
                     }
                     realm.insertOrUpdate(userInfo);
                 }
