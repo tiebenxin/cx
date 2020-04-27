@@ -341,6 +341,7 @@ public class MsgMainFragment extends Fragment {
         //需要触发下，Fragment可能被设置了预加载
         if (!viewModel.isShowLoadAnim.getValue()) viewModel.isShowLoadAnim.setValue(false);
         super.onResume();
+
     }
 
     private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {

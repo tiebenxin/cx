@@ -156,7 +156,7 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
         int type = 0;
         if (position == 0) {//顶部-4个功能菜单
             type = 0;
-        } else if (position == viewModel.friends.size()+1) {//底部-联系人数量
+        } else if (position == getItemCount()-1) {//底部-联系人数量
             type = 1;
         } else {
             type = 2;

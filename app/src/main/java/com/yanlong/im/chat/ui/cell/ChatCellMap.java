@@ -9,8 +9,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.luck.picture.lib.glide.CustomGlideModule;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.LocationMessage;
@@ -52,17 +55,26 @@ public class ChatCellMap extends ChatCellBase {
         tvLocation.setText(message.getAddress());
         tvLocationDesc.setText(message.getAddressDescribe());
         ivLocation.setImageResource(R.mipmap.ic_image_bg);
-        if (StringUtil.isNotNull(message.getImg())) {
-            Glide.with(mContext)
-                    .asBitmap()
-                    .load(message.getImg())
-//                    .apply(GlideOptionsUtil.imageOptions())
-                    .into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                            ivLocation.setImageBitmap(resource);
-                        }
-                    });
+        if (StringUtil.isNotNull(message.getImg())) {//url链接
+            Bitmap localBitmap= CustomGlideModule.getCacheBitmap(message.getImg());
+            if(localBitmap==null){
+                RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .skipMemoryCache(false)
+                        .centerCrop();
+                Glide.with(getContext())
+                        .asBitmap()
+                        .load(message.getImg())
+                        .apply(mRequestOptions)
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                ivLocation.setImageBitmap(resource);
+                            }
+                        });
+            }else{
+                ivLocation.setImageBitmap(localBitmap);
+            }
         } else {
             String baiduImageUrl = LocationUtils.getLocationUrl(message.getLatitude(), message.getLongitude());
             Glide.with(mContext)
