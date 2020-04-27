@@ -158,6 +158,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.ChatBitmapCache;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.ExpressionUtil;
@@ -5891,4 +5892,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
+    @Override
+    public void finish() {
+        ChatBitmapCache.getInstance().clearCache();
+        super.finish();
+    }
 }
