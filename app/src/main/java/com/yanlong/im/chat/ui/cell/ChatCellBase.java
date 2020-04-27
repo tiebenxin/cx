@@ -20,7 +20,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.luck.picture.lib.glide.CustomGlideModule;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.AtMessage;
@@ -29,6 +28,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.utils.ChatBitmapCache;
 
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -323,7 +323,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
             iv_avatar.setImageResource(R.mipmap.ic_info_head);
         }
 
-        Bitmap localBitmap= CustomGlideModule.getCacheBitmap(model.getFrom_avatar());
+        Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(model.getFrom_avatar());
         if(localBitmap==null){
             RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)

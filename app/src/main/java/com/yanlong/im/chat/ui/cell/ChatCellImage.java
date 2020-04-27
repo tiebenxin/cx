@@ -22,6 +22,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.ui.RoundTransform;
+import com.yanlong.im.utils.ChatBitmapCache;
 
 import net.cb.cb.library.utils.DensityUtil;
 
@@ -102,7 +103,6 @@ public class ChatCellImage extends ChatCellFileBase {
 //                    .thumbnail(0.2f)
                         .into(imageView);
             }
-
         } else {
 //            rOptions.centerCrop();
             rOptions.error(R.mipmap.default_image);
@@ -122,10 +122,11 @@ public class ChatCellImage extends ChatCellFileBase {
     public void glide(RequestOptions rOptions, String url) {
 //        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
         Log.e("raleigh_test", "url=" + url);
-        Bitmap localBitmap = CustomGlideModule.getCacheBitmap(url);
+        Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(url);
         if (localBitmap == null) {
             RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .dontAnimate()
                     .skipMemoryCache(false)
                     .centerCrop();
             Glide.with(getContext())

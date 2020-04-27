@@ -46,7 +46,6 @@ public class CustomGlideModule extends AppGlideModule {
                 builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
             }
         } else {
-
             builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
         }
 
