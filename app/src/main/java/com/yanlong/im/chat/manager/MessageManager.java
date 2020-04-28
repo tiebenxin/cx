@@ -184,7 +184,7 @@ public class MessageManager {
         UserBean userBean = null;//自己的用户信息
         if (UserAction.getMyId() != null) {
             userBean = (UserBean) UserAction.getMyInfo();
-            isFromSelf = wrapMessage.getFromUid() == UserAction.getMyId().intValue();
+            isFromSelf = wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         }
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
             if (oldMsgId.contains(wrapMessage.getMsgId())) {
@@ -199,8 +199,14 @@ public class MessageManager {
         }
         updateUserAvatarAndNick(wrapMessage, isList, requestId);
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
-        if (bean != null && !TextUtils.isEmpty(requestId)) {
-            bean.setRequest_id(requestId);
+        if (bean != null) {
+            if (!TextUtils.isEmpty(requestId)) {
+                bean.setRequest_id(requestId);
+            }
+            //判断是否是文件传输助手
+            if (UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && !isFromSelf) {
+                bean.setFrom_uid(-wrapMessage.getFromUid());
+            }
         }
         switch (wrapMessage.getMsgType()) {
             case CHAT://文本
