@@ -151,7 +151,7 @@ public class AdapterPreviewImage extends PagerAdapter {
     }
 
     private void loadAndShowImage(LocalMedia media, ZoomImageView ivZoom, LargeImageView ivLarge, ImageView ivDownload, TextView tvViewOrigin, ProgressBar pbLoading, LinearLayout llLook) {
-        String path = media.getCompressPath();//缩略图路径
+        String path = media.getCompressPath();//最小缩略图路径
         String originUrl = media.getPath();//原图路径
         boolean isOriginal = StringUtil.isNotNull(originUrl);//是否有原图
         boolean isHttp = PictureMimeType.isHttp(path);
@@ -426,7 +426,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                     }
                 } else {
                     hideLargeImageView(ivLarge);
-                    if (!TextUtils.isEmpty(media.getCutPath()) && (media.getWidth() > 1080 || media.getHeight() > 1920)) {
+                    if (!TextUtils.isEmpty(media.getCutPath()) /*&& (media.getWidth() > 1080 || media.getHeight() > 1920)*/) {
                         loadImage(media.getCutPath(), ivZoom, false, pbLoading);
                     } else {
                         loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
@@ -435,7 +435,7 @@ public class AdapterPreviewImage extends PagerAdapter {
             } else {
                 hideLargeImageView(ivLarge);
                 ivDownload.setVisibility(View.VISIBLE);
-                loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
+                loadImage(media.getCutPath(), ivZoom, false, pbLoading);
             }
         } else {
             ivDownload.setVisibility(View.VISIBLE);
