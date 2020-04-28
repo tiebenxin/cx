@@ -94,7 +94,7 @@ public class ReadDestroyUtil {
                 return "30分钟";
             case 3600:
                 return "1小时";
-            case 21600:
+            case 21000:
                 return "6小时";
             case 43200:
                 return "12小时";

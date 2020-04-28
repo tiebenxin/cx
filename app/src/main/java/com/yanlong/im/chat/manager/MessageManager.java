@@ -511,7 +511,9 @@ public class MessageManager {
                 break;
             case READ://已读消息
                 long uids = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
-                msgDao.setUpdateRead(uids, wrapMessage.getTimestamp());
+                if (!isFromSelf) {
+                    msgDao.setUpdateRead(uids, wrapMessage.getTimestamp());
+                }
                 LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getTimestamp());
                 if (isFromSelf) {//自己PC端已读，则清除未读消息
                     String gid = wrapMessage.getGid();
