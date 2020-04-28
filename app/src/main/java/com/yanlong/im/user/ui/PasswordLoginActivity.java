@@ -2,10 +2,12 @@ package com.yanlong.im.user.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.yanlong.im.MainActivity;
@@ -66,7 +68,25 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
         }
         mEtPhoneContent.setText(phone);
     }
-
+    /**
+     * 显示或隐藏密码
+     * @param view
+     */
+    public void showOrHidePassword(View view){
+        ImageView ivEye=(ImageView)view;
+        int level=ivEye.getDrawable().getLevel();
+        if(level==0){//隐藏转显示
+            mEtPasswordContent.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+            ivEye.setImageLevel(1);
+            //光标定位到最后
+            mEtPasswordContent.setSelection(mEtPasswordContent.getText().length());
+        }else{//显示转隐藏
+            mEtPasswordContent.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            ivEye.setImageLevel(0);
+            //光标定位到最后
+            mEtPasswordContent.setSelection(mEtPasswordContent.getText().length());
+        }
+    }
     private void initEvent() {
         mEtPasswordContent.addTextChangedListener(new PasswordTextWather(mEtPasswordContent, this));
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
