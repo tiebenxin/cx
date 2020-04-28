@@ -1408,6 +1408,9 @@ public class MessageManager {
         } else if (SESSION_TYPE == 3) {//静音模式
 
         } else if (msg.getMsgType() == MsgBean.MessageType.STAMP && CAN_STAMP) {//戳一戳
+            if (UserAction.getMyId() != null && msg.getFromUid() == UserAction.getMyId().longValue()) {
+                return;
+            }
             //不在聊天页 或 在聊天页，当前聊天人不是这个人
             AppConfig.getContext().startActivity(new Intent(AppConfig.getContext(), ChatActionActivity.class)
                     .putExtra(ChatActionActivity.AGM_DATA, msg.toByteArray())

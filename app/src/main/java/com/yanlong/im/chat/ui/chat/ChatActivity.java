@@ -1097,7 +1097,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             taskGroupInfo();
         } else {
             //id不为0且不为客服则获取最新用户信息
-            if (toUId != null && !UserUtil.isSystemUser(toUId)) {
+            if (toUId != null && !UserUtil.isSystemUser(toUId) && (userInfo != null && userInfo.getuType() != ChatEnum.EUserType.ASSISTANT)) {
                 httpGetUserInfo();
             }
         }
@@ -5566,7 +5566,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else {
                 //若不是转发或者自己转发自己
                 //1-1 没有本地路径，代表为PC端发的文件，需要下载
-                if(TextUtils.isEmpty(fileMessage.getLocalPath())){
+                if (TextUtils.isEmpty(fileMessage.getLocalPath())) {
                     //从下载路径里找，若存在该文件，则直接打开；否则需要下载
                     if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
                         openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename());
@@ -5589,7 +5589,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             ToastUtil.show("文件下载地址错误，请联系客服");
                         }
                     }
-                }else {
+                } else {
                     //1-2 有本地路径，则为手机本地文件，从本地路径里找，有则打开，没有提示文件已被删除
                     if (net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getLocalPath())) {
                         openAndroidFile(fileMessage.getLocalPath());
