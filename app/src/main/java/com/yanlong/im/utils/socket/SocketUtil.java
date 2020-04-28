@@ -9,6 +9,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.eventbus.AckEvent;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.chat.tcp.TcpConnection;
 import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.AppConfig;
@@ -547,6 +548,7 @@ public class SocketUtil {
                 LogUtil.getLog().d(TAG, "\n>>>>链接成功:线程ver" + threadVer);
                 receive();
                 //发送认证请求
+                TcpConnection.getInstance(AppConfig.getContext()).addLog(System.currentTimeMillis() + "--Socket-开始鉴权");
                 sendData(SocketData.msg4Auth(), null, "");
             }
         }
@@ -763,7 +765,7 @@ public class SocketUtil {
                     break;
                 case AUTH:
                     LogUtil.getLog().i(TAG, ">>>-----<收到鉴权");
-
+                    TcpConnection.getInstance(AppConfig.getContext()).addLog(System.currentTimeMillis() + "--Socket-成功鉴权");
                     MsgBean.AuthResponseMessage ruthmsg = SocketData.authConversion(indexData);
                     LogUtil.getLog().i(TAG, ">>>-----<鉴权" + ruthmsg.getAccepted());
                     //-------------------------------------------------------------------------test
@@ -787,6 +789,8 @@ public class SocketUtil {
                         //开始启动消息重发队列
                         sendListThread();
                     }
+                    LogUtil.writeLog(TcpConnection.getInstance(AppConfig.getContext()).getLogList().toString());
+                    TcpConnection.getInstance(AppConfig.getContext()).clearLogList();
                     break;
                 case ACK:
                     MsgBean.AckMessage ackmsg = SocketData.ackConversion(indexData);
