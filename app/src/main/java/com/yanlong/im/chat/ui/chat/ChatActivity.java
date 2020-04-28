@@ -640,7 +640,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         //关闭窗口，避免内存溢出
         dismissPop();
         //保存退出即焚消息
-        MyAppLication.INSTANCE().repository.saveExitSurvivalMsg(toGid, toUId);
+        if (MyAppLication.INSTANCE().repository != null)
+            MyAppLication.INSTANCE().repository.saveExitSurvivalMsg(toGid, toUId);
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
@@ -5877,7 +5878,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         int myRead = userInfo.getMyRead();
 
         IUser myUserInfo = UserAction.getMyInfo();
-        int masterRead = myUserInfo==null? 1:myUserInfo.getMasterRead();
+        int masterRead = myUserInfo == null ? 1 : myUserInfo.getMasterRead();
         if (friendMasterRead == 1 && friendRead == 1 && myRead == 1 && masterRead == 1) {
             return true;
         } else {
