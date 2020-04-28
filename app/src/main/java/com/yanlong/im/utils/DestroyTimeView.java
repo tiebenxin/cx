@@ -165,7 +165,7 @@ public class DestroyTimeView implements View.OnClickListener {
         } else if (content.equals("1小时")) {
             return 3600;
         } else if (content.equals("6小时")) {
-            return 21000;
+            return 21600;
         } else if (content.equals("12小时")) {
             return 43200;
         } else if (content.equals("1天")) {

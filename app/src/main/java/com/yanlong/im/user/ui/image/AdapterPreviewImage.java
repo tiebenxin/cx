@@ -183,7 +183,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                         if (PictureFileUtils.hasImageCache(cacheFile, media.getSize())) {
                             saveImageFromCacheFile(cacheFile, ivZoom);
                         } else {
-                            downloadOriginImage(!TextUtils.isEmpty(originUrl) ? originUrl : path, tvViewOrigin, ivDownload, ivZoom, ivLarge, true, isGif,llLook);
+                            downloadOriginImage(!TextUtils.isEmpty(originUrl) ? originUrl : path, tvViewOrigin, ivDownload, ivZoom, ivLarge, true, isGif, llLook);
                         }
                     } else {
                         if (PictureFileUtils.hasImageCache(media.getPath(), media.getSize())) {
@@ -191,7 +191,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                         } else if (PictureFileUtils.hasImageCache(media.getCompressPath(), media.getSize())) {
                             saveImageFromCacheFile(media.getCompressPath(), ivZoom);
                         } else {
-                            downloadOriginImage(originUrl, tvViewOrigin, ivDownload, ivZoom, ivLarge, true, isGif,llLook);
+                            downloadOriginImage(originUrl, tvViewOrigin, ivDownload, ivZoom, ivLarge, true, isGif, llLook);
                         }
                     }
                 } else {
@@ -710,6 +710,12 @@ public class AdapterPreviewImage extends PagerAdapter {
         if (TextUtils.isEmpty(originUrl)) {
             return;
         }
+        tvViewOrigin.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                setDownloadProgress(tvViewOrigin, 0, llLook);
+            }
+        }, 100);
         final String filePath = context.getExternalCacheDir().getAbsolutePath() + "/Image/";
         final String fileName = originUrl.substring(originUrl.lastIndexOf("/") + 1);
         File fileSave = new File(filePath + "/" + fileName);//原图保存路径
@@ -789,7 +795,7 @@ public class AdapterPreviewImage extends PagerAdapter {
      * 更新下载进度
      * */
     public void setDownloadProgress(TextView tvViewOrigin, int progress, LinearLayout llLook) {
-        if (preProgress > progress){
+        if (preProgress > progress) {
             return;
         }
         preProgress = progress;
@@ -831,10 +837,10 @@ public class AdapterPreviewImage extends PagerAdapter {
                 } else if (postsion == 3) {//长按跳编辑界面，编辑完成后，返回新图片的本地路径到PictureExternalPreviewActivity
                     Intent intent = new Intent(context, ImageShowActivity.class);
                     Bundle bundle = new Bundle();
-                    bundle.putString("imgpath",media.getCompressPath());
-                    bundle.putString("msg_id",msgId);
+                    bundle.putString("imgpath", media.getCompressPath());
+                    bundle.putString("msg_id", msgId);
                     intent.putExtras(bundle);
-                    context.startActivityForResult(intent,PictureExternalPreviewActivity.IMG_EDIT);
+                    context.startActivityForResult(intent, PictureExternalPreviewActivity.IMG_EDIT);
                 }
                 popupSelectView.dismiss();
 
@@ -1010,7 +1016,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                     if (!TextUtils.isEmpty(url)) {
                         isGif = FileUtils.isGif(url);
                     }
-                }else {
+                } else {
                     isGif = FileUtils.isGif(path);
                 }
             } else {
