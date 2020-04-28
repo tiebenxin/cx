@@ -2314,10 +2314,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (isLoadHistory) {
             isLoadHistory = false;
         }
-        LogUtil.getLog().i(TAG, "scrollListView--" + "lastPosition=" + lastPosition);
         if (mAdapter != null) {
             int length = mAdapter.getItemCount();//刷新后当前size
-            if (isMustBottom) {
+            LogUtil.getLog().i(TAG, "scrollListView--" + "lastPosition=" + lastPosition + "--totalLength--" + length);
+            if (isMustBottom || lastPosition == -1) {
                 mtListView.scrollToEnd();
                 lastPosition = length - 1;
 //                initLastPosition();
@@ -4770,7 +4770,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             ToastUtil.show(this, "网络连接不可用，请稍后重试");
             isOk = false;
         } else {
-            isOk = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.CONN_STATUS).get4Json(Boolean.class);
+            isOk = SocketUtil.getSocketUtil().getOnLineState();
             if (!isOk) {
                 ToastUtil.show(this, "连接已断开，请稍后再试");
             }
