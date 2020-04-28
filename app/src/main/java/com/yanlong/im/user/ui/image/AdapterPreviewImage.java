@@ -710,6 +710,7 @@ public class AdapterPreviewImage extends PagerAdapter {
         if (TextUtils.isEmpty(originUrl)) {
             return;
         }
+        setDownloadProgress(tvViewOrigin, 0, llLook);
         final String filePath = context.getExternalCacheDir().getAbsolutePath() + "/Image/";
         final String fileName = originUrl.substring(originUrl.lastIndexOf("/") + 1);
         File fileSave = new File(filePath + "/" + fileName);//原图保存路径
