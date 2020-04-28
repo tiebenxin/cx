@@ -101,7 +101,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:text="使用短信验证码登录"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
                 android:textColor="@color/blue_600"
                 android:textSize="11sp"
                 app:layout_constraintTop_toBottomOf="@id/view_line" />

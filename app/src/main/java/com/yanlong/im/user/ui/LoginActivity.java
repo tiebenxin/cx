@@ -189,7 +189,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         mBtnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                InputUtil.hideKeyboard(mEtPasswordContent);
+                InputUtil.hideKeyboard(LoginActivity.this);
                 login();
             }
         });
