@@ -113,7 +113,7 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
         ClickFilter.onClick(mBtnLogin, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                InputUtil.hideKeyboard(mEtPasswordContent);
+                InputUtil.hideKeyboard(PasswordLoginActivity.this);
                 login();
             }
         });

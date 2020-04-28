@@ -17,6 +17,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.CountDownUtil;
+import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -78,6 +79,8 @@ public class ForgotPasswordActivity extends AppActivity implements View.OnClickL
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_next:
+                //关闭软键盘
+                InputUtil.hideKeyboard(this);
                 register();
                 break;
             case R.id.tv_get_verification_code:

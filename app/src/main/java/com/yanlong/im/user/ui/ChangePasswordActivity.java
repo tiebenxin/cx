@@ -15,6 +15,7 @@ import com.yanlong.im.utils.PasswordTextWather;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ClickFilter;
+import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -73,6 +74,8 @@ public class ChangePasswordActivity extends AppActivity {
 
 
     private void commit() {
+        //关闭软键盘
+        InputUtil.hideKeyboard(this);
         String oldPassword = mEdOldPassword.getText().toString();
         String newPassword = mEdNewPassword.getText().toString();
         String nextPassword = mEdNextPassword.getText().toString();
