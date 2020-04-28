@@ -15,6 +15,7 @@ import com.yanlong.im.utils.PasswordTextWather;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
@@ -73,6 +74,8 @@ public class SetingPasswordActitity extends AppActivity {
         btnCommit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //关闭软键盘
+                InputUtil.hideKeyboard(SetingPasswordActitity.this);
                 commit();
             }
         });
@@ -109,6 +112,7 @@ public class SetingPasswordActitity extends AppActivity {
         }
     }
     private void commit() {
+
         String password = edPassword.getText().toString();
         String nextPassword = edVerifyPassword.getText().toString();
         if(TextUtils.isEmpty(password)){
