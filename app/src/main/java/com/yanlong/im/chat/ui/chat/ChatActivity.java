@@ -604,8 +604,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         boolean hasClear = taskCleanRead(false);
         boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
         boolean hasChange = updateSessionDraftAndAtMessage();
-        //停止图片文件等上传
-        UpLoadService.stopUpload();
     }
 
     //停止录音
@@ -640,8 +638,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         //关闭窗口，避免内存溢出
         dismissPop();
         //保存退出即焚消息
-        if (MyAppLication.INSTANCE().repository != null)
+        if (MyAppLication.INSTANCE().repository != null) {
             MyAppLication.INSTANCE().repository.saveExitSurvivalMsg(toGid, toUId);
+        }
+        //停止图片文件等上传
+        if (!AppConfig.isAppRuning()) {
+            UpLoadService.stopUpload();
+        }
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
