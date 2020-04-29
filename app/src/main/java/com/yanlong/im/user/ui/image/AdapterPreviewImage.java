@@ -285,7 +285,7 @@ public class AdapterPreviewImage extends PagerAdapter {
             public void onBlockImageLoadFinished() {
                 ivLarge.setAlpha(1);
 //                dismissDialog();
-                setDownloadProgress(tvViewOrigin, 100, llLook);
+//                setDownloadProgress(tvViewOrigin, 100, llLook);
                 // ToastUtil.show(getApplicationContext(),"加载完成");
             }
 
@@ -761,10 +761,12 @@ public class AdapterPreviewImage extends PagerAdapter {
         if (tvViewOrigin == null) {
             return;
         }
+        LogUtil.getLog().i(TAG, "progress=" + progress);
         tvViewOrigin.setText("已完成 " + progress + "%");
         if (progress == 100) {
             tvViewOrigin.setVisibility(View.GONE);
             llLook.setVisibility(View.GONE);
+            preProgress = 0;
         }
     }
 
