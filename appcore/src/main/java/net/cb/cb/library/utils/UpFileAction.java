@@ -132,6 +132,7 @@ public class UpFileAction {
                     public void onResponse(Call<ReturnBean<AliObsConfigBean>> call, Response<ReturnBean<AliObsConfigBean>> response) {
                         if (response.body() == null) {
                             callback.fail();
+                            LogUtil.writeLog("上传失败--response=null");
                             return;
                         }
                         if (response.body().isOk()) {
@@ -162,6 +163,7 @@ public class UpFileAction {
                             }).start();
                         } else {
                             ToastUtil.show(context, "上传失败");
+                            LogUtil.writeLog("上传失败--" + response.body().toString());
                         }
 
 
@@ -173,6 +175,9 @@ public class UpFileAction {
                         callback.fail();
                         long timeCost = SystemClock.currentThreadTimeMillis() - startTime;
                         UpLoadUtils.getInstance().upLoadLog(timeCost + "--------失败" + call.request().body().toString());
+                        if (call != null) {
+                            LogUtil.writeLog("上传失败--" + call.request().body().toString());
+                        }
                     }
                 });
 
@@ -188,6 +193,7 @@ public class UpFileAction {
                     @Override
                     public void onResponse(Call<ReturnBean<AliObsConfigBean>> call, Response<ReturnBean<AliObsConfigBean>> response) {
                         if (response.body() == null) {
+                            LogUtil.writeLog("上传失败--response=null");
                             callback.fail();
                             return;
                         }
@@ -224,9 +230,8 @@ public class UpFileAction {
                             }).start();
                         } else {
                             ToastUtil.show(context, "上传失败");
+                            LogUtil.writeLog("上传失败--" + response.body().toString());
                         }
-
-
                     }
 
                     @Override
@@ -235,6 +240,9 @@ public class UpFileAction {
                         callback.fail();
                         long timeCost = SystemClock.currentThreadTimeMillis() - startTime;
                         UpLoadUtils.getInstance().upLoadLog(timeCost + "--------失败" + call.request().body().toString());
+                        if (call != null) {
+                            LogUtil.writeLog("上传失败--" + call.request().body().toString());
+                        }
                     }
                 });
 
@@ -249,6 +257,7 @@ public class UpFileAction {
                     @Override
                     public void onResponse(Call<ReturnBean<AliObsConfigBean>> call, Response<ReturnBean<AliObsConfigBean>> response) {
                         if (response.body() == null) {
+                            LogUtil.writeLog("上传失败--response = null");
                             callback.fail();
                             return;
                         }
@@ -281,6 +290,9 @@ public class UpFileAction {
                             }).start();
                         } else {
                             ToastUtil.show(context, "上传失败");
+                            if (call != null) {
+                                LogUtil.writeLog("上传失败--" + call.request().body().toString());
+                            }
                         }
 
 
@@ -292,6 +304,10 @@ public class UpFileAction {
                         callback.fail();
                         long timeCost = SystemClock.currentThreadTimeMillis() - startTime;
                         UpLoadUtils.getInstance().upLoadLog(timeCost + "--------失败" + call.request().body().toString());
+                        if (call != null) {
+                            LogUtil.writeLog("上传失败--" + call.request().body().toString());
+                        }
+
                     }
                 });
 
