@@ -151,7 +151,7 @@ public class AdapterPreviewImage extends PagerAdapter {
     }
 
     private void loadAndShowImage(LocalMedia media, ZoomImageView ivZoom, LargeImageView ivLarge, ImageView ivDownload, TextView tvViewOrigin, ProgressBar pbLoading, LinearLayout llLook) {
-        String path = media.getCompressPath();//缩略图路径
+        String path = media.getCompressPath();//最小缩略图路径
         String originUrl = media.getPath();//原图路径
         boolean isOriginal = StringUtil.isNotNull(originUrl);//是否有原图
         boolean isHttp = PictureMimeType.isHttp(path);
@@ -310,6 +310,7 @@ public class AdapterPreviewImage extends PagerAdapter {
             Glide.with(context).load(media.getCutPath()).error(Glide.with(context).load(media.getCompressPath())).listener(new RequestListener<Drawable>() {
                 @Override
                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                    ToastUtil.show(context, "加载失败,请检查网络");
                     pbLoading.setVisibility(View.GONE);
                     return false;
                 }
@@ -426,7 +427,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                     }
                 } else {
                     hideLargeImageView(ivLarge);
-                    if (!TextUtils.isEmpty(media.getCutPath()) && (media.getWidth() > 1080 || media.getHeight() > 1920)) {
+                    if (!TextUtils.isEmpty(media.getCutPath()) /*&& (media.getWidth() > 1080 || media.getHeight() > 1920)*/) {
                         loadImage(media.getCutPath(), ivZoom, false, pbLoading);
                     } else {
                         loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
@@ -435,7 +436,7 @@ public class AdapterPreviewImage extends PagerAdapter {
             } else {
                 hideLargeImageView(ivLarge);
                 ivDownload.setVisibility(View.VISIBLE);
-                loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
+                loadImage(media.getCutPath(), ivZoom, false, pbLoading);
             }
         } else {
             ivDownload.setVisibility(View.VISIBLE);
@@ -550,6 +551,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                         public void onLoadFailed(@Nullable Drawable errorDrawable) {
                             super.onLoadFailed(errorDrawable);
                             pbLoading.setVisibility(View.GONE);
+                            ToastUtil.show(context, "加载失败,请检查网络");
                         }
 
                         @Override
@@ -574,6 +576,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                             super.onLoadFailed(errorDrawable);
                             pbLoading.setVisibility(View.GONE);
 //                        dismissDialog();
+                            ToastUtil.show(context, "加载失败,请检查网络");
                         }
 
                         @Override
@@ -604,104 +607,18 @@ public class AdapterPreviewImage extends PagerAdapter {
                         super.onLoadFailed(errorDrawable);
                         pbLoading.setVisibility(View.GONE);
 //                        dismissDialog();
+                        ToastUtil.show(context, "加载失败,请检查网络");
                     }
 
                     @Override
                     public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
 //                        dismissDialog();
-//                        System.out.println(TAG + "-loadImageThumbnail-ivZoom=" + resource.getWidth() + "--" + resource.getHeight());
                         ivZoom.setImageBitmap(resource);
                         pbLoading.setVisibility(View.GONE);
                     }
                 });
     }
 
-    /*
-     * 加载长图片
-     * */
-    private void loadImageLong(String url, SubsamplingScaleImageView ivLong, boolean isOrigin, ProgressBar pbLoading) {
-//        System.out.println(TAG + "--loadImageLong");
-        if (!isOrigin) {
-            RequestOptions options = new RequestOptions()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .format(DecodeFormat.PREFER_RGB_565);
-            Glide.with(ivLong.getContext())
-                    .asBitmap()
-                    .load(url)
-                    .apply(options)  //480     800
-                    .into(new SimpleTarget<Bitmap>(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) {
-                        @Override
-                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                            super.onLoadFailed(errorDrawable);
-//                        dismissDialog();
-                            System.out.println("图片加载失败");
-                            pbLoading.setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-//                        dismissDialog();
-                            displayLongPic(resource, ivLong);
-                            pbLoading.setVisibility(View.GONE);
-                        }
-                    });
-        } else {
-            RequestOptions options = new RequestOptions()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .format(DecodeFormat.PREFER_ARGB_8888);
-            Glide.with(ivLong.getContext())
-                    .asBitmap()
-                    .load(url)
-                    .apply(options)  //480     800
-                    .into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                            super.onLoadFailed(errorDrawable);
-                            pbLoading.setVisibility(View.GONE);
-//                        dismissDialog();
-                        }
-
-                        @Override
-                        public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-//                        dismissDialog();
-                            displayLongPic(resource, ivLong);
-                            pbLoading.setVisibility(View.GONE);
-                        }
-                    });
-        }
-    }
-
-    private void loadLargeImage(String url, LargeImageView iv, ZoomImageView ivZoom, ProgressBar pbLoading) {
-//        System.out.println(TAG + "--loadLargeImage");
-        iv.setAlpha(0);
-        iv.setVisibility(View.VISIBLE);
-        RequestOptions options = new RequestOptions()
-                .diskCacheStrategy(DiskCacheStrategy.ALL);
-        Glide.with(context)
-                .asBitmap()
-                .load(url)
-                .apply(options)  //480     800
-                .into(new SimpleTarget<Bitmap>(800, 800) {
-                    /* .into(new SimpleTarget<Bitmap>(ScreenUtils.getScreenWidth(PictureExternalPreviewActivity.this),
-                             ScreenUtils.getScreenHeight(PictureExternalPreviewActivity.this)) {*/
-                    @Override
-                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                        super.onLoadFailed(errorDrawable);
-                        pbLoading.setVisibility(View.GONE);
-//                        dismissDialog();
-                    }
-
-                    @Override
-                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-//                        dismissDialog();
-//                        System.out.println(TAG + "--ivLarge=" + resource.getWidth() + "--" + resource.getHeight());
-                        iv.setImage(resource);
-                        showZoomView(ivZoom, false);
-                        pbLoading.setVisibility(View.GONE);
-
-                    }
-                });
-    }
 
     /*
      * 下载原图
@@ -780,6 +697,7 @@ public class AdapterPreviewImage extends PagerAdapter {
 
                     @Override
                     public void onDownloadFailed(Exception e) {
+                        ToastUtil.show(context, "加载失败,请检查网络");
                         new File(filePath + "/" + fileName).delete();
                         new File(filePath + "/" + fileName + FileBitmapDecoderFactory.cache_name).delete();
                         e.printStackTrace();

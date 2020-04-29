@@ -21,6 +21,7 @@ public class AppConfig {
     public static boolean DEBUG = false;
     public static float FONT = 1.0f;
     public static String UP_PATH = BuildConfig.UP_PATH;
+    private static boolean isAppRunning = false;//应用是否正在运行
 
     // 用户服务协议
     public static final String USER_AGREEMENT = "https://changxin.zhixun6.com/yhxy.html";
@@ -136,5 +137,13 @@ public class AppConfig {
             return "";
         }
         return APP_CONTEXT.getString(id);
+    }
+
+    public static boolean isAppRuning() {
+        return isAppRunning;
+    }
+
+    public static void setAppRuning(boolean appRuning) {
+        isAppRunning = appRuning;
     }
 }

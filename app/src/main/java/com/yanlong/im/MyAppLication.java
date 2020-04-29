@@ -348,6 +348,7 @@ public class MyAppLication extends MainApplication {
             public void onFront() {
                 //应用切到前台处理
                 LogUtil.getLog().d(TAG, "--->应用切到前台处理");
+                AppConfig.setAppRuning(true);
                 EventRunState enent = new EventRunState();
                 enent.setRun(true);
                 EventBus.getDefault().post(enent);
@@ -369,6 +370,8 @@ public class MyAppLication extends MainApplication {
             public void onBack() {
                 //应用切到后台处理
                 LogUtil.getLog().d(TAG, "--->应用切到后台处理");
+                AppConfig.setAppRuning(false);
+
                 EventRunState enent = new EventRunState();
                 enent.setRun(false);
                 EventBus.getDefault().post(enent);

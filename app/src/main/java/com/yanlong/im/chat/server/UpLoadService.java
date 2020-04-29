@@ -477,7 +477,7 @@ public class UpLoadService extends Service {
     }
 
     public static void stopUpload() {
-//        LogUtil.getLog().i(TAG, "stop--queue-size=" + queue.size() + "   map-size=" + msgMap.size());
+        LogUtil.getLog().i(TAG, "stop--queue-size=" + queue.size() + "   map-size=" + msgMap.size());
         //清空请求
         if (queue != null && queue.size() > 0) {
             queue.clear();
