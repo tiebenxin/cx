@@ -1,13 +1,14 @@
 package com.yanlong.im.user.ui;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -20,50 +21,37 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
-import com.example.nim_lib.config.Preferences;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.nim_lib.ui.BaseBindActivity;
 import com.google.gson.Gson;
-import com.luck.picture.lib.PictureSelector;
-import com.luck.picture.lib.entity.LocalMedia;
+import com.hm.cxpay.utils.DateUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.bean.NoRedEnvelopesBean;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.ui.VideoPlayActivity;
-import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.databinding.ActivityCollectionBinding;
 import com.yanlong.im.databinding.ItemCollectionViewBinding;
+import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.user.bean.CollectionInfo;
-import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.audio.IVoicePlayListener;
 import com.yanlong.im.view.face.FaceView;
-import com.yanlong.im.view.face.ShowBigFaceActivity;
-import com.zhaoss.weixinrecorded.util.RxJavaUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.DownloadUtil;
-import net.cb.cb.library.utils.IntentUtil;
+import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.NetUtil;
-import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.utils.ViewUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,8 +74,11 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
 
     private CommonRecyclerViewAdapter<CollectionInfo, ItemCollectionViewBinding> mViewAdapter;
     private List<CollectionInfo> mList = new ArrayList<>();
+    private List<CollectionInfo> allCollectList = new ArrayList<>();//默认所有收藏数据
+    private List<CollectionInfo> searchCollectList = new ArrayList<>();//搜索出来的数据
     private MsgDao mMsgDao = new MsgDao();
     private MsgAction msgAction = new MsgAction();
+    private String key = "";//搜索关键字
 
     //加载布局
     @Override
@@ -104,47 +95,55 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             public void bind(ItemCollectionViewBinding binding, CollectionInfo memberUser,
                              int position, RecyclerView.ViewHolder viewHolder) {
 
-                if(mList!=null && mList.size()>0){
+                if (mList != null && mList.size() > 0) {
                     CollectionInfo collectionInfo = mList.get(position);
-                    if(!TextUtils.isEmpty(collectionInfo.getData())){
-                        MsgAllBean bean = new Gson().fromJson(collectionInfo.getData(),MsgAllBean.class) ;
+                    if (!TextUtils.isEmpty(collectionInfo.getData())) {
+                        MsgAllBean bean = new Gson().fromJson(collectionInfo.getData(), MsgAllBean.class);
                         //显示用户名或群名
-                        if(!TextUtils.isEmpty(collectionInfo.getFromGroupName())){
-                            binding.tvName.setText(collectionInfo.getFromGroupName());
-                        }else if(!TextUtils.isEmpty(collectionInfo.getFromUsername())){
-                            binding.tvName.setText(collectionInfo.getFromUsername());
-                        }else {
-                            binding.tvName.setText("");
+                        if (!TextUtils.isEmpty(collectionInfo.getFromGroupName())) {
+                            binding.tvName.setText("来自群聊-" + collectionInfo.getFromGroupName());
+                        } else if (!TextUtils.isEmpty(collectionInfo.getFromUsername())) {
+                            binding.tvName.setText("来自用户-" + collectionInfo.getFromUsername());
+                        } else {
+                            binding.tvName.setText("未知来源");
                         }
                         //收藏时间
-                        if(!TextUtils.isEmpty(collectionInfo.getCreateTime())){
+                        if (!TextUtils.isEmpty(collectionInfo.getCreateTime())) {
                             binding.tvDate.setText(TimeToString.getTimeForCollect(Long.parseLong(collectionInfo.getCreateTime())));
-                        }else {
+                        } else {
                             binding.tvDate.setText("");
                         }
                         //不同类型显示
-                        switch (collectionInfo.getType()){
+                        switch (collectionInfo.getType()) {
                             case ChatEnum.EMessageType.TEXT: //文字
-                                binding.tvContent.setVisibility(VISIBLE);//显示文字相关布局
-                                if(bean!=null){
-                                    if(bean.getChat()!=null){
-                                        if(!TextUtils.isEmpty(bean.getChat().getMsg())){
+                                binding.tvContent.setVisibility(VISIBLE);//显示文字相关布局，隐藏其他类型相关布局
+                                binding.layoutVoice.setVisibility(GONE);
+                                binding.layoutPic.setVisibility(GONE);
+                                binding.layoutFile.setVisibility(GONE);
+                                binding.layoutLocation.setVisibility(GONE);
+                                if (bean != null) {
+                                    if (bean.getChat() != null) {
+                                        if (!TextUtils.isEmpty(bean.getChat().getMsg())) {
                                             binding.tvContent.setText(bean.getChat().getMsg());
-                                        }else {
+                                        } else {
                                             binding.tvContent.setText("");
                                         }
                                     }
                                 }
                                 break;
                             case ChatEnum.EMessageType.IMAGE: //图片
+                                binding.tvContent.setVisibility(GONE);//显示图片相关布局，隐藏其他类型相关布局
+                                binding.layoutVoice.setVisibility(GONE);
                                 binding.layoutPic.setVisibility(VISIBLE);
-                                binding.ivPic.setVisibility(View.VISIBLE);
-                                if(bean!=null){
-                                    if(bean.getImage()!=null){ //显示预览图或者缩略图
-                                        if(!TextUtils.isEmpty(bean.getImage().getPreview())){
+                                binding.layoutFile.setVisibility(GONE);
+                                binding.layoutLocation.setVisibility(GONE);
+                                binding.ivPlay.setVisibility(GONE);
+                                if (bean != null) {
+                                    if (bean.getImage() != null) { //显示预览图或者缩略图
+                                        if (!TextUtils.isEmpty(bean.getImage().getPreview())) {
                                             Glide.with(CollectionActivity.this).load(bean.getImage().getPreview())
                                                     .apply(GlideOptionsUtil.headImageOptions()).into(binding.ivPic);
-                                        }else if(!TextUtils.isEmpty(bean.getImage().getThumbnail())){
+                                        } else if (!TextUtils.isEmpty(bean.getImage().getThumbnail())) {
                                             Glide.with(CollectionActivity.this).load(bean.getImage().getThumbnail())
                                                     .apply(GlideOptionsUtil.headImageOptions()).into(binding.ivPic);
                                         }
@@ -152,34 +151,30 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 }
                                 break;
                             case ChatEnum.EMessageType.SHIPPED_EXPRESSION: //大表情
+                                binding.tvContent.setVisibility(GONE);//显示表情相关布局，隐藏其他类型相关布局
+                                binding.layoutVoice.setVisibility(GONE);
                                 binding.layoutPic.setVisibility(VISIBLE);
-                                binding.ivPic.setVisibility(View.VISIBLE);
-                                if(bean!=null){
-                                    if(bean.getShippedExpressionMessage()!=null){
-                                        if(!TextUtils.isEmpty(bean.getShippedExpressionMessage().getId())){
-                                            Glide.with(CollectionActivity.this).load(Integer.parseInt(FaceView.map_FaceEmoji.get(bean.getShippedExpressionMessage().getId()).toString())).
-                                                    listener(new RequestListener() {
-                                                        @Override
-                                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
-                                                            return false;
-                                                        }
-
-                                                        @Override
-                                                        public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
-                                                            return false;
-                                                        }
-                                                    }).apply(GlideOptionsUtil.headImageOptions()).into(binding.ivPic);
+                                binding.layoutFile.setVisibility(GONE);
+                                binding.layoutLocation.setVisibility(GONE);
+                                binding.ivPlay.setVisibility(GONE);
+                                if (bean != null) {
+                                    if (bean.getShippedExpressionMessage() != null) {
+                                        if (!TextUtils.isEmpty(bean.getShippedExpressionMessage().getId())) {
+                                            Glide.with(CollectionActivity.this).load(Integer.parseInt(FaceView.map_FaceEmoji.get(bean.getShippedExpressionMessage().getId()).toString())).apply(GlideOptionsUtil.headImageOptions()).into(binding.ivPic);
                                         }
                                     }
                                 }
                                 break;
                             case ChatEnum.EMessageType.MSG_VIDEO: //短视频消息
+                                binding.tvContent.setVisibility(GONE);//显示短视频相关布局，隐藏其他类型相关布局
+                                binding.layoutVoice.setVisibility(GONE);
                                 binding.layoutPic.setVisibility(VISIBLE);
-                                binding.ivPic.setVisibility(View.VISIBLE);
+                                binding.layoutFile.setVisibility(GONE);
+                                binding.layoutLocation.setVisibility(GONE);
                                 binding.ivPlay.setVisibility(VISIBLE);
-                                if(bean!=null){
-                                    if(bean.getVideoMessage()!=null){ //显示背景图
-                                        if(!TextUtils.isEmpty(bean.getVideoMessage().getBg_url())){
+                                if (bean != null) {
+                                    if (bean.getVideoMessage() != null) {
+                                        if (!TextUtils.isEmpty(bean.getVideoMessage().getBg_url())) {
                                             Glide.with(CollectionActivity.this).load(bean.getVideoMessage().getBg_url())
                                                     .apply(GlideOptionsUtil.headImageOptions()).into(binding.ivPic);
                                         }
@@ -187,34 +182,114 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 }
                                 break;
                             case ChatEnum.EMessageType.VOICE: //语音
-                                binding.voiceView.setVisibility(VISIBLE);
-                                if(bean!=null){
-                                    if(bean.getVoiceMessage()!=null){
-                                        VoiceMessage vm = bean.getVoiceMessage();
-                                        String url = bean.isMe() ? vm.getLocalUrl() : vm.getUrl();
-                                        binding.voiceView.init(true,vm.getTime(), true, AudioPlayManager.getInstance().isPlay(Uri.parse(url)), vm.getPlayStatus());
+                                binding.tvContent.setVisibility(GONE);//显示语音相关布局，隐藏其他类型相关布局
+                                binding.layoutVoice.setVisibility(VISIBLE);
+                                binding.layoutPic.setVisibility(GONE);
+                                binding.layoutFile.setVisibility(GONE);
+                                binding.layoutLocation.setVisibility(GONE);
+                                if (bean != null) {
+                                    if (bean.getVoiceMessage() != null) {
+                                        if (bean.getVoiceMessage().getTime() != 0) {
+                                            binding.tvVoiceTime.setText(DateUtils.getSecondFormatTime(Long.valueOf(bean.getVoiceMessage().getTime() + "")));
+                                        }
+//                                        VoiceMessage vm = bean.getVoiceMessage();
+//                                        String url = bean.isMe() ? vm.getLocalUrl() : vm.getUrl();
+//                                        binding.voiceView.init(true,vm.getTime(), true, AudioPlayManager.getInstance().isPlay(Uri.parse(url)), vm.getPlayStatus());
                                     }
                                 }
                                 break;
                             case ChatEnum.EMessageType.LOCATION: //位置消息
+                                binding.tvContent.setVisibility(GONE);//显示位置相关布局，隐藏其他类型相关布局
+                                binding.layoutVoice.setVisibility(GONE);
+                                binding.layoutPic.setVisibility(GONE);
+                                binding.layoutFile.setVisibility(GONE);
+                                binding.layoutLocation.setVisibility(VISIBLE);
+                                if (bean != null) {
+                                    if (bean.getLocationMessage() != null) {
+                                        if (!TextUtils.isEmpty(bean.getLocationMessage().getAddress())) {
+                                            binding.tvLocationName.setText(bean.getLocationMessage().getAddress());
+                                        }
+                                        if (!TextUtils.isEmpty(bean.getLocationMessage().getAddressDescribe())) {
+                                            binding.tvLocationDesc.setText(bean.getLocationMessage().getAddressDescribe());
+                                        }
+                                        if (!TextUtils.isEmpty(bean.getLocationMessage().getImg())) {
+                                            Glide.with(CollectionActivity.this)
+                                                    .asBitmap()
+                                                    .load(bean.getLocationMessage().getImg())
+                                                    .into(new SimpleTarget<Bitmap>() {
+                                                        @Override
+                                                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                                            binding.ivLocation.setImageBitmap(resource);
+                                                        }
+                                                    });
+                                        } else {
+                                            String baiduImageUrl = LocationUtils.getLocationUrl(bean.getLocationMessage().getLatitude(), bean.getLocationMessage().getLongitude());
+                                            Glide.with(CollectionActivity.this)
+                                                    .asBitmap()
+                                                    .load(baiduImageUrl)
+                                                    .into(new SimpleTarget<Bitmap>() {
+                                                        @Override
+                                                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                                            binding.ivLocation.setImageBitmap(resource);
+                                                        }
+                                                    });
+                                        }
+                                    }
+                                }
                                 break;
                             case ChatEnum.EMessageType.AT: //艾特@消息
-                                binding.tvContent.setVisibility(VISIBLE);//显示文字相关布局
-                                if(bean!=null){
-                                    if(bean.getAtMessage()!=null){
-                                        if(!TextUtils.isEmpty(bean.getAtMessage().getMsg())){
-                                            binding.tvContent.setText(bean.getChat().getMsg());
+                                binding.tvContent.setVisibility(VISIBLE);//显示@消息相关布局，隐藏其他类型相关布局
+                                binding.layoutVoice.setVisibility(GONE);
+                                binding.layoutPic.setVisibility(GONE);
+                                binding.layoutFile.setVisibility(GONE);
+                                binding.layoutLocation.setVisibility(GONE);
+                                if (bean != null) {
+                                    if (bean.getAtMessage() != null) {
+                                        if (!TextUtils.isEmpty(bean.getAtMessage().getMsg())) {
+                                            binding.tvContent.setText(bean.getAtMessage().getMsg());
                                         }
                                     }
                                 }
                                 break;
                             case ChatEnum.EMessageType.FILE: //文件
-
+                                binding.tvContent.setVisibility(GONE);//显示文件相关布局，隐藏其他类型相关布局
+                                binding.layoutVoice.setVisibility(GONE);
+                                binding.layoutPic.setVisibility(GONE);
+                                binding.layoutFile.setVisibility(VISIBLE);
+                                binding.layoutLocation.setVisibility(GONE);
+                                if (bean != null) {
+                                    if (bean.getSendFileMessage() != null) {
+                                        if (!TextUtils.isEmpty(bean.getSendFileMessage().getFile_name())) {
+                                            binding.tvFileName.setText(bean.getSendFileMessage().getFile_name());
+                                        }
+                                        if (!TextUtils.isEmpty(bean.getSendFileMessage().getFormat())) {
+                                            String fileFormat = bean.getSendFileMessage().getFormat();
+                                            if (fileFormat.equals("txt")) {
+                                                binding.ivFilePic.setImageResource(R.mipmap.ic_txt);
+                                            } else if (fileFormat.equals("xls") || fileFormat.equals("xlsx")) {
+                                                binding.ivFilePic.setImageResource(R.mipmap.ic_excel);
+                                            } else if (fileFormat.equals("ppt") || fileFormat.equals("pptx") || fileFormat.equals("pdf")) { //PDF暂用此图标
+                                                binding.ivFilePic.setImageResource(R.mipmap.ic_ppt);
+                                            } else if (fileFormat.equals("doc") || fileFormat.equals("docx")) {
+                                                binding.ivFilePic.setImageResource(R.mipmap.ic_word);
+                                            } else if (fileFormat.equals("rar") || fileFormat.equals("zip")) {
+                                                binding.ivFilePic.setImageResource(R.mipmap.ic_zip);
+                                            } else if (fileFormat.equals("exe")) {
+                                                binding.ivFilePic.setImageResource(R.mipmap.ic_exe);
+                                            } else {
+                                                binding.ivFilePic.setImageResource(R.mipmap.ic_unknow);
+                                            }
+                                        }
+                                        if (bean.getSendFileMessage().getSize() != 0L) {
+                                            binding.tvFileSize.setText(FileUtils.getFileSizeString(bean.getSendFileMessage().getSize()));
+                                        }
+                                    }
+                                }
                                 break;
                             default:
                                 break;
                         }
-                        onEvent(binding, position, collectionInfo);
+                        onEvent(binding, position, bean);
                     }
                 }
             }
@@ -226,29 +301,42 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     }
 
     //item点击事件
-    private void onEvent(ItemCollectionViewBinding binding, int position, CollectionInfo collectionInfo) {
-//        binding.imgContent.setOnClickListener(o->{
-//            if(collectionInfo.getCollectionType() == ChatEnum.EMessageType.IMAGE){
+    private void onEvent(ItemCollectionViewBinding binding, int position, MsgAllBean bean) {
+        binding.layoutView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                showPop(view, bean.getMsg_id(), position);
+                return true;
+            }
+        });
+        binding.layoutView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ToastUtil.show("跳详情");
+            }
+        });
+//        binding.ivPic.setOnClickListener(o->{
+//            if(bean.getMsg_type() == ChatEnum.EMessageType.IMAGE){//点击图片
 //                List<LocalMedia> selectList = new ArrayList<>();
 //                LocalMedia lc = new LocalMedia();
-//                lc.setPath(collectionInfo.getPath());
+//                if(!TextUtils.isEmpty(bean.getImage().getPreview())){
+//                    lc.setPath(bean.getImage().getPreview());
+//                }else if(!TextUtils.isEmpty(bean.getImage().getThumbnail())){
+//                    lc.setPath(bean.getImage().getThumbnail());
+//                }else {
+//                    lc.setPath("");
+//                    ToastUtil.show("图片路径出错!");
+//                }
 //                selectList.add(lc);
 //                PictureSelector.create(CollectionActivity.this)
 //                        .themeStyle(R.style.picture_default_style)
 //                        .isGif(false)
 //                        .openExternalPreviewImage(0, selectList);
-//            }else if(collectionInfo.getCollectionType() == ChatEnum.EMessageType.SHIPPED_EXPRESSION){
-//                if (ViewUtils.isFastDoubleClick()) {
-//                    return;
-//                }
-//                Bundle bundle = new Bundle();
-//                bundle.putString(Preferences.DATA, FaceView.map_FaceEmoji.get(collectionInfo.getPath()).toString());
-//                IntentUtil.gotoActivity(CollectionActivity.this, ShowBigFaceActivity.class, bundle);
-//            }else if(collectionInfo.getCollectionType() == ChatEnum.EMessageType.MSG_VIDEO){
+//            }else if(bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO){//点击视频
 //                RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<MsgAllBean>() {
 //                    @Override
 //                    public MsgAllBean doInBackground() throws Throwable {
-//                        return new MsgDao().getMsgById(collectionInfo.getMsgId());
+//                        return bean;
 //                    }
 //
 //                    @Override
@@ -265,7 +353,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
 //                        Intent intent = new Intent(CollectionActivity.this, VideoPlayActivity.class);
 //                        intent.putExtra("videopath", localUrl);
 //                        intent.putExtra("videomsg", new Gson().toJson(msgbean));
-//                        intent.putExtra("msg_id", collectionInfo.getMsgId());
+//                        intent.putExtra("msg_id", msgbean.getMsg_id());
 //                        intent.putExtra("bg_url", msgbean.getVideoMessage().getBg_url());
 //                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 //                        startActivity(intent);
@@ -275,15 +363,18 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
 //                    public void onError(Throwable e) {
 //                    }
 //                });
+//            }else if(bean.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION){//点击表情
+//                if (ViewUtils.isFastDoubleClick()) {
+//                    return;
+//                }
+//                if(!TextUtils.isEmpty(bean.getShippedExpressionMessage().getId())){
+//                    Bundle bundle = new Bundle();
+//                    bundle.putString(Preferences.DATA, FaceView.map_FaceEmoji.get(bean.getShippedExpressionMessage().getId()).toString());
+//                    IntentUtil.gotoActivity(CollectionActivity.this, ShowBigFaceActivity.class, bundle);
+//                }
 //            }
 //        });
-        binding.layoutView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                showPop(view,collectionInfo.getMsgId(),position);
-                return true;
-            }
-        });
+
 //        binding.voiceView.setOnClickListener(o->{
 //            MsgAllBean msgAllBean = new Gson().fromJson(collectionInfo.getMsgBean(),MsgAllBean.class);
 //            playVoice(msgAllBean,false,position);
@@ -302,13 +393,21 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                mList = mMsgDao.findCollectionInfo(charSequence.toString());
-                mViewAdapter.setData(mList);
+//                mList = mMsgDao.findCollectionInfo(charSequence.toString());
+//                mViewAdapter.setData(mList);
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {
-
+            public void afterTextChanged(Editable s) {
+                if (s == null || TextUtils.isEmpty(s.toString())) {
+                    key = "";
+                    mList.clear();
+                    mList.addAll(allCollectList);
+                    checkData();
+                    mViewAdapter.notifyDataSetChanged();
+                } else {
+                    taskSearch();
+                }
             }
         });
     }
@@ -316,15 +415,19 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     //加载数据
     @Override
     protected void loadData() {
-        //有网络则请求接口
-        if(NetUtil.isNetworkConnected()){
-            httpGetCollectList();
-        }else {
-            //没有网络则拿本地缓存数据
-            mList = mMsgDao.findCollectionInfo("");
-            mViewAdapter.setData(mList);
-            checkData();
+        //暂时只处理有网的情况
+        if (!checkNetConnectStatus()) {
+            return;
         }
+        httpGetCollectList();
+//        if (NetUtil.isNetworkConnected()) {
+//            httpGetCollectList();
+//        } else {
+//            //没有网络则拿本地缓存数据
+//            mList = mMsgDao.findCollectionInfo("");
+//            mViewAdapter.setData(mList);
+//            checkData();
+//        }
         initPopupWindow();
     }
 
@@ -364,7 +467,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
      * 长按的气泡处理
      * @param v
      */
-    private void showPop(View v,String msgId,int postion) {
+    private void showPop(View v, String msgId, int postion) {
         // 重新获取自身的长宽高
         mRootView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         popupWidth = mRootView.getMeasuredWidth();
@@ -415,30 +518,30 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             showPopupWindowUp(v, 2);
         }
         //转发
-        mTxtView1.setOnClickListener(o->{
+        mTxtView1.setOnClickListener(o -> {
             if (mPopupWindow != null) {
                 mPopupWindow.dismiss();
             }
             if (NetUtil.isNetworkConnected()) {
                 onRetransmission(mList.get(postion).getData());
-            }else {
+            } else {
                 ToastUtil.show("请检查网络连接是否正常");
             }
         });
         //删除
-        mTxtView2.setOnClickListener(o->{
+        mTxtView2.setOnClickListener(o -> {
             if (mPopupWindow != null) {
                 mPopupWindow.dismiss();
             }
             if (NetUtil.isNetworkConnected()) {
-                if(mList.get(postion)!=null){
-                    if(mList.get(postion).getId()!=0L){
-                        httpCancelCollect(mList.get(postion).getId(),postion,msgId);
+                if (mList.get(postion) != null) {
+                    if (mList.get(postion).getId() != 0L) {
+                        httpCancelCollect(mList.get(postion).getId(), postion, msgId);
                     }
                 }
-            }else {
+            } else {
                 //暂时本地删除
-                ToastUtil.showLong(CollectionActivity.this,"请检查网络连接是否正常\n已为您暂时隐藏此消息");
+                ToastUtil.showLong(CollectionActivity.this, "请检查网络连接是否正常\n已为您暂时隐藏此消息");
                 mMsgDao.deleteCollectionInfo(msgId);
                 mList.remove(postion);
                 checkData();
@@ -475,11 +578,11 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
         }
     }
 
-    private void checkData(){
-        if(mList.size()==0){
+    private void checkData() {
+        if (mList.size() == 0) {
             bindingView.viewNodata.setVisibility(VISIBLE);
             bindingView.recyclerView.setVisibility(GONE);
-        }else{
+        } else {
             bindingView.viewNodata.setVisibility(GONE);
             bindingView.recyclerView.setVisibility(VISIBLE);
         }
@@ -544,50 +647,139 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 if (response.body() == null) {
                     return;
                 }
-                if (response.body().isOk()){
+                if (response.body().isOk()) {
                     List<CollectionInfo> list = response.body().getData();
                     mList.clear();
                     mList.addAll(list);
                     mViewAdapter.setData(mList);
+                    allCollectList.addAll(list);
                     checkData();
+                    //本地保存收藏列表数据
                 }
             }
 
             @Override
             public void onFailure(Call<ReturnBean<List<CollectionInfo>>> call, Throwable t) {
                 super.onFailure(call, t);
+                ToastUtil.show(t.getMessage());
             }
         });
     }
 
     /**
      * 发请求->取消收藏
+     *
      * @param id
      */
-    private void httpCancelCollect(Long id,int postion,String msgId) {
-        msgAction.cancelCollectMsg(id,new CallBack<ReturnBean>() {
-                    @Override
-                    public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                        super.onResponse(call, response);
-                        if (response.body() == null) {
-                            return;
-                        }
-                        if (response.body().isOk()) {
-                            ToastUtil.show(CollectionActivity.this, "删除成功!");
-                            //同时将本地删除
-                            mMsgDao.deleteCollectionInfo(msgId);
-                            mList.remove(postion);
-                            checkData();
-                            mViewAdapter.notifyDataSetChanged();
-                        }
-                    }
+    private void httpCancelCollect(Long id, int postion, String msgId) {
+        msgAction.cancelCollectMsg(id, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    ToastUtil.show(CollectionActivity.this, "删除成功!");
+                    //同时将本地删除
+                    mMsgDao.deleteCollectionInfo(msgId);
+                    mList.remove(postion);
+                    checkData();
+                    mViewAdapter.notifyDataSetChanged();
+                }
+            }
 
-                    @Override
-                    public void onFailure(Call<ReturnBean> call, Throwable t) {
-                        super.onFailure(call, t);
-                        ToastUtil.show(CollectionActivity.this, t.getMessage());
-                    }
-                });
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show(CollectionActivity.this, t.getMessage());
+            }
+        });
     }
 
+    /*
+     * 发送消息前，需要检测网络连接状态，网络不可用，不能发送
+     * 每条消息发送前，需要检测，语音和小视频录制之前，仍需要检测
+     * */
+    public boolean checkNetConnectStatus() {
+        boolean isOk;
+        if (!NetUtil.isNetworkConnected()) {
+            ToastUtil.show(this, "网络连接不可用，请稍后重试");
+            isOk = false;
+        } else {
+            isOk = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.CONN_STATUS).get4Json(Boolean.class);
+            if (!isOk) {
+                ToastUtil.show(this, "连接已断开，请稍后再试");
+            }
+        }
+        return isOk;
+    }
+
+    /**
+     * 开始对当前已有数据查询搜索
+     */
+    private void taskSearch() {
+        searchCollectList.clear();//及时清空，重新搜索
+        key = bindingView.edtSearch.getText().toString();
+        if (key.length() <= 0) {
+            return;
+        }
+        //不同类型仅判断标题来过滤搜索结果
+        for (int i = 0; i < mList.size(); i++) {
+            //找到每一条收藏消息，搜索用户名/群名/类型，含有关键字的被保存到searchCollectList
+            CollectionInfo collectionInfo = mList.get(i);
+            if (!TextUtils.isEmpty(collectionInfo.getFromUsername()) && collectionInfo.getFromUsername().contains(key)) {
+                searchCollectList.add(collectionInfo);
+            } else if (!TextUtils.isEmpty(collectionInfo.getFromGroupName()) && collectionInfo.getFromGroupName().contains(key)) {
+                searchCollectList.add(collectionInfo);
+            } else {
+                //图片 视频 表情 不方便搜索
+                if (!TextUtils.isEmpty(collectionInfo.getData())) {
+                    MsgAllBean bean = new Gson().fromJson(collectionInfo.getData(), MsgAllBean.class);
+                    if (collectionInfo.getType() == ChatEnum.EMessageType.TEXT) { //文字
+                        if (bean.getChat() != null) {
+                            if (!TextUtils.isEmpty(bean.getChat().getMsg())) {
+                                if (bean.getChat().getMsg().contains(key)) {
+                                    searchCollectList.add(collectionInfo);
+                                }
+                            }
+                        }
+                    } else if (collectionInfo.getType() == ChatEnum.EMessageType.LOCATION) { //位置
+                        if (bean.getLocationMessage() != null) {
+                            if (!TextUtils.isEmpty(bean.getLocationMessage().getAddress())) {
+                                if (bean.getLocationMessage().getAddress().contains(key)) {
+                                    searchCollectList.add(collectionInfo);
+                                }
+                            }
+                            if (!TextUtils.isEmpty(bean.getLocationMessage().getAddressDescribe())) {
+                                if (bean.getLocationMessage().getAddressDescribe().contains(key)) {
+                                    searchCollectList.add(collectionInfo);
+                                }
+                            }
+                        }
+                    } else if (collectionInfo.getType() == ChatEnum.EMessageType.AT) {
+                        if (bean.getAtMessage() != null) {
+                            if (!TextUtils.isEmpty(bean.getAtMessage().getMsg())) {
+                                if (bean.getAtMessage().getMsg().contains(key)) {
+                                    searchCollectList.add(collectionInfo);
+                                }
+                            }
+                        }
+                    } else if (collectionInfo.getType() == ChatEnum.EMessageType.FILE) {
+                        if (bean.getSendFileMessage() != null) {
+                            if (!TextUtils.isEmpty(bean.getSendFileMessage().getFile_name())) {
+                                if (bean.getSendFileMessage().getFile_name().contains(key)) {
+                                    searchCollectList.add(collectionInfo);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        mList.clear();
+        mList.addAll(searchCollectList);
+        checkData();
+        mViewAdapter.notifyDataSetChanged();
+    }
 }

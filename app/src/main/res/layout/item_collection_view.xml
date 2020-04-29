@@ -6,84 +6,212 @@
         style="@style/app_layout_list2_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/shape_chat_bg"
-        android:layout_marginTop="10dp"
         android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
         android:layout_marginRight="10dp"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/shape_chat_bg"
         android:orientation="vertical"
-        android:paddingRight="10dp">
+        android:paddingTop="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="10dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal">
+
             <TextView
                 android:id="@+id/tv_name"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:textColor="@color/c_868686"
+                android:layout_weight="1"
                 android:singleLine="true"
-                android:visibility="visible"
-                android:text="用户名/群名"/>
+                android:text="用户名/群名"
+                android:textColor="@color/c_868686"
+                android:textSize="12sp"
+                android:visibility="visible" />
+
             <TextView
                 android:id="@+id/tv_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="9sp"
-                android:textColor="@color/c_868686"
                 android:layout_marginLeft="10dp"
-                android:text="收藏时间"/>
+                android:text="收藏时间"
+                android:textColor="@color/c_868686"
+                android:textSize="10sp" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_marginTop="14dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
             android:orientation="horizontal">
-                 <!--文字-->
-                <TextView
-                    android:id="@+id/tv_content"
+            <!--文字/@消息-->
+            <TextView
+                android:id="@+id/tv_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="20"
+                android:text="文字内容"
+                android:textColor="@color/c_000000"
+                android:textSize="14sp"
+                android:visibility="gone" />
+            <!--语音-->
+            <LinearLayout
+                android:id="@+id/layout_voice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textColor="@color/c_000000"
-                    android:visibility="visible"
-                    android:maxLines="20"
-                    android:ellipsize="end"
-                    android:text="文字内容" />
-                <!--语音-->
-                <com.yanlong.im.chat.ui.view.VoiceView
-                    android:id="@+id/voice_view"
-                    android:visibility="gone"
+                    android:src="@mipmap/ic_voice" />
+
+                <TextView
+                    android:id="@+id/tv_voice_time"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                 <!--图片-->
-                <RelativeLayout
-                    android:id="@+id/layout_pic"
-                    android:layout_width="wrap_content"
-                    android:visibility="gone"
-                    android:layout_height="wrap_content">
-                    <ImageView
-                        android:id="@+id/iv_pic"
-                        android:layout_width="120dp"
-                        android:layout_height="100dp"
-                        android:src="@color/c_dcdddd"
-                        android:visibility="visible"/>
-                    <ImageView
-                        android:id="@+id/iv_play"
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:layout_centerInParent="true"
-                        android:background="@mipmap/video_msg_play_show"
-                        android:visibility="gone" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="9dp"
+                    android:text="00:00"
+                    android:textColor="@color/c_868686"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <!--图片/视频-->
+            <RelativeLayout
+                android:id="@+id/layout_pic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/iv_pic"
+                    android:layout_width="120dp"
+                    android:layout_height="100dp"
+                    android:scaleType="centerCrop"
+                    android:src="@color/c_dcdddd"
+                    android:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/iv_play"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_centerInParent="true"
+                    android:background="@mipmap/video_msg_play_show"
+                    android:visibility="gone" />
             </RelativeLayout>
+            <!--文件-->
+            <RelativeLayout
+                android:id="@+id/layout_file"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/iv_file_pic"
+                    android:layout_width="34dp"
+                    android:layout_height="40dp"
+                    android:src="@color/c_dcdddd" />
+
+                <TextView
+                    android:id="@+id/tv_file_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="9dp"
+                    android:layout_toRightOf="@+id/iv_file_pic"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="未知文件名"
+                    android:textColor="@color/c_000000"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tv_file_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_file_name"
+                    android:layout_alignBottom="@+id/iv_file_pic"
+                    android:layout_marginLeft="9dp"
+                    android:layout_toRightOf="@+id/iv_file_pic"
+                    android:gravity="center_vertical"
+                    android:text="0K"
+                    android:textColor="@color/c_868686"
+                    android:textSize="10sp" />
+            </RelativeLayout>
+            <!--位置-->
+            <LinearLayout
+                android:id="@+id/layout_location"
+                android:layout_width="180dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_0radius_stroke_cdcdcd"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <TextView
+                    android:id="@+id/tv_location_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="9dp"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginRight="9dp"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:text=""
+                    android:textColor="@color/c_353535"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_location_desc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="9dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginRight="9dp"
+                    android:layout_marginBottom="5dp"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:text=""
+                    android:textColor="@color/c_878787"
+                    android:textSize="10sp" />
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_marginRight="1dp"
+                    android:layout_marginBottom="1dp"
+                    android:layout_marginLeft="1dp"
+                    android:layout_height="70dp">
+                    <ImageView
+                        android:id="@+id/iv_location"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@color/c_dcdddd" />
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="30dp"
+                        android:layout_marginTop="20dp"
+                        android:src="@mipmap/location_four" />
+                </RelativeLayout>
+
+
+
+
+            </LinearLayout>
+
+
         </LinearLayout>
+
+
     </LinearLayout>
 
 </layout>

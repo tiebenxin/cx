@@ -152,6 +152,7 @@ import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.CollectionInfo;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -3646,6 +3647,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             case ChatEnum.EMessageType.LOCATION:
             case ChatEnum.EMessageType.IMAGE:
             case ChatEnum.EMessageType.MSG_VIDEO:
+            case ChatEnum.EMessageType.SHIPPED_EXPRESSION:
+            case ChatEnum.EMessageType.FILE:
                 menus.add(1, new OptionMenu("收藏"));
                 break;
         }
@@ -3815,9 +3818,46 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
-    //收藏
+    //收藏 (暂时只做有网收藏的情况)
     private void onCollect(MsgAllBean msgbean){
-        httpCollect(msgbean);
+        if (!checkNetConnectStatus()) {
+            return;
+        }
+        String fromUsername = "";//用户名称
+        String fromGid = "";//群组id
+        String fromGroupName = "";//群组名称
+        if(!TextUtils.isEmpty(msgbean.getFrom_nickname())){
+            fromUsername = msgbean.getFrom_nickname();
+        }else {
+            fromUsername = "";
+        }
+        if(!TextUtils.isEmpty(msgbean.getGid())){
+            fromGid = msgbean.getGid();
+        }else {
+            fromGid = "";
+        }
+        if(msgbean.getGroup()!=null){
+            if(!TextUtils.isEmpty(msgbean.getGroup().getName())){
+                fromGroupName = msgbean.getGroup().getName();
+            }else {
+                fromGroupName = "";
+            }
+        }
+        CollectionInfo collectionInfo = new CollectionInfo();
+        collectionInfo.setData(new Gson().toJson(msgbean));
+        collectionInfo.setFromUid(msgbean.getFrom_uid());
+        collectionInfo.setFromUsername(fromUsername);
+        collectionInfo.setType(msgbean.getMsg_type());
+        collectionInfo.setFromGid(fromGid);
+        collectionInfo.setFromGroupName(fromGroupName);
+        collectionInfo.setMsgId(msgbean.getMsg_id());
+        collectionInfo.setCreateTime(System.currentTimeMillis()+"");//收藏时间是现在系统时间
+        //无网保存本地数据，有网请求数据
+//        if (!checkNetConnectStatus()) {
+//            msgDao.saveCollection(collectionInfo);//拼凑保存CollectionInfo收藏对象
+//        }else {
+            httpCollect(collectionInfo);
+//        }
     }
 
 
@@ -5887,33 +5927,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     /**
      * 发请求->收藏
-     * @param msgbean
+     * @param collectionInfo
      */
-    private void httpCollect(MsgAllBean msgbean) {
-        String fromUsername = "";//用户名称
-        String fromGid = "";//群组id
-        String fromGroupName = "";//群组名称
-
-        if(!TextUtils.isEmpty(msgbean.getFrom_nickname())){
-            fromUsername = msgbean.getFrom_nickname();
-        }else {
-            fromUsername = "";
-        }
-        if(!TextUtils.isEmpty(msgbean.getGid())){
-            fromGid = msgbean.getGid();
-        }else {
-            fromGid = "";
-        }
-        if(msgbean.getGroup()!=null){
-            if(!TextUtils.isEmpty(msgbean.getGroup().getName())){
-                fromGroupName = msgbean.getGroup().getName();
-            }else {
-                fromGroupName = "";
-            }
-        }
-
-        msgAction.collectMsg(new Gson().toJson(msgbean), msgbean.getFrom_uid(), fromUsername,
-                msgbean.getMsg_type(),fromGid,fromGroupName,msgbean.getMsg_id(),
+    private void httpCollect(CollectionInfo collectionInfo) {
+        msgAction.collectMsg(new Gson().toJson(collectionInfo.getData()), collectionInfo.getFromUid(), collectionInfo.getFromUsername(),
+                collectionInfo.getType(),collectionInfo.getFromGid(),collectionInfo.getFromGroupName(),collectionInfo.getMsgId(),
                 new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -5923,13 +5941,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
                 if (response.body().isOk()) {
                     ToastUtil.show(ChatActivity.this, "收藏成功!");
+//                    msgDao.saveCollection(collectionInfo);
                 }
             }
 
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
-                ToastUtil.show(ChatActivity.this, t.getMessage());
+                ToastUtil.show(ChatActivity.this, "收藏失败!");
             }
         });
     }

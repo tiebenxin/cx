@@ -568,15 +568,15 @@ public class MsgDao {
         List<CollectionInfo> ret=null;
         try {
             ret = new ArrayList<>();
-            RealmResults<CollectionInfo> users = null;
-            if(StringUtil.isNotNull(value)){
-                users = realm.where(CollectionInfo.class).contains("collectionContent",value).or().contains("name",value)
-                        .sort("collectionTime", Sort.DESCENDING).findAll();
-            }else{
-                users = realm.where(CollectionInfo.class).sort("collectionTime", Sort.DESCENDING).findAll();
-            }
-            if (users != null)
-                ret = realm.copyFromRealm(users);
+            RealmResults<CollectionInfo> collectList = null;
+//            if(StringUtil.isNotNull(value)){
+//                users = realm.where(CollectionInfo.class).contains("collectionContent",value).or().contains("name",value)
+//                        .sort("createTime", Sort.DESCENDING).findAll();
+//            }else{
+            collectList = realm.where(CollectionInfo.class).sort("createTime", Sort.DESCENDING).findAll();
+//            }
+            if (collectList != null)
+                ret = realm.copyFromRealm(collectList);
         }catch (Exception e){
             DaoUtil.reportException(e);
         }finally {
