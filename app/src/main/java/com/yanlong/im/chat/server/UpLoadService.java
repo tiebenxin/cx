@@ -237,40 +237,50 @@ public class UpLoadService extends Service {
         if (videoMessage == null || TextUtils.isEmpty(videoMessage.getBg_url())) {
             return;
         }
-        uploadImageOfVideo(mContext, videoMessage.getBg_url(), new UpLoadCallback() {
-            @Override
-            public void success(String url) {
-                LogUtil.getLog().d(TAG, "视频预览图上传成功了---------");
-                if (mVideoMaps.get(msgAllBean.getMsg_id()) != null) {
-                    mVideoMaps.get(msgAllBean.getMsg_id()).setSendNum(0);
-                }
-                netBgUrl = url;
-                uploadVideo(mContext, msgAllBean, videoMessage);
+        //检查图片是否已经上传
+        if(videoMessage.getBg_url().startsWith("http://")||videoMessage.getBg_url().startsWith("https://")){
+            LogUtil.getLog().d(TAG, "视频预览图上传成功了---------");
+            if (mVideoMaps.get(msgAllBean.getMsg_id()) != null) {
+                mVideoMaps.get(msgAllBean.getMsg_id()).setSendNum(0);
             }
+            netBgUrl = videoMessage.getBg_url();
+            uploadVideo(mContext, msgAllBean, videoMessage);
+        }else {//图片未上传
+            uploadImageOfVideo(mContext, videoMessage.getBg_url(), new UpLoadCallback() {
+                @Override
+                public void success(String url) {
+                    LogUtil.getLog().d(TAG, "视频预览图上传成功了---------");
+                    if (mVideoMaps.get(msgAllBean.getMsg_id()) != null) {
+                        mVideoMaps.get(msgAllBean.getMsg_id()).setSendNum(0);
+                    }
+                    netBgUrl = url;
+                    uploadVideo(mContext, msgAllBean, videoMessage);
+                }
 
-            @Override
-            public void fail() {
-                int sendNum = 0;
-                if (mVideoMaps != null && mVideoMaps.get(msgAllBean.getMsg_id()) != null) {
-                    sendNum = mVideoMaps.get(msgAllBean.getMsg_id()).getSendNum() + 1;
-                    mVideoMaps.get(msgAllBean.getMsg_id()).setSendNum(sendNum);
+                @Override
+                public void fail() {
+                    int sendNum = 0;
+                    if (mVideoMaps != null && mVideoMaps.get(msgAllBean.getMsg_id()) != null) {
+                        sendNum = mVideoMaps.get(msgAllBean.getMsg_id()).getSendNum() + 1;
+                        mVideoMaps.get(msgAllBean.getMsg_id()).setSendNum(sendNum);
+                    }
+                    if (mVideoMaps == null || mVideoMaps.get(msgAllBean.getMsg_id()) == null || sendNum > SEND_MAX_NUM) {
+                        mVideoMaps.remove(msgAllBean.getMsg_id());
+                        EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
+                        LogUtil.getLog().d(TAG, "fail : 视频预览图上传失败了 ===============>" + msgAllBean.getMsg_id());
+                        updateProgress(msgAllBean.getMsg_id(), 100);
+                        eventUpImgLoadEvent.setMsgid(msgAllBean.getMsg_id());
+                        eventUpImgLoadEvent.setState(-1);
+                        eventUpImgLoadEvent.setUrl("");
+                        eventUpImgLoadEvent.setMsgAllBean(msgDao.fixStataMsg(msgAllBean.getMsg_id(), 1));//写库
+                        EventBus.getDefault().post(eventUpImgLoadEvent);
+                    } else {
+                        LogUtil.getLog().d(TAG, "fail : 视频预览图重发了======" + sendNum + "=========>" + msgAllBean.getMsg_id());
+                        loopImageList();
+                    }
                 }
-                if (mVideoMaps == null || mVideoMaps.get(msgAllBean.getMsg_id()) == null || sendNum > SEND_MAX_NUM) {
-                    mVideoMaps.remove(msgAllBean.getMsg_id());
-                    EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
-                    LogUtil.getLog().d(TAG, "fail : 视频预览图上传失败了 ===============>" + msgAllBean.getMsg_id());
-                    updateProgress(msgAllBean.getMsg_id(), 100);
-                    eventUpImgLoadEvent.setMsgid(msgAllBean.getMsg_id());
-                    eventUpImgLoadEvent.setState(-1);
-                    eventUpImgLoadEvent.setUrl("");
-                    eventUpImgLoadEvent.setMsgAllBean(msgDao.fixStataMsg(msgAllBean.getMsg_id(), 1));//写库
-                    EventBus.getDefault().post(eventUpImgLoadEvent);
-                } else {
-                    LogUtil.getLog().d(TAG, "fail : 视频预览图重发了======" + sendNum + "=========>" + msgAllBean.getMsg_id());
-                    loopImageList();
-                }
-            }
-        });
+            });
+        }
     }
 
     /**
