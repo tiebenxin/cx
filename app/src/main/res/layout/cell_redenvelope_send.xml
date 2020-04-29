@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tool="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:paddingLeft="@dimen/app_margin_main"
     android:paddingTop="5dp"
     android:paddingRight="@dimen/app_margin_main"
     android:paddingBottom="5dp">
+
+    <TextView
+        android:id="@+id/tv_time"
+        style="@style/app_txt_content_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
+        android:text="shijian" />
 
 
     <LinearLayout
@@ -18,23 +27,62 @@
         android:layout_gravity="right"
         android:orientation="horizontal">
 
-        <com.yanlong.im.wight.avatar.RoundImageView
-            app:radius="3dp"
-            android:id="@+id/iv_avatar"
-            style="@style/app_img_head"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_marginLeft="10dp" />
-
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <TextView
+                android:id="@+id/tv_name"
+                style="@style/app_txt_content_1"
+                android:layout_width="match_parent"
+                android:layout_marginBottom="2dp"
+                android:gravity="right"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:text="name" />
+
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/iv_error"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="5dp"
+                    android:src="@mipmap/ic_net_err"
+                    android:visibility="visible" />
+
+                <LinearLayout
+                    android:id="@+id/view_read"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="5dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:visibility="visible">
+
+                    <TextView
+                        android:id="@+id/tv_read"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="已读"
+                        android:textColor="@color/gray_500"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tv_read_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/gray_500"
+                        android:textSize="9sp"
+                        tool:text="12:20" />
+                </LinearLayout>
 
                 <FrameLayout
                     android:id="@+id/view_bubble_root"
@@ -122,65 +170,21 @@
 
                 </FrameLayout>
 
-                <ImageView
-                    android:id="@+id/iv_error"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginRight="5dp"
-                    android:src="@mipmap/ic_net_err"
-                    android:visibility="gone" />
 
-
-                <LinearLayout
-                    android:id="@+id/view_read"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginRight="5dp"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:id="@+id/tv_read"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="已读"
-                        android:textColor="@color/gray_500"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/tv_read_time"
-                        tool:text="12:20"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/gray_500"
-                        android:textSize="9sp" />
-                </LinearLayout>
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/tv_name"
-                style="@style/app_txt_content_1"
-                android:layout_width="match_parent"
-                android:layout_marginBottom="2dp"
-                android:gravity="right"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:text="name" />
 
 
         </LinearLayout>
 
+        <com.yanlong.im.wight.avatar.RoundImageView
+            android:id="@+id/iv_avatar"
+            style="@style/app_img_head"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginLeft="10dp"
+            app:radius="3dp" />
+
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tv_time"
-        style="@style/app_txt_content_1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="10dp"
-        android:text="shijian" />
+
 </LinearLayout>
