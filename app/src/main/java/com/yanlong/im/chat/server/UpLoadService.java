@@ -113,12 +113,12 @@ public class UpLoadService extends Service {
                 eventUpImgLoadEvent.setState(1);
                 eventUpImgLoadEvent.setUrl(url);
                 eventUpImgLoadEvent.setOriginal(isOriginal);
-
                 ImageMessage image = msg.getImage();
                 ImageMessage imageMessage = SocketData.createImageMessage(msg.getMsg_id(), file, url, image.getWidth(), image.getHeight(), isOriginal, false, image.getSize());
                 msg.setImage(imageMessage);
                 eventUpImgLoadEvent.setMsgAllBean(msg);
                 EventBus.getDefault().post(eventUpImgLoadEvent);
+                sendMessage(msg);
                 removeMsg(msg);
 
             }
@@ -180,11 +180,13 @@ public class UpLoadService extends Service {
                 eventUpFileLoadEvent.setMsgid(bean.getMsg_id());
                 eventUpFileLoadEvent.setState(1);
                 eventUpFileLoadEvent.setUrl(url);
-                //上传成功后，更新数据
+//                //上传成功后，更新数据
                 fileMessage.setUrl(url);
                 bean.setSendFileMessage(fileMessage);
                 eventUpFileLoadEvent.setMsgAllBean(bean);
                 EventBus.getDefault().post(eventUpFileLoadEvent);
+                sendMessage(bean);
+
             }
 
             @Override
@@ -301,6 +303,7 @@ public class UpLoadService extends Service {
                 bean.setVideoMessage(videoMessage);
                 eventUpImgLoadEvent.setMsgAllBean(bean);
                 EventBus.getDefault().post(eventUpImgLoadEvent);
+                sendMessage(bean);
             }
 
             @Override
@@ -491,6 +494,10 @@ public class UpLoadService extends Service {
             }
             msgDao.insertOrUpdateMsgList(list);
         }
+    }
+
+    private static void sendMessage(MsgAllBean bean) {
+        SocketData.sendAndSaveMessage(bean);
     }
 
 }

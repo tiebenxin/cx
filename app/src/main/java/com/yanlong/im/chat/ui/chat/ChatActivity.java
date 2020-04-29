@@ -2956,7 +2956,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         } else if (event.getState() == 1) {
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
             LogUtil.getLog().d("tag", "taskUpImgEvevt 1: ===============>" + msgAllbean.getImage());
-            SocketData.sendAndSaveMessage(msgAllbean);
+//            SocketData.sendAndSaveMessage(msgAllbean);
             replaceListDataAndNotify(msgAllbean);
         } else {
         }
@@ -3991,7 +3991,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
-    public void sendRead(MsgAllBean bean) {
+    public synchronized void sendRead(MsgAllBean bean) {
         //发送已读回执
         if (TextUtils.isEmpty(toGid)) {
             if (bean != null) {
