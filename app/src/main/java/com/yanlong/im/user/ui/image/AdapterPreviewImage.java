@@ -67,11 +67,13 @@ import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.QRCodeManage;
 import com.zhaoss.weixinrecorded.activity.ImageShowActivity;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 
 import java.io.File;
 import java.util.Hashtable;
@@ -172,6 +174,9 @@ public class AdapterPreviewImage extends PagerAdapter {
         ivDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
                 ivDownload.setEnabled(false);
                 boolean finalHasRead = false;
                 if (isOriginal && !TextUtils.isEmpty(originUrl)) {//重新获取已读数据
@@ -310,7 +315,13 @@ public class AdapterPreviewImage extends PagerAdapter {
             Glide.with(context).load(media.getCutPath()).error(Glide.with(context).load(media.getCompressPath())).listener(new RequestListener<Drawable>() {
                 @Override
                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                    ToastUtil.show(context, "加载失败,请检查网络");
+                    ivZoom.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+
+                        }
+                    }, 100);
                     pbLoading.setVisibility(View.GONE);
                     return false;
                 }
@@ -381,7 +392,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                 @Override
                 public void run() {
                     if (isSuccess) {
-                        ToastUtil.show(context, "保存成功");
+                        ToastUtil.show(AppConfig.getContext(), "保存成功");
                     }
                 }
             }, 100);
@@ -398,7 +409,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                 @Override
                 public void run() {
                     if (isSuccess) {
-                        ToastUtil.show(context, "保存成功");
+                        ToastUtil.show(AppConfig.getContext(), "保存成功");
                     }
                 }
             }, 100);
@@ -551,7 +562,13 @@ public class AdapterPreviewImage extends PagerAdapter {
                         public void onLoadFailed(@Nullable Drawable errorDrawable) {
                             super.onLoadFailed(errorDrawable);
                             pbLoading.setVisibility(View.GONE);
-                            ToastUtil.show(context, "加载失败,请检查网络");
+                            ivZoom.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+
+                                }
+                            }, 100);
                         }
 
                         @Override
@@ -576,7 +593,13 @@ public class AdapterPreviewImage extends PagerAdapter {
                             super.onLoadFailed(errorDrawable);
                             pbLoading.setVisibility(View.GONE);
 //                        dismissDialog();
-                            ToastUtil.show(context, "加载失败,请检查网络");
+                            ivZoom.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+
+                                }
+                            }, 100);
                         }
 
                         @Override
@@ -607,7 +630,13 @@ public class AdapterPreviewImage extends PagerAdapter {
                         super.onLoadFailed(errorDrawable);
                         pbLoading.setVisibility(View.GONE);
 //                        dismissDialog();
-                        ToastUtil.show(context, "加载失败,请检查网络");
+                        ivZoom.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+
+                            }
+                        }, 100);
                     }
 
                     @Override
@@ -697,7 +726,19 @@ public class AdapterPreviewImage extends PagerAdapter {
 
                     @Override
                     public void onDownloadFailed(Exception e) {
-                        ToastUtil.show(context, "加载失败,请检查网络");
+                        ivDownload.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                ivZoom.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        preProgress = 0;
+                                        ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+
+                                    }
+                                }, 100);
+                            }
+                        }, 100);
                         new File(filePath + "/" + fileName).delete();
                         new File(filePath + "/" + fileName + FileBitmapDecoderFactory.cache_name).delete();
                         e.printStackTrace();
@@ -827,7 +868,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                     Result result = scanningImage(path, bitmap);
                     QRCodeManage.toZhifubao(context, result);
                 } else {
-                    ToastUtil.show(context, "识别二维码失败");
+                    ToastUtil.show(AppConfig.getContext(), "识别二维码失败");
                 }
             } else {
                 LogUtil.getLog().d(TAG, "scanningQrImage: path" + path);
@@ -841,7 +882,7 @@ public class AdapterPreviewImage extends PagerAdapter {
 
             }
         } catch (Exception e) {
-            ToastUtil.show(context, "识别二维码失败");
+            ToastUtil.show(AppConfig.getContext(), "识别二维码失败");
             e.printStackTrace();
         }
     }
