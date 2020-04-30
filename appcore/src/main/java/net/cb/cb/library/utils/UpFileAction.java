@@ -132,6 +132,7 @@ public class UpFileAction {
                     public void onResponse(Call<ReturnBean<AliObsConfigBean>> call, Response<ReturnBean<AliObsConfigBean>> response) {
                         if (response.body() == null) {
                             callback.fail();
+                            LogUtil.writeLog("上传失败--response=null");
                             return;
                         }
                         if (response.body().isOk()) {
@@ -146,16 +147,13 @@ public class UpFileAction {
                                 public void run() {
                                     long timeCost = SystemClock.currentThreadTimeMillis() - startTime;
                                     String endpoint;
+                                    endpoint = getFixCdn(configBean.getCdnEndpoint(), configBean.getEndpoint());
 
-//                                    String textToken="CAISmQJ1q6Ft5B2yfSjIr4nRCOvagOxqwLPZMGfB3TIGb9trm5TGuzz2IHtLfXhvAu8Zs/oyn29Z5/sflqZiQplBQkrLKMp1q4ha6h/51G8UT3bwv9I+k5SANTW5OXyShb3vAYjQSNfaZY3aCTTtnTNyxr3XbCirW0ffX7SClZ9gaKZ4PGS/diEURq0VRG1YpdQdKGHaONu0LxfumRCwNkdzvRdmgm4Njsbay8aHuB3Flw+4mK1H5aaJe8j7NZcyZcgvC4rsg7UrL5CsinAAt0J4k45tl7FB9Dv9udWQPkJc+R3uMZCPqYI2fVAiOfdnRfMf86mtyKBiyeXXlpXqzRFWJv1SUCnZS42mzdHNBOSzLNE9eKYM8cVEal1OXRqAAakBtm9ZuHW+cnfVxK4PJgmkPwBpMXLZ99oYyk+5E8jbZ4ArgAtdawN2i/syq8GrlHbVwOkvgeeF+nesQdgbKb86a7ZTHsawGZjzvi+xN6FlQwXMw2EA1tb/Wokcz3+EUxE3RLt6CuQ7PNxk65mvIgWqiyFLUozRV3sAUbElSds+";
-//                                    UpFileUtil.getInstance().upFile(getPath(type), context, configBean.getAccessKeyId(),
-//                                            configBean.getAccessKeySecret(), "", configBean.getEndpoint(),
-//                                            configBean.getBucket(), callback, filePath, fileByte);
-                                    if (PATH.VIDEO == type) {
-                                        endpoint = getFixCdn(configBean.getCdnEndpoint());
-                                    } else {
-                                        endpoint = configBean.getEndpoint();
-                                    }
+//                                    if (PATH.VIDEO == type) {
+//                                        endpoint = getFixCdn(configBean.getCdnEndpoint());
+//                                    } else {
+//                                        endpoint = configBean.getEndpoint();
+//                                    }
                                     UpFileUtil.getInstance().upFile(getPath(type, ""), context, configBean.getAccessKeyId(),
                                             configBean.getAccessKeySecret(), configBean.getSecurityToken(), endpoint,
                                             configBean.getBucket(), callback, filePath, fileByte);
@@ -165,6 +163,7 @@ public class UpFileAction {
                             }).start();
                         } else {
                             ToastUtil.show(context, "上传失败");
+                            LogUtil.writeLog("上传失败--" + response.body().toString());
                         }
 
 
@@ -176,6 +175,9 @@ public class UpFileAction {
                         callback.fail();
                         long timeCost = SystemClock.currentThreadTimeMillis() - startTime;
                         UpLoadUtils.getInstance().upLoadLog(timeCost + "--------失败" + call.request().body().toString());
+                        if (call != null) {
+                            LogUtil.writeLog("上传失败--" + call.request().body().toString());
+                        }
                     }
                 });
 
@@ -191,6 +193,7 @@ public class UpFileAction {
                     @Override
                     public void onResponse(Call<ReturnBean<AliObsConfigBean>> call, Response<ReturnBean<AliObsConfigBean>> response) {
                         if (response.body() == null) {
+                            LogUtil.writeLog("上传失败--response=null");
                             callback.fail();
                             return;
                         }
@@ -211,11 +214,13 @@ public class UpFileAction {
 //                                            configBean.getAccessKeySecret(), "", configBean.getEndpoint(),
 //                                            configBean.getBucket(), callback, filePath, fileByte);
 
-                                    if (PATH.VIDEO == type) {
-                                        endpoint = getFixCdn(configBean.getCdnEndpoint());
-                                    } else {
-                                        endpoint = configBean.getEndpoint();
-                                    }
+                                    endpoint = getFixCdn(configBean.getCdnEndpoint(), configBean.getEndpoint());
+
+//                                    if (PATH.VIDEO == type) {
+//                                        endpoint = getFixCdn(configBean.getCdnEndpoint());
+//                                    } else {
+//                                        endpoint = configBean.getEndpoint();
+//                                    }
                                     UpFileUtil.getInstance().upFile(getPath(type, id), context, configBean.getAccessKeyId(),
                                             configBean.getAccessKeySecret(), configBean.getSecurityToken(), endpoint,
                                             configBean.getBucket(), callback, filePath, fileByte);
@@ -225,9 +230,8 @@ public class UpFileAction {
                             }).start();
                         } else {
                             ToastUtil.show(context, "上传失败");
+                            LogUtil.writeLog("上传失败--" + response.body().toString());
                         }
-
-
                     }
 
                     @Override
@@ -236,6 +240,9 @@ public class UpFileAction {
                         callback.fail();
                         long timeCost = SystemClock.currentThreadTimeMillis() - startTime;
                         UpLoadUtils.getInstance().upLoadLog(timeCost + "--------失败" + call.request().body().toString());
+                        if (call != null) {
+                            LogUtil.writeLog("上传失败--" + call.request().body().toString());
+                        }
                     }
                 });
 
@@ -250,6 +257,7 @@ public class UpFileAction {
                     @Override
                     public void onResponse(Call<ReturnBean<AliObsConfigBean>> call, Response<ReturnBean<AliObsConfigBean>> response) {
                         if (response.body() == null) {
+                            LogUtil.writeLog("上传失败--response = null");
                             callback.fail();
                             return;
                         }
@@ -265,16 +273,14 @@ public class UpFileAction {
                                 public void run() {
                                     long timeCost = SystemClock.currentThreadTimeMillis() - startTime;
                                     String endpoint;
-//                                    String textToken="CAISmQJ1q6Ft5B2yfSjIr4nRCOvagOxqwLPZMGfB3TIGb9trm5TGuzz2IHtLfXhvAu8Zs/oyn29Z5/sflqZiQplBQkrLKMp1q4ha6h/51G8UT3bwv9I+k5SANTW5OXyShb3vAYjQSNfaZY3aCTTtnTNyxr3XbCirW0ffX7SClZ9gaKZ4PGS/diEURq0VRG1YpdQdKGHaONu0LxfumRCwNkdzvRdmgm4Njsbay8aHuB3Flw+4mK1H5aaJe8j7NZcyZcgvC4rsg7UrL5CsinAAt0J4k45tl7FB9Dv9udWQPkJc+R3uMZCPqYI2fVAiOfdnRfMf86mtyKBiyeXXlpXqzRFWJv1SUCnZS42mzdHNBOSzLNE9eKYM8cVEal1OXRqAAakBtm9ZuHW+cnfVxK4PJgmkPwBpMXLZ99oYyk+5E8jbZ4ArgAtdawN2i/syq8GrlHbVwOkvgeeF+nesQdgbKb86a7ZTHsawGZjzvi+xN6FlQwXMw2EA1tb/Wokcz3+EUxE3RLt6CuQ7PNxk65mvIgWqiyFLUozRV3sAUbElSds+";
-//                                    UpFileUtil.getInstance().upFile(getPath(type), context, configBean.getAccessKeyId(),
-//                                            configBean.getAccessKeySecret(), "", configBean.getEndpoint(),
-//                                            configBean.getBucket(), callback, filePath, fileByte);
 
-                                    if (PATH.VIDEO == type) {
-                                        endpoint = getFixCdn(configBean.getCdnEndpoint());
-                                    } else {
-                                        endpoint = configBean.getEndpoint();
-                                    }
+                                    endpoint = getFixCdn(configBean.getCdnEndpoint(), configBean.getEndpoint());
+
+//                                    if (PATH.VIDEO == type) {
+//                                        endpoint = getFixCdn(configBean.getCdnEndpoint());
+//                                    } else {
+//                                        endpoint = configBean.getEndpoint();
+//                                    }
                                     UpFileUtil.getInstance().upFile(getPath(type, id, fileName), context, configBean.getAccessKeyId(),
                                             configBean.getAccessKeySecret(), configBean.getSecurityToken(), endpoint,
                                             configBean.getBucket(), callback, filePath, fileByte);
@@ -284,6 +290,9 @@ public class UpFileAction {
                             }).start();
                         } else {
                             ToastUtil.show(context, "上传失败");
+                            if (call != null) {
+                                LogUtil.writeLog("上传失败--" + call.request().body().toString());
+                            }
                         }
 
 
@@ -295,6 +304,10 @@ public class UpFileAction {
                         callback.fail();
                         long timeCost = SystemClock.currentThreadTimeMillis() - startTime;
                         UpLoadUtils.getInstance().upLoadLog(timeCost + "--------失败" + call.request().body().toString());
+                        if (call != null) {
+                            LogUtil.writeLog("上传失败--" + call.request().body().toString());
+                        }
+
                     }
                 });
 
@@ -331,7 +344,7 @@ public class UpFileAction {
                                 public void run() {
                                     String endpoint;
                                     if (PATH.VIDEO == type) {
-                                        endpoint = getFixCdn(configBean.getCdnEndpoint());
+                                        endpoint = getFixCdn(configBean.getCdnEndpoint(), configBean.getEndpoint());
                                     } else {
                                         endpoint = configBean.getEndpoint();
                                     }
@@ -389,14 +402,14 @@ public class UpFileAction {
     }
 
 
-    private String getFixCdn(String cdn) {
+    private String getFixCdn(String cdn, String endpoint) {
         if (!TextUtils.isEmpty(cdn)) {
             if (cdn.contains("oss-accelerate.aliyuncs.com")) {
                 return "http://oss-accelerate.aliyuncs.com";
             }
             return cdn;
         }
-        return "";
+        return endpoint;
     }
 
 }

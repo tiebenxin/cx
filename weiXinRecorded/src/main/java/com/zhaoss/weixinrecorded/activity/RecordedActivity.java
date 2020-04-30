@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -385,15 +386,20 @@ public class RecordedActivity extends BaseActivity {
 
                 Utils.mergeFile(mSegmentList.toArray(new String[]{}), mH264Path);
                 //h264转mp4
-                String mp4Path = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".mp4";
-                boolean isH264ToMp4 = mVideoEditor.h264ToMp4(mH264Path, mp4Path);
+                String mp4OriginPath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".mp4";
+                boolean isH264ToMp4 = mVideoEditor.h264ToMp4(mH264Path, mp4OriginPath);
                 if (!isH264ToMp4) {
                     return null;
                 }
                 //合成音频
                 mAacPath = mVideoEditor.executePcmEncodeAac(syntPcm(), RecordUtil.sampleRateInHz, RecordUtil.channelCount);
-                //音视频混合
-                mp4Path = mVideoEditor.executeVideoMergeAudio(mp4Path, mAacPath);
+                //音视频混合，获取混合后MP4路径，注意删除源视频路径
+                String mp4Path = mVideoEditor.executeVideoMergeAudio(mp4OriginPath, mAacPath);
+                if (!TextUtils.isEmpty(mp4Path)) {
+                    delete(mp4OriginPath);
+                } else {
+                    mp4Path = mp4OriginPath;
+                }
                 return mp4Path;
             }
 

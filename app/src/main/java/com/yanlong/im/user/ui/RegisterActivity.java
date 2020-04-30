@@ -9,20 +9,22 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.NoticeActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
+
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.CountDownUtil;
+import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -89,6 +91,8 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
         ClickFilter.onClick(mBtnRegister, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //关闭软键盘
+                InputUtil.hideKeyboard(RegisterActivity.this);
                 register();
             }
         });

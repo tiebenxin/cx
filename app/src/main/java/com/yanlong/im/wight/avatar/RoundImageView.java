@@ -17,7 +17,7 @@ import android.util.AttributeSet;
 
 import com.yanlong.im.R;
 
-/**
+/** 圆角图，适用于小图
  * @createAuthor Raleigh.Luo
  * @createDate 2020/4/23 0023
  * @description
@@ -144,8 +144,11 @@ public class RoundImageView extends AppCompatImageView {
         } else if (drawable instanceof BitmapDrawable) {
             return ((BitmapDrawable) drawable).getBitmap();
         }
+        //Bitmap.Config.RGB_565降低色彩模式，如果对透明度没有要求，RGB_565即可满足需求
+        //只适合小图
         Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
-                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+                drawable.getIntrinsicHeight(), Bitmap.Config.RGB_565);
+
         Canvas canvas = new Canvas(bitmap);
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);

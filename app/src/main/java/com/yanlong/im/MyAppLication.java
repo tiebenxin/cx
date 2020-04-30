@@ -27,6 +27,7 @@ import com.yanlong.im.location.LocationService;
 import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.ChatBitmapCache;
 import com.yanlong.im.utils.EmojBitmapCache;
 import com.yanlong.im.utils.IVolleyInitImp;
 import com.yanlong.im.utils.LogcatHelper;
@@ -174,7 +175,13 @@ public class MyAppLication extends MainApplication {
     public void removeSessionChangeListener(ApplicationRepository.SessionChangeListener sessionChangeListener) {
         if (repository != null) repository.removeSessionChangeListener(sessionChangeListener);
     }
+    public void addFriendChangeListener(ApplicationRepository.FriendChangeListener friendChangeListener) {
+        if (repository != null) repository.addFriendChangeListener(friendChangeListener);
+    }
 
+    public void removeFriendChangeListener(ApplicationRepository.FriendChangeListener friendChangeListener) {
+        if (repository != null) repository.removeFriendChangeListener(friendChangeListener);
+    }
     private void initBuildType() {
         switch (BuildConfig.BUILD_TYPE) {
             case "debug":
@@ -341,6 +348,7 @@ public class MyAppLication extends MainApplication {
             public void onFront() {
                 //应用切到前台处理
                 LogUtil.getLog().d(TAG, "--->应用切到前台处理");
+                AppConfig.setAppRuning(true);
                 EventRunState enent = new EventRunState();
                 enent.setRun(true);
                 EventBus.getDefault().post(enent);
@@ -362,6 +370,8 @@ public class MyAppLication extends MainApplication {
             public void onBack() {
                 //应用切到后台处理
                 LogUtil.getLog().d(TAG, "--->应用切到后台处理");
+                AppConfig.setAppRuning(false);
+
                 EventRunState enent = new EventRunState();
                 enent.setRun(false);
                 EventBus.getDefault().post(enent);
@@ -388,6 +398,7 @@ public class MyAppLication extends MainApplication {
     public void onTerminate() {
         //清除表情缓存
         EmojBitmapCache.getInstance().clear();
+        ChatBitmapCache.getInstance().clear();
         //清除仓库对象
         destoryRepository();
         super.onTerminate();

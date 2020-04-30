@@ -63,7 +63,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         app:radius="10dp"
-                        android:src="@mipmap/default_image"
+                        android:src="@mipmap/ic_image_bg"
                         android:scaleType="fitXY" />
 
                     <LinearLayout

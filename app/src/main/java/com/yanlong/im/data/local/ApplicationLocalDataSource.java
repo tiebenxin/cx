@@ -52,6 +52,7 @@ public class ApplicationLocalDataSource {
             }
         });
     }
+
     /**
      * 通知更新阅后即焚队列
      */
@@ -80,14 +81,16 @@ public class ApplicationLocalDataSource {
     public void updateSessionDetail(String[] gids, Long[] uids) {
         updateSessionDetail.update(gids, uids);
     }
+
     /**
-     *清除会话详情的内容
+     * 清除会话详情的内容
      *
      * @param
      */
     public void clearContent(String[] gids, Long[] uids) {
         updateSessionDetail.clearContent(gids, uids);
     }
+
     /**
      * 获取session 列表-异步
      *
@@ -137,7 +140,7 @@ public class ApplicationLocalDataSource {
 
         return realm.where(UserInfo.class)
                 .beginGroup().equalTo("uType", 2).or().equalTo("uType", 4).endGroup()
-                .sort("tag", Sort.ASCENDING).limit(1000).findAllAsync();
+                .sort("tag", Sort.ASCENDING).limit(limit).findAllAsync();
     }
 
     /**
@@ -159,19 +162,29 @@ public class ApplicationLocalDataSource {
                         msg.setEndTime(System.currentTimeMillis());
                     }
                 } else {
-                    RealmResults<MsgAllBean> list = realm.where(MsgAllBean.class)
-                            .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
-                            .and()
-                            .beginGroup().equalTo("to_uid", userid).or().equalTo("from_uid", userid).endGroup()
-                            .and()
-                            .beginGroup().lessThan("survival_time", 0).endGroup()
-                            .findAll();
-                    //更新为当前时间删除（batch update批量更新大数据会报错-慎用）
-                    for (MsgAllBean msg : list) {
-                        msg.setStartTime(System.currentTimeMillis());
-                        msg.setEndTime(System.currentTimeMillis());
+                    if (userid != null) {
+                        RealmResults<MsgAllBean> list = realm.where(MsgAllBean.class)
+                                .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                                .and()
+                                .beginGroup().equalTo("to_uid", userid).or().equalTo("from_uid", userid).endGroup()
+                                .and()
+                                .beginGroup().lessThan("survival_time", 0).endGroup()
+                                .findAll();
+                        //更新为当前时间删除（batch update批量更新大数据会报错-慎用）
+                        for (MsgAllBean msg : list) {
+                            msg.setStartTime(System.currentTimeMillis());
+                            msg.setEndTime(System.currentTimeMillis());
+                        }
                     }
                 }
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(Throwable error) {
             }
         });
     }

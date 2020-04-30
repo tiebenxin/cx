@@ -1982,8 +1982,7 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
     private boolean filterMessage(IMsgContent message) {
         boolean isSend = true;
         //常信小助手不需要发送到后台(文件传输助手除了文件以外暂时也不需要传到后台)
-        if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_BALANCE_UID.equals(toUId)
-                || Constants.CX_FILE_HELPER_UID.equals(toUId)) {
+        if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_BALANCE_UID.equals(toUId)) {
             isSend = false;
         }
         return isSend;
@@ -3751,7 +3750,7 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
             //发送状态处理
             if (ChatEnum.EMessageType.MSG_VIDEO == msgbean.getMsg_type() || ChatEnum.EMessageType.IMAGE == msgbean.getMsg_type() ||
                     ChatEnum.EMessageType.FILE == msgbean.getMsg_type() ||
-                    Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_FILE_HELPER_UID.equals(toUId)) {
+                    Constants.CX_HELPER_UID.equals(toUId)) {
                 holder.viewChatItem.setErr(msgbean.getSend_state(), false);
             } else {
                 holder.viewChatItem.setErr(msgbean.getSend_state(), true);
@@ -4237,7 +4236,7 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
                 if (checkCanOpenUpRedEnv()) {
                     taskPayRbGet(msgbean, touid, rid);
                 } else {
-                    ToastUtil.show(ChatActivityTemp.this, "您已被禁止领取该群红包");
+                    ToastUtil.show(ChatActivityTemp.this, "你已被禁止领取该群红包");
                 }
             }
         } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
@@ -4247,7 +4246,7 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
                 return;
             }
             if (!checkCanOpenUpRedEnv()) {
-                ToastUtil.show(ChatActivityTemp.this, "您已被禁止领取该群红包");
+                ToastUtil.show(ChatActivityTemp.this, "你已被禁止领取该群红包");
                 return;
             }
             long tradeId = rb.getTraceId();

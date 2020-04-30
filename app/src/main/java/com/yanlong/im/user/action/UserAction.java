@@ -120,9 +120,10 @@ public class UserAction {
     public static String getDevId(Context context) {
         String uid = JPushInterface.getRegistrationID(context);
         if (TextUtils.isEmpty(uid)) {
-            uid = Installation.id(context);
-            new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).save2Json(uid);
-            return uid;
+//            uid = Installation.id(context);
+//            new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).save2Json(uid);
+//            return uid;
+            return "pushToken";
         }
         LogUtil.getLog().i("getDevId", uid + "");
         return uid;
@@ -355,9 +356,10 @@ public class UserAction {
                     initDB("" + response.body().getData().getUid());
                     TokenBean newToken = response.body().getData();
                     token.setAccessToken(newToken.getAccessToken());
-                    setToken(token, true);
+                    token.setBankReqSignKey(EncrypUtil.aesDecode(token.getBankReqSignKey()));
                     LogUtil.getLog().i("updateToken--成功", "--token=" + response.body().getData().getAccessToken());
                     LogUtil.writeLog("updateToken--成功" + "--token=" + response.body().getData().getAccessToken() + "--time=" + System.currentTimeMillis());
+                    setToken(token, true);
                     getMyInfo4Web(response.body().getData().getUid(), "");
                     callback.onResponse(call, response);
                 } else {
@@ -382,6 +384,7 @@ public class UserAction {
      * 登出
      */
     public void loginOut() {
+        LogUtil.writeLog("清除token--UserAction--loginOut");
         cleanInfo();
         NetUtil.getNet().exec(server.loginOut("android"), new CallBack<ReturnBean>() {
             @Override
@@ -400,7 +403,7 @@ public class UserAction {
     public void cleanInfo() {
         myInfo = null;
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
-        LogUtil.writeLog("清除token");
+//        LogUtil.writeLog("清除token");
     }
 
 
@@ -412,20 +415,20 @@ public class UserAction {
         if (isUpdate) {
             long validTime = System.currentTimeMillis() + TimeToString.DAY * 3;
             token.setValidTime(validTime);
+            //银行签名，加密存储
+            if (!TextUtils.isEmpty(token.getBankReqSignKey())) {
+                String key = token.getBankReqSignKey();
+                PayEnvironment.getInstance().setBankSign(key);
+                String result = EncrypUtil.aesEncode(key);
+                token.setBankReqSignKey(result);
+                new SharedPreferencesUtil(SharedPreferencesUtil.SPName.BANK_SIGN).save2Json(result);
+            }
         }
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
         NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
         PayEnvironment.getInstance().setToken(token.getAccessToken());
         LogUtil.getLog().i("设置token", "--token=" + token.getAccessToken());
         LogUtil.writeLog("设置token" + "--token=" + token.getAccessToken() + "--time=" + System.currentTimeMillis() + "--isUpdate=" + isUpdate);
-        //银行签名，加密存储
-        if (!TextUtils.isEmpty(token.getBankReqSignKey())) {
-            String key = token.getBankReqSignKey();
-            String result = EncrypUtil.aesEncode(key);
-            token.setBankReqSignKey(result);
-            new SharedPreferencesUtil(SharedPreferencesUtil.SPName.BANK_SIGN).save2Json(result);
-            PayEnvironment.getInstance().setBankSign(key);
-        }
     }
 
 

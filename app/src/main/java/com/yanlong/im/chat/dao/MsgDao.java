@@ -1079,6 +1079,55 @@ public class MsgDao {
         realm.close();
     }
 
+    /***
+     * 更新从自己PC端发过来的消息,只更新时间
+     */
+    public void updateFromSelfPCSession(MsgAllBean bean) {
+        Realm realm = DaoUtil.open();
+        try {
+            Session session = null;
+            if (StringUtil.isNotNull(bean.getGid())) {//群消息
+                session = realm.where(Session.class).equalTo("gid", bean.getGid()).findFirst();
+            } else { //单聊-touid才是对方id
+                session = realm.where(Session.class).equalTo("from_uid", bean.getTo_uid()).findFirst();
+            }
+            if (session != null) {//已存在的session，只更新时间
+                realm.beginTransaction();
+                session.setUp_time(System.currentTimeMillis());
+                realm.commitTransaction();
+            } else {//新session
+                if (StringUtil.isNotNull(bean.getGid())) {//群消息
+                    session = new Session();
+                    session.setSid(UUID.randomUUID().toString());
+                    session.setGid(bean.getGid());
+                    session.setType(1);
+                    Group group = realm.where(Group.class).equalTo("gid", bean.getGid()).findFirst();
+                    if (group != null) {
+                        session.setIsTop(group.getIsTop());
+                        session.setIsMute(group.getNotNotify());
+                    }
+                } else {//个人消息
+                    session = new Session();
+                    session.setSid(UUID.randomUUID().toString());
+                    session.setFrom_uid(bean.getTo_uid());
+                    session.setType(0);
+                    UserInfo user = realm.where(UserInfo.class).equalTo("uid", bean.getTo_uid()).findFirst();
+                    if (user != null) {
+                        session.setIsTop(user.getIstop());
+                        session.setIsMute(user.getDisturb());
+                    }
+                }
+                session.setUnread_count(0);
+                session.setUp_time(System.currentTimeMillis());
+                realm.beginTransaction();
+                realm.insertOrUpdate(session);
+                realm.commitTransaction();
+            }
+        } finally {
+            DaoUtil.close(realm);
+        }
+    }
+
     /*
      * 更新或者创建session
      *
@@ -2483,11 +2532,11 @@ public class MsgDao {
         msgAllBean.setSurvival_time(survivaltime);
         String survivaNotice = "";
         if (survivaltime == -1) {
-            survivaNotice = "您设置了退出即焚.";
+            survivaNotice = "你设置了退出即焚.";
         } else if (survivaltime == 0) {
-            survivaNotice = "您取消了阅后即焚.";
+            survivaNotice = "你取消了阅后即焚.";
         } else {
-            survivaNotice = "您设置了消息" +
+            survivaNotice = "你设置了消息" +
                     new ReadDestroyUtil().getDestroyTimeContent(survivaltime) + "后消失.";
         }
         MsgCancel survivaMsgCel = new MsgCancel();

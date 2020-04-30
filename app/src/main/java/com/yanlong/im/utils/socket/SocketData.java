@@ -404,6 +404,10 @@ public class SocketData {
         if (userInfo == null) {
             return null;
         }
+        //是否是发送给文件传输助手
+        if (toId != null && toId.longValue() == -userInfo.getUid()) {
+            toId = userInfo.getUid().longValue();
+        }
         initWrapMessage(msgId, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), toId, toGid, time, type, value, wrap);
         if (wrap == null) {
             return null;
@@ -519,7 +523,6 @@ public class SocketData {
     }
 
 
-
     public static P2PAuVideoMessage createCallMessage(String msgId, int auType, String option, String desc) {
         P2PAuVideoMessage message = new P2PAuVideoMessage();
         message.setMsgId(msgId);
@@ -545,7 +548,6 @@ public class SocketData {
         return send4Base(false, toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO_DIAL, chat);
 
     }
-
 
 
     /***
@@ -796,7 +798,6 @@ public class SocketData {
     }
 
 
-
     public static MsgCancel createCancelMsg(MsgAllBean cancelMsg) {
         if (cancelMsg == null) {
             return null;
@@ -846,10 +847,12 @@ public class SocketData {
         if (needSave) {
             saveMessage(bean);
         }
-        if (type != null && value != null && isSend) {
-            SendList.addMsgToSendSequence(bean.getRequest_id(), bean);//添加到发送队列
-            MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getRequest_id(), bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
-            SocketUtil.getSocketUtil().sendData4Msg(msg);
+        if (SocketUtil.getSocketUtil().getOnLineState()) {
+            if (type != null && value != null && isSend) {
+                SendList.addMsgToSendSequence(bean.getRequest_id(), bean);//添加到发送队列
+                MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getRequest_id(), bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
+                SocketUtil.getSocketUtil().sendData4Msg(msg);
+            }
         }
     }
 

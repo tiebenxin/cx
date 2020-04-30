@@ -8,11 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.yanlong.im.MainViewModel;
+import com.yanlong.im.FriendViewModel;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.ui.SearchFriendGroupActivity;
+import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.CoreEnum;
@@ -30,8 +31,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.realm.OrderedCollectionChangeSet;
-import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.RealmResults;
 
 /***
@@ -43,7 +42,7 @@ public class FriendMainFragment extends Fragment {
     private net.cb.cb.library.view.MultiListView mtListView;
     private PySortView viewType;
     private ActionbarView actionbar;
-    private MainViewModel viewModel;
+    private FriendViewModel viewModel;
     private FriendMainFragmentAdapter adapter;
 
     @Override
@@ -62,6 +61,7 @@ public class FriendMainFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);*/
         }
         EventBus.getDefault().register(this);
+        MyAppLication.INSTANCE().addFriendChangeListener(friendChangeListener);
     }
 
     @Override
@@ -79,40 +79,59 @@ public class FriendMainFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         //MainActivity的viewModel
-        viewModel = new MainViewModel();
-        updateFriends();
+        viewModel = new FriendViewModel();
+        viewModel.initFriend();
         initEvent();
     }
 
-    private void updateFriends() {
-        if(viewModel.friends!=null){
-            viewModel.friends.removeChangeListener(friendsChangeListener);
-        }
-        viewModel.friends = MyAppLication.INSTANCE().getFriends();
-        if(viewModel.friends!=null)viewModel.friends.addChangeListener(friendsChangeListener);
-    }
-
-    private OrderedRealmCollectionChangeListener<RealmResults<UserInfo>> friendsChangeListener = new OrderedRealmCollectionChangeListener<RealmResults<UserInfo>>() {
+    private ApplicationRepository.FriendChangeListener friendChangeListener = new ApplicationRepository.FriendChangeListener() {
         @Override
-        public void onChange(RealmResults<UserInfo> userInfos, OrderedCollectionChangeSet changeSet) {
+        public void init(RealmResults<UserInfo> friends) {
+            viewModel.initFriend();
+            //显示右侧字母
+            updateViewType();
+        }
+
+        @Override
+        public void delete(int[] positions) {
+            updateViewType();
+        }
+
+        @Override
+        public void insert(int[] positions) {
+            updateViewType();
+        }
+
+        @Override
+        public void update(int[] positions) {
+            updateViewType();
+        }
+    };
+
+    /**
+     * 更新字母
+     */
+    private void updateViewType() {
+        try {
             //显示右侧字母
             viewType.addItemView(userParseString());
             mtListView.getListView().getAdapter().notifyDataSetChanged();
+        } catch (Exception e) {
         }
-    };
+    }
 
     /**
      * 获取用户的首字母列表
      *
      * @return
      */
-    public  List<String> userParseString() {
+    public List<String> userParseString() {
         List<String> list = new ArrayList<>();
         try {
             //数据库中存储的是Z1，便于排序
             if (viewModel.friends != null) {
                 for (int i = 0; i < viewModel.friends.size(); i++) {
-                    String tag=viewModel.friends.get(i).getTag();
+                    String tag = viewModel.friends.get(i).getTag();
                     list.add(tag);
                     viewType.putTag(tag, i);
                 }
@@ -126,8 +145,7 @@ public class FriendMainFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (viewModel.friends != null)
-            viewModel.friends.removeChangeListener(friendsChangeListener);
+        MyAppLication.INSTANCE().removeFriendChangeListener(friendChangeListener);
         EventBus.getDefault().unregister(this);
     }
 
@@ -153,7 +171,6 @@ public class FriendMainFragment extends Fragment {
             @Override
             public void onLoadMore() {
                 MyAppLication.INSTANCE().repository.loadMoreFriends();
-                updateFriends();
             }
 
             @Override
@@ -184,7 +201,6 @@ public class FriendMainFragment extends Fragment {
             }
         });
     }
-
 
 
     public FriendMainFragment() {

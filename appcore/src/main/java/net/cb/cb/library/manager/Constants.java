@@ -15,5 +15,5 @@ public class Constants {
     // 零钱小助手
     public static final Long CX_BALANCE_UID = 2L;
     // 文件传输小助手
-    public static final Long CX_FILE_HELPER_UID = 3L;
+//    public static final Long CX_FILE_HELPER_UID = 3L;
 }

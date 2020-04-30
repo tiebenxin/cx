@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
@@ -12,7 +13,6 @@ import com.yanlong.im.utils.DaoUtil;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.manager.Constants;
-import net.cb.cb.library.utils.LogUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -261,6 +261,37 @@ public class UserDao {
             DaoUtil.reportException(e);
         }
         return res;
+    }
+
+    /***
+     * 获取能有效转发用户
+     * @return
+     */
+    public List<UserInfo> getForwarUserValid() {
+        List<UserInfo> res = null;
+        Realm realm = DaoUtil.open();
+        try {
+            RealmResults<UserInfo> ls;
+            ls = realm.where(UserInfo.class)
+                    .beginGroup().equalTo("uType", 2).endGroup()
+                    .or()
+                    .beginGroup().equalTo("uType", 4).endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("uid", Constants.CX888_UID).endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("uid", Constants.CX_BALANCE_UID).endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("uid", Constants.CX_HELPER_UID).endGroup()
+                    .sort("tag", Sort.ASCENDING).findAll();
+
+            res = realm.copyFromRealm(ls);
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return res;
 
     }
 
@@ -330,8 +361,8 @@ public class UserDao {
      */
     public void friendMeUpdate(List<UserInfo> list) {
         Realm realm = DaoUtil.open();
-        UserBean myUserInfo = myInfo();
-        if (myUserInfo == null) {
+        IUser user = UserAction.getMyInfo();
+        if (user == null) {
             return;
         }
         try {
@@ -355,14 +386,12 @@ public class UserDao {
                         if (u.getLastonline() != null && userInfo != null && userInfo.getLastonline() < u.getLastonline()) {
                             userInfo.setLastonline(u.getLastonline());
                         }
-
-                        //如果是自己只更新在线状态
-                        if (userInfo.getUid().equals(myUserInfo.getUid())) {
-                            myUserInfo.setActiveType(userInfo.getActiveType());
-                            realm.copyToRealmOrUpdate(myUserInfo);
-                        } else {
-                            realm.copyToRealmOrUpdate(userInfo);
+                        //文件传输助手
+                        if (user.getUid().longValue() == userInfo.getUid().longValue()) {
+                            long uid = userInfo.getUid().longValue();
+                            userInfo.setUid(-uid);
                         }
+                        realm.copyToRealmOrUpdate(userInfo);
                     }
                 }
                 if (!isExt) {//不在好友列表中了,身份改成普通人
@@ -387,14 +416,12 @@ public class UserDao {
                     } else {
                         userInfo.setuType(ChatEnum.EUserType.FRIEND);
                     }
-
-                    //如果是自己只更新在线状态
-                    if (userInfo.getUid().equals(myUserInfo.getUid())) {
-                        myUserInfo.setActiveType(userInfo.getActiveType());
-                        realm.insertOrUpdate(myUserInfo);
-                    } else {
-                        realm.insertOrUpdate(userInfo);
+                    //文件传输助手
+                    if (user.getUid().longValue() == userInfo.getUid().longValue()) {
+                        long uid = userInfo.getUid().longValue();
+                        userInfo.setUid(-uid);
                     }
+                    realm.insertOrUpdate(userInfo);
                 }
             }
             realm.commitTransaction();

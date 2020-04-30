@@ -74,7 +74,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         initEvent();
     }
 
-    private void init(){
+    private void init() {
         mPath = getIntent().getExtras().getString("imgpath");
         index = getIntent().getExtras().getInt("index");
         mWindowWidth = Utils.getWindowWidth(mContext);
@@ -245,7 +245,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         }
     }
 
-    private static String saveImage(Bitmap bmp, int quality) {
+    private String saveImage(Bitmap bmp, int quality) {
         if (bmp == null) {
             return null;
         }
@@ -273,6 +273,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
                     e.printStackTrace();
                 }
             }
+            deleteFileAndParent(mPath);
         }
         return null;
     }
@@ -341,16 +342,16 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        if(v.getId() == R.id.tv_finish){// 文字输入完成
+        if (v.getId() == R.id.tv_finish) {// 文字输入完成
             if (null != binding.etTag.getText() && binding.etTag.getText().toString().length() > 0) {
                 addTextToWindow();
             }
             binding.rlEditText.setVisibility(View.GONE);
             hiddenPopSoft();
-        }else if(v.getId() == R.id.tv_close){// 关闭
+        } else if (v.getId() == R.id.tv_close) {// 关闭
             binding.rlEditText.setVisibility(View.GONE);
             hiddenPopSoft();
-        }else if(v.getId() == R.id.tv_finish_video){// 完成
+        } else if (v.getId() == R.id.tv_finish_video) {// 完成
             Intent intent = new Intent();
             Bitmap bitmap = loadBitmapFromView(binding.showRlBig);
             String savePath = saveImage(bitmap, 100);
@@ -359,15 +360,15 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             intent.putExtra("index", index);
             setResult(RESULT_OK, intent);
             finish();
-        }else if(v.getId() == R.id.rl_close){// 返回
+        } else if (v.getId() == R.id.rl_close) {// 返回
             finish();
-        }else if(v.getId() == R.id.iv_show_delete){
+        } else if (v.getId() == R.id.iv_show_delete) {
             Intent intent = new Intent();
             intent.putExtra("showResult", false);
             intent.putExtra("showPath", "");
             setResult(RESULT_OK, intent);
             finish();
-        }else if(v.getId() == R.id.rb_pen){// 画笔
+        } else if (v.getId() == R.id.rb_pen) {// 画笔
             binding.mpvView.setEtypeMode(MosaicPaintView.EtypeMode.TUYA);
             binding.imgShowCut.setVisibility(View.GONE);
             if (binding.llColor.getVisibility() == View.VISIBLE) {
@@ -377,27 +378,27 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
                 binding.mpvView.setPenColor(getResources().getColor(mColors[0]));
                 binding.mpvView.setVisibility(View.VISIBLE);
             }
-        }else if(v.getId() == R.id.rl_back){// 清除上一次画笔
+        } else if (v.getId() == R.id.rl_back) {// 清除上一次画笔
             if (null != binding.mpvView) {
                 if (binding.mpvView.canUndo()) {
                     binding.mpvView.undo();
                 }
             }
-        }else if(v.getId() == R.id.rb_text){// 輸入文字
+        } else if (v.getId() == R.id.rb_text) {// 輸入文字
             binding.llColor.setVisibility(View.INVISIBLE);
             binding.imgShowCut.setVisibility(View.GONE);
             binding.rlEditText.setVisibility(View.VISIBLE);
             showSoftInputFromWindow(binding.etTag);
             startAnim(binding.rlEditText.getY(), 0, null);
 
-        }else if(v.getId() == R.id.rb_cut){// 裁剪
+        } else if (v.getId() == R.id.rb_cut) {// 裁剪
             binding.llColor.setVisibility(View.INVISIBLE);
             if (binding.imgShowCut.getVisibility() == View.VISIBLE) {
                 binding.imgShowCut.setVisibility(View.GONE);
             } else {
                 binding.imgShowCut.setVisibility(View.VISIBLE);
             }
-        }else if(v.getId() == R.id.rb_mosaic){// 马赛克
+        } else if (v.getId() == R.id.rb_mosaic) {// 马赛克
             binding.mpvView.setEtypeMode(MosaicPaintView.EtypeMode.GRID);
             binding.llColor.setVisibility(View.INVISIBLE);
             binding.imgShowCut.setVisibility(View.GONE);
@@ -437,6 +438,21 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         });
         if (listenerAdapter != null) va.addListener(listenerAdapter);
         va.start();
+    }
+
+    private void deleteFileAndParent(String path) {
+        try {
+            File file = new File(path);
+            if (file != null && file.exists()) {
+                File fileParent = file.getParentFile();
+                file.delete();
+                if (fileParent != null && fileParent.exists()) {
+                    fileParent.delete();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

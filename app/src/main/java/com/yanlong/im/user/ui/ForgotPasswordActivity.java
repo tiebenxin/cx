@@ -1,12 +1,12 @@
 package com.yanlong.im.user.ui;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputFilter;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
@@ -17,6 +17,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.CountDownUtil;
+import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -78,6 +79,8 @@ public class ForgotPasswordActivity extends AppActivity implements View.OnClickL
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_next:
+                //关闭软键盘
+                InputUtil.hideKeyboard(this);
                 register();
                 break;
             case R.id.tv_get_verification_code:
@@ -168,6 +171,36 @@ public class ForgotPasswordActivity extends AppActivity implements View.OnClickL
             }
         });
     }
-
+    /**
+     * 显示或隐藏密码
+     *
+     * @param view
+     */
+    public void showOrHidePassword(View view) {
+        ImageView ivEye = (ImageView) view;
+        EditText editText = null;
+        switch (view.getId()) {
+            case R.id.iv_new_password_show_or_hide_password:
+                editText = mEtNewPasswordContent;
+                break;
+            case R.id.iv_repetition_password_show_or_hide_password:
+                editText = mEtRepetitionPasswordContent;
+                break;
+        }
+        if (editText != null) {
+            int level = ivEye.getDrawable().getLevel();
+            if (level == 0) {//隐藏转显示
+                editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                ivEye.setImageLevel(1);
+                //光标定位到最后
+                editText.setSelection(editText.getText().length());
+            } else {//显示转隐藏
+                editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                ivEye.setImageLevel(0);
+                //光标定位到最后
+                editText.setSelection(editText.getText().length());
+            }
+        }
+    }
 
 }

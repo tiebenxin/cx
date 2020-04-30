@@ -9,7 +9,6 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.repository.MainRepository;
-import com.yanlong.im.user.bean.UserInfo;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.RealmResults;
 
 /**
@@ -31,9 +31,6 @@ public class MainViewModel extends ViewModel {
     //会话列表
     public RealmResults<Session> sessions = null;
 
-    //通讯录好友
-    public RealmResults<UserInfo> friends = null;
-
     //当前删除操作位置,为数据源中的位置
     public MutableLiveData<String> currentDeleteSid = new MutableLiveData();
     //保存sessionDetial 位置sid/position
@@ -44,16 +41,17 @@ public class MainViewModel extends ViewModel {
     //是否要主动关闭展开的删除按钮
     public MutableLiveData<Boolean> isNeedCloseSwipe = new MutableLiveData<>();
     public Set<String> allSids = new HashSet<>();
-    public MutableLiveData<Boolean> isAllSidsChange = new MutableLiveData<>();
 
     //是否进主页显示加载动画
     public MutableLiveData<Boolean> isShowLoadAnim = new MutableLiveData<>();
+    private OrderedRealmCollectionChangeListener sessionMoresListener = null;
 
-    public MainViewModel() {
+    public MainViewModel(OrderedRealmCollectionChangeListener sessionMoresListener) {
         onlineState.setValue(true);
         isNeedCloseSwipe.setValue(false);
         repository = new MainRepository();
         isShowLoadAnim.setValue(true);
+        this.sessionMoresListener=sessionMoresListener;
     }
 
     public void initSession(List<String> sids) {
@@ -66,24 +64,36 @@ public class MainViewModel extends ViewModel {
                     for (Session session : sessions) {
                         allSids.add(session.getSid());
                     }
-                    isAllSidsChange.setValue(true);
-                }else{
+                    updateSessionMore();
+                } else {
                     isShowLoadAnim.setValue(false);
                 }
             } else {
                 if (sids.size() > 0) {
                     allSids.addAll(sids);
-                    isAllSidsChange.setValue(true);
-                }else{
+                    updateSessionMore();
+                } else {
                     isShowLoadAnim.setValue(false);
                 }
             }
         }
     }
 
+
     public void updateSessionMore() {
-        if (sessionMores != null) sessionMores.removeAllChangeListeners();
-        sessionMores = repository.getSessionMore(allSids.toArray(new String[allSids.size()]));
+        RealmResults<SessionDetail> temp = null;
+        try {
+            //做一层保护，可能会有事务冲突或其他奔溃,引起的无法进行异步查询
+            temp = repository.getSessionMore(allSids.toArray(new String[allSids.size()]));
+            if (temp != null) {
+                if (sessionMores != null) sessionMores.removeAllChangeListeners();
+                sessionMores = temp;
+                //监听列表数据变化
+               if(sessionMoresListener!=null) sessionMores.addChangeListener(sessionMoresListener);
+            }
+        } catch (Exception e) {
+        }
+
     }
 
 
@@ -148,9 +158,10 @@ public class MainViewModel extends ViewModel {
         currentDeleteSid.removeObservers(owner);
         onlineState.removeObservers(owner);
         isNeedCloseSwipe.removeObservers(owner);
-        isAllSidsChange.removeObservers(owner);
         if (sessionMores != null)
             sessionMores.removeAllChangeListeners();
+        sessionMoresPositions.clear();
+        sessionMoresPositions = null;
         sessionMores = null;
         repository.onDestory();
     }

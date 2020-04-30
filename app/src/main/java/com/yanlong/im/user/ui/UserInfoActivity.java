@@ -478,7 +478,10 @@ public class UserInfoActivity extends AppActivity {
                 setData(userInfoLocal);
                 userDao.updateUserinfo(userInfoLocal);
             }
-
+            //系统用户不需要更新用户信息
+            if (userInfoLocal != null && userInfoLocal.getuType() == ChatEnum.EUserType.ASSISTANT) {
+                return;
+            }
             userAction.getUserInfo4Id(id, new CallBack<ReturnBean<UserInfo>>() {
                 @Override
                 public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
@@ -748,7 +751,7 @@ public class UserInfoActivity extends AppActivity {
                     userDao.updateReadDestroy(id, 0);
                     // 删除好友后，取消置顶状态
                     msgDao.updateUserSessionTop(id, 0);
-                    MyAppLication.INSTANCE().repository.deleteSession(id,"");
+                    MyAppLication.INSTANCE().repository.deleteSession(id, "");
                     MessageManager.getInstance().setMessageChange(true);
                     notifyRefreshRoster(id, CoreEnum.ERosterAction.REMOVE_FRIEND);
                     EventBus.getDefault().post(new CloseActivityEvent("ChatInfoActivity,GroupInfoActivity"));
@@ -772,7 +775,7 @@ public class UserInfoActivity extends AppActivity {
                     notifyRefreshRoster(0, CoreEnum.ERosterAction.UPDATE_INFO);// TODO　id改成0 需要全部刷新，改变通讯录的位置
                     /********通知更新sessionDetail************************************/
                     //因为msg对象 uid有两个，都得添加
-                    List<Long> uids= new ArrayList<>();
+                    List<Long> uids = new ArrayList<>();
                     uids.add(id);
                     //回主线程调用更新session详情
                     MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
