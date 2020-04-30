@@ -147,7 +147,7 @@ public class UpFileAction {
                                 public void run() {
                                     long timeCost = SystemClock.currentThreadTimeMillis() - startTime;
                                     String endpoint;
-                                    endpoint = getFixCdn(configBean.getCdnEndpoint());
+                                    endpoint = getFixCdn(configBean.getCdnEndpoint(), configBean.getEndpoint());
 
 //                                    if (PATH.VIDEO == type) {
 //                                        endpoint = getFixCdn(configBean.getCdnEndpoint());
@@ -214,7 +214,7 @@ public class UpFileAction {
 //                                            configBean.getAccessKeySecret(), "", configBean.getEndpoint(),
 //                                            configBean.getBucket(), callback, filePath, fileByte);
 
-                                    endpoint = getFixCdn(configBean.getCdnEndpoint());
+                                    endpoint = getFixCdn(configBean.getCdnEndpoint(), configBean.getEndpoint());
 
 //                                    if (PATH.VIDEO == type) {
 //                                        endpoint = getFixCdn(configBean.getCdnEndpoint());
@@ -274,7 +274,7 @@ public class UpFileAction {
                                     long timeCost = SystemClock.currentThreadTimeMillis() - startTime;
                                     String endpoint;
 
-                                    endpoint = getFixCdn(configBean.getCdnEndpoint());
+                                    endpoint = getFixCdn(configBean.getCdnEndpoint(), configBean.getEndpoint());
 
 //                                    if (PATH.VIDEO == type) {
 //                                        endpoint = getFixCdn(configBean.getCdnEndpoint());
@@ -344,7 +344,7 @@ public class UpFileAction {
                                 public void run() {
                                     String endpoint;
                                     if (PATH.VIDEO == type) {
-                                        endpoint = getFixCdn(configBean.getCdnEndpoint());
+                                        endpoint = getFixCdn(configBean.getCdnEndpoint(), configBean.getEndpoint());
                                     } else {
                                         endpoint = configBean.getEndpoint();
                                     }
@@ -402,14 +402,14 @@ public class UpFileAction {
     }
 
 
-    private String getFixCdn(String cdn) {
+    private String getFixCdn(String cdn, String endpoint) {
         if (!TextUtils.isEmpty(cdn)) {
             if (cdn.contains("oss-accelerate.aliyuncs.com")) {
                 return "http://oss-accelerate.aliyuncs.com";
             }
             return cdn;
         }
-        return "";
+        return endpoint;
     }
 
 }
