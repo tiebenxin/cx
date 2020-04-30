@@ -219,12 +219,15 @@ public class LocalMediaLoader {
     private List<LocalMedia> fileSize(List<LocalMedia> images) {
         File imageFile;
         for (int i = images.size() - 1; i >= 0; i--) {
-            imageFile = new File(images.get(i).getPath());
-            // Log.d("TAG", "fileSize: "+imageFile.length());
-            if (imageFile.length() >= IMG_DURATION) {
+            //只过滤图片 大图
+            if(images.get(i).getMimeType()==PictureMimeType.ofImage()) {
+                imageFile = new File(images.get(i).getPath());
+                // Log.d("TAG", "fileSize: "+imageFile.length());
+                if (imageFile.length() >= IMG_DURATION) {
 
-                //   Log.d("TAG", "more: "+imageFile.length());
-                images.remove(i);
+                    //   Log.d("TAG", "more: "+imageFile.length());
+                    images.remove(i);
+                }
             }
         }
 
