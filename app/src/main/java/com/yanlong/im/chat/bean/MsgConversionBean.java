@@ -524,7 +524,7 @@ public class MsgConversionBean {
                 }
 
                 msgAllBean.setMsgCancel(msgCel);
-                msgAllBean.setRead(1);
+                msgAllBean.setRead(0);
                 LogUtil.getLog().i("撤回消息", bean.getMsgId() + "------" + bean.getSurvivalTime() + "-----");
 
                 break;

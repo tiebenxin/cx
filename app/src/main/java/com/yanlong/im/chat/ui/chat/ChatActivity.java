@@ -2908,8 +2908,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if (event.getObject() != null && event.getObject() instanceof MsgAllBean) {
                 MsgAllBean bean = (MsgAllBean) event.getObject();
                 if (isMsgFromCurrentChat(bean.getGid(), bean.getFrom_uid())) {
-                    addMsg(bean);
-                    sendRead(bean);
+//                    addMsg(bean);
+//                    sendRead(bean);
+                    taskRefreshMessage(false);
                 }
             } /*else if (event.getList() != null) {
                 addMsg(event.getList());
@@ -4060,26 +4061,29 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 .subscribe(new Consumer<List<MsgAllBean>>() {
                     @Override
                     public void accept(List<MsgAllBean> list) throws Exception {
-//                        fixLastPosition(mAdapter.getMsgList(), list);
                         int len = list.size();
-                        if (mAdapter != null) {
-                            list = isRetainAll(mAdapter.getMsgList(), list);
-                        }
-                        int len2 = list.size();
-                        if (len2 < len) {
-                            addMsg(list);
-                        } else {
-                            mAdapter.bindData(list, false);
-                            mAdapter.setReadStatus(checkIsRead());
-                            notifyData2Bottom(isScrollBottom);
-                        }
+//                        if (mAdapter != null) {
+//                            list = isRetainAll(mAdapter.getMsgList(), list);
+//                        }
+//                        int len2 = list.size();
+//                        if (len2 < len) {
+//                            addMsg(list);
+//                        } else {
+//                            mAdapter.bindData(list, false);
+//                            mAdapter.setReadStatus(checkIsRead());
+//                            notifyData2Bottom(isScrollBottom);
+//                        }
+
+                        mAdapter.bindData(list, false);
+                        mAdapter.setReadStatus(checkIsRead());
+                        notifyData2Bottom(isScrollBottom);
                         if (len == 0 && lastPosition > len - 1) {//历史数据被清除了
                             lastPosition = 0;
                             lastOffset = 0;
                             clearScrollPosition();
                         }
                         //单聊发送已读消息
-                        sendRead(list.get(len2 - 1));
+                        sendRead(list.get(len - 1));
                     }
                 });
 

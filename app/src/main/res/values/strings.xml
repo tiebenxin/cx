@@ -28,6 +28,7 @@
     <item name="type_system" type="id"/>
 
     <item name="tag_img" type="id"/>
+    <item name="tag_voice" type="id"/>
 
     <string name="view_emoji">表情</string>
     <string name="view_animo">传情动漫</string>
