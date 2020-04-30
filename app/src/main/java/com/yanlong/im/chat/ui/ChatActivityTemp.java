@@ -4236,7 +4236,7 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
                 if (checkCanOpenUpRedEnv()) {
                     taskPayRbGet(msgbean, touid, rid);
                 } else {
-                    ToastUtil.show(ChatActivityTemp.this, "您已被禁止领取该群红包");
+                    ToastUtil.show(ChatActivityTemp.this, "你已被禁止领取该群红包");
                 }
             }
         } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
@@ -4246,7 +4246,7 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
                 return;
             }
             if (!checkCanOpenUpRedEnv()) {
-                ToastUtil.show(ChatActivityTemp.this, "您已被禁止领取该群红包");
+                ToastUtil.show(ChatActivityTemp.this, "你已被禁止领取该群红包");
                 return;
             }
             long tradeId = rb.getTraceId();

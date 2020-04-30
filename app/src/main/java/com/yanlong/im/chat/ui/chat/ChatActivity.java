@@ -5692,7 +5692,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (checkCanOpenUpRedEnv()) {
                     taskPayRbGet(msg, touid, rid);
                 } else {
-                    ToastUtil.show(ChatActivity.this, "您已被禁止领取该群红包");
+                    ToastUtil.show(ChatActivity.this, "你已被禁止领取该群红包");
                 }
             }
         } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
@@ -5702,7 +5702,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 return;
             }
             if (!checkCanOpenUpRedEnv()) {
-                ToastUtil.show(ChatActivity.this, "您已被禁止领取该群红包");
+                ToastUtil.show(ChatActivity.this, "你已被禁止领取该群红包");
                 return;
             }
             long tradeId = rb.getTraceId();

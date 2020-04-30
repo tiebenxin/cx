@@ -556,7 +556,7 @@ public class MsgConversionBean {
                     formName = "\"" + formName + "\"";
                 }
                 if (bean.getFromUid() == UserAction.getMyId().intValue()) {//自己PC 端发送的消息
-                    formName = "您";
+                    formName = "你";
                 }
 
                 if (bean.getChangeSurvivalTime().getSurvivalTime() == -1) {
