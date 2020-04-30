@@ -2663,6 +2663,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 //                            return;
 //                        }
                         String file = data.getStringExtra(RecordedActivity.INTENT_PATH);
+                        LogUtil.getLog().i(TAG, "--视频Chat--" + file);
                         int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
                         int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
                         int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME, 0);
@@ -3313,7 +3314,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
 
         //br标签替换为换行，存之前将换行替换为br标签
-        content=content.replace("<br>","\n");
+        content = content.replace("<br>", "\n");
         showDraftContent(editChat.getText().toString() + content);
         editChat.setSelection(editChat.getText().length());
         //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
