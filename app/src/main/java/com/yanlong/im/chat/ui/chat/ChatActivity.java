@@ -3982,11 +3982,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if (bean != null) {
                 if (bean.getRead() == 0) {
                     msgid = bean.getMsg_id();
-//                    MsgAllBean msgAllBean = SocketData.send4Read(toUId, bean.getTimestamp());
                     ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
                     MsgAllBean message = SocketData.createMessageBean(toUId, "", ChatEnum.EMessageType.READ, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), read);
                     SocketData.sendAndSaveMessage(message);
-//                    msgDao.setRead(msgid);
                 }
             }
         }
@@ -4061,6 +4059,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 .subscribe(new Consumer<List<MsgAllBean>>() {
                     @Override
                     public void accept(List<MsgAllBean> list) throws Exception {
+                        if (mAdapter != null) {
+                            fixLastPosition(mAdapter.getMsgList(), list);
+                        }
                         int len = list.size();
 //                        if (mAdapter != null) {
 //                            list = isRetainAll(mAdapter.getMsgList(), list);
@@ -4083,7 +4084,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             clearScrollPosition();
                         }
                         //单聊发送已读消息
-                        sendRead(list.get(len - 1));
+                        sendRead();
                     }
                 });
 
