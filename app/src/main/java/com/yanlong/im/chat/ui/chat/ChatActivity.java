@@ -3975,7 +3975,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private String msgid;
 
-    public void sendRead() {
+    public synchronized void sendRead() {
         //发送已读回执
         if (TextUtils.isEmpty(toGid)) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
