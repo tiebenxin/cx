@@ -241,7 +241,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         return eventListener.getChatCellBase(position);
     }
 
-    public void addMessage(MsgAllBean msg) {
+    public synchronized void addMessage(MsgAllBean msg) {
         if (mList == null) {
             mList = new ArrayList<>();
         }
@@ -254,7 +254,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         refreshPositions();
     }
 
-    public void addMessageList(int position, List<MsgAllBean> msg) {
+    public synchronized void addMessageList(int position, List<MsgAllBean> msg) {
         if (mList == null) {
             mList = new ArrayList<>();
         }
@@ -294,14 +294,14 @@ public class MessageAdapter extends RecyclerView.Adapter {
         return index;
     }
 
-    public void removeItem(MsgAllBean bean) {
+    public synchronized void removeItem(MsgAllBean bean) {
         if (mList != null && bean != null) {
             mList.remove(bean);
         }
         refreshPositions();
     }
 
-    public void removeMsgList(List<MsgAllBean> list) {
+    public synchronized void removeMsgList(List<MsgAllBean> list) {
         if (mList != null && list != null) {
             mList.removeAll(list);
         }
