@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -289,7 +290,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                             default:
                                 break;
                         }
-                        onEvent(binding, position, bean);
+                        onEvent(binding, position, collectionInfo);
                     }
                 }
             }
@@ -301,18 +302,20 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     }
 
     //item点击事件
-    private void onEvent(ItemCollectionViewBinding binding, int position, MsgAllBean bean) {
+    private void onEvent(ItemCollectionViewBinding binding, int position, CollectionInfo bean) {
         binding.layoutView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                showPop(view, bean.getMsg_id(), position);
+                showPop(view, bean.getMsgId(), position);
                 return true;
             }
         });
         binding.layoutView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ToastUtil.show("跳详情");
+                Intent intent = new Intent(CollectionActivity.this,CollectDetailsActivity.class);
+                intent.putExtra("json_data",new Gson().toJson(bean));//转换成json字符串再传过去
+                startActivity(intent);
             }
         });
 //        binding.ivPic.setOnClickListener(o->{
@@ -528,25 +531,28 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 ToastUtil.show("请检查网络连接是否正常");
             }
         });
-        //删除
+        //删除 (暂时只处理有网的情况)
         mTxtView2.setOnClickListener(o -> {
+            if (!checkNetConnectStatus()) {
+                return;
+            }
             if (mPopupWindow != null) {
                 mPopupWindow.dismiss();
             }
-            if (NetUtil.isNetworkConnected()) {
-                if (mList.get(postion) != null) {
-                    if (mList.get(postion).getId() != 0L) {
-                        httpCancelCollect(mList.get(postion).getId(), postion, msgId);
-                    }
+            if (mList.get(postion) != null) {
+                if (mList.get(postion).getId() != 0L) {
+                    httpCancelCollect(mList.get(postion).getId(), postion, msgId);
                 }
-            } else {
-                //暂时本地删除
-                ToastUtil.showLong(CollectionActivity.this, "请检查网络连接是否正常\n已为您暂时隐藏此消息");
-                mMsgDao.deleteCollectionInfo(msgId);
-                mList.remove(postion);
-                checkData();
-                mViewAdapter.notifyDataSetChanged();
             }
+
+//            else {
+//                //暂时本地删除
+//                ToastUtil.showLong(CollectionActivity.this, "请检查网络连接是否正常\n已为您暂时隐藏此消息");
+//                mMsgDao.deleteCollectionInfo(msgId);
+//                mList.remove(postion);
+//                checkData();
+//                mViewAdapter.notifyDataSetChanged();
+//            }
         });
     }
 
@@ -680,9 +686,10 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                     return;
                 }
                 if (response.body().isOk()) {
-                    ToastUtil.show(CollectionActivity.this, "删除成功!");
+//                    ToastUtil.show(CollectionActivity.this, "删除成功!");
+                    Snackbar.make(findViewById(R.id.ll_big_bg), "取消收藏成功!", Snackbar.LENGTH_SHORT).show();
                     //同时将本地删除
-                    mMsgDao.deleteCollectionInfo(msgId);
+//                    mMsgDao.deleteCollectionInfo(msgId);
                     mList.remove(postion);
                     checkData();
                     mViewAdapter.notifyDataSetChanged();
@@ -692,7 +699,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
-                ToastUtil.show(CollectionActivity.this, t.getMessage());
+                Snackbar.make(findViewById(R.id.ll_big_bg), "取消收藏失败!", Snackbar.LENGTH_SHORT).show();
             }
         });
     }

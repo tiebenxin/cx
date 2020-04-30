@@ -84,7 +84,6 @@
                     android:textSize="12sp" />
 
             </LinearLayout>
-
             <!--图片/视频-->
             <RelativeLayout
                 android:id="@+id/layout_pic"
@@ -153,7 +152,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/shape_0radius_stroke_cdcdcd"
                 android:orientation="vertical"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/tv_location_name"
@@ -202,16 +201,7 @@
                         android:layout_marginTop="20dp"
                         android:src="@mipmap/location_four" />
                 </RelativeLayout>
-
-
-
-
             </LinearLayout>
-
-
         </LinearLayout>
-
-
     </LinearLayout>
-
 </layout>

@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -5930,7 +5931,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * @param collectionInfo
      */
     private void httpCollect(CollectionInfo collectionInfo) {
-        msgAction.collectMsg(new Gson().toJson(collectionInfo.getData()), collectionInfo.getFromUid(), collectionInfo.getFromUsername(),
+        msgAction.collectMsg(collectionInfo.getData(), collectionInfo.getFromUid(), collectionInfo.getFromUsername(),
                 collectionInfo.getType(),collectionInfo.getFromGid(),collectionInfo.getFromGroupName(),collectionInfo.getMsgId(),
                 new CallBack<ReturnBean>() {
             @Override
@@ -5940,7 +5941,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     return;
                 }
                 if (response.body().isOk()) {
-                    ToastUtil.show(ChatActivity.this, "收藏成功!");
+//                    ToastUtil.show(ChatActivity.this, "收藏成功!");
+                    Snackbar.make(findViewById(R.id.ll_big_bg), "收藏成功!", Snackbar.LENGTH_SHORT).show();
 //                    msgDao.saveCollection(collectionInfo);
                 }
             }
