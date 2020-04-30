@@ -10,19 +10,13 @@ import android.text.TextUtils;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
-import android.view.WindowManager;
 
-import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.HtmlBean;
 import com.yanlong.im.chat.bean.HtmlBeanList;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
-import com.yanlong.im.chat.ui.ChatActivityTemp;
-import com.yanlong.im.dialog.LockDialog;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
-import net.cb.cb.library.utils.LogUtil;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 
 import org.jsoup.Jsoup;
@@ -195,6 +189,9 @@ public class HtmlTransitonUtils {
                 builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
+        //最后一个名字，不显示、号
+        if(builder.charAt(builder.length()-1)=='、')
+            builder.delete(builder.length()-1,builder.length());
         builder.append("通过扫");
         for (final HtmlBeanList bean : list) {
             if (bean.getType() == 3) {
@@ -283,6 +280,9 @@ public class HtmlTransitonUtils {
                 builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
+        //最后一个名字，不显示、号
+        if(builder.charAt(builder.length()-1)=='、')
+            builder.delete(builder.length()-1,builder.length());
         builder.append("加入了群聊");
     }
 

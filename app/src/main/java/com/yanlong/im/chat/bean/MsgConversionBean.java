@@ -293,7 +293,7 @@ public class MsgConversionBean {
                 for (int i = 0; i < bean.getAcceptBeGroup().getNoticeMessageCount(); i++) {
                     //7.13 加入替换自己的昵称
                     if (UserAction.getMyId() != null && bean.getAcceptBeGroup().getNoticeMessage(i).getUid() == UserAction.getMyId().longValue()) {
-                        names += "\"<font value ='1'> 你、</font>\"、";
+                        names += "<font value ='1'>你</font>、";
 
                     } else {
                         name = bean.getAcceptBeGroup().getNoticeMessage(i).getNickname();
@@ -316,7 +316,7 @@ public class MsgConversionBean {
                 names = names.length() > 0 ? names.substring(0, names.length() - 1) : names;
                 String inviterName = bean.getAcceptBeGroup().getInviterName();//邀请者名字
                 if (UserAction.getMyId() != null && bean.getAcceptBeGroup().getInviter() == UserAction.getMyId().longValue()) {
-                    inviterName = "\"<font value ='3'> 你</font>\"";
+                    inviterName = "<font value ='3'>你</font>";
                 } else {
                     MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(bean.getGid(), bean.getAcceptBeGroup().getInviter());
                     if (gmsg != null) {
@@ -335,6 +335,8 @@ public class MsgConversionBean {
                 //A邀请B加入群聊
                 //B通过扫码A分享的二维码加入群聊
                 String node = "";
+                //最后一个名字，不显示、号
+                if(names.endsWith("、"))names=names.substring(0,names.length()-2);
                 if (bean.getAcceptBeGroup().getJoinTypeValue() == 0) {//扫码
                     gNotice.setMsgType(1);
                     node = names + "通过扫" + inviterName + "分享的二维码加入了群聊" + "<div id='" + bean.getGid() + "'></div>";
