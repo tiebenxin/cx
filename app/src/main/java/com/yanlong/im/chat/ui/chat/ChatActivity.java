@@ -3311,6 +3311,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (ViewUtils.isFastDoubleClick()) {
             return;
         }
+
+        //br标签替换为换行，存之前将换行替换为br标签
+        content=content.replace("<br>","\n");
         showDraftContent(editChat.getText().toString() + content);
         editChat.setSelection(editChat.getText().length());
         //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
@@ -5694,7 +5697,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (checkCanOpenUpRedEnv()) {
                     taskPayRbGet(msg, touid, rid);
                 } else {
-                    ToastUtil.show(ChatActivity.this, "您已被禁止领取该群红包");
+                    ToastUtil.show(ChatActivity.this, "你已被禁止领取该群红包");
                 }
             }
         } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
@@ -5704,7 +5707,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 return;
             }
             if (!checkCanOpenUpRedEnv()) {
-                ToastUtil.show(ChatActivity.this, "您已被禁止领取该群红包");
+                ToastUtil.show(ChatActivity.this, "你已被禁止领取该群红包");
                 return;
             }
             long tradeId = rb.getTraceId();

@@ -38,7 +38,6 @@ import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
-import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 
@@ -51,7 +50,6 @@ import net.cb.cb.library.utils.ViewUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -120,7 +118,7 @@ public class NoRedBagActivity extends BaseBindActivity<ActivityNoRedBagBinding> 
                         if(canGetRedPacket){
                             receiveEnvelope(msgAllBean);
                         }else {
-                            ToastUtil.show("您已被禁止领取该群红包");
+                            ToastUtil.show("你已被禁止领取该群红包");
                         }
                     }else {
                         ToastUtil.show("已领取该红包");
