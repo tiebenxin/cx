@@ -3310,6 +3310,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (ViewUtils.isFastDoubleClick()) {
             return;
         }
+
+        //br标签替换为换行，存之前将换行替换为br标签
+        content=content.replace("<br>","\n");
         showDraftContent(editChat.getText().toString() + content);
         editChat.setSelection(editChat.getText().length());
         //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
