@@ -5950,7 +5950,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
-                ToastUtil.show(ChatActivity.this, "收藏失败!");
+                Snackbar.make(findViewById(R.id.ll_big_bg), "收藏失败!", Snackbar.LENGTH_SHORT).show();
             }
         });
     }

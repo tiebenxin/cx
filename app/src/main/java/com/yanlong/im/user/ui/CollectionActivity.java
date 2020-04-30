@@ -687,7 +687,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 }
                 if (response.body().isOk()) {
 //                    ToastUtil.show(CollectionActivity.this, "删除成功!");
-                    Snackbar.make(findViewById(R.id.ll_big_bg), "取消收藏成功!", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(findViewById(R.id.layout_main), "取消收藏成功!", Snackbar.LENGTH_SHORT).show();
                     //同时将本地删除
 //                    mMsgDao.deleteCollectionInfo(msgId);
                     mList.remove(postion);
@@ -699,7 +699,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
-                Snackbar.make(findViewById(R.id.ll_big_bg), "取消收藏失败!", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(findViewById(R.id.layout_main), "取消收藏失败!", Snackbar.LENGTH_SHORT).show();
             }
         });
     }
