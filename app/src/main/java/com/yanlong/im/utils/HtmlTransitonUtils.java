@@ -190,8 +190,8 @@ public class HtmlTransitonUtils {
             }
         }
         //最后一个名字，不显示、号
-        if(builder.charAt(builder.length()-1)=='、')
-            builder.delete(builder.length()-1,builder.length());
+        if (builder.charAt(builder.length() - 1) == '、')
+            builder.delete(builder.length() - 1, builder.length());
         builder.append("通过扫");
         for (final HtmlBeanList bean : list) {
             if (bean.getType() == 3) {
@@ -281,8 +281,8 @@ public class HtmlTransitonUtils {
             }
         }
         //最后一个名字，不显示、号
-        if(builder.charAt(builder.length()-1)=='、')
-            builder.delete(builder.length()-1,builder.length());
+        if (builder.charAt(builder.length() - 1) == '、')
+            builder.delete(builder.length() - 1, builder.length());
         builder.append("加入了群聊");
     }
 
@@ -546,12 +546,17 @@ public class HtmlTransitonUtils {
         for (int i = 0; i < list.size(); i++) {
             HtmlBeanList bean = list.get(i);
             final String content = "\"" + bean.getName() + "\"";
-            builder.append(content);
-            if (list.size() > 1 && i != list.size() - 1) {
-                builder.append("、");
-            }
             if ("你".equals(bean.getName())) {
+                builder.append(bean.getName());
+                if (list.size() > 1 && i != list.size() - 1) {
+                    builder.append("、");
+                }
                 continue;
+            } else {
+                builder.append(content);
+                if (list.size() > 1 && i != list.size() - 1) {
+                    builder.append("、");
+                }
             }
             int state = builder.toString().length() - content.length();
             int end;
@@ -707,7 +712,7 @@ public class HtmlTransitonUtils {
             if ("你".equals(bean.getName())) {
                 builder.append(bean.getName());
                 continue;
-            }else{
+            } else {
                 builder.append(content);
             }
             int state;
@@ -746,9 +751,11 @@ public class HtmlTransitonUtils {
         for (int i = 0; i < list.size(); i++) {
             HtmlBeanList bean = list.get(i);
             final String content = "\"" + bean.getName() + "\"";
-            builder.append(content);
             if ("你".equals(bean.getName())) {
+                builder.append(bean.getName());
                 continue;
+            }else{
+                builder.append(content);
             }
             int state;
             int end;
@@ -785,12 +792,17 @@ public class HtmlTransitonUtils {
         for (int i = 0; i < list.size(); i++) {
             HtmlBeanList bean = list.get(i);
             final String content = "\"" + bean.getName() + "\"";
-            builder.append(content);
-            if (i > 0 && i != list.size() - 1) {
-                builder.append("、");
-            }
             if ("你".equals(bean.getName())) {
+                builder.append(bean.getName());
+                if (i > 0 && i != list.size() - 1) {
+                    builder.append("、");
+                }
                 continue;
+            }else{
+                builder.append(content);
+                if (i > 0 && i != list.size() - 1) {
+                    builder.append("、");
+                }
             }
             int state;
             int end;
@@ -910,7 +922,12 @@ public class HtmlTransitonUtils {
         builder.append("你领取了");
         for (final HtmlBeanList bean : list) {
             String content = "\"" + bean.getName() + "\"";
-            builder.append(content);
+            if ("你".equals(bean.getName())) {
+                builder.append(bean.getName());
+            }else{
+                builder.append(content);
+            }
+
             int state = builder.toString().length() - content.length() + 1;
             int end = builder.toString().length() - 1;
             ClickableSpan clickProtocol = new ClickableSpan() {
