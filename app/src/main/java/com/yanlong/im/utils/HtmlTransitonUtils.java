@@ -703,11 +703,13 @@ public class HtmlTransitonUtils {
         for (int i = 0; i < list.size(); i++) {
             HtmlBeanList bean = list.get(i);
             final String content = "\"" + bean.getName() + "\"";
-            builder.append(content);
+            //你不需要打双引号
             if ("你".equals(bean.getName())) {
+                builder.append(bean.getName());
                 continue;
+            }else{
+                builder.append(content);
             }
-
             int state;
             int end;
             if (i == 0) {
