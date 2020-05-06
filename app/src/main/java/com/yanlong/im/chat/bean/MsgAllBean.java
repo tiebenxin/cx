@@ -699,7 +699,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 }
                 break;
             default://未识别
-                LogUtil.writeLog("MsgAllBean--" +"--不能识别消息--UNRECOGNIZED--" + msg_type);
+                LogUtil.writeLog("MsgAllBean--" + "--不能识别消息--UNRECOGNIZED--" + msg_type);
                 layout = ChatEnum.EChatCellLayout.UNRECOGNIZED;
                 break;
         }
@@ -759,6 +759,73 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 ", p2PAuVideoMessage=" + p2PAuVideoMessage +
                 ", p2PAuVideoDialMessage=" + p2PAuVideoDialMessage +
                 '}';
+    }
+
+    public IMsgContent getMsgContent() {
+        IMsgContent content = null;
+        if (msg_type == null || msg_type == ChatEnum.EMessageType.UNRECOGNIZED) {
+            return null;
+        }
+        switch (msg_type) {
+            case ChatEnum.EMessageType.NOTICE://通知
+                break;
+            case ChatEnum.EMessageType.MSG_CANCEL://撤回
+                content = msgCancel;
+                break;
+            case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME://阅后即焚
+                content = changeSurvivalTimeMessage;
+                break;
+            case ChatEnum.EMessageType.TRANSFER_NOTICE://转账提醒
+                content = transferNoticeMessage;
+                break;
+            case ChatEnum.EMessageType.TEXT://文本
+                content = chat;
+                break;
+            case ChatEnum.EMessageType.IMAGE://图片
+                content = image;
+                break;
+            case ChatEnum.EMessageType.MSG_VIDEO://视频
+                content = videoMessage;
+                break;
+            case ChatEnum.EMessageType.BUSINESS_CARD://名片
+                content = business_card;
+                break;
+            case ChatEnum.EMessageType.RED_ENVELOPE://红包
+                content = red_envelope;
+                break;
+            case ChatEnum.EMessageType.TRANSFER://转账
+                content = transfer;
+                break;
+            case ChatEnum.EMessageType.VOICE://语音
+                content = voiceMessage;
+                break;
+            case ChatEnum.EMessageType.STAMP://戳一下
+                content = stamp;
+                break;
+            case ChatEnum.EMessageType.AT://@消息
+                content = atMessage;
+                break;
+            case ChatEnum.EMessageType.ASSISTANT://小助手
+                break;
+            case ChatEnum.EMessageType.LOCK://端对端加密消息
+                break;
+            case ChatEnum.EMessageType.FILE:
+                content = sendFileMessage;
+                break;
+            case ChatEnum.EMessageType.LOCATION:
+                content = locationMessage;
+                break;
+            case ChatEnum.EMessageType.MSG_VOICE_VIDEO:
+                content = p2PAuVideoMessage;
+                break;
+            case ChatEnum.EMessageType.SHIPPED_EXPRESSION://表情
+                content = shippedExpressionMessage;
+                break;
+            default://未识别
+                break;
+
+        }
+        return content;
     }
 }
 

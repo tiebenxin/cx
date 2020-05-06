@@ -1014,6 +1014,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * @updateInfo 增加参数 group 表情资源所属组
      */
     protected void sendFace(FaceBean bean) {
+        if (!NetUtil.isNetworkConnected()) {
+            return;
+        }
         if (FaceView.face_animo.equals(bean.getGroup())) {
             isSendingHypertext = false;
 
@@ -3251,12 +3254,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     resendFileMsg(reMsg);
                 }
             } else {
-                //点击发送的时候如果要改变成发送中的状态
-                reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
-                DaoUtil.update(reMsg);
-                MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
-                SocketUtil.getSocketUtil().sendData4Msg(bean);
-                taskRefreshMessage(false);
+                if (reMsg.getSend_data() == null && reMsg.getMsgContent() != null) {
+                    sendMessageFromResend(reMsg.getMsgContent(), reMsg.getMsg_type(), true);
+                } else {
+                    //点击发送的时候如果要改变成发送中的状态
+                    reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
+                    DaoUtil.update(reMsg);
+                    MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
+                    SocketUtil.getSocketUtil().sendData4Msg(bean);
+                    taskRefreshMessage(false);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -3446,7 +3453,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                            final int position) {
 //        LogUtil.getLog().i(TAG, "playVoice--" + position);
         VoiceMessage vm = bean.getVoiceMessage();
-        if (vm == null || (TextUtils.isEmpty(vm.getUrl())&&TextUtils.isEmpty(vm.getLocalUrl()))) {
+        if (vm == null || (TextUtils.isEmpty(vm.getUrl()) && TextUtils.isEmpty(vm.getLocalUrl()))) {
             return;
         }
         String url = "";
