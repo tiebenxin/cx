@@ -8,6 +8,7 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
@@ -40,6 +41,11 @@ public class ChatCellText extends ChatCellBase {
     protected void initView() {
         super.initView();
         tv_content = getView().findViewById(R.id.tv_content);
+        //设置自定义文字大小
+        Integer fontSize=new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+        if(fontSize!=null){
+            tv_content.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize);
+        }
     }
 
     @Override
