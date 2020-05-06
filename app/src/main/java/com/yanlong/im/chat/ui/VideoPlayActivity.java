@@ -17,7 +17,6 @@ import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -83,7 +82,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     private SeekBar activity_video_seek;
     private int surfaceWidth;
     private int surfaceHeight;
-    private MediaPlayer mMediaPlayer;
+    private MediaPlayer mMediaPlayer = null;
 
     private int mHour, mMin, mSecond;
     private int mTempTime = 0;
@@ -295,7 +294,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     }
 
     private void initMediaPlay(SurfaceHolder surfaceHolder) {
-
+        img_bg.setVisibility(View.VISIBLE);
         try {
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setDataSource(mPath);
@@ -588,7 +587,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        initMediaPlay(holder);
+         initMediaPlay(holder);
     }
 
     @Override
