@@ -9,11 +9,8 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.huawei.hms.common.ApiException;
-
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.ProxyException;
-import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.constant.AppHostUtil;
 import net.cb.cb.library.net.IRequestListener;
 
@@ -22,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -94,7 +90,6 @@ public class NetUtil {
      */
     public static void resetHost() {
         retrofit = new Retrofit.Builder()
-//                .baseUrl(AppConfig.getUrlHost())
                 .baseUrl(AppHostUtil.getHttpHost())
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(httpClient)

@@ -3648,6 +3648,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         menus.add(new OptionMenu("删除"));
         switch (type) {
             case ChatEnum.EMessageType.TEXT:
+            case ChatEnum.EMessageType.AT:
                 menus.add(0, new OptionMenu("复制"));
                 break;
             case ChatEnum.EMessageType.IMAGE:
