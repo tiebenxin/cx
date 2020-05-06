@@ -8,6 +8,7 @@ import net.cb.cb.library.R;
 import net.cb.cb.library.view.MultiListView;
 
 import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import retrofit2.Call;
@@ -54,7 +55,7 @@ public abstract class CallBack<T> implements Callback<T> {
         if (t != null) {
             LogUtil.getLog().e("==响应异常=解析异常==" + t.getMessage());
         }
-        if (t instanceof UnknownHostException || t instanceof ConnectException) {
+        if (t instanceof UnknownHostException || t instanceof ConnectException || t instanceof SocketTimeoutException) {
             return;
         }
         if (showErrorMsg && (t != null && !TextUtils.isEmpty(t.getMessage()) && !t.getMessage().equals("Canceled"))) {
