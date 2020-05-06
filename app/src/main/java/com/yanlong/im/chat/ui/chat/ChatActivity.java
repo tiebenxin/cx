@@ -22,7 +22,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -3447,7 +3446,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                            final int position) {
 //        LogUtil.getLog().i(TAG, "playVoice--" + position);
         VoiceMessage vm = bean.getVoiceMessage();
-        if (vm == null || TextUtils.isEmpty(vm.getUrl())) {
+        if (vm == null || (TextUtils.isEmpty(vm.getUrl())&&TextUtils.isEmpty(vm.getLocalUrl()))) {
             return;
         }
         String url = "";
