@@ -449,7 +449,7 @@ public class MainActivity extends AppActivity {
                 sbme = sb;
             }
             if (i == EMainTab.CONTACT) {
-                sb.setSktype(1);
+//                sb.setSktype(1);
                 sb.setNum(0, true);
                 sbfriend = sb;
             }
@@ -625,7 +625,10 @@ public class MainActivity extends AppActivity {
         //清除聊天界面的bitmap
         ChatBitmapCache.getInstance().clearCache();
         isActivityStop = false;
+        //显示消息未读数
         taskGetMsgNum();
+        //显示通讯录未读数
+        taskGetFriendNum();
         checkNotificationOK();
         checkPayEnvironmentInit();
         if (AppConfig.isOnline()) {
