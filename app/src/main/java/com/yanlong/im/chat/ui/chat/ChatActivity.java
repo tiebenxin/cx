@@ -5623,12 +5623,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void clickFile(MsgAllBean message, SendFileMessage fileMessage) {
         //1 如果是我发的文件
         if (message.isMe()) {
-            //2 判断是否为转发
+            //1-1 判断是否为转发 (特殊场景处理:直接转发别人的文件消息，未下载过该文件)
             //若是转发他人，则需要先从下载路径里找，有则代表已下载直接打开，没有则需要下载
             if (fileMessage.isFromOther()) {
                 //通过真实文件名去下载路径找，真实文件名主要用于区分同一重名文件，如123.txt 123(1).txt 123(2).txt
                 if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
-                    openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
+                    openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename());
                 } else {
                     if (!TextUtils.isEmpty(fileMessage.getUrl())) {
                         Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
@@ -5672,11 +5672,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         ToastUtil.show("文件不存在或者已被删除");
                     }
                 }
-
-
             }
         } else {
-            //如果是别人发的文件
+            //2 如果是别人发的文件
             //从下载路径里找，若存在该文件，则直接打开；否则需要下载
             if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
                 openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename());

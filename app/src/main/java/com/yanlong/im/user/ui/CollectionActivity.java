@@ -80,6 +80,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     private MsgDao mMsgDao = new MsgDao();
     private MsgAction msgAction = new MsgAction();
     private String key = "";//搜索关键字
+    public static final int CANCEL_COLLECT = 0;//取消收藏
 
     //加载布局
     @Override
@@ -102,9 +103,9 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                         MsgAllBean bean = new Gson().fromJson(collectionInfo.getData(), MsgAllBean.class);
                         //显示用户名或群名
                         if (!TextUtils.isEmpty(collectionInfo.getFromGroupName())) {
-                            binding.tvName.setText("来自群聊-" + collectionInfo.getFromGroupName());
+                            binding.tvName.setText("来自群聊 " + collectionInfo.getFromGroupName());
                         } else if (!TextUtils.isEmpty(collectionInfo.getFromUsername())) {
-                            binding.tvName.setText("来自用户-" + collectionInfo.getFromUsername());
+                            binding.tvName.setText("来自用户 " + collectionInfo.getFromUsername());
                         } else {
                             binding.tvName.setText("未知来源");
                         }
@@ -315,7 +316,8 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             public void onClick(View v) {
                 Intent intent = new Intent(CollectionActivity.this,CollectDetailsActivity.class);
                 intent.putExtra("json_data",new Gson().toJson(bean));//转换成json字符串再传过去
-                startActivity(intent);
+                intent.putExtra("position",position);//位置
+                startActivityForResult(intent,CANCEL_COLLECT);
             }
         });
 //        binding.ivPic.setOnClickListener(o->{
@@ -541,7 +543,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             }
             if (mList.get(postion) != null) {
                 if (mList.get(postion).getId() != 0L) {
-                    httpCancelCollect(mList.get(postion).getId(), postion, msgId);
+                    httpCancelCollect(mList.get(postion).getId(), postion);
                 }
             }
 
@@ -677,7 +679,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
      *
      * @param id
      */
-    private void httpCancelCollect(Long id, int postion, String msgId) {
+    private void httpCancelCollect(Long id, int postion) {
         msgAction.cancelCollectMsg(id, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -788,5 +790,22 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
         mList.addAll(searchCollectList);
         checkData();
         mViewAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode==RESULT_OK){
+            if(requestCode==CANCEL_COLLECT){
+                if(data.getIntExtra("cancel_collect_position",-1) != (-1)){
+                    int cancelPosition = data.getIntExtra("cancel_collect_position",-1);
+                    if (mList.get(cancelPosition) != null) {
+                        if (mList.get(cancelPosition).getId() != 0L) {
+                            httpCancelCollect(mList.get(cancelPosition).getId(), cancelPosition);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
