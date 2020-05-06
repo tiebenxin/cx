@@ -1014,7 +1014,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * @updateInfo 增加参数 group 表情资源所属组
      */
     protected void sendFace(FaceBean bean) {
-        if (!NetUtil.isNetworkConnected()) {
+        if (!checkNetConnectStatus()) {
             return;
         }
         if (FaceView.face_animo.equals(bean.getGroup())) {
