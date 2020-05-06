@@ -258,6 +258,7 @@ public class RecordedActivity extends BaseActivity {
                 closeProgressDialog();
                 Intent intent = new Intent(RecordedActivity.this, ImageShowActivity.class);
                 intent.putExtra("imgpath", result);
+                intent.putExtra("from", 1);
                 startActivityForResult(intent, 90);
             }
 
