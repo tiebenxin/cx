@@ -64,6 +64,8 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
     private int[] mColors = new int[]{R.color.color2, R.color.color1, R.color.color3, R.color.color4, R.color.color5};
     private int mCurrentColorPosition = 0;
     private InputMethodManager mManager;
+    private int from;//从相机拍摄过来的，需要删除缓存图片图片
+    private boolean hasEdit = false;//是否有编辑
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,9 +76,10 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         initEvent();
     }
 
-    private void init(){
+    private void init() {
         mPath = getIntent().getExtras().getString("imgpath");
         index = getIntent().getExtras().getInt("index");
+        from = getIntent().getIntExtra("from", 0);
         mWindowWidth = Utils.getWindowWidth(mContext);
         mWindowHeight = Utils.getWindowHeight(mContext);
         Glide.with(this).load(mPath).into(binding.imgShow);
@@ -87,6 +90,14 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
     }
 
     private void initEvent() {
+        //默认工具选中画笔
+        binding.mpvView.setEtypeMode(MosaicPaintView.EtypeMode.TUYA);
+        binding.imgShowCut.setVisibility(View.GONE);
+        binding.llColor.setVisibility(View.VISIBLE);
+        binding.mpvView.setPenColor(getResources().getColor(mColors[0]));
+        binding.mpvView.setVisibility(View.VISIBLE);
+        binding.rbPen.setChecked(true);
+
         binding.etTag.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -237,7 +248,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         }
     }
 
-    private static String saveImage(Bitmap bmp, int quality) {
+    private String saveImage(Bitmap bmp, int quality) {
         if (bmp == null) {
             return null;
         }
@@ -264,6 +275,9 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
+            if (from == 1) {
+                deleteFileAndParent(mPath);
             }
         }
         return null;
@@ -333,16 +347,16 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        if(v.getId() == R.id.tv_finish){// 文字输入完成
+        if (v.getId() == R.id.tv_finish) {// 文字输入完成
             if (null != binding.etTag.getText() && binding.etTag.getText().toString().length() > 0) {
                 addTextToWindow();
             }
             binding.rlEditText.setVisibility(View.GONE);
             hiddenPopSoft();
-        }else if(v.getId() == R.id.tv_close){// 关闭
+        } else if (v.getId() == R.id.tv_close) {// 关闭
             binding.rlEditText.setVisibility(View.GONE);
             hiddenPopSoft();
-        }else if(v.getId() == R.id.tv_finish_video){// 完成
+        } else if (v.getId() == R.id.tv_finish_video) {// 完成
             Intent intent = new Intent();
             Bitmap bitmap = loadBitmapFromView(binding.showRlBig);
             String savePath = saveImage(bitmap, 100);
@@ -351,15 +365,15 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             intent.putExtra("index", index);
             setResult(RESULT_OK, intent);
             finish();
-        }else if(v.getId() == R.id.rl_close){// 返回
+        } else if (v.getId() == R.id.rl_close) {// 返回
             finish();
-        }else if(v.getId() == R.id.iv_show_delete){
+        } else if (v.getId() == R.id.iv_show_delete) {
             Intent intent = new Intent();
             intent.putExtra("showResult", false);
             intent.putExtra("showPath", "");
             setResult(RESULT_OK, intent);
             finish();
-        }else if(v.getId() == R.id.rb_pen){// 画笔
+        } else if (v.getId() == R.id.rb_pen) {// 画笔
             binding.mpvView.setEtypeMode(MosaicPaintView.EtypeMode.TUYA);
             binding.imgShowCut.setVisibility(View.GONE);
             if (binding.llColor.getVisibility() == View.VISIBLE) {
@@ -369,27 +383,27 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
                 binding.mpvView.setPenColor(getResources().getColor(mColors[0]));
                 binding.mpvView.setVisibility(View.VISIBLE);
             }
-        }else if(v.getId() == R.id.rl_back){// 清除上一次画笔
+        } else if (v.getId() == R.id.rl_back) {// 清除上一次画笔
             if (null != binding.mpvView) {
                 if (binding.mpvView.canUndo()) {
                     binding.mpvView.undo();
                 }
             }
-        }else if(v.getId() == R.id.rb_text){// 輸入文字
+        } else if (v.getId() == R.id.rb_text) {// 輸入文字
             binding.llColor.setVisibility(View.INVISIBLE);
             binding.imgShowCut.setVisibility(View.GONE);
             binding.rlEditText.setVisibility(View.VISIBLE);
             showSoftInputFromWindow(binding.etTag);
             startAnim(binding.rlEditText.getY(), 0, null);
 
-        }else if(v.getId() == R.id.rb_cut){// 裁剪
+        } else if (v.getId() == R.id.rb_cut) {// 裁剪
             binding.llColor.setVisibility(View.INVISIBLE);
             if (binding.imgShowCut.getVisibility() == View.VISIBLE) {
                 binding.imgShowCut.setVisibility(View.GONE);
             } else {
                 binding.imgShowCut.setVisibility(View.VISIBLE);
             }
-        }else if(v.getId() == R.id.rb_mosaic){// 马赛克
+        } else if (v.getId() == R.id.rb_mosaic) {// 马赛克
             binding.mpvView.setEtypeMode(MosaicPaintView.EtypeMode.GRID);
             binding.llColor.setVisibility(View.INVISIBLE);
             binding.imgShowCut.setVisibility(View.GONE);
@@ -429,6 +443,23 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         });
         if (listenerAdapter != null) va.addListener(listenerAdapter);
         va.start();
+    }
+
+    private void deleteFileAndParent(String path) {
+        try {
+            File file = new File(path);
+            if (file != null && file.exists()) {
+//                System.out.println("文件删除--" + file.getAbsolutePath());
+                File fileParent = file.getParentFile();
+                file.delete();
+                if (fileParent != null && fileParent.exists() && fileParent.getAbsolutePath().toLowerCase().contains("changxin")) {
+//                    System.out.println("文件删除--根目录--" + fileParent.getAbsolutePath());
+                    fileParent.delete();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

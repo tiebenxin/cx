@@ -227,18 +227,17 @@ public class SplashActivity extends AppActivity {
         //同步使用友盟设备号,如果同步失败使用自己设备号
         TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
         Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
-//        String imId = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).get4Json(String.class);
         if (token != null) {
-//            if ((!token.isTokenValid(uid) /*|| token.getBankReqSignKey()==null*/) && NetUtil.isNetworkConnected()) {
-//                updateToken(isFirst);
-//            } else {
-            userAction.login4tokenNotNet(token);
-            //6.17 无网处理
-            startActivity(new Intent(SplashActivity.this, MainActivity.class));
-            // 提前将全屏切换为非全屏状态，解决从全屏进入非全屏标题栏闪动的问题
-            setFinishFlags();
-            finish();
-//            }
+            if ((!token.isTokenValid(uid) /*|| token.getBankReqSignKey()==null*/) && NetUtil.isNetworkConnected()) {
+                updateToken(isFirst);
+            } else {
+                userAction.login4tokenNotNet(token);
+                //6.17 无网处理
+                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                // 提前将全屏切换为非全屏状态，解决从全屏进入非全屏标题栏闪动的问题
+                setFinishFlags();
+                finish();
+            }
         } else {
             if (TextUtils.isEmpty(phone)) {
                 startActivity(new Intent(SplashActivity.this, SelectLoginActivity.class));//PasswordLoginActivity.class

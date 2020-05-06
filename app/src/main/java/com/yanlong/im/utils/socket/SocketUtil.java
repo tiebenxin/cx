@@ -9,6 +9,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.eventbus.AckEvent;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.chat.tcp.TcpConnection;
 import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.AppConfig;
@@ -47,6 +48,8 @@ public class SocketUtil {
     private long recontTime = 5 * 1000;
     //心跳步长
     private long heartbeatStep = 30 * 1000;
+    private boolean keepConnect = false;//是否保持连接
+    private boolean isMainLive = false;//是否主界面存活
 
     private static List<SocketEvent> eventLists = new CopyOnWriteArrayList<>();
     //事件分发
@@ -102,6 +105,9 @@ public class SocketUtil {
             }
 
             if (isAccepted && msgAllBean != null) {
+                if (msgAllBean.getMsg_type() != null && msgAllBean.getMsg_type() == ChatEnum.EMessageType.READ) {
+                    return;
+                }
                 notifyAck(msgAllBean);
             } else {
                 notifyAck(bean);
@@ -132,7 +138,11 @@ public class SocketUtil {
         @Override
         public void onSendMsgFailure(MsgBean.UniversalMessage.Builder bean) {
             LogUtil.getLog().e(TAG, ">>>>>发送失败了" + bean.getRequestId());
-            LogUtil.writeLog("--发送失败了--requestId=" + bean.getRequestId());
+            try {
+                LogUtil.writeLog("--发送失败了--requestId=" + bean.getRequestId() + "--msgType=" + bean.getWrapMsg(0).getMsgType());
+            } catch (Exception e) {
+
+            }
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {
                     ev.onSendMsgFailure(bean);
@@ -538,6 +548,7 @@ public class SocketUtil {
                 LogUtil.getLog().d(TAG, "\n>>>>链接成功:线程ver" + threadVer);
                 receive();
                 //发送认证请求
+                TcpConnection.getInstance(AppConfig.getContext()).addLog(System.currentTimeMillis() + "--Socket-开始鉴权");
                 sendData(SocketData.msg4Auth(), null, "");
             }
         }
@@ -754,7 +765,7 @@ public class SocketUtil {
                     break;
                 case AUTH:
                     LogUtil.getLog().i(TAG, ">>>-----<收到鉴权");
-
+                    TcpConnection.getInstance(AppConfig.getContext()).addLog(System.currentTimeMillis() + "--Socket-成功鉴权");
                     MsgBean.AuthResponseMessage ruthmsg = SocketData.authConversion(indexData);
                     LogUtil.getLog().i(TAG, ">>>-----<鉴权" + ruthmsg.getAccepted());
                     //-------------------------------------------------------------------------test
@@ -778,6 +789,8 @@ public class SocketUtil {
                         //开始启动消息重发队列
                         sendListThread();
                     }
+                    LogUtil.writeLog(TcpConnection.getInstance(AppConfig.getContext()).getLogList().toString());
+                    TcpConnection.getInstance(AppConfig.getContext()).clearLogList();
                     break;
                 case ACK:
                     MsgBean.AckMessage ackmsg = SocketData.ackConversion(indexData);
@@ -811,4 +824,21 @@ public class SocketUtil {
         EventBus.getDefault().post(event);
     }
 
+    public boolean isKeepConnect() {
+        return keepConnect;
+    }
+
+    public void setKeepConnect(boolean keepConnect) {
+        LogUtil.getLog().i("跟踪", "keep--" + keepConnect);
+        this.keepConnect = keepConnect;
+    }
+
+    public boolean isMainLive() {
+        LogUtil.getLog().i("跟踪", "main-live--" + isMainLive);
+        return isMainLive;
+    }
+
+    public void setMainLive(boolean mainLive) {
+        isMainLive = mainLive;
+    }
 }

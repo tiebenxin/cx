@@ -25,7 +25,7 @@
         <item name="colorAccent">@color/green_600</item>
         <item name="android:windowSoftInputMode">adjustPan</item>
         <item name="android:statusBarColor">@color/transparent</item>
-<!--        <item name="android:windowTranslucentNavigation">true</item>-->
+        <!--        <item name="android:windowTranslucentNavigation">true</item>-->
     </style>
 
     <style name="RedAppThrme" parent="MainAppThrme">
@@ -108,11 +108,11 @@
 
 
     <!--emoji样式-->
-<!--    <style name="app_txt_content_emoji" parent="app_txt_title_2">-->
-<!--        <item name="android:textSize">24dp</item>-->
-<!--        <item name="android:clickable">true</item>-->
-<!--        <item name="android:fontFamily">@font/emoji_font</item>-->
-<!--    </style>-->
+    <!--    <style name="app_txt_content_emoji" parent="app_txt_title_2">-->
+    <!--        <item name="android:textSize">24dp</item>-->
+    <!--        <item name="android:clickable">true</item>-->
+    <!--        <item name="android:fontFamily">@font/emoji_font</item>-->
+    <!--    </style>-->
 
     <!--    <style name="app_txt_content_2" parent="app_txt_base">
             <item name="android:textSize">12sp</item>
@@ -613,6 +613,18 @@
         <item name="android:windowContentOverlay">@null</item>
         <!--背景变暗-->
         <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+
+    <!--    无背景style-->
+    <style name="no_display">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowNoDisplay">true</item>
     </style>
 
 </resources>

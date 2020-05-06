@@ -120,9 +120,10 @@ public class UserAction {
     public static String getDevId(Context context) {
         String uid = JPushInterface.getRegistrationID(context);
         if (TextUtils.isEmpty(uid)) {
-            uid = Installation.id(context);
-            new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).save2Json(uid);
-            return uid;
+//            uid = Installation.id(context);
+//            new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).save2Json(uid);
+//            return uid;
+            return "pushToken";
         }
         LogUtil.getLog().i("getDevId", uid + "");
         return uid;
@@ -170,6 +171,7 @@ public class UserAction {
                         doNeteaseLogin(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
                         saveNeteaseAccid(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
                     }
+                    LogUtil.writeLog("账号密码登录获取token" + "--token=" + response.body().getData().getAccessToken());
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData(), true);
                     //如果是手机号码登录，则删除上次常信号登陆的账号
@@ -203,7 +205,7 @@ public class UserAction {
                         doNeteaseLogin(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
                         saveNeteaseAccid(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
                     }
-
+                    LogUtil.writeLog("常信号登录获取token" + "--token=" + response.body().getData().getAccessToken());
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData(), true);
                     getMyInfo4Web(response.body().getData().getUid(), imid);
@@ -352,9 +354,12 @@ public class UserAction {
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
-                    setToken(response.body().getData(), true);
+                    TokenBean newToken = response.body().getData();
+                    token.setAccessToken(newToken.getAccessToken());
+                    token.setBankReqSignKey(EncrypUtil.aesDecode(token.getBankReqSignKey()));
                     LogUtil.getLog().i("updateToken--成功", "--token=" + response.body().getData().getAccessToken());
                     LogUtil.writeLog("updateToken--成功" + "--token=" + response.body().getData().getAccessToken() + "--time=" + System.currentTimeMillis());
+                    setToken(token, true);
                     getMyInfo4Web(response.body().getData().getUid(), "");
                     callback.onResponse(call, response);
                 } else {
@@ -379,6 +384,7 @@ public class UserAction {
      * 登出
      */
     public void loginOut() {
+        LogUtil.writeLog("清除token--UserAction--loginOut");
         cleanInfo();
         NetUtil.getNet().exec(server.loginOut("android"), new CallBack<ReturnBean>() {
             @Override
@@ -397,6 +403,7 @@ public class UserAction {
     public void cleanInfo() {
         myInfo = null;
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
+//        LogUtil.writeLog("清除token");
     }
 
 
@@ -408,20 +415,20 @@ public class UserAction {
         if (isUpdate) {
             long validTime = System.currentTimeMillis() + TimeToString.DAY * 3;
             token.setValidTime(validTime);
+            //银行签名，加密存储
+            if (!TextUtils.isEmpty(token.getBankReqSignKey())) {
+                String key = token.getBankReqSignKey();
+                PayEnvironment.getInstance().setBankSign(key);
+                String result = EncrypUtil.aesEncode(key);
+                token.setBankReqSignKey(result);
+                new SharedPreferencesUtil(SharedPreferencesUtil.SPName.BANK_SIGN).save2Json(result);
+            }
         }
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
         NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
         PayEnvironment.getInstance().setToken(token.getAccessToken());
         LogUtil.getLog().i("设置token", "--token=" + token.getAccessToken());
-        LogUtil.writeLog("设置token" + "--token=" + token.getAccessToken() + "--time=" + System.currentTimeMillis());
-        //银行签名，加密存储
-        if (!TextUtils.isEmpty(token.getBankReqSignKey())) {
-            String key = token.getBankReqSignKey();
-            String result = EncrypUtil.aesEncode(key);
-            token.setBankReqSignKey(result);
-            new SharedPreferencesUtil(SharedPreferencesUtil.SPName.BANK_SIGN).save2Json(result);
-            PayEnvironment.getInstance().setBankSign(key);
-        }
+        LogUtil.writeLog("设置token" + "--token=" + token.getAccessToken() + "--time=" + System.currentTimeMillis() + "--isUpdate=" + isUpdate);
     }
 
 
@@ -661,6 +668,7 @@ public class UserAction {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
+                    LogUtil.writeLog("手机验证码登录获取token" + "--token=" + response.body().getData().getAccessToken());
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData(), true);
                     getMyInfo4Web(response.body().getData().getUid(), "");

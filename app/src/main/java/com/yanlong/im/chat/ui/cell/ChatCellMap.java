@@ -1,17 +1,20 @@
 package com.yanlong.im.chat.ui.cell;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.location.LocationUtils;
-import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.ChatBitmapCache;
 
 import net.cb.cb.library.utils.StringUtil;
 
@@ -47,11 +50,29 @@ public class ChatCellMap extends ChatCellBase {
         }
         tvLocation.setText(message.getAddress());
         tvLocationDesc.setText(message.getAddressDescribe());
-        if (StringUtil.isNotNull(message.getImg())) {
-            Glide.with(mContext).load(message.getImg()).apply(GlideOptionsUtil.imageOptions()).into(ivLocation);
+        ivLocation.setImageResource(R.mipmap.ic_image_bg);
+        if (StringUtil.isNotNull(message.getImg())) {//url链接
+            Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(message.getImg());
+            if(localBitmap==null){
+                RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .skipMemoryCache(false)
+                        .centerCrop();
+                Glide.with(getContext())
+                        .asBitmap()
+                        .load(message.getImg())
+                        .apply(mRequestOptions)
+                        .into(ivLocation);
+            }else{
+                ivLocation.setImageBitmap(localBitmap);
+            }
         } else {
             String baiduImageUrl = LocationUtils.getLocationUrl(message.getLatitude(), message.getLongitude());
-            Glide.with(mContext).load(baiduImageUrl).apply(GlideOptionsUtil.imageOptions()).into(ivLocation);
+            Glide.with(mContext)
+                    .asBitmap()
+                    .load(baiduImageUrl)
+//                    .apply(GlideOptionsUtil.imageOptions())
+                    .into(ivLocation);
         }
     }
 

@@ -15,7 +15,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -80,9 +79,11 @@ import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
+import com.yanlong.im.utils.ChatBitmapCache;
 import com.yanlong.im.utils.socket.ExecutorManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
+import com.yanlong.im.utils.socket.SocketUtil;
 import com.yanlong.im.utils.update.UpdateManage;
 import com.zhaoss.weixinrecorded.CanStampEventWX;
 
@@ -101,7 +102,7 @@ import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.manager.FileManager;
 import net.cb.cb.library.manager.TokenManager;
-import net.cb.cb.library.net.NetWorkUtils;
+import net.cb.cb.library.net.IRequestListener;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
@@ -197,7 +198,8 @@ public class MainActivity extends AppActivity {
         initEvent();
         isCreate = true;
         doRegisterNetReceiver();
-
+        SocketUtil.getSocketUtil().setMainLive(true);
+        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
     }
 
     private void checkPermission() {
@@ -273,9 +275,8 @@ public class MainActivity extends AppActivity {
             checkNeteaseLogin();
             checkPermission();
             initLocation();
-//            getMsgToPC("123456");
         }
-        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
+
     }
 
     private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
@@ -354,7 +355,7 @@ public class MainActivity extends AppActivity {
         iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_shop, R.mipmap.ic_me};
         iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_shop_h, R.mipmap.ic_me_h};
         viewPage.setCurrentItem(currentTab);
-        viewPage.setOffscreenPageLimit(2);
+        viewPage.setOffscreenPageLimit(4);
         viewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int i) {
@@ -559,7 +560,7 @@ public class MainActivity extends AppActivity {
 
     @Override
     protected void onStop() {
-        MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
+
         super.onStop();
         updateNetStatus();
         isActivityStop = true;
@@ -583,8 +584,12 @@ public class MainActivity extends AppActivity {
 
     @Override
     protected void onDestroy() {
-        LogUtil.getLog().i("跟踪--Main", "onDestroy");
-        stopChatService();
+        MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
+        LogUtil.getLog().i("MainActivity--跟踪--Main", "onDestroy--" + SocketUtil.getSocketUtil().isKeepConnect());
+        if (!SocketUtil.getSocketUtil().isKeepConnect()) {
+            stopChatService();
+        }
+        SocketUtil.getSocketUtil().setMainLive(false);
         if (mNetworkReceiver != null) {
             unregisterReceiver(mNetworkReceiver);
         }
@@ -609,12 +614,17 @@ public class MainActivity extends AppActivity {
     public void eventNetStatus(EventNetStatus event) {
         EventFactory.EventNetStatus eventNetStatus = new EventFactory.EventNetStatus(event.getStatus());
         EventBus.getDefault().post(eventNetStatus);
-        reportIP(NetWorkUtils.getLocalIpAddress(this));
+        if (event.getStatus() == CoreEnum.ENetStatus.SUCCESS_ON_NET) {
+//            reportIP(NetWorkUtils.getLocalIpAddress(this));
+            getIP();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        //清除聊天界面的bitmap
+        ChatBitmapCache.getInstance().clearCache();
         isActivityStop = false;
         taskGetMsgNum();
         checkNotificationOK();
@@ -622,7 +632,7 @@ public class MainActivity extends AppActivity {
         if (AppConfig.isOnline()) {
             checkHasEnvelopeSendFailed();
         }
-        checkTokenValid();
+//        checkTokenValid();
     }
 
     //检测支付环境的初始化
@@ -923,6 +933,7 @@ public class MainActivity extends AppActivity {
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead() + "");
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone() + "");
         }
+        LogUtil.writeLog("清除token--MainActivity--loginoutComment");
         userAction.cleanInfo();
         MyAppLication.INSTANCE().destoryRepository();
     }
@@ -1259,6 +1270,9 @@ public class MainActivity extends AppActivity {
             return;
         }
         locService = ((MyAppLication) getApplication()).locationService;
+        if (locService == null) {
+            return;
+        }
         LocationClientOption mOption = locService.getDefaultLocationClientOption();
         mOption.setLocationMode(LocationClientOption.LocationMode.Battery_Saving);
         mOption.setCoorType("bd09ll");
@@ -1349,7 +1363,6 @@ public class MainActivity extends AppActivity {
             @Override
             public void success(String url) {
                 LogUtil.getLog().i("PC同步消息", "文件上传成功--" + url);
-                downloadFile();
             }
 
             @Override
@@ -1428,66 +1441,63 @@ public class MainActivity extends AppActivity {
 
     //上报IP
     private void reportIP(String ip) {
-//        LogUtil.getLog().i("MainActivity", "上报IP--" + ip);
+        LogUtil.getLog().i("MainActivity", "上报IP--" + ip);
         if (TextUtils.isEmpty(ip)) {
             return;
         }
-        long time = SpUtil.getSpUtil().getSPValue("reportIPTime", 0L);
-        if (time <= 0 || !DateUtils.isInHours(time, System.currentTimeMillis(), 4)) {
-            userAction.reportIP(ip, new CallBack<ReturnBean>(false) {
-                @Override
-                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                    super.onResponse(call, response);
-                    if (response != null && response.body() != null && response.body().isOk()) {
-                        SpUtil.getSpUtil().putSPValue("reportIPTime", System.currentTimeMillis());
-                    }
-//                    if (response != null && response.body() != null) {
-//                        LogUtil.getLog().i("MainActivity", "上报IP--" + response.body().getMsg());
-//                    }
+        userAction.reportIP(ip, new CallBack<ReturnBean>(false) {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response != null && response.body() != null && response.body().isOk()) {
+                    SpUtil.getSpUtil().putSPValue("reportIPTime", System.currentTimeMillis());
                 }
-            });
-        }
+            }
+        });
+
     }
 
     //检测是否需要更新token
     private void checkTokenValid() {
         if (!isFromLogin) {
             TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-            Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
-            if ((!token.isTokenValid(uid) /*|| token.getBankReqSignKey()==null*/) && NetUtil.isNetworkConnected()) {
-                LogUtil.getLog().i(MainActivity.class.getSimpleName(), "--token=" + token.getAccessToken() + "--uid" + uid);
-                userAction.updateToken(userAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>(false) {
-                    @Override
-                    public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                        super.onResponse(call, response);
-                    }
-                });
+            if (token != null) {
+                Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
+                if ((!token.isTokenValid(uid) /*|| token.getBankReqSignKey()==null*/) && NetUtil.isNetworkConnected()) {
+                    LogUtil.getLog().i(MainActivity.class.getSimpleName(), "--token=" + token.getAccessToken() + "--uid" + uid);
+                    userAction.updateToken(userAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>(false) {
+                        @Override
+                        public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                            super.onResponse(call, response);
+                        }
+                    });
+                }
             }
         }
     }
 
-    private void downloadFile() {
-        String file = "http://zx-im-img.oss-accelerate.aliyuncs.com/test-environment/file/msg/100105/123456.txt";
-        String desrFile = FileManager.getInstance().getOtherRoot() + "12345.txt";
-        File file2 = new File(desrFile);
-        DownloadUtil.get().downLoadFile(file, file2, new DownloadUtil.OnDownloadListener() {
-            @RequiresApi(api = Build.VERSION_CODES.O)
-            @Override
-            public void onDownloadSuccess(File file) {
-                System.out.println("PC同步 --" + "下载成功--");
+    private void getIP() {
+        long time = SpUtil.getSpUtil().getSPValue("reportIPTime", 0L);
+        if (time <= 0 || !DateUtils.isInHours(time, System.currentTimeMillis(), 4)) {
+            ThreadUtil.getInstance().execute(new Runnable() {
+                @Override
+                public void run() {
+                    NetUtil.getNet().requestIP(new IRequestListener() {
+                        @Override
+                        public void onSuccess(String content) {
+                            if (!TextUtils.isEmpty(content)) {
+                                reportIP(content);
+                            }
+                        }
 
-                parseFile(file);
-            }
+                        @Override
+                        public void onFailed(String msg) {
 
-            @Override
-            public void onDownloading(int progress) {
+                        }
+                    });
+                }
+            });
+        }
 
-            }
-
-            @Override
-            public void onDownloadFailed(Exception e) {
-                System.out.println("PC同步 --" + e.getMessage());
-            }
-        });
     }
 }

@@ -8,7 +8,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureConfig;
@@ -34,7 +33,7 @@ import java.util.Locale;
 
 public class LocalMediaLoader {
     private static final Uri QUERY_URI = MediaStore.Files.getContentUri("external");
-    private static final String ORDER_BY = MediaStore.Files.FileColumns._ID + " DESC";
+    private static final String ORDER_BY = MediaStore.MediaColumns.DATE_MODIFIED + " DESC";
     private static final String DURATION = "duration";
     private static final String NOT_GIF = "!='image/gif'";
     private static final int AUDIO_DURATION = 500;// 过滤掉小于500毫秒的录音
@@ -220,12 +219,15 @@ public class LocalMediaLoader {
     private List<LocalMedia> fileSize(List<LocalMedia> images) {
         File imageFile;
         for (int i = images.size() - 1; i >= 0; i--) {
-            imageFile = new File(images.get(i).getPath());
-            // Log.d("TAG", "fileSize: "+imageFile.length());
-            if (imageFile.length() >= IMG_DURATION) {
+            //只过滤图片 大图
+            if(images.get(i).getMimeType()==PictureMimeType.ofImage()) {
+                imageFile = new File(images.get(i).getPath());
+                // Log.d("TAG", "fileSize: "+imageFile.length());
+                if (imageFile.length() >= IMG_DURATION) {
 
-                //   Log.d("TAG", "more: "+imageFile.length());
-                images.remove(i);
+                    //   Log.d("TAG", "more: "+imageFile.length());
+                    images.remove(i);
+                }
             }
         }
 

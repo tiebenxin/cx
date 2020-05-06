@@ -14,6 +14,8 @@ import net.cb.cb.library.utils.NetUtil;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Liszt
@@ -29,6 +31,7 @@ public class TcpConnection implements Connection {
     private boolean isRunning;
     private MsgDao msgDao = new MsgDao();
     private int from = 0;//0 是MainActivity,1 其他渠道
+    private List<String> logList = new ArrayList<>();//连接日志
 
 
     public static TcpConnection getInstance(Context context) {
@@ -124,6 +127,22 @@ public class TcpConnection implements Connection {
     public @interface EFrom {
         int DEFAULT = 0; // 默认，由主界面启动连接
         int OTHER = 1; // 其他，由其他界面启动连接
+    }
+
+    public synchronized void addLog(String log) {
+        if (logList != null && logList.size() < 100) {
+            logList.add(log);
+        }
+    }
+
+    public List<String> getLogList() {
+        return logList;
+    }
+
+    public void clearLogList() {
+        if (logList != null) {
+            logList.clear();
+        }
     }
 
 

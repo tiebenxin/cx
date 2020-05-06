@@ -11,11 +11,13 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import java.util.Arrays;
 
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
 public class MsgAllBean extends RealmObject implements IChatModel {
@@ -27,6 +29,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private int send_state = 0;
     //重发的数据对象
     private byte[] send_data;
+    //自己是否已读
     private boolean isRead = false;
     private String request_id;
     private Long from_uid;
@@ -37,6 +40,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private Long to_uid;
     //   private UserInfo to_user;
     private String gid;
+    //对方已读
     private int read = 0; //0 未读  ， 1  已读
 
     @ChatEnum.EMessageType
@@ -75,6 +79,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private ShippedExpressionMessage shippedExpressionMessage;
     private SendFileMessage sendFileMessage;
     private WebMessage webMessage;
+    @Ignore
+    private ReadMessage readMessage;//备注已读消息，不存，不显示
 
     public WebMessage getWebMessage() {
         return webMessage;
@@ -560,6 +566,13 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         this.send_data = send_data;
     }
 
+    public ReadMessage getReadMessage() {
+        return readMessage;
+    }
+
+    public void setReadMessage(ReadMessage readMessage) {
+        this.readMessage = readMessage;
+    }
 
     /***
      * 是否为自己
@@ -686,6 +699,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 }
                 break;
             default://未识别
+                LogUtil.writeLog("MsgAllBean--" +"--不能识别消息--UNRECOGNIZED--" + msg_type);
                 layout = ChatEnum.EChatCellLayout.UNRECOGNIZED;
                 break;
         }

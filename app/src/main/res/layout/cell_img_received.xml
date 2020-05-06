@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tool="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -24,12 +25,13 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <ImageView
+        <com.yanlong.im.wight.avatar.RoundImageView
             android:id="@+id/iv_avatar"
             style="@style/app_img_head"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:layout_marginRight="10dp" />
+            android:layout_marginRight="10dp"
+            app:radius="3dp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -60,10 +62,12 @@
                     android:gravity="center">
 
 
-                    <ImageView
+                    <com.yanlong.im.wight.avatar.RoundImageView
                         android:id="@+id/iv_img"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/ic_image_bg"
+                        app:radius="10dp" />
 
                     <LinearLayout
                         android:id="@+id/ll_progress"

@@ -21,6 +21,7 @@ import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.P2PAuVideoMessage;
+import com.yanlong.im.chat.bean.ReadMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
@@ -399,21 +400,27 @@ public class SocketData {
     private static MsgBean.UniversalMessage.Builder toMsgBuilder(String requestId, String msgId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
         MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild(requestId);
         MsgBean.UniversalMessage.WrapMessage.Builder wrap = msg.getWrapMsgBuilder(0);
-        initWrapMessage(msgId, null, toId, toGid, time, type, value, wrap);
+        IUser userInfo = UserAction.getMyInfo();
+        if (userInfo == null) {
+            return null;
+        }
+        //是否是发送给文件传输助手
+        if (toId != null && toId.longValue() == -userInfo.getUid()) {
+            toId = userInfo.getUid().longValue();
+        }
+        initWrapMessage(msgId, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), toId, toGid, time, type, value, wrap);
+        if (wrap == null) {
+            return null;
+        }
         MsgBean.UniversalMessage.WrapMessage wm = wrap.build();
         msg.setWrapMsg(0, wm);
         return msg;
     }
 
-    private static void initWrapMessage(String msgId, Long fromId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value, MsgBean.UniversalMessage.WrapMessage.Builder wrap) {
-        IUser userInfo = UserAction.getMyInfo();
-        if (fromId == null) {
-            wrap.setFromUid(userInfo.getUid());
-        } else {
-            wrap.setFromUid(fromId);
-        }
-        wrap.setAvatar(userInfo.getHead());
-        wrap.setNickname(userInfo.getName());
+    private static void initWrapMessage(String msgId, Long fromId, String avatar, String nickName, Long toId, String toGid, long time, MsgBean.MessageType type, Object value, MsgBean.UniversalMessage.WrapMessage.Builder wrap) {
+        wrap.setFromUid(fromId);
+        wrap.setAvatar(avatar);
+        wrap.setNickname(nickName);
         //自动生成uuid
         wrap.setMsgId(msgId == null ? getUUID() : msgId);
         //添加阅后即焚状态
@@ -509,33 +516,12 @@ public class SocketData {
      */
     private static boolean msgSendSave4filter(MsgBean.UniversalMessage.WrapMessage.Builder wmsg) {
         if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER || wmsg.getMsgType() == MsgBean.MessageType.P2P_AU_VIDEO_DIAL
-                || wmsg.getMsgType() == MsgBean.MessageType.TAKE_SCREENSHOT) {
+                || wmsg.getMsgType() == MsgBean.MessageType.TAKE_SCREENSHOT || wmsg.getMsgType() == MsgBean.MessageType.READ) {
             return false;
         }
         return true;
     }
 
-
-    /**
-     * 发送一条音视频消息
-     *
-     * @param toId
-     * @param toGid
-     * @param txt         操作加时长
-     * @param auVideoType 语音、视频
-     * @param operation   操作
-     * @return
-     */
-    public static MsgAllBean send4VoiceOrVideo(Long toId, String toGid, String txt, MsgBean.AuVideoType auVideoType, String operation) {
-        MsgBean.P2PAuVideoMessage chat = MsgBean.P2PAuVideoMessage.newBuilder()
-                .setAvType(auVideoType)
-                .setOperation(operation)
-                .setDesc(txt)
-                .build();
-
-        return send4Base(toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO, chat);
-
-    }
 
     public static P2PAuVideoMessage createCallMessage(String msgId, int auType, String option, String desc) {
         P2PAuVideoMessage message = new P2PAuVideoMessage();
@@ -563,23 +549,6 @@ public class SocketData {
 
     }
 
-
-    /**
-     * 戳一戳消息
-     *
-     * @param toId
-     * @param toGid
-     * @param txt
-     * @return
-     */
-    public static MsgAllBean send4action(Long toId, String toGid, String txt) {
-        MsgBean.StampMessage action = MsgBean.StampMessage.newBuilder()
-                .setComment(txt)
-                .build();
-
-        return send4Base(toId, toGid, MsgBean.MessageType.STAMP, action);
-
-    }
 
     /***
      * 发送图片
@@ -628,38 +597,6 @@ public class SocketData {
      * @return
      */
     private static String videoLocalUrl = null;
-
-    public static MsgAllBean sendVideo(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height, String videoLocalPath) {
-        MsgBean.ShortVideoMessage msg;
-        videoLocalUrl = videoLocalPath;
-        msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth(width).setHeight(height).build();
-        return send4BaseById(msgId, toId, toGid, -1, MsgBean.MessageType.SHORT_VIDEO, msg);
-    }
-
-    /**
-     * 发送文件
-     *
-     * @param msgId
-     * @param url
-     * @param toId
-     * @param toGid
-     * @param fileName
-     * @param fileSize 文件大小
-     * @param format   文件后缀类型
-     * @param time
-     * @return
-     */
-    public static MsgAllBean sendFile(String msgId, String url, Long toId, String toGid, String fileName, Long fileSize, String format, long time, String filePath) {
-        MsgBean.SendFileMessage msg;
-        msg = MsgBean.SendFileMessage.newBuilder()
-                .setUrl(url)
-                .setFileName(fileName)
-                .setFormat(format)
-                .setSize(fileSize.intValue())
-                .build();
-        fileLocalUrl = filePath;
-        return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SEND_FILE, msg);
-    }
 
 
     public static MsgAllBean send4Image(Long toId, String toGid, String url, ImgSizeUtil.ImageSize imgSize, long time) {
@@ -860,31 +797,6 @@ public class SocketData {
         return send4Base(toId, toGid, MsgBean.MessageType.RECEIVE_RED_ENVELOPER, msg);
     }
 
-    /***
-     *发转账
-     * @return
-     */
-    public static MsgAllBean send4Trans(Long toId, String rid, String info, String money) {
-        MsgBean.TransferMessage msg = MsgBean.TransferMessage.newBuilder()
-                .setId(rid)
-                .setComment(info)
-                .setTransactionAmount(money)
-                .build();
-        return send4Base(toId, null, MsgBean.MessageType.TRANSFER, msg);
-    }
-
-
-    /**
-     * 已读消息
-     */
-    public static MsgAllBean send4Read(Long toId, long timestamp) {
-        MsgBean.ReadMessage msg = MsgBean.ReadMessage.newBuilder()
-                .setTimestamp(timestamp)
-                .build();
-        LogUtil.writeLog(">>>已读消息 toId:" + toId + " timestamp:" + timestamp);
-        return send4Base(false, toId, null, MsgBean.MessageType.READ, msg);
-    }
-
 
     public static MsgCancel createCancelMsg(MsgAllBean cancelMsg) {
         if (cancelMsg == null) {
@@ -935,10 +847,12 @@ public class SocketData {
         if (needSave) {
             saveMessage(bean);
         }
-        if (type != null && value != null && isSend) {
-            SendList.addMsgToSendSequence(bean.getRequest_id(), bean);//添加到发送队列
-            MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getRequest_id(), bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
-            SocketUtil.getSocketUtil().sendData4Msg(msg);
+        if (SocketUtil.getSocketUtil().getOnLineState()) {
+            if (type != null && value != null && isSend) {
+                SendList.addMsgToSendSequence(bean.getRequest_id(), bean);//添加到发送队列
+                MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getRequest_id(), bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
+                SocketUtil.getSocketUtil().sendData4Msg(msg);
+            }
         }
     }
 
@@ -1227,6 +1141,15 @@ public class SocketData {
             case ChatEnum.EMessageType.MSG_VOICE_VIDEO:
                 if (obj instanceof P2PAuVideoMessage) {
                     msg.setP2PAuVideoMessage((P2PAuVideoMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.READ:
+                if (obj instanceof ReadMessage) {
+                    msg.setReadMessage((ReadMessage) obj);
+                } else {
+                    return null;
                 }
                 break;
 
@@ -1523,6 +1446,9 @@ public class SocketData {
         if (msgAllBean != null) {
             SendList.removeMsgFromSendSequence(ackMessage.getRequestId());
             SendList.removeSendListJust(ackMessage.getRequestId());
+            if (msgAllBean.getMsg_type() == ChatEnum.EMessageType.READ) {
+                return msgAllBean;
+            }
             msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
             if (msgAllBean.getVideoMessage() != null && !TextUtils.isEmpty(videoLocalUrl)) {
                 msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
@@ -1539,16 +1465,16 @@ public class SocketData {
 
             }
             DaoUtil.update(msgAllBean);
-            if(msgAllBean.getMsg_type()== ChatEnum.EMessageType.MSG_CANCEL){
+            if (msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {
                 /********通知更新sessionDetail************************************/
                 //因为msg对象 uid有两个，都得添加
                 List<String> gids = new ArrayList<>();
                 List<Long> uids = new ArrayList<>();
                 //gid存在时，不取uid
-                if(TextUtils.isEmpty(msgAllBean.getGid())){
+                if (TextUtils.isEmpty(msgAllBean.getGid())) {
                     uids.add(msgAllBean.getTo_uid());
                     uids.add(msgAllBean.getFrom_uid());
-                }else{
+                } else {
                     gids.add(msgAllBean.getGid());
                 }
                 //回主线程调用更新session详情
@@ -1699,7 +1625,7 @@ public class SocketData {
             MsgBean.MessageType type = initMsgContentAndType.getType();
             if (value != null && type != null) {
                 MsgBean.UniversalMessage.WrapMessage.Builder wrapBuild = MsgBean.UniversalMessage.WrapMessage.newBuilder();
-                initWrapMessage(bean.getMsg_id(), bean.getFrom_uid(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value, wrapBuild);
+                initWrapMessage(bean.getMsg_id(), bean.getFrom_uid(), bean.getFrom_avatar(), bean.getFrom_nickname(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value, wrapBuild);
                 msg.addWrapMsg(wrapBuild);
             }
         }
@@ -1831,7 +1757,11 @@ public class SocketData {
                     }
                     break;
                 case ChatEnum.EMessageType.READ://已读消息，不需要保存
-
+                    ReadMessage readMessage = bean.getReadMessage();
+                    MsgBean.ReadMessage.Builder readBuilder = MsgBean.ReadMessage.newBuilder();
+                    readBuilder.setTimestamp(readMessage.getTime());
+                    value = readBuilder.build();
+                    type = MsgBean.MessageType.READ;
                     needSave = false;
                     break;
                 case ChatEnum.EMessageType.MSG_CANCEL://撤销消息
@@ -1903,5 +1833,13 @@ public class SocketData {
             note.setNote("你解除了全员禁言");
         }
         return note;
+    }
+
+
+    public static ReadMessage createReadMessage(String msgId, long time) {
+        ReadMessage message = new ReadMessage();
+        message.setMsgId(msgId);
+        message.setTime(time);
+        return message;
     }
 }

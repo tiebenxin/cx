@@ -3,7 +3,6 @@ package com.yanlong.im.user.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,7 +11,6 @@ import android.widget.TextView;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.bean.SmsBean;
 import com.yanlong.im.user.bean.TokenBean;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -21,6 +19,7 @@ import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.CountDownUtil;
+import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -134,6 +133,7 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
 
 
     private void login() {
+        InputUtil.hideKeyboard(this);
         final String phone = mEtPhoneContent.getText().toString();
         final String code = mEtIdentifyingCodeContent.getText().toString();
         if (TextUtils.isEmpty(phone)) {

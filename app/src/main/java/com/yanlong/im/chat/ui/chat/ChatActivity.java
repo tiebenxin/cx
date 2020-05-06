@@ -22,6 +22,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -110,6 +111,7 @@ import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
+import com.yanlong.im.chat.bean.ReadMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.SendFileMessage;
@@ -135,6 +137,7 @@ import com.yanlong.im.chat.ui.GroupInfoActivity;
 import com.yanlong.im.chat.ui.GroupRobotActivity;
 import com.yanlong.im.chat.ui.GroupSelectUserActivity;
 import com.yanlong.im.chat.ui.VideoPlayActivity;
+import com.yanlong.im.chat.ui.cell.ChatCellBase;
 import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;
 import com.yanlong.im.chat.ui.cell.ICellEventListener;
@@ -148,6 +151,7 @@ import com.yanlong.im.location.LocationSendEvent;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
+import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
@@ -168,6 +172,7 @@ import com.yanlong.im.utils.audio.IAdioTouch;
 import com.yanlong.im.utils.audio.IAudioRecord;
 import com.yanlong.im.utils.audio.IVoicePlayListener;
 import com.yanlong.im.utils.socket.MsgBean;
+import com.yanlong.im.utils.socket.SendList;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
@@ -203,6 +208,7 @@ import net.cb.cb.library.dialog.DialogEnvelopePast;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.inter.ICustomerItemClick;
 import net.cb.cb.library.manager.Constants;
+import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
@@ -249,6 +255,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.RealmList;
+import io.realm.RealmResults;
 import me.kareluo.ui.OptionMenu;
 import me.rosuh.filepicker.config.FilePickerManager;
 import retrofit2.Call;
@@ -260,7 +267,7 @@ import static android.view.View.VISIBLE;
 import static net.cb.cb.library.utils.FileUtils.SIZETYPE_B;
 
 public class ChatActivity extends AppActivity implements IActionTagClickListener, ICellEventListener {
-    private static String TAG = "ChatActivityTemp";
+    private static String TAG = "ChatActivity";
     public final static int MIN_TEXT = 1000;//
     private final int RELINQUISH_TIME = 5;// 5分钟内显示重新编辑
     private final String REST_EDIT = "重新编辑";
@@ -364,6 +371,31 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private ChangeSelectDialog dialogOne;//通用提示选择弹框：实名认证
     private IAudioRecord audioRecord;
     private IAdioTouch audioTouchListerner;
+    private boolean isNeedStopVoicePlay = true;
+
+    private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
+        @Override
+        public void init(RealmResults<Session> sessions, List<String> sids) {
+            updateUnReadCount();
+        }
+
+        @Override
+        public void delete(int[] positions) {
+            updateUnReadCount();
+        }
+
+        @Override
+        public void insert(int[] positions, List<String> sids) {
+            updateUnReadCount();
+        }
+
+        @Override
+        public void update(int[] positions, List<String> sids) {
+            updateUnReadCount();
+        }
+
+
+    };
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -495,8 +527,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onChanged(@Nullable Boolean value) {
                 if (value) {//打开
                     //保存原有草稿
-                    originalText=editChat.getText().toString();
-                    if(originalText.length()>0){
+                    originalText = editChat.getText().toString();
+                    if (originalText.length() > 0) {
                         editChat.setText("");
                     }
                     //重置其他状态
@@ -504,15 +536,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     showVoice(true);
                 } else {//关闭
                     //显示草稿
-                    if(!TextUtils.isEmpty(originalText)){
+                    if (!TextUtils.isEmpty(originalText)) {
                         showDraftContent(originalText);
                     }
                     showVoice(false);
                 }
             }
         });
+        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
     }
-    private String originalText="";
+
+    private String originalText = "";
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -524,11 +559,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         //刷新群资料
         taskSessionInfo(false);
-
         clickAble = true;
         //更新阅后即焚状态
         initSurvivaltimeState();
-        sendRead();
+//        sendRead();
         if (AppConfig.isOnline()) {
             checkHasEnvelopeSendFailed();
         }
@@ -561,6 +595,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Override
     protected void onStop() {
         super.onStop();
+        MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
         AudioPlayManager.getInstance().stopPlay();
         stopRecordVoice();
         if (currentPlayBean != null) {
@@ -569,7 +604,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         boolean hasClear = taskCleanRead(false);
         boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
         boolean hasChange = updateSessionDraftAndAtMessage();
-//        LogUtil.getLog().e("===hasClear="+hasClear+"==hasUpdate="+hasUpdate+"==hasChange="+hasChange);
     }
 
     //停止录音
@@ -604,7 +638,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         //关闭窗口，避免内存溢出
         dismissPop();
         //保存退出即焚消息
-        MyAppLication.INSTANCE().repository.saveExitSurvivalMsg(toGid, toUId);
+        if (MyAppLication.INSTANCE().repository != null) {
+            MyAppLication.INSTANCE().repository.saveExitSurvivalMsg(toGid, toUId);
+        }
+        //停止图片文件等上传
+        if (!AppConfig.isAppRuning()) {
+            UpLoadService.stopUpload();
+        }
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
@@ -627,6 +667,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         //9.17 进去后就清理会话的阅读数量,初始化unreadCount
         taskCleanRead(true);
         initViewNewMsg();
+//        if (!isLoadHistory && !hasData()) {
         if (!isLoadHistory) {
             taskRefreshMessage(false);
         }
@@ -773,7 +814,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                         //8.7 是属于这个会话就刷新
                         if (!needRefresh) {
-                            sendRead();
+//                            sendRead();
                             if (isGroup()) {
                                 needRefresh = msg.getGid().equals(toGid);
                             } else {
@@ -789,10 +830,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                         onMsgbranch(msg);
                     }
-                    //从数据库读取消息
-                    if (needRefresh) {
-                        taskRefreshMessage(false);
-                    }
+                    //从数据库读取消息，修改未通过eventbus来刷新
+//                    if (needRefresh && !hasData()) {
+//                        taskRefreshMessage(false);
+//                    }
                     initUnreadCount();
                 }
             });
@@ -809,11 +850,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         ToastUtil.show(getContext(), "撤回失败");
                         return;
                     }
-                    MsgAllBean msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean, true);
+                    MsgAllBean msgAllBean = SendList.getMsgFromSendSequence(bean.getRequestId());
+                    if (msgAllBean == null) {
+                        msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean, true);
+                    }
                     if (msgAllBean == null) {
                         return;
                     }
-                    if (msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.MSG_CANCEL
+                    if (msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.UNRECOGNIZED || msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.MSG_CANCEL
                             || msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.READ) {//取消的指令 已读指令不保存到数据库
                         return;
                     }
@@ -1024,6 +1068,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     protected void showDraftContent(String message) {
         SpannableString spannableString = ExpressionUtil.getExpressionString(this, ExpressionUtil.DEFAULT_SIZE, message);
         editChat.setText(spannableString);
+        if (message.length() > 0) editChat.setSelection(editChat.getText().length());
     }
 
 
@@ -1056,7 +1101,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             taskGroupInfo();
         } else {
             //id不为0且不为客服则获取最新用户信息
-            if (toUId != null && !UserUtil.isSystemUser(toUId)) {
+            if (toUId != null && !UserUtil.isSystemUser(toUId) && (userInfo != null && userInfo.getuType() != ChatEnum.EUserType.ASSISTANT)) {
                 httpGetUserInfo();
             }
         }
@@ -1081,7 +1126,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             .putExtra(GroupInfoActivity.AGM_GID, toGid)
                     );
                 } else {
-                    if (toUId == 1L || toUId == 3L) { //文件传输助手跳转(与常信小助手一致)
+                    if (toUId == 1L || toUId == 3L || (userInfo != null && userInfo.getuType() == ChatEnum.EUserType.ASSISTANT)) { //文件传输助手跳转(与常信小助手一致)
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, toUId)
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1));
@@ -1347,7 +1392,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mAdapter = new MessageAdapter(this, this, isGroup());
         mAdapter.setCellFactory(new FactoryChatCell(this, mAdapter, this));
         mAdapter.setTagListener(this);
+        mAdapter.setHasStableIds(true);
+        mAdapter.setReadStatus(checkIsRead());
         mtListView.init(mAdapter);
+        mtListView.setAnimation(null);
+
         mtListView.getLoadView().setStateNormal();
         mtListView.setEvent(new MultiListView.Event() {
 
@@ -1389,6 +1438,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         } else if (isRun == 0) {
                             isRun = 1;
                         }
+                        dismissPop();
                         break;
 
                 }
@@ -1463,8 +1513,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         headView.getActionbar().getRightImage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (userAction.getMyInfo() == null) {
+                    return;
+                }
                 if (isGroup()) {
-                    long id = userDao.myInfo().getUid();
+                    long id = userAction.getMyInfo().getUid();
                     long masterId = Long.valueOf(groupInfo.getMaster());
                     if (masterId != id) {
                         ToastUtil.show(context, "只有群主才能修改该选项");
@@ -1848,9 +1901,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void scrollChatToPosition(int position) {
+        LogUtil.getLog().i(TAG, "scrollChatToPosition--" + position);
         mtListView.getListView().scrollToPosition(position);
         currentScrollPosition = position;
-
+//        initLastPosition();
         View topView = mtListView.getLayoutManager().getChildAt(currentScrollPosition);
         if (topView != null) {
             //获取与该view的底部的偏移量
@@ -1859,8 +1913,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void scrollChatToPositionWithOffset(int position, int offset) {
+        LogUtil.getLog().i(TAG, "scrollChatToPositionWithOffset--" + position + "--offset=" + offset);
         ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).scrollToPositionWithOffset(position, offset);
         currentScrollPosition = position;
+//        initLastPosition();
         View topView = mtListView.getLayoutManager().getChildAt(currentScrollPosition);
         if (topView != null) {
             //获取与该view的底部的偏移量
@@ -1874,6 +1930,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (msgAllBean != null) {
             SocketData.sendAndSaveMessage(msgAllBean);
         }
+        mtListView.getListView().getAdapter().notifyDataSetChanged();
     }
 
     //消息发送
@@ -1893,7 +1950,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //消息发送
     private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType) {
-        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), message);
+        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.PRE_SEND, SocketData.getFixTime(), message);
         if (msgAllBean != null) {
             if (!filterMessage(message)) {
                 SocketData.sendAndSaveMessage(msgAllBean, false);
@@ -1966,8 +2023,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private boolean filterMessage(IMsgContent message) {
         boolean isSend = true;
         //常信小助手不需要发送到后台(文件传输助手除了文件以外暂时也不需要传到后台)
-        if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_BALANCE_UID.equals(toUId)
-                || Constants.CX_FILE_HELPER_UID.equals(toUId)) {
+        if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_BALANCE_UID.equals(toUId)) {
             isSend = false;
         }
         return isSend;
@@ -2264,8 +2320,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         if (mAdapter != null) {
             int length = mAdapter.getItemCount();//刷新后当前size
-            if (isMustBottom) {
+            LogUtil.getLog().i(TAG, "scrollListView--" + "lastPosition=" + lastPosition + "--totalLength--" + length);
+            if (isMustBottom || lastPosition == -1) {
                 mtListView.scrollToEnd();
+                lastPosition = length - 1;
+//                initLastPosition();
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
                     if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
@@ -2459,7 +2518,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
-
     /**
      * 保存经常使用表情
      */
@@ -2605,6 +2663,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 //                            return;
 //                        }
                         String file = data.getStringExtra(RecordedActivity.INTENT_PATH);
+                        LogUtil.getLog().i(TAG, "--视频Chat--" + file);
                         int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
                         int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
                         int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME, 0);
@@ -2775,11 +2834,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 if (!Constants.CX_HELPER_UID.equals(toUId)) {
                                     UpLoadService.onAddImage(imgMsgBean, filePath, false);
                                     startService(new Intent(getContext(), UpLoadService.class));
-                                } else {
-                                    //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
-                                    msgDao.fixStataMsg(imgMsgId, ChatEnum.ESendStatus.NORMAL);
                                 }
-                                mAdapter.addMessage(imgMsgBean);
                             } else if (net.cb.cb.library.utils.FileUtils.isVideo(fileFormat)) {
                                 long length = ImgSizeUtil.getVideoSize(filePath);
                                 long duration = Long.parseLong(getVideoAtt(filePath));
@@ -2803,15 +2858,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 //创建文件消息，本地预先准备好这条文件消息，等文件上传成功后刷新
                                 SendFileMessage fileMessage = SocketData.createFileMessage(fileMsgId, filePath, "", fileName, new Double(fileSize).longValue(), fileFormat, false);
                                 fileMsgBean = sendMessage(fileMessage, ChatEnum.EMessageType.FILE, false);
-                                // 若不为常信小助手，消息需要上传到服务端
+                                // 若不为常信小助手，消息需要上传到服务器
                                 if (!Constants.CX_HELPER_UID.equals(toUId)) {
                                     UpLoadService.onAddFile(this.context, fileMsgBean);
                                     startService(new Intent(getContext(), UpLoadService.class));
-                                } else {
-                                    //若为常信小助手，不存服务器，只走本地数据库保存，发送状态直接重置为正常，更新数据库
-                                    msgDao.fixStataMsg(fileMsgId, ChatEnum.ESendStatus.NORMAL);
                                 }
-                                mAdapter.addMessage(fileMsgBean);
                             }
                         } else {
                             ToastUtil.show("文件不存在或已被删除");
@@ -2834,7 +2885,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventRefreshChat(EventGroupChange event) {
+    public void eventRefreshInfo(EventGroupChange event) {
         if (event.isNeedLoad()) {
             taskGroupInfo();
         } else {
@@ -2844,7 +2895,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void EtaskRefreshMessagevent(EventRefreshChat event) {
-
         int type = event.getRefreshType();
         if (type == CoreEnum.ERefreshType.ALL) {
             taskRefreshMessage(event.isScrollBottom);
@@ -2855,6 +2905,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else if (event.getList() != null) {
                 deleteMsgList(event.getList());
             }
+        } else if (type == CoreEnum.ERefreshType.ADD) {
+            if (event.getObject() != null && event.getObject() instanceof MsgAllBean) {
+                MsgAllBean bean = (MsgAllBean) event.getObject();
+                if (isMsgFromCurrentChat(bean.getGid(), bean.getFrom_uid())) {
+//                    addMsg(bean);
+//                    sendRead(bean);
+                    taskRefreshMessage(false);
+                }
+            } /*else if (event.getList() != null) {
+                addMsg(event.getList());
+            }*/
+            initUnreadCount();
         }
     }
 
@@ -2896,7 +2958,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         } else if (event.getState() == 1) {
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
             LogUtil.getLog().d("tag", "taskUpImgEvevt 1: ===============>" + msgAllbean.getImage());
-            SocketData.sendAndSaveMessage(msgAllbean);
+//            SocketData.sendAndSaveMessage(msgAllbean);
             replaceListDataAndNotify(msgAllbean);
         } else {
         }
@@ -3250,6 +3312,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (ViewUtils.isFastDoubleClick()) {
             return;
         }
+
+        //br标签替换为换行，存之前将换行替换为br标签
+        content = content.replace("<br>", "\n");
         showDraftContent(editChat.getText().toString() + content);
         editChat.setSelection(editChat.getText().length());
         //虚拟键盘弹出,需更改SoftInput模式为：不顶起输入框
@@ -3583,6 +3648,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         menus.add(new OptionMenu("删除"));
         switch (type) {
             case ChatEnum.EMessageType.TEXT:
+            case ChatEnum.EMessageType.AT:
                 menus.add(0, new OptionMenu("复制"));
                 break;
             case ChatEnum.EMessageType.IMAGE:
@@ -3701,11 +3767,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onYes() {
                 msgDao.msgDel4MsgId(msgbean.getMsg_id());
-                int position = mAdapter.getPosition(msgbean);
-                if (position >= 0) {
-                    mAdapter.removeItem(msgbean);
-                    mtListView.getListView().getAdapter().notifyItemRemoved(position);//删除刷新
-                }
+                deleteMsg(msgbean);
             }
         });
         alertYesNo.show();
@@ -3737,6 +3799,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         MsgCancel cancel = SocketData.createCancelMsg(msgBean);
         if (cancel != null) {
             sendMessage(cancel, ChatEnum.EMessageType.MSG_CANCEL, position);
+        }
+        if (msgBean.getMsg_type() == ChatEnum.EMessageType.VOICE) {
+            AudioPlayManager.getInstance().stopPlay();
         }
     }
 
@@ -3794,6 +3859,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void notifyData() {
+        LogUtil.getLog().i(TAG, "刷新数据");
 //        mtListView.notifyDataSetChange();
         if (mAdapter.getMsgList() != null) {
             //调用该方法，有面板或软键盘弹出时，会使列表跳转到第一项
@@ -3803,6 +3869,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private MsgAction msgAction = new MsgAction();
+    private UserAction userAction = new UserAction();
     private UserDao userDao = new UserDao();
     private MsgDao msgDao = new MsgDao();
     private PayAction payAction = new PayAction();
@@ -3857,7 +3924,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 title = userInfo.getName4Show();
                 if (userInfo.getLastonline() > 0) {
                     // 客服不显示时间状态
-                    if (onlineState && !UserUtil.isSystemUser(toUId)) {
+                    if (onlineState && !UserUtil.isSystemUser(toUId) && userInfo.getuType() != ChatEnum.EUserType.ASSISTANT) {
                         actionbar.setTitleMore(TimeToString.getTimeOnline(userInfo.getLastonline(), userInfo.getActiveType(), true), true);
                     } else {
                         actionbar.setTitleMore(TimeToString.getTimeOnline(userInfo.getLastonline(), userInfo.getActiveType(), true), false);
@@ -3900,7 +3967,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             title = userInfo.getName4Show();
             if (userInfo.getLastonline() > 0) {
                 // 客服不显示时间状态
-                if (onlineState && !UserUtil.isSystemUser(toUId)) {
+                if (onlineState && !UserUtil.isSystemUser(toUId) && userInfo.getuType() != ChatEnum.EUserType.ASSISTANT) {
                     actionbar.setTitleMore(TimeToString.getTimeOnline(userInfo.getLastonline(), userInfo.getActiveType(), true), true);
                 } else {
                     actionbar.setTitleMore(TimeToString.getTimeOnline(userInfo.getLastonline(), userInfo.getActiveType(), true), false);
@@ -3913,18 +3980,31 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private String msgid;
 
-    public void sendRead() {
+    public synchronized void sendRead() {
         //发送已读回执
         if (TextUtils.isEmpty(toGid)) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
             if (bean != null) {
-//                LogUtil.getLog().e("===sendRead==msg=====" + bean.getMsg_id() + "===msgid=" + msgid + "==bean.getRead()=" + bean.getRead() + "==bean.getTimestamp()=" + bean.getTimestamp());
                 if (bean.getRead() == 0) {
-//                if ((TextUtils.isEmpty(msgid) || !msgid.equals(bean.getMsg_id())) && bean.getRead() == 0) {
                     msgid = bean.getMsg_id();
-//                    LogUtil.getLog().e("=sendRead=2=msg="+ bean.getMsg_id());
-                    SocketData.send4Read(toUId, bean.getTimestamp());
-                    msgDao.setRead(msgid);
+                    ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
+                    MsgAllBean message = SocketData.createMessageBean(toUId, "", ChatEnum.EMessageType.READ, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), read);
+                    SocketData.sendAndSaveMessage(message);
+                }
+            }
+        }
+    }
+
+    public synchronized void sendRead(MsgAllBean bean) {
+        //发送已读回执
+        if (TextUtils.isEmpty(toGid)) {
+            if (bean != null) {
+                if (bean.getRead() == 0) {
+                    msgid = bean.getMsg_id();
+                    ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
+                    MsgAllBean message = SocketData.createMessageBean(toUId, "", ChatEnum.EMessageType.READ, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), read);
+                    SocketData.sendAndSaveMessage(message);
+//                    msgDao.setRead(msgid);
                 }
             }
         }
@@ -3984,15 +4064,30 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 .subscribe(new Consumer<List<MsgAllBean>>() {
                     @Override
                     public void accept(List<MsgAllBean> list) throws Exception {
-                        fixLastPosition(mAdapter.getMsgList(), list);
-                        mAdapter.bindData(list, false);
+                        if (mAdapter != null) {
+                            fixLastPosition(mAdapter.getMsgList(), list);
+                        }
                         int len = list.size();
+//                        if (mAdapter != null) {
+//                            list = isRetainAll(mAdapter.getMsgList(), list);
+//                        }
+//                        int len2 = list.size();
+//                        if (len2 < len) {
+//                            addMsg(list);
+//                        } else {
+//                            mAdapter.bindData(list, false);
+//                            mAdapter.setReadStatus(checkIsRead());
+//                            notifyData2Bottom(isScrollBottom);
+//                        }
+
+                        mAdapter.bindData(list, false);
+                        mAdapter.setReadStatus(checkIsRead());
+                        notifyData2Bottom(isScrollBottom);
                         if (len == 0 && lastPosition > len - 1) {//历史数据被清除了
                             lastPosition = 0;
                             lastOffset = 0;
                             clearScrollPosition();
                         }
-                        notifyData2Bottom(isScrollBottom);
                         //单聊发送已读消息
                         sendRead();
                     }
@@ -4014,6 +4109,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if (lastPosition >= msgList.size() - 3) {
                 lastPosition = len2 - 1;
             }
+            LogUtil.getLog().i(TAG, "scroll--fixLastPosition=" + lastPosition);
+
         }
 
 
@@ -4071,43 +4168,51 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void taskMkName(List<MsgAllBean> list) {
         mks.clear();
         for (MsgAllBean msg : list) {
-            if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL || msg.getMsg_type() == ChatEnum.EMessageType.LOCK) {  //通知类型的不处理
-                continue;
-            }
-            String k = msg.getFrom_uid() + "";
-            String nkname = "";
-            String head = "";
-            UserInfo userInfo;
-            if (mks.containsKey(k)) {
-                userInfo = mks.get(k);
+            resetName(msg);
+        }
+    }
+
+    private void resetName(MsgAllBean msg) {
+        if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL || msg.getMsg_type() == ChatEnum.EMessageType.LOCK) {  //通知类型的不处理
+            return;
+        }
+        String k = msg.getFrom_uid() + "";
+        String nkname = "";
+        String head = "";
+        UserInfo userInfo;
+        if (mks.containsKey(k)) {
+            userInfo = mks.get(k);
+        } else {
+            userInfo = msg.getFrom_user();
+            if (userInfo == null) {
+                userInfo = new UserInfo();
+                userInfo.setName(StringUtil.isNotNull(msg.getFrom_group_nickname()) ? msg.getFrom_group_nickname() : msg.getFrom_nickname());
+                userInfo.setHead(msg.getFrom_avatar());
             } else {
-                userInfo = msg.getFrom_user();
-                if (userInfo == null) {
-                    userInfo = new UserInfo();
-                    userInfo.setName(StringUtil.isNotNull(msg.getFrom_group_nickname()) ? msg.getFrom_group_nickname() : msg.getFrom_nickname());
-                    userInfo.setHead(msg.getFrom_avatar());
-                } else {
-                    if (isGroup()) {
-                        String gname = "";//获取对方最新的群昵称
-                        MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(toGid, msg.getFrom_uid());
-                        if (gmsg != null) {
-                            gname = gmsg.getFrom_group_nickname();
-                        }
-                        if (StringUtil.isNotNull(gname)) {
-                            userInfo.setName(gname);
-                        }
+                if (isGroup()) {
+                    String gname = "";//获取对方最新的群昵称
+                    MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(toGid, msg.getFrom_uid());
+                    if (gmsg != null) {
+                        gname = gmsg.getFrom_group_nickname();
+                    }
+                    if (StringUtil.isNotNull(gname)) {
+                        userInfo.setName(gname);
                     }
                 }
-                mks.put(k, userInfo);
             }
-            nkname = userInfo.getName();
-            if (StringUtil.isNotNull(userInfo.getMkName())) {
-                nkname = userInfo.getMkName();
+            if (msg.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
+                //自己发送的消息,用本地实时头像
+                userInfo.setHead(UserAction.getMyInfo().getHead());
             }
-            head = userInfo.getHead();
-            msg.setFrom_nickname(nkname);
-            msg.setFrom_avatar(head);
+            mks.put(k, userInfo);
         }
+        nkname = userInfo.getName();
+        if (StringUtil.isNotNull(userInfo.getMkName())) {
+            nkname = userInfo.getMkName();
+        }
+        head = userInfo.getHead();
+        msg.setFrom_nickname(nkname);
+        msg.setFrom_avatar(head);
     }
 
     private MsgDao dao = new MsgDao();
@@ -4586,29 +4691,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     /**
-     * 检查是否显示已读
-     */
-    private boolean checkIsRead() {
-        UserInfo userInfo = userDao.findUserInfo(toUId);
-        if (userInfo == null) {
-            return false;
-        }
-        int friendMasterRead = userInfo.getMasterRead();
-        int friendRead = userInfo.getFriendRead();
-        int myRead = userInfo.getMyRead();
-
-        IUser myUserInfo = userDao.myInfo();
-        int masterRead = myUserInfo.getMasterRead();
-        if (friendMasterRead == 1 && friendRead == 1 && myRead == 1 && masterRead == 1) {
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-
-
-    /**
      * 设置单聊阅后即焚时间
      */
     private void taskSurvivalTime(long friend, int survivalTime) {
@@ -4702,7 +4784,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             ToastUtil.show(this, "网络连接不可用，请稍后重试");
             isOk = false;
         } else {
-            isOk = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.CONN_STATUS).get4Json(Boolean.class);
+            isOk = SocketUtil.getSocketUtil().getOnLineState();
             if (!isOk) {
                 ToastUtil.show(this, "连接已断开，请稍后再试");
             }
@@ -5154,9 +5236,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (position < 0) {
             return;
         }
+        if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE) {
+            AudioPlayManager.getInstance().stopPlay();
+        }
         mAdapter.removeItem(bean);
         mtListView.getListView().getAdapter().notifyItemRemoved(position);//删除刷新
         removeUnreadCount(1);
+        fixLastPosition(-1);
     }
 
     private void removeUnreadCount(int num) {
@@ -5439,7 +5525,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     return;
                 }
                 SendFileMessage fileMessage = (SendFileMessage) args[0];
-                //1 如果是我发的文件
                 clickFile(message, fileMessage);
                 break;
             case ChatEnum.ECellEventType.EXPRESS_CLICK:
@@ -5469,11 +5554,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     }
 
+    @Override
+    public ChatCellBase getChatCellBase(int position) {
+        return mtListView.getListView().findViewHolderForAdapterPosition(position) == null ? null : ((ChatCellBase) mtListView.getListView().findViewHolderForAdapterPosition(position));
+    }
+
     private void clickFile(MsgAllBean message, SendFileMessage fileMessage) {
+        //1 如果是我发的文件
         if (message.isMe()) {
             //2 判断是否为转发
             //若是转发他人，则需要先从下载路径里找，有则代表已下载直接打开，没有则需要下载
             if (fileMessage.isFromOther()) {
+                //通过真实文件名去下载路径找，真实文件名主要用于区分同一重名文件，如123.txt 123(1).txt 123(2).txt
                 if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
                     openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
                 } else {
@@ -5486,23 +5578,60 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                 }
             } else {
-                //若不是转发或者自己转发自己，则为本地文件，从本地路径里找，有则打开，没有提示文件已被删除
-                if (net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getLocalPath())) {
-                    openAndroidFile(fileMessage.getLocalPath());
+                //若不是转发或者自己转发自己
+                //1-1 没有本地路径，代表为PC端发的文件，需要下载
+                if (TextUtils.isEmpty(fileMessage.getLocalPath())) {
+                    //从下载路径里找，若存在该文件，则直接打开；否则需要下载
+                    if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
+                        openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename());
+                    } else {
+                        if (!TextUtils.isEmpty(fileMessage.getUrl())) {
+                            if (fileMessage.getSize() != 0) {
+                                //小于10M，自动下载+打开
+                                if (fileMessage.getSize() < 10485760) {
+                                    ToastUtil.show("检测到该文件来源于PC端，本地即将开启下载");
+                                    DownloadFile(fileMessage);
+                                } else {
+                                    //大于10M，跳详情，用户自行选择手动下载
+                                    ToastUtil.show("检测到该文件来源于PC端，请点击下载");
+                                    Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
+                                    intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
+                                    startActivity(intent);
+                                }
+                            }
+                        } else {
+                            ToastUtil.show("文件下载地址错误，请联系客服");
+                        }
+                    }
                 } else {
-                    ToastUtil.show("文件不存在或者已被删除");
+                    //1-2 有本地路径，则为手机本地文件，从本地路径里找，有则打开，没有提示文件已被删除
+                    if (net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getLocalPath())) {
+                        openAndroidFile(fileMessage.getLocalPath());
+                    } else {
+                        ToastUtil.show("文件不存在或者已被删除");
+                    }
                 }
+
+
             }
         } else {
             //如果是别人发的文件
             //从下载路径里找，若存在该文件，则直接打开；否则需要下载
             if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
-                openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
+                openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename());
             } else {
                 if (!TextUtils.isEmpty(fileMessage.getUrl())) {
-                    Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
-                    intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
-                    startActivity(intent);
+                    if (fileMessage.getSize() != 0) {
+                        //小于10M，自动下载+打开
+                        if (fileMessage.getSize() < 10485760) {
+                            DownloadFile(fileMessage);
+                        } else {
+                            //大于10M，跳详情，用户自行选择手动下载
+                            Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
+                            intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
+                            startActivity(intent);
+                        }
+                    }
                 } else {
                     ToastUtil.show("文件下载地址错误，请联系客服");
                 }
@@ -5570,7 +5699,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (checkCanOpenUpRedEnv()) {
                     taskPayRbGet(msg, touid, rid);
                 } else {
-                    ToastUtil.show(ChatActivity.this, "您已被禁止领取该群红包");
+                    ToastUtil.show(ChatActivity.this, "你已被禁止领取该群红包");
                 }
             }
         } else if (reType == MsgBean.RedEnvelopeType.SYSTEM_VALUE) {//零钱红包
@@ -5580,7 +5709,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 return;
             }
             if (!checkCanOpenUpRedEnv()) {
-                ToastUtil.show(ChatActivity.this, "您已被禁止领取该群红包");
+                ToastUtil.show(ChatActivity.this, "你已被禁止领取该群红包");
                 return;
             }
             long tradeId = rb.getTraceId();
@@ -5641,6 +5770,206 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         lockDialog.setCanceledOnTouchOutside(true);
         lockDialog.create();
         lockDialog.show();
+    }
+
+
+    private boolean hasData() {
+        if (mAdapter == null) {
+            return false;
+        }
+        MsgAllBean bean;
+        if (isGroup()) {
+            bean = msgDao.msgGetLast4Gid(toGid);
+        } else {
+            bean = msgDao.msgGetLast4FUid(toUId);
+        }
+        if (bean != null && mAdapter.getPosition(bean) >= 0) {
+            return true;
+        }
+        return false;
+    }
+
+    //添加单条消息
+    private void addMsg(MsgAllBean bean) {
+        if (mAdapter == null) {
+            return;
+        }
+        resetName(bean);
+        int position = mAdapter.getItemCount();
+        mAdapter.addMessage(bean);
+        mtListView.getListView().getAdapter().notifyItemRangeInserted(position, 1);
+        fixLastPosition(1);
+        scrollListView(false);
+    }
+
+    //添加单条消息
+    private void addMsg(List<MsgAllBean> list) {
+        if (mAdapter == null) {
+            return;
+        }
+        int position = mAdapter.getItemCount();
+        mAdapter.addMessageList(position, list);
+        mtListView.getListView().getAdapter().notifyItemRangeInserted(position, list.size());//删除刷新
+        fixLastPosition(list.size());
+        scrollListView(false);
+    }
+
+    //是否消息来自当前会话
+    public boolean isMsgFromCurrentChat(String gid, Long fromUid) {
+        if (!TextUtils.isEmpty(gid)) {
+            if (TextUtils.isEmpty(toGid)) {
+                return false;
+            }
+            if (gid.equals(toGid)) {
+                return true;
+            }
+        } else {
+            if (fromUid == null || toUId == null) {
+                return false;
+            }
+            if (fromUid.longValue() == toUId.longValue()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 更新底部未读数
+     */
+    private void updateUnReadCount() {
+        LogUtil.getLog().i("未读数", "onChange");
+        RealmResults<Session> sessionList = MyAppLication.INSTANCE().getSessions().where().greaterThan("unread_count", 0)
+                .limit(100).findAll();
+        if (sessionList != null) {
+            Number unreadCount = sessionList.where().sum("unread_count");
+            if (unreadCount != null) {
+                updateMsgUnread(unreadCount.intValue());
+            } else {
+                updateMsgUnread(0);
+            }
+        } else {
+            updateMsgUnread(0);
+        }
+    }
+
+    public final void updateMsgUnread(int num) {
+        LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + num);
+        BadgeUtil.setBadgeCount(getApplicationContext(), num);
+    }
+
+
+    /**
+     * 下载文件 + 打开
+     *
+     * @param sendFileMessage
+     */
+    private void DownloadFile(SendFileMessage sendFileMessage) {
+        String fileMsgId = "";
+        String fileUrl = "";
+        String fileName = "";
+
+        //获取文件消息id
+        if (!TextUtils.isEmpty(sendFileMessage.getMsgId())) {
+            fileMsgId = sendFileMessage.getMsgId();
+        }
+
+        //显示文件名
+        if (!TextUtils.isEmpty(sendFileMessage.getFile_name())) {
+            fileName = sendFileMessage.getFile_name();
+            //若有同名文件，则重命名，保存最终真实文件名，如123.txt若有重名则依次保存为123.txt(1) 123.txt(2)
+            //若没有同名文件，则按默认新文件来保存
+            fileName = net.cb.cb.library.utils.FileUtils.getFileRename(fileName);
+        }
+
+        //获取url，自动开始下载文件，并打开
+        if (!TextUtils.isEmpty(sendFileMessage.getUrl())) {
+            fileUrl = sendFileMessage.getUrl();
+            //指定下载路径文件夹，若不存在则创建
+            File fileDir = new File(FileConfig.PATH_DOWNLOAD);
+            if (!fileDir.exists()) {
+                fileDir.mkdir();
+            }
+            File file = new File(fileDir, fileName);
+            try {
+                String finalFileMsgId = fileMsgId;
+                String fileNewName = fileName;
+                DownloadUtil.get().downLoadFile(fileUrl, file, new DownloadUtil.OnDownloadListener() {
+                    @Override
+                    public void onDownloadSuccess(File file) {
+                        ToastUtil.showLong(ChatActivity.this, "下载成功! \n文件已保存：" + FileConfig.PATH_DOWNLOAD + "目录下");
+                        //下载成功
+                        //1 本地数据库刷新：保存一个新增属性-真实文件名，主要用于多个同名文件区分保存，防止重名，方便用户点击打开重名文件
+                        MsgAllBean reMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", finalFileMsgId);
+                        reMsg.getSendFileMessage().setRealFileRename(fileNewName);
+                        DaoUtil.update(reMsg);
+                        //2 列表数据刷新：如出现重名，显示新的名字，方便用户点击打开重名文件
+                        sendFileMessage.setRealFileRename(fileNewName);
+                        replaceListDataAndNotify(reMsg, true);
+                        //直接打开
+                        openAndroidFile(FileConfig.PATH_DOWNLOAD + fileNewName);
+                    }
+
+                    @Override
+                    public void onDownloading(int progress) {
+
+                    }
+
+                    @Override
+                    public void onDownloadFailed(Exception e) {
+                        ToastUtil.show("文件下载失败");
+                    }
+                });
+
+            } catch (Exception e) {
+                ToastUtil.show("文件下载失败");
+            }
+        }
+    }
+
+    /**
+     * 检查是否显示已读
+     */
+    private boolean checkIsRead() {
+        if (userInfo == null) {
+            return false;
+        }
+        int friendMasterRead = userInfo.getMasterRead();
+        int friendRead = userInfo.getFriendRead();
+        int myRead = userInfo.getMyRead();
+
+        IUser myUserInfo = UserAction.getMyInfo();
+        int masterRead = myUserInfo == null ? 1 : myUserInfo.getMasterRead();
+        if (friendMasterRead == 1 && friendRead == 1 && myRead == 1 && masterRead == 1) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    private void initLastPosition() {
+        if (mtListView != null) {
+            lastPosition = ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).findLastVisibleItemPosition();
+        }
+    }
+
+    //
+    private List<MsgAllBean> isRetainAll(List<MsgAllBean> oldList, List<MsgAllBean> newList) {
+        if (oldList != null && newList != null) {
+            int newLength = newList.size();
+            int oldLength = oldList.size();
+            if (newLength > oldLength) {
+                newList.removeAll(oldList);
+                return newList;
+            }
+        }
+        return newList;
+    }
+
+    private synchronized void fixLastPosition(int len) {
+        lastPosition = lastPosition + len;
+        LogUtil.getLog().i(TAG, "scroll--fixLastPosition=" + lastPosition);
     }
 
 }

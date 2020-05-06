@@ -62,10 +62,10 @@ public class ForwardRosterAdapter extends AbstractRecyclerAdapter {
         return position == 0 ? 0 : 1;
     }
 
-//    @Override
-//    public int getItemCount() {
-//        return viewModel.users != null ? viewModel.users.size() + 1 : 0;
-//    }
+    @Override
+    public int getItemCount() {
+        return mBeanList != null ? mBeanList.size() + 1 : 0;
+    }
 
     public void setForwardListener(IForwardRosterListener l) {
         listener = l;
@@ -106,12 +106,13 @@ public class ForwardRosterAdapter extends AbstractRecyclerAdapter {
                     .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
 
             txtName.setText(bean.getName4Show());
-            if (bean.getLastonline() > 0) {
-                txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType(), false));
-                txtTime.setVisibility(View.VISIBLE);
-            } else {
-                txtTime.setVisibility(View.GONE);
-            }
+//            if (bean.getLastonline() > 0) {
+//                txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType(), false));
+//                txtTime.setVisibility(View.VISIBLE);
+//            } else {
+//                txtTime.setVisibility(View.GONE);
+//            }
+            txtTime.setVisibility(View.GONE);
 
             if (position > 1) {
                 UserInfo lastBean = getUserByPosition(position - 2);

@@ -9,6 +9,11 @@ import net.cb.cb.library.event.BaseEvent;
  * @备注：
  */
 public class EventMsgSync extends BaseEvent {
+
+    public EventMsgSync(String code) {
+        this.code = code;
+    }
+
     String code;
 
     public String getCode() {

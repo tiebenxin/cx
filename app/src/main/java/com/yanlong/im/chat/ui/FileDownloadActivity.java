@@ -52,6 +52,7 @@ public class FileDownloadActivity extends AppActivity {
     private TextView tvFileName;
     private ImageView ivFileImage;//文件图片
     private TextView tvDownload;//更新下载进度
+    private TextView tvFileSize;//文件大小
 
     private String fileFormat ="";//文件类型
     private String fileName ="";//文件名
@@ -63,7 +64,7 @@ public class FileDownloadActivity extends AppActivity {
     private MsgAllBean msgAllBean;//传过来的msgAllBean
     private SendFileMessage sendFileMessage;
 
-    private int downloadStatus = 0; //0 下载中 1 下载完成 2 下载失败
+    private int downloadStatus = 3; //0 下载中 1 下载完成 2 下载失败 3 未下载前
     private static int currentFileProgressValue = 0;//记录当前文件下载任务的进度
     private Handler handler;//如果下载过程中退出，下次进来需要轮训查询下载进度
 
@@ -145,73 +146,18 @@ public class FileDownloadActivity extends AppActivity {
             if(!TextUtils.isEmpty(sendFileMessage.getMsgId())){
                 fileMsgId = sendFileMessage.getMsgId();
             }
-            //获取url，自动开始下载文件，并打开
-            if(!TextUtils.isEmpty(sendFileMessage.getUrl())){
-                fileUrl = sendFileMessage.getUrl();
-                //指定下载路径文件夹，若不存在则创建
-                File fileDir = new File(FileConfig.PATH_DOWNLOAD);
-                if (!fileDir.exists()) {
-                    fileDir.mkdir();
-                }
-                File file = new File(fileDir, fileName);
-                try {
-                    DownloadUtil.get().downLoadFile(fileUrl, file, new DownloadUtil.OnDownloadListener() {
-                        @Override
-                        public void onDownloadSuccess(File file) {
-                            ToastUtil.showLong(activity,"下载成功! \n文件已保存："+FileConfig.PATH_DOWNLOAD+"目录下");
-                            tvDownload.setText("打开文件");
-                            downloadStatus = 1;
-                            //下载成功后
-                            //1 数据库本地保存一个新增属性-真实文件名，方便后续聊天界面直接打开重名文件
-                            MsgAllBean reMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", fileMsgId);
-                            reMsg.getSendFileMessage().setRealFileRename(fileName);
-                            DaoUtil.update(reMsg);
-                            //2 通知ChatActivity刷新该文件消息
-                            EventFileRename eventFileRename = new EventFileRename();
-                            sendFileMessage.setRealFileRename(fileName);
-                            eventFileRename.setMsgAllBean(msgAllBean);
-                            EventBus.getDefault().post(eventFileRename);
-                            currentFileProgressValue = 100;
 
-//                            //如果用户退出当前界面，则只提示已经完成；若仍在当前界面，则打开文件
-//                            if(activity==null || activity.isFinishing()){
-//                            }else {
-//                                openAndroidFile(FileConfig.PATH_DOWNLOAD+fileName);
-//                            }
-                        }
-
-                        @Override
-                        public void onDownloading(int progress) {
-                            LogUtil.getLog().i("DownloadUtil", "progress:" + progress);
-                            tvDownload.setText("下载中 "+progress+"%");
-                            downloadStatus = 0;
-                            currentFileProgressValue = progress;
-
-                        }
-
-                        @Override
-                        public void onDownloadFailed(Exception e) {
-                            ToastUtil.show("文件下载失败");
-                            tvDownload.setText("下载失败");
-                            LogUtil.getLog().i("DownloadUtil", "Exception下载失败:" + e.getMessage());
-                            downloadStatus = 2;
-                            currentFileProgressValue = 0;
-                        }
-                    });
-
-                } catch (Exception e) {
-                    ToastUtil.show("文件下载失败");
-                    tvDownload.setText("下载失败");
-                    LogUtil.getLog().i("DownloadUtil", "Exception:" + e.getMessage());
-                    downloadStatus = 2;
-                    currentFileProgressValue = 0;
-                }
+            //获取文件消息id
+            if(sendFileMessage.getSize()!=0L){
+                tvFileSize.setText("文件大小 "+FileUtils.getFileSizeString(sendFileMessage.getSize()));
             }
 
             tvDownload.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(downloadStatus == 1){
+                    if(downloadStatus == 3){
+                        startDownload();
+                    }else if(downloadStatus == 1){
                         openAndroidFile(FileConfig.PATH_DOWNLOAD+fileName);
                     }
                 }
@@ -225,6 +171,7 @@ public class FileDownloadActivity extends AppActivity {
         tvFileName = findViewById(R.id.tv_file_name);
         ivFileImage = findViewById(R.id.iv_file_image);
         tvDownload = findViewById(R.id.tv_download);
+        tvFileSize = findViewById(R.id.tv_file_size);
         handler = new Handler();
     }
 
@@ -246,7 +193,7 @@ public class FileDownloadActivity extends AppActivity {
     protected void onResume() {
         super.onResume();
         //说明还有文件正在下载
-        if(currentFileProgressValue !=0){
+        if(currentFileProgressValue !=0 && currentFileProgressValue !=100){
             new Thread(runnable).start();
         }
     }
@@ -255,6 +202,9 @@ public class FileDownloadActivity extends AppActivity {
     protected void onStop() {
         super.onStop();
         handler.removeCallbacks(runnable);
+        //退出重置状态
+        tvDownload.setText("点击下载");
+        downloadStatus = 3;//默认状态：未下载
     }
 
     /**
@@ -290,6 +240,72 @@ public class FileDownloadActivity extends AppActivity {
             ToastUtil.show("附件不能打开，请下载相关软件！");
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    //开始下载
+    private void startDownload(){
+        //获取url，自动开始下载文件，并打开
+        if(!TextUtils.isEmpty(sendFileMessage.getUrl())){
+            fileUrl = sendFileMessage.getUrl();
+            //指定下载路径文件夹，若不存在则创建
+            File fileDir = new File(FileConfig.PATH_DOWNLOAD);
+            if (!fileDir.exists()) {
+                fileDir.mkdir();
+            }
+            File file = new File(fileDir, fileName);
+            try {
+                DownloadUtil.get().downLoadFile(fileUrl, file, new DownloadUtil.OnDownloadListener() {
+                    @Override
+                    public void onDownloadSuccess(File file) {
+                        ToastUtil.showLong(activity,"下载成功! \n文件已保存："+FileConfig.PATH_DOWNLOAD+"目录下");
+                        tvDownload.setText("打开文件");
+                        downloadStatus = 1;
+                        //下载成功后
+                        //1 数据库本地保存一个新增属性-真实文件名，主要用于多个同名文件区分保存，防止重名，方便后续聊天界面直接打开重名文件
+                        MsgAllBean reMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", fileMsgId);
+                        reMsg.getSendFileMessage().setRealFileRename(fileName);
+                        DaoUtil.update(reMsg);
+                        //2 通知ChatActivity刷新该文件消息
+                        EventFileRename eventFileRename = new EventFileRename();
+                        sendFileMessage.setRealFileRename(fileName);
+                        eventFileRename.setMsgAllBean(msgAllBean);
+                        EventBus.getDefault().post(eventFileRename);
+                        currentFileProgressValue = 100;
+
+//                            //如果用户退出当前界面，则只提示已经完成；若仍在当前界面，则打开文件
+//                            if(activity==null || activity.isFinishing()){
+//                            }else {
+//                                openAndroidFile(FileConfig.PATH_DOWNLOAD+fileName);
+//                            }
+                    }
+
+                    @Override
+                    public void onDownloading(int progress) {
+                        LogUtil.getLog().i("DownloadUtil", "progress:" + progress);
+                        tvDownload.setText("下载中 "+progress+"%");
+                        downloadStatus = 0;
+                        currentFileProgressValue = progress;
+
+                    }
+
+                    @Override
+                    public void onDownloadFailed(Exception e) {
+                        ToastUtil.show("文件下载失败");
+                        tvDownload.setText("下载失败");
+                        LogUtil.getLog().i("DownloadUtil", "Exception下载失败:" + e.getMessage());
+                        downloadStatus = 2;
+                        currentFileProgressValue = 0;
+                    }
+                });
+
+            } catch (Exception e) {
+                ToastUtil.show("文件下载失败");
+                tvDownload.setText("下载失败");
+                LogUtil.getLog().i("DownloadUtil", "Exception:" + e.getMessage());
+                downloadStatus = 2;
+                currentFileProgressValue = 0;
+            }
         }
     }
 

@@ -88,7 +88,9 @@ public class ChatCellNotice extends ChatCellBase {
             }
             if (isMe && cancelMsgType != null && (cancelMsgType == ChatEnum.EMessageType.TEXT || cancelMsgType == ChatEnum.EMessageType.AT)
                     && minutes < RELINQUISH_TIME && !TextUtils.isEmpty(content) && !isCustoerFace) {
-                content = content + "<cancel content='" + message.getMsgCancel().getCancelContent() + "'> 重新编辑</cancel>";
+                //存的时候把空格处理<br>，否则会被Html格式化
+                String contents= message.getMsgCancel().getCancelContent().replace("\n","<br>");
+                content = content + "<cancel content='" + contents+ "'> 重新编辑</cancel>";
                 tv_content.setText(Html.fromHtml(content, null,
                         new MsgTagHandler(getContext(), true, message.getMsg_id(), actionTagClickListener)));
             } else {

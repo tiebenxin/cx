@@ -149,6 +149,7 @@ public class PhoneListUtil {
                 // syncAvatars(data);
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

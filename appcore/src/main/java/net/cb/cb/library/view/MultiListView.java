@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 
 
 import net.cb.cb.library.R;
+import net.cb.cb.library.utils.LogUtil;
 
 import retrofit2.Response;
 
@@ -328,9 +329,10 @@ public class MultiListView extends LinearLayout {
     }
 
     /**
-     *   滑到列表底部
+     * 滑到列表底部
      */
-    public void scrollToEnd(){
+    public void scrollToEnd() {
+        LogUtil.getLog().i(TAG, "scrollToEnd");
         getLayoutManager().scrollToPositionWithOffset(adt.getItemCount() - 1, Integer.MIN_VALUE);
     }
 

@@ -72,13 +72,26 @@
                 android:textColorHint="@color/gray_300"
                 app:layout_constraintLeft_toLeftOf="@id/et_phone_content"
                 app:layout_constraintRight_toRightOf="parent"
+                android:layout_marginRight="10dip"
+                app:layout_constraintRight_toLeftOf="@+id/iv_old_password_show_or_hide_password"
                 app:layout_constraintTop_toTopOf="@id/tv_password_title" />
 
-
+            <ImageView
+                android:id="@+id/iv_old_password_show_or_hide_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/eye_level"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/et_password_content"
+                app:layout_constraintBottom_toBottomOf="@+id/et_password_content"
+                android:onClick="showOrHidePassword"
+                android:padding="5dip"
+                />
             <View
                 android:id="@+id/view_line"
                 style="@style/app_line"
                 android:layout_marginTop="8dp"
+                app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_password_title" />
 
 
@@ -88,6 +101,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:text="使用短信验证码登录"
+                app:layout_constraintLeft_toLeftOf="parent"
                 android:textColor="@color/blue_600"
                 android:textSize="11sp"
                 app:layout_constraintTop_toBottomOf="@id/view_line" />

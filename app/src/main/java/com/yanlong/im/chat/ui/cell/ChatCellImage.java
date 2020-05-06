@@ -2,24 +2,27 @@ package com.yanlong.im.chat.ui.cell;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.luck.picture.lib.glide.CustomGlideModule;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.ui.RoundTransform;
+import com.yanlong.im.utils.ChatBitmapCache;
 
 import net.cb.cb.library.utils.DensityUtil;
+
+import java.io.File;
 
 import static android.view.View.VISIBLE;
 
@@ -77,19 +80,34 @@ public class ChatCellImage extends ChatCellFileBase {
             if (!TextUtils.equals(tag, gif)) {
                 imageView.setTag(R.id.tag_img, gif);
                 rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
-                glide(rOptions, gif);
+                imageView.setImageResource(R.mipmap.ic_image_bg);
+                File local = CustomGlideModule.getCacheFile(gif);
+                if (local == null) {
+                    Glide.with(getContext())
+                            .load(gif)
+                            .apply(rOptions)
+                            .into(imageView);
+                } else {
+                    Glide.with(getContext())
+                            .load(local)
+                            .into(imageView);
+                }
             } else {
-                glide(rOptions, tag);
+                Glide.with(getContext())
+                        .load(gif)
+                        .apply(rOptions)
+//                    .thumbnail(0.2f)
+                        .into(imageView);
             }
-
         } else {
 //            rOptions.centerCrop();
             rOptions.error(R.mipmap.default_image);
-            rOptions.placeholder(R.mipmap.default_image);
-            if (!TextUtils.equals(tag, thumbnail)) {
+//            rOptions.placeholder(R.mipmap.default_image);
+            if (!TextUtils.equals(tag, thumbnail)) {//第一次加载
+                imageView.setImageResource(R.mipmap.ic_image_bg);
                 imageView.setTag(R.id.tag_img, thumbnail);
                 glide(rOptions, thumbnail);
-            } else {
+            } else {//复用
                 glide(rOptions, tag);
             }
 
@@ -98,17 +116,30 @@ public class ChatCellImage extends ChatCellFileBase {
     }
 
     public void glide(RequestOptions rOptions, String url) {
-        Glide.with(getContext())
-                .load(url)
-                .apply(rOptions)
-//                    .thumbnail(0.2f)
-                .into(imageView);
+//        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
+        Log.e("raleigh_test", "url=" + url);
+        Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(url);
+        if (localBitmap == null) {
+            RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .dontAnimate()
+                    .skipMemoryCache(false)
+                    .centerCrop();
+            Glide.with(getContext())
+                    .asBitmap()
+                    .load(url)
+                    .apply(mRequestOptions)
+                    .into(imageView);
+        } else {
+            imageView.setImageBitmap(localBitmap);
+        }
+
     }
 
 
     private boolean isGif(String path) {
         if (!TextUtils.isEmpty(path)) {
-            if (path.toLowerCase().endsWith(".gif")) {
+            if (path.toLowerCase().contains(".gif")) {
                 return true;
             }
         }

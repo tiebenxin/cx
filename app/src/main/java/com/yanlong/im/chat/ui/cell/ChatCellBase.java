@@ -2,8 +2,12 @@ package com.yanlong.im.chat.ui.cell;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -12,6 +16,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.AtMessage;
@@ -20,7 +28,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.ChatBitmapCache;
 
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -65,6 +73,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     private TextView tvRead;
     private TextView tvReadTime;
     public IActionTagClickListener actionTagClickListener;
+    private boolean isOpenRead = true;//是否开启已读开关
 
     protected ChatCellBase(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(view);
@@ -76,7 +85,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         initView();
     }
 
-    protected void setActionClickListener(IActionTagClickListener l){
+    protected void setActionClickListener(IActionTagClickListener l) {
         actionTagClickListener = l;
     }
 
@@ -298,17 +307,41 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         }
     }
 
+
     /*
      * 加载发送者头像
      * */
     @SuppressLint("CheckResult")
     private void loadAvatar() {
         if (mContext == null || iv_avatar == null) {
+
             return;
         }
-        Glide.with(mContext).load(model.getFrom_avatar())
-                .apply(GlideOptionsUtil.headImageOptions()).into(iv_avatar);
+        String tag = (String) iv_avatar.getTag(R.id.iv_avatar);
+        if (!TextUtils.equals(tag, model.getFrom_avatar())) {//第一次加载
+            iv_avatar.setTag(R.id.iv_avatar, model.getFrom_avatar());
+            iv_avatar.setImageResource(R.mipmap.ic_info_head);
+        }
 
+        Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(model.getFrom_avatar());
+        if(localBitmap==null){
+            RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .skipMemoryCache(false)
+                    .centerCrop();
+            Glide.with(getContext())
+                    .asBitmap()
+                    .load(model.getFrom_avatar())
+                    .apply(mRequestOptions)
+                    .into(new SimpleTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            iv_avatar.setImageBitmap(resource);
+                        }
+                    });
+        }else{
+            iv_avatar.setImageBitmap(localBitmap);
+        }
     }
 
     /*
@@ -423,13 +456,11 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         if (viewRead == null) {
             return;
         }
-        if (isMe && model.getSend_state() == ChatEnum.ESendStatus.NORMAL && model.getRead() == 1 && model.getReadTime() > 0) {
-//            LogUtil.getLog().i("ChatCellBase", "显示已读 msgId--" + model.getMsg_id());
+        if (isMe && isOpenRead && model.getSend_state() == ChatEnum.ESendStatus.NORMAL && model.getRead() == 1 && model.getReadTime() > 0) {
             viewRead.setVisibility(VISIBLE);
             tvRead.setText("已读");
             tvReadTime.setText(TimeToString.HH_MM(model.getReadTime()));
         } else {
-//            LogUtil.getLog().i("ChatCellBase", "隐藏已读 msgId--" + model.getMsg_id());
             viewRead.setVisibility(View.GONE);
         }
     }
@@ -439,6 +470,10 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         if (ivBell != null) {
             ivBell.setImageResource(rid);
         }
+    }
+
+    public void setReadStatus(boolean isOpen) {
+        isOpenRead = isOpen;
     }
 
 }

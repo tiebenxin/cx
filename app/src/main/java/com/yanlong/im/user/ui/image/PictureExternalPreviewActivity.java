@@ -17,7 +17,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,6 +66,7 @@ import com.luck.picture.lib.widget.longimage.ImageViewState;
 import com.luck.picture.lib.widget.longimage.SubsamplingScaleImageView;
 import com.luck.picture.lib.zxing.decoding.RGBLuminanceSource;
 import com.yalantis.ucrop.util.FileUtils;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
@@ -74,7 +74,6 @@ import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.QRCodeManage;
 
 import net.cb.cb.library.event.EventFactory;
-import net.cb.cb.library.utils.DeviceUtils;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -92,15 +91,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-import io.reactivex.Observable;
 import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
 import okhttp3.Call;
 
 /**
@@ -112,6 +105,7 @@ import okhttp3.Call;
  */
 public class PictureExternalPreviewActivity extends PictureBaseActivity implements View.OnClickListener {
     private static String TAG = "PictureExternalPreviewActivity";
+    public static int IMG_EDIT = 0;//长按图片编辑
     private ImageButton left_back;
     private TextView tv_title;
     private PreviewViewPager viewPager;
@@ -1289,4 +1283,20 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK){
+            if(requestCode == IMG_EDIT){
+                if(data!=null){
+                    //拿到编辑后新图片的本地路径，走转发逻辑
+                    String path = data.getStringExtra("showPath");
+                    Bundle bundle = new Bundle();
+                    bundle.putString("edit_pic_path",path);
+                    Intent intent = MsgForwardActivity.newIntent(PictureExternalPreviewActivity.this, ChatEnum.EForwardMode.EDIT_PIC, bundle);
+                    startActivity(intent);
+                }
+            }
+        }
+    }
 }

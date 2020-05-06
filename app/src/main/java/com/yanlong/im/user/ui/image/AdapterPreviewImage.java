@@ -9,6 +9,7 @@ import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
@@ -18,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -28,7 +30,6 @@ import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.resource.gif.GifDrawable;
-import com.bumptech.glide.request.FutureTarget;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -64,14 +65,15 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.QRCodeManage;
+import com.zhaoss.weixinrecorded.activity.ImageShowActivity;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
-
-import org.greenrobot.eventbus.EventBus;
+import net.cb.cb.library.utils.ViewUtils;
 
 import java.io.File;
 import java.util.Hashtable;
@@ -89,16 +91,17 @@ public class AdapterPreviewImage extends PagerAdapter {
 
 
     private List<LocalMedia> datas;
-    private final Context context;
+    private final Activity context;
     private LayoutInflater inflater;
     private MsgDao msgDao = new MsgDao();
     private Call download;
     //    private IPreviewImageListener listener;
-    private String[] strings = {"发送给朋友", "保存图片", "识别二维码", "取消"};
+    private String[] strings = {"发送给朋友", "保存图片", "识别二维码", "编辑", "取消"};
     private View parentView;
+    private int preProgress;
 
 
-    public AdapterPreviewImage(Context c) {
+    public AdapterPreviewImage(Activity c) {
         context = c;
         inflater = LayoutInflater.from(c);
     }
@@ -142,14 +145,15 @@ public class AdapterPreviewImage extends PagerAdapter {
         final TextView tvViewOrigin = contentView.findViewById(R.id.tv_view_origin);
         ImageView ivDownload = contentView.findViewById(R.id.iv_download);
         ProgressBar pbLoading = contentView.findViewById(R.id.pb_loading);
+        LinearLayout llLook = contentView.findViewById(R.id.ll_look);
         LocalMedia media = datas.get(position);
-        loadAndShowImage(media, ivZoom, ivLarge, /*ivLong,*/ ivDownload, tvViewOrigin,pbLoading);
+        loadAndShowImage(media, ivZoom, ivLarge, /*ivLong,*/ ivDownload, tvViewOrigin, pbLoading, llLook);
         (container).addView(contentView, 0);
         return contentView;
     }
 
-    private void loadAndShowImage(LocalMedia media, ZoomImageView ivZoom, LargeImageView ivLarge, /*SubsamplingScaleImageView ivLong,*/ ImageView ivDownload, TextView tvViewOrigin,ProgressBar pbLoading) {
-        String path = media.getCompressPath();//缩略图路径
+    private void loadAndShowImage(LocalMedia media, ZoomImageView ivZoom, LargeImageView ivLarge, ImageView ivDownload, TextView tvViewOrigin, ProgressBar pbLoading, LinearLayout llLook) {
+        String path = media.getCompressPath();//最小缩略图路径
         String originUrl = media.getPath();//原图路径
         boolean isOriginal = StringUtil.isNotNull(originUrl);//是否有原图
         boolean isHttp = PictureMimeType.isHttp(path);
@@ -161,15 +165,18 @@ public class AdapterPreviewImage extends PagerAdapter {
         }
         pbLoading.setVisibility(View.VISIBLE);
         if (isGif && !media.isCompressed()) {
-            showGif(media, ivZoom, tvViewOrigin,pbLoading);
+            showGif(media, ivZoom, tvViewOrigin, pbLoading);
         } else {
-            showImage(ivZoom, ivLarge, /*ivLong,*/ tvViewOrigin, ivDownload, media, isOriginal, hasRead, isHttp, isLong,pbLoading);
+            showImage(ivZoom, ivLarge, tvViewOrigin, ivDownload, media, isOriginal, hasRead, isHttp, isLong, pbLoading, llLook);
         }
 
         //下载
         ivDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
                 ivDownload.setEnabled(false);
                 boolean finalHasRead = false;
                 if (isOriginal && !TextUtils.isEmpty(originUrl)) {//重新获取已读数据
@@ -181,7 +188,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                         if (PictureFileUtils.hasImageCache(cacheFile, media.getSize())) {
                             saveImageFromCacheFile(cacheFile, ivZoom);
                         } else {
-                            downloadOriginImage(!TextUtils.isEmpty(originUrl) ? originUrl : path, tvViewOrigin, ivDownload, ivZoom, ivLarge, true, isGif);
+                            downloadOriginImage(!TextUtils.isEmpty(originUrl) ? originUrl : path, tvViewOrigin, ivDownload, ivZoom, ivLarge, true, isGif, llLook);
                         }
                     } else {
                         if (PictureFileUtils.hasImageCache(media.getPath(), media.getSize())) {
@@ -189,32 +196,32 @@ public class AdapterPreviewImage extends PagerAdapter {
                         } else if (PictureFileUtils.hasImageCache(media.getCompressPath(), media.getSize())) {
                             saveImageFromCacheFile(media.getCompressPath(), ivZoom);
                         } else {
-                            downloadOriginImage(originUrl, tvViewOrigin, ivDownload, ivZoom, ivLarge, true, isGif);
+                            downloadOriginImage(originUrl, tvViewOrigin, ivDownload, ivZoom, ivLarge, true, isGif, llLook);
                         }
                     }
                 } else {
                     if (isOriginal) {
                         if (finalHasRead) {
-                            saveImageToLocal(ivZoom, media, isGif, isHttp, isOriginal);
+                            saveImageToLocal(ivZoom, media, isGif, isHttp, isOriginal, llLook);
                         } else if (PictureFileUtils.hasImageCache(media.getPath(), media.getSize())) {
                             saveImageFromCacheFile(media.getPath(), ivZoom);
                         } else {
-                            downloadOriginImage(!TextUtils.isEmpty(originUrl) ? originUrl : path, tvViewOrigin, ivDownload, ivZoom, ivLarge, true, isGif);
+                            downloadOriginImage(!TextUtils.isEmpty(originUrl) ? originUrl : path, tvViewOrigin, ivDownload, ivZoom, ivLarge, true, isGif, llLook);
                         }
                     } else {
-                        saveImageToLocal(ivZoom, media, isGif, isHttp, isOriginal);
+                        saveImageToLocal(ivZoom, media, isGif, isHttp, isOriginal, llLook);
                     }
                 }
             }
         });
 
         //查看原图
-        tvViewOrigin.setOnClickListener(new View.OnClickListener() {
+        llLook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 tvViewOrigin.setEnabled(false);
                 tvViewOrigin.setClickable(false);
-                downloadOriginImage(media.getPath(), tvViewOrigin, ivDownload, ivZoom, ivLarge, false, isGif);
+                downloadOriginImage(media.getPath(), tvViewOrigin, ivDownload, ivZoom, ivLarge, false, isGif, llLook);
             }
         });
         ivZoom.setOnViewTapListener(new PhotoViewAttacher2.OnViewTapListener() {
@@ -244,7 +251,7 @@ public class AdapterPreviewImage extends PagerAdapter {
         ivZoom.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                showDownLoadDialog(media, ivZoom, isHttp, isOriginal);
+                showDownLoadDialog(media, ivZoom, isHttp, isOriginal, llLook);
                 return true;
             }
         });
@@ -278,7 +285,7 @@ public class AdapterPreviewImage extends PagerAdapter {
             public void onBlockImageLoadFinished() {
                 ivLarge.setAlpha(1);
 //                dismissDialog();
-                setDownloadProgress(tvViewOrigin, 100);
+//                setDownloadProgress(tvViewOrigin, 100, llLook);
                 // ToastUtil.show(getApplicationContext(),"加载完成");
             }
 
@@ -297,62 +304,50 @@ public class AdapterPreviewImage extends PagerAdapter {
         ivLarge.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                showDownLoadDialog(media, ivZoom, isHttp, isOriginal);
+                showDownLoadDialog(media, ivZoom, isHttp, isOriginal, llLook);
                 return false;
             }
         });
-
-//        ivLong.setOnLongClickListener(new View.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View v) {
-//                showDownLoadDialog(media, ivZoom, isHttp, isOriginal);
-//                return false;
-//            }
-//        });
-//        ivLong.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                System.out.println(TAG + "-- ivLong--onClick");
-//                if (download != null) {//取消当前请求
-//                    download.cancel();
-//                }
-//                ((Activity) context).finish();
-//                ((Activity) context).overridePendingTransition(0, com.luck.picture.lib.R.anim.a3);
-//            }
-//        });
     }
 
-    private void showGif(LocalMedia media, ZoomImageView ivZoom, TextView tvViewOrigin,ProgressBar pbLoading) {
+    private void showGif(LocalMedia media, ZoomImageView ivZoom, TextView tvViewOrigin, ProgressBar pbLoading) {
         if (!media.getCutPath().equals(media.getCompressPath())) {
             Glide.with(context).load(media.getCutPath()).error(Glide.with(context).load(media.getCompressPath())).listener(new RequestListener<Drawable>() {
                 @Override
                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-//                    showGif(ivZoom, tvViewOrigin, media.getCompressPath());
+                    ivZoom.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+
+                        }
+                    }, 100);
+                    pbLoading.setVisibility(View.GONE);
                     return false;
                 }
 
                 @Override
                 public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-//                    showGif(ivZoom, tvViewOrigin, media.getCompressPath());
+                    pbLoading.setVisibility(View.GONE);
                     return false;
                 }
             }).into(ivZoom);
         } else {
-            showGif(ivZoom, tvViewOrigin, media.getCompressPath(),pbLoading);
+            showGif(ivZoom, tvViewOrigin, media.getCompressPath(), pbLoading);
         }
     }
 
     /*
      * 保存图片到本地
      * */
-    private void saveImageToLocal(ZoomImageView ivZoom, LocalMedia media, boolean isGif, boolean isHttp, boolean isOriginal) {
+    private void saveImageToLocal(ZoomImageView ivZoom, LocalMedia media, boolean isGif, boolean isHttp, boolean isOriginal, LinearLayout llLook) {
         if (isGif) {
             if (isHttp) {
                 String cacheFile = PictureFileUtils.getFilePathOfImage(media.getPath(), context);
                 if (PictureFileUtils.hasImageCache(cacheFile, media.getSize())) {
                     saveImageFromCacheFile(cacheFile, ivZoom);
                 } else {
-                    downloadOriginImage(!TextUtils.isEmpty(media.getPath()) ? media.getPath() : media.getCompressPath(), null, null, ivZoom, null, true, isGif);
+                    downloadOriginImage(!TextUtils.isEmpty(media.getPath()) ? media.getPath() : media.getCompressPath(), null, null, ivZoom, null, true, isGif, llLook);
                 }
             } else {
                 if (PictureFileUtils.hasImageCache(media.getPath(), media.getSize())) {
@@ -360,7 +355,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                 } else if (PictureFileUtils.hasImageCache(media.getCompressPath(), media.getSize())) {
                     saveImageFromCacheFile(media.getCompressPath(), ivZoom);
                 } else {
-                    downloadOriginImage(!TextUtils.isEmpty(media.getPath()) ? media.getPath() : media.getCompressPath(), null, null, ivZoom, null, true, isGif);
+                    downloadOriginImage(!TextUtils.isEmpty(media.getPath()) ? media.getPath() : media.getCompressPath(), null, null, ivZoom, null, true, isGif, llLook);
                 }
             }
         } else {
@@ -397,7 +392,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                 @Override
                 public void run() {
                     if (isSuccess) {
-                        ToastUtil.show(context, "保存成功");
+                        ToastUtil.show(AppConfig.getContext(), "保存成功");
                     }
                 }
             }, 100);
@@ -414,7 +409,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                 @Override
                 public void run() {
                     if (isSuccess) {
-                        ToastUtil.show(context, "保存成功");
+                        ToastUtil.show(AppConfig.getContext(), "保存成功");
                     }
                 }
             }, 100);
@@ -423,43 +418,43 @@ public class AdapterPreviewImage extends PagerAdapter {
         }
     }
 
-    private void showImage(ZoomImageView ivZoom, LargeImageView ivLarge, /*SubsamplingScaleImageView ivLong,*/ TextView tvViewOrigin, ImageView ivDownload, LocalMedia media, boolean isOrigin, boolean hasRead, boolean isHttp, boolean isLong, ProgressBar pbLoading) {
+    private void showImage(ZoomImageView ivZoom, LargeImageView ivLarge, TextView tvViewOrigin, ImageView ivDownload, LocalMedia media, boolean isOrigin, boolean hasRead, boolean isHttp, boolean isLong, ProgressBar pbLoading, LinearLayout llLock) {
         tvViewOrigin.setTag(media.getSize());
-        showViewOrigin(isHttp, isOrigin, hasRead, tvViewOrigin, media.getSize());
+        showViewOrigin(isHttp, isOrigin, hasRead, tvViewOrigin, media.getSize(), llLock);
         if (isHttp) {
             if (isOrigin) {
                 if (hasRead) {//原图已读,就显示
                     String cachePath = PictureFileUtils.getFilePathOfImage(media.getPath(), context);
                     if (PictureFileUtils.hasImageCache(cachePath, media.getSize())) {
-                        loadImage(media.getCompressPath(), ivZoom, false,pbLoading);
+                        loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
                         //TODO:不设置Alpha 和 visible 就不能响应手势
                         ivLarge.setAlpha(0);
                         ivLarge.setVisibility(View.VISIBLE);
                         ivLarge.setImage(new FileBitmapDecoderFactory(cachePath));
                         showZoomView(ivZoom, false);
                     } else {
-                        loadImage(media.getCompressPath(), ivZoom, true,pbLoading);
+                        loadImage(media.getCompressPath(), ivZoom, true, pbLoading);
 //                        loadLargeImage(media.getPath(), ivLarge, ivZoom);
                     }
                 } else {
                     hideLargeImageView(ivLarge);
-                    if (!TextUtils.isEmpty(media.getCutPath()) && (media.getWidth() > 1080 || media.getHeight() > 1920)) {
-                        loadImage(media.getCutPath(), ivZoom, false,pbLoading);
+                    if (!TextUtils.isEmpty(media.getCutPath()) /*&& (media.getWidth() > 1080 || media.getHeight() > 1920)*/) {
+                        loadImage(media.getCutPath(), ivZoom, false, pbLoading);
                     } else {
-                        loadImage(media.getCompressPath(), ivZoom, false,pbLoading);
+                        loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
                     }
                 }
             } else {
                 hideLargeImageView(ivLarge);
                 ivDownload.setVisibility(View.VISIBLE);
-                loadImage(media.getCompressPath(), ivZoom, false,pbLoading);
+                loadImage(media.getCutPath(), ivZoom, false, pbLoading);
             }
         } else {
             ivDownload.setVisibility(View.VISIBLE);
             boolean hasLoadThumbnail = false;
             String url = !TextUtils.isEmpty(media.getPath()) ? media.getPath() : media.getCompressPath();
             if ((media.getWidth() > 1080 || media.getHeight() > 1920)) {
-                loadImageThumbnail(url, ivZoom,pbLoading);
+                loadImageThumbnail(url, ivZoom, pbLoading);
                 hasLoadThumbnail = true;
             }
             if (!hasLoadThumbnail) {//没加载过缩略图，先隐藏ivZoom
@@ -478,7 +473,7 @@ public class AdapterPreviewImage extends PagerAdapter {
             } else {
                 hideLargeImageView(ivLarge);
                 showZoomView(ivZoom, true);
-                loadImage(url, ivZoom, true,pbLoading);
+                loadImage(url, ivZoom, true, pbLoading);
 
             }
             if (hasLoadThumbnail) {//加载过缩略图，后隐藏ivZoom
@@ -488,9 +483,10 @@ public class AdapterPreviewImage extends PagerAdapter {
         }
     }
 
-    private void showViewOrigin(boolean isHttp, boolean isOrigin, boolean hasRead, TextView tvViewOrigin, long size) {
+    private void showViewOrigin(boolean isHttp, boolean isOrigin, boolean hasRead, TextView tvViewOrigin, long size, LinearLayout llLook) {
         if (isHttp && isOrigin && !hasRead) {
             tvViewOrigin.setVisibility(View.VISIBLE);
+            llLook.setVisibility(View.VISIBLE);
             if (size > 0) {
                 tvViewOrigin.setText("查看原图(" + ImgSizeUtil.formatFileSize(size) + ")");
             } else {
@@ -498,6 +494,7 @@ public class AdapterPreviewImage extends PagerAdapter {
             }
         } else {
             tvViewOrigin.setVisibility(View.GONE);
+            llLook.setVisibility(View.GONE);
         }
     }
 
@@ -549,7 +546,7 @@ public class AdapterPreviewImage extends PagerAdapter {
     /*
      * 加载图片
      * */
-    private void loadImage(String url, ZoomImageView ivZoom, boolean isOrigin,ProgressBar pbLoading) {
+    private void loadImage(String url, ZoomImageView ivZoom, boolean isOrigin, ProgressBar pbLoading) {
 //        System.out.println(TAG + "--loadImage--" + url);
         if (!isOrigin) {
             RequestOptions options = new RequestOptions()
@@ -565,6 +562,13 @@ public class AdapterPreviewImage extends PagerAdapter {
                         public void onLoadFailed(@Nullable Drawable errorDrawable) {
                             super.onLoadFailed(errorDrawable);
                             pbLoading.setVisibility(View.GONE);
+                            ivZoom.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+
+                                }
+                            }, 100);
                         }
 
                         @Override
@@ -589,6 +593,13 @@ public class AdapterPreviewImage extends PagerAdapter {
                             super.onLoadFailed(errorDrawable);
                             pbLoading.setVisibility(View.GONE);
 //                        dismissDialog();
+                            ivZoom.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+
+                                }
+                            }, 100);
                         }
 
                         @Override
@@ -619,112 +630,38 @@ public class AdapterPreviewImage extends PagerAdapter {
                         super.onLoadFailed(errorDrawable);
                         pbLoading.setVisibility(View.GONE);
 //                        dismissDialog();
+                        ivZoom.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+
+                            }
+                        }, 100);
                     }
 
                     @Override
                     public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
 //                        dismissDialog();
-//                        System.out.println(TAG + "-loadImageThumbnail-ivZoom=" + resource.getWidth() + "--" + resource.getHeight());
                         ivZoom.setImageBitmap(resource);
                         pbLoading.setVisibility(View.GONE);
                     }
                 });
     }
 
-    /*
-     * 加载长图片
-     * */
-    private void loadImageLong(String url, SubsamplingScaleImageView ivLong, boolean isOrigin,ProgressBar pbLoading) {
-//        System.out.println(TAG + "--loadImageLong");
-        if (!isOrigin) {
-            RequestOptions options = new RequestOptions()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .format(DecodeFormat.PREFER_RGB_565);
-            Glide.with(ivLong.getContext())
-                    .asBitmap()
-                    .load(url)
-                    .apply(options)  //480     800
-                    .into(new SimpleTarget<Bitmap>(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) {
-                        @Override
-                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                            super.onLoadFailed(errorDrawable);
-//                        dismissDialog();
-                            System.out.println("图片加载失败");
-                            pbLoading.setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-//                        dismissDialog();
-                            displayLongPic(resource, ivLong);
-                            pbLoading.setVisibility(View.GONE);
-                        }
-                    });
-        } else {
-            RequestOptions options = new RequestOptions()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .format(DecodeFormat.PREFER_ARGB_8888);
-            Glide.with(ivLong.getContext())
-                    .asBitmap()
-                    .load(url)
-                    .apply(options)  //480     800
-                    .into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                            super.onLoadFailed(errorDrawable);
-                            pbLoading.setVisibility(View.GONE);
-//                        dismissDialog();
-                        }
-
-                        @Override
-                        public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-//                        dismissDialog();
-                            displayLongPic(resource, ivLong);
-                            pbLoading.setVisibility(View.GONE);
-                        }
-                    });
-        }
-    }
-
-    private void loadLargeImage(String url, LargeImageView iv, ZoomImageView ivZoom,ProgressBar pbLoading) {
-//        System.out.println(TAG + "--loadLargeImage");
-        iv.setAlpha(0);
-        iv.setVisibility(View.VISIBLE);
-        RequestOptions options = new RequestOptions()
-                .diskCacheStrategy(DiskCacheStrategy.ALL);
-        Glide.with(context)
-                .asBitmap()
-                .load(url)
-                .apply(options)  //480     800
-                .into(new SimpleTarget<Bitmap>(800, 800) {
-                    /* .into(new SimpleTarget<Bitmap>(ScreenUtils.getScreenWidth(PictureExternalPreviewActivity.this),
-                             ScreenUtils.getScreenHeight(PictureExternalPreviewActivity.this)) {*/
-                    @Override
-                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                        super.onLoadFailed(errorDrawable);
-                        pbLoading.setVisibility(View.GONE);
-//                        dismissDialog();
-                    }
-
-                    @Override
-                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-//                        dismissDialog();
-//                        System.out.println(TAG + "--ivLarge=" + resource.getWidth() + "--" + resource.getHeight());
-                        iv.setImage(resource);
-                        showZoomView(ivZoom, false);
-                        pbLoading.setVisibility(View.GONE);
-
-                    }
-                });
-    }
 
     /*
      * 下载原图
      * */
-    private void downloadOriginImage(String originUrl, TextView tvViewOrigin, ImageView ivDownload, ZoomImageView ivZoom, LargeImageView ivLarge, boolean needSave, boolean isGif) {
+    private void downloadOriginImage(String originUrl, TextView tvViewOrigin, ImageView ivDownload, ZoomImageView ivZoom, LargeImageView ivLarge, boolean needSave, boolean isGif, LinearLayout llLook) {
         if (TextUtils.isEmpty(originUrl)) {
             return;
         }
+        tvViewOrigin.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                setDownloadProgress(tvViewOrigin, 0, llLook);
+            }
+        }, 100);
         final String filePath = context.getExternalCacheDir().getAbsolutePath() + "/Image/";
         final String fileName = originUrl.substring(originUrl.lastIndexOf("/") + 1);
         File fileSave = new File(filePath + "/" + fileName);//原图保存路径
@@ -756,7 +693,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 } else {
                                     ivLarge.setAlpha(0);
                                     ivLarge.setVisibility(View.VISIBLE);
-                                    setDownloadProgress(tvViewOrigin, 100);
+                                    setDownloadProgress(tvViewOrigin, 100, llLook);
                                     ivDownload.setEnabled(true);
                                     ivLarge.setImage(new FileBitmapDecoderFactory(file.getAbsolutePath()));
                                     showZoomView(ivZoom, false);
@@ -781,7 +718,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                         ((Activity) context).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                setDownloadProgress(tvViewOrigin, progress);
+                                setDownloadProgress(tvViewOrigin, progress, llLook);
                             }
                         });
 
@@ -789,6 +726,19 @@ public class AdapterPreviewImage extends PagerAdapter {
 
                     @Override
                     public void onDownloadFailed(Exception e) {
+                        ivDownload.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                ivZoom.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        preProgress = 0;
+                                        ToastUtil.show(AppConfig.getContext(), "加载失败,请检查网络");
+
+                                    }
+                                }, 100);
+                            }
+                        }, 100);
                         new File(filePath + "/" + fileName).delete();
                         new File(filePath + "/" + fileName + FileBitmapDecoderFactory.cache_name).delete();
                         e.printStackTrace();
@@ -803,26 +753,33 @@ public class AdapterPreviewImage extends PagerAdapter {
     /*
      * 更新下载进度
      * */
-    public void setDownloadProgress(TextView tvViewOrigin, int progress) {
+    public void setDownloadProgress(TextView tvViewOrigin, int progress, LinearLayout llLook) {
+        if (preProgress > progress) {
+            return;
+        }
+        preProgress = progress;
         if (tvViewOrigin == null) {
             return;
         }
+        LogUtil.getLog().i(TAG, "progress=" + progress);
         tvViewOrigin.setText("已完成 " + progress + "%");
         if (progress == 100) {
             tvViewOrigin.setVisibility(View.GONE);
+            llLook.setVisibility(View.GONE);
+            preProgress = 0;
         }
     }
 
     /**
      * 长按弹窗提示
      */
-    private void showDownLoadDialog(final LocalMedia media, ZoomImageView ivZoom, boolean isHttp, boolean isOriginal) {
+    private void showDownLoadDialog(final LocalMedia media, ZoomImageView ivZoom, boolean isHttp, boolean isOriginal, LinearLayout llLook) {
         final PopupSelectView popupSelectView = new PopupSelectView(context, strings);
         popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
             @Override
             public void onItem(String string, int postsion) {
+                String msgId = media.getMsg_id();
                 if (postsion == 0) {//转发
-                    String msgId = media.getMsg_id();
                     if (!TextUtils.isEmpty(msgId)) {
                         MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
                         if (msgAllBean != null) {
@@ -834,10 +791,17 @@ public class AdapterPreviewImage extends PagerAdapter {
 
                     }
                 } else if (postsion == 1) {//保存
-                    saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal);
+                    saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook);
                 } else if (postsion == 2) {//识别二维码
                     // scanningImage(media.getPath());
                     scanningQrImage(media.getCompressPath(), ivZoom);
+                } else if (postsion == 3) {//长按跳编辑界面，编辑完成后，返回新图片的本地路径到PictureExternalPreviewActivity
+                    Intent intent = new Intent(context, ImageShowActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("imgpath", media.getCompressPath());
+                    bundle.putString("msg_id", msgId);
+                    intent.putExtras(bundle);
+                    context.startActivityForResult(intent, PictureExternalPreviewActivity.IMG_EDIT);
                 }
                 popupSelectView.dismiss();
 
@@ -846,14 +810,6 @@ public class AdapterPreviewImage extends PagerAdapter {
         popupSelectView.showAtLocation(parentView, Gravity.BOTTOM, 0, 0);
 
     }
-
-//    private void setClickListener(IPreviewImageListener l) {
-//        listener = l;
-//    }
-//
-//    public interface IPreviewImageListener {
-//        void onLongClick(LocalMedia media);
-//    }
 
     /**
      * 扫描二维码图片的方法
@@ -914,7 +870,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                     Result result = scanningImage(path, bitmap);
                     QRCodeManage.toZhifubao(context, result);
                 } else {
-                    ToastUtil.show(context, "识别二维码失败");
+                    ToastUtil.show(AppConfig.getContext(), "识别二维码失败");
                 }
             } else {
                 LogUtil.getLog().d(TAG, "scanningQrImage: path" + path);
@@ -928,7 +884,7 @@ public class AdapterPreviewImage extends PagerAdapter {
 
             }
         } catch (Exception e) {
-            ToastUtil.show(context, "识别二维码失败");
+            ToastUtil.show(AppConfig.getContext(), "识别二维码失败");
             e.printStackTrace();
         }
     }
@@ -1021,6 +977,8 @@ public class AdapterPreviewImage extends PagerAdapter {
                     if (!TextUtils.isEmpty(url)) {
                         isGif = FileUtils.isGif(url);
                     }
+                } else {
+                    isGif = FileUtils.isGif(path);
                 }
             } else {
                 isGif = FileUtils.isGif(path);

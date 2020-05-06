@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
@@ -104,6 +105,26 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         }
     }
 
+    /**
+     * 显示或隐藏密码
+     * @param view
+     */
+    public void showOrHidePassword(View view){
+        ImageView ivEye=(ImageView)view;
+        int level=ivEye.getDrawable().getLevel();
+        if(level==0){//隐藏转显示
+            mEtPasswordContent.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+            ivEye.setImageLevel(1);
+            //光标定位到最后
+            mEtPasswordContent.setSelection(mEtPasswordContent.getText().length());
+        }else{//显示转隐藏
+            mEtPasswordContent.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            ivEye.setImageLevel(0);
+            //光标定位到最后
+            mEtPasswordContent.setSelection(mEtPasswordContent.getText().length());
+        }
+    }
+
     private void initSpinner() {
         final String[] spinnerItems = {"测试服", "预发布服", "生产服"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.item_text, spinnerItems);
@@ -168,7 +189,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         mBtnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                InputUtil.hideKeyboard(mEtPasswordContent);
+                InputUtil.hideKeyboard(LoginActivity.this);
                 login();
             }
         });
