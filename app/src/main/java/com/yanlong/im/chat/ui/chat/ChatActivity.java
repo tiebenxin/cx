@@ -1005,13 +1005,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     /**
      * 添加表情、发送自定义表情
-     *
-     * @version 1.0
-     * @createTime 2013-10-22,下午2:16:54
-     * @updateTime 2013-10-22,下午2:16:54
-     * @createAuthor liujingguo
-     * @updateAuthor liujingguo
-     * @updateInfo 增加参数 group 表情资源所属组
      */
     protected void sendFace(FaceBean bean) {
         if (!checkNetConnectStatus()) {
@@ -1519,9 +1512,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     return;
                 }
                 if (isGroup()) {
-                    long id = userAction.getMyInfo().getUid();
-                    long masterId = Long.valueOf(groupInfo.getMaster());
-                    if (masterId != id) {
+                    if (!isAdmin() && !isAdministrators()) {
                         ToastUtil.show(context, "只有群主才能修改该选项");
                         return;
                     }
