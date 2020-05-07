@@ -65,7 +65,6 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
     private int mCurrentColorPosition = 0;
     private InputMethodManager mManager;
     private int from;//从相机拍摄过来的，需要删除缓存图片图片
-    private boolean hasEdit = false;//是否有编辑
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
