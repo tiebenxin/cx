@@ -3,7 +3,6 @@ package com.yanlong.im.chat.dao;
 import android.text.TextUtils;
 
 import com.hm.cxpay.global.PayEnum;
-import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
@@ -1829,15 +1828,13 @@ public class MsgDao {
                     long endTime = timestamp + msgAllBean.getSurvival_time() * 1000;
                     realm.beginTransaction();
                     if (msgAllBean.getSurvival_time() > 0) {//有设置阅后即焚
-                        if (endTime > DateUtils.getSystemTime()) {//还未到阅后即焚时间点，记录已读
+//                        if (endTime > DateUtils.getSystemTime()) {//还未到阅后即焚时间点，记录已读
                             msgAllBean.setRead(1);
                             msgAllBean.setReadTime(timestamp);
                             /**处理需要阅后即焚的消息***********************************/
                             msgAllBean.setStartTime(timestamp);
                             msgAllBean.setEndTime(endTime);
-                        } else {//已经到阅后即焚时间点，删除消息
-                            msgAllBean.deleteFromRealm();
-                        }
+//                        }
                     } else {//普通消息，记录已读状态和时间
                         msgAllBean.setRead(1);
                         msgAllBean.setReadTime(timestamp);

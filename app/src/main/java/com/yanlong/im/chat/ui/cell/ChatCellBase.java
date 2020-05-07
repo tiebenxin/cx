@@ -317,6 +317,10 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
 
             return;
         }
+        if(TextUtils.isEmpty(model.getFrom_avatar())){
+            iv_avatar.setImageResource(R.mipmap.ic_info_head);
+            return;
+        }
         String tag = (String) iv_avatar.getTag(R.id.iv_avatar);
         if (!TextUtils.equals(tag, model.getFrom_avatar())) {//第一次加载
             iv_avatar.setTag(R.id.iv_avatar, model.getFrom_avatar());

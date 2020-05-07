@@ -2,6 +2,7 @@ package com.yanlong.im.chat.ui.cell;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -59,6 +60,10 @@ public class ChatCellBusinessCard extends ChatCellBase {
      * */
     private void loadCardAvatar() {
         if (mContext == null || iv_avatar_card == null) {
+            return;
+        }
+        if(TextUtils.isEmpty(cardMessage.getAvatar())){
+            iv_avatar_card.setImageResource(R.mipmap.ic_info_head);
             return;
         }
         Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(cardMessage.getAvatar());

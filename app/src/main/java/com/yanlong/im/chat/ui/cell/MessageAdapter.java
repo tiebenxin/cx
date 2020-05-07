@@ -18,6 +18,7 @@ import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.view.MultiListView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,10 +56,12 @@ public class MessageAdapter extends RecyclerView.Adapter {
     private MsgDao msgDao = new MsgDao();
     private IActionTagClickListener actionListener;
     private boolean isOpenRead;
+    private MultiListView listView;
 
 
-    public MessageAdapter(Context c, ICellEventListener l, boolean isG) {
+    public MessageAdapter(Context c, ICellEventListener l, boolean isG, MultiListView listView) {
         context = c;
+        this.listView = listView;
         eventListener = l;
         mList = new ArrayList<>();
         isGroup = isG;
@@ -386,13 +389,17 @@ public class MessageAdapter extends RecyclerView.Adapter {
     }
 
     private void updateSurvivalTimeImage(String msgId, int id) {
-        if (mMsgIdPositions.containsKey(msgId)) {
-            int position = mMsgIdPositions.get(msgId);
-            ChatCellBase cell = getCellByPosition(position);
-            if (cell != null) {
-                cell.setBellId(id);
+        try {
+            if (mMsgIdPositions.containsKey(msgId)) {
+                int position = mMsgIdPositions.get(msgId);
+                ChatCellBase cell = getCellByPosition(position);
+                if (cell != null) {
+                    cell.setBellId(id);
+                } else {
+                    listView.getListView().getAdapter().notifyItemChanged(position);
+                }
             }
-        }
+        }catch (Exception e){}
     }
 
 

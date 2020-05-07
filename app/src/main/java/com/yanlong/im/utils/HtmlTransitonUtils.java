@@ -311,6 +311,7 @@ public class HtmlTransitonUtils {
             ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
             builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
+        builder.delete(builder.length()-1,builder.length());
         builder.append("移出群聊");
     }
 

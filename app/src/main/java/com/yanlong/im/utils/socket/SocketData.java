@@ -36,6 +36,7 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.TokenBean;
+import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 
@@ -854,6 +855,40 @@ public class SocketData {
                 SocketUtil.getSocketUtil().sendData4Msg(msg);
             }
         }
+    }
+
+    //自己邀请进群消息
+    public static void createMsgGroupOfNotice(String gid,List<UserInfo> listDataTop) {
+        MsgAllBean msg = new MsgAllBean();
+        String msgId = SocketData.getUUID();
+        msg.setMsg_id(msgId);
+        msg.setMsg_type(ChatEnum.EMessageType.NOTICE);
+        msg.setFrom_uid(UserAction.getMyId());
+        msg.setTimestamp(System.currentTimeMillis());
+
+        int survivalTime = new UserDao().getReadDestroy(null, gid);
+        msg.setSurvival_time(survivalTime);
+        msg.setRead(1);
+
+        msg.setTo_uid(UserAction.getMyId());
+        msg.setGid(gid);
+        msg.setFrom_nickname(UserAction.getMyInfo().getName());
+//        msg.setFrom_group_nickname(bean.getFrom_group_nickname());
+        MsgNotice note = new MsgNotice();
+        note.setMsgid(msgId);
+        note.setMsgType(ChatEnum.ENoticeType.INVITED);
+        String inviterName = "<font value ='3'>你</font>";
+        String names = "";
+        for(UserInfo user: listDataTop){
+            names += "\"<font id='" + user.getUid() + "' value ='2'>" + user.getName() + "</font>\"、";
+        }
+        //去掉最后一个逗号
+        names = names.length() > 0 ? names.substring(0, names.length() - 1) : names;
+        String node = inviterName + "邀请" + names + "加入了群聊" + "<div id='" + gid + "'></div>";
+        note.setNote(node);
+        msg.setMsgNotice(note);
+        msg.setIsLocal(1);
+        DaoUtil.save(msg);
     }
 
     //消息被拒

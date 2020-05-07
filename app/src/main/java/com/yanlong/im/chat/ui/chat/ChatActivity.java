@@ -207,7 +207,6 @@ import net.cb.cb.library.dialog.DialogEnvelopePast;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.inter.ICustomerItemClick;
 import net.cb.cb.library.manager.Constants;
-import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
@@ -542,7 +541,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
             }
         });
-        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
+
     }
 
     private String originalText = "";
@@ -590,6 +589,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         // 注销监听
         stopScreenShotListener();
     }
+
 
     @Override
     protected void onStop() {
@@ -654,6 +654,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Override
     protected void onStart() {
         super.onStart();
+        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
         if (!msgDao.isMsgLockExist(toGid, toUId)) {
             msgDao.insertOrUpdateMessage(SocketData.createMessageLock(toGid, toUId));
         }
@@ -1384,7 +1385,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }));
 
-        mAdapter = new MessageAdapter(this, this, isGroup());
+        mAdapter = new MessageAdapter(this, this, isGroup(),mtListView);
         mAdapter.setCellFactory(new FactoryChatCell(this, mAdapter, this));
         mAdapter.setTagListener(this);
         mAdapter.setHasStableIds(true);
@@ -5852,7 +5853,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     public final void updateMsgUnread(int num) {
         LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + num);
-        BadgeUtil.setBadgeCount(getApplicationContext(), num);
+        if (num>99) {
+            actionbar.setTxtLeft(num+"+", R.drawable.shape_unread_oval_bg, DensityUtil.sp2px(ChatActivity.this, 5));
+        } else if(num>0) {
+            actionbar.setTxtLeft(num+"", R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
+        }else{
+            actionbar.setTxtLeft("", R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
+        }
+//        BadgeUtil.setBadgeCount(getApplicationContext(), num);
     }
 
 
