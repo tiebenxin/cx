@@ -16,7 +16,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -25,8 +24,8 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
-import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.UserUtil;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -345,6 +344,8 @@ public class GroupNumbersActivity extends AppActivity {
                         if (response.body().getData().isPending()) {
                             //提示情况
                             ToastUtil.show("邀请成功,等待群主验证");
+                        }else{
+                            SocketData.createMsgGroupOfNotice(gid,listDataTop);
                         }
                     }
                     MessageManager.getInstance().notifyGroupChange(true);
