@@ -45,6 +45,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.SendFileMessage;
+import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.ui.FileDownloadActivity;
 import com.yanlong.im.chat.ui.VideoPlayActivity;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
@@ -55,6 +56,8 @@ import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.user.bean.CollectionInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.audio.AudioPlayManager;
+import com.yanlong.im.utils.audio.IVoicePlayListener;
 import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.bean.EventFileRename;
@@ -192,6 +195,12 @@ public class CollectDetailsActivity extends AppActivity {
                 }else {
                     ToastUtil.show("文件不存在或者已被删除");
                 }
+            }
+        });
+        layoutVoice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playVoice(bean,true,0);
             }
         });
     }
@@ -455,7 +464,7 @@ public class CollectDetailsActivity extends AppActivity {
                                     //显示下载状态
                                     //1 如果是我发的文件
                                     if (bean.isMe()) {
-                                        //TODO 这里不考虑转发
+                                        //TODO 这里不考虑转发和重名
                                         //1-1 没有本地路径，代表为PC端发的文件，需要下载
                                         if (TextUtils.isEmpty(fileMessage.getLocalPath())) {
                                             //从下载路径里找，若存在该文件，则允许直接打开；否则需要下载
@@ -485,15 +494,13 @@ public class CollectDetailsActivity extends AppActivity {
                                         }
                                     }else {
                                         //2 如果是别人发的文件
-                                        //从下载路径里找，若存在该文件，则直接打开；否则需要下载
-                                        if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
-                                            filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename();
+                                        //从下载路径里找，若存在该文件，则直接打开；否则需要下载 TODO 暂时直接打开原文件名
+                                        if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name())) {
+                                            filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name();
                                             status = 0;
                                             tvDownload.setText("打开");
                                         } else {
-                                            if (!TextUtils.isEmpty(fileMessage.getUrl())) {
-                                                ToastUtil.show("检测到该文件来源于PC端，请点击下载");
-                                            } else {
+                                            if (TextUtils.isEmpty(fileMessage.getUrl())) {
                                                 ToastUtil.show("文件下载地址错误，请联系客服");
                                             }
                                             status = 1;
@@ -723,6 +730,80 @@ public class CollectDetailsActivity extends AppActivity {
             } catch (Exception e) {
                 ToastUtil.show("文件下载失败");
                 tvDownload.setText("下载失败");
+            }
+        }
+    }
+
+    private void playVoice(final MsgAllBean bean, final boolean canAutoPlay,
+                           final int position) {
+//        LogUtil.getLog().i(TAG, "playVoice--" + position);
+        VoiceMessage vm = bean.getVoiceMessage();
+        if (vm == null || TextUtils.isEmpty(vm.getUrl())) {
+            return;
+        }
+        String url = "";
+        if (bean.isMe()) {
+            url = vm.getLocalUrl();
+        } else {
+            url = vm.getUrl();
+        }
+        if (TextUtils.isEmpty(url)) {
+            return;
+        }
+        if (AudioPlayManager.getInstance().isPlay(Uri.parse(url))) {
+            AudioPlayManager.getInstance().stopPlay();
+        } else {
+            if (bean.getVoiceMessage().getPlayStatus() == ChatEnum.EPlayStatus.NO_DOWNLOADED && !bean.isMe()) {
+                AudioPlayManager.getInstance().downloadAudio(context, bean, new DownloadUtil.IDownloadVoiceListener() {
+                    @Override
+                    public void onDownloadSuccess(File file) {
+                        bean.getVoiceMessage().setPlayStatus(ChatEnum.EPlayStatus.NO_PLAY);
+                        AudioPlayManager.getInstance().startPlay(context, bean, position, canAutoPlay, new IVoicePlayListener() {
+                            @Override
+                            public void onStart(MsgAllBean bean) {
+                                bean.getVoiceMessage().setPlayStatus(ChatEnum.EPlayStatus.PLAYING);
+                            }
+
+                            @Override
+                            public void onStop(MsgAllBean bean) {
+                                bean.getVoiceMessage().setPlayStatus(ChatEnum.EPlayStatus.STOP_PLAY);
+                            }
+
+                            @Override
+                            public void onComplete(MsgAllBean bean) {
+                                bean.getVoiceMessage().setPlayStatus(ChatEnum.EPlayStatus.PLAYED);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onDownloading(int progress) {
+
+                    }
+
+                    @Override
+                    public void onDownloadFailed(Exception e) {
+                        bean.getVoiceMessage().setPlayStatus(ChatEnum.EPlayStatus.NO_DOWNLOADED);
+                        ToastUtil.show("语音消息下载失败!");
+                    }
+                });
+            } else {
+                AudioPlayManager.getInstance().startPlay(context, bean, position, canAutoPlay, new IVoicePlayListener() {
+                    @Override
+                    public void onStart(MsgAllBean bean) {
+                        bean.getVoiceMessage().setPlayStatus(ChatEnum.EPlayStatus.PLAYING);
+                    }
+
+                    @Override
+                    public void onStop(MsgAllBean bean) {
+                        bean.getVoiceMessage().setPlayStatus(ChatEnum.EPlayStatus.STOP_PLAY);
+                    }
+
+                    @Override
+                    public void onComplete(MsgAllBean bean) {
+                        bean.getVoiceMessage().setPlayStatus(ChatEnum.EPlayStatus.PLAYED);
+                    }
+                });
             }
         }
     }
