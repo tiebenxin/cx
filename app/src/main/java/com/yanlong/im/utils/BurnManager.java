@@ -7,12 +7,12 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.BurnBroadcastReceiver;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 
 import net.cb.cb.library.CoreEnum;
@@ -160,9 +160,13 @@ public class BurnManager {
                         updateDetailListener.updateLastSecondDetail(realm, uid, uids.get(uid).toArray(new String[uids.get(uid).size()]));
                     }
                     if (toDeletedResults.size() > 0) {
+                        //删除前先把子表数据干掉!!切记
+                        MsgDao msgDao = new MsgDao();
+                        for (MsgAllBean msg : toDeletedResults) {
+                            msgDao.deleteRealmMsg(msg);
+                        }
                         //批量删除 已到阅后即焚时间
                         toDeletedResults.deleteAllFromRealm();
-                        Log.e("raleigh_test","raleigh"+toDeletedResults.size()+",toDeletedResultsTemp+"+toDeletedResultsTemp.size());
                         /**
                          * 通知更新聊天界面
                          * 因为聊天界面删除的非数据库对象，可以提前通知，若为数据库对象，需在OnSuccess方法中
