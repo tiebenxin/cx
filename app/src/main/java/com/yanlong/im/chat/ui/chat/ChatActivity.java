@@ -5855,8 +5855,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + num);
         if (num>99) {
             actionbar.setTxtLeft(num+"+", R.drawable.shape_unread_oval_bg, DensityUtil.sp2px(ChatActivity.this, 5));
-        } else {
+        } else if(num>0) {
             actionbar.setTxtLeft(num+"", R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
+        }else{
+            actionbar.setTxtLeft("", R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
         }
 //        BadgeUtil.setBadgeCount(getApplicationContext(), num);
     }
