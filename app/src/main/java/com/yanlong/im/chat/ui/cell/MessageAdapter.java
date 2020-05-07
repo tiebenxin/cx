@@ -350,8 +350,8 @@ public class MessageAdapter extends RecyclerView.Adapter {
             long nowTimeMillis = DateUtils.getSystemTime();
             long period = 0;
             long start = 1;
-            mTimersIndexs.put(msgId, 1);
             if (nowTimeMillis < endTime) {//当前时间还在倒计时结束前
+                mTimersIndexs.put(msgId, 1);
                 long distance = startTime - nowTimeMillis;//和现在时间相差的毫秒数
                 //四舍五入
                 period = Math.round(Double.valueOf(endTime - startTime) / COUNT);
