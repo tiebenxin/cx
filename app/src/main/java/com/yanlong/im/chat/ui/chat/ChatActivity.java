@@ -542,7 +542,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
             }
         });
-        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
+
     }
 
     private String originalText = "";
@@ -590,6 +590,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         // 注销监听
         stopScreenShotListener();
     }
+
 
     @Override
     protected void onStop() {
@@ -654,6 +655,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Override
     protected void onStart() {
         super.onStart();
+        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
         if (!msgDao.isMsgLockExist(toGid, toUId)) {
             msgDao.insertOrUpdateMessage(SocketData.createMessageLock(toGid, toUId));
         }
