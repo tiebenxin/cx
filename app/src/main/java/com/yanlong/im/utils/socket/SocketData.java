@@ -1533,6 +1533,7 @@ public class SocketData {
             } else {
                 msgAllBean.setSend_state(ChatEnum.ESendStatus.ERROR);
                 msgAllBean.setTimestamp(ackMessage.getTimestamp());
+                DaoUtil.update(msgAllBean);
             }
             return msgAllBean;
         }
