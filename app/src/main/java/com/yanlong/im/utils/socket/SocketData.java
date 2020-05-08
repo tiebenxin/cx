@@ -897,8 +897,11 @@ public class SocketData {
     }
 
     //消息被拒
-    public static MsgAllBean createMsgBeanOfNotice(MsgBean.AckMessage ack, @ChatEnum.ENoticeType int type) {
-        MsgAllBean bean = msgDao.getMsgById(ack.getMsgId(0));
+    public static MsgAllBean createMsgBeanOfNotice(MsgBean.AckMessage ack, MsgAllBean msgAllBean, @ChatEnum.ENoticeType int type) {
+        MsgAllBean bean = msgAllBean;
+        if (bean == null) {
+            bean = msgDao.getMsgById(ack.getMsgId(0));
+        }
         MsgAllBean msg = null;
         if (bean != null && TextUtils.isEmpty(bean.getGid())) {
             msg = new MsgAllBean();
@@ -1486,45 +1489,50 @@ public class SocketData {
     }
 
     //更新发送状态，根据ack
-    public static MsgAllBean updateMsgSendStatusByAck(MsgBean.AckMessage ackMessage) {
+    public static MsgAllBean updateMsgSendStatusByAck(MsgBean.AckMessage ackMessage, boolean isSuccess) {
         MsgAllBean msgAllBean = SendList.getMsgFromSendSequence(ackMessage.getRequestId());
         if (msgAllBean != null) {
             SendList.removeMsgFromSendSequence(ackMessage.getRequestId());
             SendList.removeSendListJust(ackMessage.getRequestId());
-            if (msgAllBean.getMsg_type() == ChatEnum.EMessageType.READ) {
-                return msgAllBean;
-            }
-            msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
-            if (msgAllBean.getVideoMessage() != null && !TextUtils.isEmpty(videoLocalUrl)) {
-                msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
-            }
-            if (msgAllBean.getMsg_type() != ChatEnum.EMessageType.MSG_CANCEL) {
-                msgAllBean.setTimestamp(ackMessage.getTimestamp());
-            } else {
-                //cancel消息，需要将msgId赋予给新的消息，以便替换源消息
-                String cancelId = msgAllBean.getMsgCancel().getMsgidCancel();
-                if (!TextUtils.isEmpty(cancelId)) {
-                    msgAllBean.setMsg_id(cancelId);
-                    msgAllBean.getMsgCancel().setMsgid(cancelId);
+            if (isSuccess) {
+                if (msgAllBean.getMsg_type() == ChatEnum.EMessageType.READ) {
+                    return msgAllBean;
                 }
-
-            }
-            DaoUtil.update(msgAllBean);
-            if (msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {
-                /********通知更新sessionDetail************************************/
-                //因为msg对象 uid有两个，都得添加
-                List<String> gids = new ArrayList<>();
-                List<Long> uids = new ArrayList<>();
-                //gid存在时，不取uid
-                if (TextUtils.isEmpty(msgAllBean.getGid())) {
-                    uids.add(msgAllBean.getTo_uid());
-                    uids.add(msgAllBean.getFrom_uid());
+                msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
+                if (msgAllBean.getVideoMessage() != null && !TextUtils.isEmpty(videoLocalUrl)) {
+                    msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
+                }
+                if (msgAllBean.getMsg_type() != ChatEnum.EMessageType.MSG_CANCEL) {
+                    msgAllBean.setTimestamp(ackMessage.getTimestamp());
                 } else {
-                    gids.add(msgAllBean.getGid());
+                    //cancel消息，需要将msgId赋予给新的消息，以便替换源消息
+                    String cancelId = msgAllBean.getMsgCancel().getMsgidCancel();
+                    if (!TextUtils.isEmpty(cancelId)) {
+                        msgAllBean.setMsg_id(cancelId);
+                        msgAllBean.getMsgCancel().setMsgid(cancelId);
+                    }
+
                 }
-                //回主线程调用更新session详情
-                MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
-                /********通知更新sessionDetail end************************************/
+                DaoUtil.update(msgAllBean);
+                if (msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {
+                    /********通知更新sessionDetail************************************/
+                    //因为msg对象 uid有两个，都得添加
+                    List<String> gids = new ArrayList<>();
+                    List<Long> uids = new ArrayList<>();
+                    //gid存在时，不取uid
+                    if (TextUtils.isEmpty(msgAllBean.getGid())) {
+                        uids.add(msgAllBean.getTo_uid());
+                        uids.add(msgAllBean.getFrom_uid());
+                    } else {
+                        gids.add(msgAllBean.getGid());
+                    }
+                    //回主线程调用更新session详情
+                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+                    /********通知更新sessionDetail end************************************/
+                }
+            } else {
+                msgAllBean.setSend_state(ChatEnum.ESendStatus.ERROR);
+                msgAllBean.setTimestamp(ackMessage.getTimestamp());
             }
             return msgAllBean;
         }
