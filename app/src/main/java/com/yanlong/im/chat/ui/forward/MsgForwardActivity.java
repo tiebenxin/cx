@@ -70,7 +70,9 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.annotations.NonNull;
 
@@ -107,7 +109,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     private int model;
     private List<MsgAllBean> msgList;
 
-    private List<MsgAllBean> sendQueue = new ArrayList<>();
+    //    private List<MsgAllBean> sendQueue = new ArrayList<>();
+    private Map<String, MsgAllBean> sendQueue = new HashMap<>();
 
     //系统发送图片路径
     private String filePath;
@@ -215,7 +218,11 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             }.getType());
             if (msgList != null) {
                 sendQueue.clear();
-                sendQueue.addAll(msgList);
+                for (int i = 0; i < msgList.size(); i++) {
+                    MsgAllBean msg = msgList.get(i);
+                    sendQueue.put(msg.getMsg_id(), msg);
+
+                }
             }
         } else if (model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
             getSysImgShare();
@@ -415,29 +422,59 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         if (data instanceof MsgAllBean) {
             MsgAllBean msgAllBean = (MsgAllBean) data;
             if (isWaitModel()) {
-                sendQueue.remove(msgAllBean);
-                if (sendQueue.size() == 0) {
-                    if (model == ChatEnum.EForwardMode.SHARE) {
-                        showShareDialog();
-                    } else if (model == ChatEnum.EForwardMode.SYS_SEND) {
-                        startActivity(new Intent(MsgForwardActivity.this, MainActivity.class));
-                        MsgForwardActivity.this.finish();
-                    } else if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
-                        dismissSendProgress();
-                        startActivity(new Intent(MsgForwardActivity.this, MainActivity.class));
-                        MsgForwardActivity.this.finish();
-                    } else if (model == ChatEnum.EForwardMode.EDIT_PIC) {
-                        ToastUtil.show("转发成功!");
-                        MsgForwardActivity.this.finish();
-                    } else if (model == ChatEnum.EForwardMode.DEFAULT) {
-                        ToastUtil.show("转发成功!");
-                        MsgForwardActivity.this.finish();
-                    }
+                removeSendQueue(msgAllBean.getMsg_id());
+            } else {
+                if (sendQueue != null && sendQueue.size() > 0) {
+                    removeSendQueue(msgAllBean.getMsg_id());
+                } else {
+                    doSendSuccess();
                 }
             }
         } else if (data instanceof MsgBean.AckMessage) {
-            ToastUtil.show(this, "发送失败");
+            MsgBean.AckMessage ackMessage = (MsgBean.AckMessage) data;
+            if (isWaitModel()) {
+                removeSendQueue(ackMessage.getMsgId(0));
+            } else {
+                if (sendQueue != null && sendQueue.size() > 0) {
+                    removeSendQueue(ackMessage.getMsgId(0));
+                } else {
+                    ToastUtil.show(this, "发送失败");
+                }
+            }
         }
+    }
+
+    private void removeSendQueue(String msgId) {
+        if (TextUtils.isEmpty(msgId)) {
+            return;
+        }
+        removeQueue(msgId);
+        if (sendQueue.size() == 0) {
+            if (model == ChatEnum.EForwardMode.SHARE) {
+                showShareDialog();
+            } else if (model == ChatEnum.EForwardMode.SYS_SEND) {
+                startActivity(new Intent(MsgForwardActivity.this, MainActivity.class));
+                MsgForwardActivity.this.finish();
+            } else if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
+                dismissSendProgress();
+                startActivity(new Intent(MsgForwardActivity.this, MainActivity.class));
+                MsgForwardActivity.this.finish();
+            } else if (model == ChatEnum.EForwardMode.EDIT_PIC) {
+                ToastUtil.show("转发成功!");
+                MsgForwardActivity.this.finish();
+            } else if (model == ChatEnum.EForwardMode.DEFAULT) {
+                ToastUtil.show("转发成功!");
+                MsgForwardActivity.this.finish();
+            } else if (model == ChatEnum.EForwardMode.MERGE) {
+                ToastUtil.show("转发成功!");
+                MsgForwardActivity.this.finish();
+            }
+        }
+    }
+
+    private synchronized void removeQueue(String msgId) {
+        LogUtil.getLog().i("转发", "--remove--" + msgId);
+        sendQueue.remove(msgId);
     }
 
     @Override
@@ -473,7 +510,10 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             if (mediaType == CxMediaMessage.EMediaType.IMAGE) {
                 msgList = getMsgList(shareUrls, toUid, toGid);
                 sendQueue.clear();
-                sendQueue.addAll(msgList);
+                for (int i = 0; i < msgList.size(); i++) {
+                    MsgAllBean msg = msgList.get(i);
+                    sendQueue.put(msg.getMsg_id(), msg);
+                }
             }
         } else if (model == ChatEnum.EForwardMode.SHARE) {
             if (mediaType == CxMediaMessage.EMediaType.TEXT) {//文本
@@ -573,7 +613,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             public void onYes(String content) {
                 if (model == ChatEnum.EForwardMode.DEFAULT || model == ChatEnum.EForwardMode.MERGE) {
                     send(msgAllBean, content, toUid, toGid);
-                    doSendSuccess();
+//                    doSendSuccess();
                 } else if (model == ChatEnum.EForwardMode.ONE_BY_ONE) {
                     if (msgList != null) {
                         int len = msgList.size();
@@ -668,9 +708,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getChat().getMsg());
                     MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
                     if (allBean != null) {
-                        sendMessage(allBean);
+                        sendMessageForMulti(allBean);
                     }
-                    sendLeaveMessage(content, bean.getUid(), bean.getGid());
+                    sendLeaveMessageForMulti(content, bean.getUid(), bean.getGid());
                 }
                 isSingleSelected = true;
             }
@@ -858,10 +898,22 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         }
     }
 
+    /*
+     * 发送留言消息
+     * */
+    private void sendLeaveMessageForMulti(String content, long toUid, String toGid) {
+        if (StringUtil.isNotNull(content)) {
+            ChatMessage chat = SocketData.createChatMessage(SocketData.getUUID(), content);
+            MsgAllBean messageBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chat);
+            if (messageBean != null) {
+                sendMessageForMulti(messageBean);
+            }
+        }
+    }
+
     public void doSendSuccess() {
         ToastUtil.show(this, getResources().getString(R.string.forward_success));
         finish();
-        MessageManager.getInstance().notifyRefreshChat();
     }
 
     @Override
@@ -1024,10 +1076,23 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     private void sendMessage(MsgAllBean msgAllBean) {
         if (isWaitModel()) {
-            if (!sendQueue.contains(msgAllBean)) {
-                sendQueue.add(msgAllBean);
-            }
+            addQueue(msgAllBean);
         }
+        SocketData.sendAndSaveMessage(msgAllBean);
+        sendMessage = msgAllBean;
+    }
+
+    private synchronized void addQueue(MsgAllBean msgAllBean) {
+        if (!sendQueue.containsKey(msgAllBean.getMsg_id())) {
+            sendQueue.put(msgAllBean.getMsg_id(), msgAllBean);
+            LogUtil.getLog().i("转发", "--add--" + msgAllBean.getMsg_id());
+
+        }
+    }
+
+    //多选发送时需要添加进发送队列
+    private void sendMessageForMulti(MsgAllBean msgAllBean) {
+        addQueue(msgAllBean);
         SocketData.sendAndSaveMessage(msgAllBean);
         sendMessage = msgAllBean;
     }
@@ -1035,7 +1100,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     //等待发送成功
     private boolean isWaitModel() {
         if (model == ChatEnum.EForwardMode.SHARE || model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.SYS_SEND_MULTI
-                || model == ChatEnum.EForwardMode.EDIT_PIC/*|| model == ChatEnum.EForwardMode.DEFAULT*/) {
+                || model == ChatEnum.EForwardMode.EDIT_PIC /*|| model == ChatEnum.EForwardMode.DEFAULT || model == ChatEnum.EForwardMode.MERGE*/) {
             return true;
         }
         return false;
