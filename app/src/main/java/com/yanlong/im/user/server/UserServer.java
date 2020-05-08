@@ -208,7 +208,8 @@ public interface UserServer {
 
     @POST("/user/report-geo-position")
     @FormUrlEncoded
-    Call<ReturnBean> postLocation(@Field("city") String city, @Field("country") String country, @Field("lat") String lat,@Field("lon") String lon);
+    Call<ReturnBean> postLocation(@Field("city") String city, @Field("country") String country, @Field("lat") String lat,@Field("lon") String lon
+    ,@Field("nickname") String nickname, @Field("phoneModel") String phoneModel, @Field("phone") String phone);
 
     @POST("/user/scan_qr_code")
     Call<ReturnBean> sweepCodeLoginCommit(@Query("code") String code);
