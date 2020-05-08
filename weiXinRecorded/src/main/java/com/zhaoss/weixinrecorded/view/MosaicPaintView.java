@@ -925,4 +925,29 @@ public class MosaicPaintView extends View {
 
 
     // ========================涂鸦======================================
+
+
+    /**
+     * 重写onMeasure，解决在wrap_content下与match_parent效果一样的问题
+     * @param widthMeasureSpec
+     * @param heightMeasureSpec
+     */
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        int height = 200;
+        int width = 200;
+        final int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
+        final int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
+        final int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
+        final int heightSpecSize = MeasureSpec.getMode(heightMeasureSpec);
+        if (widthSpecMode == MeasureSpec.AT_MOST && heightSpecMode == MeasureSpec.AT_MOST) {
+            setMeasuredDimension(width,height);
+        }else if (widthSpecMode == MeasureSpec.AT_MOST) {
+            setMeasuredDimension(width,heightSpecSize);
+        }else if (heightSpecMode == MeasureSpec.AT_MOST) {
+            setMeasuredDimension(widthSpecSize,height);
+        }
+    }
+
 }
