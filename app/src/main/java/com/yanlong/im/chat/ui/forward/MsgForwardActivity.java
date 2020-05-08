@@ -938,12 +938,16 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     if (model == ChatEnum.EForwardMode.SYS_SEND) {
                         Uri uri = (Uri) extras.getParcelable(Intent.EXTRA_STREAM);
                         filePath = FileUtils.getFilePathByUri(MsgForwardActivity.this, uri);
+                        if (TextUtils.isEmpty(filePath)) {
+                            ToastUtil.show("路径解析异常，分享失败");
+                        }
                     } else if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
                         List<Uri> uriList = extras.getParcelableArrayList(Intent.EXTRA_STREAM);
                         shareUrls = FileUtils.getUrisForList(MsgForwardActivity.this, uriList);
                     }
                 } catch (Exception e) {
                     LogUtil.getLog().e(e.toString());
+                    ToastUtil.show("路径解析异常，分享失败");
                 }
             }
 
