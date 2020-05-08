@@ -307,11 +307,11 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     if (!isFinishing()) {
                         if(pressHOME){
                             mMediaPlayer.seekTo(mLastTime);
-                            activity_video_big_con.setVisibility(View.INVISIBLE);
-                            activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
-                            pressHOME = false;
+                            activity_video_big_con.setVisibility(View.VISIBLE);
+                            activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
+                        }else {
+                            mMediaPlayer.start();
                         }
-                        mMediaPlayer.start();
                         // 转成秒
                         mTempTime = mMediaPlayer.getDuration() / 1000;
                         mHour = mTempTime / 3600;
@@ -451,6 +451,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         mMediaPlayer.start();
                         activity_video_big_con.setVisibility(View.INVISIBLE);
                         dontShake = false;
+                        pressHOME = false;
                     }
                     activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
                 }
@@ -467,6 +468,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
                         getProgress();
                         dontShake = false;
+                        pressHOME = false;
                     }
                 }
                 break;
