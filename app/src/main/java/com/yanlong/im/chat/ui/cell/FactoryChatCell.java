@@ -100,6 +100,10 @@ public class FactoryChatCell {
             case BALANCE_ASSISTANT:
                 cell = new ChatCellBalanceAssitant(mContext, view, mListener, mAdapter);
                 break;
+            case REPLY_TEXT_RECEIVED:
+            case REPLY_TEXT_SEND:
+                cell = new ChatCellReplyText(mContext, view, mListener, mAdapter);
+                break;
             default:
                 cell = new ChatCellUnrecognized(mContext, view, mListener, mAdapter);
                 break;

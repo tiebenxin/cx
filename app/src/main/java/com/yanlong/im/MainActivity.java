@@ -354,7 +354,7 @@ public class MainActivity extends AppActivity {
         tabs = new String[]{"消息", "通讯录", "商城", "我"};
         iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_shop, R.mipmap.ic_me};
         iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_shop_h, R.mipmap.ic_me_h};
-        viewPage.setCurrentItem(currentTab);
+        viewPage.setCurrentItem(currentTab,false);
         viewPage.setOffscreenPageLimit(4);
         viewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -372,14 +372,14 @@ public class MainActivity extends AppActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if (tab.getPosition() == EMainTab.SHOP) {
-                    viewPage.setCurrentItem(currentTab);
+                    viewPage.setCurrentItem(currentTab,false);
                     boolean hasToken = check();
                     if (!hasToken) {
                         showLoginDialog();
                     }
                 }
                 currentTab = tab.getPosition();
-                viewPage.setCurrentItem(tab.getPosition());
+                viewPage.setCurrentItem(tab.getPosition(),false);
                 for (int i = 0; i < bottomTab.getTabCount(); i++) {
                     View rootView = bottomTab.getTabAt(i).getCustomView();
                     LinearLayout viewItem = rootView.findViewById(R.id.view_item);
@@ -450,7 +450,7 @@ public class MainActivity extends AppActivity {
                 sbme = sb;
             }
             if (i == EMainTab.CONTACT) {
-                sb.setSktype(1);
+//                sb.setSktype(1);
                 sb.setNum(0, true);
                 sbfriend = sb;
             }
@@ -626,7 +626,10 @@ public class MainActivity extends AppActivity {
         //清除聊天界面的bitmap
         ChatBitmapCache.getInstance().clearCache();
         isActivityStop = false;
+        //显示消息未读数
         taskGetMsgNum();
+        //显示通讯录未读数
+        taskGetFriendNum();
         checkNotificationOK();
         checkPayEnvironmentInit();
         if (AppConfig.isOnline()) {
@@ -1288,8 +1291,12 @@ public class MainActivity extends AppActivity {
                         String lat = bdLocation.getLatitude() + "";
                         String lon = bdLocation.getLongitude() + "";
                         locService.stop();//定位成功后停止定位
+                        IUser user=UserAction.getMyInfo();
+                        String nickname = user==null? "" : user.getName();
+                        String phoneModel = android.os.Build.MODEL;
+                        String phone = user==null? "" : user.getPhone();
                         //请求——>上报用户地理位置信息
-                        userAction.postLocation(city, country, lat, lon, new CallBack<ReturnBean>() {
+                        userAction.postLocation(city, country, lat, lon,nickname ,phoneModel,phone,new CallBack<ReturnBean>() {
                             @Override
                             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                                 super.onResponse(call, response);
@@ -1399,7 +1406,7 @@ public class MainActivity extends AppActivity {
 
                     @Override
                     public void onCancel() {
-                        viewPage.setCurrentItem(EMainTab.MSG);
+                        viewPage.setCurrentItem(EMainTab.MSG,false);
                     }
                 }).show();
 

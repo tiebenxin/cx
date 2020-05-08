@@ -36,10 +36,11 @@
 
                     <net.cb.cb.library.view.StrikeButton
                         android:id="@+id/sb_apply"
+                        android:layout_marginLeft="5dip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:strike_icon_res="@color/transparent"
-                        app:strike_type="small" />
+                      />
 
                 </LinearLayout>
 

@@ -20,9 +20,12 @@ public class InputUtil {
 
     }
     public static void hideKeyboard(Activity activity) {
-        LogUtil.getLog().e("hideKeyboard===");
-        InputMethodManager manager = (InputMethodManager) activity
-                .getSystemService(Context.INPUT_METHOD_SERVICE);
-        manager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        try {
+            LogUtil.getLog().e("hideKeyboard===");
+            InputMethodManager manager = (InputMethodManager) activity
+                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+            manager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }catch (Exception e){
+        }
     }
 }
