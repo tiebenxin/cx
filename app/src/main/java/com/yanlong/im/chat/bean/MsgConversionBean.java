@@ -687,7 +687,7 @@ public class MsgConversionBean {
                         if (switchValue == 0) {
                             if (UserAction.getMyId() != null && uid == UserAction.getMyId().longValue()) {
                                 sb.append("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name
-                                        + "</font>\"" + "解除了\"<font color='#276baa' id='" + message.getUid() + "'>你</font>\"的禁言");
+                                        + "</font>\"" + "解除了<font color='#276baa' id='" + message.getUid() + "'>你</font>的禁言");
                             } else {
                                 sb.append("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name
                                         + "</font>\"" + "解除了\"<font color='#276baa' id='" + message.getUid() + "'>" + message.getNickname() + "</font>\"的禁言");
