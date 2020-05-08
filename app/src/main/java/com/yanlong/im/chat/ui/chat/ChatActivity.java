@@ -112,6 +112,7 @@ import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.ReadMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
+import com.yanlong.im.chat.bean.ReplyMessage;
 import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.Session;
@@ -395,6 +396,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     };
+    private MsgAllBean replayMsg;
+    private boolean isReplying;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -1183,16 +1186,25 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         editChat.getText().clear();
                         return;
                     }
-                    if (editChat.isAtAll()) {
-                        AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.ALL, editChat.getUserIdList());
-                        sendMessage(message, ChatEnum.EMessageType.AT);
+                    if (isReplying && replayMsg != null) {
+                        int atType = editChat.isAtAll() ? ChatEnum.EAtType.ALL : ChatEnum.EAtType.MULTIPLE;
+                        ReplyMessage message = SocketData.createReplyMessage(replayMsg, SocketData.getUUID(), text, atType, editChat.getUserIdList());
+                        sendMessage(message, ChatEnum.EMessageType.REPLY);
                         editChat.getText().clear();
-
+                        isReplying = false;
                     } else {
-                        AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.MULTIPLE, editChat.getUserIdList());
-                        sendMessage(message, ChatEnum.EMessageType.AT);
-                        editChat.getText().clear();
+                        if (editChat.isAtAll()) {
+                            AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.ALL, editChat.getUserIdList());
+                            sendMessage(message, ChatEnum.EMessageType.AT);
+                            editChat.getText().clear();
+
+                        } else {
+                            AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.MULTIPLE, editChat.getUserIdList());
+                            sendMessage(message, ChatEnum.EMessageType.AT);
+                            editChat.getText().clear();
+                        }
                     }
+
                 } else {
                     //发送普通消息
                     if (!TextUtils.isEmpty(text)) {
@@ -3642,6 +3654,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
             menus.add(new OptionMenu("转发"));
         }
+//        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
+//            menus.add(new OptionMenu("回复"));
+//        }
         menus.add(new OptionMenu("删除"));
         switch (type) {
             case ChatEnum.EMessageType.TEXT:
@@ -3804,14 +3819,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     //回复
-    private void onAnswer(MsgAllBean msgbean) {
-        LogUtil.getLog().e("===回复=====");
-        switch (msgbean.getMsg_type()) {
-            case ChatEnum.EMessageType.TEXT:
-                break;
-            case ChatEnum.EMessageType.IMAGE:
-                break;
-        }
+    private void onAnswer(MsgAllBean bean) {
+        isReplying = true;
+        replayMsg = bean;
+        doAtInput(bean);
     }
 
 
