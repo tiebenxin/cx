@@ -13,7 +13,6 @@ import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.LoginInfo;
-import com.yanlong.im.MainActivity;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
@@ -36,7 +35,6 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.Installation;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetIntrtceptor;
 import net.cb.cb.library.utils.NetUtil;
@@ -923,10 +921,11 @@ public class UserAction {
     }
 
     /**
-     * 上报用户地理位置信息
+     * 上报用户地理位置信息 5/8新增昵称 手机等信息
      */
-    public void postLocation(String city, String country, String lat, String lon, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.postLocation(city, country, lat, lon), callback);
+    public void postLocation(String city, String country, String lat, String lon,String nickname
+            ,String phoneModel,String phone, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.postLocation(city, country, lat, lon,nickname,phoneModel,phone), callback);
     }
 
     /**

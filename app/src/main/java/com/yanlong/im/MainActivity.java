@@ -1290,8 +1290,12 @@ public class MainActivity extends AppActivity {
                         String lat = bdLocation.getLatitude() + "";
                         String lon = bdLocation.getLongitude() + "";
                         locService.stop();//定位成功后停止定位
+                        IUser user=UserAction.getMyInfo();
+                        String nickname = user==null? "" : user.getName();
+                        String phoneModel = android.os.Build.MODEL;
+                        String phone = user==null? "" : user.getPhone();
                         //请求——>上报用户地理位置信息
-                        userAction.postLocation(city, country, lat, lon, new CallBack<ReturnBean>() {
+                        userAction.postLocation(city, country, lat, lon,nickname ,phoneModel,phone,new CallBack<ReturnBean>() {
                             @Override
                             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                                 super.onResponse(call, response);
