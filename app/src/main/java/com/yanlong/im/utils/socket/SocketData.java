@@ -863,7 +863,7 @@ public class SocketData {
     }
 
     //自己邀请进群消息
-    public static void createMsgGroupOfNotice(String gid,List<UserInfo> listDataTop) {
+    public static void createMsgGroupOfNotice(String gid, List<UserInfo> listDataTop) {
         MsgAllBean msg = new MsgAllBean();
         String msgId = SocketData.getUUID();
         msg.setMsg_id(msgId);
@@ -884,7 +884,7 @@ public class SocketData {
         note.setMsgType(ChatEnum.ENoticeType.INVITED);
         String inviterName = "<font value ='3'>你</font>";
         String names = "";
-        for(UserInfo user: listDataTop){
+        for (UserInfo user : listDataTop) {
             names += "\"<font id='" + user.getUid() + "' value ='2'>" + user.getName() + "</font>\"、";
         }
         //去掉最后一个逗号
@@ -1191,6 +1191,7 @@ public class SocketData {
                 } else {
                     return null;
                 }
+                break;
             case ChatEnum.EMessageType.REPLY:
                 if (obj instanceof ReplyMessage) {
                     msg.setReplyMessage((ReplyMessage) obj);
@@ -1198,9 +1199,7 @@ public class SocketData {
                     return null;
                 }
                 break;
-
         }
-
         return msg;
     }
 
