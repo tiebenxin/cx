@@ -1760,7 +1760,7 @@ public class MsgDao {
 
 
     /***
-     * 获取群最后的消息
+     * 获取群最后的消息(注意一定是有效消息，即排除通知类型消息)
      * @param uid
      * @return
      */
@@ -1772,6 +1772,8 @@ public class MsgDao {
                     .beginGroup().equalTo("gid", gid).endGroup()
                     .and()
                     .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("msg_type", 0).endGroup()
                     .sort("timestamp", Sort.DESCENDING).findFirst();
             if (bean != null) {
                 ret = realm.copyFromRealm(bean);
@@ -1829,11 +1831,11 @@ public class MsgDao {
                     realm.beginTransaction();
                     if (msgAllBean.getSurvival_time() > 0) {//有设置阅后即焚
 //                        if (endTime > DateUtils.getSystemTime()) {//还未到阅后即焚时间点，记录已读
-                            msgAllBean.setRead(1);
-                            msgAllBean.setReadTime(timestamp);
-                            /**处理需要阅后即焚的消息***********************************/
-                            msgAllBean.setStartTime(timestamp);
-                            msgAllBean.setEndTime(endTime);
+                        msgAllBean.setRead(1);
+                        msgAllBean.setReadTime(timestamp);
+                        /**处理需要阅后即焚的消息***********************************/
+                        msgAllBean.setStartTime(timestamp);
+                        msgAllBean.setEndTime(endTime);
 //                        }
                     } else {//普通消息，记录已读状态和时间
                         msgAllBean.setRead(1);
