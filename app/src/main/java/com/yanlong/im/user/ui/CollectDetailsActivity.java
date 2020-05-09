@@ -287,15 +287,15 @@ public class CollectDetailsActivity extends AppActivity {
                                                         return false;
                                                     }
                                                 })
-                                                .apply(GlideOptionsUtil.headImageOptions())
+                                                .apply(GlideOptionsUtil.notDefImageOptions())
                                                 .into(ivPic);
                                     }else {
                                         if (!TextUtils.isEmpty(bean.getImage().getPreview())) {
                                             Glide.with(CollectDetailsActivity.this).load(bean.getImage().getPreview())
-                                                    .apply(GlideOptionsUtil.headImageOptions()).into(ivPic);
+                                                    .apply(GlideOptionsUtil.notDefImageOptions()).into(ivPic);
                                         } else if (!TextUtils.isEmpty(bean.getImage().getThumbnail())) {
                                             Glide.with(CollectDetailsActivity.this).load(bean.getImage().getThumbnail())
-                                                    .apply(GlideOptionsUtil.headImageOptions()).into(ivPic);
+                                                    .apply(GlideOptionsUtil.notDefImageOptions()).into(ivPic);
                                         }
                                     }
                                 }
