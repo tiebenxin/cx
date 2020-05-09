@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
@@ -63,6 +64,7 @@ import com.yanlong.im.location.LocationService;
 import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.user.bean.CollectionInfo;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.audio.IVoicePlayListener;
@@ -73,6 +75,7 @@ import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.FileConfig;
 import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
@@ -252,7 +255,7 @@ public class CollectDetailsActivity extends AppActivity {
                             if (bean != null) {
                                 if (bean.getChat() != null) {
                                     if (!TextUtils.isEmpty(bean.getChat().getMsg())) {
-                                        tvContent.setText(bean.getChat().getMsg());
+                                        tvContent.setText(getSpan(bean.getChat().getMsg()));
                                     } else {
                                         tvContent.setText("");
                                     }
@@ -844,5 +847,16 @@ public class CollectDetailsActivity extends AppActivity {
             }
         }
         return false;
+    }
+
+    private SpannableString getSpan(String msg) {
+        Integer fontSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+        SpannableString spannableString = null;
+        if (fontSize != null) {
+            spannableString = ExpressionUtil.getExpressionString(getContext(), fontSize.intValue(), msg);
+        } else {
+            spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, msg);
+        }
+        return spannableString;
     }
 }

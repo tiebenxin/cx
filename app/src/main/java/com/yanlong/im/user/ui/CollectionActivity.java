@@ -10,6 +10,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -40,6 +41,7 @@ import com.yanlong.im.databinding.ActivityCollectionBinding;
 import com.yanlong.im.databinding.ItemCollectionViewBinding;
 import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.user.bean.CollectionInfo;
+import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.audio.IVoicePlayListener;
@@ -126,7 +128,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 if (bean != null) {
                                     if (bean.getChat() != null) {
                                         if (!TextUtils.isEmpty(bean.getChat().getMsg())) {
-                                            binding.tvContent.setText(bean.getChat().getMsg());
+                                            binding.tvContent.setText(getSpan(bean.getChat().getMsg()));
                                         } else {
                                             binding.tvContent.setText("");
                                         }
@@ -807,5 +809,16 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 }
             }
         }
+    }
+
+    private SpannableString getSpan(String msg) {
+        Integer fontSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+        SpannableString spannableString = null;
+        if (fontSize != null) {
+            spannableString = ExpressionUtil.getExpressionString(getContext(), fontSize.intValue(), msg);
+        } else {
+            spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, msg);
+        }
+        return spannableString;
     }
 }
