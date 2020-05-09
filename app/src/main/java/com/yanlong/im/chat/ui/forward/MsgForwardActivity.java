@@ -589,6 +589,12 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 txt = "[文件]" + msgAllBean.getSendFileMessage().getFile_name();
             } else if (msgAllBean.getWebMessage() != null) {
                 txt = "[链接]" + msgAllBean.getWebMessage().getTitle();
+            } else if (msgAllBean.getReplyMessage() != null) {
+                if (msgAllBean.getReplyMessage().getAtMessage() != null) {
+                    txt = msgAllBean.getReplyMessage().getAtMessage().getMsg();
+                } else if (msgAllBean.getReplyMessage().getChatMessage() != null) {
+                    txt = msgAllBean.getReplyMessage().getChatMessage().getMsg();
+                }
             }
         } else if (model == ChatEnum.EForwardMode.ONE_BY_ONE) {
             if (msgList == null) {
