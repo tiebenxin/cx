@@ -739,9 +739,11 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
         for (int i = 0; i < mList.size(); i++) {
             //找到每一条收藏消息，搜索用户名/群名/类型，含有关键字的被保存到searchCollectList
             CollectionInfo collectionInfo = mList.get(i);
-            if (!TextUtils.isEmpty(collectionInfo.getFromUsername()) && collectionInfo.getFromUsername().contains(key)) {
+            //gid不为空，则必定会显示群昵称，从群昵称查
+            if (!TextUtils.isEmpty(collectionInfo.getFromGid()) && collectionInfo.getFromGroupName().contains(key)) {
                 searchCollectList.add(collectionInfo);
-            } else if (!TextUtils.isEmpty(collectionInfo.getFromGroupName()) && collectionInfo.getFromGroupName().contains(key)) {
+                //gid为空，则必定会显示用户名，从用户名查
+            } else if (TextUtils.isEmpty(collectionInfo.getFromGid()) && collectionInfo.getFromUsername().contains(key)) {
                 searchCollectList.add(collectionInfo);
             } else {
                 //图片 视频 表情 不方便搜索
