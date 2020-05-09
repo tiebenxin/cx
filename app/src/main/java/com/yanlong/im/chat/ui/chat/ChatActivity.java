@@ -3867,7 +3867,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if(!TextUtils.isEmpty(msgbean.getGroup().getName())){
                 fromGroupName = msgbean.getGroup().getName();
             }else {
-                fromGroupName = "";
+                fromGroupName = msgDao.getGroupName(msgbean.getGid());//没有群名称，拿自动生成的群昵称给后台
             }
         }
         CollectionInfo collectionInfo = new CollectionInfo();
