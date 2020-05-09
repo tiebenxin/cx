@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,6 +22,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -28,6 +30,8 @@ import android.widget.RelativeLayout;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.databinding.ActivityImgShowBinding;
 import com.zhaoss.weixinrecorded.util.DimenUtils;
@@ -59,12 +63,16 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
     private int index;
     private int mWindowWidth;
     private int mWindowHeight;
+    private float imgWidth;
+    private float imgHeight;
     private int mDp100;
     private int[] mDrawableBg = new int[]{R.drawable.color2, R.drawable.color1, R.drawable.color3, R.drawable.color4, R.drawable.color5};
     private int[] mColors = new int[]{R.color.color2, R.color.color1, R.color.color3, R.color.color4, R.color.color5};
     private int mCurrentColorPosition = 0;
     private InputMethodManager mManager;
     private int from;//从相机拍摄过来的，需要删除缓存图片图片
+    private int finalImgHeight;//图片的实际高度（当宽度为屏幕宽度，在imageview展示的实际高度）
+    private int imageViewHeight;//imageview的高度
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,12 +84,42 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
     }
 
     private void init() {
-        mPath = getIntent().getExtras().getString("imgpath");
-        index = getIntent().getExtras().getInt("index");
-        from = getIntent().getIntExtra("from", 0);
+        mPath = getIntent().getExtras().getString("imgpath");//图片路径
+        index = getIntent().getExtras().getInt("index");//图片位置
+        from = getIntent().getIntExtra("from", 0);//图片来源
+        imgWidth = getIntent().getIntExtra("img_width", 0);//图片宽度
+        imgHeight = getIntent().getIntExtra("img_height", 0);//图片高度
         mWindowWidth = Utils.getWindowWidth(mContext);
         mWindowHeight = Utils.getWindowHeight(mContext);
-        Glide.with(this).load(mPath).into(binding.imgShow);
+
+        Glide.with(this).load(mPath).into(new SimpleTarget<Drawable>() {
+            @Override
+            public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                //加载完成后的处理
+                binding.imgShow.setImageDrawable(resource);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        binding.imgShow.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //由于imageview默认是fit_center等比缩放
+                                //数学公式：屏幕高度/屏幕宽度 = 图片高度/图片宽度
+                                finalImgHeight = (int)((imgHeight/imgWidth)*mWindowWidth);// 获取等比缩放后图片的在屏幕上的真实高度，作为画笔使用区域
+                                if(finalImgHeight!=0){
+                                    binding.mpvView.invalidateHeight(finalImgHeight);
+                                }
+                                //拿imageview的高度
+                                imgHeight = binding.imgShow.getHeight();
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+
+//        Glide.with(this).load(mPath).into(binding.imgShow);
 //        binding.imgShow.setImageURI(Uri.parse(mPath));
         mManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
@@ -183,10 +221,10 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         binding.tvTag.setText("");
     }
 
-    private Bitmap loadBitmapFromView(View v) {
+    private Bitmap loadBitmapFromView(View v1,View v2) {
         if (binding.imgShowCut.getVisibility() == View.VISIBLE) {
-            int w = v.getWidth();
-            int h = v.getHeight();
+            int w = v2.getWidth();
+            int h = v2.getHeight();
             Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             float[] cutArr = binding.imgShowCut.getCutArr();
 //            Bitmap cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0],(int)cutArr[1],activity_img_show_cut.getRectWidth(),activity_img_show_cut.getRectHeight());
@@ -195,8 +233,8 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             Canvas c = new Canvas(bmp);
             c.drawColor(Color.WHITE);
 //            /** 如果不设置canvas画布为白色，则生成透明 */
-            v.layout(0, 0, w, h);
-            v.draw(c);
+            v2.layout(0, 0, w, h);
+            v2.draw(c);
             int px = (int) DimenUtils.dp2px(60);
             Bitmap cutBitmap = null;
 
@@ -233,16 +271,18 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             return cutBitmap;
 
         } else {
-            int w = v.getWidth();
-            int h = v.getHeight();
+            //根据图片在imageview上的实际规格大小，生成相同规格大小处理后的图片
+            int w = mWindowWidth;//生成宽度为屏幕宽度
+            int h = finalImgHeight;//高度为图片在imageview中的实际高度
             Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             Canvas c = new Canvas(bmp);
+            c.translate(0, -(imgHeight-finalImgHeight)/2);//由于需求在图片编辑后需要生成原图大小的图片，imageview的高度减去图片实际高度后为上下空白距离，除以2即为距顶部的距离
 
             c.drawColor(Color.WHITE);
 //            /** 如果不设置canvas画布为白色，则生成透明 */
 //
-            v.layout(0, 0, w, h);
-            v.draw(c);
+            v1.layout(0, 0, w, h);
+            v1.draw(c);
             return bmp;
         }
     }
@@ -357,7 +397,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
             hiddenPopSoft();
         } else if (v.getId() == R.id.tv_finish_video) {// 完成
             Intent intent = new Intent();
-            Bitmap bitmap = loadBitmapFromView(binding.showRlBig);
+            Bitmap bitmap = loadBitmapFromView(binding.showRlBig,binding.layoutMain);
             String savePath = saveImage(bitmap, 100);
             intent.putExtra("showResult", true);
             intent.putExtra("showPath", savePath);

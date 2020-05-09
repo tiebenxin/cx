@@ -18,6 +18,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.util.BitmapUtil;
@@ -40,6 +41,8 @@ import java.util.List;
  */
 public class MosaicPaintView extends View {
     public static final String TAG = "MosaicView";
+    public int height = 200;//宽高默认值，一般不会用到这个值
+    public int width = 200;
 
     public static enum Effect {
         GRID, COLOR, BLUR,
@@ -925,4 +928,41 @@ public class MosaicPaintView extends View {
 
 
     // ========================涂鸦======================================
+
+
+    /**
+     * 重写onMeasure，解决在wrap_content下与match_parent效果一样的问题
+     * @param widthMeasureSpec
+     * @param heightMeasureSpec
+     */
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        //获取SingleTouchView所在父布局的中心点
+        //直接获取父类View的宽高，正好对应wrap_content，作为画笔可使用区域，有时候高度为0
+//        ViewGroup mViewGroup = (ViewGroup) getParent();
+//        if(null != mViewGroup){
+//            width = mViewGroup.getWidth();
+//            height = mViewGroup.getHeight();
+//        }
+        final int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
+        final int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
+        final int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
+        final int heightSpecSize = MeasureSpec.getMode(heightMeasureSpec);
+        if (widthSpecMode == MeasureSpec.AT_MOST && heightSpecMode == MeasureSpec.AT_MOST) {
+            setMeasuredDimension(width,height);
+        }else if (widthSpecMode == MeasureSpec.AT_MOST) {
+            setMeasuredDimension(width,heightSpecSize);
+        }else if (heightSpecMode == MeasureSpec.AT_MOST) {
+            setMeasuredDimension(widthSpecSize,height);
+        }
+    }
+
+    //重新测量获取图片的真实高度
+    public void invalidateHeight(int trueHeight){
+        height = trueHeight;
+        requestLayout();
+        invalidate();
+    }
+
 }

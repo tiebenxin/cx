@@ -800,6 +800,8 @@ public class AdapterPreviewImage extends PagerAdapter {
                     Bundle bundle = new Bundle();
                     bundle.putString("imgpath", media.getCompressPath());
                     bundle.putString("msg_id", msgId);
+                    bundle.putInt("img_width", media.getWidth());
+                    bundle.putInt("img_height", media.getHeight());
                     intent.putExtras(bundle);
                     context.startActivityForResult(intent, PictureExternalPreviewActivity.IMG_EDIT);
                 }
