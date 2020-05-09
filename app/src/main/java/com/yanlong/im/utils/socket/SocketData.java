@@ -528,6 +528,29 @@ public class SocketData {
         return true;
     }
 
+    /***
+     * 过滤不需要存储消息
+     * @return false 需要忽略
+     */
+    private static boolean filterNoSaveMsg(@ChatEnum.EMessageType int msgType) {
+        if (msgType == ChatEnum.EMessageType.MSG_VOICE_VIDEO_NOTICE || msgType == ChatEnum.EMessageType.READ) {
+            return false;
+        }
+        return true;
+    }
+
+    /*
+     * 过滤发送失败后不需要存储消息
+     *
+     * */
+    public static boolean filterNoSaveMsgForFailed(@ChatEnum.EMessageType int msgType) {
+        if (msgType == ChatEnum.EMessageType.MSG_VOICE_VIDEO_NOTICE || msgType == ChatEnum.EMessageType.READ
+                || msgType == ChatEnum.EMessageType.UNRECOGNIZED || msgType == ChatEnum.EMessageType.MSG_CANCEL) {
+            return false;
+        }
+        return true;
+    }
+
 
     public static P2PAuVideoMessage createCallMessage(String msgId, int auType, String option, String desc) {
         P2PAuVideoMessage message = new P2PAuVideoMessage();
@@ -1494,10 +1517,10 @@ public class SocketData {
         if (msgAllBean != null) {
             SendList.removeMsgFromSendSequence(ackMessage.getRequestId());
             SendList.removeSendListJust(ackMessage.getRequestId());
+            if (filterNoSaveMsg(msgAllBean.getMsg_type())) {
+                return msgAllBean;
+            }
             if (isSuccess) {
-                if (msgAllBean.getMsg_type() == ChatEnum.EMessageType.READ) {
-                    return msgAllBean;
-                }
                 msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
                 if (msgAllBean.getVideoMessage() != null && !TextUtils.isEmpty(videoLocalUrl)) {
                     msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);

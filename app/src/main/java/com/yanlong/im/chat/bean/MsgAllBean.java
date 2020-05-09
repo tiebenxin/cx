@@ -733,7 +733,11 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 }
                 break;
             default://未识别
-                layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_RECEIVED;
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_RECEIVED;
+                }
                 break;
         }
         return layout;
