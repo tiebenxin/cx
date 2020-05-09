@@ -3,7 +3,6 @@ package com.yanlong.im.chat.dao;
 import android.text.TextUtils;
 
 import com.hm.cxpay.global.PayEnum;
-import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
@@ -672,7 +671,7 @@ public class MsgDao {
                     }
                 }
                 //调用清除session详情
-                MyAppLication.INSTANCE().repository.clearSessionDetailContent(gids, uids);
+                if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.clearSessionDetailContent(gids, uids);
                 list.deleteAllFromRealm();
             }
             realm.commitTransaction();
@@ -729,7 +728,7 @@ public class MsgDao {
 
         /********通知更新sessionDetail************************************/
         //回主线程调用更新session详情
-        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
         /********通知更新sessionDetail end************************************/
     }
 
@@ -806,7 +805,7 @@ public class MsgDao {
                 gids.add(msgAllBean.getGid());
             }
             //回主线程调用更新session详情
-            MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+            if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
             /********通知更新sessionDetail end************************************/
         }
 
@@ -1102,7 +1101,9 @@ public class MsgDao {
                     session.setGid(bean.getGid());
                     session.setType(1);
                     Group group = realm.where(Group.class).equalTo("gid", bean.getGid()).findFirst();
+                    realm.beginTransaction();
                     if (group != null) {
+                        //因getIsTop有写入操作，beginTransaction得写在前面
                         session.setIsTop(group.getIsTop());
                         session.setIsMute(group.getNotNotify());
                     }
@@ -1112,14 +1113,16 @@ public class MsgDao {
                     session.setFrom_uid(bean.getTo_uid());
                     session.setType(0);
                     UserInfo user = realm.where(UserInfo.class).equalTo("uid", bean.getTo_uid()).findFirst();
+                    realm.beginTransaction();
                     if (user != null) {
+                        //因getIsTop有写入操作，beginTransaction得写在前面
                         session.setIsTop(user.getIstop());
                         session.setIsMute(user.getDisturb());
                     }
                 }
                 session.setUnread_count(0);
                 session.setUp_time(System.currentTimeMillis());
-                realm.beginTransaction();
+
                 realm.insertOrUpdate(session);
                 realm.commitTransaction();
             }
@@ -1823,7 +1826,7 @@ public class MsgDao {
 
 
     /***
-     * 获取群最后的消息
+     * 获取群最后的消息(注意一定是有效消息，即排除通知类型消息)
      * @param uid
      * @return
      */
@@ -1835,6 +1838,8 @@ public class MsgDao {
                     .beginGroup().equalTo("gid", gid).endGroup()
                     .and()
                     .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("msg_type", 0).endGroup()
                     .sort("timestamp", Sort.DESCENDING).findFirst();
             if (bean != null) {
                 ret = realm.copyFromRealm(bean);
@@ -1891,15 +1896,13 @@ public class MsgDao {
                     long endTime = timestamp + msgAllBean.getSurvival_time() * 1000;
                     realm.beginTransaction();
                     if (msgAllBean.getSurvival_time() > 0) {//有设置阅后即焚
-                        if (endTime > DateUtils.getSystemTime()) {//还未到阅后即焚时间点，记录已读
-                            msgAllBean.setRead(1);
-                            msgAllBean.setReadTime(timestamp);
-                            /**处理需要阅后即焚的消息***********************************/
-                            msgAllBean.setStartTime(timestamp);
-                            msgAllBean.setEndTime(endTime);
-                        } else {//已经到阅后即焚时间点，删除消息
-                            msgAllBean.deleteFromRealm();
-                        }
+//                        if (endTime > DateUtils.getSystemTime()) {//还未到阅后即焚时间点，记录已读
+                        msgAllBean.setRead(1);
+                        msgAllBean.setReadTime(timestamp);
+                        /**处理需要阅后即焚的消息***********************************/
+                        msgAllBean.setStartTime(timestamp);
+                        msgAllBean.setEndTime(endTime);
+//                        }
                     } else {//普通消息，记录已读状态和时间
                         msgAllBean.setRead(1);
                         msgAllBean.setReadTime(timestamp);
@@ -2568,7 +2571,7 @@ public class MsgDao {
             gids.add(msgAllBean.getGid());
         }
         //回主线程调用更新session详情
-        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
         /********通知更新sessionDetail end************************************/
         return msgAllBean;
     }
@@ -3574,7 +3577,7 @@ public class MsgDao {
         }
         /********通知更新sessionDetail************************************/
         //回主线程调用更新session详情
-        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
         /********通知更新sessionDetail end************************************/
         return false;
 

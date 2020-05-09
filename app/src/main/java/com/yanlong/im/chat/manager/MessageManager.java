@@ -226,6 +226,7 @@ public class MessageManager {
             case TAKE_SCREENSHOT:// 截屏通知
             case SEND_FILE:// 文件消息
             case TRANS_NOTIFY:// 转账提醒通知
+            case REPLY:// 回复消息
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }
@@ -656,7 +657,7 @@ public class MessageManager {
         if (!TextUtils.isEmpty(gid))
             gids.add(gid);
         //回主线程调用更新sessionDetial
-        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
+        if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
     }
 
     private void removeGroupMember(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
@@ -1652,7 +1653,7 @@ public class MessageManager {
                     gids.add(gid);
                 }
                 //回主线程调用更新sessionDetial
-                MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
+                if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
             }
 
             @Override

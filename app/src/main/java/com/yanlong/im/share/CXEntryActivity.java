@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.tcp.TcpConnection;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.utils.socket.SocketData;
@@ -141,6 +142,8 @@ public class CXEntryActivity extends AppActivity {
             if (!token.isTokenValid(uid)) {
                 result = false;
             } else {
+                //初始化http请求中token
+                new UserAction().login4tokenNotNet(token);
                 result = true;
             }
         } else {

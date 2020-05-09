@@ -23,7 +23,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -114,6 +113,7 @@ import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.ReadMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
+import com.yanlong.im.chat.bean.ReplyMessage;
 import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.Session;
@@ -210,7 +210,6 @@ import net.cb.cb.library.dialog.DialogEnvelopePast;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.inter.ICustomerItemClick;
 import net.cb.cb.library.manager.Constants;
-import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
@@ -398,6 +397,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     };
+    private MsgAllBean replayMsg;
+    private boolean isReplying;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -545,7 +546,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
             }
         });
-        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
+
     }
 
     private String originalText = "";
@@ -593,6 +594,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         // 注销监听
         stopScreenShotListener();
     }
+
 
     @Override
     protected void onStop() {
@@ -657,6 +659,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Override
     protected void onStart() {
         super.onStart();
+        MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
         if (!msgDao.isMsgLockExist(toGid, toUId)) {
             msgDao.insertOrUpdateMessage(SocketData.createMessageLock(toGid, toUId));
         }
@@ -856,11 +859,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (msgAllBean == null) {
                         msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean, true);
                     }
-                    if (msgAllBean == null) {
+                    if (msgAllBean == null || msgAllBean.getMsg_type() == null) {
                         return;
                     }
-                    if (msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.UNRECOGNIZED || msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.MSG_CANCEL
-                            || msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.READ) {//取消的指令 已读指令不保存到数据库
+                    //过滤不需要存储消息
+                    if (SocketData.filterNoSaveMsgForFailed(msgAllBean.getMsg_type().intValue())) {
                         return;
                     }
                     msgAllBean.setSend_state(ChatEnum.ESendStatus.ERROR);
@@ -1008,15 +1011,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     /**
      * 添加表情、发送自定义表情
-     *
-     * @version 1.0
-     * @createTime 2013-10-22,下午2:16:54
-     * @updateTime 2013-10-22,下午2:16:54
-     * @createAuthor liujingguo
-     * @updateAuthor liujingguo
-     * @updateInfo 增加参数 group 表情资源所属组
      */
     protected void sendFace(FaceBean bean) {
+        if (!checkNetConnectStatus()) {
+            return;
+        }
         if (FaceView.face_animo.equals(bean.getGroup())) {
             isSendingHypertext = false;
 
@@ -1190,16 +1189,25 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         editChat.getText().clear();
                         return;
                     }
-                    if (editChat.isAtAll()) {
-                        AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.ALL, editChat.getUserIdList());
-                        sendMessage(message, ChatEnum.EMessageType.AT);
+                    if (isReplying && replayMsg != null) {
+                        int atType = editChat.isAtAll() ? ChatEnum.EAtType.ALL : ChatEnum.EAtType.MULTIPLE;
+                        ReplyMessage message = SocketData.createReplyMessage(replayMsg, SocketData.getUUID(), text, atType, editChat.getUserIdList());
+                        sendMessage(message, ChatEnum.EMessageType.REPLY);
                         editChat.getText().clear();
-
+                        isReplying = false;
                     } else {
-                        AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.MULTIPLE, editChat.getUserIdList());
-                        sendMessage(message, ChatEnum.EMessageType.AT);
-                        editChat.getText().clear();
+                        if (editChat.isAtAll()) {
+                            AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.ALL, editChat.getUserIdList());
+                            sendMessage(message, ChatEnum.EMessageType.AT);
+                            editChat.getText().clear();
+
+                        } else {
+                            AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.MULTIPLE, editChat.getUserIdList());
+                            sendMessage(message, ChatEnum.EMessageType.AT);
+                            editChat.getText().clear();
+                        }
                     }
+
                 } else {
                     //发送普通消息
                     if (!TextUtils.isEmpty(text)) {
@@ -1391,7 +1399,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }));
 
-        mAdapter = new MessageAdapter(this, this, isGroup());
+        mAdapter = new MessageAdapter(this, this, isGroup(), mtListView);
         mAdapter.setCellFactory(new FactoryChatCell(this, mAdapter, this));
         mAdapter.setTagListener(this);
         mAdapter.setHasStableIds(true);
@@ -1519,9 +1527,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     return;
                 }
                 if (isGroup()) {
-                    long id = userAction.getMyInfo().getUid();
-                    long masterId = Long.valueOf(groupInfo.getMaster());
-                    if (masterId != id) {
+                    if (!isAdmin() && !isAdministrators()) {
                         ToastUtil.show(context, "只有群主才能修改该选项");
                         return;
                     }
@@ -3254,12 +3260,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     resendFileMsg(reMsg);
                 }
             } else {
-                //点击发送的时候如果要改变成发送中的状态
-                reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
-                DaoUtil.update(reMsg);
-                MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
-                SocketUtil.getSocketUtil().sendData4Msg(bean);
-                taskRefreshMessage(false);
+                if (reMsg.getSend_data() == null && reMsg.getMsgContent() != null) {
+                    sendMessageFromResend(reMsg.getMsgContent(), reMsg.getMsg_type(), true);
+                } else {
+                    //点击发送的时候如果要改变成发送中的状态
+                    reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
+                    DaoUtil.update(reMsg);
+                    MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
+                    SocketUtil.getSocketUtil().sendData4Msg(bean);
+                    taskRefreshMessage(false);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -3449,7 +3459,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                            final int position) {
 //        LogUtil.getLog().i(TAG, "playVoice--" + position);
         VoiceMessage vm = bean.getVoiceMessage();
-        if (vm == null || TextUtils.isEmpty(vm.getUrl())) {
+        if (vm == null || (TextUtils.isEmpty(vm.getUrl()) && TextUtils.isEmpty(vm.getLocalUrl()))) {
             return;
         }
         String url = "";
@@ -3647,9 +3657,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
             menus.add(new OptionMenu("转发"));
         }
+//        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
+//            menus.add(new OptionMenu("回复"));
+//        }
         menus.add(new OptionMenu("删除"));
         switch (type) {
             case ChatEnum.EMessageType.TEXT:
+            case ChatEnum.EMessageType.AT:
                 menus.add(0, new OptionMenu("复制"));
                 menus.add(1, new OptionMenu("收藏"));
                 break;
@@ -3826,14 +3840,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     //回复
-    private void onAnswer(MsgAllBean msgbean) {
-        LogUtil.getLog().e("===回复=====");
-        switch (msgbean.getMsg_type()) {
-            case ChatEnum.EMessageType.TEXT:
-                break;
-            case ChatEnum.EMessageType.IMAGE:
-                break;
-        }
+    private void onAnswer(MsgAllBean bean) {
+        isReplying = true;
+        replayMsg = bean;
+        doAtInput(bean);
     }
 
     //收藏 (暂时只做有网收藏的情况)
@@ -4491,7 +4501,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                     gids.add(msgAllbean.getGid());
                                 }
                                 //回主线程调用更新session详情
-                                MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+                                if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
                                 /********通知更新sessionDetail end************************************/
                                 taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
                             }
@@ -5914,7 +5924,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     public final void updateMsgUnread(int num) {
         LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + num);
-        BadgeUtil.setBadgeCount(getApplicationContext(), num);
+        if (num > 99) {
+            actionbar.setTxtLeft(num + "+", R.drawable.shape_unread_oval_bg, DensityUtil.sp2px(ChatActivity.this, 5));
+        } else if (num > 0) {
+            actionbar.setTxtLeft(num + "", R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
+        } else {
+            actionbar.setTxtLeft("", R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
+        }
+//        BadgeUtil.setBadgeCount(getApplicationContext(), num);
     }
 
 

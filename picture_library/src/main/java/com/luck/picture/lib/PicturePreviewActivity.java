@@ -216,7 +216,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
 
                 //如果当前图片存在于已选中列表则编辑后需要更新已选列表的数据；否则不需要更新已选列表的数据
                 int editIndex = getSelectedPosition(images.get(position));
-                ARouter.getInstance().build("/weixinrecorded/ImageShowActivity").withString("imgpath",images.get(position).getPath()).withInt("index",editIndex).navigation(PicturePreviewActivity.this,EDIT_FROM_ALBUM);
+                ARouter.getInstance().build("/weixinrecorded/ImageShowActivity").withString("imgpath",images.get(position).getPath()).withInt("index",editIndex).withInt("img_width",images.get(position).getWidth()).withInt("img_height",images.get(position).getHeight()).navigation(PicturePreviewActivity.this,EDIT_FROM_ALBUM);
             }
         });
     }

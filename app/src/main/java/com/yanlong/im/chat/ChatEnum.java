@@ -107,8 +107,17 @@ public class ChatEnum {
         //端到端加密消息
         LOCK(R.layout.cell_lock),
 
+        //回复文本消息
+        REPLY_TEXT_RECEIVED(R.layout.cell_reply_txt_received),
+        REPLY_TEXT_SEND(R.layout.cell_reply_txt_send),
+
+        //回复图片消息
+        REPLY_IMAGE_RECEIVED(R.layout.cell_reply_image_received),
+        REPLY_IMAGE_SEND(R.layout.cell_reply_image_send),
+
         //未知消息
-        UNRECOGNIZED(R.layout.cell_txt_received);
+        UNRECOGNIZED_RECEIVED(R.layout.cell_txt_received),
+        UNRECOGNIZED_SEND(R.layout.cell_txt_send);
 
 
         public final int LayoutId;
@@ -185,7 +194,7 @@ public class ChatEnum {
     @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CANCEL,
             UNRECOGNIZED, EMessageType.MSG_VIDEO, EMessageType.MSG_VOICE_VIDEO, EMessageType.LOCK, EMessageType.CHANGE_SURVIVAL_TIME,
             EMessageType.READ, EMessageType.MSG_VOICE_VIDEO_NOTICE, EMessageType.LOCATION, EMessageType.BALANCE_ASSISTANT, EMessageType.SHIPPED_EXPRESSION,
-            EMessageType.FILE, EMessageType.WEB, EMessageType.TRANSFER_NOTICE})
+            EMessageType.FILE, EMessageType.WEB, EMessageType.TRANSFER_NOTICE, EMessageType.REPLY})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMessageType {
         int UNRECOGNIZED = -1; //未识别
@@ -209,6 +218,7 @@ public class ChatEnum {
         int FILE = 17;//文件
         int WEB = 18;//web消息
         int TRANSFER_NOTICE = 19; //转账提醒
+        int REPLY = 20; //回复消息
 
         int LOCK = 100; //端到端加密提示消息,本地自定义消息
 
@@ -314,9 +324,10 @@ public class ChatEnum {
     /*
      * AT 类型
      * */
-    @IntDef({EAtType.MULTIPLE, EAtType.ALL})
+    @IntDef({EAtType.DEFAULT, EAtType.MULTIPLE, EAtType.ALL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EAtType {
+        int DEFAULT = -1; // 默认，无AT
         int MULTIPLE = 0; // 多个
         int ALL = 1; // 所有人
     }

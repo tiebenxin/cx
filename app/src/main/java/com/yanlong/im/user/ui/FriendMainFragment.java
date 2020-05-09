@@ -81,6 +81,8 @@ public class FriendMainFragment extends Fragment {
         //MainActivity的viewModel
         viewModel = new FriendViewModel();
         viewModel.initFriend();
+        //显示右侧字母
+        if(viewModel.friends!=null)viewType.addItemView(userParseString());
         initEvent();
     }
 
@@ -170,7 +172,7 @@ public class FriendMainFragment extends Fragment {
 
             @Override
             public void onLoadMore() {
-                MyAppLication.INSTANCE().repository.loadMoreFriends();
+                if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.loadMoreFriends();
             }
 
             @Override

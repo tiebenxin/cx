@@ -67,7 +67,7 @@ public class SocketUtil {
             LogUtil.getLog().d(TAG, ">>>>>接受回执--size=" + bean.getMsgIdCount());
             if (bean.getRejectType() == MsgBean.RejectType.ACCEPTED) {//接收到发送的消息了
                 LogUtil.getLog().d(TAG, ">>>>>消息发送成功");
-                msgAllBean = SocketData.updateMsgSendStatusByAck(bean);
+                msgAllBean = SocketData.updateMsgSendStatusByAck(bean, true);
                 if (msgAllBean == null) {
                     SocketData.msgSave4Me(bean);
                 } else {
@@ -76,28 +76,33 @@ public class SocketUtil {
             } else {
                 LogUtil.getLog().d(TAG, ">>>>>ack被拒绝 :" + bean.getRejectType());
                 LogUtil.writeLog(">>>>>ack被拒绝 :" + bean.getRejectType());
-                SocketData.msgSave4MeFail(bean);
+                msgAllBean = SocketData.updateMsgSendStatusByAck(bean, false);
+                if (msgAllBean == null) {
+                    SocketData.msgSave4MeFail(bean);
+                }
                 if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {
-                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, ChatEnum.ENoticeType.NO_FRI_ERROR);
+                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, msgAllBean, ChatEnum.ENoticeType.NO_FRI_ERROR);
                     //收到直接存表
                     if (msg != null) {
                         DaoUtil.update(msg);
                     }
                 } else if (bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
-                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, ChatEnum.ENoticeType.BLACK_ERROR);
+                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, msgAllBean, ChatEnum.ENoticeType.BLACK_ERROR);
                     //收到直接存表
                     if (msg != null) {
                         DaoUtil.update(msg);
                     }
                 } else if (bean.getRejectType() == MsgBean.RejectType.WORDS_NOT_ALLOWED) {
-                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, ChatEnum.ENoticeType.FORBIDDEN_WORDS_SINGE);
+                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, msgAllBean, ChatEnum.ENoticeType.FORBIDDEN_WORDS_SINGE);
                     //收到直接存表
                     if (msg != null) {
                         DaoUtil.update(msg);
                     }
-                    EventFactory.ToastEvent toastEvent = new EventFactory.ToastEvent();
-                    toastEvent.value = bean.getDesc();
-                    EventBus.getDefault().post(toastEvent);
+                    if (msgAllBean != null && MessageManager.getInstance().isMsgFromCurrentChat(msgAllBean.getGid(), msgAllBean.getFrom_uid())) {
+                        EventFactory.ToastEvent toastEvent = new EventFactory.ToastEvent();
+                        toastEvent.value = bean.getDesc();
+                        EventBus.getDefault().post(toastEvent);
+                    }
                 } else if (bean.getRejectType() == MsgBean.RejectType.RATE_LIMIT) {//服务端有限流，测试代码自动发送消息时会引起此问题
                     LogUtil.getLog().d(TAG, "消息发送失败--服务端限流--requestId=" + bean.getRequestId());
 //                    System.out.println("Socket--消息发送失败--服务端限流---requestId=" + bean.getRequestId());
@@ -124,7 +129,7 @@ public class SocketUtil {
             if (count > 0 && bean.getWrapMsg(0).getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
                 if (count == 1) {//单条消息直接回执，多条消息待消息存成功后再回执
                     SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
-                    LogUtil.writeLog("--发送回执1--requestId=" + bean.getRequestId() + " msgType:" + bean.getWrapMsg(0).getMsgType());
+                    LogUtil.writeLog("--发送回执1--requestId=" + bean.getRequestId() + " msgType:" + bean.getWrapMsg(0).getMsgType() + "--msgTypeValue=" + bean.getWrapMsg(0).getMsgTypeValue() + " msgID:" + bean.getWrapMsg(0).getMsgId());
                 }
             }
             MessageManager.getInstance().onReceive(bean);

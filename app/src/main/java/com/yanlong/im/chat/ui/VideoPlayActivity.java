@@ -17,7 +17,6 @@ import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -83,7 +82,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     private SeekBar activity_video_seek;
     private int surfaceWidth;
     private int surfaceHeight;
-    private MediaPlayer mMediaPlayer;
+    private MediaPlayer mMediaPlayer = null;
 
     private int mHour, mMin, mSecond;
     private int mTempTime = 0;
@@ -295,7 +294,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     }
 
     private void initMediaPlay(SurfaceHolder surfaceHolder) {
-
+        img_bg.setVisibility(View.VISIBLE);
         try {
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setDataSource(mPath);
@@ -308,11 +307,11 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     if (!isFinishing()) {
                         if(pressHOME){
                             mMediaPlayer.seekTo(mLastTime);
-                            activity_video_big_con.setVisibility(View.INVISIBLE);
-                            activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
-                            pressHOME = false;
+                            activity_video_big_con.setVisibility(View.VISIBLE);
+                            activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
+                        }else {
+                            mMediaPlayer.start();
                         }
-                        mMediaPlayer.start();
                         // 转成秒
                         mTempTime = mMediaPlayer.getDuration() / 1000;
                         mHour = mTempTime / 3600;
@@ -452,6 +451,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         mMediaPlayer.start();
                         activity_video_big_con.setVisibility(View.INVISIBLE);
                         dontShake = false;
+                        pressHOME = false;
                     }
                     activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
                 }
@@ -468,6 +468,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
                         getProgress();
                         dontShake = false;
+                        pressHOME = false;
                     }
                 }
                 break;
@@ -588,7 +589,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        initMediaPlay(holder);
+         initMediaPlay(holder);
     }
 
     @Override

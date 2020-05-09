@@ -84,7 +84,7 @@ public class MsgAction {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {
-                    MyAppLication.INSTANCE().repository.deleteSession(null,id);
+                    if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.deleteSession(null,id);
                     //删除群成员及秀阿贵群保存逻辑
                     MemberUser memberUser = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), id);
                     dao.removeGroupMember(id, memberUser);

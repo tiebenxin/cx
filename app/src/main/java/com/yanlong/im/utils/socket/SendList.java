@@ -95,19 +95,23 @@ public class SendList {
      * @param keyId
      */
     public static void removeSendList(String keyId) {
-        LogUtil.getLog().d(TAG, "移除发送队列rid:" + keyId);
-        if (!SEND_LIST.containsKey(keyId))
-            return;
-        LogUtil.getLog().e(TAG, "SocketUtil$移除队列[返回失败]" + keyId);
-        if (SEND_LIST.get(keyId).getMsg() != null) {
-            SocketUtil.getSocketUtil().getEvent().onSendMsgFailure(SEND_LIST.get(keyId).getMsg());
-        }
+        try {
+            LogUtil.getLog().d(TAG, "移除发送队列rid:" + keyId);
+            if (!SEND_LIST.containsKey(keyId))
+                return;
+            LogUtil.getLog().e(TAG, "SocketUtil$移除队列[返回失败]" + keyId);
+            if (SEND_LIST.get(keyId).getMsg() != null) {
+                SocketUtil.getSocketUtil().getEvent().onSendMsgFailure(SEND_LIST.get(keyId).getMsg());
+            }
 //        else{
 //            if(SEND_LIST.get(keyId).getMsgAck()!=null){
 //                LogUtil.writeLog("--removeSendList 发送失败了--requestId=" + SEND_LIST.get(keyId).getMsgAck().getRequestId());
 //            }
 //        }
-        SEND_LIST.remove(keyId);
+            SEND_LIST.remove(keyId);
+        }catch (Exception e){
+            LogUtil.getLog().d(TAG, "移除发送队列异常:" + e.getMessage());
+        }
     }
 
     /***

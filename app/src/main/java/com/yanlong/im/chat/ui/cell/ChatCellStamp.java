@@ -1,28 +1,16 @@
 package com.yanlong.im.chat.ui.cell;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
 import android.text.Html;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
-import android.text.style.ForegroundColorSpan;
+import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
-import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
-import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
-import net.cb.cb.library.view.WebPageActivity;
-
-import java.util.regex.Matcher;
 
 /*
  * @author Liszt
@@ -40,6 +28,11 @@ public class ChatCellStamp extends ChatCellBase {
     protected void initView() {
         super.initView();
         tv_content = getView().findViewById(R.id.tv_content);
+        //设置自定义文字大小
+        Integer fontSize=new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+        if(fontSize!=null){
+            tv_content.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize);
+        }
     }
 
     @Override

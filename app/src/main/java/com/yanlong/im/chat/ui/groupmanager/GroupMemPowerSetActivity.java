@@ -87,6 +87,8 @@ public class GroupMemPowerSetActivity extends BaseBindActivity<ActivityGroupMemP
 
     @Override
     protected void loadData() {
+        mMsgAction = new MsgAction();
+        mUserAction = new UserAction();
         mGid = getIntent().getStringExtra(Preferences.TOGID);
         mUid = getIntent().getLongExtra(Preferences.TOUID, 0);
         String value = getIntent().getStringExtra(Preferences.DATA);
@@ -112,8 +114,7 @@ public class GroupMemPowerSetActivity extends BaseBindActivity<ActivityGroupMemP
         mList = new ArrayList<>();
         mList.add(mUid);
         mUidJson = new Gson().toJson(mList);
-        mMsgAction = new MsgAction();
-        mUserAction = new UserAction();
+
     }
 
     /**

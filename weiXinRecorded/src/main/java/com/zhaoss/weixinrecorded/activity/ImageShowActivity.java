@@ -64,6 +64,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
     private int[] mColors = new int[]{R.color.color2, R.color.color1, R.color.color3, R.color.color4, R.color.color5};
     private int mCurrentColorPosition = 0;
     private InputMethodManager mManager;
+    private int from;//从相机拍摄过来的，需要删除缓存图片图片
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,6 +78,7 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
     private void init() {
         mPath = getIntent().getExtras().getString("imgpath");
         index = getIntent().getExtras().getInt("index");
+        from = getIntent().getIntExtra("from", 0);
         mWindowWidth = Utils.getWindowWidth(mContext);
         mWindowHeight = Utils.getWindowHeight(mContext);
         Glide.with(this).load(mPath).into(binding.imgShow);
@@ -273,7 +275,9 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
                     e.printStackTrace();
                 }
             }
-            deleteFileAndParent(mPath);
+            if (from == 1) {
+                deleteFileAndParent(mPath);
+            }
         }
         return null;
     }
@@ -444,9 +448,11 @@ public class ImageShowActivity extends BaseActivity implements View.OnClickListe
         try {
             File file = new File(path);
             if (file != null && file.exists()) {
+//                System.out.println("文件删除--" + file.getAbsolutePath());
                 File fileParent = file.getParentFile();
                 file.delete();
-                if (fileParent != null && fileParent.exists()) {
+                if (fileParent != null && fileParent.exists() && fileParent.getAbsolutePath().toLowerCase().contains("changxin")) {
+//                    System.out.println("文件删除--根目录--" + fileParent.getAbsolutePath());
                     fileParent.delete();
                 }
             }
