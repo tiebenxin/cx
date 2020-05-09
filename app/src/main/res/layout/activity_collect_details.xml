@@ -111,7 +111,7 @@
             android:layout_marginTop="12dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <ImageView
                 android:id="@+id/iv_voice"

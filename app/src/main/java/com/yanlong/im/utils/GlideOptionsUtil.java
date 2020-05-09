@@ -91,4 +91,16 @@ public class GlideOptionsUtil {
         return mRequestOptions;
     }
 
+    // glide头像 Options
+    public static RequestOptions gifImageOptions() {
+
+        RoundedCorners roundedCorners = new RoundedCorners(5);
+        RequestOptions mRequestOptions = RequestOptions.bitmapTransform(roundedCorners)
+                .error(R.mipmap.ic_info_head)
+                .placeholder(R.mipmap.ic_info_head)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .skipMemoryCache(false);
+        return mRequestOptions;
+    }
+
 }

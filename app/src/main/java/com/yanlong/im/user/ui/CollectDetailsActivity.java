@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,7 +33,14 @@ import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.google.gson.Gson;
@@ -263,12 +271,32 @@ public class CollectDetailsActivity extends AppActivity {
                             layoutAddr.setVisibility(GONE);
                             if (bean != null) {
                                 if (bean.getImage() != null) { //显示预览图或者缩略图
-                                    if (!TextUtils.isEmpty(bean.getImage().getPreview())) {
-                                        Glide.with(CollectDetailsActivity.this).load(bean.getImage().getPreview())
-                                                .apply(GlideOptionsUtil.headImageOptions()).into(ivPic);
-                                    } else if (!TextUtils.isEmpty(bean.getImage().getThumbnail())) {
-                                        Glide.with(CollectDetailsActivity.this).load(bean.getImage().getThumbnail())
-                                                .apply(GlideOptionsUtil.headImageOptions()).into(ivPic);
+                                    String thumbnail = bean.getImage().getThumbnailShow();
+                                    if (isGif(thumbnail)) { //动图加载
+                                        String gif = bean.getImage().getPreview();
+                                        Glide.with(this)
+                                                .load(gif)
+                                                .listener(new RequestListener<Drawable>() {
+                                                    @Override
+                                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                                        return false;
+                                                    }
+
+                                                    @Override
+                                                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                                        return false;
+                                                    }
+                                                })
+                                                .apply(GlideOptionsUtil.gifImageOptions())
+                                                .into(ivPic);
+                                    }else {
+                                        if (!TextUtils.isEmpty(bean.getImage().getPreview())) {
+                                            Glide.with(CollectDetailsActivity.this).load(bean.getImage().getPreview())
+                                                    .apply(GlideOptionsUtil.headImageOptions()).into(ivPic);
+                                        } else if (!TextUtils.isEmpty(bean.getImage().getThumbnail())) {
+                                            Glide.with(CollectDetailsActivity.this).load(bean.getImage().getThumbnail())
+                                                    .apply(GlideOptionsUtil.headImageOptions()).into(ivPic);
+                                        }
                                     }
                                 }
                             }
@@ -806,5 +834,15 @@ public class CollectDetailsActivity extends AppActivity {
                 });
             }
         }
+    }
+
+    //是否为动图
+    private boolean isGif(String path) {
+        if (!TextUtils.isEmpty(path)) {
+            if (path.toLowerCase().contains(".gif")) {
+                return true;
+            }
+        }
+        return false;
     }
 }
