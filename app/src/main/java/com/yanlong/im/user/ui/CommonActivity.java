@@ -169,7 +169,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
                 taskClearMsg();
                 break;
             case R.id.btn_exit://退出登录
-                loginOut(UserAction.getMyInfo().isEmptyPassword());
+                loginOut(UserAction.getMyInfo()!=null?UserAction.getMyInfo().isEmptyPassword():true);
                 break;
             case R.id.view_about_as:
                 Intent aboutIntent = new Intent(this, AboutAsActivity.class);
