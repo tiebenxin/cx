@@ -3671,8 +3671,8 @@ public class MsgDao {
             Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
             if (group != null) {
                 group.setStat(value);
+                result = realm.copyFromRealm(group);
             }
-            result = realm.copyFromRealm(group);
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
