@@ -81,6 +81,15 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private WebMessage webMessage;
     @Ignore
     private ReadMessage readMessage;//备注已读消息，不存，不显示
+    private ReplyMessage replyMessage;//回复消息
+
+    public ReplyMessage getReplyMessage() {
+        return replyMessage;
+    }
+
+    public void setReplyMessage(ReplyMessage replyMessage) {
+        this.replyMessage = replyMessage;
+    }
 
     public WebMessage getWebMessage() {
         return webMessage;
@@ -422,6 +431,15 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             str = "[链接]" + getWebMessage().getTitle();
         } else if (msg_type == ChatEnum.EMessageType.TRANSFER_NOTICE) {//转账提醒消息
             str = "你有一笔等待收款的转账";
+        } else if (msg_type == ChatEnum.EMessageType.REPLY) {//回复消息
+            ReplyMessage reply = getReplyMessage();
+            String content = "";
+            if (reply.getAtMessage() != null) {
+                content = reply.getAtMessage().getMsg();
+            } else if (reply.getChatMessage() != null) {
+                content = reply.getChatMessage().getMsg();
+            }
+            str = content;
         }
 
         return str;
@@ -590,7 +608,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
      * 2. 根据messageType绑定布局
      * */
     @Override
-    public ChatEnum.EChatCellLayout getChatCellLayoutId() {
+    public final ChatEnum.EChatCellLayout getChatCellLayoutId() {
         @ChatEnum.EMessageType int msgType = getMsg_type();
         boolean isMe = isMe();
         ChatEnum.EChatCellLayout layout = null;
@@ -698,13 +716,51 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     layout = ChatEnum.EChatCellLayout.EXPRESS_RECEIVED;
                 }
                 break;
-            default://未识别
+            case ChatEnum.EMessageType.REPLY:
+                if (replyMessage == null) {
+                    return null;
+                }
+                QuotedMessage quotedMessage = replyMessage.getQuotedMessage();
+                layout = getReplyLayout(quotedMessage.getMsgType(), isMe);
+                break;
+
+            case ChatEnum.EMessageType.UNRECOGNIZED://未识别
                 LogUtil.writeLog("MsgAllBean--" + "--不能识别消息--UNRECOGNIZED--" + msg_type);
-                layout = ChatEnum.EChatCellLayout.UNRECOGNIZED;
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_RECEIVED;
+                }
+                break;
+            default://未识别
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_RECEIVED;
+                }
                 break;
         }
         return layout;
     }
+
+    //获取回复消息layout
+    private final ChatEnum.EChatCellLayout getReplyLayout(int msgType, boolean isMe) {
+        ChatEnum.EChatCellLayout layout = null;
+        switch (msgType) {
+            case ChatEnum.EMessageType.TEXT:
+            case ChatEnum.EMessageType.AT:
+            case ChatEnum.EMessageType.STAMP:
+            case ChatEnum.EMessageType.REPLY:
+                layout = isMe ? ChatEnum.EChatCellLayout.REPLY_TEXT_SEND : ChatEnum.EChatCellLayout.REPLY_TEXT_RECEIVED;
+                break;
+            case ChatEnum.EMessageType.IMAGE:
+            case ChatEnum.EMessageType.SHIPPED_EXPRESSION:
+                layout = isMe ? ChatEnum.EChatCellLayout.REPLY_IMAGE_SEND : ChatEnum.EChatCellLayout.REPLY_IMAGE_RECEIVED;
+                break;
+        }
+        return layout;
+    }
+
 
     @Override
     public boolean equals(@Nullable Object obj) {
@@ -761,7 +817,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 '}';
     }
 
-    public IMsgContent getMsgContent() {
+    public final IMsgContent getMsgContent() {
         IMsgContent content = null;
         if (msg_type == null || msg_type == ChatEnum.EMessageType.UNRECOGNIZED) {
             return null;
@@ -823,7 +879,6 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 break;
             default://未识别
                 break;
-
         }
         return content;
     }

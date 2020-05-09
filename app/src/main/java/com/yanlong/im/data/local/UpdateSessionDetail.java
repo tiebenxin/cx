@@ -235,6 +235,11 @@ public class UpdateSessionDetail {
                 if(msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL){//最后一条是撤销消息，去掉红色标志
                     if(session.getMessageType()!=1000)session.setMessageType(1000);
                 }
+
+                //若消息时间大于session时间，则更新（为处理本地创建的消息）
+                if(msg.getTimestamp()>session.getUp_time()){
+                    session.setUp_time(msg.getTimestamp());
+                }
                 if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {//通知不要加谁发的消息
                     sessionMore.setSenderName("");
                 } else {
@@ -288,7 +293,12 @@ public class UpdateSessionDetail {
                         .not().in("msg_id", msgIds)
                         .sort("timestamp", Sort.DESCENDING).findFirst();
             }
+
             if (msg != null) {
+                //若消息时间大于session时间，则更新（为处理本地创建的消息）
+                if(msg.getTimestamp()>session.getUp_time()){
+                    session.setUp_time(msg.getTimestamp());
+                }
                 sessionMore.setMessage(msg);
                 sessionMore.setMessageContent(msg.getMsg_typeStr());
             }

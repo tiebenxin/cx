@@ -132,8 +132,9 @@ public class MessageAdapter extends RecyclerView.Adapter {
         //开始阅后即焚
         addSurvivalTime(msg);
         if (msg.getSurvival_time() > 0 && msg.getStartTime() > 0 && msg.getEndTime() > 0) {
-            bindTimer(msg.getMsg_id(), msg.isMe(), msg.getStartTime(), msg.getEndTime());
             ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), false, msg.isMe());
+            bindTimer(msg.getMsg_id(), msg.isMe(), msg.getStartTime(), msg.getEndTime());
+            if(msg.getEndTime()<System.currentTimeMillis())((ChatCellBase) viewHolder).setBellId(R.mipmap.icon_st_12);
         } else {
             ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), true, msg.isMe());
         }
@@ -152,9 +153,11 @@ public class MessageAdapter extends RecyclerView.Adapter {
             String name = "icon_st_" + Math.min(COUNT, mTimersIndexs.get(msgId) + 1);
             int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
             LogUtil.getLog().i(MessageAdapter.class.getSimpleName(), "SurvivalTime--" + name);
-            if (mMsgIdPositions.containsKey(msgId)) {
-                cellBase.setBellId(id);
-            }
+            cellBase.setBellId(id);
+        } else {
+            String name = "icon_st_" + 1;
+            int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
+            cellBase.setBellId(id);
         }
     }
 
@@ -170,8 +173,9 @@ public class MessageAdapter extends RecyclerView.Adapter {
             //开始阅后即焚
             addSurvivalTime(msg);
             if (msg.getSurvival_time() > 0 && msg.getStartTime() > 0 && msg.getEndTime() > 0) {
-                bindTimer(msg.getMsg_id(), msg.isMe(), msg.getStartTime(), msg.getEndTime());
                 ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), false, msg.isMe());
+                bindTimer(msg.getMsg_id(), msg.isMe(), msg.getStartTime(), msg.getEndTime());
+                if(msg.getEndTime()<System.currentTimeMillis())((ChatCellBase) viewHolder).setBellId(R.mipmap.icon_st_12);
             } else {
                 ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), true, msg.isMe());
             }
@@ -346,8 +350,8 @@ public class MessageAdapter extends RecyclerView.Adapter {
             long nowTimeMillis = DateUtils.getSystemTime();
             long period = 0;
             long start = 1;
-            mTimersIndexs.put(msgId, 1);
             if (nowTimeMillis < endTime) {//当前时间还在倒计时结束前
+                mTimersIndexs.put(msgId, 1);
                 long distance = startTime - nowTimeMillis;//和现在时间相差的毫秒数
                 //四舍五入
                 period = Math.round(Double.valueOf(endTime - startTime) / COUNT);
@@ -392,14 +396,16 @@ public class MessageAdapter extends RecyclerView.Adapter {
         try {
             if (mMsgIdPositions.containsKey(msgId)) {
                 int position = mMsgIdPositions.get(msgId);
-                ChatCellBase cell = getCellByPosition(position);
-                if (cell != null) {
-                    cell.setBellId(id);
-                } else {
+//                ChatCellBase cell = getCellByPosition(position);
+//                if (cell != null) {
+//                    cell.setBellId(id);
+//                } else {
+                if (position >= 0 && position < getItemCount())
                     listView.getListView().getAdapter().notifyItemChanged(position);
-                }
+//                }
             }
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
     }
 
 

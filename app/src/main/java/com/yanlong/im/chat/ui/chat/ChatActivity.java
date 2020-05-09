@@ -112,6 +112,7 @@ import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.ReadMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
+import com.yanlong.im.chat.bean.ReplyMessage;
 import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.Session;
@@ -394,6 +395,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     };
+    private MsgAllBean replayMsg;
+    private boolean isReplying;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -854,11 +857,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (msgAllBean == null) {
                         msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean, true);
                     }
-                    if (msgAllBean == null) {
+                    if (msgAllBean == null || msgAllBean.getMsg_type() == null) {
                         return;
                     }
-                    if (msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.UNRECOGNIZED || msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.MSG_CANCEL
-                            || msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.READ) {//取消的指令 已读指令不保存到数据库
+                    //过滤不需要存储消息
+                    if (SocketData.filterNoSaveMsgForFailed(msgAllBean.getMsg_type().intValue())) {
                         return;
                     }
                     msgAllBean.setSend_state(ChatEnum.ESendStatus.ERROR);
@@ -1184,16 +1187,25 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         editChat.getText().clear();
                         return;
                     }
-                    if (editChat.isAtAll()) {
-                        AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.ALL, editChat.getUserIdList());
-                        sendMessage(message, ChatEnum.EMessageType.AT);
+                    if (isReplying && replayMsg != null) {
+                        int atType = editChat.isAtAll() ? ChatEnum.EAtType.ALL : ChatEnum.EAtType.MULTIPLE;
+                        ReplyMessage message = SocketData.createReplyMessage(replayMsg, SocketData.getUUID(), text, atType, editChat.getUserIdList());
+                        sendMessage(message, ChatEnum.EMessageType.REPLY);
                         editChat.getText().clear();
-
+                        isReplying = false;
                     } else {
-                        AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.MULTIPLE, editChat.getUserIdList());
-                        sendMessage(message, ChatEnum.EMessageType.AT);
-                        editChat.getText().clear();
+                        if (editChat.isAtAll()) {
+                            AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.ALL, editChat.getUserIdList());
+                            sendMessage(message, ChatEnum.EMessageType.AT);
+                            editChat.getText().clear();
+
+                        } else {
+                            AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.MULTIPLE, editChat.getUserIdList());
+                            sendMessage(message, ChatEnum.EMessageType.AT);
+                            editChat.getText().clear();
+                        }
                     }
+
                 } else {
                     //发送普通消息
                     if (!TextUtils.isEmpty(text)) {
@@ -1385,7 +1397,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }));
 
-        mAdapter = new MessageAdapter(this, this, isGroup(),mtListView);
+        mAdapter = new MessageAdapter(this, this, isGroup(), mtListView);
         mAdapter.setCellFactory(new FactoryChatCell(this, mAdapter, this));
         mAdapter.setTagListener(this);
         mAdapter.setHasStableIds(true);
@@ -3643,6 +3655,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
             menus.add(new OptionMenu("转发"));
         }
+//        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
+//            menus.add(new OptionMenu("回复"));
+//        }
         menus.add(new OptionMenu("删除"));
         switch (type) {
             case ChatEnum.EMessageType.TEXT:
@@ -3805,14 +3820,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     //回复
-    private void onAnswer(MsgAllBean msgbean) {
-        LogUtil.getLog().e("===回复=====");
-        switch (msgbean.getMsg_type()) {
-            case ChatEnum.EMessageType.TEXT:
-                break;
-            case ChatEnum.EMessageType.IMAGE:
-                break;
-        }
+    private void onAnswer(MsgAllBean bean) {
+        isReplying = true;
+        replayMsg = bean;
+        doAtInput(bean);
     }
 
 
@@ -5853,11 +5864,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     public final void updateMsgUnread(int num) {
         LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + num);
-        if (num>99) {
-            actionbar.setTxtLeft(num+"+", R.drawable.shape_unread_oval_bg, DensityUtil.sp2px(ChatActivity.this, 5));
-        } else if(num>0) {
-            actionbar.setTxtLeft(num+"", R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
-        }else{
+        if (num > 99) {
+            actionbar.setTxtLeft(num + "+", R.drawable.shape_unread_oval_bg, DensityUtil.sp2px(ChatActivity.this, 5));
+        } else if (num > 0) {
+            actionbar.setTxtLeft(num + "", R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
+        } else {
             actionbar.setTxtLeft("", R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
         }
 //        BadgeUtil.setBadgeCount(getApplicationContext(), num);

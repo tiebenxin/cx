@@ -8,6 +8,7 @@ import net.cb.cb.library.utils.LogUtil;
 
 import io.realm.DynamicRealm;
 import io.realm.FieldAttribute;
+import io.realm.Realm;
 import io.realm.RealmMigration;
 import io.realm.RealmSchema;
 import io.realm.annotations.Ignore;
@@ -138,6 +139,10 @@ public class DaoMigration implements RealmMigration {
             }
             if (newVersion > oldVersion && oldVersion == 28) {
                 updateV29(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 29) {
+                updateV30(schema);
                 oldVersion++;
             }
         }
@@ -492,6 +497,7 @@ public class DaoMigration implements RealmMigration {
                 .addField("isLocal", int.class);
     }
 
+    //新建UserBean表，将登陆账号信息单独存储，以区别文件传输助手（userId即为自己id）
     private void updateV29(RealmSchema schema) {
         schema.create("UserBean")
                 .addField("uid", Long.class, FieldAttribute.PRIMARY_KEY)
@@ -533,6 +539,28 @@ public class DaoMigration implements RealmMigration {
                 .addField("inviter", String.class)
                 .addField("inviterName", String.class)
                 .addField("bankReqSignKey", String.class);
+    }
+
+    //新增单条消息回复相关表
+    private final void updateV30(RealmSchema schema) {
+        schema.create("QuotedMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("timestamp", long.class)
+                .addField("msgType", int.class)
+                .addField("fromUid", long.class)
+                .addField("nickName", String.class)
+                .addField("avatar", String.class)
+                .addField("url", String.class)
+                .addField("msg", String.class);
+
+        schema.create("ReplyMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addRealmObjectField("quotedMessage", schema.get("QuotedMessage"))
+                .addRealmObjectField("chatMessage", schema.get("ChatMessage"))
+                .addRealmObjectField("atMessage", schema.get("AtMessage"));
+
+        schema.get("MsgAllBean")
+                .addRealmObjectField("replyMessage", schema.get("ReplyMessage"));
     }
 
 
