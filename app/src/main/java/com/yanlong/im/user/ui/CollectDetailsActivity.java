@@ -641,6 +641,7 @@ public class CollectDetailsActivity extends AppActivity {
         if(mapview!=null){
             mapview.onPause();
         }
+        AudioPlayManager.getInstance().stopPlay();
     }
 
     @Override
