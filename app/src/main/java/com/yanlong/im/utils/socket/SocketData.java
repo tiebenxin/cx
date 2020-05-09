@@ -1550,7 +1550,7 @@ public class SocketData {
                         gids.add(msgAllBean.getGid());
                     }
                     //回主线程调用更新session详情
-                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+                    if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
                     /********通知更新sessionDetail end************************************/
                 }
             } else {

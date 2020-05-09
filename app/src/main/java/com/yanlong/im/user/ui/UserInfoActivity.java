@@ -751,7 +751,7 @@ public class UserInfoActivity extends AppActivity {
                     userDao.updateReadDestroy(id, 0);
                     // 删除好友后，取消置顶状态
                     msgDao.updateUserSessionTop(id, 0);
-                    MyAppLication.INSTANCE().repository.deleteSession(id, "");
+                    if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.deleteSession(id, "");
                     MessageManager.getInstance().setMessageChange(true);
                     notifyRefreshRoster(id, CoreEnum.ERosterAction.REMOVE_FRIEND);
                     EventBus.getDefault().post(new CloseActivityEvent("ChatInfoActivity,GroupInfoActivity"));
@@ -778,7 +778,7 @@ public class UserInfoActivity extends AppActivity {
                     List<Long> uids = new ArrayList<>();
                     uids.add(id);
                     //回主线程调用更新session详情
-                    MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
+                    if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
                     /********通知更新sessionDetail end************************************/
                 }
                 taskUserInfo(id);

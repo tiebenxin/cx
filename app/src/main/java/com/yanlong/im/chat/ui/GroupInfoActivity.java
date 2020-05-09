@@ -804,7 +804,7 @@ public class GroupInfoActivity extends AppActivity {
                             gids.add(ginfo.getGid());
                         }
                         //回主线程调用更新sessionDetial
-                        MyAppLication.INSTANCE().repository.updateSessionDetail(gids,null);
+                        if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids,null);
                     }
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
                     setGroupNote(ginfo.getAnnouncement());
@@ -1159,7 +1159,7 @@ public class GroupInfoActivity extends AppActivity {
                 gids.add(gid);
             }
             //回主线程调用更新session详情
-            MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
+            if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
             /********通知更新sessionDetail end************************************/
         }
     }

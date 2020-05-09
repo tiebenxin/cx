@@ -609,7 +609,7 @@ public class MsgDao {
                     }
                 }
                 //调用清除session详情
-                MyAppLication.INSTANCE().repository.clearSessionDetailContent(gids, uids);
+                if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.clearSessionDetailContent(gids, uids);
                 list.deleteAllFromRealm();
             }
             realm.commitTransaction();
@@ -666,7 +666,7 @@ public class MsgDao {
 
         /********通知更新sessionDetail************************************/
         //回主线程调用更新session详情
-        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
         /********通知更新sessionDetail end************************************/
     }
 
@@ -743,7 +743,7 @@ public class MsgDao {
                 gids.add(msgAllBean.getGid());
             }
             //回主线程调用更新session详情
-            MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+            if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
             /********通知更新sessionDetail end************************************/
         }
 
@@ -2509,7 +2509,7 @@ public class MsgDao {
             gids.add(msgAllBean.getGid());
         }
         //回主线程调用更新session详情
-        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
         /********通知更新sessionDetail end************************************/
         return msgAllBean;
     }
@@ -3515,7 +3515,7 @@ public class MsgDao {
         }
         /********通知更新sessionDetail************************************/
         //回主线程调用更新session详情
-        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
         /********通知更新sessionDetail end************************************/
         return false;
 
