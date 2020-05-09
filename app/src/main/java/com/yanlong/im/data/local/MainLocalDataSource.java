@@ -179,7 +179,7 @@ public class MainLocalDataSource {
                 List<Long> uids = new ArrayList<>();
                 uids.add(uid);
                 //回主线程调用更新session详情
-                MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
+                if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
                 /********通知更新sessionDetail end************************************/
             }
         });

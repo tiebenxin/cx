@@ -826,7 +826,7 @@ public class MainActivity extends AppActivity {
                         gids.add(msgAllbean.getGid());
                     }
                     //回主线程调用更新session详情
-                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+                    if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
                     /********通知更新sessionDetail end************************************/
                 }
             }
@@ -1196,7 +1196,7 @@ public class MainActivity extends AppActivity {
             gids.add(envelopeInfo.getGid());
         }
         //回主线程调用更新session详情
-        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
         /********通知更新sessionDetail end************************************/
     }
 

@@ -145,7 +145,7 @@ public class MsgMainFragment extends Fragment {
 
             @Override
             public void onLoadMore() {
-                MyAppLication.INSTANCE().repository.loadMoreSessions();
+                if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.loadMoreSessions();
             }
 
             @Override
@@ -403,7 +403,7 @@ public class MsgMainFragment extends Fragment {
                 //获取更新信息
                 for (int position : modifications) {
                     String sid = sessionDetails.get(position).getSid();
-                    if (MyAppLication.INSTANCE().repository.sessionSidPositons.containsKey(sid)) {
+                    if (MyAppLication.INSTANCE().repository!=null&&MyAppLication.INSTANCE().repository.sessionSidPositons.containsKey(sid)) {
                         int startId = MyAppLication.INSTANCE().repository.sessionSidPositons.get(sid);
                         mtListView.getListView().getAdapter().notifyItemRangeChanged(startId + 1, 1);
                     } else {
@@ -437,7 +437,7 @@ public class MsgMainFragment extends Fragment {
             @Override
             public void onChanged(@Nullable String sid) {
                 //删除session
-                MyAppLication.INSTANCE().repository.deleteSession(sid);
+                if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.deleteSession(sid);
             }
         });
         viewModel.isNeedCloseSwipe.observe(this, new Observer<Boolean>() {
