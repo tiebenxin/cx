@@ -287,7 +287,7 @@ public class CollectDetailsActivity extends AppActivity {
                                                         return false;
                                                     }
                                                 })
-                                                .apply(GlideOptionsUtil.gifImageOptions())
+                                                .apply(GlideOptionsUtil.headImageOptions())
                                                 .into(ivPic);
                                     }else {
                                         if (!TextUtils.isEmpty(bean.getImage().getPreview())) {
