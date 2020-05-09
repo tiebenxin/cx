@@ -1437,21 +1437,28 @@ public class SocketData {
 
     //端到端加密消息
     public static MsgAllBean createMessageLock(String gid, Long uid) {
-        MsgAllBean bean = new MsgAllBean();
-        if (!TextUtils.isEmpty(gid)) {
-            bean.setGid(gid);
-            bean.setFrom_uid(UserAction.getMyInfo().getUid());
-        } else if (uid != null) {
-            bean.setFrom_uid(uid);
-        } else {
-            return null;
+        MsgAllBean bean = null;
+        try {
+            if(UserAction.getMyInfo()!=null) {
+                bean = new MsgAllBean();
+                if (!TextUtils.isEmpty(gid)) {
+                    bean.setGid(gid);
+                    bean.setFrom_uid(UserAction.getMyInfo().getUid());
+                } else if (uid != null) {
+                    bean.setFrom_uid(uid);
+                } else {
+                    return null;
+                }
+                bean.setMsg_type(ChatEnum.EMessageType.LOCK);
+                bean.setMsg_id(SocketData.getUUID());
+                bean.setIsLocal(1);
+                bean.setTimestamp(0L);
+                ChatMessage message = SocketData.createChatMessage(bean.getMsg_id(), getNoticeString(bean, ChatEnum.ENoticeType.LOCK));
+                bean.setChat(message);
+            }
+        }catch (Exception e){
+            bean = null;
         }
-        bean.setMsg_type(ChatEnum.EMessageType.LOCK);
-        bean.setMsg_id(SocketData.getUUID());
-        bean.setIsLocal(1);
-        bean.setTimestamp(0L);
-        ChatMessage message = SocketData.createChatMessage(bean.getMsg_id(), getNoticeString(bean, ChatEnum.ENoticeType.LOCK));
-        bean.setChat(message);
         return bean;
     }
 
