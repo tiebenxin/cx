@@ -112,8 +112,8 @@ public class ChatEnum {
         REPLY_TEXT_SEND(R.layout.cell_reply_txt_send),
 
         //回复图片消息
-        REPLY_IMAGE_RECEIVED(R.layout.cell_lock),
-        REPLY_IMAGE_SEND(R.layout.cell_lock),
+        REPLY_IMAGE_RECEIVED(R.layout.cell_reply_image_received),
+        REPLY_IMAGE_SEND(R.layout.cell_reply_image_send),
 
         //未知消息
         UNRECOGNIZED_RECEIVED(R.layout.cell_txt_received),

@@ -1517,7 +1517,7 @@ public class SocketData {
         if (msgAllBean != null) {
             SendList.removeMsgFromSendSequence(ackMessage.getRequestId());
             SendList.removeSendListJust(ackMessage.getRequestId());
-            if (filterNoSaveMsg(msgAllBean.getMsg_type())) {
+            if (!filterNoSaveMsg(msgAllBean.getMsg_type())) {
                 return msgAllBean;
             }
             if (isSuccess) {
