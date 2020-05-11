@@ -259,7 +259,7 @@ public class MessageManager {
             case TAKE_SCREENSHOT:// 截屏通知
             case SEND_FILE:// 文件消息
             case TRANS_NOTIFY:// 转账提醒通知
-            case REPLY:// 回复消息
+            case REPLY_SPECIFIC :// 回复消息
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }
