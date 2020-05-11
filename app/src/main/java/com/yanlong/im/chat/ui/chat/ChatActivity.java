@@ -58,7 +58,6 @@ import com.hm.cxpay.bean.EnvelopeDetailBean;
 import com.hm.cxpay.bean.GrabEnvelopeBean;
 import com.hm.cxpay.bean.TransferDetailBean;
 import com.hm.cxpay.bean.UserBean;
-import com.hm.cxpay.dailog.ChangeSelectDialog;
 import com.hm.cxpay.dailog.DialogDefault;
 import com.hm.cxpay.dailog.DialogEnvelope;
 import com.hm.cxpay.eventbus.NoticeReceiveEvent;
@@ -366,11 +365,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private ChatViewModel mViewModel = new ChatViewModel();
 
-    private ChangeSelectDialog.Builder builder;
-    private ChangeSelectDialog dialogOne;//通用提示选择弹框：实名认证
     private IAudioRecord audioRecord;
-    private IAdioTouch audioTouchListerner;
-    private boolean isNeedStopVoicePlay = true;
+    private IAdioTouch audioTouchListener;
 
     private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
         @Override
@@ -392,8 +388,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         public void update(int[] positions, List<String> sids) {
             updateUnReadCount();
         }
-
-
     };
     private MsgAllBean replayMsg;
     private boolean isReplying;
@@ -421,7 +415,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         initEvent();
         initSurvivaltime4Uid();
         getOftenUseFace();
-        builder = new ChangeSelectDialog.Builder(ChatActivity.this);
     }
 
     private Runnable mPanelRecoverySoftInputModeRunnable = new Runnable() {
@@ -576,8 +569,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void resumeRecord() {
-        if (audioTouchListerner != null) {
-            audioTouchListerner.restartRecord();
+        if (audioTouchListener != null) {
+            audioTouchListener.restartRecord();
         }
         AudioRecordManager.getInstance(this).resumeRecord();
     }
@@ -610,8 +603,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //停止录音
     private void stopRecordVoice() {
-        if (audioTouchListerner != null) {
-            audioTouchListerner.cancelRecord();
+        if (audioTouchListener != null) {
+            audioTouchListener.cancelRecord();
         }
         if (audioRecord != null) {
             audioRecord.cancelRecord();
@@ -1215,26 +1208,40 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             editChat.getText().clear();
                             return;
                         }
-                        if (totalSize <= MIN_TEXT) {//非长文本
-                            isSendingHypertext = false;
-                            ChatMessage message = SocketData.createChatMessage(SocketData.getUUID(), text);
-                            sendMessage(message, ChatEnum.EMessageType.TEXT);
+                        if (isReplying && replayMsg != null) {
+                            //回复消息不支持长文本
+                            if (totalSize > MIN_TEXT) {
+                                ToastUtil.show(ChatActivity.this, "回复消息长度不能超过" + MIN_TEXT);
+                                editChat.getText().clear();
+                                return;
+                            }
+                            int atType = ChatEnum.EAtType.DEFAULT;
+                            ReplyMessage message = SocketData.createReplyMessage(replayMsg, SocketData.getUUID(), text, atType, editChat.getUserIdList());
+                            sendMessage(message, ChatEnum.EMessageType.REPLY);
                             editChat.getText().clear();
+                            isReplying = false;
                         } else {
-                            isSendingHypertext = true;//正在分段发送长文本
-                            if (totalSize > per * MIN_TEXT) {
-                                per = per + 1;
-                            }
-                            sendTexts = new ArrayList<>();
-                            for (int i = 0; i < per; i++) {
-                                if (i < per - 1) {
-                                    sendTexts.add(StringUtil.splitEmojiString(text, i * MIN_TEXT, (i + 1) * MIN_TEXT));
-                                } else {
-                                    sendTexts.add(StringUtil.splitEmojiString(text, i * MIN_TEXT, totalSize));
+                            if (totalSize <= MIN_TEXT) {//非长文本
+                                isSendingHypertext = false;
+                                ChatMessage message = SocketData.createChatMessage(SocketData.getUUID(), text);
+                                sendMessage(message, ChatEnum.EMessageType.TEXT);
+                                editChat.getText().clear();
+                            } else {
+                                isSendingHypertext = true;//正在分段发送长文本
+                                if (totalSize > per * MIN_TEXT) {
+                                    per = per + 1;
                                 }
+                                sendTexts = new ArrayList<>();
+                                for (int i = 0; i < per; i++) {
+                                    if (i < per - 1) {
+                                        sendTexts.add(StringUtil.splitEmojiString(text, i * MIN_TEXT, (i + 1) * MIN_TEXT));
+                                    } else {
+                                        sendTexts.add(StringUtil.splitEmojiString(text, i * MIN_TEXT, totalSize));
+                                    }
+                                }
+                                sendHypertext(sendTexts, 0);
+                                editChat.getText().clear();
                             }
-                            sendHypertext(sendTexts, 0);
-                            editChat.getText().clear();
                         }
                     }
                 }
@@ -1348,7 +1355,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         });
 
-        txtVoice.setOnTouchListener(audioTouchListerner = new IAdioTouch(this, new IAdioTouch.MTouchListener() {
+        txtVoice.setOnTouchListener(audioTouchListener = new IAdioTouch(this, new IAdioTouch.MTouchListener() {
             @Override
             public void onDown() {
                 txtVoice.setText("松开 结束");
@@ -3655,9 +3662,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
             menus.add(new OptionMenu("转发"));
         }
-//        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
-//            menus.add(new OptionMenu("回复"));
-//        }
+        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanReply(type)) {
+            menus.add(new OptionMenu("回复"));
+        }
         menus.add(new OptionMenu("删除"));
         switch (type) {
             case ChatEnum.EMessageType.TEXT:
@@ -3698,6 +3705,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //是否禁止转发
     public boolean isBanForward(@ChatEnum.EMessageType int type) {
+        if (type == ChatEnum.EMessageType.VOICE || type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
+                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO || type == ChatEnum.EMessageType.BUSINESS_CARD || type == ChatEnum.EMessageType.REPLY) {
+            return true;
+        }
+        return false;
+    }
+
+    //是否禁止回复
+    public boolean isBanReply(@ChatEnum.EMessageType int type) {
         if (type == ChatEnum.EMessageType.VOICE || type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
                 || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO || type == ChatEnum.EMessageType.BUSINESS_CARD) {
             return true;
@@ -3823,7 +3839,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void onAnswer(MsgAllBean bean) {
         isReplying = true;
         replayMsg = bean;
-        doAtInput(bean);
+        if (isGroup()) {
+            doAtInput(bean);
+        }
+        //弹出软键盘
+        if (!mViewModel.isOpenValue()) //没有事件触发，设置改SoftInput模式为：顶起输入框
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        if (!mViewModel.isInputText.getValue())
+            mViewModel.isInputText.setValue(true);
+        mtListView.scrollToEnd();
     }
 
 
@@ -4439,7 +4463,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                     gids.add(msgAllbean.getGid());
                                 }
                                 //回主线程调用更新session详情
-                                if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+                                if (MyAppLication.INSTANCE().repository != null)
+                                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
                                 /********通知更新sessionDetail end************************************/
                                 taskPayRbCheck(msgbean, rbid, MsgBean.RedEnvelopeType.MFPAY_VALUE, "", PayEnum.EEnvelopeStatus.RECEIVED);
                             }

@@ -564,6 +564,68 @@ public class MsgDao {
         return groupInfoBean;
     }
 
+    /***双向删除
+     * 删除好友某时间戳之前的聊天记录-单聊
+     * @param fromUid 发的指令对方
+     * @param beforeTimestamp 最后时间戳
+     */
+    public void msgDel(Long fromUid, long beforeTimestamp) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            RealmResults<MsgAllBean> list = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
+                    .and()
+                    .beginGroup().equalTo("from_uid", fromUid).or().equalTo("to_uid", fromUid).endGroup()
+                    .lessThan("timestamp", beforeTimestamp)
+                    .findAll();
+
+
+//            //因为msg对象 uid有两个，都得添加
+            List<Long> uids = new ArrayList<Long>();
+
+            int deleteUnReadCount = 0;
+            //删除前先把子表数据干掉!!切记
+            if (list != null) {
+                for (MsgAllBean msg : list) {
+                    if (!msg.isRead()) {
+                        deleteUnReadCount++;
+                    }
+                    uids.add(msg.getTo_uid());
+                    uids.add(msg.getFrom_uid());
+                    deleteRealmMsg(msg);
+                }
+                list.deleteAllFromRealm();
+
+                if (deleteUnReadCount > 0) {
+                    /***更新未读数-Session更新，自动会更新sessionDetail****/
+                    Session session = realm.where(Session.class)
+                            .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                            .and()
+                            .beginGroup().equalTo("from_uid", fromUid).or().equalTo("from_uid", new UserAction().getMyInfo().getUid()).endGroup()
+                            .findFirst();
+                    int unreadCount=session.getUnread_count() - deleteUnReadCount;
+                    session.setUnread_count(unreadCount>0?unreadCount:0);
+                }
+
+                realm.commitTransaction();
+                //更新session
+                if (uids.size() > 0 && deleteUnReadCount == 0) {//没有更新session,则需手动更新sessiondetail
+                    /********通知更新sessionDetail************************************/
+                    MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
+                }
+            }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+
+    }
+
     /***
      * 删除聊天记录
      * @param toUid
