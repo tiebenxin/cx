@@ -52,7 +52,7 @@ public class ChatCellReplyImage extends ChatCellBase {
     @Override
     protected void showMessage(MsgAllBean message) {
         super.showMessage(message);
-        updateWidth();
+//        updateWidth();
         contentMessage = message.getReplyMessage();
         QuotedMessage quotedMessage = contentMessage.getQuotedMessage();
         tvRefName.setText(quotedMessage.getNickName());
