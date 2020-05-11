@@ -507,8 +507,8 @@ public class SocketData {
             case SEND_FILE://文件
                 wrap.setSendFile((MsgBean.SendFileMessage) value);
                 break;
-            case REPLY://消息回复
-                wrap.setReply((MsgBean.ReplyMessage) value);
+            case REPLY_SPECIFIC://消息回复
+                wrap.setReply((MsgBean.ReplySpecificMessage) value);
                 break;
             case UNRECOGNIZED:
                 break;
@@ -1425,7 +1425,16 @@ public class SocketData {
         message.setWebUrl(webUrl);
         return message;
     }
-
+    /**
+     * 双向删除
+     */
+    public static MsgAllBean send4TwoWayClean(Long toId, long timestamp) {
+        MsgBean.ReadMessage msg = MsgBean.ReadMessage.newBuilder()
+                .setTimestamp(timestamp)
+                .build();
+        LogUtil.writeLog(">>>双向删除 toId:" + toId + " timestamp:" + timestamp);
+        return send4Base(false, toId, null, MsgBean.MessageType.HISTORY_CLEAN, msg);
+    }
     public static void saveMessage(MsgAllBean bean) {
         DaoUtil.update(bean);
         if (msgDao == null) {
@@ -1905,7 +1914,7 @@ public class SocketData {
                     break;
                 case ChatEnum.EMessageType.REPLY:
                     ReplyMessage replyMessage = bean.getReplyMessage();
-                    MsgBean.ReplyMessage.Builder replyBuild = MsgBean.ReplyMessage.newBuilder();
+                    MsgBean.ReplySpecificMessage.Builder replyBuild = MsgBean.ReplySpecificMessage.newBuilder();
                     boolean isValid;
                     QuotedMessage quotedMessage = replyMessage.getQuotedMessage();
                     MsgBean.RefMessage.Builder refBuild = MsgBean.RefMessage.newBuilder();
@@ -1934,7 +1943,7 @@ public class SocketData {
                     }
                     if (isValid) {
                         value = replyBuild.build();
-                        type = MsgBean.MessageType.REPLY;
+                        type = MsgBean.MessageType.REPLY_SPECIFIC;
                     }
                     break;
             }
@@ -2145,7 +2154,7 @@ public class SocketData {
             case SHIPPED_EXPRESSION:
                 messageType = ChatEnum.EMessageType.SHIPPED_EXPRESSION;
                 break;
-            case REPLY:
+            case REPLY_SPECIFIC :
                 messageType = ChatEnum.EMessageType.REPLY;
                 break;
             case BALANCE_ASSISTANT:
@@ -2199,7 +2208,7 @@ public class SocketData {
                 messageType = MsgBean.MessageType.SHIPPED_EXPRESSION;
                 break;
             case ChatEnum.EMessageType.REPLY:
-                messageType = MsgBean.MessageType.REPLY;
+                messageType = MsgBean.MessageType.REPLY_SPECIFIC;
                 break;
             case ChatEnum.EMessageType.BALANCE_ASSISTANT:
                 messageType = MsgBean.MessageType.BALANCE_ASSISTANT;

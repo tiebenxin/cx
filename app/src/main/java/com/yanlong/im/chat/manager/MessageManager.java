@@ -2,6 +2,7 @@ package com.yanlong.im.chat.manager;
 
 import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.MyAppLication;
@@ -99,6 +100,11 @@ public class MessageManager {
     private long playVBTimeOld = 0; //当前震动时间
 
     private Boolean CAN_STAMP = true;//true 允许戳一戳弹窗 ,false 不允许
+    /**
+     * 保存接收了双向清除指令的from_uid-待最后一条消息时间戳
+     * 用于丢弃在此时间戳之前的消息
+     */
+    private Map<Long, Long> historyCleanMsg = new HashMap<>();
 
 
     public static MessageManager getInstance() {
@@ -165,6 +171,25 @@ public class MessageManager {
 //        }
     }
 
+    /**
+     * 丢弃双向清除消息
+     *
+     * @param uid
+     * @param timestamp
+     */
+    private boolean discardHistoryCleanMessage(Long uid, Long timestamp) {
+        boolean result = false;
+        if (historyCleanMsg.containsKey(uid) && historyCleanMsg.get(uid) >= timestamp) {
+            if(historyCleanMsg.get(uid) >= timestamp){
+                result = true;
+            }else if (timestamp - historyCleanMsg.get(uid) >10*60*1000)
+                //historyCleanMsg的消息时间，比当前接收消息时间超过10分钟的消息，从historyCleanMsg移除
+                historyCleanMsg.remove(uid);
+        }
+        Log.e("raleigh_test",""+historyCleanMsg.size());
+        return result;
+    }
+
     /*
      * 处理接收到的消息
      * 分两类处理，一类是需要产生本地消息记录的，一类是相关指令，无需产生消息记录
@@ -176,6 +201,14 @@ public class MessageManager {
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
             return true;
         }
+        /******丢弃消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
+        if (TextUtils.isEmpty(wrapMessage.getGid())&&historyCleanMsg.size()>0) {//单聊
+            if(discardHistoryCleanMessage(wrapMessage.getFromUid(), wrapMessage.getTimestamp())||
+                    discardHistoryCleanMessage(wrapMessage.getToUid(), wrapMessage.getTimestamp())){
+                return true;
+            }
+        }
+        /******end 丢弃消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
         LogUtil.getLog().e(TAG, "接收到消息: " + wrapMessage.getMsgId() + "--type=" + wrapMessage.getMsgType());
         boolean result = true;
         boolean hasNotified = false;//已经通知刷新了
@@ -226,10 +259,18 @@ public class MessageManager {
             case TAKE_SCREENSHOT:// 截屏通知
             case SEND_FILE:// 文件消息
             case TRANS_NOTIFY:// 转账提醒通知
-            case REPLY:// 回复消息
+            case REPLY_SPECIFIC :// 回复消息
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }
+                break;
+            case HISTORY_CLEAN://双向清除
+                //最后一条需要清除的聊天记录时间戳
+                long lastNeedCleanTimestamp = wrapMessage.getTimestamp();
+                //保存双向清除指令发送方和时间戳，用于丢弃在此时间戳之前的消息
+                historyCleanMsg.put(wrapMessage.getFromUid(), lastNeedCleanTimestamp);
+                //清除好友历史记录
+                msgDao.msgDel(wrapMessage.getFromUid(), lastNeedCleanTimestamp);
                 break;
             case P2P_AU_VIDEO:// 音视频消息
                 if (bean != null) {
@@ -623,6 +664,17 @@ public class MessageManager {
         }
         checkNotifyVoice(wrapMessage, isList, canNotify);
         return result;
+    }
+
+    /**
+     * 清除双向删除消息
+     */
+    public void clearHistoryMsg() {
+        if (historyCleanMsg.size() > 0) {
+            for (Long key : historyCleanMsg.keySet()) {
+                msgDao.msgDel(key, historyCleanMsg.get(key));
+            }
+        }
     }
 
     private void updateGroupApply(MsgBean.UniversalMessage.WrapMessage wrapMessage) {

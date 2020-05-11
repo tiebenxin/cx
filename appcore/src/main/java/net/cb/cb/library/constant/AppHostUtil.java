@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import net.cb.cb.library.BuildConfig;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
+import net.cb.cb.library.utils.SpUtil;
 
 /**
  * @author Liszt
@@ -20,23 +21,33 @@ public class AppHostUtil {
 
     private final static String getConnectHostApi() {
         if (isEmpty()) {
-            switch (BuildConfig.BUILD_TYPE) {
-                case "debug":
-                    connectHostApi = BuildConfig.HOST_DEV;
-                    break;
-                case "pre":
-                    connectHostApi = BuildConfig.HOST_PRE;
-                    break;
-                case "release":
-                    connectHostApi = BuildConfig.HOST_RELEASE;
-                    break;
-                default:
-                    connectHostApi = BuildConfig.API_HOST;
-                    break;
-            }
+            int type = SpUtil.getSpUtil().getSPValue("ipType", 0);
+            if (type == 0) {
+                switch (BuildConfig.BUILD_TYPE) {
+                    case "debug":
+                        connectHostApi = BuildConfig.HOST_DEV;
+                        break;
+                    case "pre":
                         connectHostApi = BuildConfig.HOST_PRE;
-//            connectHostApi = BuildConfig.HOST_RELEASE;
-
+                        break;
+                    case "release":
+                        connectHostApi = BuildConfig.HOST_RELEASE;
+                        break;
+                    default:
+                        connectHostApi = BuildConfig.API_HOST;
+                        break;
+                }
+                //            connectHostApi = BuildConfig.API_HOST;
+                connectHostApi = BuildConfig.HOST_RELEASE;
+            } else {
+                if (type == 1) {
+                    connectHostApi = BuildConfig.HOST_DEV;
+                } else if (type == 2) {
+                    connectHostApi = BuildConfig.HOST_PRE;
+                } else {
+                    connectHostApi = BuildConfig.HOST_RELEASE;
+                }
+            }
         }
         if (isEmpty()) {
             throw new NullPointerException("请检查config.gradle#host配置");

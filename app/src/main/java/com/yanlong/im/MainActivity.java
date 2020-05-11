@@ -1289,7 +1289,6 @@ public class MainActivity extends AppActivity {
                         String country = bdLocation.getCountry();
                         String lat = bdLocation.getLatitude() + "";
                         String lon = bdLocation.getLongitude() + "";
-                        locService.stop();//定位成功后停止定位
                         IUser user=UserAction.getMyInfo();
                         String nickname = user==null? "" : user.getName();
                         String phoneModel = android.os.Build.MODEL;
@@ -1303,6 +1302,8 @@ public class MainActivity extends AppActivity {
                                     LogUtil.getLog().i("TAG", "位置信息上报成功");
                                     //缓存本次调用的时间，24小时以内只需要发一次请求
                                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.POST_LOCATION_TIME).save2Json(DateUtils.getNowFormatTime());
+                                    locService.stop();
+                                    locService.unregisterListener(listener);
                                 }
                             }
 

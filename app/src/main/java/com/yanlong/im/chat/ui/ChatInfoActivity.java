@@ -25,6 +25,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.UserInfoActivity;
@@ -82,7 +83,7 @@ public class ChatInfoActivity extends AppActivity {
 
     private ReadDestroyUtil readDestroyUtil = new ReadDestroyUtil();
     private LinearLayout viewDestroyTime;
-    private TextView tvDestroyTime;
+    private TextView tvDestroyTime,tvTwoWayClearChat,tvTwoWayClearChatHint;
     private CheckBox ckSetRead;
 
 
@@ -114,11 +115,22 @@ public class ChatInfoActivity extends AppActivity {
         ckSetRead = findViewById(R.id.ck_set_read);
         read_destroy_ll = findViewById(R.id.read_destroy_ll);
         ckScreenshot = findViewById(R.id.ck_screenshot);
+        tvTwoWayClearChat = findViewById(R.id.tv_two_way_clear_chat);
+        tvTwoWayClearChatHint = findViewById(R.id.tv_two_way_clear_chat_hint);
     }
 
-
+    private final String IS_VIP = "1";// (0:普通|1:vip)
     //自动生成的控件事件
     private void initEvent() {
+        IUser userInfo = UserAction.getMyInfo();
+        if (userInfo != null && IS_VIP.equals(userInfo.getVip())) {
+            //vip才开启双向清除功能
+            tvTwoWayClearChat.setVisibility(View.VISIBLE);
+            tvTwoWayClearChatHint.setVisibility(View.VISIBLE);
+        }else{
+            tvTwoWayClearChat.setVisibility(View.GONE);
+            tvTwoWayClearChatHint.setVisibility(View.GONE);
+        }
         fuid = getIntent().getLongExtra(AGM_FUID, 0);
         taskGetInfo();
         if (Constants.CX888_UID.equals(fuid)) {
@@ -191,7 +203,7 @@ public class ChatInfoActivity extends AppActivity {
 
                     @Override
                     public void onYes() {
-                        taskDelMsg();
+                        taskDelMsg("删除成功");
                     }
                 });
                 alertYesNo.show();
@@ -224,6 +236,28 @@ public class ChatInfoActivity extends AppActivity {
                         }
                     }
                 });
+            }
+        });
+
+        tvTwoWayClearChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //双向清除(单聊),包括常信客服-显示提示框
+                AlertYesNo alertYesNo = new AlertYesNo();
+                alertYesNo.init(ChatInfoActivity.this, "提示", getString(R.string.two_way_clear_chat_dialog_hint), "确定", "取消", new AlertYesNo.Event() {
+                    @Override
+                    public void onON() {
+
+                    }
+
+                    @Override
+                    public void onYes() {
+                        taskDelMsg(getString(R.string.two_way_clear_chat_success));//删除本地记录
+                        //发送双向删除请求
+                        SocketData.send4TwoWayClean(fuid,System.currentTimeMillis());
+                    }
+                });
+                alertYesNo.show();
             }
         });
 
@@ -385,10 +419,10 @@ public class ChatInfoActivity extends AppActivity {
         DaoUtil.update(fUserInfo);
     }
 
-    private void taskDelMsg() {
+    private void taskDelMsg(String hint) {
         msgDao.msgDel(fuid, null);
         EventBus.getDefault().post(new EventRefreshChat());
-        ToastUtil.show(ChatInfoActivity.this, "删除成功");
+        ToastUtil.show(ChatInfoActivity.this, hint);
     }
 
     /*

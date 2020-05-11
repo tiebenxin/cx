@@ -86,7 +86,10 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
             }
         }
         if (taskCount == 0) {
-            return true;
+            boolean result=doPendingData();
+            //对于批量消息，需要在此清除数据库双向消息
+            MessageManager.getInstance().clearHistoryMsg();
+            return result;
         } else {
             return false;
         }
@@ -101,7 +104,8 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
     protected void onPostExecute(Boolean aBoolean) {
         super.onPostExecute(aBoolean);
         if (aBoolean) {
-            saveAndRefresh();
+            //通知刷新UI
+            notifyUIRefresh();
         }
     }
 
