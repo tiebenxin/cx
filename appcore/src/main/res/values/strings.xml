@@ -23,4 +23,9 @@
     <string name="group_forbid">该群因涉及违规，已被封停</string>
     <string name="group_disband">群功能已经解封</string>
     <string name="be_removed_group">你已经被移除群聊，无法发送消息</string>
+
+    <string name="two_way_clear_chat">双向清除聊天记录</string>
+    <string name="two_way_clear_chat_hint">清除双方的聊天记录，请谨慎操作</string>
+    <string name="two_way_clear_chat_dialog_hint">将同时清除双方的聊天记录，\n请谨慎操作</string>
+    <string name="two_way_clear_chat_success">已双向清除聊天记录</string>
 </resources>

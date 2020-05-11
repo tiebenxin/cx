@@ -215,7 +215,7 @@ public class ApplicationRepository {
     /**
      * 获取session 列表-异步
      *
-     * @return
+     * @returnupdateLastSecondDetail
      */
     public RealmResults<Session> getSesisons() {
         return sessions;
