@@ -411,7 +411,7 @@ public class LocationActivity extends AppActivity {
                                 locationMessage.setAddressDescribe(bdLocation.getPoiList().get(i).getAddr());
                                 locationList.add(locationMessage);
 
-                                getPoi(false, city, bdLocation.getPoiList().get(i).getName());
+                                if(i != 0)getPoi(false, city, bdLocation.getPoiList().get(i).getName());
                             }
                             recyclerview.getAdapter().notifyDataSetChanged();
                             recyclerview.setVisibility(View.VISIBLE);
