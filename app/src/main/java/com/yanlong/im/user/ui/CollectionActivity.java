@@ -250,7 +250,9 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 if (bean != null) {
                                     if (bean.getAtMessage() != null) {
                                         if (!TextUtils.isEmpty(bean.getAtMessage().getMsg())) {
-                                            binding.tvContent.setText(bean.getAtMessage().getMsg());
+                                            binding.tvContent.setText(getSpan(bean.getAtMessage().getMsg()));
+                                        } else {
+                                            binding.tvContent.setText("");
                                         }
                                     }
                                 }

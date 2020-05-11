@@ -330,7 +330,25 @@ public class CollectDetailsActivity extends AppActivity {
                             if (bean != null) {
                                 if (bean.getShippedExpressionMessage() != null) {
                                     if (!TextUtils.isEmpty(bean.getShippedExpressionMessage().getId())) {
-                                        Glide.with(CollectDetailsActivity.this).load(Integer.parseInt(FaceView.map_FaceEmoji.get(bean.getShippedExpressionMessage().getId()).toString())).apply(GlideOptionsUtil.headImageOptions()).into(ivExpress);
+                                        if (isGif(bean.getShippedExpressionMessage().getId())) { //动图加载
+                                            Glide.with(this)
+                                                    .load(Integer.parseInt(FaceView.map_FaceEmoji.get(bean.getShippedExpressionMessage().getId()).toString()))
+                                                    .listener(new RequestListener<Drawable>() {
+                                                        @Override
+                                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                                            return false;
+                                                        }
+
+                                                        @Override
+                                                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                                            return false;
+                                                        }
+                                                    })
+                                                    .apply(GlideOptionsUtil.notDefImageOptions())
+                                                    .into(ivExpress);
+                                        }else {
+                                            Glide.with(CollectDetailsActivity.this).load(Integer.parseInt(FaceView.map_FaceEmoji.get(bean.getShippedExpressionMessage().getId()).toString())).apply(GlideOptionsUtil.headImageOptions()).into(ivExpress);
+                                        }
                                     }
                                 }
                             }
@@ -467,7 +485,9 @@ public class CollectDetailsActivity extends AppActivity {
                             if (bean != null) {
                                 if (bean.getAtMessage() != null) {
                                     if (!TextUtils.isEmpty(bean.getAtMessage().getMsg())) {
-                                        tvContent.setText(bean.getAtMessage().getMsg());
+                                        tvContent.setText(getSpan(bean.getAtMessage().getMsg()));
+                                    } else {
+                                        tvContent.setText("");
                                     }
                                 }
                             }
