@@ -46,11 +46,14 @@ import com.bumptech.glide.request.transition.Transition;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.google.gson.Gson;
 import com.hm.cxpay.utils.DateUtils;
+import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yanlong.im.BuildConfig;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.SendFileMessage;
@@ -88,6 +91,8 @@ import net.cb.cb.library.view.PopupSelectView;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -143,6 +148,7 @@ public class CollectDetailsActivity extends AppActivity {
     private String filePath = "";//打开的文件路径
     private SendFileMessage fileMessage;
     private int status = 0;// 0可打开(下载完成) 1点击下载(未下载前) 2文件不存在 3下载中 4下载失败
+    private MsgAction msgAction = new MsgAction();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -301,6 +307,12 @@ public class CollectDetailsActivity extends AppActivity {
                                                     .apply(GlideOptionsUtil.notDefImageOptions()).into(ivPic);
                                         }
                                     }
+                                    ivPic.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            showBigPic(bean);
+                                        }
+                                    });
                                 }
                             }
                             break;
@@ -859,5 +871,25 @@ public class CollectDetailsActivity extends AppActivity {
             spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, msg);
         }
         return spannableString;
+    }
+
+    /**
+     * 显示大图
+     */
+    private void showBigPic(MsgAllBean msgl) {
+        List<LocalMedia> selectList = new ArrayList<>();
+        LocalMedia lc = new LocalMedia();
+        lc.setCutPath(msgl.getImage().getThumbnailShow());
+        lc.setCompressPath(msgl.getImage().getPreviewShow());
+        lc.setPath(msgl.getImage().getOriginShow());
+        lc.setSize(msgl.getImage().getSize());
+        lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
+        lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
+        lc.setMsg_id(msgl.getMsg_id());
+        selectList.add(lc);
+        PictureSelector.create(CollectDetailsActivity.this)
+                .themeStyle(R.style.picture_default_style)
+                .isGif(true)
+                .openExternalPreview1(0, selectList);
     }
 }
