@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/headView"
     android:layout_width="match_parent"
-    android:fitsSystemWindows="false"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="false"
     app:headview_title="聊天">
 
     <LinearLayout
@@ -51,9 +51,48 @@
                     android:id="@+id/view_chat_bottom_c"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:visibility="visible"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:visibility="visible">
 
+                    <LinearLayout
+                        android:id="@+id/ll_reply_root"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical|bottom"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <com.yanlong.im.wight.avatar.RoundImageView
+                            android:id="@+id/iv_reply_image"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                        <LinearLayout
+                            android:id="@+id/ll_reply_content"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tv_reply_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/c_259048"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/tv_reply_content"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/c_727272"
+                                android:textSize="11sp" />
+
+                        </LinearLayout>
+
+
+                    </LinearLayout>
+
+                    <!-- 输入框-->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -186,22 +225,22 @@
                     android:id="@+id/ll_more"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:visibility="gone"
-                    android:gravity="center_vertical">
+                    android:visibility="gone">
 
                     <ImageView
                         android:id="@+id/iv_delete"
                         android:layout_width="0dp"
-                        android:layout_weight="1"
                         android:layout_height="match_parent"
+                        android:layout_weight="1"
                         android:src="@mipmap/ic_add" />
 
                     <ImageView
                         android:id="@+id/iv_forward"
                         android:layout_width="0dp"
-                        android:layout_weight="1"
                         android:layout_height="match_parent"
+                        android:layout_weight="1"
                         android:src="@mipmap/ic_add" />
 
 
@@ -211,10 +250,10 @@
                     android:id="@+id/tv_ban"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
+                    android:background="#c4cccf"
                     android:gravity="center"
                     android:text="你已经被移除群聊，无法发送消息"
                     android:textColor="#707070"
-                    android:background="#c4cccf"
                     android:textSize="15sp"
                     android:visibility="gone" />
 
