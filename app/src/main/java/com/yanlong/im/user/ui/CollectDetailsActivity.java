@@ -124,7 +124,7 @@ public class CollectDetailsActivity extends AppActivity {
     private LinearLayout layoutMain;
     private RelativeLayout layoutFile;
     private PopupSelectView popupSelectView;
-    private String[] strings = {"转发", "删除", "取消"};
+    private String[] strings;
     private int position = -1;
     private MsgAllBean bean;
     //地图相关
@@ -149,6 +149,7 @@ public class CollectDetailsActivity extends AppActivity {
     private SendFileMessage fileMessage;
     private int status = 0;// 0可打开(下载完成) 1点击下载(未下载前) 2文件不存在 3下载中 4下载失败
     private MsgAction msgAction = new MsgAction();
+    private boolean isVoice = false;//当前收藏类型是否为语音，语音不允许转发
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -362,6 +363,7 @@ public class CollectDetailsActivity extends AppActivity {
                             });
                             break;
                         case ChatEnum.EMessageType.VOICE: //语音
+                            isVoice = true;
                             layoutText.setVisibility(GONE);//显示语音相关布局，隐藏其他类型相关布局
                             layoutVoice.setVisibility(VISIBLE);
                             layoutPic.setVisibility(GONE);
@@ -590,6 +592,16 @@ public class CollectDetailsActivity extends AppActivity {
     }
 
     private void initPopup() {
+        if(isVoice){
+            strings = new String[2];
+            strings[0] ="删除";
+            strings[1] ="取消";
+        }else {
+            strings = new String[3];
+            strings[0] ="转发";
+            strings[1] ="删除";
+            strings[2] ="取消";
+        }
         popupSelectView = new PopupSelectView(this, strings);
         popupSelectView.showAtLocation(layoutMain, Gravity.BOTTOM, 0, 0);
         popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
@@ -597,18 +609,29 @@ public class CollectDetailsActivity extends AppActivity {
             public void onItem(String string, int postsion) {
                 switch (postsion) {
                     case 0:
-                        //转发
-                        if (bean != null) {
-                            startActivity(new Intent(context, MsgForwardActivity.class)
-                                    .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(bean)));
+                        if(string.equals("转发")){
+                            //普通类型-转发
+                            if (bean != null) {
+                                startActivity(new Intent(context, MsgForwardActivity.class)
+                                        .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(bean)));
+                            }
+                        }else {
+                            //语音-删除
+                            Intent intent = new Intent();
+                            intent.putExtra("cancel_collect_position",position);
+                            setResult(RESULT_OK,intent);
+                            finish();
                         }
                         break;
                     case 1:
-                        //取消收藏
-                        Intent intent = new Intent();
-                        intent.putExtra("cancel_collect_position",position);
-                        setResult(RESULT_OK,intent);
-                        finish();
+                        if(string.equals("删除")){
+                            //普通类型-删除
+                            Intent intent = new Intent();
+                            intent.putExtra("cancel_collect_position",position);
+                            setResult(RESULT_OK,intent);
+                            finish();
+                        }
+                        //语音-取消
                         break;
                     case 2:
                         //取消
