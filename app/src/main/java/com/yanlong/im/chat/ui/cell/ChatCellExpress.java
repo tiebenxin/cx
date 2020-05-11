@@ -74,6 +74,7 @@ public class ChatCellExpress extends ChatCellFileBase {
     public void glide(RequestOptions rOptions, int id,boolean isGif) {
         //TODO 因目前都是静态图片，以后若有动图，需再调整这边逻辑
         if(isGif){
+            imageView.setImageResource(id);
             Glide.with(getContext())
                     .asGif()
                     .load(id)
