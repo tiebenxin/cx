@@ -66,6 +66,7 @@ import static android.widget.RelativeLayout.CENTER_IN_PARENT;
  * @updateDate 2019-11-01
  * @description 小视频播放
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
+ * @备注 TODO zjy 2020/5/1 整体优化
  */
 public class VideoPlayActivity extends AppActivity implements View.OnClickListener, SurfaceHolder.Callback, MediaPlayer.OnVideoSizeChangedListener {
     private InputMethodManager manager;
@@ -295,83 +296,79 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     private void initMediaPlay(SurfaceHolder surfaceHolder) {
         img_bg.setVisibility(View.VISIBLE);
-        try {
-            mMediaPlayer = new MediaPlayer();
-            mMediaPlayer.setDataSource(mPath);
-            mMediaPlayer.setDisplay(surfaceHolder);
-            mMediaPlayer.setLooping(false);
+        if(mMediaPlayer==null){
+            try {
+                mMediaPlayer = new MediaPlayer();
+                mMediaPlayer.setDataSource(mPath);
+                mMediaPlayer.setDisplay(surfaceHolder);
+                mMediaPlayer.setLooping(false);
 
-            mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    if (!isFinishing()) {
-                        if(pressHOME){
-                            mMediaPlayer.seekTo(mLastTime);
-                            activity_video_big_con.setVisibility(View.VISIBLE);
-                            activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
-                        }else {
+                mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        if (!isFinishing()) {
                             mMediaPlayer.start();
+                            // 转成秒
+                            mTempTime = mMediaPlayer.getDuration() / 1000;
+                            mHour = mTempTime / 3600;
+                            mMin = mTempTime % 3600 / 60;
+                            mSecond = mTempTime % 60;
+                            if (mHour > 0) {
+                                activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
+                            } else {
+                                activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
+                            }
+                            getProgress();
                         }
-                        // 转成秒
-                        mTempTime = mMediaPlayer.getDuration() / 1000;
-                        mHour = mTempTime / 3600;
-                        mMin = mTempTime % 3600 / 60;
-                        mSecond = mTempTime % 60;
-                        if (mHour > 0) {
-                            activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
-                        } else {
-                            activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
-                        }
-                        getProgress();
                     }
+                });
+                mMediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+                    @Override
+                    public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                        if (what == mp.MEDIA_INFO_VIDEO_RENDERING_START) {
+                            img_progress.clearAnimation();
+                            img_progress.setVisibility(View.GONE);
+                            activity_video_seek.setVisibility(View.VISIBLE);
+                            //隐藏缩略图
+                            img_bg.setVisibility(View.GONE);
+                        }
+                        return false;
+                    }
+                });
+                mMediaPlayer.prepareAsync();
+
+                if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+                    surfaceWidth = textureView.getWidth();
+                    surfaceHeight = textureView.getHeight();
+                } else {
+                    surfaceWidth = textureView.getHeight();
+                    surfaceHeight = textureView.getWidth();
                 }
-            });
-            mMediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
-                public boolean onInfo(MediaPlayer mp, int what, int extra) {
-                    if (what == mp.MEDIA_INFO_VIDEO_RENDERING_START) {
-                        img_progress.clearAnimation();
-                        img_progress.setVisibility(View.GONE);
-                        activity_video_seek.setVisibility(View.VISIBLE);
-                        //隐藏缩略图
-                        img_bg.setVisibility(View.GONE);
+                public void onCompletion(MediaPlayer mp) {
+                    mMediaPlayer.pause();
+                    if (!isFinishing()) {
+                        activity_video_big_con.setVisibility(View.VISIBLE);
+                        activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
+                        dontShake = true;
                     }
-                    return false;
                 }
             });
-            mMediaPlayer.prepareAsync();
-
-            if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-                surfaceWidth = textureView.getWidth();
-                surfaceHeight = textureView.getHeight();
-            } else {
-                surfaceWidth = textureView.getHeight();
-                surfaceHeight = textureView.getWidth();
+            mMediaPlayer.setOnVideoSizeChangedListener(this);
+        }else {
+            if(pressHOME){
+                mMediaPlayer.seekTo(mLastTime);
+                activity_video_big_con.setVisibility(View.VISIBLE);
+                activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
             }
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-
-        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                mMediaPlayer.pause();
-                if (!isFinishing()) {
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            activity_video_big_con.setVisibility(View.VISIBLE);
-                            activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
-                            dontShake = true;
-                        }
-                    }, 500);
-                }
-            }
-        });
-
-        mMediaPlayer.setOnVideoSizeChangedListener(this);
     }
 
     @Override
@@ -445,15 +442,22 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 break;
             case R.id.activity_video_big_con:
                 if (null != mMediaPlayer) {
+                    dontShake = false;
                     if (mMediaPlayer.isPlaying()) {
                         mMediaPlayer.pause();
+                        activity_video_big_con.setVisibility(View.VISIBLE);
+                        activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
                     } else {
-                        mMediaPlayer.start();
                         activity_video_big_con.setVisibility(View.INVISIBLE);
-                        dontShake = false;
+                        activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
+                        //按过HOME键需要重置播放
+                        if(pressHOME){
+                            replay();
+                        }else {
+                            mMediaPlayer.start();
+                        }
                         pressHOME = false;
                     }
-                    activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
                 }
                 break;
             case R.id.activity_video_img_con:
@@ -682,35 +686,36 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         changeVideoSize();
     }
 
-//    private void replay() {
-//        try {
-//            if(mMediaPlayer==null){
-//                mMediaPlayer = new MediaPlayer();
-//            }
-//            mMediaPlayer.reset();
-//            mMediaPlayer.setDataSource(mPath);
-//            mMediaPlayer.setDisplay(textureView.getHolder());
-//            mMediaPlayer.setLooping(false);
-//            mMediaPlayer.prepareAsync();
-//            mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-//                @Override
-//                public void onPrepared(MediaPlayer mp) {
-//                    mMediaPlayer.seekTo(mLastTime);
-//                    mMediaPlayer.start();
-//                    getProgress();
-//                }
-//            });
-//            mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-//                @Override
-//                public boolean onError(MediaPlayer mp, int what, int extra) {
-//
-//                    return false;
-//                }
-//            });
-//        } catch (Exception e) {
-//            LogUtil.getLog().d("TAG",e.getMessage());
-//        }
-//    }
+    //恢复播放
+    private void replay() {
+        try {
+            if(mMediaPlayer==null){
+                mMediaPlayer = new MediaPlayer();
+            }
+            mMediaPlayer.reset();
+            mMediaPlayer.setDataSource(mPath);
+            mMediaPlayer.setDisplay(textureView.getHolder());
+            mMediaPlayer.setLooping(false);
+            mMediaPlayer.prepareAsync();
+            mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mMediaPlayer.seekTo(mLastTime);
+                    mMediaPlayer.start();
+                    getProgress();
+                }
+            });
+            mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                @Override
+                public boolean onError(MediaPlayer mp, int what, int extra) {
+
+                    return false;
+                }
+            });
+        } catch (Exception e) {
+            LogUtil.getLog().d("TAG",e.getMessage());
+        }
+    }
 
 
 }
