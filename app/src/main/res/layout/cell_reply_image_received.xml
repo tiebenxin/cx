@@ -117,8 +117,10 @@
                         </LinearLayout>
                     </LinearLayout>
 
-
-                    <View style="@style/app_line" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="@color/c_259048" />
 
                     <android.support.v7.widget.AppCompatTextView
                         android:id="@+id/tv_content"

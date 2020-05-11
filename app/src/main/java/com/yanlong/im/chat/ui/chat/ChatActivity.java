@@ -141,6 +141,7 @@ import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;
 import com.yanlong.im.chat.ui.cell.ICellEventListener;
 import com.yanlong.im.chat.ui.cell.MessageAdapter;
+import com.yanlong.im.chat.ui.cell.OnControllerClickListener;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.chat.ui.view.ControllerLinearList;
 import com.yanlong.im.dialog.ForwardDialog;
@@ -391,6 +392,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     };
     private MsgAllBean replayMsg;
     private boolean isReplying;
+    private ControllerReplyMessage viewReplyMessage;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -534,6 +536,17 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         showDraftContent(originalText);
                     }
                     showVoice(false);
+                }
+            }
+        });
+
+        mViewModel.isReplying.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean value) {
+                if (value) {
+                    viewReplyMessage.setVisible(true);
+                } else {
+                    viewReplyMessage.setVisible(false);
                 }
             }
         });
@@ -746,6 +759,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
             }
         });
+        //被回复消息显示控件
+        viewReplyMessage = new ControllerReplyMessage(findViewById(R.id.viewReply));
     }
 
 
@@ -1185,7 +1200,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         ReplyMessage message = SocketData.createReplyMessage(replayMsg, SocketData.getUUID(), text, atType, editChat.getUserIdList());
                         sendMessage(message, ChatEnum.EMessageType.REPLY);
                         editChat.getText().clear();
-                        isReplying = false;
                     } else {
                         if (editChat.isAtAll()) {
                             AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.ALL, editChat.getUserIdList());
@@ -1198,7 +1212,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             editChat.getText().clear();
                         }
                     }
-
                 } else {
                     //发送普通消息
                     if (!TextUtils.isEmpty(text)) {
@@ -1219,7 +1232,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             ReplyMessage message = SocketData.createReplyMessage(replayMsg, SocketData.getUUID(), text, atType, editChat.getUserIdList());
                             sendMessage(message, ChatEnum.EMessageType.REPLY);
                             editChat.getText().clear();
-                            isReplying = false;
                         } else {
                             if (totalSize <= MIN_TEXT) {//非长文本
                                 isSendingHypertext = false;
@@ -1245,6 +1257,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     }
                 }
+                clearReply();
             }
         });
         editChat.setOnTouchListener(new View.OnTouchListener() {
@@ -1609,7 +1622,24 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         });
 
+        viewReplyMessage.setClickListener(new OnControllerClickListener() {
+            @Override
+            public void onClick() {
+                //取消回复
+                mViewModel.isReplying.setValue(false);
+            }
+        });
 
+
+    }
+
+    //清除回复状态
+    private void clearReply() {
+        if (isReplying && replayMsg != null) {
+            isReplying = false;
+            replayMsg = null;
+            mViewModel.isReplying.setValue(false);
+        }
     }
 
     //设置键盘高度
@@ -3662,9 +3692,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
             menus.add(new OptionMenu("转发"));
         }
-//        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanReply(type)) {
-//            menus.add(new OptionMenu("回复"));
-//        }
+        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanReply(type)) {
+            menus.add(new OptionMenu("回复"));
+        }
         menus.add(new OptionMenu("删除"));
         switch (type) {
             case ChatEnum.EMessageType.TEXT:
@@ -3847,6 +3877,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         if (!mViewModel.isInputText.getValue())
             mViewModel.isInputText.setValue(true);
+        if (!mViewModel.isReplying.getValue())
+            mViewModel.isReplying.setValue(true);
+        viewReplyMessage.setMessage(bean);
         mtListView.scrollToEnd();
     }
 
@@ -5526,6 +5559,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         return;
                     }
                     doAtInput(message);
+
+                    //弹出软键盘
+                    if (!mViewModel.isOpenValue()) //没有事件触发，设置改SoftInput模式为：顶起输入框
+                        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                    if (!mViewModel.isInputText.getValue())
+                        mViewModel.isInputText.setValue(true);
                 }
                 break;
             case ChatEnum.ECellEventType.VOICE_VIDEO_CALL:

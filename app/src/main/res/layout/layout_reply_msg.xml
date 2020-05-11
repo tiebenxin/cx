@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical|bottom"
+    android:orientation="horizontal"
+    android:padding="10dp"
+    android:visibility="visible">
+
+    <com.yanlong.im.wight.avatar.RoundImageView
+        android:id="@+id/iv_reply_image"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:src="@drawable/ic_info_head" />
+
+    <LinearLayout
+        android:id="@+id/ll_reply_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="15dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_reply_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="name"
+            android:textColor="@color/c_259048"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tv_reply_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="fffff"
+            android:textColor="@color/c_848484"
+            android:textSize="11sp" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/iv_reply_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:padding="10dp"
+        android:src="@mipmap/ic_close" />
+
+</LinearLayout>
