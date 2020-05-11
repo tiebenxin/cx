@@ -44,8 +44,6 @@ public class AppHostUtil {
                     connectHostApi = BuildConfig.HOST_DEV;
                 } else if (type == 2) {
                     connectHostApi = BuildConfig.HOST_PRE;
-                } else if (type == 3) {
-                    connectHostApi = BuildConfig.HOST_PRE;
                 } else {
                     connectHostApi = BuildConfig.HOST_RELEASE;
                 }
