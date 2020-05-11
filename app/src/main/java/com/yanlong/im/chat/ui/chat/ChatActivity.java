@@ -3664,9 +3664,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
             menus.add(new OptionMenu("转发"));
         }
-        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanReply(type)) {
-            menus.add(new OptionMenu("回复"));
-        }
+//        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanReply(type)) {
+//            menus.add(new OptionMenu("回复"));
+//        }
         menus.add(new OptionMenu("删除"));
         switch (type) {
             case ChatEnum.EMessageType.TEXT:
@@ -3714,7 +3714,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //是否禁止转发
     public boolean isBanForward(@ChatEnum.EMessageType int type) {
         if (type == ChatEnum.EMessageType.VOICE || type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
-                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO || type == ChatEnum.EMessageType.BUSINESS_CARD || type == ChatEnum.EMessageType.REPLY) {
+                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO || type == ChatEnum.EMessageType.BUSINESS_CARD /*|| type == ChatEnum.EMessageType.REPLY*/) {
             return true;
         }
         return false;
