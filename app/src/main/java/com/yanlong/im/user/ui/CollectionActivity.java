@@ -55,7 +55,11 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import retrofit2.Call;
@@ -661,6 +665,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 }
                 if (response.body().isOk()) {
                     List<CollectionInfo> list = response.body().getData();
+                    timeSortList(list);
                     mList.clear();
                     mList.addAll(list);
                     mViewAdapter.setData(mList);
@@ -824,5 +829,29 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, msg);
         }
         return spannableString;
+    }
+
+    //按重新时间排序(后端没有处理，改为前端自行排序)
+    private void timeSortList(List<CollectionInfo> sortList){
+        Collections.sort(sortList, new Comparator<CollectionInfo>() {
+            @Override
+            public int compare(CollectionInfo o1, CollectionInfo o2) {
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                try {
+                    Date dt1 = format.parse(TimeToString.YYYY_MM_DD(Long.parseLong(o1.getCreateTime())));
+                    Date dt2 = format.parse(TimeToString.YYYY_MM_DD(Long.parseLong(o2.getCreateTime())));
+                    if (dt1.getTime() > dt2.getTime()) {
+                        return -1;
+                    } else if (dt1.getTime() < dt2.getTime()) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return 0;
+            }
+        });
     }
 }
