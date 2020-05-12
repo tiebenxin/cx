@@ -7,8 +7,10 @@ import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.ui.cell.OnControllerClickListener;
 import com.yanlong.im.utils.ExpressionUtil;
@@ -58,9 +60,15 @@ public class ControllerReplyMessage {
         int type = message.getMsg_type();
         if (isTextType(type)) {
             ivImage.setVisibility(View.GONE);
+        } else {
+            ivImage.setVisibility(View.VISIBLE);
         }
         tvName.setText(message.getFrom_nickname());
         tvContent.setText(getText(message, type));
+        if (ivImage.isShown()) {
+            setImage(message, type);
+        }
+
 
     }
 
@@ -92,6 +100,9 @@ public class ControllerReplyMessage {
                     content = message.getReplyMessage().getAtMessage().getMsg();
                 }
                 break;
+            case ChatEnum.EMessageType.IMAGE:
+                content = "图片";
+                break;
         }
         return getSpan(content);
 
@@ -111,5 +122,17 @@ public class ControllerReplyMessage {
             spannableString = ExpressionUtil.getExpressionString(AppConfig.getContext(), ExpressionUtil.DEFAULT_SIZE, msg);
         }
         return spannableString;
+    }
+
+    private void setImage(MsgAllBean bean, int type) {
+        switch (type) {
+            case ChatEnum.EMessageType.IMAGE:
+                ImageMessage image = bean.getImage();
+                Glide.with(ivImage.getContext()).load(image.getThumbnail()).into(ivImage);
+                break;
+            case ChatEnum.EMessageType.VOICE:
+                Glide.with(ivImage.getContext()).load(R.mipmap.ic_reply_voice).into(ivImage);
+                break;
+        }
     }
 }

@@ -869,7 +869,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         return;
                     }
                     //过滤不需要存储消息
-                    if (SocketData.filterNoSaveMsgForFailed(msgAllBean.getMsg_type().intValue())) {
+                    if (!SocketData.filterNoSaveMsgForFailed(msgAllBean.getMsg_type().intValue())) {
                         return;
                     }
                     msgAllBean.setSend_state(ChatEnum.ESendStatus.ERROR);
@@ -3744,7 +3744,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //是否禁止回复
     public boolean isBanReply(@ChatEnum.EMessageType int type) {
-        if (type == ChatEnum.EMessageType.VOICE || type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
+        if (/*type == ChatEnum.EMessageType.VOICE ||*/ type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
                 || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO || type == ChatEnum.EMessageType.BUSINESS_CARD) {
             return true;
         }
