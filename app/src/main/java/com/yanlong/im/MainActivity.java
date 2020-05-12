@@ -740,6 +740,12 @@ public class MainActivity extends AppActivity {
 
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        //退出登录
+        EventBus.getDefault().post(new String("exit"));
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRunState(EventRunState event) {
