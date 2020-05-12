@@ -180,13 +180,13 @@ public class MessageManager {
     private boolean discardHistoryCleanMessage(Long uid, Long timestamp) {
         boolean result = false;
         if (historyCleanMsg.containsKey(uid) && historyCleanMsg.get(uid) >= timestamp) {
-            if(historyCleanMsg.get(uid) >= timestamp){
+            if (historyCleanMsg.get(uid) >= timestamp) {
                 result = true;
-            }else if (timestamp - historyCleanMsg.get(uid) >10*60*1000)
+            } else if (timestamp - historyCleanMsg.get(uid) > 10 * 60 * 1000)
                 //historyCleanMsg的消息时间，比当前接收消息时间超过10分钟的消息，从historyCleanMsg移除
                 historyCleanMsg.remove(uid);
         }
-        Log.e("raleigh_test",""+historyCleanMsg.size());
+        Log.e("raleigh_test", "" + historyCleanMsg.size());
         return result;
     }
 
@@ -202,9 +202,9 @@ public class MessageManager {
             return true;
         }
         /******丢弃消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
-        if (TextUtils.isEmpty(wrapMessage.getGid())&&historyCleanMsg.size()>0) {//单聊
-            if(discardHistoryCleanMessage(wrapMessage.getFromUid(), wrapMessage.getTimestamp())||
-                    discardHistoryCleanMessage(wrapMessage.getToUid(), wrapMessage.getTimestamp())){
+        if (TextUtils.isEmpty(wrapMessage.getGid()) && historyCleanMsg.size() > 0) {//单聊
+            if (discardHistoryCleanMessage(wrapMessage.getFromUid(), wrapMessage.getTimestamp()) ||
+                    discardHistoryCleanMessage(wrapMessage.getToUid(), wrapMessage.getTimestamp())) {
                 return true;
             }
         }
@@ -259,7 +259,7 @@ public class MessageManager {
             case TAKE_SCREENSHOT:// 截屏通知
             case SEND_FILE:// 文件消息
             case TRANS_NOTIFY:// 转账提醒通知
-            case REPLY_SPECIFIC :// 回复消息
+            case REPLY_SPECIFIC:// 回复消息
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }
@@ -468,6 +468,7 @@ public class MessageManager {
                 EventBus.getDefault().post(eventLoginOut4Conflict);
                 break;
             case AT://@消息
+            case GROUP_ANNOUNCEMENT://群公告
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }
@@ -709,7 +710,8 @@ public class MessageManager {
         if (!TextUtils.isEmpty(gid))
             gids.add(gid);
         //回主线程调用更新sessionDetial
-        if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
+        if (MyAppLication.INSTANCE().repository != null)
+            MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
     }
 
     private void removeGroupMember(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
@@ -1705,7 +1707,8 @@ public class MessageManager {
                     gids.add(gid);
                 }
                 //回主线程调用更新sessionDetial
-                if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
+                if (MyAppLication.INSTANCE().repository != null)
+                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
             }
 
             @Override

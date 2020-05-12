@@ -70,7 +70,22 @@ public class UserUtil {
         if (toUId == null) {
             return false;
         }
-        if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX888_UID.equals(toUId) ||  Constants.CX999_UID.equals(toUId)||  Constants.CX_BALANCE_UID.equals(toUId)) {
+        if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX888_UID.equals(toUId) || Constants.CX999_UID.equals(toUId) || Constants.CX_BALANCE_UID.equals(toUId)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 是否是禁止发送消息的系统用户：常信小助手，零钱小助手
+     *
+     * @return
+     */
+    public static boolean isBanSendUser(Long toUId) {
+        if (toUId == null) {
+            return false;
+        }
+        if (Constants.CX_HELPER_UID.equals(toUId) || Constants.CX_BALANCE_UID.equals(toUId)) {
             return true;
         }
         return false;

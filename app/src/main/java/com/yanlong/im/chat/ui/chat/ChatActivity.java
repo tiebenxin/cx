@@ -142,6 +142,7 @@ import com.yanlong.im.chat.ui.cell.ControllerNewMessage;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;
 import com.yanlong.im.chat.ui.cell.ICellEventListener;
 import com.yanlong.im.chat.ui.cell.MessageAdapter;
+import com.yanlong.im.chat.ui.cell.OnControllerClickListener;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.chat.ui.view.ControllerLinearList;
 import com.yanlong.im.dialog.ForwardDialog;
@@ -274,7 +275,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private final String IS_VIP = "1";// (0:普通|1:vip)
     public final static int MIN_UNREAD_COUNT = 15;
     private int MAX_UNREAD_COUNT = 80 * 4;//默认加载最大数据
-
     private List<String> uidList;
 
 
@@ -393,6 +393,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     };
     private MsgAllBean replayMsg;
     private boolean isReplying;
+    private ControllerReplyMessage viewReplyMessage;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -540,6 +541,17 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         });
 
+        mViewModel.isReplying.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean value) {
+                if (value) {
+                    viewReplyMessage.setVisible(true);
+                } else {
+                    viewReplyMessage.setVisible(false);
+                }
+            }
+        });
+
     }
 
     private String originalText = "";
@@ -601,6 +613,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         boolean hasClear = taskCleanRead(false);
         boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
         boolean hasChange = updateSessionDraftAndAtMessage();
+        if (hasChange) {
+            saveReplying(draft);
+        }
     }
 
     //停止录音
@@ -656,7 +671,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (!msgDao.isMsgLockExist(toGid, toUId)) {
             msgDao.insertOrUpdateMessage(SocketData.createMessageLock(toGid, toUId));
         }
-//        Log.i(TAG, "onStart");
         initData();
 
     }
@@ -671,6 +685,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         initUnreadCount();
         initPopupWindow();
+        initReplyMsg();
+    }
+
+    private void initReplyMsg() {
+        replayMsg = msgDao.getReplyingMsg(toGid, toUId);
+        if (replayMsg != null) {
+            isReplying = true;
+            mViewModel.isReplying.setValue(true);
+            viewReplyMessage.setMessage(replayMsg);
+        }
     }
 
     private void initViewNewMsg() {
@@ -748,6 +772,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
             }
         });
+        //被回复消息显示控件
+        viewReplyMessage = new ControllerReplyMessage(findViewById(R.id.viewReply));
     }
 
 
@@ -856,7 +882,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         return;
                     }
                     //过滤不需要存储消息
-                    if (SocketData.filterNoSaveMsgForFailed(msgAllBean.getMsg_type().intValue())) {
+                    if (!SocketData.filterNoSaveMsgForFailed(msgAllBean.getMsg_type().intValue())) {
                         return;
                     }
                     msgAllBean.setSend_state(ChatEnum.ESendStatus.ERROR);
@@ -1187,7 +1213,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         ReplyMessage message = SocketData.createReplyMessage(replayMsg, SocketData.getUUID(), text, atType, editChat.getUserIdList());
                         sendMessage(message, ChatEnum.EMessageType.REPLY);
                         editChat.getText().clear();
-                        isReplying = false;
                     } else {
                         if (editChat.isAtAll()) {
                             AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.ALL, editChat.getUserIdList());
@@ -1200,7 +1225,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             editChat.getText().clear();
                         }
                     }
-
                 } else {
                     //发送普通消息
                     if (!TextUtils.isEmpty(text)) {
@@ -1221,7 +1245,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             ReplyMessage message = SocketData.createReplyMessage(replayMsg, SocketData.getUUID(), text, atType, editChat.getUserIdList());
                             sendMessage(message, ChatEnum.EMessageType.REPLY);
                             editChat.getText().clear();
-                            isReplying = false;
                         } else {
                             if (totalSize <= MIN_TEXT) {//非长文本
                                 isSendingHypertext = false;
@@ -1247,6 +1270,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     }
                 }
+                clearReply();
             }
         });
         editChat.setOnTouchListener(new View.OnTouchListener() {
@@ -1611,7 +1635,25 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         });
 
+        viewReplyMessage.setClickListener(new OnControllerClickListener() {
+            @Override
+            public void onClick() {
+                //取消回复
+                mViewModel.isReplying.setValue(false);
+            }
+        });
 
+
+    }
+
+    //清除回复状态
+    private void clearReply() {
+        if (isReplying && replayMsg != null) {
+            updateReplying();
+            isReplying = false;
+            replayMsg = null;
+            mViewModel.isReplying.setValue(false);
+        }
     }
 
     //设置键盘高度
@@ -1972,8 +2014,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else {
                 SocketData.sendAndSaveMessage(msgAllBean);
             }
-            //cancel消息发送前不需要更新
-            if (msgType != ChatEnum.EMessageType.MSG_CANCEL) {
+            //cancel消息发送前不需要更新,read消息不需要add
+            if (msgType != ChatEnum.EMessageType.MSG_CANCEL && msgType != ChatEnum.EMessageType.READ) {
                 showSendObj(msgAllBean);
             }
         }
@@ -3664,12 +3706,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
             menus.add(new OptionMenu("转发"));
         }
-//        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanReply(type)) {
-//            menus.add(new OptionMenu("回复"));
-//        }
+        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanReply(type)) {
+            menus.add(new OptionMenu("回复"));
+        }
         menus.add(new OptionMenu("删除"));
         switch (type) {
             case ChatEnum.EMessageType.TEXT:
+            case ChatEnum.EMessageType.AT:
                 menus.add(0, new OptionMenu("复制"));
                 menus.add(1, new OptionMenu("收藏"));
                 break;
@@ -3681,7 +3724,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
                 menus.add(1, new OptionMenu("收藏"));
                 break;
-            case ChatEnum.EMessageType.AT:
             case ChatEnum.EMessageType.LOCATION:
             case ChatEnum.EMessageType.IMAGE:
             case ChatEnum.EMessageType.MSG_VIDEO:
@@ -3722,7 +3764,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //是否禁止回复
     public boolean isBanReply(@ChatEnum.EMessageType int type) {
-        if (type == ChatEnum.EMessageType.VOICE || type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
+        if (/*type == ChatEnum.EMessageType.VOICE ||*/ type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
                 || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO || type == ChatEnum.EMessageType.BUSINESS_CARD) {
             return true;
         }
@@ -3866,6 +3908,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         if (!mViewModel.isInputText.getValue())
             mViewModel.isInputText.setValue(true);
+        if (!mViewModel.isReplying.getValue())
+            mViewModel.isReplying.setValue(true);
+        viewReplyMessage.setMessage(bean);
         mtListView.scrollToEnd();
     }
 
@@ -4071,39 +4116,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
-
-    private String msgid;
-
     public synchronized void sendRead() {
         //发送已读回执
-        if (TextUtils.isEmpty(toGid)) {
+        if (TextUtils.isEmpty(toGid) && !UserUtil.isBanSendUser(toUId)) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
             if (bean != null) {
                 if (bean.getRead() == 0) {
-                    msgid = bean.getMsg_id();
                     ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
-                    MsgAllBean message = SocketData.createMessageBean(toUId, "", ChatEnum.EMessageType.READ, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), read);
-                    SocketData.sendAndSaveMessage(message);
+                    sendMessage(read, ChatEnum.EMessageType.READ);
                 }
             }
         }
     }
-
-    public synchronized void sendRead(MsgAllBean bean) {
-        //发送已读回执
-        if (TextUtils.isEmpty(toGid)) {
-            if (bean != null) {
-                if (bean.getRead() == 0) {
-                    msgid = bean.getMsg_id();
-                    ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
-                    MsgAllBean message = SocketData.createMessageBean(toUId, "", ChatEnum.EMessageType.READ, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), read);
-                    SocketData.sendAndSaveMessage(message);
-//                    msgDao.setRead(msgid);
-                }
-            }
-        }
-    }
-
 
     /***
      * 获取最新的
@@ -5393,7 +5417,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if (context.getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
                 startActivity(intent);
             } else {
-                Toast.makeText(context, "没有找到对应的程序", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "不支持打开该文件类型，请下载相关软件！", Toast.LENGTH_SHORT).show();
             }
 //            startActivity(intent);
         } catch (ActivityNotFoundException e) {
@@ -5587,6 +5611,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         return;
                     }
                     doAtInput(message);
+
+                    //弹出软键盘
+                    if (!mViewModel.isOpenValue()) //没有事件触发，设置改SoftInput模式为：顶起输入框
+                        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                    if (!mViewModel.isInputText.getValue())
+                        mViewModel.isInputText.setValue(true);
                 }
                 break;
             case ChatEnum.ECellEventType.VOICE_VIDEO_CALL:
@@ -6083,22 +6113,25 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
-    //
-    private List<MsgAllBean> isRetainAll(List<MsgAllBean> oldList, List<MsgAllBean> newList) {
-        if (oldList != null && newList != null) {
-            int newLength = newList.size();
-            int oldLength = oldList.size();
-            if (newLength > oldLength) {
-                newList.removeAll(oldList);
-                return newList;
-            }
-        }
-        return newList;
-    }
 
     private synchronized void fixLastPosition(int len) {
         lastPosition = lastPosition + len;
         LogUtil.getLog().i(TAG, "scroll--fixLastPosition=" + lastPosition);
     }
 
+    //存储正在回复消息,回复内容被content
+    private void saveReplying(String content) {
+        if (isReplying && replayMsg != null && !TextUtils.isEmpty(content)) {
+            replayMsg.setIsReplying(1);
+            DaoUtil.update(replayMsg);
+        }
+    }
+
+    //发送成功后删除回复消息
+    private void updateReplying() {
+        if (replayMsg != null) {
+            replayMsg.setIsReplying(0);
+            DaoUtil.update(replayMsg);
+        }
+    }
 }

@@ -28,7 +28,8 @@
 
             <include
                 android:id="@+id/viewNewMessage"
-                layout="@layout/layout_new_msg" />
+                layout="@layout/layout_new_msg"
+                android:visibility="gone" />
 
 
         </RelativeLayout>
@@ -54,43 +55,10 @@
                     android:orientation="vertical"
                     android:visibility="visible">
 
-                    <LinearLayout
-                        android:id="@+id/ll_reply_root"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical|bottom"
-                        android:orientation="horizontal"
-                        android:visibility="gone">
-
-                        <com.yanlong.im.wight.avatar.RoundImageView
-                            android:id="@+id/iv_reply_image"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-
-                        <LinearLayout
-                            android:id="@+id/ll_reply_content"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/tv_reply_name"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/c_259048"
-                                android:textSize="14sp" />
-
-                            <TextView
-                                android:id="@+id/tv_reply_content"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/c_727272"
-                                android:textSize="11sp" />
-
-                        </LinearLayout>
-
-
-                    </LinearLayout>
+                    <include
+                        android:id="@+id/viewReply"
+                        layout="@layout/layout_reply_msg"
+                        android:visibility="gone" />
 
                     <!-- 输入框-->
                     <LinearLayout

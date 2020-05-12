@@ -149,6 +149,10 @@ public class DaoMigration implements RealmMigration {
                 updateV31(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 31) {
+                updateV32(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -567,11 +571,14 @@ public class DaoMigration implements RealmMigration {
                 .addRealmObjectField("replyMessage", schema.get("ReplyMessage"));
     }
 
-    /**
-     * 添加收藏
-     * @param schema
-     */
-    private void updateV31(RealmSchema schema) {
+    //新增是否正在回复消息字段
+    private final void updateV31(RealmSchema schema) {
+        schema.get("MsgAllBean")
+                .addField("isReplying", int.class);
+    }
+
+    //添加收藏相关字段
+    private void updateV32(RealmSchema schema) {
         schema.create("CollectionInfo")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
                 .addField("createTime", String.class)

@@ -1425,6 +1425,7 @@ public class SocketData {
         message.setWebUrl(webUrl);
         return message;
     }
+
     /**
      * 双向删除
      */
@@ -1435,6 +1436,7 @@ public class SocketData {
         LogUtil.writeLog(">>>双向删除 toId:" + toId + " timestamp:" + timestamp);
         return send4Base(false, toId, null, MsgBean.MessageType.HISTORY_CLEAN, msg);
     }
+
     public static void saveMessage(MsgAllBean bean) {
         DaoUtil.update(bean);
         if (msgDao == null) {
@@ -1448,13 +1450,14 @@ public class SocketData {
     public static MsgAllBean createMessageLock(String gid, Long uid) {
         MsgAllBean bean = null;
         try {
-            if(UserAction.getMyInfo()!=null) {
+            if (UserAction.getMyInfo() != null) {
                 bean = new MsgAllBean();
                 if (!TextUtils.isEmpty(gid)) {
                     bean.setGid(gid);
                     bean.setFrom_uid(UserAction.getMyInfo().getUid());
                 } else if (uid != null) {
-                    bean.setFrom_uid(uid);
+                    bean.setFrom_uid(UserAction.getMyInfo().getUid());
+                    bean.setTo_uid(uid);
                 } else {
                     return null;
                 }
@@ -1465,7 +1468,7 @@ public class SocketData {
                 ChatMessage message = SocketData.createChatMessage(bean.getMsg_id(), getNoticeString(bean, ChatEnum.ENoticeType.LOCK));
                 bean.setChat(message);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             bean = null;
         }
         return bean;
@@ -1566,7 +1569,8 @@ public class SocketData {
                         gids.add(msgAllBean.getGid());
                     }
                     //回主线程调用更新session详情
-                    if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+                    if (MyAppLication.INSTANCE().repository != null)
+                        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
                     /********通知更新sessionDetail end************************************/
                 }
             } else {
@@ -1922,28 +1926,31 @@ public class SocketData {
                     refBuild.setFromUid(quotedMessage.getFromUid());
                     refBuild.setAvatar(quotedMessage.getAvatar());
                     refBuild.setNickname(quotedMessage.getNickName());
-                    refBuild.setMsgType(getMessageType(quotedMessage.getMsgType()));
-                    refBuild.setTimestamp(quotedMessage.getTimestamp());
-                    refBuild.setMsg(quotedMessage.getMsg());
-                    refBuild.setUrl(quotedMessage.getUrl());
-                    replyBuild.setRefMsg(refBuild.build());
-                    if (replyMessage.getChatMessage() != null) {
-                        MsgBean.ChatMessage.Builder txtReplyBuilder = MsgBean.ChatMessage.newBuilder();
-                        txtReplyBuilder.setMsg(replyMessage.getChatMessage().getMsg());
-                        replyBuild.setChatMsg(txtReplyBuilder.build());
-                        isValid = true;
-                    } else if (replyMessage.getAtMessage() != null) {
-                        AtMessage atMessage = replyMessage.getAtMessage();
-                        MsgBean.AtMessage.Builder atReplyBuilder = MsgBean.AtMessage.newBuilder();
-                        atReplyBuilder.setAtTypeValue(atMessage.getAt_type()).setMsg(atMessage.getMsg()).addAllUid(atMessage.getUid());
-                        replyBuild.setAtMsg(atReplyBuilder.build());
-                        isValid = true;
-                    } else {
-                        isValid = false;
-                    }
-                    if (isValid) {
-                        value = replyBuild.build();
-                        type = MsgBean.MessageType.REPLY_SPECIFIC;
+                    MsgBean.MessageType messageType = getMessageType(quotedMessage.getMsgType());
+                    if (messageType != MsgBean.MessageType.UNRECOGNIZED) {
+                        refBuild.setMsgType(messageType);
+                        refBuild.setTimestamp(quotedMessage.getTimestamp());
+                        refBuild.setMsg(quotedMessage.getMsg());
+                        refBuild.setUrl(quotedMessage.getUrl());
+                        replyBuild.setRefMsg(refBuild.build());
+                        if (replyMessage.getChatMessage() != null) {
+                            MsgBean.ChatMessage.Builder txtReplyBuilder = MsgBean.ChatMessage.newBuilder();
+                            txtReplyBuilder.setMsg(replyMessage.getChatMessage().getMsg());
+                            replyBuild.setChatMsg(txtReplyBuilder.build());
+                            isValid = true;
+                        } else if (replyMessage.getAtMessage() != null) {
+                            AtMessage atMessage = replyMessage.getAtMessage();
+                            MsgBean.AtMessage.Builder atReplyBuilder = MsgBean.AtMessage.newBuilder();
+                            atReplyBuilder.setAtTypeValue(atMessage.getAt_type()).setMsg(atMessage.getMsg()).addAllUid(atMessage.getUid());
+                            replyBuild.setAtMsg(atReplyBuilder.build());
+                            isValid = true;
+                        } else {
+                            isValid = false;
+                        }
+                        if (isValid) {
+                            value = replyBuild.build();
+                            type = MsgBean.MessageType.REPLY_SPECIFIC;
+                        }
                     }
                     break;
             }
@@ -2139,6 +2146,9 @@ public class SocketData {
             case VOICE:
                 messageType = ChatEnum.EMessageType.VOICE;
                 break;
+            case AT:
+                messageType = ChatEnum.EMessageType.AT;
+                break;
             case ASSISTANT:
                 messageType = ChatEnum.EMessageType.ASSISTANT;
                 break;
@@ -2154,7 +2164,7 @@ public class SocketData {
             case SHIPPED_EXPRESSION:
                 messageType = ChatEnum.EMessageType.SHIPPED_EXPRESSION;
                 break;
-            case REPLY_SPECIFIC :
+            case REPLY_SPECIFIC:
                 messageType = ChatEnum.EMessageType.REPLY;
                 break;
             case BALANCE_ASSISTANT:
@@ -2191,6 +2201,9 @@ public class SocketData {
                 break;
             case ChatEnum.EMessageType.VOICE:
                 messageType = MsgBean.MessageType.VOICE;
+                break;
+            case ChatEnum.EMessageType.AT:
+                messageType = MsgBean.MessageType.AT;
                 break;
             case ChatEnum.EMessageType.ASSISTANT:
                 messageType = MsgBean.MessageType.ASSISTANT;
