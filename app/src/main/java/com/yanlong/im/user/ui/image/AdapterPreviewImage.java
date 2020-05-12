@@ -787,6 +787,8 @@ public class AdapterPreviewImage extends PagerAdapter {
                         if (msgAllBean != null) {
                             context.startActivity(new Intent(context, MsgForwardActivity.class)
                                     .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
+                        } else {
+                            ToastUtil.show("消息已被删除或者被焚毁，不能转发");
                         }
                     } else {
                         //TODO:无消息id，要不要自己新建一条消息记录，然后发出去？
