@@ -840,11 +840,32 @@ public class CollectDetailsActivity extends AppActivity {
         if (AudioPlayManager.getInstance().isPlay(Uri.parse(url))) {
             AudioPlayManager.getInstance().stopPlay();
         } else {
-            if (bean.getVoiceMessage().getPlayStatus() == ChatEnum.EPlayStatus.NO_DOWNLOADED && !bean.isMe()) {
+            //本地路径，且存在，则直接打开 (解决换手机以后，语音消息收藏状态为已经下载的错误情况，实际上并未下载)
+            if(!url.contains("http:") && net.cb.cb.library.utils.FileUtils.fileIsExist(url)){
+                AudioPlayManager.getInstance().startPlay(context, bean, position, canAutoPlay, new IVoicePlayListener() {
+                    @Override
+                    public void onStart(MsgAllBean bean) {
+                        bean.getVoiceMessage().setPlayStatus(ChatEnum.EPlayStatus.PLAYING);
+                    }
+
+                    @Override
+                    public void onStop(MsgAllBean bean) {
+                        bean.getVoiceMessage().setPlayStatus(ChatEnum.EPlayStatus.STOP_PLAY);
+                    }
+
+                    @Override
+                    public void onComplete(MsgAllBean bean) {
+                        bean.getVoiceMessage().setPlayStatus(ChatEnum.EPlayStatus.PLAYED);
+                    }
+                });
+            }else {
+                //否则下载
                 AudioPlayManager.getInstance().downloadAudio(context, bean, new DownloadUtil.IDownloadVoiceListener() {
                     @Override
                     public void onDownloadSuccess(File file) {
                         bean.getVoiceMessage().setPlayStatus(ChatEnum.EPlayStatus.NO_PLAY);
+                        //下载成功后本地路径重置为下载后的最新保存地址，AudioPlayerManager统一封装好了逻辑会取bean的旧localurl，不符合当前使用场景
+                        bean.getVoiceMessage().setLocalUrl(file.getAbsolutePath());
                         AudioPlayManager.getInstance().startPlay(context, bean, position, canAutoPlay, new IVoicePlayListener() {
                             @Override
                             public void onStart(MsgAllBean bean) {
@@ -872,23 +893,6 @@ public class CollectDetailsActivity extends AppActivity {
                     public void onDownloadFailed(Exception e) {
                         bean.getVoiceMessage().setPlayStatus(ChatEnum.EPlayStatus.NO_DOWNLOADED);
                         ToastUtil.show("语音消息下载失败!");
-                    }
-                });
-            } else {
-                AudioPlayManager.getInstance().startPlay(context, bean, position, canAutoPlay, new IVoicePlayListener() {
-                    @Override
-                    public void onStart(MsgAllBean bean) {
-                        bean.getVoiceMessage().setPlayStatus(ChatEnum.EPlayStatus.PLAYING);
-                    }
-
-                    @Override
-                    public void onStop(MsgAllBean bean) {
-                        bean.getVoiceMessage().setPlayStatus(ChatEnum.EPlayStatus.STOP_PLAY);
-                    }
-
-                    @Override
-                    public void onComplete(MsgAllBean bean) {
-                        bean.getVoiceMessage().setPlayStatus(ChatEnum.EPlayStatus.PLAYED);
                     }
                 });
             }
