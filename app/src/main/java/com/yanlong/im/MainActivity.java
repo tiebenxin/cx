@@ -743,8 +743,8 @@ public class MainActivity extends AppActivity {
     @Override
     public void finish() {
         super.finish();
-        //退出登录
-        EventBus.getDefault().post(new String("exit"));
+        //退出登录-关闭其他页面
+        EventBus.getDefault().post(new String());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

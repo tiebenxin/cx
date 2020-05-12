@@ -38,21 +38,20 @@ public class AppActivity extends AppCompatActivity {
     public Boolean isFirstRequestPermissionsResult = true;//第一次请求权限返回
     DialogLoadingProgress payWaitDialog;
 
-    private Finish mExit=new Finish();
+    private Finish mExit = new Finish();
+
     /**
      * 其他页面退出登录
      */
     private class Finish {
         @Subscribe(threadMode = ThreadMode.MAIN)
-        public void onExitEvent(Object myEvent) {
-            if(myEvent instanceof String){//退出登录,关闭其他页面
-                if(!isFinishing()){
-                    finish();
-                }
+        public void onExitEvent(String myEvent) {
+            //退出登录,关闭其他页面
+            if (!isFinishing()) {
+                finish();
             }
         }
     }
-
 
 
     @Override
