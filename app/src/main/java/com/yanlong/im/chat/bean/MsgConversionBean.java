@@ -488,6 +488,7 @@ public class MsgConversionBean {
                 }
                 break;
             case AT:
+            case GROUP_ANNOUNCEMENT://群公告
                 if (bean.getAt().getAtType() == MsgBean.AtMessage.AtType.UNRECOGNIZED) {
                     return null;
                 }

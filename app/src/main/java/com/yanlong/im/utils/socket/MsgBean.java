@@ -337,6 +337,14 @@ public final class MsgBean {
     SWITCH_CHANGE(203),
     /**
      * <pre>
+     * 多端同步
+     * </pre>
+     *
+     * <code>MULTI_TERMINAL_SYNC = 204;</code>
+     */
+    MULTI_TERMINAL_SYNC(204),
+    /**
+     * <pre>
      * 支付结果通知
      * </pre>
      *
@@ -676,6 +684,14 @@ public final class MsgBean {
     public static final int SWITCH_CHANGE_VALUE = 203;
     /**
      * <pre>
+     * 多端同步
+     * </pre>
+     *
+     * <code>MULTI_TERMINAL_SYNC = 204;</code>
+     */
+    public static final int MULTI_TERMINAL_SYNC_VALUE = 204;
+    /**
+     * <pre>
      * 支付结果通知
      * </pre>
      *
@@ -757,6 +773,7 @@ public final class MsgBean {
         case 201: return ACTIVE_STAT_CHANGE;
         case 202: return RESOURCE_LOCK;
         case 203: return SWITCH_CHANGE;
+        case 204: return MULTI_TERMINAL_SYNC;
         case 308: return PAY_RESULT;
         case 309: return BALANCE_ASSISTANT;
         case 310: return TRANS_NOTIFY;
@@ -17629,539 +17646,6 @@ public final class MsgBean {
     }
 
     public com.yanlong.im.utils.socket.MsgBean.RemoveFriendMessage getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
-  public interface GroupAnnouncementMessageOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:GroupAnnouncementMessage)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <code>string msg = 1;</code>
-     */
-    java.lang.String getMsg();
-    /**
-     * <code>string msg = 1;</code>
-     */
-    com.google.protobuf.ByteString
-        getMsgBytes();
-  }
-  /**
-   * <pre>
-   * 群公告消息
-   * </pre>
-   *
-   * Protobuf type {@code GroupAnnouncementMessage}
-   */
-  public  static final class GroupAnnouncementMessage extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:GroupAnnouncementMessage)
-      GroupAnnouncementMessageOrBuilder {
-  private static final long serialVersionUID = 0L;
-    // Use GroupAnnouncementMessage.newBuilder() to construct.
-    private GroupAnnouncementMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-      super(builder);
-    }
-    private GroupAnnouncementMessage() {
-      msg_ = "";
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return this.unknownFields;
-    }
-    private GroupAnnouncementMessage(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
-      }
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!parseUnknownFieldProto3(
-                  input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-            case 10: {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              msg_ = s;
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return com.yanlong.im.utils.socket.MsgBean.internal_static_GroupAnnouncementMessage_descriptor;
-    }
-
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return com.yanlong.im.utils.socket.MsgBean.internal_static_GroupAnnouncementMessage_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.class, com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.Builder.class);
-    }
-
-    public static final int MSG_FIELD_NUMBER = 1;
-    private volatile java.lang.Object msg_;
-    /**
-     * <code>string msg = 1;</code>
-     */
-    public java.lang.String getMsg() {
-      java.lang.Object ref = msg_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        msg_ = s;
-        return s;
-      }
-    }
-    /**
-     * <code>string msg = 1;</code>
-     */
-    public com.google.protobuf.ByteString
-        getMsgBytes() {
-      java.lang.Object ref = msg_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        msg_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      if (!getMsgBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, msg_);
-      }
-      unknownFields.writeTo(output);
-    }
-
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (!getMsgBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, msg_);
-      }
-      size += unknownFields.getSerializedSize();
-      memoizedSize = size;
-      return size;
-    }
-
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage)) {
-        return super.equals(obj);
-      }
-      com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage other = (com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage) obj;
-
-      boolean result = true;
-      result = result && getMsg()
-          .equals(other.getMsg());
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptor().hashCode();
-      hash = (37 * hash) + MSG_FIELD_NUMBER;
-      hash = (53 * hash) + getMsg().hashCode();
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-    public static com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * <pre>
-     * 群公告消息
-     * </pre>
-     *
-     * Protobuf type {@code GroupAnnouncementMessage}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:GroupAnnouncementMessage)
-        com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessageOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return com.yanlong.im.utils.socket.MsgBean.internal_static_GroupAnnouncementMessage_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return com.yanlong.im.utils.socket.MsgBean.internal_static_GroupAnnouncementMessage_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.class, com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.Builder.class);
-      }
-
-      // Construct using com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
-        }
-      }
-      public Builder clear() {
-        super.clear();
-        msg_ = "";
-
-        return this;
-      }
-
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return com.yanlong.im.utils.socket.MsgBean.internal_static_GroupAnnouncementMessage_descriptor;
-      }
-
-      public com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage getDefaultInstanceForType() {
-        return com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.getDefaultInstance();
-      }
-
-      public com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage build() {
-        com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      public com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage buildPartial() {
-        com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage result = new com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage(this);
-        result.msg_ = msg_;
-        onBuilt();
-        return result;
-      }
-
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, java.lang.Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          java.lang.Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage) {
-          return mergeFrom((com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage other) {
-        if (other == com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.getDefaultInstance()) return this;
-        if (!other.getMsg().isEmpty()) {
-          msg_ = other.msg_;
-          onChanged();
-        }
-        this.mergeUnknownFields(other.unknownFields);
-        onChanged();
-        return this;
-      }
-
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-
-      private java.lang.Object msg_ = "";
-      /**
-       * <code>string msg = 1;</code>
-       */
-      public java.lang.String getMsg() {
-        java.lang.Object ref = msg_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          msg_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>string msg = 1;</code>
-       */
-      public com.google.protobuf.ByteString
-          getMsgBytes() {
-        java.lang.Object ref = msg_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          msg_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>string msg = 1;</code>
-       */
-      public Builder setMsg(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  
-        msg_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string msg = 1;</code>
-       */
-      public Builder clearMsg() {
-        
-        msg_ = getDefaultInstance().getMsg();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>string msg = 1;</code>
-       */
-      public Builder setMsgBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-        
-        msg_ = value;
-        onChanged();
-        return this;
-      }
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFieldsProto3(unknownFields);
-      }
-
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.mergeUnknownFields(unknownFields);
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:GroupAnnouncementMessage)
-    }
-
-    // @@protoc_insertion_point(class_scope:GroupAnnouncementMessage)
-    private static final com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage();
-    }
-
-    public static com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static final com.google.protobuf.Parser<GroupAnnouncementMessage>
-        PARSER = new com.google.protobuf.AbstractParser<GroupAnnouncementMessage>() {
-      public GroupAnnouncementMessage parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new GroupAnnouncementMessage(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<GroupAnnouncementMessage> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<GroupAnnouncementMessage> getParserForType() {
-      return PARSER;
-    }
-
-    public com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -46967,19 +46451,6 @@ public final class MsgBean {
       com.yanlong.im.utils.socket.MsgBean.ChangeViceAdminsMessageOrBuilder getChangeViceAdminsOrBuilder();
 
       /**
-       * <code>.GroupAnnouncementMessage group_announcement = 10223;</code>
-       */
-      boolean hasGroupAnnouncement();
-      /**
-       * <code>.GroupAnnouncementMessage group_announcement = 10223;</code>
-       */
-      com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage getGroupAnnouncement();
-      /**
-       * <code>.GroupAnnouncementMessage group_announcement = 10223;</code>
-       */
-      com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessageOrBuilder getGroupAnnouncementOrBuilder();
-
-      /**
        * <code>.ForceOfflineMessage force_offline = 10300;</code>
        */
       boolean hasForceOffline();
@@ -47030,6 +46501,19 @@ public final class MsgBean {
        * <code>.SwitchChangeMessage switch_change = 10303;</code>
        */
       com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessageOrBuilder getSwitchChangeOrBuilder();
+
+      /**
+       * <code>.MultiTerminalSync multi_terminal_sync = 10304;</code>
+       */
+      boolean hasMultiTerminalSync();
+      /**
+       * <code>.MultiTerminalSync multi_terminal_sync = 10304;</code>
+       */
+      com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync getMultiTerminalSync();
+      /**
+       * <code>.MultiTerminalSync multi_terminal_sync = 10304;</code>
+       */
+      com.yanlong.im.utils.socket.MsgBean.MultiTerminalSyncOrBuilder getMultiTerminalSyncOrBuilder();
 
       /**
        * <pre>
@@ -47679,20 +47163,6 @@ public final class MsgBean {
                 realMsgCase_ = 10222;
                 break;
               }
-              case 81786: {
-                com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.Builder subBuilder = null;
-                if (realMsgCase_ == 10223) {
-                  subBuilder = ((com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage) realMsg_).toBuilder();
-                }
-                realMsg_ =
-                    input.readMessage(com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.parser(), extensionRegistry);
-                if (subBuilder != null) {
-                  subBuilder.mergeFrom((com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage) realMsg_);
-                  realMsg_ = subBuilder.buildPartial();
-                }
-                realMsgCase_ = 10223;
-                break;
-              }
               case 82402: {
                 com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage.Builder subBuilder = null;
                 if (realMsgCase_ == 10300) {
@@ -47747,6 +47217,20 @@ public final class MsgBean {
                   realMsg_ = subBuilder.buildPartial();
                 }
                 realMsgCase_ = 10303;
+                break;
+              }
+              case 82434: {
+                com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync.Builder subBuilder = null;
+                if (realMsgCase_ == 10304) {
+                  subBuilder = ((com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync) realMsg_).toBuilder();
+                }
+                realMsg_ =
+                    input.readMessage(com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync.parser(), extensionRegistry);
+                if (subBuilder != null) {
+                  subBuilder.mergeFrom((com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync) realMsg_);
+                  realMsg_ = subBuilder.buildPartial();
+                }
+                realMsgCase_ = 10304;
                 break;
               }
               case 86410: {
@@ -47853,11 +47337,11 @@ public final class MsgBean {
         READ(10220),
         SEND_FILE(10221),
         CHANGE_VICE_ADMINS(10222),
-        GROUP_ANNOUNCEMENT(10223),
         FORCE_OFFLINE(10300),
         ACTIVE_STAT_CHANGE(10301),
         RESOURCE_LOCK(10302),
         SWITCH_CHANGE(10303),
+        MULTI_TERMINAL_SYNC(10304),
         PAY_RESULT(10801),
         BALANCE_ASSISTANT(10802),
         TRANS_NOTIFY(10803),
@@ -47910,11 +47394,11 @@ public final class MsgBean {
             case 10220: return READ;
             case 10221: return SEND_FILE;
             case 10222: return CHANGE_VICE_ADMINS;
-            case 10223: return GROUP_ANNOUNCEMENT;
             case 10300: return FORCE_OFFLINE;
             case 10301: return ACTIVE_STAT_CHANGE;
             case 10302: return RESOURCE_LOCK;
             case 10303: return SWITCH_CHANGE;
+            case 10304: return MULTI_TERMINAL_SYNC;
             case 10801: return PAY_RESULT;
             case 10802: return BALANCE_ASSISTANT;
             case 10803: return TRANS_NOTIFY;
@@ -49129,32 +48613,6 @@ public final class MsgBean {
         return com.yanlong.im.utils.socket.MsgBean.ChangeViceAdminsMessage.getDefaultInstance();
       }
 
-      public static final int GROUP_ANNOUNCEMENT_FIELD_NUMBER = 10223;
-      /**
-       * <code>.GroupAnnouncementMessage group_announcement = 10223;</code>
-       */
-      public boolean hasGroupAnnouncement() {
-        return realMsgCase_ == 10223;
-      }
-      /**
-       * <code>.GroupAnnouncementMessage group_announcement = 10223;</code>
-       */
-      public com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage getGroupAnnouncement() {
-        if (realMsgCase_ == 10223) {
-           return (com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage) realMsg_;
-        }
-        return com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.getDefaultInstance();
-      }
-      /**
-       * <code>.GroupAnnouncementMessage group_announcement = 10223;</code>
-       */
-      public com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessageOrBuilder getGroupAnnouncementOrBuilder() {
-        if (realMsgCase_ == 10223) {
-           return (com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage) realMsg_;
-        }
-        return com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.getDefaultInstance();
-      }
-
       public static final int FORCE_OFFLINE_FIELD_NUMBER = 10300;
       /**
        * <code>.ForceOfflineMessage force_offline = 10300;</code>
@@ -49257,6 +48715,32 @@ public final class MsgBean {
            return (com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage) realMsg_;
         }
         return com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.getDefaultInstance();
+      }
+
+      public static final int MULTI_TERMINAL_SYNC_FIELD_NUMBER = 10304;
+      /**
+       * <code>.MultiTerminalSync multi_terminal_sync = 10304;</code>
+       */
+      public boolean hasMultiTerminalSync() {
+        return realMsgCase_ == 10304;
+      }
+      /**
+       * <code>.MultiTerminalSync multi_terminal_sync = 10304;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync getMultiTerminalSync() {
+        if (realMsgCase_ == 10304) {
+           return (com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync) realMsg_;
+        }
+        return com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync.getDefaultInstance();
+      }
+      /**
+       * <code>.MultiTerminalSync multi_terminal_sync = 10304;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.MultiTerminalSyncOrBuilder getMultiTerminalSyncOrBuilder() {
+        if (realMsgCase_ == 10304) {
+           return (com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync) realMsg_;
+        }
+        return com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync.getDefaultInstance();
       }
 
       public static final int PAY_RESULT_FIELD_NUMBER = 10801;
@@ -49496,9 +48980,6 @@ public final class MsgBean {
         if (realMsgCase_ == 10222) {
           output.writeMessage(10222, (com.yanlong.im.utils.socket.MsgBean.ChangeViceAdminsMessage) realMsg_);
         }
-        if (realMsgCase_ == 10223) {
-          output.writeMessage(10223, (com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage) realMsg_);
-        }
         if (realMsgCase_ == 10300) {
           output.writeMessage(10300, (com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage) realMsg_);
         }
@@ -49510,6 +48991,9 @@ public final class MsgBean {
         }
         if (realMsgCase_ == 10303) {
           output.writeMessage(10303, (com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage) realMsg_);
+        }
+        if (realMsgCase_ == 10304) {
+          output.writeMessage(10304, (com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync) realMsg_);
         }
         if (realMsgCase_ == 10801) {
           output.writeMessage(10801, (com.yanlong.im.utils.socket.MsgBean.PayResultMessage) realMsg_);
@@ -49703,10 +49187,6 @@ public final class MsgBean {
           size += com.google.protobuf.CodedOutputStream
             .computeMessageSize(10222, (com.yanlong.im.utils.socket.MsgBean.ChangeViceAdminsMessage) realMsg_);
         }
-        if (realMsgCase_ == 10223) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(10223, (com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage) realMsg_);
-        }
         if (realMsgCase_ == 10300) {
           size += com.google.protobuf.CodedOutputStream
             .computeMessageSize(10300, (com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage) realMsg_);
@@ -49722,6 +49202,10 @@ public final class MsgBean {
         if (realMsgCase_ == 10303) {
           size += com.google.protobuf.CodedOutputStream
             .computeMessageSize(10303, (com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage) realMsg_);
+        }
+        if (realMsgCase_ == 10304) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(10304, (com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync) realMsg_);
         }
         if (realMsgCase_ == 10801) {
           size += com.google.protobuf.CodedOutputStream
@@ -49912,10 +49396,6 @@ public final class MsgBean {
             result = result && getChangeViceAdmins()
                 .equals(other.getChangeViceAdmins());
             break;
-          case 10223:
-            result = result && getGroupAnnouncement()
-                .equals(other.getGroupAnnouncement());
-            break;
           case 10300:
             result = result && getForceOffline()
                 .equals(other.getForceOffline());
@@ -49931,6 +49411,10 @@ public final class MsgBean {
           case 10303:
             result = result && getSwitchChange()
                 .equals(other.getSwitchChange());
+            break;
+          case 10304:
+            result = result && getMultiTerminalSync()
+                .equals(other.getMultiTerminalSync());
             break;
           case 10801:
             result = result && getPayResult()
@@ -50120,10 +49604,6 @@ public final class MsgBean {
             hash = (37 * hash) + CHANGE_VICE_ADMINS_FIELD_NUMBER;
             hash = (53 * hash) + getChangeViceAdmins().hashCode();
             break;
-          case 10223:
-            hash = (37 * hash) + GROUP_ANNOUNCEMENT_FIELD_NUMBER;
-            hash = (53 * hash) + getGroupAnnouncement().hashCode();
-            break;
           case 10300:
             hash = (37 * hash) + FORCE_OFFLINE_FIELD_NUMBER;
             hash = (53 * hash) + getForceOffline().hashCode();
@@ -50139,6 +49619,10 @@ public final class MsgBean {
           case 10303:
             hash = (37 * hash) + SWITCH_CHANGE_FIELD_NUMBER;
             hash = (53 * hash) + getSwitchChange().hashCode();
+            break;
+          case 10304:
+            hash = (37 * hash) + MULTI_TERMINAL_SYNC_FIELD_NUMBER;
+            hash = (53 * hash) + getMultiTerminalSync().hashCode();
             break;
           case 10801:
             hash = (37 * hash) + PAY_RESULT_FIELD_NUMBER;
@@ -50579,13 +50063,6 @@ public final class MsgBean {
               result.realMsg_ = changeViceAdminsBuilder_.build();
             }
           }
-          if (realMsgCase_ == 10223) {
-            if (groupAnnouncementBuilder_ == null) {
-              result.realMsg_ = realMsg_;
-            } else {
-              result.realMsg_ = groupAnnouncementBuilder_.build();
-            }
-          }
           if (realMsgCase_ == 10300) {
             if (forceOfflineBuilder_ == null) {
               result.realMsg_ = realMsg_;
@@ -50612,6 +50089,13 @@ public final class MsgBean {
               result.realMsg_ = realMsg_;
             } else {
               result.realMsg_ = switchChangeBuilder_.build();
+            }
+          }
+          if (realMsgCase_ == 10304) {
+            if (multiTerminalSyncBuilder_ == null) {
+              result.realMsg_ = realMsg_;
+            } else {
+              result.realMsg_ = multiTerminalSyncBuilder_.build();
             }
           }
           if (realMsgCase_ == 10801) {
@@ -50852,10 +50336,6 @@ public final class MsgBean {
               mergeChangeViceAdmins(other.getChangeViceAdmins());
               break;
             }
-            case GROUP_ANNOUNCEMENT: {
-              mergeGroupAnnouncement(other.getGroupAnnouncement());
-              break;
-            }
             case FORCE_OFFLINE: {
               mergeForceOffline(other.getForceOffline());
               break;
@@ -50870,6 +50350,10 @@ public final class MsgBean {
             }
             case SWITCH_CHANGE: {
               mergeSwitchChange(other.getSwitchChange());
+              break;
+            }
+            case MULTI_TERMINAL_SYNC: {
+              mergeMultiTerminalSync(other.getMultiTerminalSync());
               break;
             }
             case PAY_RESULT: {
@@ -56297,142 +55781,6 @@ public final class MsgBean {
         }
 
         private com.google.protobuf.SingleFieldBuilderV3<
-            com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage, com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessageOrBuilder> groupAnnouncementBuilder_;
-        /**
-         * <code>.GroupAnnouncementMessage group_announcement = 10223;</code>
-         */
-        public boolean hasGroupAnnouncement() {
-          return realMsgCase_ == 10223;
-        }
-        /**
-         * <code>.GroupAnnouncementMessage group_announcement = 10223;</code>
-         */
-        public com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage getGroupAnnouncement() {
-          if (groupAnnouncementBuilder_ == null) {
-            if (realMsgCase_ == 10223) {
-              return (com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage) realMsg_;
-            }
-            return com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.getDefaultInstance();
-          } else {
-            if (realMsgCase_ == 10223) {
-              return groupAnnouncementBuilder_.getMessage();
-            }
-            return com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.getDefaultInstance();
-          }
-        }
-        /**
-         * <code>.GroupAnnouncementMessage group_announcement = 10223;</code>
-         */
-        public Builder setGroupAnnouncement(com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage value) {
-          if (groupAnnouncementBuilder_ == null) {
-            if (value == null) {
-              throw new NullPointerException();
-            }
-            realMsg_ = value;
-            onChanged();
-          } else {
-            groupAnnouncementBuilder_.setMessage(value);
-          }
-          realMsgCase_ = 10223;
-          return this;
-        }
-        /**
-         * <code>.GroupAnnouncementMessage group_announcement = 10223;</code>
-         */
-        public Builder setGroupAnnouncement(
-            com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.Builder builderForValue) {
-          if (groupAnnouncementBuilder_ == null) {
-            realMsg_ = builderForValue.build();
-            onChanged();
-          } else {
-            groupAnnouncementBuilder_.setMessage(builderForValue.build());
-          }
-          realMsgCase_ = 10223;
-          return this;
-        }
-        /**
-         * <code>.GroupAnnouncementMessage group_announcement = 10223;</code>
-         */
-        public Builder mergeGroupAnnouncement(com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage value) {
-          if (groupAnnouncementBuilder_ == null) {
-            if (realMsgCase_ == 10223 &&
-                realMsg_ != com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.getDefaultInstance()) {
-              realMsg_ = com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.newBuilder((com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage) realMsg_)
-                  .mergeFrom(value).buildPartial();
-            } else {
-              realMsg_ = value;
-            }
-            onChanged();
-          } else {
-            if (realMsgCase_ == 10223) {
-              groupAnnouncementBuilder_.mergeFrom(value);
-            }
-            groupAnnouncementBuilder_.setMessage(value);
-          }
-          realMsgCase_ = 10223;
-          return this;
-        }
-        /**
-         * <code>.GroupAnnouncementMessage group_announcement = 10223;</code>
-         */
-        public Builder clearGroupAnnouncement() {
-          if (groupAnnouncementBuilder_ == null) {
-            if (realMsgCase_ == 10223) {
-              realMsgCase_ = 0;
-              realMsg_ = null;
-              onChanged();
-            }
-          } else {
-            if (realMsgCase_ == 10223) {
-              realMsgCase_ = 0;
-              realMsg_ = null;
-            }
-            groupAnnouncementBuilder_.clear();
-          }
-          return this;
-        }
-        /**
-         * <code>.GroupAnnouncementMessage group_announcement = 10223;</code>
-         */
-        public com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.Builder getGroupAnnouncementBuilder() {
-          return getGroupAnnouncementFieldBuilder().getBuilder();
-        }
-        /**
-         * <code>.GroupAnnouncementMessage group_announcement = 10223;</code>
-         */
-        public com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessageOrBuilder getGroupAnnouncementOrBuilder() {
-          if ((realMsgCase_ == 10223) && (groupAnnouncementBuilder_ != null)) {
-            return groupAnnouncementBuilder_.getMessageOrBuilder();
-          } else {
-            if (realMsgCase_ == 10223) {
-              return (com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage) realMsg_;
-            }
-            return com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.getDefaultInstance();
-          }
-        }
-        /**
-         * <code>.GroupAnnouncementMessage group_announcement = 10223;</code>
-         */
-        private com.google.protobuf.SingleFieldBuilderV3<
-            com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage, com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessageOrBuilder> 
-            getGroupAnnouncementFieldBuilder() {
-          if (groupAnnouncementBuilder_ == null) {
-            if (!(realMsgCase_ == 10223)) {
-              realMsg_ = com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.getDefaultInstance();
-            }
-            groupAnnouncementBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-                com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage, com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage.Builder, com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessageOrBuilder>(
-                    (com.yanlong.im.utils.socket.MsgBean.GroupAnnouncementMessage) realMsg_,
-                    getParentForChildren(),
-                    isClean());
-            realMsg_ = null;
-          }
-          realMsgCase_ = 10223;
-          onChanged();;
-          return groupAnnouncementBuilder_;
-        }
-
-        private com.google.protobuf.SingleFieldBuilderV3<
             com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage, com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage.Builder, com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessageOrBuilder> forceOfflineBuilder_;
         /**
          * <code>.ForceOfflineMessage force_offline = 10300;</code>
@@ -56974,6 +56322,142 @@ public final class MsgBean {
           realMsgCase_ = 10303;
           onChanged();;
           return switchChangeBuilder_;
+        }
+
+        private com.google.protobuf.SingleFieldBuilderV3<
+            com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync, com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync.Builder, com.yanlong.im.utils.socket.MsgBean.MultiTerminalSyncOrBuilder> multiTerminalSyncBuilder_;
+        /**
+         * <code>.MultiTerminalSync multi_terminal_sync = 10304;</code>
+         */
+        public boolean hasMultiTerminalSync() {
+          return realMsgCase_ == 10304;
+        }
+        /**
+         * <code>.MultiTerminalSync multi_terminal_sync = 10304;</code>
+         */
+        public com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync getMultiTerminalSync() {
+          if (multiTerminalSyncBuilder_ == null) {
+            if (realMsgCase_ == 10304) {
+              return (com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync) realMsg_;
+            }
+            return com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync.getDefaultInstance();
+          } else {
+            if (realMsgCase_ == 10304) {
+              return multiTerminalSyncBuilder_.getMessage();
+            }
+            return com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync.getDefaultInstance();
+          }
+        }
+        /**
+         * <code>.MultiTerminalSync multi_terminal_sync = 10304;</code>
+         */
+        public Builder setMultiTerminalSync(com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync value) {
+          if (multiTerminalSyncBuilder_ == null) {
+            if (value == null) {
+              throw new NullPointerException();
+            }
+            realMsg_ = value;
+            onChanged();
+          } else {
+            multiTerminalSyncBuilder_.setMessage(value);
+          }
+          realMsgCase_ = 10304;
+          return this;
+        }
+        /**
+         * <code>.MultiTerminalSync multi_terminal_sync = 10304;</code>
+         */
+        public Builder setMultiTerminalSync(
+            com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync.Builder builderForValue) {
+          if (multiTerminalSyncBuilder_ == null) {
+            realMsg_ = builderForValue.build();
+            onChanged();
+          } else {
+            multiTerminalSyncBuilder_.setMessage(builderForValue.build());
+          }
+          realMsgCase_ = 10304;
+          return this;
+        }
+        /**
+         * <code>.MultiTerminalSync multi_terminal_sync = 10304;</code>
+         */
+        public Builder mergeMultiTerminalSync(com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync value) {
+          if (multiTerminalSyncBuilder_ == null) {
+            if (realMsgCase_ == 10304 &&
+                realMsg_ != com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync.getDefaultInstance()) {
+              realMsg_ = com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync.newBuilder((com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync) realMsg_)
+                  .mergeFrom(value).buildPartial();
+            } else {
+              realMsg_ = value;
+            }
+            onChanged();
+          } else {
+            if (realMsgCase_ == 10304) {
+              multiTerminalSyncBuilder_.mergeFrom(value);
+            }
+            multiTerminalSyncBuilder_.setMessage(value);
+          }
+          realMsgCase_ = 10304;
+          return this;
+        }
+        /**
+         * <code>.MultiTerminalSync multi_terminal_sync = 10304;</code>
+         */
+        public Builder clearMultiTerminalSync() {
+          if (multiTerminalSyncBuilder_ == null) {
+            if (realMsgCase_ == 10304) {
+              realMsgCase_ = 0;
+              realMsg_ = null;
+              onChanged();
+            }
+          } else {
+            if (realMsgCase_ == 10304) {
+              realMsgCase_ = 0;
+              realMsg_ = null;
+            }
+            multiTerminalSyncBuilder_.clear();
+          }
+          return this;
+        }
+        /**
+         * <code>.MultiTerminalSync multi_terminal_sync = 10304;</code>
+         */
+        public com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync.Builder getMultiTerminalSyncBuilder() {
+          return getMultiTerminalSyncFieldBuilder().getBuilder();
+        }
+        /**
+         * <code>.MultiTerminalSync multi_terminal_sync = 10304;</code>
+         */
+        public com.yanlong.im.utils.socket.MsgBean.MultiTerminalSyncOrBuilder getMultiTerminalSyncOrBuilder() {
+          if ((realMsgCase_ == 10304) && (multiTerminalSyncBuilder_ != null)) {
+            return multiTerminalSyncBuilder_.getMessageOrBuilder();
+          } else {
+            if (realMsgCase_ == 10304) {
+              return (com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync) realMsg_;
+            }
+            return com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync.getDefaultInstance();
+          }
+        }
+        /**
+         * <code>.MultiTerminalSync multi_terminal_sync = 10304;</code>
+         */
+        private com.google.protobuf.SingleFieldBuilderV3<
+            com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync, com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync.Builder, com.yanlong.im.utils.socket.MsgBean.MultiTerminalSyncOrBuilder> 
+            getMultiTerminalSyncFieldBuilder() {
+          if (multiTerminalSyncBuilder_ == null) {
+            if (!(realMsgCase_ == 10304)) {
+              realMsg_ = com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync.getDefaultInstance();
+            }
+            multiTerminalSyncBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+                com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync, com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync.Builder, com.yanlong.im.utils.socket.MsgBean.MultiTerminalSyncOrBuilder>(
+                    (com.yanlong.im.utils.socket.MsgBean.MultiTerminalSync) realMsg_,
+                    getParentForChildren(),
+                    isClean());
+            realMsg_ = null;
+          }
+          realMsgCase_ = 10304;
+          onChanged();;
+          return multiTerminalSyncBuilder_;
         }
 
         private com.google.protobuf.SingleFieldBuilderV3<
@@ -58502,11 +57986,6 @@ public final class MsgBean {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_RemoveFriendMessage_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_GroupAnnouncementMessage_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_GroupAnnouncementMessage_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_GroupNoticeMessage_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -58733,182 +58212,181 @@ public final class MsgBean {
       "(\t\022\014\n\004desc\030\004 \001(\t\022\013\n\003img\030\005 \001(\t\"<\n\024Request" +
       "FriendMessage\022\016\n\006say_hi\030\001 \001(\t\022\024\n\014contact" +
       "_name\030\002 \001(\t\"(\n\026AcceptBeFriendsMessage\022\016\n" +
-      "\006say_hi\030\001 \001(\t\"\025\n\023RemoveFriendMessage\"\'\n\030" +
-      "GroupAnnouncementMessage\022\013\n\003msg\030\001 \001(\t\"C\n" +
-      "\022GroupNoticeMessage\022\013\n\003uid\030\001 \001(\004\022\016\n\006avat" +
-      "ar\030\002 \001(\t\022\020\n\010nickname\030\003 \001(\t\"E\n\026InviteJoin" +
-      "GroupMessage\022+\n\016notice_message\030\001 \001(\0132\023.G" +
-      "roupNoticeMessage\"\240\001\n\023RequestGroupMessag" +
-      "e\022+\n\016notice_message\030\001 \003(\0132\023.GroupNoticeM" +
-      "essage\022\017\n\007inviter\030\002 \001(\004\022!\n\tjoin_type\030\003 \001" +
-      "(\0162\016.JoinGroupType\022\024\n\014inviter_name\030\004 \001(\t" +
-      "\022\022\n\nadditional\030\005 \001(\t\"\215\001\n\024AcceptBeGroupMe" +
-      "ssage\022+\n\016notice_message\030\001 \003(\0132\023.GroupNot" +
-      "iceMessage\022\017\n\007inviter\030\002 \001(\004\022!\n\tjoin_type" +
-      "\030\003 \001(\0162\016.JoinGroupType\022\024\n\014inviter_name\030\004" +
-      " \001(\t\"E\n\030RemoveGroupMemberMessage\022\013\n\003gid\030" +
-      "\001 \001(\t\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"(\n\031R" +
-      "emoveGroupMember2Message\022\013\n\003uid\030\001 \003(\004\";\n" +
-      "\030ChangeGroupMasterMessage\022\013\n\003uid\030\001 \001(\004\022\022" +
-      "\n\nmembername\030\002 \001(\t\"\211\001\n\027ChangeViceAdminsM" +
-      "essage\022$\n\007members\030\001 \003(\0132\023.GroupNoticeMes" +
-      "sage\022)\n\003opt\030\002 \001(\0162\034.ChangeViceAdminsMess" +
-      "age.Opt\"\035\n\003Opt\022\n\n\006REMOVE\020\000\022\n\n\006APPEND\020\001\"\253" +
-      "\001\n\026ChangeGroupMetaMessage\022\016\n\004name\030\001 \001(\tH" +
-      "\000\022\030\n\016protect_member\030\002 \001(\010H\000\022\020\n\006avatar\030\003 " +
-      "\001(\tH\000\022\021\n\007shut_up\030\004 \001(\010H\000\022!\n\027screenshot_n" +
-      "otification\030\005 \001(\010H\000\022\023\n\tforbbiden\030\006 \001(\010H\000" +
-      "B\n\n\010real_msg\"@\n\023DestroyGroupMessage\022\013\n\003u" +
-      "id\030\001 \003(\004\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"2" +
-      "\n\031ChangeSurvivalTimeMessage\022\025\n\rsurvival_" +
-      "time\030\001 \001(\021\"S\n\021P2PAuVideoMessage\022\035\n\007av_ty" +
-      "pe\030\001 \001(\0162\014.AuVideoType\022\021\n\toperation\030\002 \001(" +
-      "\t\022\014\n\004desc\030\003 \001(\t\"6\n\025P2PAuVideoDialMessage" +
-      "\022\035\n\007av_type\030\001 \001(\0162\014.AuVideoType\"H\n\023Force" +
-      "OfflineMessage\0221\n\024force_offline_reason\030\001" +
-      " \001(\0162\023.ForceOfflineReason\"\036\n\017OutGroupMes" +
-      "sage\022\013\n\003gid\030\001 \001(\t\"\215\001\n\027ActiveStatChangeMe" +
-      "ssage\0228\n\013active_type\030\001 \001(\0162#.ActiveStatC" +
-      "hangeMessage.ActiveType\022\021\n\ttimestamp\030\002 \001" +
-      "(\004\"%\n\nActiveType\022\013\n\007OFFLINE\020\000\022\n\n\006ONLINE\020" +
-      "\001\"\220\001\n\023ResourceLockMessage\022A\n\022resource_lo" +
-      "ck_type\030\001 \001(\0162%.ResourceLockMessage.Reso" +
-      "urceLockType\022\014\n\004lock\030\002 \001(\r\"(\n\020ResourceLo" +
-      "ckType\022\024\n\020CLOUDREDENVELOPE\020\000\" \n\013ReadMess" +
-      "age\022\021\n\ttimestamp\030\001 \001(\004\"\027\n\025TakeScreenshot" +
-      "Message\"\025\n\023HistoryCleanMessage\"\235\001\n\nRefMe" +
-      "ssage\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001" +
-      "(\0162\014.MessageType\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from" +
-      "_uid\030\004 \001(\004\022\020\n\010nickname\030\005 \001(\t\022\016\n\006avatar\030\006" +
-      " \001(\t\022\013\n\003url\030\007 \001(\t\022\013\n\003msg\030\010 \001(\t\"\200\001\n\024Reply" +
-      "SpecificMessage\022\034\n\007ref_msg\030\001 \001(\0132\013.RefMe" +
-      "ssage\022 \n\010chat_msg\030\002 \001(\0132\014.ChatMessageH\000\022" +
-      "\034\n\006at_msg\030\003 \001(\0132\n.AtMessageH\000B\n\n\010real_ms" +
-      "g\"\361\001\n\023SwitchChangeMessage\0224\n\013switch_type" +
-      "\030\001 \001(\0162\037.SwitchChangeMessage.SwitchType\022" +
-      "\024\n\014switch_value\030\002 \001(\r\022$\n\007members\030\003 \003(\0132\023" +
-      ".GroupNoticeMessage\"h\n\nSwitchType\022\010\n\004REA" +
-      "D\020\000\022\007\n\003VIP\020\001\022\017\n\013MASTER_READ\020\002\022\013\n\007SHUT_UP" +
-      "\020\003\022\031\n\025OPEN_UP_RED_ENVELOPER\020\004\022\016\n\nSCREENS" +
-      "HOT\020\005\"\265\001\n\020PayResultMessage\022+\n\006result\030\001 \001" +
-      "(\0162\033.PayResultMessage.PayResult\022\020\n\010trade" +
-      "_id\030\002 \001(\004\022\021\n\taction_id\030\003 \001(\t\022\021\n\terror_ms" +
-      "g\030\004 \001(\t\022\014\n\004sign\030\005 \001(\t\".\n\tPayResult\022\013\n\007SU" +
-      "CCESS\020\000\022\010\n\004FAIL\020\001\022\n\n\006REFUND\020\002\"&\n\022TransNo" +
-      "tifyMessage\022\020\n\010trade_id\030\001 \001(\004\".\n\016LabelVa" +
-      "lueItem\022\r\n\005label\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\"\366\001" +
-      "\n\027BalanceAssistantMessage\022\020\n\010trade_id\030\001 " +
-      "\001(\004\0228\n\013detail_type\030\002 \001(\0162#.BalanceAssist" +
-      "antMessage.DetailType\022\014\n\004time\030\003 \001(\004\022\r\n\005t" +
-      "itle\030\004 \001(\t\022\021\n\tamt_label\030\005 \001(\t\022\013\n\003amt\030\006 \001" +
-      "(\004\022\035\n\004item\030\007 \003(\0132\017.LabelValueItem\"3\n\nDet" +
-      "ailType\022\010\n\004NONE\020\000\022\020\n\014RED_ENVELOPE\020\001\022\t\n\005T" +
-      "RANS\020\002\"5\n\021OfflineMsgRequest\022\020\n\010reqCount\030" +
-      "\001 \001(\005\022\016\n\006latest\030\002 \001(\010\"1\n\022ChangeOnlineSta" +
-      "tus\022\033\n\004stat\030\001 \001(\0162\r.OnlineStatus\"J\n\tRepo" +
-      "rtMsg\0221\n\022changeOnlineStatus\030d \001(\0132\023.Chan" +
-      "geOnlineStatusH\000B\n\n\010real_msg\"H\n\tReqRspMs" +
-      "g\022/\n\021offlineMsgRequest\030d \001(\0132\022.OfflineMs" +
-      "gRequestH\000B\n\n\010real_msg\"\236\001\n\nAckMessage\022 \n" +
-      "\013reject_type\030\001 \001(\0162\013.RejectType\022\022\n\nreque" +
-      "st_id\030\002 \001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimestamp" +
-      "\030\004 \001(\004\022\014\n\004desc\030\005 \001(\t\022)\n\rmergedNextReq\030\006 " +
-      "\001(\0132\022.OfflineMsgRequest\"*\n\022AuthRequestMe" +
-      "ssage\022\024\n\014access_token\030\001 \001(\t\":\n\023AuthRespo" +
-      "nseMessage\022\020\n\010accepted\030\001 \001(\021\022\021\n\ttimestam" +
-      "p\030\002 \001(\004\"\260\022\n\020UniversalMessage\022\022\n\nrequest_" +
-      "id\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004\022\020\n\010msg_from\030\003 \001" +
-      "(\r\022/\n\007wrapMsg\030\221N \003(\0132\035.UniversalMessage." +
-      "WrapMessage\032\264\021\n\013WrapMessage\022\021\n\ttimestamp" +
-      "\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014.MessageType\022\016" +
-      "\n\006msg_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030" +
-      "\005 \001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n\006avatar\030\007 \001(\t\022" +
-      "\022\n\nmembername\030\010 \001(\t\022\025\n\rsurvival_time\030\t \001" +
-      "(\021\022\023\n\013device_type\030\n \001(\r\022\016\n\006to_uid\030\013 \001(\004\022" +
-      "\035\n\004chat\030\220N \001(\0132\014.ChatMessageH\000\022\037\n\005image\030" +
-      "\221N \001(\0132\r.ImageMessageH\000\022,\n\014red_envelope\030" +
-      "\222N \001(\0132\023.RedEnvelopeMessageH\000\022;\n\024receive" +
-      "_red_envelope\030\223N \001(\0132\032.ReceiveRedEnvelop" +
-      "eMessageH\000\022%\n\010transfer\030\224N \001(\0132\020.Transfer" +
-      "MessageH\000\022\037\n\005stamp\030\225N \001(\0132\r.StampMessage" +
-      "H\000\022.\n\rbusiness_card\030\226N \001(\0132\024.BusinessCar" +
-      "dMessageH\000\022\037\n\005voice\030\227N \001(\0132\r.VoiceMessag" +
-      "eH\000\022\031\n\002at\030\230N \001(\0132\n.AtMessageH\000\022\'\n\tassist" +
-      "ant\030\231N \001(\0132\021.AssistantMessageH\000\022!\n\006cance" +
-      "l\030\232N \001(\0132\016.CancelMessageH\000\022*\n\013short_vide" +
-      "o\030\233N \001(\0132\022.ShortVideoMessageH\000\0226\n\021snapsh" +
-      "ot_location\030\234N \001(\0132\030.SnapshotLocationMes" +
-      "sageH\000\0222\n\017take_scrennshot\030\235N \001(\0132\026.TakeS" +
-      "creenshotMessageH\000\0228\n\022shipped_expression" +
-      "\030\236N \001(\0132\031.ShippedExpressionMessageH\000\0220\n\016" +
-      "request_friend\030\364N \001(\0132\025.RequestFriendMes" +
-      "sageH\000\0225\n\021accept_be_friends\030\365N \001(\0132\027.Acc" +
-      "eptBeFriendsMessageH\000\022.\n\rremove_friend\030\366" +
-      "N \001(\0132\024.RemoveFriendMessageH\000\022.\n\rhistory" +
-      "_clean\030\367N \001(\0132\024.HistoryCleanMessageH\000\022\'\n" +
-      "\005reply\030\370N \001(\0132\025.ReplySpecificMessageH\000\022." +
-      "\n\rrequest_group\030\330O \001(\0132\024.RequestGroupMes" +
-      "sageH\000\0221\n\017accept_be_group\030\331O \001(\0132\025.Accep" +
-      "tBeGroupMessageH\000\0229\n\023remove_group_member" +
-      "\030\332O \001(\0132\031.RemoveGroupMemberMessageH\000\0229\n\023" +
-      "change_group_master\030\333O \001(\0132\031.ChangeGroup" +
-      "MasterMessageH\000\022.\n\rdestroy_group\030\336O \001(\0132" +
-      "\024.DestroyGroupMessageH\000\022;\n\024remove_group_" +
-      "member2\030\337O \001(\0132\032.RemoveGroupMember2Messa" +
-      "geH\000\022&\n\tout_group\030\342O \001(\0132\020.OutGroupMessa" +
-      "geH\000\0225\n\021change_group_meta\030\344O \001(\0132\027.Chang" +
-      "eGroupMetaMessageH\000\022;\n\024change_survival_t" +
-      "ime\030\345O \001(\0132\032.ChangeSurvivalTimeMessageH\000" +
-      "\022+\n\014p2p_au_video\030\352O \001(\0132\022.P2PAuVideoMess" +
-      "ageH\000\0224\n\021p2p_au_video_dial\030\353O \001(\0132\026.P2PA" +
-      "uVideoDialMessageH\000\022\035\n\004read\030\354O \001(\0132\014.Rea" +
-      "dMessageH\000\022&\n\tsend_file\030\355O \001(\0132\020.SendFil" +
-      "eMessageH\000\0227\n\022change_vice_admins\030\356O \001(\0132" +
-      "\030.ChangeViceAdminsMessageH\000\0228\n\022group_ann" +
-      "ouncement\030\357O \001(\0132\031.GroupAnnouncementMess" +
-      "ageH\000\022.\n\rforce_offline\030\274P \001(\0132\024.ForceOff" +
-      "lineMessageH\000\0227\n\022active_stat_change\030\275P \001" +
-      "(\0132\030.ActiveStatChangeMessageH\000\022.\n\rresour" +
-      "ce_lock\030\276P \001(\0132\024.ResourceLockMessageH\000\022." +
-      "\n\rswitch_change\030\277P \001(\0132\024.SwitchChangeMes" +
-      "sageH\000\022(\n\npay_result\030\261T \001(\0132\021.PayResultM" +
-      "essageH\000\0226\n\021balance_assistant\030\262T \001(\0132\030.B" +
-      "alanceAssistantMessageH\000\022,\n\014trans_notify" +
-      "\030\263T \001(\0132\023.TransNotifyMessageH\000B\n\n\010real_m" +
-      "sg*\256\006\n\013MessageType\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022" +
-      "\021\n\rRED_ENVELOPER\020\002\022\031\n\025RECEIVE_RED_ENVELO" +
-      "PER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSINE" +
-      "SS_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n\002AT\020\010\022\r\n\tASSISTAN" +
-      "T\020\t\022\n\n\006CANCEL\020\n\022\017\n\013SHORT_VIDEO\020\013\022\025\n\021SNAP" +
-      "SHOT_LOCATION\020\014\022\023\n\017TAKE_SCREENSHOT\020\r\022\026\n\022" +
-      "SHIPPED_EXPRESSION\020\016\022\021\n\rHISTORY_CLEAN\020\017\022" +
-      "\022\n\016REPLY_SPECIFIC\020\020\022\022\n\016REQUEST_FRIEND\020d\022" +
-      "\025\n\021ACCEPT_BE_FRIENDS\020e\022\021\n\rREMOVE_FRIEND\020" +
-      "f\022\021\n\rREQUEST_GROUP\020g\022\023\n\017ACCEPT_BE_GROUP\020" +
-      "h\022\027\n\023REMOVE_GROUP_MEMBER\020i\022\027\n\023CHANGE_GRO" +
-      "UP_MASTER\020j\022\030\n\024REMOVE_GROUP_MEMBER2\020k\022\021\n" +
-      "\rDESTROY_GROUP\020m\022\r\n\tOUT_GROUP\020n\022\025\n\021CHANG" +
-      "E_GROUP_META\020p\022\030\n\024CHANGE_SURVIVAL_TIME\020q" +
-      "\022\020\n\014P2P_AU_VIDEO\020v\022\025\n\021P2P_AU_VIDEO_DIAL\020" +
-      "w\022\010\n\004READ\020x\022\r\n\tSEND_FILE\020y\022\026\n\022CHANGE_VIC" +
-      "E_ADMINS\020z\022\026\n\022GROUP_ANNOUNCEMENT\020{\022\022\n\rFO" +
-      "RCE_OFFLINE\020\310\001\022\027\n\022ACTIVE_STAT_CHANGE\020\311\001\022" +
-      "\022\n\rRESOURCE_LOCK\020\312\001\022\022\n\rSWITCH_CHANGE\020\313\001\022" +
-      "\017\n\nPAY_RESULT\020\264\002\022\026\n\021BALANCE_ASSISTANT\020\265\002" +
-      "\022\021\n\014TRANS_NOTIFY\020\266\002*&\n\014OnlineStatus\022\n\n\006O" +
-      "NLINE\020\000\022\n\n\006HIDDEN\020\001*.\n\022ForceOfflineReaso" +
-      "n\022\014\n\010CONFLICT\020\000\022\n\n\006LOCKED\020\001*\240\001\n\nRejectTy" +
-      "pe\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT_FRIENDS_OR_GROUP" +
-      "_MEMBER\020\001\022\020\n\014IN_BLACKLIST\020\002\022\025\n\021WORDS_NOT" +
-      "_ALLOWED\020\003\022\021\n\rFRIEND_FROZEN\020\004\022\016\n\nRATE_LI" +
-      "MIT\020c\022\027\n\023SERVICE_UNAVAILABLE\020d*(\n\rJoinGr" +
-      "oupType\022\n\n\006QRCODE\020\000\022\013\n\007PASSIVE\020\001*Y\n\025Mult" +
-      "iTerminalSyncType\022\023\n\017MY_SELF_CHANGED\020\000\022\025" +
-      "\n\021MY_FRIEND_CHANGED\020\001\022\024\n\020MY_GROUP_CHANGE" +
-      "D\020\002*(\n\017RedEnvelopeType\022\t\n\005MFPAY\020\000\022\n\n\006SYS" +
-      "TEM\020\001*#\n\013AuVideoType\022\t\n\005Audio\020\000\022\t\n\005Vedio" +
-      "\020\001B&\n\033com.yanlong.im.utils.socketB\007MsgBe" +
-      "anb\006proto3"
+      "\006say_hi\030\001 \001(\t\"\025\n\023RemoveFriendMessage\"C\n\022" +
+      "GroupNoticeMessage\022\013\n\003uid\030\001 \001(\004\022\016\n\006avata" +
+      "r\030\002 \001(\t\022\020\n\010nickname\030\003 \001(\t\"E\n\026InviteJoinG" +
+      "roupMessage\022+\n\016notice_message\030\001 \001(\0132\023.Gr" +
+      "oupNoticeMessage\"\240\001\n\023RequestGroupMessage" +
+      "\022+\n\016notice_message\030\001 \003(\0132\023.GroupNoticeMe" +
+      "ssage\022\017\n\007inviter\030\002 \001(\004\022!\n\tjoin_type\030\003 \001(" +
+      "\0162\016.JoinGroupType\022\024\n\014inviter_name\030\004 \001(\t\022" +
+      "\022\n\nadditional\030\005 \001(\t\"\215\001\n\024AcceptBeGroupMes" +
+      "sage\022+\n\016notice_message\030\001 \003(\0132\023.GroupNoti" +
+      "ceMessage\022\017\n\007inviter\030\002 \001(\004\022!\n\tjoin_type\030" +
+      "\003 \001(\0162\016.JoinGroupType\022\024\n\014inviter_name\030\004 " +
+      "\001(\t\"E\n\030RemoveGroupMemberMessage\022\013\n\003gid\030\001" +
+      " \001(\t\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"(\n\031Re" +
+      "moveGroupMember2Message\022\013\n\003uid\030\001 \003(\004\";\n\030" +
+      "ChangeGroupMasterMessage\022\013\n\003uid\030\001 \001(\004\022\022\n" +
+      "\nmembername\030\002 \001(\t\"\211\001\n\027ChangeViceAdminsMe" +
+      "ssage\022$\n\007members\030\001 \003(\0132\023.GroupNoticeMess" +
+      "age\022)\n\003opt\030\002 \001(\0162\034.ChangeViceAdminsMessa" +
+      "ge.Opt\"\035\n\003Opt\022\n\n\006REMOVE\020\000\022\n\n\006APPEND\020\001\"\253\001" +
+      "\n\026ChangeGroupMetaMessage\022\016\n\004name\030\001 \001(\tH\000" +
+      "\022\030\n\016protect_member\030\002 \001(\010H\000\022\020\n\006avatar\030\003 \001" +
+      "(\tH\000\022\021\n\007shut_up\030\004 \001(\010H\000\022!\n\027screenshot_no" +
+      "tification\030\005 \001(\010H\000\022\023\n\tforbbiden\030\006 \001(\010H\000B" +
+      "\n\n\010real_msg\"@\n\023DestroyGroupMessage\022\013\n\003ui" +
+      "d\030\001 \003(\004\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"2\n" +
+      "\031ChangeSurvivalTimeMessage\022\025\n\rsurvival_t" +
+      "ime\030\001 \001(\021\"S\n\021P2PAuVideoMessage\022\035\n\007av_typ" +
+      "e\030\001 \001(\0162\014.AuVideoType\022\021\n\toperation\030\002 \001(\t" +
+      "\022\014\n\004desc\030\003 \001(\t\"6\n\025P2PAuVideoDialMessage\022" +
+      "\035\n\007av_type\030\001 \001(\0162\014.AuVideoType\"H\n\023ForceO" +
+      "fflineMessage\0221\n\024force_offline_reason\030\001 " +
+      "\001(\0162\023.ForceOfflineReason\"\036\n\017OutGroupMess" +
+      "age\022\013\n\003gid\030\001 \001(\t\"\215\001\n\027ActiveStatChangeMes" +
+      "sage\0228\n\013active_type\030\001 \001(\0162#.ActiveStatCh" +
+      "angeMessage.ActiveType\022\021\n\ttimestamp\030\002 \001(" +
+      "\004\"%\n\nActiveType\022\013\n\007OFFLINE\020\000\022\n\n\006ONLINE\020\001" +
+      "\"\220\001\n\023ResourceLockMessage\022A\n\022resource_loc" +
+      "k_type\030\001 \001(\0162%.ResourceLockMessage.Resou" +
+      "rceLockType\022\014\n\004lock\030\002 \001(\r\"(\n\020ResourceLoc" +
+      "kType\022\024\n\020CLOUDREDENVELOPE\020\000\" \n\013ReadMessa" +
+      "ge\022\021\n\ttimestamp\030\001 \001(\004\"\027\n\025TakeScreenshotM" +
+      "essage\"\025\n\023HistoryCleanMessage\"\235\001\n\nRefMes" +
+      "sage\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(" +
+      "\0162\014.MessageType\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_" +
+      "uid\030\004 \001(\004\022\020\n\010nickname\030\005 \001(\t\022\016\n\006avatar\030\006 " +
+      "\001(\t\022\013\n\003url\030\007 \001(\t\022\013\n\003msg\030\010 \001(\t\"\200\001\n\024ReplyS" +
+      "pecificMessage\022\034\n\007ref_msg\030\001 \001(\0132\013.RefMes" +
+      "sage\022 \n\010chat_msg\030\002 \001(\0132\014.ChatMessageH\000\022\034" +
+      "\n\006at_msg\030\003 \001(\0132\n.AtMessageH\000B\n\n\010real_msg" +
+      "\"\361\001\n\023SwitchChangeMessage\0224\n\013switch_type\030" +
+      "\001 \001(\0162\037.SwitchChangeMessage.SwitchType\022\024" +
+      "\n\014switch_value\030\002 \001(\r\022$\n\007members\030\003 \003(\0132\023." +
+      "GroupNoticeMessage\"h\n\nSwitchType\022\010\n\004READ" +
+      "\020\000\022\007\n\003VIP\020\001\022\017\n\013MASTER_READ\020\002\022\013\n\007SHUT_UP\020" +
+      "\003\022\031\n\025OPEN_UP_RED_ENVELOPER\020\004\022\016\n\nSCREENSH" +
+      "OT\020\005\"\265\001\n\020PayResultMessage\022+\n\006result\030\001 \001(" +
+      "\0162\033.PayResultMessage.PayResult\022\020\n\010trade_" +
+      "id\030\002 \001(\004\022\021\n\taction_id\030\003 \001(\t\022\021\n\terror_msg" +
+      "\030\004 \001(\t\022\014\n\004sign\030\005 \001(\t\".\n\tPayResult\022\013\n\007SUC" +
+      "CESS\020\000\022\010\n\004FAIL\020\001\022\n\n\006REFUND\020\002\"&\n\022TransNot" +
+      "ifyMessage\022\020\n\010trade_id\030\001 \001(\004\".\n\016LabelVal" +
+      "ueItem\022\r\n\005label\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\"\366\001\n" +
+      "\027BalanceAssistantMessage\022\020\n\010trade_id\030\001 \001" +
+      "(\004\0228\n\013detail_type\030\002 \001(\0162#.BalanceAssista" +
+      "ntMessage.DetailType\022\014\n\004time\030\003 \001(\004\022\r\n\005ti" +
+      "tle\030\004 \001(\t\022\021\n\tamt_label\030\005 \001(\t\022\013\n\003amt\030\006 \001(" +
+      "\004\022\035\n\004item\030\007 \003(\0132\017.LabelValueItem\"3\n\nDeta" +
+      "ilType\022\010\n\004NONE\020\000\022\020\n\014RED_ENVELOPE\020\001\022\t\n\005TR" +
+      "ANS\020\002\"5\n\021OfflineMsgRequest\022\020\n\010reqCount\030\001" +
+      " \001(\005\022\016\n\006latest\030\002 \001(\010\"1\n\022ChangeOnlineStat" +
+      "us\022\033\n\004stat\030\001 \001(\0162\r.OnlineStatus\"J\n\tRepor" +
+      "tMsg\0221\n\022changeOnlineStatus\030d \001(\0132\023.Chang" +
+      "eOnlineStatusH\000B\n\n\010real_msg\"H\n\tReqRspMsg" +
+      "\022/\n\021offlineMsgRequest\030d \001(\0132\022.OfflineMsg" +
+      "RequestH\000B\n\n\010real_msg\"\236\001\n\nAckMessage\022 \n\013" +
+      "reject_type\030\001 \001(\0162\013.RejectType\022\022\n\nreques" +
+      "t_id\030\002 \001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimestamp\030" +
+      "\004 \001(\004\022\014\n\004desc\030\005 \001(\t\022)\n\rmergedNextReq\030\006 \001" +
+      "(\0132\022.OfflineMsgRequest\"*\n\022AuthRequestMes" +
+      "sage\022\024\n\014access_token\030\001 \001(\t\":\n\023AuthRespon" +
+      "seMessage\022\020\n\010accepted\030\001 \001(\021\022\021\n\ttimestamp" +
+      "\030\002 \001(\004\"\252\022\n\020UniversalMessage\022\022\n\nrequest_i" +
+      "d\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004\022\020\n\010msg_from\030\003 \001(" +
+      "\r\022/\n\007wrapMsg\030\221N \003(\0132\035.UniversalMessage.W" +
+      "rapMessage\032\256\021\n\013WrapMessage\022\021\n\ttimestamp\030" +
+      "\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014.MessageType\022\016\n" +
+      "\006msg_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030\005" +
+      " \001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n\006avatar\030\007 \001(\t\022\022" +
+      "\n\nmembername\030\010 \001(\t\022\025\n\rsurvival_time\030\t \001(" +
+      "\021\022\023\n\013device_type\030\n \001(\r\022\016\n\006to_uid\030\013 \001(\004\022\035" +
+      "\n\004chat\030\220N \001(\0132\014.ChatMessageH\000\022\037\n\005image\030\221" +
+      "N \001(\0132\r.ImageMessageH\000\022,\n\014red_envelope\030\222" +
+      "N \001(\0132\023.RedEnvelopeMessageH\000\022;\n\024receive_" +
+      "red_envelope\030\223N \001(\0132\032.ReceiveRedEnvelope" +
+      "MessageH\000\022%\n\010transfer\030\224N \001(\0132\020.TransferM" +
+      "essageH\000\022\037\n\005stamp\030\225N \001(\0132\r.StampMessageH" +
+      "\000\022.\n\rbusiness_card\030\226N \001(\0132\024.BusinessCard" +
+      "MessageH\000\022\037\n\005voice\030\227N \001(\0132\r.VoiceMessage" +
+      "H\000\022\031\n\002at\030\230N \001(\0132\n.AtMessageH\000\022\'\n\tassista" +
+      "nt\030\231N \001(\0132\021.AssistantMessageH\000\022!\n\006cancel" +
+      "\030\232N \001(\0132\016.CancelMessageH\000\022*\n\013short_video" +
+      "\030\233N \001(\0132\022.ShortVideoMessageH\000\0226\n\021snapsho" +
+      "t_location\030\234N \001(\0132\030.SnapshotLocationMess" +
+      "ageH\000\0222\n\017take_scrennshot\030\235N \001(\0132\026.TakeSc" +
+      "reenshotMessageH\000\0228\n\022shipped_expression\030" +
+      "\236N \001(\0132\031.ShippedExpressionMessageH\000\0220\n\016r" +
+      "equest_friend\030\364N \001(\0132\025.RequestFriendMess" +
+      "ageH\000\0225\n\021accept_be_friends\030\365N \001(\0132\027.Acce" +
+      "ptBeFriendsMessageH\000\022.\n\rremove_friend\030\366N" +
+      " \001(\0132\024.RemoveFriendMessageH\000\022.\n\rhistory_" +
+      "clean\030\367N \001(\0132\024.HistoryCleanMessageH\000\022\'\n\005" +
+      "reply\030\370N \001(\0132\025.ReplySpecificMessageH\000\022.\n" +
+      "\rrequest_group\030\330O \001(\0132\024.RequestGroupMess" +
+      "ageH\000\0221\n\017accept_be_group\030\331O \001(\0132\025.Accept" +
+      "BeGroupMessageH\000\0229\n\023remove_group_member\030" +
+      "\332O \001(\0132\031.RemoveGroupMemberMessageH\000\0229\n\023c" +
+      "hange_group_master\030\333O \001(\0132\031.ChangeGroupM" +
+      "asterMessageH\000\022.\n\rdestroy_group\030\336O \001(\0132\024" +
+      ".DestroyGroupMessageH\000\022;\n\024remove_group_m" +
+      "ember2\030\337O \001(\0132\032.RemoveGroupMember2Messag" +
+      "eH\000\022&\n\tout_group\030\342O \001(\0132\020.OutGroupMessag" +
+      "eH\000\0225\n\021change_group_meta\030\344O \001(\0132\027.Change" +
+      "GroupMetaMessageH\000\022;\n\024change_survival_ti" +
+      "me\030\345O \001(\0132\032.ChangeSurvivalTimeMessageH\000\022" +
+      "+\n\014p2p_au_video\030\352O \001(\0132\022.P2PAuVideoMessa" +
+      "geH\000\0224\n\021p2p_au_video_dial\030\353O \001(\0132\026.P2PAu" +
+      "VideoDialMessageH\000\022\035\n\004read\030\354O \001(\0132\014.Read" +
+      "MessageH\000\022&\n\tsend_file\030\355O \001(\0132\020.SendFile" +
+      "MessageH\000\0227\n\022change_vice_admins\030\356O \001(\0132\030" +
+      ".ChangeViceAdminsMessageH\000\022.\n\rforce_offl" +
+      "ine\030\274P \001(\0132\024.ForceOfflineMessageH\000\0227\n\022ac" +
+      "tive_stat_change\030\275P \001(\0132\030.ActiveStatChan" +
+      "geMessageH\000\022.\n\rresource_lock\030\276P \001(\0132\024.Re" +
+      "sourceLockMessageH\000\022.\n\rswitch_change\030\277P " +
+      "\001(\0132\024.SwitchChangeMessageH\000\0222\n\023multi_ter" +
+      "minal_sync\030\300P \001(\0132\022.MultiTerminalSyncH\000\022" +
+      "(\n\npay_result\030\261T \001(\0132\021.PayResultMessageH" +
+      "\000\0226\n\021balance_assistant\030\262T \001(\0132\030.BalanceA" +
+      "ssistantMessageH\000\022,\n\014trans_notify\030\263T \001(\013" +
+      "2\023.TransNotifyMessageH\000B\n\n\010real_msg*\310\006\n\013" +
+      "MessageType\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_" +
+      "ENVELOPER\020\002\022\031\n\025RECEIVE_RED_ENVELOPER\020\003\022\014" +
+      "\n\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSINESS_CARD" +
+      "\020\006\022\t\n\005VOICE\020\007\022\006\n\002AT\020\010\022\r\n\tASSISTANT\020\t\022\n\n\006" +
+      "CANCEL\020\n\022\017\n\013SHORT_VIDEO\020\013\022\025\n\021SNAPSHOT_LO" +
+      "CATION\020\014\022\023\n\017TAKE_SCREENSHOT\020\r\022\026\n\022SHIPPED" +
+      "_EXPRESSION\020\016\022\021\n\rHISTORY_CLEAN\020\017\022\022\n\016REPL" +
+      "Y_SPECIFIC\020\020\022\022\n\016REQUEST_FRIEND\020d\022\025\n\021ACCE" +
+      "PT_BE_FRIENDS\020e\022\021\n\rREMOVE_FRIEND\020f\022\021\n\rRE" +
+      "QUEST_GROUP\020g\022\023\n\017ACCEPT_BE_GROUP\020h\022\027\n\023RE" +
+      "MOVE_GROUP_MEMBER\020i\022\027\n\023CHANGE_GROUP_MAST" +
+      "ER\020j\022\030\n\024REMOVE_GROUP_MEMBER2\020k\022\021\n\rDESTRO" +
+      "Y_GROUP\020m\022\r\n\tOUT_GROUP\020n\022\025\n\021CHANGE_GROUP" +
+      "_META\020p\022\030\n\024CHANGE_SURVIVAL_TIME\020q\022\020\n\014P2P" +
+      "_AU_VIDEO\020v\022\025\n\021P2P_AU_VIDEO_DIAL\020w\022\010\n\004RE" +
+      "AD\020x\022\r\n\tSEND_FILE\020y\022\026\n\022CHANGE_VICE_ADMIN" +
+      "S\020z\022\026\n\022GROUP_ANNOUNCEMENT\020{\022\022\n\rFORCE_OFF" +
+      "LINE\020\310\001\022\027\n\022ACTIVE_STAT_CHANGE\020\311\001\022\022\n\rRESO" +
+      "URCE_LOCK\020\312\001\022\022\n\rSWITCH_CHANGE\020\313\001\022\030\n\023MULT" +
+      "I_TERMINAL_SYNC\020\314\001\022\017\n\nPAY_RESULT\020\264\002\022\026\n\021B" +
+      "ALANCE_ASSISTANT\020\265\002\022\021\n\014TRANS_NOTIFY\020\266\002*&" +
+      "\n\014OnlineStatus\022\n\n\006ONLINE\020\000\022\n\n\006HIDDEN\020\001*." +
+      "\n\022ForceOfflineReason\022\014\n\010CONFLICT\020\000\022\n\n\006LO" +
+      "CKED\020\001*\240\001\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033N" +
+      "OT_FRIENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_BLACK" +
+      "LIST\020\002\022\025\n\021WORDS_NOT_ALLOWED\020\003\022\021\n\rFRIEND_" +
+      "FROZEN\020\004\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_UNAV" +
+      "AILABLE\020d*(\n\rJoinGroupType\022\n\n\006QRCODE\020\000\022\013" +
+      "\n\007PASSIVE\020\001*Y\n\025MultiTerminalSyncType\022\023\n\017" +
+      "MY_SELF_CHANGED\020\000\022\025\n\021MY_FRIEND_CHANGED\020\001" +
+      "\022\024\n\020MY_GROUP_CHANGED\020\002*(\n\017RedEnvelopeTyp" +
+      "e\022\t\n\005MFPAY\020\000\022\n\n\006SYSTEM\020\001*#\n\013AuVideoType\022" +
+      "\t\n\005Audio\020\000\022\t\n\005Vedio\020\001B&\n\033com.yanlong.im." +
+      "utils.socketB\007MsgBeanb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -59036,218 +58514,212 @@ public final class MsgBean {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RemoveFriendMessage_descriptor,
         new java.lang.String[] { });
-    internal_static_GroupAnnouncementMessage_descriptor =
-      getDescriptor().getMessageTypes().get(19);
-    internal_static_GroupAnnouncementMessage_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_GroupAnnouncementMessage_descriptor,
-        new java.lang.String[] { "Msg", });
     internal_static_GroupNoticeMessage_descriptor =
-      getDescriptor().getMessageTypes().get(20);
+      getDescriptor().getMessageTypes().get(19);
     internal_static_GroupNoticeMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_GroupNoticeMessage_descriptor,
         new java.lang.String[] { "Uid", "Avatar", "Nickname", });
     internal_static_InviteJoinGroupMessage_descriptor =
-      getDescriptor().getMessageTypes().get(21);
+      getDescriptor().getMessageTypes().get(20);
     internal_static_InviteJoinGroupMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_InviteJoinGroupMessage_descriptor,
         new java.lang.String[] { "NoticeMessage", });
     internal_static_RequestGroupMessage_descriptor =
-      getDescriptor().getMessageTypes().get(22);
+      getDescriptor().getMessageTypes().get(21);
     internal_static_RequestGroupMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RequestGroupMessage_descriptor,
         new java.lang.String[] { "NoticeMessage", "Inviter", "JoinType", "InviterName", "Additional", });
     internal_static_AcceptBeGroupMessage_descriptor =
-      getDescriptor().getMessageTypes().get(23);
+      getDescriptor().getMessageTypes().get(22);
     internal_static_AcceptBeGroupMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AcceptBeGroupMessage_descriptor,
         new java.lang.String[] { "NoticeMessage", "Inviter", "JoinType", "InviterName", });
     internal_static_RemoveGroupMemberMessage_descriptor =
-      getDescriptor().getMessageTypes().get(24);
+      getDescriptor().getMessageTypes().get(23);
     internal_static_RemoveGroupMemberMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RemoveGroupMemberMessage_descriptor,
         new java.lang.String[] { "Gid", "Avatar", "Name", });
     internal_static_RemoveGroupMember2Message_descriptor =
-      getDescriptor().getMessageTypes().get(25);
+      getDescriptor().getMessageTypes().get(24);
     internal_static_RemoveGroupMember2Message_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RemoveGroupMember2Message_descriptor,
         new java.lang.String[] { "Uid", });
     internal_static_ChangeGroupMasterMessage_descriptor =
-      getDescriptor().getMessageTypes().get(26);
+      getDescriptor().getMessageTypes().get(25);
     internal_static_ChangeGroupMasterMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ChangeGroupMasterMessage_descriptor,
         new java.lang.String[] { "Uid", "Membername", });
     internal_static_ChangeViceAdminsMessage_descriptor =
-      getDescriptor().getMessageTypes().get(27);
+      getDescriptor().getMessageTypes().get(26);
     internal_static_ChangeViceAdminsMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ChangeViceAdminsMessage_descriptor,
         new java.lang.String[] { "Members", "Opt", });
     internal_static_ChangeGroupMetaMessage_descriptor =
-      getDescriptor().getMessageTypes().get(28);
+      getDescriptor().getMessageTypes().get(27);
     internal_static_ChangeGroupMetaMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ChangeGroupMetaMessage_descriptor,
         new java.lang.String[] { "Name", "ProtectMember", "Avatar", "ShutUp", "ScreenshotNotification", "Forbbiden", "RealMsg", });
     internal_static_DestroyGroupMessage_descriptor =
-      getDescriptor().getMessageTypes().get(29);
+      getDescriptor().getMessageTypes().get(28);
     internal_static_DestroyGroupMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_DestroyGroupMessage_descriptor,
         new java.lang.String[] { "Uid", "Avatar", "Name", });
     internal_static_ChangeSurvivalTimeMessage_descriptor =
-      getDescriptor().getMessageTypes().get(30);
+      getDescriptor().getMessageTypes().get(29);
     internal_static_ChangeSurvivalTimeMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ChangeSurvivalTimeMessage_descriptor,
         new java.lang.String[] { "SurvivalTime", });
     internal_static_P2PAuVideoMessage_descriptor =
-      getDescriptor().getMessageTypes().get(31);
+      getDescriptor().getMessageTypes().get(30);
     internal_static_P2PAuVideoMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_P2PAuVideoMessage_descriptor,
         new java.lang.String[] { "AvType", "Operation", "Desc", });
     internal_static_P2PAuVideoDialMessage_descriptor =
-      getDescriptor().getMessageTypes().get(32);
+      getDescriptor().getMessageTypes().get(31);
     internal_static_P2PAuVideoDialMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_P2PAuVideoDialMessage_descriptor,
         new java.lang.String[] { "AvType", });
     internal_static_ForceOfflineMessage_descriptor =
-      getDescriptor().getMessageTypes().get(33);
+      getDescriptor().getMessageTypes().get(32);
     internal_static_ForceOfflineMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ForceOfflineMessage_descriptor,
         new java.lang.String[] { "ForceOfflineReason", });
     internal_static_OutGroupMessage_descriptor =
-      getDescriptor().getMessageTypes().get(34);
+      getDescriptor().getMessageTypes().get(33);
     internal_static_OutGroupMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_OutGroupMessage_descriptor,
         new java.lang.String[] { "Gid", });
     internal_static_ActiveStatChangeMessage_descriptor =
-      getDescriptor().getMessageTypes().get(35);
+      getDescriptor().getMessageTypes().get(34);
     internal_static_ActiveStatChangeMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ActiveStatChangeMessage_descriptor,
         new java.lang.String[] { "ActiveType", "Timestamp", });
     internal_static_ResourceLockMessage_descriptor =
-      getDescriptor().getMessageTypes().get(36);
+      getDescriptor().getMessageTypes().get(35);
     internal_static_ResourceLockMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ResourceLockMessage_descriptor,
         new java.lang.String[] { "ResourceLockType", "Lock", });
     internal_static_ReadMessage_descriptor =
-      getDescriptor().getMessageTypes().get(37);
+      getDescriptor().getMessageTypes().get(36);
     internal_static_ReadMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ReadMessage_descriptor,
         new java.lang.String[] { "Timestamp", });
     internal_static_TakeScreenshotMessage_descriptor =
-      getDescriptor().getMessageTypes().get(38);
+      getDescriptor().getMessageTypes().get(37);
     internal_static_TakeScreenshotMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_TakeScreenshotMessage_descriptor,
         new java.lang.String[] { });
     internal_static_HistoryCleanMessage_descriptor =
-      getDescriptor().getMessageTypes().get(39);
+      getDescriptor().getMessageTypes().get(38);
     internal_static_HistoryCleanMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_HistoryCleanMessage_descriptor,
         new java.lang.String[] { });
     internal_static_RefMessage_descriptor =
-      getDescriptor().getMessageTypes().get(40);
+      getDescriptor().getMessageTypes().get(39);
     internal_static_RefMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RefMessage_descriptor,
         new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Nickname", "Avatar", "Url", "Msg", });
     internal_static_ReplySpecificMessage_descriptor =
-      getDescriptor().getMessageTypes().get(41);
+      getDescriptor().getMessageTypes().get(40);
     internal_static_ReplySpecificMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ReplySpecificMessage_descriptor,
         new java.lang.String[] { "RefMsg", "ChatMsg", "AtMsg", "RealMsg", });
     internal_static_SwitchChangeMessage_descriptor =
-      getDescriptor().getMessageTypes().get(42);
+      getDescriptor().getMessageTypes().get(41);
     internal_static_SwitchChangeMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_SwitchChangeMessage_descriptor,
         new java.lang.String[] { "SwitchType", "SwitchValue", "Members", });
     internal_static_PayResultMessage_descriptor =
-      getDescriptor().getMessageTypes().get(43);
+      getDescriptor().getMessageTypes().get(42);
     internal_static_PayResultMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_PayResultMessage_descriptor,
         new java.lang.String[] { "Result", "TradeId", "ActionId", "ErrorMsg", "Sign", });
     internal_static_TransNotifyMessage_descriptor =
-      getDescriptor().getMessageTypes().get(44);
+      getDescriptor().getMessageTypes().get(43);
     internal_static_TransNotifyMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_TransNotifyMessage_descriptor,
         new java.lang.String[] { "TradeId", });
     internal_static_LabelValueItem_descriptor =
-      getDescriptor().getMessageTypes().get(45);
+      getDescriptor().getMessageTypes().get(44);
     internal_static_LabelValueItem_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_LabelValueItem_descriptor,
         new java.lang.String[] { "Label", "Value", });
     internal_static_BalanceAssistantMessage_descriptor =
-      getDescriptor().getMessageTypes().get(46);
+      getDescriptor().getMessageTypes().get(45);
     internal_static_BalanceAssistantMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_BalanceAssistantMessage_descriptor,
         new java.lang.String[] { "TradeId", "DetailType", "Time", "Title", "AmtLabel", "Amt", "Item", });
     internal_static_OfflineMsgRequest_descriptor =
-      getDescriptor().getMessageTypes().get(47);
+      getDescriptor().getMessageTypes().get(46);
     internal_static_OfflineMsgRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_OfflineMsgRequest_descriptor,
         new java.lang.String[] { "ReqCount", "Latest", });
     internal_static_ChangeOnlineStatus_descriptor =
-      getDescriptor().getMessageTypes().get(48);
+      getDescriptor().getMessageTypes().get(47);
     internal_static_ChangeOnlineStatus_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ChangeOnlineStatus_descriptor,
         new java.lang.String[] { "Stat", });
     internal_static_ReportMsg_descriptor =
-      getDescriptor().getMessageTypes().get(49);
+      getDescriptor().getMessageTypes().get(48);
     internal_static_ReportMsg_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ReportMsg_descriptor,
         new java.lang.String[] { "ChangeOnlineStatus", "RealMsg", });
     internal_static_ReqRspMsg_descriptor =
-      getDescriptor().getMessageTypes().get(50);
+      getDescriptor().getMessageTypes().get(49);
     internal_static_ReqRspMsg_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ReqRspMsg_descriptor,
         new java.lang.String[] { "OfflineMsgRequest", "RealMsg", });
     internal_static_AckMessage_descriptor =
-      getDescriptor().getMessageTypes().get(51);
+      getDescriptor().getMessageTypes().get(50);
     internal_static_AckMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AckMessage_descriptor,
         new java.lang.String[] { "RejectType", "RequestId", "MsgId", "Timestamp", "Desc", "MergedNextReq", });
     internal_static_AuthRequestMessage_descriptor =
-      getDescriptor().getMessageTypes().get(52);
+      getDescriptor().getMessageTypes().get(51);
     internal_static_AuthRequestMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AuthRequestMessage_descriptor,
         new java.lang.String[] { "AccessToken", });
     internal_static_AuthResponseMessage_descriptor =
-      getDescriptor().getMessageTypes().get(53);
+      getDescriptor().getMessageTypes().get(52);
     internal_static_AuthResponseMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AuthResponseMessage_descriptor,
         new java.lang.String[] { "Accepted", "Timestamp", });
     internal_static_UniversalMessage_descriptor =
-      getDescriptor().getMessageTypes().get(54);
+      getDescriptor().getMessageTypes().get(53);
     internal_static_UniversalMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_UniversalMessage_descriptor,
@@ -59257,7 +58729,7 @@ public final class MsgBean {
     internal_static_UniversalMessage_WrapMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_UniversalMessage_WrapMessage_descriptor,
-        new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Membername", "SurvivalTime", "DeviceType", "ToUid", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "Voice", "At", "Assistant", "Cancel", "ShortVideo", "SnapshotLocation", "TakeScrennshot", "ShippedExpression", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "HistoryClean", "Reply", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "DestroyGroup", "RemoveGroupMember2", "OutGroup", "ChangeGroupMeta", "ChangeSurvivalTime", "P2PAuVideo", "P2PAuVideoDial", "Read", "SendFile", "ChangeViceAdmins", "GroupAnnouncement", "ForceOffline", "ActiveStatChange", "ResourceLock", "SwitchChange", "PayResult", "BalanceAssistant", "TransNotify", "RealMsg", });
+        new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Membername", "SurvivalTime", "DeviceType", "ToUid", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "Voice", "At", "Assistant", "Cancel", "ShortVideo", "SnapshotLocation", "TakeScrennshot", "ShippedExpression", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "HistoryClean", "Reply", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "DestroyGroup", "RemoveGroupMember2", "OutGroup", "ChangeGroupMeta", "ChangeSurvivalTime", "P2PAuVideo", "P2PAuVideoDial", "Read", "SendFile", "ChangeViceAdmins", "ForceOffline", "ActiveStatChange", "ResourceLock", "SwitchChange", "MultiTerminalSync", "PayResult", "BalanceAssistant", "TransNotify", "RealMsg", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
