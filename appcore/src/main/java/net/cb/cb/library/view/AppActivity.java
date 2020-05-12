@@ -38,6 +38,22 @@ public class AppActivity extends AppCompatActivity {
     public Boolean isFirstRequestPermissionsResult = true;//第一次请求权限返回
     DialogLoadingProgress payWaitDialog;
 
+    private Finish mExit=new Finish();
+    /**
+     * 其他页面退出登录
+     */
+    private class Finish {
+        @Subscribe(threadMode = ThreadMode.MAIN)
+        public void onExitEvent(Object myEvent) {
+            if(myEvent instanceof String){//退出登录,关闭其他页面
+                if(!isFinishing()){
+                    finish();
+                }
+            }
+        }
+    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +62,10 @@ public class AppActivity extends AppCompatActivity {
         inflater = getLayoutInflater();
         alert = new AlertWait(this);
         super.onCreate(savedInstanceState);
+        //注册关闭其他页面事件
+        EventBus.getDefault().register(mExit);
         //友盟Push后台进行日活统计及多维度推送的必调用方法
         if (savedInstanceState != null) {
-            // 处理APP在后台，关闭某个权限后需要重启APP
             if (!EventBus.getDefault().isRegistered(this)) {
                 EventBus.getDefault().register(this);
             }
@@ -72,6 +89,8 @@ public class AppActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        //注销关闭其他页面事件
+        EventBus.getDefault().unregister(mExit);
         alert.dismiss4distory();
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
@@ -80,11 +99,6 @@ public class AppActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(Object myEvent) {
-        if(myEvent instanceof String){//退出登录,关闭其他页面
-            if(!isFinishing()){
-                finish();
-            }
-        }
     }
 
     //字体缩放倍数
