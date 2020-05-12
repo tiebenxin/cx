@@ -56,6 +56,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
     private long serverTime; //服务器时间
     private int isLocal;//是否是本地创建消息：0，不是本地，1 是本地消息
+    private int isReplying;//是否是正在回复的消息，0，未被回复或已经回复过了， 1正在回复
 
     private ChatMessage chat;
     private ImageMessage image;
@@ -320,6 +321,14 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
     public void setIsLocal(int isLocal) {
         this.isLocal = isLocal;
+    }
+
+    public int getIsReplying() {
+        return isReplying;
+    }
+
+    public void setIsReplying(int isReplying) {
+        this.isReplying = isReplying;
     }
 
     @ChatEnum.EMessageType
