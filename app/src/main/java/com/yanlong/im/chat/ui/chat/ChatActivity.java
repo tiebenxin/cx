@@ -273,7 +273,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private final String IS_VIP = "1";// (0:普通|1:vip)
     public final static int MIN_UNREAD_COUNT = 15;
     private int MAX_UNREAD_COUNT = 80 * 4;//默认加载最大数据
-
     private List<String> uidList;
 
 
@@ -612,6 +611,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         boolean hasClear = taskCleanRead(false);
         boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
         boolean hasChange = updateSessionDraftAndAtMessage();
+        if (hasChange) {
+            saveReplying(draft);
+        }
     }
 
     //停止录音
@@ -667,7 +669,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (!msgDao.isMsgLockExist(toGid, toUId)) {
             msgDao.insertOrUpdateMessage(SocketData.createMessageLock(toGid, toUId));
         }
-//        Log.i(TAG, "onStart");
         initData();
 
     }
@@ -682,6 +683,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         initUnreadCount();
         initPopupWindow();
+        initReplyMsg();
+    }
+
+    private void initReplyMsg() {
+        replayMsg = msgDao.getReplyingMsg(toGid, toUId);
+        if (replayMsg != null) {
+            isReplying = true;
+            mViewModel.isReplying.setValue(true);
+            viewReplyMessage.setMessage(replayMsg);
+        }
     }
 
     private void initViewNewMsg() {
@@ -1636,6 +1647,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //清除回复状态
     private void clearReply() {
         if (isReplying && replayMsg != null) {
+            updateReplying();
             isReplying = false;
             replayMsg = null;
             mViewModel.isReplying.setValue(false);
@@ -4043,16 +4055,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
     }
 
-
-    private String msgid;
-
     public synchronized void sendRead() {
         //发送已读回执
         if (TextUtils.isEmpty(toGid)) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
             if (bean != null) {
                 if (bean.getRead() == 0) {
-                    msgid = bean.getMsg_id();
                     ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
                     MsgAllBean message = SocketData.createMessageBean(toUId, "", ChatEnum.EMessageType.READ, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), read);
                     SocketData.sendAndSaveMessage(message);
@@ -4060,22 +4068,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
     }
-
-    public synchronized void sendRead(MsgAllBean bean) {
-        //发送已读回执
-        if (TextUtils.isEmpty(toGid)) {
-            if (bean != null) {
-                if (bean.getRead() == 0) {
-                    msgid = bean.getMsg_id();
-                    ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
-                    MsgAllBean message = SocketData.createMessageBean(toUId, "", ChatEnum.EMessageType.READ, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), read);
-                    SocketData.sendAndSaveMessage(message);
-//                    msgDao.setRead(msgid);
-                }
-            }
-        }
-    }
-
 
     /***
      * 获取最新的
@@ -6025,31 +6017,27 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         } else {
             return false;
         }
-
     }
 
-    private void initLastPosition() {
-        if (mtListView != null) {
-            lastPosition = ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).findLastVisibleItemPosition();
-        }
-    }
-
-    //
-    private List<MsgAllBean> isRetainAll(List<MsgAllBean> oldList, List<MsgAllBean> newList) {
-        if (oldList != null && newList != null) {
-            int newLength = newList.size();
-            int oldLength = oldList.size();
-            if (newLength > oldLength) {
-                newList.removeAll(oldList);
-                return newList;
-            }
-        }
-        return newList;
-    }
 
     private synchronized void fixLastPosition(int len) {
         lastPosition = lastPosition + len;
         LogUtil.getLog().i(TAG, "scroll--fixLastPosition=" + lastPosition);
     }
 
+    //存储正在回复消息,回复内容被content
+    private void saveReplying(String content) {
+        if (isReplying && replayMsg != null && !TextUtils.isEmpty(content)) {
+            replayMsg.setIsReplying(1);
+            DaoUtil.update(replayMsg);
+        }
+    }
+
+    //发送成功后删除回复消息
+    private void updateReplying() {
+        if (replayMsg != null) {
+            replayMsg.setIsReplying(0);
+            DaoUtil.update(replayMsg);
+        }
+    }
 }

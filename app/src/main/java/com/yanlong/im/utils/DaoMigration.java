@@ -145,6 +145,10 @@ public class DaoMigration implements RealmMigration {
                 updateV30(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 30) {
+                updateV31(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -561,6 +565,12 @@ public class DaoMigration implements RealmMigration {
 
         schema.get("MsgAllBean")
                 .addRealmObjectField("replyMessage", schema.get("ReplyMessage"));
+    }
+
+    //新增是否正在回复消息字段
+    private final void updateV31(RealmSchema schema) {
+        schema.get("MsgAllBean")
+                .addField("isReplying", int.class);
     }
 
 
