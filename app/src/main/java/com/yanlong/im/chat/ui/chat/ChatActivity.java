@@ -5365,7 +5365,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if (context.getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
                 startActivity(intent);
             } else {
-                Toast.makeText(context, "没有找到对应的程序", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "不支持打开该文件类型，请下载相关软件！", Toast.LENGTH_SHORT).show();
             }
 //            startActivity(intent);
         } catch (ActivityNotFoundException e) {
