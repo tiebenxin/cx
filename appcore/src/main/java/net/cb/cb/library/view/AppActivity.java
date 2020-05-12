@@ -80,7 +80,11 @@ public class AppActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(Object myEvent) {
-
+        if(myEvent instanceof String){//退出登录,关闭其他页面
+            if(!isFinishing()){
+                finish();
+            }
+        }
     }
 
     //字体缩放倍数
