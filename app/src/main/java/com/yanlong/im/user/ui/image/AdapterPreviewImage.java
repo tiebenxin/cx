@@ -440,6 +440,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                     hideLargeImageView(ivLarge);
                     if (!TextUtils.isEmpty(media.getCutPath()) /*&& (media.getWidth() > 1080 || media.getHeight() > 1920)*/) {
                         loadImage(media.getCutPath(), ivZoom, false, pbLoading);
+                        loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
                     } else {
                         loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
                     }
@@ -448,6 +449,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                 hideLargeImageView(ivLarge);
                 ivDownload.setVisibility(View.VISIBLE);
                 loadImage(media.getCutPath(), ivZoom, false, pbLoading);
+                loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
             }
         } else {
             ivDownload.setVisibility(View.VISIBLE);

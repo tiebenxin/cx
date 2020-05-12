@@ -2012,8 +2012,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else {
                 SocketData.sendAndSaveMessage(msgAllBean);
             }
-            //cancel消息发送前不需要更新
-            if (msgType != ChatEnum.EMessageType.MSG_CANCEL) {
+            //cancel消息发送前不需要更新,read消息不需要add
+            if (msgType != ChatEnum.EMessageType.MSG_CANCEL && msgType != ChatEnum.EMessageType.READ) {
                 showSendObj(msgAllBean);
             }
         }
@@ -4057,13 +4057,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     public synchronized void sendRead() {
         //发送已读回执
-        if (TextUtils.isEmpty(toGid)) {
+        if (TextUtils.isEmpty(toGid) && !UserUtil.isBanSendUser(toUId)) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
             if (bean != null) {
                 if (bean.getRead() == 0) {
                     ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
-                    MsgAllBean message = SocketData.createMessageBean(toUId, "", ChatEnum.EMessageType.READ, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), read);
-                    SocketData.sendAndSaveMessage(message);
+                    sendMessage(read, ChatEnum.EMessageType.READ);
                 }
             }
         }

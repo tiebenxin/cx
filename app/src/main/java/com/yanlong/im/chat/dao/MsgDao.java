@@ -1814,6 +1814,8 @@ public class MsgDao {
                     .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                     .and()
                     .beginGroup().equalTo("from_uid", uid).endGroup()
+                    .and()
+                    .beginGroup().equalTo("isLocal", 0).endGroup()
                     .sort("timestamp", Sort.DESCENDING).findFirst();
             if (bean != null) {
                 ret = realm.copyFromRealm(bean);

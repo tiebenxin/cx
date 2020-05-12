@@ -1456,7 +1456,8 @@ public class SocketData {
                     bean.setGid(gid);
                     bean.setFrom_uid(UserAction.getMyInfo().getUid());
                 } else if (uid != null) {
-                    bean.setFrom_uid(uid);
+                    bean.setFrom_uid(UserAction.getMyInfo().getUid());
+                    bean.setTo_uid(uid);
                 } else {
                     return null;
                 }
