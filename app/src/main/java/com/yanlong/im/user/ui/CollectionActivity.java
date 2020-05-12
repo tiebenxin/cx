@@ -836,10 +836,10 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
         Collections.sort(sortList, new Comparator<CollectionInfo>() {
             @Override
             public int compare(CollectionInfo o1, CollectionInfo o2) {
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 try {
-                    Date dt1 = format.parse(TimeToString.YYYY_MM_DD(Long.parseLong(o1.getCreateTime())));
-                    Date dt2 = format.parse(TimeToString.YYYY_MM_DD(Long.parseLong(o2.getCreateTime())));
+                    Date dt1 = format.parse(TimeToString.YYYY_MM_DD_HH_MM_SS(Long.parseLong(o1.getCreateTime())));
+                    Date dt2 = format.parse(TimeToString.YYYY_MM_DD_HH_MM_SS(Long.parseLong(o2.getCreateTime())));
                     if (dt1.getTime() > dt2.getTime()) {
                         return -1;
                     } else if (dt1.getTime() < dt2.getTime()) {
