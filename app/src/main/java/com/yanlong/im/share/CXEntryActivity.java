@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import com.cx.sharelib.message.CxMediaMessage;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.tcp.TcpConnection;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
@@ -16,6 +17,8 @@ import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.utils.FileUtils;
+import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -39,7 +42,6 @@ public class CXEntryActivity extends AppActivity {
             SocketUtil.getSocketUtil().setKeepConnect(true);
         }
         super.onCreate(savedInstanceState);
-//        showLoadingDialog();
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
@@ -52,6 +54,27 @@ public class CXEntryActivity extends AppActivity {
                         ToastUtil.show(this, "分享失败，单文件分享仅支持照片，文件格式");
                         finish();
                         return;
+                    }
+                    Uri uri = (Uri) extras.getParcelable(Intent.EXTRA_STREAM);
+                    String filePath = FileUtils.getFilePathByUri(CXEntryActivity.this, uri);
+                    int mediaType = getMediaType(type);
+                    if (TextUtils.isEmpty(filePath)) {
+                        ToastUtil.show("路径解析异常，分享失败");
+                    } else {
+                        if (mediaType == CxMediaMessage.EMediaType.IMAGE) {
+                            ImgSizeUtil.ImageSize imgSize = ImgSizeUtil.getAttribute(filePath);
+                            if (imgSize == null) {
+                                ToastUtil.show("图片解析异常，发送失败");
+                                finish();
+                                return;
+                            } else {
+                                if (imgSize.getWidth() > 4096 || imgSize.getHeight() > 4096) {
+                                    ToastUtil.show("图片尺寸单边不能超过4096像素");
+                                    finish();
+                                    return;
+                                }
+                            }
+                        }
                     }
                 } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
                     mode = ChatEnum.EForwardMode.SYS_SEND_MULTI;
@@ -81,6 +104,7 @@ public class CXEntryActivity extends AppActivity {
             finish();
             return;
         }
+
     }
 
     private void goActivity(Bundle extras, int mode, String type) {
@@ -176,6 +200,18 @@ public class CXEntryActivity extends AppActivity {
             }
         }
         return false;
+    }
+
+    @CxMediaMessage.EMediaType
+    private int getMediaType(String type) {
+        if (!TextUtils.isEmpty(type)) {
+            if (type.startsWith("image/")) {
+                return CxMediaMessage.EMediaType.IMAGE;
+            } else if (type.startsWith("text/") || type.startsWith("application/")) {
+                return CxMediaMessage.EMediaType.FILE;
+            }
+        }
+        return CxMediaMessage.EMediaType.UNKNOWN;
     }
 
 }
