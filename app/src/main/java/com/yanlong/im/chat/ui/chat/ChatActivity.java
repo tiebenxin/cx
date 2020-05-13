@@ -931,6 +931,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             MsgAllBean msgAllBean = (MsgAllBean) data;
             fixSendTime(msgAllBean.getMsg_id());
             replaceListDataAndNotify(msgAllBean);
+            sendRead();
         } else if (data instanceof MsgBean.AckMessage) {
             LogUtil.getLog().i(TAG, "收到回执--AckMessage");
             MsgBean.AckMessage bean = (MsgBean.AckMessage) data;
