@@ -440,4 +440,6 @@ public class ChatEnum {
         int DISBAND = 1; // 群被解散
         int BANED = 2; // 群被封禁
     }
+
+
 }

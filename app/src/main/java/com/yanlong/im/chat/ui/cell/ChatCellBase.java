@@ -175,7 +175,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         loadAvatar();
         setName();
         setTime();
-//        initMenu();
+        initMenu();
         setCheckView();
         initBell();
         initRead();
@@ -184,36 +184,36 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     @Deprecated
     private void initMenu() {
         menus = new ArrayList<>();
-        switch (model.getMsg_type()) {
-            case ChatEnum.EMessageType.NOTICE:
-                break;
-            case ChatEnum.EMessageType.TEXT:
-            case ChatEnum.EMessageType.AT:
-                menus.add(new OptionMenu("复制"));
-                menus.add(new OptionMenu("转发"));
-                menus.add(new OptionMenu("删除"));
-                break;
-            case ChatEnum.EMessageType.STAMP:
-            case ChatEnum.EMessageType.BUSINESS_CARD:
-            case ChatEnum.EMessageType.RED_ENVELOPE:
-            case ChatEnum.EMessageType.ASSISTANT:
-                menus.add(new OptionMenu("删除"));
-                break;
-            case ChatEnum.EMessageType.IMAGE:
-                menus.add(new OptionMenu("转发"));
-                menus.add(new OptionMenu("删除"));
-                break;
-            case ChatEnum.EMessageType.VOICE:
-                MsgDao msgDao = new MsgDao();
-                if (msgDao.userSetingGet().getVoicePlayer() == 0) {
-                    menus.add(0, new OptionMenu("听筒播放"));
-                } else {
-                    menus.add(0, new OptionMenu("扬声器播放"));
-                }
-                menus.add(new OptionMenu("删除"));
-                break;
-
-        }
+//        switch (model.getMsg_type()) {
+//            case ChatEnum.EMessageType.NOTICE:
+//                break;
+//            case ChatEnum.EMessageType.TEXT:
+//            case ChatEnum.EMessageType.AT:
+//                menus.add(new OptionMenu("复制"));
+//                menus.add(new OptionMenu("转发"));
+//                menus.add(new OptionMenu("删除"));
+//                break;
+//            case ChatEnum.EMessageType.STAMP:
+//            case ChatEnum.EMessageType.BUSINESS_CARD:
+//            case ChatEnum.EMessageType.RED_ENVELOPE:
+//            case ChatEnum.EMessageType.ASSISTANT:
+//                menus.add(new OptionMenu("删除"));
+//                break;
+//            case ChatEnum.EMessageType.IMAGE:
+//                menus.add(new OptionMenu("转发"));
+//                menus.add(new OptionMenu("删除"));
+//                break;
+//            case ChatEnum.EMessageType.VOICE:
+//                MsgDao msgDao = new MsgDao();
+//                if (msgDao.userSetingGet().getVoicePlayer() == 0) {
+//                    menus.add(0, new OptionMenu("听筒播放"));
+//                } else {
+//                    menus.add(0, new OptionMenu("扬声器播放"));
+//                }
+//                menus.add(new OptionMenu("删除"));
+//                break;
+//
+//        }
     }
 
     private void checkCancelMenu() {
