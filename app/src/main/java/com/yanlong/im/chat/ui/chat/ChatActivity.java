@@ -1352,20 +1352,23 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         });
         // 删除表情按钮
         viewFaceView.setOnDeleteListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
-                int selection = editChat.getSelectionStart();
-                String msg = editChat.getText().toString().trim();
-                if (selection >= 1) {
-                    if (selection >= PatternUtil.FACE_EMOJI_LENGTH) {
-                        String emoji = msg.substring(selection - PatternUtil.FACE_EMOJI_LENGTH, selection);
-                        if (PatternUtil.isExpression(emoji)) {
-                            editChat.getText().delete(selection - PatternUtil.FACE_EMOJI_LENGTH, selection);
-                            return;
+                try {
+                    int selection = editChat.getSelectionStart();
+                    String msg = editChat.getText().toString().trim();
+                    if (selection >= 1) {
+                        if (selection >= PatternUtil.FACE_EMOJI_LENGTH) {
+                            String emoji = msg.substring(selection - PatternUtil.FACE_EMOJI_LENGTH, selection);
+                            if (PatternUtil.isExpression(emoji)) {
+                                editChat.getText().delete(selection - PatternUtil.FACE_EMOJI_LENGTH, selection);
+                                return;
+                            }
                         }
+                        editChat.getText().delete(selection - 1, selection);
                     }
-                    editChat.getText().delete(selection - 1, selection);
+                }catch (Exception e){
+                    LogUtil.writeError(e);
                 }
             }
         });
