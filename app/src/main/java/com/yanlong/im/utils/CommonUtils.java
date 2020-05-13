@@ -1,5 +1,8 @@
 package com.yanlong.im.utils;
 
+import com.yanlong.im.utils.socket.MsgBean;
+import com.yanlong.im.utils.socket.SocketData;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +13,7 @@ import java.util.List;
  * @备注：
  *
  *      1 List拆分
+ *      2 类型转换-protobuf转换为本地自定义类型
  */
 
 public class CommonUtils {
@@ -39,6 +43,16 @@ public class CommonUtils {
             result.add(value);
         }
         return result;
+    }
+
+    /**
+     * 类型转换-protobuf转换为本地自定义类型
+     * @param type 本地类型 ChatEnum.EMessageType
+     * @return
+     */
+    public static int transformMsgType(int type){
+        MsgBean.MessageType messageType = MsgBean.MessageType.valueOf(type);
+        return SocketData.getEMsgType(messageType);
     }
 
 }

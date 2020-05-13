@@ -2173,6 +2173,9 @@ public class SocketData {
             case TRANS_NOTIFY:
                 messageType = ChatEnum.EMessageType.TRANSFER_NOTICE;
                 break;
+            case SEND_FILE:
+                messageType = ChatEnum.EMessageType.FILE;
+                break;
         }
         return messageType;
     }
@@ -2228,6 +2231,9 @@ public class SocketData {
                 break;
             case ChatEnum.EMessageType.TRANSFER_NOTICE:
                 messageType = MsgBean.MessageType.TRANS_NOTIFY;
+                break;
+            case ChatEnum.EMessageType.FILE:
+                messageType = MsgBean.MessageType.SEND_FILE;
                 break;
         }
         return messageType;

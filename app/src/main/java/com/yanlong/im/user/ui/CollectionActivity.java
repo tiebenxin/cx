@@ -48,10 +48,13 @@ import com.yanlong.im.databinding.ActivityCollectionBinding;
 import com.yanlong.im.databinding.ItemCollectionViewBinding;
 import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.user.bean.CollectionInfo;
+import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.audio.IVoicePlayListener;
+import com.yanlong.im.utils.socket.MsgBean;
+import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -127,8 +130,8 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                         } else {
                             binding.tvDate.setText("");
                         }
-                        //不同类型显示
-                        switch (collectionInfo.getType()) {
+                        //不同类型显示，考虑和IOS兼容，类型完全按protobuf规则制定，需要转换一下为安卓自己的类型
+                        switch (CommonUtils.transformMsgType(collectionInfo.getType())) {
                             case ChatEnum.EMessageType.TEXT: //文字
                                 binding.tvContent.setVisibility(VISIBLE);//显示文字相关布局，隐藏其他类型相关布局
                                 binding.layoutVoice.setVisibility(GONE);
@@ -534,7 +537,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             if (mPopupWindow != null) {
                 mPopupWindow.dismiss();
             }
-            if(mList.get(postion).getType()==ChatEnum.EMessageType.VOICE){
+            if(CommonUtils.transformMsgType(mList.get(postion).getType())==ChatEnum.EMessageType.VOICE){
                 ToastUtil.show("语音消息无法转发");
             }else {
                 if (NetUtil.isNetworkConnected()) {
@@ -753,7 +756,8 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 //图片 视频 表情 不方便搜索
                 if (!TextUtils.isEmpty(collectionInfo.getData())) {
                     MsgAllBean bean = new Gson().fromJson(collectionInfo.getData(), MsgAllBean.class);
-                    if (collectionInfo.getType() == ChatEnum.EMessageType.TEXT) { //文字
+                    int msgType = CommonUtils.transformMsgType(collectionInfo.getType());
+                    if (msgType == ChatEnum.EMessageType.TEXT) { //文字
                         if (bean.getChat() != null) {
                             if (!TextUtils.isEmpty(bean.getChat().getMsg())) {
                                 if (bean.getChat().getMsg().contains(key)) {
@@ -761,7 +765,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 }
                             }
                         }
-                    } else if (collectionInfo.getType() == ChatEnum.EMessageType.LOCATION) { //位置
+                    } else if (msgType == ChatEnum.EMessageType.LOCATION) { //位置
                         if (bean.getLocationMessage() != null) {
                             if (!TextUtils.isEmpty(bean.getLocationMessage().getAddress())) {
                                 if (bean.getLocationMessage().getAddress().contains(key)) {
@@ -774,7 +778,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 }
                             }
                         }
-                    } else if (collectionInfo.getType() == ChatEnum.EMessageType.AT) {
+                    } else if (msgType== ChatEnum.EMessageType.AT) {
                         if (bean.getAtMessage() != null) {
                             if (!TextUtils.isEmpty(bean.getAtMessage().getMsg())) {
                                 if (bean.getAtMessage().getMsg().contains(key)) {
@@ -782,7 +786,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 }
                             }
                         }
-                    } else if (collectionInfo.getType() == ChatEnum.EMessageType.FILE) {
+                    } else if (msgType == ChatEnum.EMessageType.FILE) {
                         if (bean.getSendFileMessage() != null) {
                             if (!TextUtils.isEmpty(bean.getSendFileMessage().getFile_name())) {
                                 if (bean.getSendFileMessage().getFile_name().contains(key)) {
@@ -851,4 +855,5 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             }
         });
     }
+
 }

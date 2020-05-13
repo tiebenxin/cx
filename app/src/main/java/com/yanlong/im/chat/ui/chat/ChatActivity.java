@@ -3964,7 +3964,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
         collectionInfo.setFromUid(msgbean.getFrom_uid());
         collectionInfo.setFromUsername(fromUsername);
-        collectionInfo.setType(msgbean.getMsg_type());
+        collectionInfo.setType(SocketData.getMessageType(msgbean.getMsg_type()).getNumber());//收藏类型统一改为protobuf类型
         collectionInfo.setFromGid(fromGid);
         collectionInfo.setFromGroupName(fromGroupName);
         collectionInfo.setMsgId(msgbean.getMsg_id());

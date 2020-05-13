@@ -62,6 +62,7 @@ import com.yanlong.im.location.LocationPersimmions;
 import com.yanlong.im.location.LocationService;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.CollectionInfo;
+import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
@@ -238,7 +239,7 @@ public class CollectDetailsActivity extends AppActivity {
                         tvTime.setText("");
                     }
                     //不同类型
-                    switch (collectionInfo.getType()) {
+                    switch (CommonUtils.transformMsgType(collectionInfo.getType())) {
                         case ChatEnum.EMessageType.TEXT: //文字
                             layoutText.setVisibility(VISIBLE);//显示文字相关布局，隐藏其他类型相关布局
                             layoutVoice.setVisibility(GONE);
