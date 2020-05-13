@@ -1555,6 +1555,12 @@ public class SocketData {
                     }
 
                 }
+                //群聊 立即更新阅后即焚
+                if(!TextUtils.isEmpty(msgAllBean.getGid())&&msgAllBean.getSurvival_time()>0){
+                    long now=System.currentTimeMillis();
+                    msgAllBean.setStartTime(now);
+                    msgAllBean.setEndTime(now+(msgAllBean.getSurvival_time()*1000));
+                }
                 DaoUtil.update(msgAllBean);
                 if (msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {
                     /********通知更新sessionDetail************************************/

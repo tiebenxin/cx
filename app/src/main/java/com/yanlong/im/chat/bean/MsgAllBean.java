@@ -138,6 +138,9 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
     public void setEndTime(long endTime) {
         this.endTime = endTime;
+        String log="setSurvival_endTime="+endTime+", nickname="+this.getFrom_nickname()
+                +", fromGruop="+this.getFrom_group_nickname()+", msgId="+this.msg_id;
+        LogUtil.writeLog(log);
     }
 
     public int getSurvival_time() {
