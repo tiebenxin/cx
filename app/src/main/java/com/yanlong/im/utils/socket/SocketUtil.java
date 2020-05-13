@@ -2,8 +2,8 @@ package com.yanlong.im.utils.socket;
 
 import android.accounts.NetworkErrorException;
 
-import com.tencent.bugly.crashreport.BuglyLog;
 import com.hm.cxpay.global.PayEnvironment;
+import com.tencent.bugly.crashreport.BuglyLog;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -16,8 +16,6 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.MainApplication;
 import net.cb.cb.library.bean.BuglyException;
 import net.cb.cb.library.bean.EventLoginOut;
-import net.cb.cb.library.bean.EventLoginOut4Conflict;
-import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.constant.AppHostUtil;
 import net.cb.cb.library.constant.BuglyTag;
 import net.cb.cb.library.event.EventFactory;
@@ -521,17 +519,17 @@ public class SocketUtil {
             LogUtil.getLog().d(TAG, ">>>链接中");
             long ttime = System.currentTimeMillis();
             while (!socketChannel.finishConnect()) {
-
-                //在等待连接的时间里
-                Thread.sleep(200);
-                LogUtil.getLog().d(TAG, ">>>链接进行" + (System.currentTimeMillis() - ttime));
-                if (System.currentTimeMillis() - ttime > 2 * 1000) {
-                    System.out.print(">>>链接中超时");
+                //在等待连接的时间里,为什么睡眠200ms？？？？？
+                //TODO：取消线程睡眠。2020.5.12
+//                Thread.sleep(200);
+                long connTime = System.currentTimeMillis() - ttime;
+                if (connTime > 2 * 1000) {
+                    LogUtil.getLog().d(TAG, ">>>链接中超时");
                     break;
                 }
 
             }
-            LogUtil.getLog().d(TAG, ">>>链接执行完毕");
+            LogUtil.getLog().d(TAG, ">>>链接成功，总耗时=" + (System.currentTimeMillis() - ttime));
             if (!socketChannel.isConnected()) {
                 LogUtil.getLog().e(TAG, "\n>>>>链接失败:链接不上,线程ver" + threadVer);
                 throw new NetworkErrorException();
@@ -541,6 +539,7 @@ public class SocketUtil {
             //----------------------------------------------------
 
             //3.
+            long ctime = System.currentTimeMillis();
             if (socketChannel.tryTLS(1) == 0) {
                 socketChannel.socket().close();
                 socketChannel.close();
@@ -550,7 +549,7 @@ public class SocketUtil {
                 throw new NetworkErrorException();
 
             } else {
-                LogUtil.getLog().d(TAG, "\n>>>>链接成功:线程ver" + threadVer);
+                LogUtil.getLog().d(TAG, "\n>>>>鉴权成功,总耗时=" + (System.currentTimeMillis() - ctime));
                 receive();
                 //发送认证请求
                 TcpConnection.getInstance(AppConfig.getContext()).addLog(System.currentTimeMillis() + "--Socket-开始鉴权");
@@ -795,6 +794,7 @@ public class SocketUtil {
                         sendListThread();
                     }
                     LogUtil.writeLog(TcpConnection.getInstance(AppConfig.getContext()).getLogList().toString());
+                    LogUtil.getLog().d(TAG, "连接总耗时=" + TcpConnection.getInstance(AppConfig.getContext()).getLogList().toString());
                     TcpConnection.getInstance(AppConfig.getContext()).clearLogList();
                     break;
                 case ACK:

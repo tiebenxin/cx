@@ -35,7 +35,6 @@ import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.eventbus.AckEvent;
-import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.tcp.TcpConnection;
 import com.yanlong.im.chat.ui.forward.vm.ForwardViewModel;
@@ -998,6 +997,19 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         filePath = FileUtils.getFilePathByUri(MsgForwardActivity.this, uri);
                         if (TextUtils.isEmpty(filePath)) {
                             ToastUtil.show("路径解析异常，分享失败");
+                        } else {
+                            if (mediaType == CxMediaMessage.EMediaType.IMAGE) {
+                                ImgSizeUtil.ImageSize imgSize = ImgSizeUtil.getAttribute(filePath);
+                                if (imgSize == null) {
+                                    filePath = "";
+                                    return;
+                                } else {
+                                    if (imgSize.getWidth() > 4096 || imgSize.getHeight() > 4096) {
+                                        filePath = "";
+                                        ToastUtil.show("图片过大，发送失败");
+                                    }
+                                }
+                            }
                         }
                     } else if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
                         List<Uri> uriList = extras.getParcelableArrayList(Intent.EXTRA_STREAM);

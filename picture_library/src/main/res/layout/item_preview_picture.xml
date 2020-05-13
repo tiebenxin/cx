@@ -21,27 +21,28 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="2dp"
-        android:layout_marginRight="2dp" />
+        android:layout_marginRight="2dp"
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/ll_look"
         android:layout_width="200dp"
         android:layout_height="80dp"
         android:layout_gravity="center_horizontal|bottom"
-        android:gravity="center"
-        android:layout_marginBottom="50dp">
+        android:layout_marginBottom="50dp"
+        android:gravity="center">
 
         <TextView
             android:id="@+id/tv_view_origin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/shape_look_origin"
             android:layout_gravity="center"
+            android:background="@drawable/shape_look_origin"
             android:gravity="center"
             android:paddingLeft="10dp"
+            android:paddingTop="6dp"
             android:paddingRight="10dp"
             android:paddingBottom="6dp"
-            android:paddingTop="6dp"
             android:text="查看原图"
             android:textColor="#ffffff"
             android:visibility="visible" />
@@ -64,6 +65,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
 </FrameLayout>
