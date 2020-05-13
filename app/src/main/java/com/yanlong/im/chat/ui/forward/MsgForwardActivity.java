@@ -44,6 +44,7 @@ import com.yanlong.im.databinding.ActivityMsgForwardBinding;
 import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.share.ShareDialog;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.CollectionInfo;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
@@ -94,6 +95,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     private MsgAllBean msgAllBean;
     private MsgAllBean sendMessage;//转发消息
+    private CollectionInfo collectionInfo;//收藏转发
 
 
     @CustomTabView.ETabPosition
@@ -132,6 +134,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     //图片编辑地址
     private String editPicPath = "";
+
+    //收藏转发
+    private boolean fromCollect = false;
 
 
     //单条消息转发
@@ -210,8 +215,13 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         Intent intent = getIntent();
         model = intent.getIntExtra(MODE, ChatEnum.EForwardMode.DEFAULT);
         json = intent.getStringExtra(AGM_JSON);
+        fromCollect = intent.getBooleanExtra("from_collect", false);
         if (model == ChatEnum.EForwardMode.DEFAULT || model == ChatEnum.EForwardMode.MERGE) {
-            msgAllBean = GsonUtils.getObject(json, MsgAllBean.class);
+            if(!fromCollect){
+                msgAllBean = GsonUtils.getObject(json, MsgAllBean.class);
+            }else {
+                collectionInfo = GsonUtils.getObject(json, CollectionInfo.class);
+            }
         } else if (model == ChatEnum.EForwardMode.ONE_BY_ONE) {
             Gson gson = new Gson();
             msgList = gson.fromJson(json, new TypeToken<List<MsgAllBean>>() {

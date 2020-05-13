@@ -32,7 +32,14 @@ import com.yanlong.im.R;
 import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.AtMessage;
+import com.yanlong.im.chat.bean.ChatMessage;
+import com.yanlong.im.chat.bean.ImageMessage;
+import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.SendFileMessage;
+import com.yanlong.im.chat.bean.ShippedExpressionMessage;
+import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -106,7 +113,6 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 if (mList != null && mList.size() > 0) {
                     CollectionInfo collectionInfo = mList.get(position);
                     if (!TextUtils.isEmpty(collectionInfo.getData())) {
-                        MsgAllBean bean = new Gson().fromJson(collectionInfo.getData(), MsgAllBean.class);
                         //显示用户名或群名
                         if (!TextUtils.isEmpty(collectionInfo.getFromGroupName())) {
                             binding.tvName.setText("来自群聊 " + collectionInfo.getFromGroupName());
@@ -129,13 +135,12 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 binding.layoutPic.setVisibility(GONE);
                                 binding.layoutFile.setVisibility(GONE);
                                 binding.layoutLocation.setVisibility(GONE);
-                                if (bean != null) {
-                                    if (bean.getChat() != null) {
-                                        if (!TextUtils.isEmpty(bean.getChat().getMsg())) {
-                                            binding.tvContent.setText(getSpan(bean.getChat().getMsg()));
-                                        } else {
-                                            binding.tvContent.setText("");
-                                        }
+                                ChatMessage bean1 = new Gson().fromJson(collectionInfo.getData(), ChatMessage.class);
+                                if (bean1 != null) {
+                                    if (!TextUtils.isEmpty(bean1.getMsg())) {
+                                        binding.tvContent.setText(getSpan(bean1.getMsg()));
+                                    } else {
+                                        binding.tvContent.setText("");
                                     }
                                 }
                                 break;
@@ -146,15 +151,14 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 binding.layoutFile.setVisibility(GONE);
                                 binding.layoutLocation.setVisibility(GONE);
                                 binding.ivPlay.setVisibility(GONE);
-                                if (bean != null) {
-                                    if (bean.getImage() != null) { //显示预览图或者缩略图
-                                        if (!TextUtils.isEmpty(bean.getImage().getPreview())) {
-                                            Glide.with(CollectionActivity.this).load(bean.getImage().getPreview())
-                                                    .apply(GlideOptionsUtil.headImageOptions()).into(binding.ivPic);
-                                        } else if (!TextUtils.isEmpty(bean.getImage().getThumbnail())) {
-                                            Glide.with(CollectionActivity.this).load(bean.getImage().getThumbnail())
-                                                    .apply(GlideOptionsUtil.headImageOptions()).into(binding.ivPic);
-                                        }
+                                ImageMessage bean2 = new Gson().fromJson(collectionInfo.getData(), ImageMessage.class);
+                                if (bean2 != null) { //显示预览图或者缩略图
+                                    if (!TextUtils.isEmpty(bean2.getPreview())) {
+                                        Glide.with(CollectionActivity.this).load(bean2.getPreview())
+                                                .apply(GlideOptionsUtil.headImageOptions()).into(binding.ivPic);
+                                    } else if (!TextUtils.isEmpty(bean2.getThumbnail())) {
+                                        Glide.with(CollectionActivity.this).load(bean2.getThumbnail())
+                                                .apply(GlideOptionsUtil.headImageOptions()).into(binding.ivPic);
                                     }
                                 }
                                 break;
@@ -165,11 +169,10 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 binding.layoutFile.setVisibility(GONE);
                                 binding.layoutLocation.setVisibility(GONE);
                                 binding.ivPlay.setVisibility(GONE);
-                                if (bean != null) {
-                                    if (bean.getShippedExpressionMessage() != null) {
-                                        if (!TextUtils.isEmpty(bean.getShippedExpressionMessage().getId())) {
-                                            Glide.with(CollectionActivity.this).load(Integer.parseInt(FaceView.map_FaceEmoji.get(bean.getShippedExpressionMessage().getId()).toString())).apply(GlideOptionsUtil.headImageOptions()).into(binding.ivPic);
-                                        }
+                                ShippedExpressionMessage bean3 = new Gson().fromJson(collectionInfo.getData(), ShippedExpressionMessage.class);
+                                if (bean3 != null) {
+                                    if (!TextUtils.isEmpty(bean3.getId())) {
+                                        Glide.with(CollectionActivity.this).load(Integer.parseInt(FaceView.map_FaceEmoji.get(bean3.getId()).toString())).apply(GlideOptionsUtil.headImageOptions()).into(binding.ivPic);
                                     }
                                 }
                                 break;
@@ -180,12 +183,11 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 binding.layoutFile.setVisibility(GONE);
                                 binding.layoutLocation.setVisibility(GONE);
                                 binding.ivPlay.setVisibility(VISIBLE);
-                                if (bean != null) {
-                                    if (bean.getVideoMessage() != null) {
-                                        if (!TextUtils.isEmpty(bean.getVideoMessage().getBg_url())) {
-                                            Glide.with(CollectionActivity.this).load(bean.getVideoMessage().getBg_url())
-                                                    .apply(GlideOptionsUtil.headImageOptions()).into(binding.ivPic);
-                                        }
+                                VideoMessage bean4 = new Gson().fromJson(collectionInfo.getData(), VideoMessage.class);
+                                if (bean4 != null) {
+                                    if (!TextUtils.isEmpty(bean4.getBg_url())) {
+                                        Glide.with(CollectionActivity.this).load(bean4.getBg_url())
+                                                .apply(GlideOptionsUtil.headImageOptions()).into(binding.ivPic);
                                     }
                                 }
                                 break;
@@ -195,15 +197,14 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 binding.layoutPic.setVisibility(GONE);
                                 binding.layoutFile.setVisibility(GONE);
                                 binding.layoutLocation.setVisibility(GONE);
-                                if (bean != null) {
-                                    if (bean.getVoiceMessage() != null) {
-                                        if (bean.getVoiceMessage().getTime() != 0) {
-                                            binding.tvVoiceTime.setText(DateUtils.getSecondFormatTime(Long.valueOf(bean.getVoiceMessage().getTime() + "")));
-                                        }
+                                VoiceMessage bean5 = new Gson().fromJson(collectionInfo.getData(), VoiceMessage.class);
+                                if (bean5 != null) {
+                                    if (bean5.getTime() != 0) {
+                                        binding.tvVoiceTime.setText(DateUtils.getSecondFormatTime(Long.valueOf(bean5.getTime() + "")));
+                                    }
 //                                        VoiceMessage vm = bean.getVoiceMessage();
 //                                        String url = bean.isMe() ? vm.getLocalUrl() : vm.getUrl();
 //                                        binding.voiceView.init(true,vm.getTime(), true, AudioPlayManager.getInstance().isPlay(Uri.parse(url)), vm.getPlayStatus());
-                                    }
                                 }
                                 break;
                             case ChatEnum.EMessageType.LOCATION: //位置消息
@@ -212,37 +213,37 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 binding.layoutPic.setVisibility(GONE);
                                 binding.layoutFile.setVisibility(GONE);
                                 binding.layoutLocation.setVisibility(VISIBLE);
-                                if (bean != null) {
-                                    if (bean.getLocationMessage() != null) {
-                                        if (!TextUtils.isEmpty(bean.getLocationMessage().getAddress())) {
-                                            binding.tvLocationName.setText(bean.getLocationMessage().getAddress());
-                                        }
-                                        if (!TextUtils.isEmpty(bean.getLocationMessage().getAddressDescribe())) {
-                                            binding.tvLocationDesc.setText(bean.getLocationMessage().getAddressDescribe());
-                                        }
-                                        if (!TextUtils.isEmpty(bean.getLocationMessage().getImg())) {
-                                            Glide.with(CollectionActivity.this)
-                                                    .asBitmap()
-                                                    .load(bean.getLocationMessage().getImg())
-                                                    .into(new SimpleTarget<Bitmap>() {
-                                                        @Override
-                                                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                                            binding.ivLocation.setImageBitmap(resource);
-                                                        }
-                                                    });
-                                        } else {
-                                            String baiduImageUrl = LocationUtils.getLocationUrl(bean.getLocationMessage().getLatitude(), bean.getLocationMessage().getLongitude());
-                                            Glide.with(CollectionActivity.this)
-                                                    .asBitmap()
-                                                    .load(baiduImageUrl)
-                                                    .into(new SimpleTarget<Bitmap>() {
-                                                        @Override
-                                                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                                            binding.ivLocation.setImageBitmap(resource);
-                                                        }
-                                                    });
-                                        }
+                                LocationMessage bean6 = new Gson().fromJson(collectionInfo.getData(), LocationMessage.class);
+                                if (bean6 != null) {
+                                    if (!TextUtils.isEmpty(bean6.getAddress())) {
+                                        binding.tvLocationName.setText(bean6.getAddress());
                                     }
+                                    if (!TextUtils.isEmpty(bean6.getAddressDescribe())) {
+                                        binding.tvLocationDesc.setText(bean6.getAddressDescribe());
+                                    }
+                                    if (!TextUtils.isEmpty(bean6.getImg())) {
+                                        Glide.with(CollectionActivity.this)
+                                                .asBitmap()
+                                                .load(bean6.getImg())
+                                                .into(new SimpleTarget<Bitmap>() {
+                                                    @Override
+                                                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                                        binding.ivLocation.setImageBitmap(resource);
+                                                    }
+                                                });
+                                    } else {
+                                        String baiduImageUrl = LocationUtils.getLocationUrl(bean6.getLatitude(), bean6.getLongitude());
+                                        Glide.with(CollectionActivity.this)
+                                                .asBitmap()
+                                                .load(baiduImageUrl)
+                                                .into(new SimpleTarget<Bitmap>() {
+                                                    @Override
+                                                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                                        binding.ivLocation.setImageBitmap(resource);
+                                                    }
+                                                });
+                                    }
+
                                 }
                                 break;
                             case ChatEnum.EMessageType.AT: //艾特@消息
@@ -251,13 +252,12 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 binding.layoutPic.setVisibility(GONE);
                                 binding.layoutFile.setVisibility(GONE);
                                 binding.layoutLocation.setVisibility(GONE);
-                                if (bean != null) {
-                                    if (bean.getAtMessage() != null) {
-                                        if (!TextUtils.isEmpty(bean.getAtMessage().getMsg())) {
-                                            binding.tvContent.setText(getSpan(bean.getAtMessage().getMsg()));
-                                        } else {
-                                            binding.tvContent.setText("");
-                                        }
+                                AtMessage bean7 = new Gson().fromJson(collectionInfo.getData(), AtMessage.class);
+                                if (bean7 != null) {
+                                    if (!TextUtils.isEmpty(bean7.getMsg())) {
+                                        binding.tvContent.setText(getSpan(bean7.getMsg()));
+                                    } else {
+                                        binding.tvContent.setText("");
                                     }
                                 }
                                 break;
@@ -267,32 +267,31 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 binding.layoutPic.setVisibility(GONE);
                                 binding.layoutFile.setVisibility(VISIBLE);
                                 binding.layoutLocation.setVisibility(GONE);
-                                if (bean != null) {
-                                    if (bean.getSendFileMessage() != null) {
-                                        if (!TextUtils.isEmpty(bean.getSendFileMessage().getFile_name())) {
-                                            binding.tvFileName.setText(bean.getSendFileMessage().getFile_name());
+                                SendFileMessage bean8 = new Gson().fromJson(collectionInfo.getData(), SendFileMessage.class);
+                                if (bean8 != null) {
+                                    if (!TextUtils.isEmpty(bean8.getFile_name())) {
+                                        binding.tvFileName.setText(bean8.getFile_name());
+                                    }
+                                    if (!TextUtils.isEmpty(bean8.getFormat())) {
+                                        String fileFormat = bean8.getFormat();
+                                        if (fileFormat.equals("txt")) {
+                                            binding.ivFilePic.setImageResource(R.mipmap.ic_txt);
+                                        } else if (fileFormat.equals("xls") || fileFormat.equals("xlsx")) {
+                                            binding.ivFilePic.setImageResource(R.mipmap.ic_excel);
+                                        } else if (fileFormat.equals("ppt") || fileFormat.equals("pptx") || fileFormat.equals("pdf")) { //PDF暂用此图标
+                                            binding.ivFilePic.setImageResource(R.mipmap.ic_ppt);
+                                        } else if (fileFormat.equals("doc") || fileFormat.equals("docx")) {
+                                            binding.ivFilePic.setImageResource(R.mipmap.ic_word);
+                                        } else if (fileFormat.equals("rar") || fileFormat.equals("zip")) {
+                                            binding.ivFilePic.setImageResource(R.mipmap.ic_zip);
+                                        } else if (fileFormat.equals("exe")) {
+                                            binding.ivFilePic.setImageResource(R.mipmap.ic_exe);
+                                        } else {
+                                            binding.ivFilePic.setImageResource(R.mipmap.ic_unknow);
                                         }
-                                        if (!TextUtils.isEmpty(bean.getSendFileMessage().getFormat())) {
-                                            String fileFormat = bean.getSendFileMessage().getFormat();
-                                            if (fileFormat.equals("txt")) {
-                                                binding.ivFilePic.setImageResource(R.mipmap.ic_txt);
-                                            } else if (fileFormat.equals("xls") || fileFormat.equals("xlsx")) {
-                                                binding.ivFilePic.setImageResource(R.mipmap.ic_excel);
-                                            } else if (fileFormat.equals("ppt") || fileFormat.equals("pptx") || fileFormat.equals("pdf")) { //PDF暂用此图标
-                                                binding.ivFilePic.setImageResource(R.mipmap.ic_ppt);
-                                            } else if (fileFormat.equals("doc") || fileFormat.equals("docx")) {
-                                                binding.ivFilePic.setImageResource(R.mipmap.ic_word);
-                                            } else if (fileFormat.equals("rar") || fileFormat.equals("zip")) {
-                                                binding.ivFilePic.setImageResource(R.mipmap.ic_zip);
-                                            } else if (fileFormat.equals("exe")) {
-                                                binding.ivFilePic.setImageResource(R.mipmap.ic_exe);
-                                            } else {
-                                                binding.ivFilePic.setImageResource(R.mipmap.ic_unknow);
-                                            }
-                                        }
-                                        if (bean.getSendFileMessage().getSize() != 0L) {
-                                            binding.tvFileSize.setText(FileUtils.getFileSizeString(bean.getSendFileMessage().getSize()));
-                                        }
+                                    }
+                                    if (bean8.getSize() != 0L) {
+                                        binding.tvFileSize.setText(FileUtils.getFileSizeString(bean8.getSize()));
                                     }
                                 }
                                 break;

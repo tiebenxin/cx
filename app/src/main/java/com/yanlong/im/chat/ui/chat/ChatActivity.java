@@ -3066,7 +3066,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         replaceListDataAndNotify(msgAllbean, true);
     }
 
-
     private void setChatImageBackground() {
         UserSeting seting = new MsgDao().userSetingGet();
         if (seting == null) {
@@ -3940,7 +3939,25 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
         CollectionInfo collectionInfo = new CollectionInfo();
-        collectionInfo.setData(new Gson().toJson(msgbean));
+        //区分不同消息类型，作为data传过去
+        if(msgbean.getMsg_type()==ChatEnum.EMessageType.TEXT){
+            collectionInfo.setData(new Gson().toJson(msgbean.getChat()));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.IMAGE){
+            collectionInfo.setData(new Gson().toJson(msgbean.getImage()));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.SHIPPED_EXPRESSION){
+            collectionInfo.setData(new Gson().toJson(msgbean.getShippedExpressionMessage()));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.MSG_VIDEO){
+            collectionInfo.setData(new Gson().toJson(msgbean.getVideoMessage()));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.VOICE){
+            collectionInfo.setData(new Gson().toJson(msgbean.getVoiceMessage()));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.LOCATION){
+            collectionInfo.setData(new Gson().toJson(msgbean.getLocationMessage()));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.AT){
+            collectionInfo.setData(new Gson().toJson(msgbean.getAtMessage()));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.FILE){
+            collectionInfo.setData(new Gson().toJson(msgbean.getSendFileMessage()));
+        }
+
         collectionInfo.setFromUid(msgbean.getFrom_uid());
         collectionInfo.setFromUsername(fromUsername);
         collectionInfo.setType(msgbean.getMsg_type());
