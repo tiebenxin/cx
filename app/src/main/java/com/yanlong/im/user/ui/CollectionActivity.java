@@ -534,10 +534,17 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             if (mPopupWindow != null) {
                 mPopupWindow.dismiss();
             }
-            if (NetUtil.isNetworkConnected()) {
-                onRetransmission(mList.get(postion).getData());
-            } else {
-                ToastUtil.show("请检查网络连接是否正常");
+            if(mList.get(postion).getType()==ChatEnum.EMessageType.VOICE){
+                ToastUtil.show("语音消息无法转发");
+            }else {
+                if (NetUtil.isNetworkConnected()) {
+                    startActivity(new Intent(context, MsgForwardActivity.class)
+                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(mList.get(postion))).putExtra("from_collect",true));
+//                Intent intent = MsgForwardActivity.newIntent(this, ChatEnum.EForwardMode.DEFAULT, new Gson().toJson(mList.get(postion)));//传collectinfo
+//                startActivity(intent);
+                } else {
+                    ToastUtil.show("请检查网络连接是否正常");
+                }
             }
         });
         //删除 (暂时只处理有网的情况)
@@ -565,15 +572,6 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
         });
     }
 
-    /**
-     * 转发
-     *
-     * @param value
-     */
-    private void onRetransmission(String value) {
-        startActivity(new Intent(getContext(), MsgForwardActivity.class)
-                .putExtra(MsgForwardActivity.AGM_JSON, value));
-    }
 
     /**
      * 设置显示在v上方(以v的左边距为开始位置)
