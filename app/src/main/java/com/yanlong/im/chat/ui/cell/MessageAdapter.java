@@ -374,7 +374,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
                                     String name = "icon_st_" + Math.min(COUNT, index + 1);
                                     int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
                                     updateSurvivalTimeImage(msgId, id);
-                                    LogUtil.getLog().i("SurvivalTime--CountDownView", "isME=" + index);
+//                                    LogUtil.getLog().i("SurvivalTime--CountDownView", "isME=" + index);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
