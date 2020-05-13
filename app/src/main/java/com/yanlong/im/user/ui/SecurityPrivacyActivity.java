@@ -235,14 +235,16 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
                 if (response.body() == null) {
                     return;
                 }
-                EventBus.getDefault().post(new EventIsShowRead());
-                if (userInfo.getMasterRead() == 0) {
-                    userInfo.setMasterRead(1);
-                    userDao.updateUserBean(userInfo);
-                } else {
-                    userInfo.setMasterRead(0);
-                    userDao.updateUserBean(userInfo);
-                }
+                EventBus.getDefault().post(new EventIsShowRead(userInfo.getUid().longValue(), EventIsShowRead.EReadSwitchType.SWITCH_MASTER,switchval));
+//                if (userInfo.getMasterRead() == 0) {
+//                    userInfo.setMasterRead(1);
+//                    userDao.updateUserBean(userInfo);
+//                } else {
+//                    userInfo.setMasterRead(0);
+//                    userDao.updateUserBean(userInfo);
+//                }
+                userInfo.setMasterRead(switchval);
+                userDao.updateUserBean(userInfo);
             }
         });
     }

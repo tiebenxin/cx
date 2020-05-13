@@ -568,7 +568,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         clickAble = true;
         //更新阅后即焚状态
         initSurvivaltimeState();
-//        sendRead();
         if (AppConfig.isOnline()) {
             checkHasEnvelopeSendFailed();
         }
@@ -836,7 +835,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                         //8.7 是属于这个会话就刷新
                         if (!needRefresh) {
-//                            sendRead();
                             if (isGroup()) {
                                 needRefresh = msg.getGid().equals(toGid);
                             } else {
@@ -1368,7 +1366,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                         editChat.getText().delete(selection - 1, selection);
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     LogUtil.writeError(e);
                 }
             }
@@ -2528,7 +2526,24 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventIsShowRead(EventIsShowRead event) {
-//        mtListView.notifyDataSetChange();
+        //自己的更新不需要管
+        if (toUId == null || event.getUid() != toUId.longValue()) {
+            return;
+        }
+        int switchType = event.getSwitchType();
+        int result = event.getResult();
+        if (userInfo == null) {
+            userInfo = userDao.findUserInfo(toUId);
+        }
+        if (userInfo == null) {
+            return;
+        }
+        if (switchType == EventIsShowRead.EReadSwitchType.SWITCH_FRIEND) {
+            userInfo.setFriendRead(result);
+        } else if (switchType == EventIsShowRead.EReadSwitchType.SWITCH_MASTER) {
+            userInfo.setMasterRead(result);
+        }
+        mAdapter.setReadStatus(checkIsRead());
         notifyData();
     }
 
@@ -4061,7 +4076,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     public synchronized void sendRead() {
         //发送已读回执
-        if (TextUtils.isEmpty(toGid) && !UserUtil.isBanSendUser(toUId)) {
+        if (TextUtils.isEmpty(toGid) && !UserUtil.isBanSendUser(toUId) && checkIsRead()) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
             if (bean != null) {
                 if (bean.getRead() == 0) {
@@ -6006,6 +6021,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 检查是否显示已读
      */
     private boolean checkIsRead() {
+        if (userInfo == null) {
+            userInfo = userDao.findUserInfo(toUId);
+        }
         if (userInfo == null) {
             return false;
         }
