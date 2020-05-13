@@ -175,13 +175,13 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         loadAvatar();
         setName();
         setTime();
-        initMenu();
+//        initMenu();
         setCheckView();
         initBell();
         initRead();
     }
 
-
+    @Deprecated
     private void initMenu() {
         menus = new ArrayList<>();
         switch (model.getMsg_type()) {

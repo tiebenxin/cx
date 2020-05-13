@@ -126,49 +126,50 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     private void initData() {
         userAction = new UserAction();
         userInfo = UserAction.getMyInfo();
-        imageHead = userInfo.getHead();
-        mTvPhone.setText(userInfo.getPhone() + "");
-        oldImid = userInfo.getOldimid();
-        imid = userInfo.getImid();
-        nickName = userInfo.getName();
-        sex = userInfo.getSex();
-        authStat = userInfo.getAuthStat();
-        Glide.with(this).load(imageHead)
-                .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
-        mTvNickname.setText(nickName);
-        if (!oldImid.equals(imid)) {
-            mTvProductNumber.setText(imid);
-            mIvProductNumber.setVisibility(View.GONE);
-            mViewProductNumber.setClickable(false);
+        if(userInfo!=null) {
+            imageHead = userInfo.getHead();
+            mTvPhone.setText(userInfo.getPhone() + "");
+            oldImid = userInfo.getOldimid();
+            imid = userInfo.getImid();
+            nickName = userInfo.getName();
+            sex = userInfo.getSex();
+            authStat = userInfo.getAuthStat();
+            Glide.with(this).load(imageHead)
+                    .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
+            mTvNickname.setText(nickName);
+            if (!oldImid.equals(imid)) {
+                mTvProductNumber.setText(imid);
+                mIvProductNumber.setVisibility(View.GONE);
+                mViewProductNumber.setClickable(false);
 
-        } else {
-            mTvProductNumber.setText("未设置");
-            mIvProductNumber.setVisibility(View.VISIBLE);
-            mViewProductNumber.setClickable(true);
+            } else {
+                mTvProductNumber.setText("未设置");
+                mIvProductNumber.setVisibility(View.VISIBLE);
+                mViewProductNumber.setClickable(true);
+            }
+            switch (sex) {
+                case 1:
+                    mTvSex.setText("男");
+                    break;
+                case 2:
+                    mTvSex.setText("女");
+                    break;
+                default:
+                    mTvSex.setText("未知");
+                    break;
+            }
+            switch (authStat) {
+                case 0:
+                    mTvIdentity.setText("未认证");
+                    break;
+                case 1:
+                    mTvIdentity.setText("已认证");
+                    break;
+                case 2:
+                    mTvIdentity.setText("已认证");
+                    break;
+            }
         }
-        switch (sex) {
-            case 1:
-                mTvSex.setText("男");
-                break;
-            case 2:
-                mTvSex.setText("女");
-                break;
-            default:
-                mTvSex.setText("未知");
-                break;
-        }
-        switch (authStat) {
-            case 0:
-                mTvIdentity.setText("未认证");
-                break;
-            case 1:
-                mTvIdentity.setText("已认证");
-                break;
-            case 2:
-                mTvIdentity.setText("已认证");
-                break;
-        }
-
     }
 
 

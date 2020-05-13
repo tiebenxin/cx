@@ -933,6 +933,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             MsgAllBean msgAllBean = (MsgAllBean) data;
             fixSendTime(msgAllBean.getMsg_id());
             replaceListDataAndNotify(msgAllBean);
+            sendRead();
         } else if (data instanceof MsgBean.AckMessage) {
             LogUtil.getLog().i(TAG, "收到回执--AckMessage");
             MsgBean.AckMessage bean = (MsgBean.AckMessage) data;
@@ -1354,20 +1355,23 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         });
         // 删除表情按钮
         viewFaceView.setOnDeleteListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
-                int selection = editChat.getSelectionStart();
-                String msg = editChat.getText().toString().trim();
-                if (selection >= 1) {
-                    if (selection >= PatternUtil.FACE_EMOJI_LENGTH) {
-                        String emoji = msg.substring(selection - PatternUtil.FACE_EMOJI_LENGTH, selection);
-                        if (PatternUtil.isExpression(emoji)) {
-                            editChat.getText().delete(selection - PatternUtil.FACE_EMOJI_LENGTH, selection);
-                            return;
+                try {
+                    int selection = editChat.getSelectionStart();
+                    String msg = editChat.getText().toString().trim();
+                    if (selection >= 1) {
+                        if (selection >= PatternUtil.FACE_EMOJI_LENGTH) {
+                            String emoji = msg.substring(selection - PatternUtil.FACE_EMOJI_LENGTH, selection);
+                            if (PatternUtil.isExpression(emoji)) {
+                                editChat.getText().delete(selection - PatternUtil.FACE_EMOJI_LENGTH, selection);
+                                return;
+                            }
                         }
+                        editChat.getText().delete(selection - 1, selection);
                     }
-                    editChat.getText().delete(selection - 1, selection);
+                }catch (Exception e){
+                    LogUtil.writeError(e);
                 }
             }
         });
@@ -3705,9 +3709,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
             menus.add(new OptionMenu("转发"));
         }
-        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanReply(type)) {
-            menus.add(new OptionMenu("回复"));
-        }
+//        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanReply(type)) {
+//            menus.add(new OptionMenu("回复"));
+//        }
         menus.add(new OptionMenu("删除"));
         switch (type) {
             case ChatEnum.EMessageType.TEXT:

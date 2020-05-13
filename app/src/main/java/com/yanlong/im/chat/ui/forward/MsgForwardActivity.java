@@ -30,12 +30,12 @@ import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.ReplyMessage;
 import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.eventbus.AckEvent;
-import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.tcp.TcpConnection;
 import com.yanlong.im.chat.ui.forward.vm.ForwardViewModel;
@@ -898,6 +898,28 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 }
                 isSingleSelected = true;
             }
+        } else if (msgAllBean.getReplyMessage() != null) { //回复消息
+            if (isSingleSelected) {
+                ReplyMessage replyMessage = msgAllBean.getReplyMessage();
+                replyMessage.setMsgId(SocketData.getUUID());
+                MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.REPLY, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), replyMessage);
+                if (allBean != null) {
+                    sendMessage(allBean);
+                }
+                sendLeaveMessage(content, toUid, toGid);
+            } else {
+                for (int i = 0; i < moreSessionBeanList.size(); i++) {
+                    MoreSessionBean bean = moreSessionBeanList.get(i);
+                    ReplyMessage replyMessage = msgAllBean.getReplyMessage();
+                    replyMessage.setMsgId(SocketData.getUUID());
+                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), ChatEnum.EMessageType.REPLY, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), replyMessage);
+                    if (allBean != null) {
+                        sendMessage(allBean);
+                    }
+                    sendLeaveMessage(content, bean.getUid(), bean.getGid());
+                }
+                isSingleSelected = true;
+            }
         }
     }
 
@@ -1008,7 +1030,20 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         filePath = FileUtils.getFilePathByUri(MsgForwardActivity.this, uri);
                         if (TextUtils.isEmpty(filePath)) {
                             ToastUtil.show("路径解析异常，分享失败");
-                        }
+                        } /*else {
+                            if (mediaType == CxMediaMessage.EMediaType.IMAGE) {
+                                ImgSizeUtil.ImageSize imgSize = ImgSizeUtil.getAttribute(filePath);
+                                if (imgSize == null) {
+                                    filePath = "";
+                                    return;
+                                } else {
+                                    if (imgSize.getWidth() > 4096 || imgSize.getHeight() > 4096) {
+                                        filePath = "";
+                                        ToastUtil.show("图片过大，发送失败");
+                                    }
+                                }
+                            }
+                        }*/
                     } else if (model == ChatEnum.EForwardMode.SYS_SEND_MULTI) {
                         List<Uri> uriList = extras.getParcelableArrayList(Intent.EXTRA_STREAM);
                         shareUrls = FileUtils.getUrisForList(MsgForwardActivity.this, uriList);

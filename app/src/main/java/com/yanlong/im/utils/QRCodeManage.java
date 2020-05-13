@@ -67,7 +67,7 @@ public class QRCodeManage {
     public static final String DOWNLOAD_APP_URL = "https://www.zln365.com"; //下载地址
     public static final String PC_LOGIN_URL = "cx://login/"; //扫码登录地址
     private static String code = "";//扫码后的code
-    private static String synck = "0";//是否同步  1同步 0不同步
+    private static String synck = "1";//是否同步  1同步 0不同步  默认改为同步
 
 
     /**
@@ -316,7 +316,6 @@ public class QRCodeManage {
      * 扫码登录弹框(特殊样式/暂不复用/加底部弹出动画效果)
      */
     private static void showSweepCodeLoginDialog(Activity activity) {
-        synck = "0";
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setCancelable(true);
         final AlertDialog dialog = dialogBuilder.create();
