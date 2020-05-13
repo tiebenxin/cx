@@ -112,9 +112,9 @@
                             android:maxWidth="210dp"
                             android:selectAllOnFocus="true"
                             android:text=""
-                            android:textColor="@color/black"
+                            android:textColor="@color/c_259048"
                             android:textIsSelectable="false"
-                            android:textSize="15sp" />
+                            android:textSize="13sp" />
 
                         <android.support.v7.widget.AppCompatTextView
                             android:id="@+id/tv_ref_msg"
@@ -127,11 +127,14 @@
                             android:maxWidth="210dp"
                             android:selectAllOnFocus="true"
                             android:text=""
-                            android:textColor="@color/black"
+                            android:textColor="@color/c_727272"
                             android:textIsSelectable="false"
-                            android:textSize="15sp" />
+                            android:textSize="11sp" />
 
-                        <View style="@style/app_line" />
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1px"
+                            android:background="@color/c_259048" />
 
                         <android.support.v7.widget.AppCompatTextView
                             android:id="@+id/tv_content"

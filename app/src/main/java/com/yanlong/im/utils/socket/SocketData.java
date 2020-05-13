@@ -507,8 +507,8 @@ public class SocketData {
             case SEND_FILE://文件
                 wrap.setSendFile((MsgBean.SendFileMessage) value);
                 break;
-            case REPLY://消息回复
-                wrap.setReply((MsgBean.ReplyMessage) value);
+            case REPLY_SPECIFIC://消息回复
+                wrap.setReply((MsgBean.ReplySpecificMessage) value);
                 break;
             case UNRECOGNIZED:
                 break;
@@ -523,6 +523,29 @@ public class SocketData {
     private static boolean msgSendSave4filter(MsgBean.UniversalMessage.WrapMessage.Builder wmsg) {
         if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER || wmsg.getMsgType() == MsgBean.MessageType.P2P_AU_VIDEO_DIAL
                 || wmsg.getMsgType() == MsgBean.MessageType.TAKE_SCREENSHOT || wmsg.getMsgType() == MsgBean.MessageType.READ) {
+            return false;
+        }
+        return true;
+    }
+
+    /***
+     * 过滤不需要存储消息
+     * @return false 需要忽略
+     */
+    private static boolean filterNoSaveMsg(@ChatEnum.EMessageType int msgType) {
+        if (msgType == ChatEnum.EMessageType.MSG_VOICE_VIDEO_NOTICE || msgType == ChatEnum.EMessageType.READ) {
+            return false;
+        }
+        return true;
+    }
+
+    /*
+     * 过滤发送失败后不需要存储消息
+     *
+     * */
+    public static boolean filterNoSaveMsgForFailed(@ChatEnum.EMessageType int msgType) {
+        if (msgType == ChatEnum.EMessageType.MSG_VOICE_VIDEO_NOTICE || msgType == ChatEnum.EMessageType.READ
+                || msgType == ChatEnum.EMessageType.UNRECOGNIZED || msgType == ChatEnum.EMessageType.MSG_CANCEL) {
             return false;
         }
         return true;
@@ -1403,6 +1426,17 @@ public class SocketData {
         return message;
     }
 
+    /**
+     * 双向删除
+     */
+    public static MsgAllBean send4TwoWayClean(Long toId, long timestamp) {
+        MsgBean.ReadMessage msg = MsgBean.ReadMessage.newBuilder()
+                .setTimestamp(timestamp)
+                .build();
+        LogUtil.writeLog(">>>双向删除 toId:" + toId + " timestamp:" + timestamp);
+        return send4Base(false, toId, null, MsgBean.MessageType.HISTORY_CLEAN, msg);
+    }
+
     public static void saveMessage(MsgAllBean bean) {
         DaoUtil.update(bean);
         if (msgDao == null) {
@@ -1414,21 +1448,29 @@ public class SocketData {
 
     //端到端加密消息
     public static MsgAllBean createMessageLock(String gid, Long uid) {
-        MsgAllBean bean = new MsgAllBean();
-        if (!TextUtils.isEmpty(gid)) {
-            bean.setGid(gid);
-            bean.setFrom_uid(UserAction.getMyInfo().getUid());
-        } else if (uid != null) {
-            bean.setFrom_uid(uid);
-        } else {
-            return null;
+        MsgAllBean bean = null;
+        try {
+            if (UserAction.getMyInfo() != null) {
+                bean = new MsgAllBean();
+                if (!TextUtils.isEmpty(gid)) {
+                    bean.setGid(gid);
+                    bean.setFrom_uid(UserAction.getMyInfo().getUid());
+                } else if (uid != null) {
+                    bean.setFrom_uid(UserAction.getMyInfo().getUid());
+                    bean.setTo_uid(uid);
+                } else {
+                    return null;
+                }
+                bean.setMsg_type(ChatEnum.EMessageType.LOCK);
+                bean.setMsg_id(SocketData.getUUID());
+                bean.setIsLocal(1);
+                bean.setTimestamp(0L);
+                ChatMessage message = SocketData.createChatMessage(bean.getMsg_id(), getNoticeString(bean, ChatEnum.ENoticeType.LOCK));
+                bean.setChat(message);
+            }
+        } catch (Exception e) {
+            bean = null;
         }
-        bean.setMsg_type(ChatEnum.EMessageType.LOCK);
-        bean.setMsg_id(SocketData.getUUID());
-        bean.setIsLocal(1);
-        bean.setTimestamp(0L);
-        ChatMessage message = SocketData.createChatMessage(bean.getMsg_id(), getNoticeString(bean, ChatEnum.ENoticeType.LOCK));
-        bean.setChat(message);
         return bean;
     }
 
@@ -1494,10 +1536,10 @@ public class SocketData {
         if (msgAllBean != null) {
             SendList.removeMsgFromSendSequence(ackMessage.getRequestId());
             SendList.removeSendListJust(ackMessage.getRequestId());
+            if (!filterNoSaveMsg(msgAllBean.getMsg_type())) {
+                return msgAllBean;
+            }
             if (isSuccess) {
-                if (msgAllBean.getMsg_type() == ChatEnum.EMessageType.READ) {
-                    return msgAllBean;
-                }
                 msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
                 if (msgAllBean.getVideoMessage() != null && !TextUtils.isEmpty(videoLocalUrl)) {
                     msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
@@ -1527,7 +1569,8 @@ public class SocketData {
                         gids.add(msgAllBean.getGid());
                     }
                     //回主线程调用更新session详情
-                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+                    if (MyAppLication.INSTANCE().repository != null)
+                        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
                     /********通知更新sessionDetail end************************************/
                 }
             } else {
@@ -1875,7 +1918,7 @@ public class SocketData {
                     break;
                 case ChatEnum.EMessageType.REPLY:
                     ReplyMessage replyMessage = bean.getReplyMessage();
-                    MsgBean.ReplyMessage.Builder replyBuild = MsgBean.ReplyMessage.newBuilder();
+                    MsgBean.ReplySpecificMessage.Builder replyBuild = MsgBean.ReplySpecificMessage.newBuilder();
                     boolean isValid;
                     QuotedMessage quotedMessage = replyMessage.getQuotedMessage();
                     MsgBean.RefMessage.Builder refBuild = MsgBean.RefMessage.newBuilder();
@@ -1883,28 +1926,31 @@ public class SocketData {
                     refBuild.setFromUid(quotedMessage.getFromUid());
                     refBuild.setAvatar(quotedMessage.getAvatar());
                     refBuild.setNickname(quotedMessage.getNickName());
-                    refBuild.setMsgType(getMessageType(quotedMessage.getMsgType()));
-                    refBuild.setTimestamp(quotedMessage.getTimestamp());
-                    refBuild.setMsg(quotedMessage.getMsg());
-                    refBuild.setUrl(quotedMessage.getUrl());
-                    replyBuild.setRefMsg(refBuild.build());
-                    if (replyMessage.getChatMessage() != null) {
-                        MsgBean.ChatMessage.Builder txtReplyBuilder = MsgBean.ChatMessage.newBuilder();
-                        txtReplyBuilder.setMsg(replyMessage.getChatMessage().getMsg());
-                        replyBuild.setChatMsg(txtReplyBuilder.build());
-                        isValid = true;
-                    } else if (replyMessage.getAtMessage() != null) {
-                        AtMessage atMessage = replyMessage.getAtMessage();
-                        MsgBean.AtMessage.Builder atReplyBuilder = MsgBean.AtMessage.newBuilder();
-                        atReplyBuilder.setAtTypeValue(atMessage.getAt_type()).setMsg(atMessage.getMsg()).addAllUid(atMessage.getUid());
-                        replyBuild.setAtMsg(atReplyBuilder.build());
-                        isValid = true;
-                    } else {
-                        isValid = false;
-                    }
-                    if (isValid) {
-                        value = replyBuild.build();
-                        type = MsgBean.MessageType.REPLY;
+                    MsgBean.MessageType messageType = getMessageType(quotedMessage.getMsgType());
+                    if (messageType != MsgBean.MessageType.UNRECOGNIZED) {
+                        refBuild.setMsgType(messageType);
+                        refBuild.setTimestamp(quotedMessage.getTimestamp());
+                        refBuild.setMsg(quotedMessage.getMsg());
+                        refBuild.setUrl(quotedMessage.getUrl());
+                        replyBuild.setRefMsg(refBuild.build());
+                        if (replyMessage.getChatMessage() != null) {
+                            MsgBean.ChatMessage.Builder txtReplyBuilder = MsgBean.ChatMessage.newBuilder();
+                            txtReplyBuilder.setMsg(replyMessage.getChatMessage().getMsg());
+                            replyBuild.setChatMsg(txtReplyBuilder.build());
+                            isValid = true;
+                        } else if (replyMessage.getAtMessage() != null) {
+                            AtMessage atMessage = replyMessage.getAtMessage();
+                            MsgBean.AtMessage.Builder atReplyBuilder = MsgBean.AtMessage.newBuilder();
+                            atReplyBuilder.setAtTypeValue(atMessage.getAt_type()).setMsg(atMessage.getMsg()).addAllUid(atMessage.getUid());
+                            replyBuild.setAtMsg(atReplyBuilder.build());
+                            isValid = true;
+                        } else {
+                            isValid = false;
+                        }
+                        if (isValid) {
+                            value = replyBuild.build();
+                            type = MsgBean.MessageType.REPLY_SPECIFIC;
+                        }
                     }
                     break;
             }
@@ -2100,6 +2146,9 @@ public class SocketData {
             case VOICE:
                 messageType = ChatEnum.EMessageType.VOICE;
                 break;
+            case AT:
+                messageType = ChatEnum.EMessageType.AT;
+                break;
             case ASSISTANT:
                 messageType = ChatEnum.EMessageType.ASSISTANT;
                 break;
@@ -2115,7 +2164,7 @@ public class SocketData {
             case SHIPPED_EXPRESSION:
                 messageType = ChatEnum.EMessageType.SHIPPED_EXPRESSION;
                 break;
-            case REPLY:
+            case REPLY_SPECIFIC:
                 messageType = ChatEnum.EMessageType.REPLY;
                 break;
             case BALANCE_ASSISTANT:
@@ -2153,6 +2202,9 @@ public class SocketData {
             case ChatEnum.EMessageType.VOICE:
                 messageType = MsgBean.MessageType.VOICE;
                 break;
+            case ChatEnum.EMessageType.AT:
+                messageType = MsgBean.MessageType.AT;
+                break;
             case ChatEnum.EMessageType.ASSISTANT:
                 messageType = MsgBean.MessageType.ASSISTANT;
                 break;
@@ -2169,7 +2221,7 @@ public class SocketData {
                 messageType = MsgBean.MessageType.SHIPPED_EXPRESSION;
                 break;
             case ChatEnum.EMessageType.REPLY:
-                messageType = MsgBean.MessageType.REPLY;
+                messageType = MsgBean.MessageType.REPLY_SPECIFIC;
                 break;
             case ChatEnum.EMessageType.BALANCE_ASSISTANT:
                 messageType = MsgBean.MessageType.BALANCE_ASSISTANT;

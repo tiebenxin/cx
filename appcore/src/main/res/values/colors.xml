@@ -118,4 +118,9 @@
     <!--截屏通知-->
     <color name="c_3972a1">#3972a1</color>
 
+    <!--单条消息回复-->
+    <color name="c_259048">#259048</color>
+    <color name="c_727272">#727272</color>
+    <color name="c_848484">#848484</color>
+
 </resources>

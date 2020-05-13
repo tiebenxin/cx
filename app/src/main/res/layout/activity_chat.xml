@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/headView"
     android:layout_width="match_parent"
-    android:fitsSystemWindows="false"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="false"
     app:headview_title="聊天">
 
     <LinearLayout
@@ -28,7 +28,8 @@
 
             <include
                 android:id="@+id/viewNewMessage"
-                layout="@layout/layout_new_msg" />
+                layout="@layout/layout_new_msg"
+                android:visibility="gone" />
 
 
         </RelativeLayout>
@@ -51,9 +52,15 @@
                     android:id="@+id/view_chat_bottom_c"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:visibility="visible"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:visibility="visible">
 
+                    <include
+                        android:id="@+id/viewReply"
+                        layout="@layout/layout_reply_msg"
+                        android:visibility="gone" />
+
+                    <!-- 输入框-->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -186,22 +193,22 @@
                     android:id="@+id/ll_more"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:visibility="gone"
-                    android:gravity="center_vertical">
+                    android:visibility="gone">
 
                     <ImageView
                         android:id="@+id/iv_delete"
                         android:layout_width="0dp"
-                        android:layout_weight="1"
                         android:layout_height="match_parent"
+                        android:layout_weight="1"
                         android:src="@mipmap/ic_add" />
 
                     <ImageView
                         android:id="@+id/iv_forward"
                         android:layout_width="0dp"
-                        android:layout_weight="1"
                         android:layout_height="match_parent"
+                        android:layout_weight="1"
                         android:src="@mipmap/ic_add" />
 
 
@@ -211,10 +218,10 @@
                     android:id="@+id/tv_ban"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
+                    android:background="#c4cccf"
                     android:gravity="center"
                     android:text="你已经被移除群聊，无法发送消息"
                     android:textColor="#707070"
-                    android:background="#c4cccf"
                     android:textSize="15sp"
                     android:visibility="gone" />
 

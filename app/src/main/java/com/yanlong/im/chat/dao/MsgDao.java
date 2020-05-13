@@ -564,6 +564,68 @@ public class MsgDao {
         return groupInfoBean;
     }
 
+    /***双向删除
+     * 删除好友某时间戳之前的聊天记录-单聊
+     * @param fromUid 发的指令对方
+     * @param beforeTimestamp 最后时间戳
+     */
+    public void msgDel(Long fromUid, long beforeTimestamp) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            RealmResults<MsgAllBean> list = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
+                    .and()
+                    .beginGroup().equalTo("from_uid", fromUid).or().equalTo("to_uid", fromUid).endGroup()
+                    .lessThan("timestamp", beforeTimestamp)
+                    .findAll();
+
+
+//            //因为msg对象 uid有两个，都得添加
+            List<Long> uids = new ArrayList<Long>();
+
+            int deleteUnReadCount = 0;
+            //删除前先把子表数据干掉!!切记
+            if (list != null) {
+                for (MsgAllBean msg : list) {
+                    if (!msg.isRead()) {
+                        deleteUnReadCount++;
+                    }
+                    uids.add(msg.getTo_uid());
+                    uids.add(msg.getFrom_uid());
+                    deleteRealmMsg(msg);
+                }
+                list.deleteAllFromRealm();
+
+                if (deleteUnReadCount > 0) {
+                    /***更新未读数-Session更新，自动会更新sessionDetail****/
+                    Session session = realm.where(Session.class)
+                            .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                            .and()
+                            .beginGroup().equalTo("from_uid", fromUid).or().equalTo("from_uid", new UserAction().getMyInfo().getUid()).endGroup()
+                            .findFirst();
+                    int unreadCount = session.getUnread_count() - deleteUnReadCount;
+                    session.setUnread_count(unreadCount > 0 ? unreadCount : 0);
+                }
+
+                realm.commitTransaction();
+                //更新session
+                if (uids.size() > 0 && deleteUnReadCount == 0) {//没有更新session,则需手动更新sessiondetail
+                    /********通知更新sessionDetail************************************/
+                    MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
+                }
+            }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+
+    }
+
     /***
      * 删除聊天记录
      * @param toUid
@@ -609,7 +671,8 @@ public class MsgDao {
                     }
                 }
                 //调用清除session详情
-                MyAppLication.INSTANCE().repository.clearSessionDetailContent(gids, uids);
+                if (MyAppLication.INSTANCE().repository != null)
+                    MyAppLication.INSTANCE().repository.clearSessionDetailContent(gids, uids);
                 list.deleteAllFromRealm();
             }
             realm.commitTransaction();
@@ -666,7 +729,8 @@ public class MsgDao {
 
         /********通知更新sessionDetail************************************/
         //回主线程调用更新session详情
-        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        if (MyAppLication.INSTANCE().repository != null)
+            MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
         /********通知更新sessionDetail end************************************/
     }
 
@@ -743,7 +807,8 @@ public class MsgDao {
                 gids.add(msgAllBean.getGid());
             }
             //回主线程调用更新session详情
-            MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+            if (MyAppLication.INSTANCE().repository != null)
+                MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
             /********通知更新sessionDetail end************************************/
         }
 
@@ -1039,7 +1104,9 @@ public class MsgDao {
                     session.setGid(bean.getGid());
                     session.setType(1);
                     Group group = realm.where(Group.class).equalTo("gid", bean.getGid()).findFirst();
+                    realm.beginTransaction();
                     if (group != null) {
+                        //因getIsTop有写入操作，beginTransaction得写在前面
                         session.setIsTop(group.getIsTop());
                         session.setIsMute(group.getNotNotify());
                     }
@@ -1049,14 +1116,16 @@ public class MsgDao {
                     session.setFrom_uid(bean.getTo_uid());
                     session.setType(0);
                     UserInfo user = realm.where(UserInfo.class).equalTo("uid", bean.getTo_uid()).findFirst();
+                    realm.beginTransaction();
                     if (user != null) {
+                        //因getIsTop有写入操作，beginTransaction得写在前面
                         session.setIsTop(user.getIstop());
                         session.setIsMute(user.getDisturb());
                     }
                 }
                 session.setUnread_count(0);
                 session.setUp_time(System.currentTimeMillis());
-                realm.beginTransaction();
+
                 realm.insertOrUpdate(session);
                 realm.commitTransaction();
             }
@@ -1745,6 +1814,8 @@ public class MsgDao {
                     .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                     .and()
                     .beginGroup().equalTo("from_uid", uid).endGroup()
+                    .and()
+                    .beginGroup().equalTo("isLocal", 0).endGroup()
                     .sort("timestamp", Sort.DESCENDING).findFirst();
             if (bean != null) {
                 ret = realm.copyFromRealm(bean);
@@ -2505,7 +2576,8 @@ public class MsgDao {
             gids.add(msgAllBean.getGid());
         }
         //回主线程调用更新session详情
-        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        if (MyAppLication.INSTANCE().repository != null)
+            MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
         /********通知更新sessionDetail end************************************/
         return msgAllBean;
     }
@@ -3511,7 +3583,8 @@ public class MsgDao {
         }
         /********通知更新sessionDetail************************************/
         //回主线程调用更新session详情
-        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        if (MyAppLication.INSTANCE().repository != null)
+            MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
         /********通知更新sessionDetail end************************************/
         return false;
 
@@ -3667,8 +3740,8 @@ public class MsgDao {
             Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
             if (group != null) {
                 group.setStat(value);
+                result = realm.copyFromRealm(group);
             }
-            result = realm.copyFromRealm(group);
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
@@ -3676,6 +3749,39 @@ public class MsgDao {
             DaoUtil.reportException(e);
         }
         return result;
+    }
+
+    //获取该会话正在被回复消息
+    public MsgAllBean getReplyingMsg(String gid, Long uid) {
+        MsgAllBean ret = null;
+        Realm realm = DaoUtil.open();
+        try {
+            MsgAllBean bean;
+            if (TextUtils.isEmpty(gid)) {
+                bean = realm.where(MsgAllBean.class)
+                        .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                        .and()
+                        .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                        .and()
+                        .beginGroup().equalTo("isReplying", 1).endGroup()
+                        .findFirst();
+            } else {
+                bean = realm.where(MsgAllBean.class)
+                        .beginGroup().equalTo("gid", gid).endGroup()
+                        .and()
+                        .beginGroup().equalTo("isReplying", 1).endGroup()
+                        .findFirst();
+            }
+            if (bean != null) {
+                ret = realm.copyFromRealm(bean);
+            }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return ret;
     }
 
 

@@ -741,6 +741,12 @@ public class MainActivity extends AppActivity {
 
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        //退出登录-关闭其他页面
+        EventBus.getDefault().post(new String());
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRunState(EventRunState event) {
@@ -827,7 +833,7 @@ public class MainActivity extends AppActivity {
                         gids.add(msgAllbean.getGid());
                     }
                     //回主线程调用更新session详情
-                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+                    if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
                     /********通知更新sessionDetail end************************************/
                 }
             }
@@ -1197,7 +1203,7 @@ public class MainActivity extends AppActivity {
             gids.add(envelopeInfo.getGid());
         }
         //回主线程调用更新session详情
-        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
         /********通知更新sessionDetail end************************************/
     }
 
@@ -1290,7 +1296,6 @@ public class MainActivity extends AppActivity {
                         String country = bdLocation.getCountry();
                         String lat = bdLocation.getLatitude() + "";
                         String lon = bdLocation.getLongitude() + "";
-                        locService.stop();//定位成功后停止定位
                         IUser user=UserAction.getMyInfo();
                         String nickname = user==null? "" : user.getName();
                         String phoneModel = android.os.Build.MODEL;
@@ -1304,6 +1309,8 @@ public class MainActivity extends AppActivity {
                                     LogUtil.getLog().i("TAG", "位置信息上报成功");
                                     //缓存本次调用的时间，24小时以内只需要发一次请求
                                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.POST_LOCATION_TIME).save2Json(DateUtils.getNowFormatTime());
+                                    locService.stop();
+                                    locService.unregisterListener(listener);
                                 }
                             }
 

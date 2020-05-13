@@ -104,6 +104,10 @@ public class FactoryChatCell {
             case REPLY_TEXT_SEND:
                 cell = new ChatCellReplyText(mContext, view, mListener, mAdapter);
                 break;
+            case REPLY_IMAGE_RECEIVED:
+            case REPLY_IMAGE_SEND:
+                cell = new ChatCellReplyImage(mContext, view, mListener, mAdapter);
+                break;
             default:
                 cell = new ChatCellUnrecognized(mContext, view, mListener, mAdapter);
                 break;

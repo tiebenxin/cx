@@ -26,7 +26,7 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
 /*
  * 回复图片消息
  * */
-public class ChatCellReplyImage extends ChatCellBase {
+public class ChatCellReplyImage extends ChatCellImage {
 
     private TextView tv_content, tvRefName;
     private ReplyMessage contentMessage;
@@ -52,7 +52,7 @@ public class ChatCellReplyImage extends ChatCellBase {
     @Override
     protected void showMessage(MsgAllBean message) {
         super.showMessage(message);
-        updateWidth();
+//        updateWidth();
         contentMessage = message.getReplyMessage();
         QuotedMessage quotedMessage = contentMessage.getQuotedMessage();
         tvRefName.setText(quotedMessage.getNickName());
@@ -90,20 +90,28 @@ public class ChatCellReplyImage extends ChatCellBase {
 //        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
         Log.e("raleigh_test", "url=" + url);
         Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(url);
-        if (localBitmap == null) {
-            RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .dontAnimate()
-                    .skipMemoryCache(false)
-                    .centerCrop();
+        RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .dontAnimate()
+                .skipMemoryCache(false)
+                .centerCrop();
+        if (isGif(url)) {
             Glide.with(getContext())
-                    .asBitmap()
                     .load(url)
                     .apply(mRequestOptions)
                     .into(ivImage);
         } else {
-            ivImage.setImageBitmap(localBitmap);
+            if (localBitmap == null) {
+                Glide.with(getContext())
+                        .asBitmap()
+                        .load(url)
+                        .apply(mRequestOptions)
+                        .into(ivImage);
+            } else {
+                ivImage.setImageBitmap(localBitmap);
+            }
         }
+
 
     }
 }

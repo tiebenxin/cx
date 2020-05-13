@@ -590,19 +590,21 @@ public class UserAction {
                        return;
                    if (response.body().isOk()) {
                        myInfo = dao.findUserBean(getMyId());
-                       if (!TextUtils.isEmpty(imid))
-                           myInfo.setImid(imid);
-                       if (!TextUtils.isEmpty(avatar))
-                           myInfo.setHead(avatar);
-                       if (!TextUtils.isEmpty(nickname))
-                           myInfo.setName(nickname);
-                       if (gender != null)
-                           myInfo.setSex(gender);
-                       updateUser2DB(myInfo);
-                       upMyinfoToPay();
+                       if(myInfo!=null) {
+                           if (!TextUtils.isEmpty(imid))
+                               myInfo.setImid(imid);
+                           if (!TextUtils.isEmpty(avatar))
+                               myInfo.setHead(avatar);
+                           if (!TextUtils.isEmpty(nickname))
+                               myInfo.setName(nickname);
+                           if (gender != null)
+                               myInfo.setSex(gender);
+                           updateUser2DB(myInfo);
+                           upMyinfoToPay();
+                       }
                    }
-                   callback.onResponse(call, response);
                }catch (Exception e){}
+                callback.onResponse(call, response);
             }
         });
     }

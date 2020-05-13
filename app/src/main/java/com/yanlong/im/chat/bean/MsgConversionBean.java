@@ -488,6 +488,7 @@ public class MsgConversionBean {
                 }
                 break;
             case AT:
+            case GROUP_ANNOUNCEMENT://群公告
                 if (bean.getAt().getAtType() == MsgBean.AtMessage.AtType.UNRECOGNIZED) {
                     return null;
                 }
@@ -843,11 +844,11 @@ public class MsgConversionBean {
                 readMessage.setTime(bean.getRead().getTimestamp());
                 msgAllBean.setReadMessage(readMessage);
                 break;
-            case REPLY:
+            case REPLY_SPECIFIC:
                 msgAllBean.setMsg_type(EMessageType.REPLY);
                 ReplyMessage replyMessage = new ReplyMessage();
                 replyMessage.setMsgId(bean.getMsgId());
-                MsgBean.ReplyMessage reply = bean.getReply();
+                MsgBean.ReplySpecificMessage reply = bean.getReply();
                 MsgBean.RefMessage refMsg = reply.getRefMsg();
                 QuotedMessage quotedMessage = new QuotedMessage();
                 quotedMessage.setMsgId(refMsg.getMsgId());

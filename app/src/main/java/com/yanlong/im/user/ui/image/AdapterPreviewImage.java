@@ -1,7 +1,6 @@
 package com.yanlong.im.user.ui.image;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -163,11 +162,11 @@ public class AdapterPreviewImage extends PagerAdapter {
         if (!TextUtils.isEmpty(originUrl)) {
             hasRead = msgDao.ImgReadStatGet(originUrl);
         }
-        pbLoading.setVisibility(View.VISIBLE);
+        pbLoading.setVisibility(View.GONE);
         if (isGif && !media.isCompressed()) {
             showGif(media, ivZoom, tvViewOrigin, pbLoading);
         } else {
-            showImage(ivZoom, ivLarge, tvViewOrigin, ivDownload, media, isOriginal, hasRead, isHttp, isLong, pbLoading, llLook);
+            showImage2(ivZoom, ivLarge, tvViewOrigin, ivDownload, media, isOriginal, hasRead, isHttp, isLong, pbLoading, llLook);
         }
 
         //下载
@@ -418,28 +417,29 @@ public class AdapterPreviewImage extends PagerAdapter {
         }
     }
 
-    private void showImage(ZoomImageView ivZoom, LargeImageView ivLarge, TextView tvViewOrigin, ImageView ivDownload, LocalMedia media, boolean isOrigin, boolean hasRead, boolean isHttp, boolean isLong, ProgressBar pbLoading, LinearLayout llLock) {
-        tvViewOrigin.setTag(media.getSize());
-        showViewOrigin(isHttp, isOrigin, hasRead, tvViewOrigin, media.getSize(), llLock);
-        if (isHttp) {
-            if (isOrigin) {
-                if (hasRead) {//原图已读,就显示
-                    String cachePath = PictureFileUtils.getFilePathOfImage(media.getPath(), context);
-                    if (PictureFileUtils.hasImageCache(cachePath, media.getSize())) {
-                        loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
-                        //TODO:不设置Alpha 和 visible 就不能响应手势
-                        ivLarge.setAlpha(0);
-                        ivLarge.setVisibility(View.VISIBLE);
-                        ivLarge.setImage(new FileBitmapDecoderFactory(cachePath));
-                        showZoomView(ivZoom, false);
-                    } else {
-                        loadImage(media.getCompressPath(), ivZoom, true, pbLoading);
-//                        loadLargeImage(media.getPath(), ivLarge, ivZoom);
-                    }
-                } else {
-                    hideLargeImageView(ivLarge);
-                    if (!TextUtils.isEmpty(media.getCutPath()) /*&& (media.getWidth() > 1080 || media.getHeight() > 1920)*/) {
+    /* private void showImage(ZoomImageView ivZoom, LargeImageView ivLarge, TextView tvViewOrigin, ImageView ivDownload, LocalMedia media, boolean isOrigin, boolean hasRead, boolean isHttp, boolean isLong, ProgressBar pbLoading, LinearLayout llLock) {
+         tvViewOrigin.setTag(media.getSize());
+         showViewOrigin(isHttp, isOrigin, hasRead, tvViewOrigin, media.getSize(), llLock);
+         if (isHttp) {
+             if (isOrigin) {
+                 if (hasRead) {//原图已读,就显示
+                     String cachePath = PictureFileUtils.getFilePathOfImage(media.getPath(), context);
+                     if (PictureFileUtils.hasImageCache(cachePath, media.getSize())) {
+                         loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
+                         //TODO:不设置Alpha 和 visible 就不能响应手势
+                         ivLarge.setAlpha(0);
+                         ivLarge.setVisibility(View.VISIBLE);
+                         ivLarge.setImage(new FileBitmapDecoderFactory(cachePath));
+                         showZoomView(ivZoom, false);
+                     } else {
+                         loadImage(media.getCompressPath(), ivZoom, true, pbLoading);
+ //                        loadLargeImage(media.getPath(), ivLarge, ivZoom);
+                     }
+                 } else {
+                     hideLargeImageView(ivLarge);
+                     if (!TextUtils.isEmpty(media.getCutPath()) *//*&& (media.getWidth() > 1080 || media.getHeight() > 1920)*//*) {
                         loadImage(media.getCutPath(), ivZoom, false, pbLoading);
+                        loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
                     } else {
                         loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
                     }
@@ -448,6 +448,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                 hideLargeImageView(ivLarge);
                 ivDownload.setVisibility(View.VISIBLE);
                 loadImage(media.getCutPath(), ivZoom, false, pbLoading);
+                loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
             }
         } else {
             ivDownload.setVisibility(View.VISIBLE);
@@ -479,7 +480,75 @@ public class AdapterPreviewImage extends PagerAdapter {
             if (hasLoadThumbnail) {//加载过缩略图，后隐藏ivZoom
                 showZoomView(ivZoom, false);
             }
-//            System.out.println(TAG + "--ivZoom=" + ivZoom.getVisibility() + "--ivLarge=" + ivLarge.getVisibility());
+        }
+    }
+*/
+    private void showImage2(ZoomImageView ivZoom, LargeImageView ivLarge, TextView tvViewOrigin, ImageView ivDownload, LocalMedia media, boolean isOrigin, boolean hasRead, boolean isHttp, boolean isLong, ProgressBar pbLoading, LinearLayout llLock) {
+        tvViewOrigin.setTag(media.getSize());
+        showViewOrigin(isHttp, isOrigin, hasRead, tvViewOrigin, media.getSize(), llLock);
+        //隐藏大图。因为阿里云限制图片单边不能超过4096，没有必要再用大图显示控件了
+        hideLargeImageView(ivLarge);
+        showZoomView(ivZoom, true);
+        if (isHttp) {
+            if (isOrigin) {
+                if (hasRead) {//原图已读,就显示
+                    String cachePath = PictureFileUtils.getFilePathOfImage(media.getPath(), context);
+                    if (PictureFileUtils.hasImageCache(cachePath, media.getSize())) {
+                        loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
+                        ivZoom.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                loadImage(cachePath, ivZoom, false, pbLoading);
+                            }
+                        }, 50);
+                        showZoomView(ivZoom, true);
+                    } else {
+                        loadImage(media.getCompressPath(), ivZoom, true, pbLoading);
+                    }
+                } else {
+                    if (!TextUtils.isEmpty(media.getCutPath())) {
+                        loadImage(media.getCutPath(), ivZoom, false, pbLoading);
+                        loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
+                    } else {
+                        loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
+                    }
+                }
+            } else {
+                ivDownload.setVisibility(View.VISIBLE);
+                loadImage(media.getCutPath(), ivZoom, false, pbLoading);
+                //延时加载预览图
+                ivZoom.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
+                    }
+                }, 50);
+            }
+        } else {
+            ivDownload.setVisibility(View.VISIBLE);
+            boolean hasLoadThumbnail = false;
+            String url = !TextUtils.isEmpty(media.getPath()) ? media.getPath() : media.getCompressPath();
+            if ((media.getWidth() > 1080 || media.getHeight() > 1920)) {
+                loadImageThumbnail(url, ivZoom, pbLoading);
+                hasLoadThumbnail = true;
+            }
+            if (!hasLoadThumbnail) {//没加载过缩略图，先隐藏ivZoom
+                showZoomView(ivZoom, true);
+            }
+            if (hasLoadThumbnail) {//图片过大需要加载缩略图
+                if (!TextUtils.isEmpty(media.getPath())) {
+                    loadImage(media.getPath(), ivZoom, false, pbLoading);
+                } else {
+                    loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
+                }
+            } else {
+                showZoomView(ivZoom, true);
+                loadImage(url, ivZoom, true, pbLoading);
+
+            }
+            if (hasLoadThumbnail) {//加载过缩略图，后隐藏ivZoom
+                showZoomView(ivZoom, true);
+            }
         }
     }
 
@@ -561,7 +630,9 @@ public class AdapterPreviewImage extends PagerAdapter {
                         @Override
                         public void onLoadFailed(@Nullable Drawable errorDrawable) {
                             super.onLoadFailed(errorDrawable);
-                            pbLoading.setVisibility(View.GONE);
+                            if (pbLoading != null) {
+                                pbLoading.setVisibility(View.GONE);
+                            }
                             ivZoom.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
@@ -573,10 +644,10 @@ public class AdapterPreviewImage extends PagerAdapter {
 
                         @Override
                         public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-//                        dismissDialog();
-//                            System.out.println(TAG + "--ivZoom=" + resource.getWidth() + "--" + resource.getHeight());
                             ivZoom.setImageBitmap(resource);
-                            pbLoading.setVisibility(View.GONE);
+                            if (pbLoading != null) {
+                                pbLoading.setVisibility(View.GONE);
+                            }
                         }
                     });
         } else {
@@ -591,8 +662,9 @@ public class AdapterPreviewImage extends PagerAdapter {
                         @Override
                         public void onLoadFailed(@Nullable Drawable errorDrawable) {
                             super.onLoadFailed(errorDrawable);
-                            pbLoading.setVisibility(View.GONE);
-//                        dismissDialog();
+                            if (pbLoading != null) {
+                                pbLoading.setVisibility(View.GONE);
+                            }
                             ivZoom.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
@@ -604,10 +676,10 @@ public class AdapterPreviewImage extends PagerAdapter {
 
                         @Override
                         public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-//                        dismissDialog();
-//                            System.out.println(TAG + "--ivZoom=" + resource.getWidth() + "--" + resource.getHeight());
                             ivZoom.setImageBitmap(resource);
-                            pbLoading.setVisibility(View.GONE);
+                            if (pbLoading != null) {
+                                pbLoading.setVisibility(View.GONE);
+                            }
                         }
                     });
         }
@@ -691,12 +763,13 @@ public class AdapterPreviewImage extends PagerAdapter {
 //                                    showGif(ivZoom, tvViewOrigin, file.getAbsolutePath());
 //                                    hideLargeImageView(ivLarge);
                                 } else {
-                                    ivLarge.setAlpha(0);
-                                    ivLarge.setVisibility(View.VISIBLE);
+//                                    ivLarge.setAlpha(0);
+//                                    ivLarge.setVisibility(View.VISIBLE);
                                     setDownloadProgress(tvViewOrigin, 100, llLook);
                                     ivDownload.setEnabled(true);
-                                    ivLarge.setImage(new FileBitmapDecoderFactory(file.getAbsolutePath()));
-                                    showZoomView(ivZoom, false);
+//                                    ivLarge.setImage(new FileBitmapDecoderFactory(file.getAbsolutePath()));
+                                    loadImage(file.getAbsolutePath(), ivZoom, true, null);
+                                    showZoomView(ivZoom, true);
 //                                loadLargeImage(file.getAbsolutePath(), ivLarge);
                                     MyDiskCacheUtils.getInstance().putFileNmae(filePath, fileSave.getAbsolutePath());
                                 }
@@ -785,6 +858,8 @@ public class AdapterPreviewImage extends PagerAdapter {
                         if (msgAllBean != null) {
                             context.startActivity(new Intent(context, MsgForwardActivity.class)
                                     .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
+                        } else {
+                            ToastUtil.show("消息已被删除或者被焚毁，不能转发");
                         }
                     } else {
                         //TODO:无消息id，要不要自己新建一条消息记录，然后发出去？
@@ -800,6 +875,8 @@ public class AdapterPreviewImage extends PagerAdapter {
                     Bundle bundle = new Bundle();
                     bundle.putString("imgpath", media.getCompressPath());
                     bundle.putString("msg_id", msgId);
+                    bundle.putInt("img_width", media.getWidth());
+                    bundle.putInt("img_height", media.getHeight());
                     intent.putExtras(bundle);
                     context.startActivityForResult(intent, PictureExternalPreviewActivity.IMG_EDIT);
                 }

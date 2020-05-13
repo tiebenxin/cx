@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.yanlong.im.R;
@@ -60,18 +61,28 @@ public class ChatCellExpress extends ChatCellFileBase {
         }
         checkSendStatus();
         resetSize();
-        if (FaceView.map_FaceEmoji != null && FaceView.map_FaceEmoji.get(contentMessage.getId()) != null) {
+        if (FaceView.map_FaceEmoji != null && FaceView.map_FaceEmoji.get
+                (contentMessage.getId()) != null) {
             uri = FaceView.map_FaceEmoji.get(contentMessage.getId()).toString();
             imageView.setVisibility(VISIBLE);
-            glide(options, Integer.parseInt(FaceView.map_FaceEmoji.get(contentMessage.getId()).toString()));
+            glide(options, Integer.parseInt(FaceView.map_FaceEmoji.get(contentMessage.getId()).toString()),isGif(contentMessage.getId()));
         } else {
             imageView.setVisibility(View.GONE);
         }
     }
 
-    public void glide(RequestOptions rOptions, int id) {
+    public void glide(RequestOptions rOptions, int id,boolean isGif) {
         //TODO 因目前都是静态图片，以后若有动图，需再调整这边逻辑
-        imageView.setImageResource(id);
+        if(isGif){
+            imageView.setImageResource(id);
+            Glide.with(getContext())
+                    .asGif()
+                    .load(id)
+                    .into(imageView);
+        }else{
+            imageView.setImageResource(id);
+        }
+
     }
 
 

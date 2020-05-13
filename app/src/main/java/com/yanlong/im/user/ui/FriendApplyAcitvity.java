@@ -309,7 +309,7 @@ public class FriendApplyAcitvity extends AppActivity {
                     List<String> gids = new ArrayList<>();
                     gids.add(gid);
                     //回主线程调用更新session详情
-                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
+                    if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
                     /********通知更新sessionDetail end************************************/
                 }
             }
