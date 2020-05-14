@@ -15,7 +15,7 @@ public class CollectionInfo extends RealmObject {
     private long fromUid;//来源：用户id
     private String fromUsername;//来源：用户名称
     private long id;//数据id
-    @ChatEnum.ECollectType
+    @ChatEnum.EMessageType
     private int type;//消息类型
 
     public String getMsgId() {
