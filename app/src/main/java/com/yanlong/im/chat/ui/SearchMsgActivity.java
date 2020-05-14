@@ -26,6 +26,7 @@ import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.EventFindHistory;
+import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
@@ -155,6 +156,12 @@ public class SearchMsgActivity extends AppActivity {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    holder.itemView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            InputUtil.hideKeyboard(edtSearch);
+                        }
+                    },10);
                     EventFindHistory eventFindHistory = new EventFindHistory();
                     eventFindHistory.setStime(msgbean.getTimestamp());
                     EventBus.getDefault().post(eventFindHistory);
