@@ -728,6 +728,9 @@ public class AdapterPreviewImage extends PagerAdapter {
         if (TextUtils.isEmpty(originUrl)) {
             return;
         }
+        if (tvViewOrigin == null) {
+            return;
+        }
         tvViewOrigin.postDelayed(new Runnable() {
             @Override
             public void run() {
