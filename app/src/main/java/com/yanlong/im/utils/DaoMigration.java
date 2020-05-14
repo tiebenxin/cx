@@ -617,7 +617,11 @@ public class DaoMigration implements RealmMigration {
                 .addField("fileURL",String.class)
                 .addField("fileName",String.class)
                 .addField("fileFormat",String.class)
-                .addField("fileSize",long.class);
+                .addField("fileSize",long.class)
+                .addField("collectLocalPath",String.class)
+                .addField("collectIsFromOther",boolean.class)
+                .addField("collectRealFileRename",String.class);
+
         schema.create("CollectShippedExpressionMessage")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
                 .addField("expression",String.class);
