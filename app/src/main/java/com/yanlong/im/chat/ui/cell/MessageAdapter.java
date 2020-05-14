@@ -332,8 +332,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
     public void onDestroy() {
         //清除计时器，避免内存溢出
         for (Disposable timer : mTimers.values()) {
-            timer.dispose();
-            timer = null;
+            if(!timer.isDisposed())timer.dispose();
         }
         mMsgIdPositions.clear();
         mMsgIdPositions = null;
