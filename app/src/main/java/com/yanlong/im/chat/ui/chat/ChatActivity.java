@@ -5758,11 +5758,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             if (fileMessage.getSize() != 0) {
                                 //小于10M，自动下载+打开
                                 if (fileMessage.getSize() < 10485760) {
-                                    ToastUtil.show("检测到该文件来源于PC端，本地即将开启下载");
                                     DownloadFile(fileMessage);
                                 } else {
                                     //大于10M，跳详情，用户自行选择手动下载
-                                    ToastUtil.show("检测到该文件来源于PC端，请点击下载");
                                     Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
                                     intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
                                     startActivity(intent);

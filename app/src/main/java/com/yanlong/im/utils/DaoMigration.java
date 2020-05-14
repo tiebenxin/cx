@@ -611,8 +611,7 @@ public class DaoMigration implements RealmMigration {
                 .addField("lon",int.class)
                 .addField("addr",String.class)
                 .addField("addressDesc",String.class)
-                .addField("img",String.class)
-                .addField("colletDistance",long.class);
+                .addField("img",String.class);
         schema.create("CollectSendFileMessage")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
                 .addField("fileURL",String.class)
