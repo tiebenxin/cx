@@ -716,41 +716,42 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             } else {
                 //图片 视频 表情 不方便搜索
                 if (!TextUtils.isEmpty(collectionInfo.getData())) {
-                    MsgAllBean bean = new Gson().fromJson(collectionInfo.getData(), MsgAllBean.class);
                     int msgType = CommonUtils.transformMsgType(collectionInfo.getType());
                     if (msgType == ChatEnum.EMessageType.TEXT) { //文字
-                        if (bean.getChat() != null) {
-                            if (!TextUtils.isEmpty(bean.getChat().getMsg())) {
-                                if (bean.getChat().getMsg().contains(key)) {
-                                    searchCollectList.add(collectionInfo);
-                                }
+                        CollectChatMessage bean1 = new Gson().fromJson(collectionInfo.getData(), CollectChatMessage.class);
+                        if (bean1 != null) {
+                            if (bean1.getMsg().contains(key)) {
+                                searchCollectList.add(collectionInfo);
                             }
                         }
                     } else if (msgType == ChatEnum.EMessageType.LOCATION) { //位置
-                        if (bean.getLocationMessage() != null) {
-                            if (!TextUtils.isEmpty(bean.getLocationMessage().getAddress())) {
-                                if (bean.getLocationMessage().getAddress().contains(key)) {
+                        CollectLocationMessage bean2 = new Gson().fromJson(collectionInfo.getData(), CollectLocationMessage.class);
+                        if (bean2 != null) {
+                            if (!TextUtils.isEmpty(bean2.getAddr())) {
+                                if (bean2.getAddr().contains(key)) {
                                     searchCollectList.add(collectionInfo);
                                 }
                             }
-                            if (!TextUtils.isEmpty(bean.getLocationMessage().getAddressDescribe())) {
-                                if (bean.getLocationMessage().getAddressDescribe().contains(key)) {
+                            if (!TextUtils.isEmpty(bean2.getAddressDesc())) {
+                                if (bean2.getAddressDesc().contains(key)) {
                                     searchCollectList.add(collectionInfo);
                                 }
                             }
                         }
                     } else if (msgType== ChatEnum.EMessageType.AT) {
-                        if (bean.getAtMessage() != null) {
-                            if (!TextUtils.isEmpty(bean.getAtMessage().getMsg())) {
-                                if (bean.getAtMessage().getMsg().contains(key)) {
+                        CollectAtMessage bean3 = new Gson().fromJson(collectionInfo.getData(), CollectAtMessage.class);
+                        if (bean3 != null) {
+                            if (!TextUtils.isEmpty(bean3.getMsg())) {
+                                if (bean3.getMsg().contains(key)) {
                                     searchCollectList.add(collectionInfo);
                                 }
                             }
                         }
                     } else if (msgType == ChatEnum.EMessageType.FILE) {
-                        if (bean.getSendFileMessage() != null) {
-                            if (!TextUtils.isEmpty(bean.getSendFileMessage().getFile_name())) {
-                                if (bean.getSendFileMessage().getFile_name().contains(key)) {
+                        CollectSendFileMessage bean4 = new Gson().fromJson(collectionInfo.getData(), CollectSendFileMessage.class);
+                        if (bean4 != null) {
+                            if (!TextUtils.isEmpty(bean4.getFileName())) {
+                                if (bean4.getFileName().contains(key)) {
                                     searchCollectList.add(collectionInfo);
                                 }
                             }
