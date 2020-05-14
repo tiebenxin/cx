@@ -217,19 +217,19 @@ public class LocalMediaLoader {
      * @return
      */
     private List<LocalMedia> fileSize(List<LocalMedia> images) {
-        File imageFile;
-        for (int i = images.size() - 1; i >= 0; i--) {
-            //只过滤图片 大图
-            if(images.get(i).getMimeType()==PictureMimeType.ofImage()) {
-                imageFile = new File(images.get(i).getPath());
-                // Log.d("TAG", "fileSize: "+imageFile.length());
-                if (imageFile.length() >= IMG_DURATION) {
-
-                    //   Log.d("TAG", "more: "+imageFile.length());
-                    images.remove(i);
-                }
-            }
-        }
+//        File imageFile;
+//        for (int i = images.size() - 1; i >= 0; i--) {
+//            //只过滤图片 大图
+//            if(images.get(i).getMimeType()==PictureMimeType.ofImage()) {
+//                imageFile = new File(images.get(i).getPath());
+                //2020/5/14 注释掉过滤大图，选择的时候会提示用户图片太大
+//                if (imageFile.length() >= IMG_DURATION) {
+//
+//                    //   Log.d("TAG", "more: "+imageFile.length());
+//                    images.remove(i);
+//                }
+//            }
+//        }
 
         return images;
     }
