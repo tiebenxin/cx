@@ -6219,6 +6219,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             collectVoiceMessage.setMsgId(msgAllBean.getVoiceMessage().getMsgId());
             collectVoiceMessage.setVoiceURL(msgAllBean.getVoiceMessage().getUrl());
             collectVoiceMessage.setVoiceDuration(msgAllBean.getVoiceMessage().getTime());
+            collectVoiceMessage.setLocalUrl(msgAllBean.getVoiceMessage().getLocalUrl());
             return collectVoiceMessage;
         }if(type==ChatEnum.EMessageType.LOCATION){
             CollectLocationMessage collectLocationMessage = new CollectLocationMessage();
