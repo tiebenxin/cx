@@ -1491,7 +1491,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 CollectLocationMessage location = bean5;
                 //收藏用的不多，手动创建位置消息
                 LocationMessage locationMessage = new LocationMessage();
-                locationMessage.setMsgId(location.getMsgId());
+                locationMessage.setMsgId(SocketData.getUUID());
                 locationMessage.setLatitude(location.getLat());
                 locationMessage.setLongitude(location.getLon());
                 locationMessage.setImg(location.getImg());
@@ -1506,7 +1506,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 for (int i = 0; i < moreSessionBeanList.size(); i++) {
                     MoreSessionBean bean = moreSessionBeanList.get(i);
                     LocationMessage locationMessage = new LocationMessage();
-                    locationMessage.setMsgId(bean5.getMsgId());
+                    locationMessage.setMsgId(SocketData.getUUID());
                     locationMessage.setLatitude(bean5.getLat());
                     locationMessage.setLongitude(bean5.getLon());
                     locationMessage.setImg(bean5.getImg());
