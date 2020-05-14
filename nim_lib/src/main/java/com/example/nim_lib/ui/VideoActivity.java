@@ -2043,6 +2043,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventLoginOut(EventLoginOut event) {
         //通话中收到退出登录通知，关闭通话
+        LogUtil.getLog().i(TAG, "--login_out");
+        this.finish();
     }
 
     @Override
