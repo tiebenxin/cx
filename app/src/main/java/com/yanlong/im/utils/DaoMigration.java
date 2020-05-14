@@ -577,7 +577,7 @@ public class DaoMigration implements RealmMigration {
                 .addField("isReplying", int.class);
     }
 
-    //添加收藏相关字段
+    //添加收藏相关字段，添加新的收藏消息类型
     private void updateV32(RealmSchema schema) {
         schema.create("CollectionInfo")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
@@ -589,7 +589,57 @@ public class DaoMigration implements RealmMigration {
                 .addField("fromUsername",String.class)
                 .addField("id",long.class)
                 .addField("type",int.class);
+        schema.create("CollectAtMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("msg",String.class);
+        schema.create("CollectChatMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("msg",String.class);
+        schema.create("CollectImageMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("origin",String.class)
+                .addField("preview",String.class)
+                .addField("thumbnail",String.class)
+                .addField("localimg",String.class)
+                .addField("isReadOrigin",boolean.class)
+                .addField("width",long.class)
+                .addField("height",long.class)
+                .addField("size",long.class);
+        schema.create("CollectLocationMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("lat",int.class)
+                .addField("lon",int.class)
+                .addField("addr",String.class)
+                .addField("addressDesc",String.class)
+                .addField("img",String.class)
+                .addField("distance",long.class);
+        schema.create("CollectSendFileMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("fileURL",String.class)
+                .addField("fileName",String.class)
+                .addField("fileFormat",String.class)
+                .addField("fileSize",long.class);
+        schema.create("CollectShippedExpressionMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("expression",String.class);
+        schema.create("CollectVideoMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("videoDuration",long.class)
+                .addField("videoBgURL",String.class)
+                .addField("width",long.class)
+                .addField("height",long.class)
+                .addField("size",long.class)
+                .addField("videoURL",String.class)
+                .addField("isReadOrigin",boolean.class)
+                .addField("localUrl",String.class);
+        schema.create("CollectVoiceMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("voiceURL",String.class)
+                .addField("voiceDuration",int.class)
+                .addField("playStatus",int.class)
+                .addField("localUrl",String.class);
     }
+
 
     @Override
     public boolean equals(@Nullable Object obj) {

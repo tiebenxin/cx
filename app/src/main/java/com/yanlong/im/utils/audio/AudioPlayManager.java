@@ -17,6 +17,7 @@ import android.os.PowerManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.yanlong.im.chat.bean.CollectVoiceMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VoiceMessage;
@@ -535,7 +536,7 @@ public class AudioPlayManager implements SensorEventListener {
     }
 
     //收藏-复用播放语音
-    public void startPlay(Long fromUid,Context context, final VoiceMessage bean, IVoicePlayListener playListener) {
+    public void startPlay(Long fromUid, Context context, final CollectVoiceMessage bean, IVoicePlayListener playListener) {
         if (context != null && bean != null) {
             this.context = context;
             if (bean == null) {
@@ -549,7 +550,7 @@ public class AudioPlayManager implements SensorEventListener {
             if (fromUid == UserAction.getMyInfo().getUid().longValue()) { //如果是我自己发的
                 url = bean.getLocalUrl();
             } else {
-                url = bean.getUrl();
+                url = bean.getVoiceURL();
             }
             if (TextUtils.isEmpty(url)) {
                 return;
@@ -640,13 +641,13 @@ public class AudioPlayManager implements SensorEventListener {
     }
 
     //收藏-复用播放语音
-    public void downloadAudio(final Context context, final VoiceMessage bean, final DownloadUtil.IDownloadVoiceListener listener) {
+    public void downloadAudio(final Context context, final CollectVoiceMessage bean, final DownloadUtil.IDownloadVoiceListener listener) {
 //        LogUtil.getLog().i(TAG, "downloadAudio");
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String path = context.getExternalCacheDir().getAbsolutePath();
-                String url = bean.getUrl();
+                String url = bean.getVoiceURL();
                 DownloadUtil.get().download(url, path, getFileName(url), new DownloadUtil.OnDownloadListener() {
                     @Override
                     public void onDownloadSuccess(File file) {

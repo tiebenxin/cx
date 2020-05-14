@@ -9,13 +9,13 @@ public class CollectionInfo extends RealmObject {
     @PrimaryKey
     private String msgId;//消息id
     private String createTime;//收藏时间
-    private String data;//具体消息，JSON数据 TODO 为了配合IOS，改为对应类，其实丢整个msgAllBean更快
+    private String data;//具体消息，JSON数据 TODO 改为最新的类
     private String fromGid;//来源：群组id
     private String fromGroupName;//来源：群组名称
     private long fromUid;//来源：用户id
     private String fromUsername;//来源：用户名称
     private long id;//数据id
-    @ChatEnum.EMessageType
+    @ChatEnum.ECollectType
     private int type;//消息类型
 
     public String getMsgId() {

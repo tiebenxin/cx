@@ -98,6 +98,14 @@ import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BalanceAssistantMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
+import com.yanlong.im.chat.bean.CollectAtMessage;
+import com.yanlong.im.chat.bean.CollectChatMessage;
+import com.yanlong.im.chat.bean.CollectImageMessage;
+import com.yanlong.im.chat.bean.CollectLocationMessage;
+import com.yanlong.im.chat.bean.CollectSendFileMessage;
+import com.yanlong.im.chat.bean.CollectShippedExpressionMessage;
+import com.yanlong.im.chat.bean.CollectVideoMessage;
+import com.yanlong.im.chat.bean.CollectVoiceMessage;
 import com.yanlong.im.chat.bean.EnvelopeInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
@@ -256,6 +264,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.RealmList;
+import io.realm.RealmObject;
 import io.realm.RealmResults;
 import me.kareluo.ui.OptionMenu;
 import me.rosuh.filepicker.config.FilePickerManager;
@@ -3943,25 +3952,24 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
         CollectionInfo collectionInfo = new CollectionInfo();
-        //区分不同消息类型，作为data传过去
+        //区分不同消息类型，转换成新的收藏消息结构，作为data传过去
         if(msgbean.getMsg_type()==ChatEnum.EMessageType.TEXT){
-            collectionInfo.setData(new Gson().toJson(msgbean.getChat()));
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.TEXT,msgbean)));
         }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.IMAGE){
-            collectionInfo.setData(new Gson().toJson(msgbean.getImage()));
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.IMAGE,msgbean)));
         }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.SHIPPED_EXPRESSION){
-            collectionInfo.setData(new Gson().toJson(msgbean.getShippedExpressionMessage()));
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.SHIPPED_EXPRESSION,msgbean)));
         }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.MSG_VIDEO){
-            collectionInfo.setData(new Gson().toJson(msgbean.getVideoMessage()));
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.MSG_VIDEO,msgbean)));
         }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.VOICE){
-            collectionInfo.setData(new Gson().toJson(msgbean.getVoiceMessage()));
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.VOICE,msgbean)));
         }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.LOCATION){
-            collectionInfo.setData(new Gson().toJson(msgbean.getLocationMessage()));
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.LOCATION,msgbean)));
         }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.AT){
-            collectionInfo.setData(new Gson().toJson(msgbean.getAtMessage()));
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.AT,msgbean)));
         }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.FILE){
-            collectionInfo.setData(new Gson().toJson(msgbean.getSendFileMessage()));
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.FILE,msgbean)));
         }
-
         collectionInfo.setFromUid(msgbean.getFrom_uid());
         collectionInfo.setFromUsername(fromUsername);
         collectionInfo.setType(SocketData.getMessageType(msgbean.getMsg_type()).getNumber());//收藏类型统一改为protobuf类型
@@ -6153,6 +6161,71 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (replayMsg != null) {
             replayMsg.setIsReplying(0);
             DaoUtil.update(replayMsg);
+        }
+    }
+
+    //转换成新的收藏消息结构
+    private RealmObject convertCollectBean(int type, MsgAllBean msgAllBean){
+        if(type==ChatEnum.EMessageType.TEXT){
+            CollectChatMessage collectChatMessage = new CollectChatMessage();
+            collectChatMessage.setMsgid(msgAllBean.getChat().getMsgId());
+            collectChatMessage.setMsg(msgAllBean.getChat().getMsg());
+            return collectChatMessage;
+        }if(type==ChatEnum.EMessageType.IMAGE){
+            CollectImageMessage collectImageMessage = new CollectImageMessage();
+            collectImageMessage.setMsgid(msgAllBean.getImage().getMsgId());
+            collectImageMessage.setOrigin(msgAllBean.getImage().getOrigin());
+            collectImageMessage.setPreview(msgAllBean.getImage().getPreview());
+            collectImageMessage.setThumbnail(msgAllBean.getImage().getThumbnail());
+            collectImageMessage.setWidth(msgAllBean.getImage().getWidth());
+            collectImageMessage.setHeight(msgAllBean.getImage().getHeight());
+            collectImageMessage.setSize(msgAllBean.getImage().getSize());
+            return collectImageMessage;
+        }if(type==ChatEnum.EMessageType.SHIPPED_EXPRESSION){
+            CollectShippedExpressionMessage collectShippedExpressionMessage = new CollectShippedExpressionMessage();
+            collectShippedExpressionMessage.setMsgId(msgAllBean.getShippedExpressionMessage().getMsgId());
+            collectShippedExpressionMessage.setExpression(msgAllBean.getShippedExpressionMessage().getId());
+            return collectShippedExpressionMessage;
+        }if(type==ChatEnum.EMessageType.MSG_VIDEO){
+            CollectVideoMessage collectVideoMessage = new CollectVideoMessage();
+            collectVideoMessage.setMsgId(msgAllBean.getVideoMessage().getMsgId());
+            collectVideoMessage.setVideoDuration(msgAllBean.getVideoMessage().getDuration());
+            collectVideoMessage.setVideoBgURL(msgAllBean.getVideoMessage().getBg_url());
+            collectVideoMessage.setVideoURL(msgAllBean.getVideoMessage().getUrl());
+            collectVideoMessage.setWidth(msgAllBean.getVideoMessage().getWidth());
+            collectVideoMessage.setHeight(msgAllBean.getVideoMessage().getHeight());
+            collectVideoMessage.setSize(msgAllBean.getVideoMessage().getDuration());//旧消息没有和这个字段
+            return collectVideoMessage;
+        }if(type==ChatEnum.EMessageType.VOICE){
+            CollectVoiceMessage collectVoiceMessage = new CollectVoiceMessage();
+            collectVoiceMessage.setMsgId(msgAllBean.getVoiceMessage().getMsgId());
+            collectVoiceMessage.setVoiceURL(msgAllBean.getVoiceMessage().getUrl());
+            collectVoiceMessage.setVoiceDuration(msgAllBean.getVoiceMessage().getTime());
+            return collectVoiceMessage;
+        }if(type==ChatEnum.EMessageType.LOCATION){
+            CollectLocationMessage collectLocationMessage = new CollectLocationMessage();
+            collectLocationMessage.setMsgId(msgAllBean.getLocationMessage().getMsgId());
+            collectLocationMessage.setLat(msgAllBean.getLocationMessage().getLatitude());
+            collectLocationMessage.setLon(msgAllBean.getLocationMessage().getLongitude());
+            collectLocationMessage.setAddr(msgAllBean.getLocationMessage().getAddress());
+            collectLocationMessage.setAddressDesc(msgAllBean.getLocationMessage().getAddressDescribe());
+            collectLocationMessage.setImg(msgAllBean.getLocationMessage().getImg());
+            return collectLocationMessage;
+        }if(type==ChatEnum.EMessageType.AT){
+            CollectAtMessage collectAtMessage = new CollectAtMessage();
+            collectAtMessage.setMsgId(msgAllBean.getAtMessage().getMsgId());
+            collectAtMessage.setMsg(msgAllBean.getAtMessage().getMsg());
+            return collectAtMessage;
+        }if(type==ChatEnum.EMessageType.FILE){
+            CollectSendFileMessage collectSendFileMessage = new CollectSendFileMessage();
+            collectSendFileMessage.setMsgId(msgAllBean.getSendFileMessage().getMsgId());
+            collectSendFileMessage.setFileURL(msgAllBean.getSendFileMessage().getUrl());
+            collectSendFileMessage.setFileName(msgAllBean.getSendFileMessage().getFile_name());
+            collectSendFileMessage.setFileFormat(msgAllBean.getSendFileMessage().getFormat());
+            collectSendFileMessage.setFileSize(msgAllBean.getSendFileMessage().getSize());
+            return collectSendFileMessage;
+        }else {
+            return null;
         }
     }
 }

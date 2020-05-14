@@ -49,6 +49,14 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
+import com.yanlong.im.chat.bean.CollectAtMessage;
+import com.yanlong.im.chat.bean.CollectChatMessage;
+import com.yanlong.im.chat.bean.CollectImageMessage;
+import com.yanlong.im.chat.bean.CollectLocationMessage;
+import com.yanlong.im.chat.bean.CollectSendFileMessage;
+import com.yanlong.im.chat.bean.CollectShippedExpressionMessage;
+import com.yanlong.im.chat.bean.CollectVideoMessage;
+import com.yanlong.im.chat.bean.CollectVoiceMessage;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -141,7 +149,7 @@ public class CollectDetailsActivity extends AppActivity {
     private TextView tvDownload;
     private ImageView ivFilePic;
     private String filePath = "";//打开的文件路径
-    private SendFileMessage fileMessage;
+    private CollectSendFileMessage fileMessage;
     private int status = 0;// 0可打开(下载完成) 1点击下载(未下载前) 2文件不存在 3下载中 4下载失败
     private MsgAction msgAction = new MsgAction();
     private boolean isVoice = false;//当前收藏类型是否为语音，语音不允许转发
@@ -247,7 +255,7 @@ public class CollectDetailsActivity extends AppActivity {
                             layoutFile.setVisibility(GONE);
                             layoutMap.setVisibility(GONE);
                             layoutAddr.setVisibility(GONE);
-                            ChatMessage bean1 = new Gson().fromJson(collectionInfo.getData(), ChatMessage.class);
+                            CollectChatMessage bean1 = new Gson().fromJson(collectionInfo.getData(), CollectChatMessage.class);
                             if (bean1 != null) {
                                 if (!TextUtils.isEmpty(bean1.getMsg())) {
                                     tvContent.setText(getSpan(bean1.getMsg()));
@@ -266,7 +274,7 @@ public class CollectDetailsActivity extends AppActivity {
                             ivPlay.setVisibility(GONE);
                             layoutMap.setVisibility(GONE);
                             layoutAddr.setVisibility(GONE);
-                            ImageMessage bean2 = new Gson().fromJson(collectionInfo.getData(), ImageMessage.class);
+                            CollectImageMessage bean2 = new Gson().fromJson(collectionInfo.getData(), CollectImageMessage.class);
                             if (bean2 != null) { //显示预览图或者缩略图
                                 String thumbnail = bean2.getThumbnailShow();
                                 if (isGif(thumbnail)) { //动图加载
@@ -313,12 +321,12 @@ public class CollectDetailsActivity extends AppActivity {
                             ivPlay.setVisibility(GONE);
                             layoutMap.setVisibility(GONE);
                             layoutAddr.setVisibility(GONE);
-                            ShippedExpressionMessage bean3 = new Gson().fromJson(collectionInfo.getData(), ShippedExpressionMessage.class);
+                            CollectShippedExpressionMessage bean3 = new Gson().fromJson(collectionInfo.getData(), CollectShippedExpressionMessage.class);
                             if (bean3 != null) {
-                                if (!TextUtils.isEmpty(bean3.getId())) {
-                                    if (isGif(bean3.getId())) { //动图加载
+                                if (!TextUtils.isEmpty(bean3.getExpression())) {
+                                    if (isGif(bean3.getExpression())) { //动图加载
                                         Glide.with(this)
-                                                .load(Integer.parseInt(FaceView.map_FaceEmoji.get(bean3.getId()).toString()))
+                                                .load(Integer.parseInt(FaceView.map_FaceEmoji.get(bean3.getExpression()).toString()))
                                                 .listener(new RequestListener<Drawable>() {
                                                     @Override
                                                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
@@ -333,7 +341,7 @@ public class CollectDetailsActivity extends AppActivity {
                                                 .apply(GlideOptionsUtil.notDefImageOptions())
                                                 .into(ivExpress);
                                     } else {
-                                        Glide.with(CollectDetailsActivity.this).load(Integer.parseInt(FaceView.map_FaceEmoji.get(bean3.getId()).toString())).apply(GlideOptionsUtil.headImageOptions()).into(ivExpress);
+                                        Glide.with(CollectDetailsActivity.this).load(Integer.parseInt(FaceView.map_FaceEmoji.get(bean3.getExpression()).toString())).apply(GlideOptionsUtil.headImageOptions()).into(ivExpress);
                                     }
                                 }
                             }
@@ -348,10 +356,10 @@ public class CollectDetailsActivity extends AppActivity {
                             ivPlay.setVisibility(VISIBLE);
                             layoutMap.setVisibility(GONE);
                             layoutAddr.setVisibility(GONE);
-                            VideoMessage bean4 = new Gson().fromJson(collectionInfo.getData(), VideoMessage.class);
+                            CollectVideoMessage bean4 = new Gson().fromJson(collectionInfo.getData(), CollectVideoMessage.class);
                             if (bean4 != null) {
-                                if (!TextUtils.isEmpty(bean4.getBg_url())) {
-                                    Glide.with(CollectDetailsActivity.this).load(bean4.getBg_url())
+                                if (!TextUtils.isEmpty(bean4.getVideoBgURL())) {
+                                    Glide.with(CollectDetailsActivity.this).load(bean4.getVideoBgURL())
                                             .apply(GlideOptionsUtil.headImageOptions()).into(ivPic);
                                 }
                             }
@@ -372,10 +380,10 @@ public class CollectDetailsActivity extends AppActivity {
                             layoutFile.setVisibility(GONE);
                             layoutMap.setVisibility(GONE);
                             layoutAddr.setVisibility(GONE);
-                            VoiceMessage bean5 = new Gson().fromJson(collectionInfo.getData(), VoiceMessage.class);
+                            CollectVoiceMessage bean5 = new Gson().fromJson(collectionInfo.getData(), CollectVoiceMessage.class);
                             if (bean5 != null) {
-                                if (bean5.getTime() != 0) {
-                                    tvVoiceTime.setText(DateUtils.getSecondFormatTime(Long.valueOf(bean5.getTime() + "")));
+                                if (bean5.getVoiceDuration() != 0) {
+                                    tvVoiceTime.setText(DateUtils.getSecondFormatTime(Long.valueOf(bean5.getVoiceDuration() + "")));
                                 }
                             }
                             layoutVoice.setOnClickListener(new View.OnClickListener() {
@@ -392,13 +400,13 @@ public class CollectDetailsActivity extends AppActivity {
                             layoutFile.setVisibility(GONE);
                             layoutMap.setVisibility(VISIBLE);
                             layoutAddr.setVisibility(VISIBLE);
-                            LocationMessage bean6 = new Gson().fromJson(collectionInfo.getData(), LocationMessage.class);
+                            CollectLocationMessage bean6 = new Gson().fromJson(collectionInfo.getData(), CollectLocationMessage.class);
                             if (!LocationPersimmions.checkPermissions(CollectDetailsActivity.this)) {
                                 return;
                             }
                             if (bean6 != null) {
-                                addr = bean6.getAddress();
-                                addrDesc = bean6.getAddressDescribe();
+                                addr = bean6.getAddr();
+                                addrDesc = bean6.getAddressDesc();
                                 //百度地图参数
                                 mBaiduMap = mapview.getMap();
                                 mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
@@ -470,7 +478,7 @@ public class CollectDetailsActivity extends AppActivity {
                             layoutFile.setVisibility(GONE);
                             layoutMap.setVisibility(GONE);
                             layoutAddr.setVisibility(GONE);
-                            AtMessage bean7 = new Gson().fromJson(collectionInfo.getData(), AtMessage.class);
+                            CollectAtMessage bean7 = new Gson().fromJson(collectionInfo.getData(), CollectAtMessage.class);
                             if (bean7 != null) {
                                 if (!TextUtils.isEmpty(bean7.getMsg())) {
                                     tvContent.setText(getSpan(bean7.getMsg()));
@@ -486,14 +494,14 @@ public class CollectDetailsActivity extends AppActivity {
                             layoutFile.setVisibility(VISIBLE);
                             layoutMap.setVisibility(GONE);
                             layoutAddr.setVisibility(GONE);
-                            SendFileMessage bean8 = new Gson().fromJson(collectionInfo.getData(), SendFileMessage.class);
+                            CollectSendFileMessage bean8 = new Gson().fromJson(collectionInfo.getData(), CollectSendFileMessage.class);
                             if (bean8 != null) {
                                 fileMessage = bean8;
-                                if (!TextUtils.isEmpty(bean8.getFile_name())) {
-                                    tvFileName.setText(bean8.getFile_name());
+                                if (!TextUtils.isEmpty(bean8.getFileName())) {
+                                    tvFileName.setText(bean8.getFileName());
                                 }
-                                if (!TextUtils.isEmpty(bean8.getFormat())) {
-                                    String fileFormat = bean8.getFormat();
+                                if (!TextUtils.isEmpty(bean8.getFileFormat())) {
+                                    String fileFormat = bean8.getFileFormat();
                                     if (fileFormat.equals("txt")) {
                                         ivFilePic.setImageResource(R.mipmap.ic_txt);
                                     } else if (fileFormat.equals("xls") || fileFormat.equals("xlsx")) {
@@ -510,8 +518,8 @@ public class CollectDetailsActivity extends AppActivity {
                                         ivFilePic.setImageResource(R.mipmap.ic_unknow);
                                     }
                                 }
-                                if (bean8.getSize() != 0L) {
-                                    tvFileSize.setText("文件大小 " + FileUtils.getFileSizeString(bean8.getSize()));
+                                if (bean8.getFileSize() != 0L) {
+                                    tvFileSize.setText("文件大小 " + FileUtils.getFileSizeString(bean8.getFileSize()));
                                 }
                                 //显示下载状态
                                 //1 如果是我发的文件
@@ -525,7 +533,7 @@ public class CollectDetailsActivity extends AppActivity {
                                             status = 0;
                                             tvDownload.setText("打开");
                                         } else {
-                                            if (!TextUtils.isEmpty(fileMessage.getUrl())) {
+                                            if (!TextUtils.isEmpty(fileMessage.getFileURL())) {
                                                 ToastUtil.show("检测到该文件来源于PC端，请点击下载");
                                             } else {
                                                 ToastUtil.show("文件下载地址错误，请联系客服");
@@ -547,12 +555,12 @@ public class CollectDetailsActivity extends AppActivity {
                                 } else {
                                     //2 如果是别人发的文件
                                     //从下载路径里找，若存在该文件，则直接打开；否则需要下载 TODO 暂时直接打开原文件名
-                                    if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name())) {
-                                        filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name();
+                                    if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFileName())) {
+                                        filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getFileName();
                                         status = 0;
                                         tvDownload.setText("打开");
                                     } else {
-                                        if (TextUtils.isEmpty(fileMessage.getUrl())) {
+                                        if (TextUtils.isEmpty(fileMessage.getFileURL())) {
                                             ToastUtil.show("文件下载地址错误，请联系客服");
                                         }
                                         status = 1;
@@ -569,7 +577,7 @@ public class CollectDetailsActivity extends AppActivity {
         }
     }
 
-    private void clickVideo(VideoMessage msg) {
+    private void clickVideo(CollectVideoMessage msg) {
         if (AVChatProfile.getInstance().isCallIng() || AVChatProfile.getInstance().isCallEstablished()) {
             if (AVChatProfile.getInstance().isChatType() == AVChatType.VIDEO.getValue()) {
                 ToastUtil.show(CollectDetailsActivity.this, getString(R.string.avchat_peer_busy_video));
@@ -581,16 +589,16 @@ public class CollectDetailsActivity extends AppActivity {
             if (StringUtil.isNotNull(localUrl)) {
                 File file = new File(localUrl);
                 if (!file.exists()) {
-                    localUrl = msg.getUrl();
+                    localUrl = msg.getVideoURL();
                 }
             } else {
-                localUrl = msg.getUrl();
+                localUrl = msg.getVideoURL();
             }
             Intent intent = new Intent(CollectDetailsActivity.this, VideoPlayActivity.class);
             intent.putExtra("videopath", localUrl);
             intent.putExtra("videomsg", new Gson().toJson(msg));
             intent.putExtra("msg_id", msg.getMsgId());
-            intent.putExtra("bg_url", msg.getBg_url());
+            intent.putExtra("bg_url", msg.getVideoBgURL());
             intent.putExtra("from", 1);//1 来自收藏详情
             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(intent);
@@ -738,7 +746,7 @@ public class CollectDetailsActivity extends AppActivity {
      *
      * @param sendFileMessage
      */
-    private void DownloadFile(SendFileMessage sendFileMessage) {
+    private void DownloadFile(CollectSendFileMessage sendFileMessage) {
         String fileMsgId = "";
         String fileUrl = "";
         String fileName = "";
@@ -749,16 +757,16 @@ public class CollectDetailsActivity extends AppActivity {
         }
 
         //显示文件名
-        if (!TextUtils.isEmpty(sendFileMessage.getFile_name())) {
-            fileName = sendFileMessage.getFile_name();
+        if (!TextUtils.isEmpty(sendFileMessage.getFileName())) {
+            fileName = sendFileMessage.getFileName();
             //若有同名文件，则重命名，保存最终真实文件名，如123.txt若有重名则依次保存为123.txt(1) 123.txt(2)
             //若没有同名文件，则按默认新文件来保存
             fileName = net.cb.cb.library.utils.FileUtils.getFileRename(fileName);
         }
 
         //获取url，自动开始下载文件
-        if (!TextUtils.isEmpty(sendFileMessage.getUrl())) {
-            fileUrl = sendFileMessage.getUrl();
+        if (!TextUtils.isEmpty(sendFileMessage.getFileURL())) {
+            fileUrl = sendFileMessage.getFileURL();
             //指定下载路径文件夹，若不存在则创建
             File fileDir = new File(FileConfig.PATH_DOWNLOAD);
             if (!fileDir.exists()) {
@@ -804,17 +812,17 @@ public class CollectDetailsActivity extends AppActivity {
         }
     }
 
-    private void playVoice(final Long uid,final VoiceMessage vm, final boolean canAutoPlay,
+    private void playVoice(final Long uid,final CollectVoiceMessage vm, final boolean canAutoPlay,
                            final int position) {
 //        LogUtil.getLog().i(TAG, "playVoice--" + position);
-        if (vm == null || TextUtils.isEmpty(vm.getUrl())) {
+        if (vm == null || TextUtils.isEmpty(vm.getVoiceURL())) {
             return;
         }
         String url = "";
         if (isMe(uid)) {
             url = vm.getLocalUrl();
         } else {
-            url = vm.getUrl();
+            url = vm.getVoiceURL();
         }
         if (TextUtils.isEmpty(url)) {
             return;
@@ -905,7 +913,7 @@ public class CollectDetailsActivity extends AppActivity {
     /**
      * 显示大图
      */
-    private void showBigPic(ImageMessage msgl) {
+    private void showBigPic(CollectImageMessage msgl) {
         List<LocalMedia> selectList = new ArrayList<>();
         LocalMedia lc = new LocalMedia();
         lc.setCutPath(msgl.getThumbnailShow());
