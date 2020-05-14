@@ -583,7 +583,7 @@ public class MessageManager {
                     case 0: // 单聊已读
                         userInfo.setFriendRead(switchValue);
                         userDao.updateUserinfo(userInfo);
-                        EventBus.getDefault().post(new EventIsShowRead());
+                        EventBus.getDefault().post(new EventIsShowRead(uid,EventIsShowRead.EReadSwitchType.SWITCH_FRIEND, switchValue));
                         break;
                     case 1: //vip
                         if (userBean != null) {
@@ -598,7 +598,7 @@ public class MessageManager {
                     case 2:  //已读总开关
                         userInfo.setMasterRead(switchValue);
                         userDao.updateUserinfo(userInfo);
-                        EventBus.getDefault().post(new EventIsShowRead());
+                        EventBus.getDefault().post(new EventIsShowRead(uid,EventIsShowRead.EReadSwitchType.SWITCH_MASTER, switchValue));
                         break;
                     case 3: // 单人禁言
                     case 4: // 领取群红包

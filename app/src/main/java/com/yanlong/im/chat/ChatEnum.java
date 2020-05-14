@@ -441,19 +441,5 @@ public class ChatEnum {
         int BANED = 2; // 群被封禁
     }
 
-    /*
-     * 收藏消息类型，对应线上pb规则来定义
-     * */
-    @IntDef({ECollectType.CHAT,ECollectType.IMAGE,ECollectType.VOICE,ECollectType.AT,ECollectType.SHORT_VIDEO,ECollectType.SNAPSHOT_LOCATION,ECollectType.SHIPPED_EXPRESSION,ECollectType.SEND_FILE})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface ECollectType {
-        int CHAT = 0; // 普通聊天消息
-        int IMAGE = 1; // 图片消息
-        int VOICE = 7; // 语音消息
-        int AT = 8; //@消息
-        int SHORT_VIDEO = 11; //短视频消息
-        int SNAPSHOT_LOCATION = 12; // 地图位置
-        int SHIPPED_EXPRESSION = 14; // 内置表情
-        int SEND_FILE = 121; // 发送文件
-    }
+
 }
