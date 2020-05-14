@@ -16,9 +16,9 @@ public class CollectSendFileMessage extends RealmObject implements IMsgContent{
     private long fileSize = 0; // 文件大小
 
     //TODO 额外本地属性
-    private String localPath;//文件本地路径
-    private boolean isFromOther;//true 从别人那里转发过来的文件，则需从下载地址里找  false 本地文件/自己转发自己的文件，则需要在本地路径找
-    private String realFileRename;//若存在文件重名，此值为新名称；若不重名，则为原文件名
+    private String collectLocalPath;//文件本地路径
+    private boolean collectIsFromOther;//true 从别人那里转发过来的文件，则需从下载地址里找  false 本地文件/自己转发自己的文件，则需要在本地路径找
+    private String collectRealFileRename;//若存在文件重名，此值为新名称；若不重名，则为原文件名
 
     public String getFileURL() {
         return fileURL;
@@ -61,27 +61,27 @@ public class CollectSendFileMessage extends RealmObject implements IMsgContent{
         this.msgId = msgId;
     }
 
-    public String getLocalPath() {
-        return localPath;
+    public String getCollectLocalPath() {
+        return collectLocalPath;
     }
 
-    public void setLocalPath(String localPath) {
-        this.localPath = localPath;
+    public void setCollectLocalPath(String collectLocalPath) {
+        this.collectLocalPath = collectLocalPath;
     }
 
-    public boolean isFromOther() {
-        return isFromOther;
+    public boolean isCollectIsFromOther() {
+        return collectIsFromOther;
     }
 
-    public void setFromOther(boolean fromOther) {
-        isFromOther = fromOther;
+    public void setCollectIsFromOther(boolean collectIsFromOther) {
+        this.collectIsFromOther = collectIsFromOther;
     }
 
-    public String getRealFileRename() {
-        return realFileRename;
+    public String getCollectRealFileRename() {
+        return collectRealFileRename;
     }
 
-    public void setRealFileRename(String realFileRename) {
-        this.realFileRename = realFileRename;
+    public void setCollectRealFileRename(String collectRealFileRename) {
+        this.collectRealFileRename = collectRealFileRename;
     }
 }

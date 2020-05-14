@@ -526,10 +526,10 @@ public class CollectDetailsActivity extends AppActivity {
                                 if (isMe(collectionInfo.getFromUid())) {
                                     //TODO 这里不考虑转发和重名
                                     //1-1 没有本地路径，代表为PC端发的文件，需要下载
-                                    if (TextUtils.isEmpty(fileMessage.getLocalPath())) {
+                                    if (TextUtils.isEmpty(fileMessage.getCollectLocalPath())) {
                                         //从下载路径里找，若存在该文件，则允许直接打开；否则需要下载
-                                        if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
-                                            filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename();
+                                        if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getCollectRealFileRename())) {
+                                            filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getCollectRealFileRename();
                                             status = 0;
                                             tvDownload.setText("打开");
                                         } else {
@@ -543,8 +543,8 @@ public class CollectDetailsActivity extends AppActivity {
                                         }
                                     } else {
                                         //1-2 有本地路径，则为手机本地文件，从本地路径里找，有则打开，没有提示文件已被删除
-                                        if (net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getLocalPath())) {
-                                            filePath = fileMessage.getLocalPath();
+                                        if (net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getCollectLocalPath())) {
+                                            filePath = fileMessage.getCollectLocalPath();
                                             status = 0;
                                         } else {
                                             ToastUtil.show("文件不存在或者已被删除");

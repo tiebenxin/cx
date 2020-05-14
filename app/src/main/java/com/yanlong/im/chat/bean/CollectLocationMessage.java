@@ -18,7 +18,7 @@ public class CollectLocationMessage extends RealmObject implements IMsgContent {
     private String img;//地图图片路径
 
     @Ignore
-    private double distance=0d;//本地字段，与中心点的距离，两点之间的距离
+    private double colletDistance=0d;//本地字段，与中心点的距离，两点之间的距离
 
 
     public CollectLocationMessage() {
@@ -74,11 +74,11 @@ public class CollectLocationMessage extends RealmObject implements IMsgContent {
         this.img = img;
     }
 
-    public double getDistance() {
-        return distance;
+    public double getColletDistance() {
+        return colletDistance;
     }
 
-    public void setDistance(double distance) {
-        this.distance = distance;
+    public void setColletDistance(double colletDistance) {
+        this.colletDistance = colletDistance;
     }
 }
