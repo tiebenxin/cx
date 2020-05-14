@@ -4208,6 +4208,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         isLoadHistory = true;
         List<MsgAllBean> listTemp = msgAction.getMsg4UserHistory(toGid, toUId, history.getStime());
         taskMkName(listTemp);
+        mAdapter.bindData(listTemp,false);
         notifyData();
         mtListView.getListView().smoothScrollToPosition(0);
 
