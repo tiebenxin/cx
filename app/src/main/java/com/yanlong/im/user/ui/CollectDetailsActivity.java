@@ -534,7 +534,6 @@ public class CollectDetailsActivity extends AppActivity {
                                             tvDownload.setText("打开");
                                         } else {
                                             if (!TextUtils.isEmpty(fileMessage.getFileURL())) {
-                                                ToastUtil.show("检测到该文件来源于PC端，请点击下载");
                                             } else {
                                                 ToastUtil.show("文件下载地址错误，请联系客服");
                                             }
