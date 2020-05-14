@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -77,9 +78,11 @@ import com.netease.nrtc.video.render.IVideoRender;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.CanStampEvent;
+import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.RunUtils;
@@ -273,6 +276,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         }
     };
     private PowerManager.WakeLock mWakeLock;
+    private CheckPermission2Util permission2Util;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -364,9 +368,21 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             }
             finish();
         } else if (v.getId() == R.id.img_answer) {// 接听
-            if (avChatData != null) {
-                receiveInComingCall();
-            }
+            permission2Util = new CheckPermission2Util();
+            permission2Util.requestPermissions(VideoActivity.this, new CheckPermission2Util.Event() {
+
+                @Override
+                public void onSuccess() {
+                    if (avChatData != null) {
+                        receiveInComingCall();
+                    }
+                }
+
+                @Override
+                public void onFail() {
+
+                }
+            }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
         } else if (v.getId() == R.id.cb_hands_free) {// 免提
             mAVChatController.toggleSpeaker();
         } else if (v.getId() == R.id.cb_change_voice) {// 视频切换到语音
@@ -2022,6 +2038,19 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 }
             }
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventLoginOut(EventLoginOut event) {
+        //通话中收到退出登录通知，关闭通话
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (permission2Util != null) {
+            permission2Util.onRequestPermissionsResult();
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
 
