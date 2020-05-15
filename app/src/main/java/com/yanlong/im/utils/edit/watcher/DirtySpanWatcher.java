@@ -1,7 +1,10 @@
-package com.yanlong.im.utils.edit;
+package com.yanlong.im.utils.edit.watcher;
 
 import android.text.SpanWatcher;
 import android.text.Spannable;
+
+import com.yanlong.im.utils.edit.IRemovePredicate;
+import com.yanlong.im.utils.edit.span.RemoveOnDirtySpan;
 
 /**
  * @createAuthor Raleigh.Luo
@@ -17,12 +20,13 @@ public class DirtySpanWatcher implements SpanWatcher {
 
     @Override
     public void onSpanAdded(Spannable text, Object what, int start, int end) {
-
+        int i=1;
     }
 
     @Override
     public void onSpanRemoved(Spannable text, Object what, int start, int end) {
 
+        int i=1;
     }
 
     @Override

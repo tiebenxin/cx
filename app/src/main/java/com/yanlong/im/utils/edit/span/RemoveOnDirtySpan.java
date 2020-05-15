@@ -1,4 +1,4 @@
-package com.yanlong.im.utils.edit;
+package com.yanlong.im.utils.edit.span;
 
 import android.text.Spannable;
 

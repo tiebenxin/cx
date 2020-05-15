@@ -1,4 +1,4 @@
-package com.yanlong.im.utils.edit;
+package com.yanlong.im.utils.edit.span;
 
 /**
  * @createAuthor Raleigh.Luo
@@ -8,6 +8,7 @@ package com.yanlong.im.utils.edit;
  * 提供一个方法返回DataBindingSpan<T>对象所绑定的业务数据。
  */
 public interface DataBindingSpan<T> {
-    CharSequence spannedText();
+    CharSequence getSpannedText();
     T bindingData();
+    String getText();
 }

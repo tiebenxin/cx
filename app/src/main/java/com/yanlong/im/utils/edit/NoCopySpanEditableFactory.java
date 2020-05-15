@@ -11,10 +11,13 @@ import android.text.Spanned;
  * @description
  */
 public class NoCopySpanEditableFactory extends Editable.Factory {
-    private NoCopySpan[] spnas;
+    private NoCopySpan[] spnas = null;
 
-    public NoCopySpanEditableFactory(NoCopySpan... spans) {
-        this.spnas = spnas;
+    public NoCopySpanEditableFactory(NoCopySpan ...spans) {
+        this.spnas = new NoCopySpan[spans.length];
+        for(int i=0;i<spans.length;i++){
+            this.spnas[i] = spans[i];
+        }
     }
 
     @Override
@@ -25,7 +28,6 @@ public class NoCopySpanEditableFactory extends Editable.Factory {
                 sb.setSpan(span, 0, source.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
             }
         }
-
         return sb;
     }
 }

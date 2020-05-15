@@ -3,6 +3,8 @@ package com.yanlong.im.utils.edit;
 import android.text.Selection;
 import android.text.Spannable;
 
+import com.yanlong.im.utils.edit.span.DataBindingSpan;
+
 /**
  * @createAuthor Raleigh.Luo
  * @createDate 2020/5/14 0014
