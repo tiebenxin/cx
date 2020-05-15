@@ -3,6 +3,7 @@ package com.yanlong.im.user.ui;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -120,6 +121,7 @@ public class CollectDetailsActivity extends AppActivity {
     private ImageView ivPlay;
     private ImageView ivExpress;//表情
     private TextView tvVoiceTime;
+    private ImageView ivVoice;
     private RelativeLayout layoutText;
     private RelativeLayout layoutPic;
     private RelativeLayout layoutMap;
@@ -153,6 +155,7 @@ public class CollectDetailsActivity extends AppActivity {
     private int status = 0;// 0可打开(下载完成) 1点击下载(未下载前) 2文件不存在 3下载中 4下载失败
     private MsgAction msgAction = new MsgAction();
     private boolean isVoice = false;//当前收藏类型是否为语音，语音不允许转发
+    private AnimationDrawable animationDrawable;//语音动画
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,6 +173,7 @@ public class CollectDetailsActivity extends AppActivity {
         tvContent = findViewById(R.id.tv_content);
         tvOne = findViewById(R.id.tv_one);
         layoutText = findViewById(R.id.layout_text);
+        ivVoice = findViewById(R.id.iv_voice);
         layoutPic = findViewById(R.id.layout_pic);
         layoutVoice = findViewById(R.id.layout_voice);
         layoutFile = findViewById(R.id.layout_file);
@@ -392,6 +396,7 @@ public class CollectDetailsActivity extends AppActivity {
                                     playVoice(collectionInfo.getFromUid(),bean5,true,0);
                                 }
                             });
+                            animationDrawable = (AnimationDrawable) ivVoice.getDrawable();
                             break;
                         case ChatEnum.EMessageType.LOCATION: //位置消息
                             layoutText.setVisibility(GONE);//显示位置相关布局，隐藏其他类型相关布局
@@ -835,16 +840,20 @@ public class CollectDetailsActivity extends AppActivity {
                     @Override
                     public void onStart(MsgAllBean bean) {
                         vm.setPlayStatus(ChatEnum.EPlayStatus.PLAYING);
+                        animationDrawable.start();
                     }
 
                     @Override
                     public void onStop(MsgAllBean bean) {
                         vm.setPlayStatus(ChatEnum.EPlayStatus.STOP_PLAY);
+                        animationDrawable.stop();
                     }
 
                     @Override
                     public void onComplete(MsgAllBean bean) {
                         vm.setPlayStatus(ChatEnum.EPlayStatus.PLAYED);
+                        animationDrawable.stop();
+                        animationDrawable.selectDrawable(0);//恢复到初始状态，第一帧
                     }
                 });
             }else {
@@ -859,16 +868,20 @@ public class CollectDetailsActivity extends AppActivity {
                             @Override
                             public void onStart(MsgAllBean bean) {
                                 vm.setPlayStatus(ChatEnum.EPlayStatus.PLAYING);
+                                animationDrawable.start();
                             }
 
                             @Override
                             public void onStop(MsgAllBean bean) {
                                 vm.setPlayStatus(ChatEnum.EPlayStatus.STOP_PLAY);
+                                animationDrawable.stop();
                             }
 
                             @Override
                             public void onComplete(MsgAllBean bean) {
                                 vm.setPlayStatus(ChatEnum.EPlayStatus.PLAYED);
+                                animationDrawable.stop();
+                                animationDrawable.selectDrawable(0);//恢复到初始状态
                             }
                         });
                     }
@@ -938,5 +951,11 @@ public class CollectDetailsActivity extends AppActivity {
             return false;
         }
         return fromUid == UserAction.getMyInfo().getUid().longValue();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+
     }
 }
