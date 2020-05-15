@@ -3988,36 +3988,34 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         CollectionInfo collectionInfo = new CollectionInfo();
         //区分不同消息类型，转换成新的收藏消息结构，作为data传过去
-        if (msgbean.getMsg_type() == ChatEnum.EMessageType.TEXT) {
-            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.TEXT, msgbean)));
-        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.IMAGE) {
-            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.IMAGE, msgbean)));
-        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
-            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.SHIPPED_EXPRESSION, msgbean)));
-        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
-            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.MSG_VIDEO, msgbean)));
-        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.VOICE) {
-            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.VOICE, msgbean)));
-        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.LOCATION) {
-            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.LOCATION, msgbean)));
-        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.AT) {
-            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.AT, msgbean)));
-        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.FILE) {
-            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.FILE, msgbean)));
+        if(msgbean.getMsg_type()==ChatEnum.EMessageType.TEXT){
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.TEXT,msgbean)));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.IMAGE){
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.IMAGE,msgbean)));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.SHIPPED_EXPRESSION){
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.SHIPPED_EXPRESSION,msgbean)));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.MSG_VIDEO){
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.MSG_VIDEO,msgbean)));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.VOICE){
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.VOICE,msgbean)));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.LOCATION){
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.LOCATION,msgbean)));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.AT){
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.AT,msgbean)));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.FILE){
+            CollectSendFileMessage msg = (CollectSendFileMessage)convertCollectBean(ChatEnum.EMessageType.FILE,msgbean);
+            collectionInfo.setData(new Gson().toJson(msg));
+            //暂时只对文件进行本地化存储，列表里没有本地路径不方便判断是否下载，避免每次进详情都要下一次
+            msgDao.saveCollectFileMsg(msg);
         }
         collectionInfo.setFromUid(msgbean.getFrom_uid());
         collectionInfo.setFromUsername(fromUsername);
         collectionInfo.setType(SocketData.getMessageType(msgbean.getMsg_type()).getNumber());//收藏类型统一改为protobuf类型
         collectionInfo.setFromGid(fromGid);
         collectionInfo.setFromGroupName(fromGroupName);
-        collectionInfo.setMsgId(msgbean.getMsg_id());
-        collectionInfo.setCreateTime(System.currentTimeMillis() + "");//收藏时间是现在系统时间
-        //无网保存本地数据，有网请求数据
-//        if (!checkNetConnectStatus()) {
-//            msgDao.saveCollection(collectionInfo);//拼凑保存CollectionInfo收藏对象
-//        }else {
+        collectionInfo.setMsgId(msgbean.getMsg_id());//不同表，id相同
+        collectionInfo.setCreateTime(System.currentTimeMillis()+"");//收藏时间是现在系统时间
         httpCollect(collectionInfo);
-//        }
     }
 
 
@@ -6283,6 +6281,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             collectSendFileMessage.setFileName(msgAllBean.getSendFileMessage().getFile_name());
             collectSendFileMessage.setFileFormat(msgAllBean.getSendFileMessage().getFormat());
             collectSendFileMessage.setFileSize(msgAllBean.getSendFileMessage().getSize());
+            if(!TextUtils.isEmpty(msgAllBean.getSendFileMessage().getLocalPath())){
+                collectSendFileMessage.setCollectLocalPath(msgAllBean.getSendFileMessage().getLocalPath());
+            }
             return collectSendFileMessage;
         } else {
             return null;
