@@ -80,7 +80,7 @@ import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
 import com.yanlong.im.utils.ChatBitmapCache;
-import com.yanlong.im.utils.socket.ExecutorManager;
+import net.cb.cb.library.manager.excutor.ExecutorManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;

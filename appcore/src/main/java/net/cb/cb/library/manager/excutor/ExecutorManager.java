@@ -1,4 +1,4 @@
-package com.yanlong.im.utils.socket;
+package net.cb.cb.library.manager.excutor;
 
 import net.cb.cb.library.utils.LogUtil;
 
@@ -35,7 +35,7 @@ public class ExecutorManager {
         if (writeThread == null || writeThread.isShutdown()) {
             writeThread = new ThreadPoolExecutor(1, 1,
                     0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<Runnable>(100),
+                    new LinkedBlockingQueue<Runnable>(50),
                     new NamedThreadFactory(WRITE_THREAD_NAME),
                     new RejectedHandler());
         }
@@ -46,7 +46,7 @@ public class ExecutorManager {
         if (readThread == null || readThread.isShutdown()) {
             readThread = new ThreadPoolExecutor(1, 1,
                     0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<Runnable>(100),
+                    new LinkedBlockingQueue<Runnable>(50),
                     new NamedThreadFactory(READ_THREAD_NAME),
                     new RejectedHandler());
         }

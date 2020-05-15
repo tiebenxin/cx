@@ -6,6 +6,7 @@ import com.tencent.bugly.crashreport.CrashReport;
 import com.yanlong.im.MyAppLication;
 
 import net.cb.cb.library.constant.BuglyTag;
+import net.cb.cb.library.manager.excutor.ExecutorManager;
 import net.cb.cb.library.utils.LogUtil;
 
 import java.nio.ByteBuffer;

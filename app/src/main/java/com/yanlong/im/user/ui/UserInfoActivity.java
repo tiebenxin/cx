@@ -43,6 +43,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.IntentUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
@@ -561,6 +562,7 @@ public class UserInfoActivity extends AppActivity {
 
     private void taskGroupInfo(String gid) {
         if (TextUtils.isEmpty(gid)) {
+            LogUtil.writeLog("UserInfoActivity--请求群信息gid=null");
             return;
         }
         group = msgDao.getGroup4Id(gid);
