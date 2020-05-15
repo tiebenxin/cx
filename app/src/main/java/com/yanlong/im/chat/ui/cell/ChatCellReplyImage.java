@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.QuotedMessage;
 import com.yanlong.im.chat.bean.ReplyMessage;
@@ -111,7 +112,13 @@ public class ChatCellReplyImage extends ChatCellImage {
                 ivImage.setImageBitmap(localBitmap);
             }
         }
+    }
 
-
+    @Override
+    public void onBubbleClick() {
+        super.onBubbleClick();
+        if (mCellListener != null && model != null) {
+            mCellListener.onEvent(ChatEnum.ECellEventType.REPLY_CLICK, model, contentMessage.getQuotedMessage());
+        }
     }
 }

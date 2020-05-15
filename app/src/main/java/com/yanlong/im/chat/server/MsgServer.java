@@ -5,6 +5,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.NoRedEnvelopesBean;
 import com.yanlong.im.chat.bean.RobotInfoBean;
+import com.yanlong.im.user.bean.CollectionInfo;
 import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -163,4 +164,14 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean<List<UserInfo>>> getUserInfo(@Field("@partialFriendsList") String uidJson);
 
+    @POST("/collect/add")
+    @FormUrlEncoded
+    Call<ReturnBean> collectMsg(@Field("data") String data, @Field("fromUid") long fromUid,@Field("fromUsername") String fromUsername,@Field("type") int type,@Field("fromGid") String fromGid,@Field("fromGroupName") String fromGroupName,@Field("msgId") String msgId);
+
+    @POST("/collect/get_my_collects")
+    Call<ReturnBean<List<CollectionInfo>>> getCollectList();
+
+    @POST("/collect/del")
+    @FormUrlEncoded
+    Call<ReturnBean> cancelCollectMsg( @Field("id") long id);
 }

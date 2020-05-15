@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <net.cb.cb.library.view.HeadView xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/headView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:headview_title="收藏">
+
+        <LinearLayout
+            android:id="@+id/layout_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout style="@style/app_layout_list2">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="42dp"
+                    android:background="@color/white">
+
+                    <LinearLayout
+                        android:id="@+id/view_search"
+                        style="@style/app_layout_list2_item_search"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/shape_search_bg"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="6dp"
+                            android:src="@mipmap/ic_msg_search" />
+
+                        <net.cb.cb.library.view.ClearEditText
+                            android:id="@+id/edt_search"
+                            style="@style/app_edt1"
+                            android:background="@color/transparent"
+                            android:hint="请输入搜索内容"
+                            android:imeOptions="actionSearch" />
+                    </LinearLayout>
+                </RelativeLayout>
+            </LinearLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="1dp" />
+
+            <include
+                android:id="@+id/view_nodata"
+                layout="@layout/view_no_data"
+                android:visibility="gone" />
+        </LinearLayout>
+    </net.cb.cb.library.view.HeadView>
+</layout>

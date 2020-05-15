@@ -147,7 +147,7 @@ public class FileDownloadActivity extends AppActivity {
                 fileMsgId = sendFileMessage.getMsgId();
             }
 
-            //获取文件消息id
+            //获取文件消息大小
             if(sendFileMessage.getSize()!=0L){
                 tvFileSize.setText("文件大小 "+FileUtils.getFileSizeString(sendFileMessage.getSize()));
             }

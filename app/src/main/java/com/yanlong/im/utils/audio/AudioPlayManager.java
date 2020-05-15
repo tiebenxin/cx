@@ -17,9 +17,12 @@ import android.os.PowerManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.yanlong.im.chat.bean.CollectVoiceMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.UserSeting;
+import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 
 import net.cb.cb.library.bean.EventVoicePlay;
@@ -531,5 +534,144 @@ public class AudioPlayManager implements SensorEventListener {
             }
         }
     }
+
+    //收藏-复用播放语音
+    public void startPlay(Long fromUid, Context context, final CollectVoiceMessage bean, IVoicePlayListener playListener) {
+        if (context != null && bean != null) {
+            this.context = context;
+            if (bean == null) {
+                return;
+            }
+            if (this.voicePlayListener != null) {
+                this.voicePlayListener.onStop(new MsgAllBean());
+            }
+            msg_id = bean.getMsgId();
+            String url = "";
+            if (fromUid == UserAction.getMyInfo().getUid().longValue()) { //如果是我自己发的
+                url = bean.getLocalUrl();
+            } else {
+                url = bean.getVoiceURL();
+            }
+            if (TextUtils.isEmpty(url)) {
+                return;
+            }
+            Uri audioUri = Uri.parse(url);
+
+            this.resetMediaPlayer();
+            this.afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+                public void onAudioFocusChange(int focusChange) {
+                    LogUtil.getLog().d(TAG, "OnAudioFocusChangeListener " + focusChange);
+                    if (AudioPlayManager.this._audioManager != null && focusChange == -1) {
+                        AudioPlayManager.this._audioManager.abandonAudioFocus(AudioPlayManager.this.afChangeListener);
+                        AudioPlayManager.this.afChangeListener = null;
+                        AudioPlayManager.this.resetMediaPlayer();
+                    }
+
+                }
+            };
+
+            try {
+                this._powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+                this._audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+                if (!this._audioManager.isWiredHeadsetOn()) {
+                    this._sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+                    this._sensor = this._sensorManager.getDefaultSensor(8);
+                    this._sensorManager.registerListener(this, this._sensor, 3);
+                }
+
+                MsgDao msgDao = new MsgDao();
+                UserSeting userSeting = msgDao.userSetingGet();
+                int voice = userSeting.getVoicePlayer();
+                if (voice == 0) {
+                    changeToSpeaker();
+                } else {
+                    changeToReceiver();
+                }
+
+                this.muteAudioFocus(this._audioManager, true);
+                AudioPlayManager.this.voicePlayListener = playListener;
+                this._playingUri = audioUri;
+                this._mediaPlayer = new MediaPlayer();
+                this._mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    public void onCompletion(MediaPlayer mp) {
+                        LogUtil.getLog().i(TAG, "onCompletion--" + (AudioPlayManager.this.voicePlayListener == null));
+                        if (AudioPlayManager.this.voicePlayListener != null) {
+                            AudioPlayManager.this.voicePlayListener.onComplete(new MsgAllBean());
+                            AudioPlayManager.this._playingUri = null;
+                            AudioPlayManager.this.context = null;
+                        }
+                        AudioPlayManager.this.reset(true);
+                    }
+                });
+                this._mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                    public boolean onError(MediaPlayer mp, int what, int extra) {
+                        AudioPlayManager.this.reset(false);
+                        return true;
+                    }
+                });
+
+                String path = context.getExternalCacheDir().getAbsolutePath();
+                File file = new File(path, getFileName(audioUri.toString()));
+                if (file.exists()) {
+//                    LogUtil.getLog().v(TAG, "本地播放" + file.getPath());
+                    this._mediaPlayer.setDataSource(context, Uri.parse(file.getPath()));
+                } else {
+//                    ToastUtil.show(context, "文件不存在或者已损坏");
+                }
+
+                this._mediaPlayer.setAudioStreamType(CONTENT_TYPE_UNKNOWN);
+                this._mediaPlayer.prepare();
+                this._mediaPlayer.start();
+                if (this.voicePlayListener != null) {
+                    this.voicePlayListener.onStart(new MsgAllBean());
+                }
+            } catch (Exception var5) {
+                var5.printStackTrace();
+                if (this.voicePlayListener != null) {
+                    this.voicePlayListener.onStop(new MsgAllBean());
+                    this.voicePlayListener = null;
+                }
+                this.reset(false);
+            }
+
+        } else {
+            LogUtil.getLog().e(TAG, "startPlay context or audioUri is null.");
+        }
+    }
+
+    //收藏-复用播放语音
+    public void downloadAudio(final Context context, final CollectVoiceMessage bean, final DownloadUtil.IDownloadVoiceListener listener) {
+//        LogUtil.getLog().i(TAG, "downloadAudio");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String path = context.getExternalCacheDir().getAbsolutePath();
+                String url = bean.getVoiceURL();
+                DownloadUtil.get().download(url, path, getFileName(url), new DownloadUtil.OnDownloadListener() {
+                    @Override
+                    public void onDownloadSuccess(File file) {
+                        listener.onDownloadSuccess(file);
+                        currentDownBean = null;
+                        LogUtil.getLog().i(TAG, "语音下载成功");
+
+                        MyDiskCacheUtils.getInstance().putFileNmae(path, url);
+                    }
+
+                    @Override
+                    public void onDownloading(int progress) {
+
+                    }
+
+                    @Override
+                    public void onDownloadFailed(Exception e) {
+                        listener.onDownloadFailed(e);
+                        currentDownBean = null;
+                    }
+                });
+            }
+        }).start();
+    }
+
 
 }

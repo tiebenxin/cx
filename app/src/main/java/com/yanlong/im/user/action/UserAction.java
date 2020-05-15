@@ -435,7 +435,14 @@ public class UserAction {
      */
     private void initDB(String uuid) {
         LogUtil.getLog().i("dbinfo", ">>>>>>>>>>>>>>>>>>>初始数据库:" + "db_user_" + uuid);
-        DaoUtil.get().initConfig("db_user_" + uuid);
+        int type = SpUtil.getSpUtil().getSPValue("ipType", 0);
+        String appType = "";//服务器类型名称
+        if (type == 1) {
+            appType = "_debug";
+        } else if (type == 2) {
+            appType = "_pre";
+        }
+        DaoUtil.get().initConfig("db_user_" + uuid + appType);
     }
 
     /***
@@ -503,14 +510,6 @@ public class UserAction {
 
                 if (response.body().isOk()) {
                     List<UserInfo> list = response.body().getData();
-                    //TODO zjy 模拟新增文件小助手项 id=3，展示在通讯录，暂无接口
-//                    UserInfo tempUser = new UserInfo();
-//                    tempUser.setName("常信文件传输助手");
-//                    tempUser.setUid(Constants.CX_FILE_HELPER_UID);
-//                    tempUser.setuType(ChatEnum.EUserType.ASSISTANT);
-//                    tempUser.setHead("http://zx-im-img.zhixun6.com/static/%E5%B8%B8%E4%BF%A1%E5%B0%8F%E5%8A%A9%E6%89%8B.png");
-//                    tempUser.setStat(9);
-//                    list.add(tempUser);
                     //更新库
                     dao.friendMeUpdate(list);
 
@@ -585,25 +584,26 @@ public class UserAction {
         NetUtil.getNet().exec(server.userInfoSet(imid, avatar, nickname, gender), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-               try {
-                   if (response.body() == null)
-                       return;
-                   if (response.body().isOk()) {
-                       myInfo = dao.findUserBean(getMyId());
-                       if(myInfo!=null) {
-                           if (!TextUtils.isEmpty(imid))
-                               myInfo.setImid(imid);
-                           if (!TextUtils.isEmpty(avatar))
-                               myInfo.setHead(avatar);
-                           if (!TextUtils.isEmpty(nickname))
-                               myInfo.setName(nickname);
-                           if (gender != null)
-                               myInfo.setSex(gender);
-                           updateUser2DB(myInfo);
-                           upMyinfoToPay();
-                       }
-                   }
-               }catch (Exception e){}
+                try {
+                    if (response.body() == null)
+                        return;
+                    if (response.body().isOk()) {
+                        myInfo = dao.findUserBean(getMyId());
+                        if (myInfo != null) {
+                            if (!TextUtils.isEmpty(imid))
+                                myInfo.setImid(imid);
+                            if (!TextUtils.isEmpty(avatar))
+                                myInfo.setHead(avatar);
+                            if (!TextUtils.isEmpty(nickname))
+                                myInfo.setName(nickname);
+                            if (gender != null)
+                                myInfo.setSex(gender);
+                            updateUser2DB(myInfo);
+                            upMyinfoToPay();
+                        }
+                    }
+                } catch (Exception e) {
+                }
                 callback.onResponse(call, response);
             }
         });
@@ -927,9 +927,9 @@ public class UserAction {
     /**
      * 上报用户地理位置信息 5/8新增昵称 手机等信息
      */
-    public void postLocation(String city, String country, String lat, String lon,String nickname
-            ,String phoneModel,String phone, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.postLocation(city, country, lat, lon,nickname,phoneModel,phone), callback);
+    public void postLocation(String city, String country, String lat, String lon, String nickname
+            , String phoneModel, String phone, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.postLocation(city, country, lat, lon, nickname, phoneModel, phone), callback);
     }
 
     /**
