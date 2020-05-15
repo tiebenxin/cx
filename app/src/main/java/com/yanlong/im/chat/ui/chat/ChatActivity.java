@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -97,6 +98,14 @@ import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BalanceAssistantMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
+import com.yanlong.im.chat.bean.CollectAtMessage;
+import com.yanlong.im.chat.bean.CollectChatMessage;
+import com.yanlong.im.chat.bean.CollectImageMessage;
+import com.yanlong.im.chat.bean.CollectLocationMessage;
+import com.yanlong.im.chat.bean.CollectSendFileMessage;
+import com.yanlong.im.chat.bean.CollectShippedExpressionMessage;
+import com.yanlong.im.chat.bean.CollectVideoMessage;
+import com.yanlong.im.chat.bean.CollectVoiceMessage;
 import com.yanlong.im.chat.bean.EnvelopeInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
@@ -108,6 +117,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
+import com.yanlong.im.chat.bean.QuotedMessage;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.ReadMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
@@ -153,6 +163,7 @@ import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.pay.ui.record.SingleRedPacketDetailsActivity;
 import com.yanlong.im.repository.ApplicationRepository;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.CollectionInfo;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -254,6 +265,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.RealmList;
+import io.realm.RealmObject;
 import io.realm.RealmResults;
 import me.kareluo.ui.OptionMenu;
 import me.rosuh.filepicker.config.FilePickerManager;
@@ -3083,7 +3095,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         replaceListDataAndNotify(msgAllbean, true);
     }
 
-
     private void setChatImageBackground() {
         UserSeting seting = new MsgDao().userSetingGet();
         if (seting == null) {
@@ -3723,17 +3734,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
             menus.add(new OptionMenu("转发"));
         }
-//        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanReply(type)) {
-//            menus.add(new OptionMenu("回复"));
-//        }
+        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanReply(type)) {
+            menus.add(new OptionMenu("回复"));
+        }
         menus.add(new OptionMenu("删除"));
         switch (type) {
             case ChatEnum.EMessageType.TEXT:
             case ChatEnum.EMessageType.AT:
                 menus.add(0, new OptionMenu("复制"));
-                break;
-            case ChatEnum.EMessageType.IMAGE:
-            case ChatEnum.EMessageType.MSG_VIDEO:
+                menus.add(1, new OptionMenu("收藏"));
                 break;
             case ChatEnum.EMessageType.VOICE:
                 if (msgDao.userSetingGet().getVoicePlayer() == 0) {
@@ -3741,6 +3750,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 } else {
                     menus.add(0, new OptionMenu("扬声器播放"));
                 }
+                menus.add(1, new OptionMenu("收藏"));
+                break;
+            case ChatEnum.EMessageType.LOCATION:
+            case ChatEnum.EMessageType.IMAGE:
+            case ChatEnum.EMessageType.MSG_VIDEO:
+            case ChatEnum.EMessageType.SHIPPED_EXPRESSION:
+            case ChatEnum.EMessageType.FILE:
+                menus.add(1, new OptionMenu("收藏"));
                 break;
         }
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && type != ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
@@ -3821,6 +3838,17 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             onAnswer(msgbean);
         } else if ("多选".equals(value)) {
             onMore(msgbean);
+        } else if ("收藏".equals(value)) {
+            if(msgbean.getSend_state()== ChatEnum.ESendStatus.NORMAL){
+                if(msgbean.getSurvival_time()==0){
+                    onCollect(msgbean);
+                }else {
+                    ToastUtil.show("开启阅后即焚的会话，不允许收藏!");
+                }
+            }else {
+                ToastUtil.show("仅支持收藏发送成功的消息");
+            }
+
         }
     }
 
@@ -3912,6 +3940,65 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             mViewModel.isReplying.setValue(true);
         viewReplyMessage.setMessage(bean);
         mtListView.scrollToEnd();
+    }
+
+    //收藏 (暂时只做有网收藏的情况)
+    private void onCollect(MsgAllBean msgbean){
+        if (!checkNetConnectStatus()) {
+            return;
+        }
+        String fromUsername = "";//用户名称
+        String fromGid = "";//群组id
+        String fromGroupName = "";//群组名称
+        if(!TextUtils.isEmpty(msgbean.getFrom_nickname())){
+            fromUsername = msgbean.getFrom_nickname();
+        }else {
+            fromUsername = "";
+        }
+        if(!TextUtils.isEmpty(msgbean.getGid())){
+            fromGid = msgbean.getGid();
+        }else {
+            fromGid = "";
+        }
+        if(msgbean.getGroup()!=null){
+            if(!TextUtils.isEmpty(msgbean.getGroup().getName())){
+                fromGroupName = msgbean.getGroup().getName();
+            }else {
+                fromGroupName = msgDao.getGroupName(msgbean.getGid());//没有群名称，拿自动生成的群昵称给后台
+            }
+        }
+        CollectionInfo collectionInfo = new CollectionInfo();
+        //区分不同消息类型，转换成新的收藏消息结构，作为data传过去
+        if(msgbean.getMsg_type()==ChatEnum.EMessageType.TEXT){
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.TEXT,msgbean)));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.IMAGE){
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.IMAGE,msgbean)));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.SHIPPED_EXPRESSION){
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.SHIPPED_EXPRESSION,msgbean)));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.MSG_VIDEO){
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.MSG_VIDEO,msgbean)));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.VOICE){
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.VOICE,msgbean)));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.LOCATION){
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.LOCATION,msgbean)));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.AT){
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.AT,msgbean)));
+        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.FILE){
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.FILE,msgbean)));
+        }
+        collectionInfo.setFromUid(msgbean.getFrom_uid());
+        collectionInfo.setFromUsername(fromUsername);
+        collectionInfo.setType(SocketData.getMessageType(msgbean.getMsg_type()).getNumber());//收藏类型统一改为protobuf类型
+        collectionInfo.setFromGid(fromGid);
+        collectionInfo.setFromGroupName(fromGroupName);
+        collectionInfo.setMsgId(msgbean.getMsg_id());
+        collectionInfo.setCreateTime(System.currentTimeMillis()+"");//收藏时间是现在系统时间
+        //无网保存本地数据，有网请求数据
+//        if (!checkNetConnectStatus()) {
+//            msgDao.saveCollection(collectionInfo);//拼凑保存CollectionInfo收藏对象
+//        }else {
+            httpCollect(collectionInfo);
+//        }
     }
 
 
@@ -4208,7 +4295,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         isLoadHistory = true;
         List<MsgAllBean> listTemp = msgAction.getMsg4UserHistory(toGid, toUId, history.getStime());
         taskMkName(listTemp);
-        mAdapter.bindData(listTemp,false);
+        mAdapter.bindData(listTemp, false);
         notifyData();
         mtListView.getListView().smoothScrollToPosition(0);
 
@@ -5630,6 +5717,22 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
                 resendMessage(message);
                 break;
+            case ChatEnum.ECellEventType.REPLY_CLICK:
+                if (args[0] != null && args[0] instanceof QuotedMessage) {
+                    QuotedMessage quotedMessage = (QuotedMessage) args[0];
+                    MsgAllBean bean = msgDao.getMsgById(quotedMessage.getMsgId());
+                    if (bean != null && mAdapter != null) {
+                        int position = mAdapter.getPosition(bean);
+                        if (position >= 0) {
+                            scrollChatToPosition(position);
+                        } else {
+                            ToastUtil.show("消息不存在");
+                        }
+                    } else {
+                        ToastUtil.show("消息不存在");
+                    }
+                }
+                break;
             case ChatEnum.ECellEventType.WEB_CLICK:
                 break;
             case ChatEnum.ECellEventType.MULTI_CLICK:
@@ -5646,12 +5749,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void clickFile(MsgAllBean message, SendFileMessage fileMessage) {
         //1 如果是我发的文件
         if (message.isMe()) {
-            //2 判断是否为转发
+            //1-1 判断是否为转发 (特殊场景处理:直接转发别人的文件消息，未下载过该文件)
             //若是转发他人，则需要先从下载路径里找，有则代表已下载直接打开，没有则需要下载
             if (fileMessage.isFromOther()) {
                 //通过真实文件名去下载路径找，真实文件名主要用于区分同一重名文件，如123.txt 123(1).txt 123(2).txt
                 if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
-                    openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
+                    openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename());
                 } else {
                     if (!TextUtils.isEmpty(fileMessage.getUrl())) {
                         Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
@@ -5673,11 +5776,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             if (fileMessage.getSize() != 0) {
                                 //小于10M，自动下载+打开
                                 if (fileMessage.getSize() < 10485760) {
-                                    ToastUtil.show("检测到该文件来源于PC端，本地即将开启下载");
                                     DownloadFile(fileMessage);
                                 } else {
                                     //大于10M，跳详情，用户自行选择手动下载
-                                    ToastUtil.show("检测到该文件来源于PC端，请点击下载");
                                     Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
                                     intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
                                     startActivity(intent);
@@ -5695,11 +5796,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         ToastUtil.show("文件不存在或者已被删除");
                     }
                 }
-
-
             }
         } else {
-            //如果是别人发的文件
+            //2 如果是别人发的文件
             //从下载路径里找，若存在该文件，则直接打开；否则需要下载
             if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
                 openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename());
@@ -6039,6 +6138,42 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         } else {
             return false;
         }
+
+    }
+
+    /**
+     * 发请求->收藏
+     * @param collectionInfo
+     */
+    private void httpCollect(CollectionInfo collectionInfo) {
+        msgAction.collectMsg(collectionInfo.getData(), collectionInfo.getFromUid(), collectionInfo.getFromUsername(),
+                collectionInfo.getType(),collectionInfo.getFromGid(),collectionInfo.getFromGroupName(),collectionInfo.getMsgId(),
+                new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+//                    ToastUtil.show(ChatActivity.this, "收藏成功!");
+                    Snackbar.make(findViewById(R.id.ll_big_bg), "收藏成功!", Snackbar.LENGTH_SHORT).show();
+//                    msgDao.saveCollection(collectionInfo);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                Snackbar.make(findViewById(R.id.ll_big_bg), "收藏失败!", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void initLastPosition() {
+        if (mtListView != null) {
+            lastPosition = ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).findLastVisibleItemPosition();
+        }
     }
 
 
@@ -6060,6 +6195,72 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (replayMsg != null) {
             replayMsg.setIsReplying(0);
             DaoUtil.update(replayMsg);
+        }
+    }
+
+    //转换成新的收藏消息结构
+    private RealmObject convertCollectBean(int type, MsgAllBean msgAllBean){
+        if(type==ChatEnum.EMessageType.TEXT){
+            CollectChatMessage collectChatMessage = new CollectChatMessage();
+            collectChatMessage.setMsgid(msgAllBean.getChat().getMsgId());
+            collectChatMessage.setMsg(msgAllBean.getChat().getMsg());
+            return collectChatMessage;
+        }if(type==ChatEnum.EMessageType.IMAGE){
+            CollectImageMessage collectImageMessage = new CollectImageMessage();
+            collectImageMessage.setMsgid(msgAllBean.getImage().getMsgId());
+            collectImageMessage.setOrigin(msgAllBean.getImage().getOrigin());
+            collectImageMessage.setPreview(msgAllBean.getImage().getPreview());
+            collectImageMessage.setThumbnail(msgAllBean.getImage().getThumbnail());
+            collectImageMessage.setWidth(msgAllBean.getImage().getWidth());
+            collectImageMessage.setHeight(msgAllBean.getImage().getHeight());
+            collectImageMessage.setSize(msgAllBean.getImage().getSize());
+            return collectImageMessage;
+        }if(type==ChatEnum.EMessageType.SHIPPED_EXPRESSION){
+            CollectShippedExpressionMessage collectShippedExpressionMessage = new CollectShippedExpressionMessage();
+            collectShippedExpressionMessage.setMsgId(msgAllBean.getShippedExpressionMessage().getMsgId());
+            collectShippedExpressionMessage.setExpression(msgAllBean.getShippedExpressionMessage().getId());
+            return collectShippedExpressionMessage;
+        }if(type==ChatEnum.EMessageType.MSG_VIDEO){
+            CollectVideoMessage collectVideoMessage = new CollectVideoMessage();
+            collectVideoMessage.setMsgId(msgAllBean.getVideoMessage().getMsgId());
+            collectVideoMessage.setVideoDuration(msgAllBean.getVideoMessage().getDuration());
+            collectVideoMessage.setVideoBgURL(msgAllBean.getVideoMessage().getBg_url());
+            collectVideoMessage.setVideoURL(msgAllBean.getVideoMessage().getUrl());
+            collectVideoMessage.setWidth(msgAllBean.getVideoMessage().getWidth());
+            collectVideoMessage.setHeight(msgAllBean.getVideoMessage().getHeight());
+            collectVideoMessage.setSize(msgAllBean.getVideoMessage().getDuration());//旧消息没有和这个字段
+            return collectVideoMessage;
+        }if(type==ChatEnum.EMessageType.VOICE){
+            CollectVoiceMessage collectVoiceMessage = new CollectVoiceMessage();
+            collectVoiceMessage.setMsgId(msgAllBean.getVoiceMessage().getMsgId());
+            collectVoiceMessage.setVoiceURL(msgAllBean.getVoiceMessage().getUrl());
+            collectVoiceMessage.setVoiceDuration(msgAllBean.getVoiceMessage().getTime());
+            collectVoiceMessage.setLocalUrl(msgAllBean.getVoiceMessage().getLocalUrl());
+            return collectVoiceMessage;
+        }if(type==ChatEnum.EMessageType.LOCATION){
+            CollectLocationMessage collectLocationMessage = new CollectLocationMessage();
+            collectLocationMessage.setMsgId(msgAllBean.getLocationMessage().getMsgId());
+            collectLocationMessage.setLat(msgAllBean.getLocationMessage().getLatitude());
+            collectLocationMessage.setLon(msgAllBean.getLocationMessage().getLongitude());
+            collectLocationMessage.setAddr(msgAllBean.getLocationMessage().getAddress());
+            collectLocationMessage.setAddressDesc(msgAllBean.getLocationMessage().getAddressDescribe());
+            collectLocationMessage.setImg(msgAllBean.getLocationMessage().getImg());
+            return collectLocationMessage;
+        }if(type==ChatEnum.EMessageType.AT){
+            CollectAtMessage collectAtMessage = new CollectAtMessage();
+            collectAtMessage.setMsgId(msgAllBean.getAtMessage().getMsgId());
+            collectAtMessage.setMsg(msgAllBean.getAtMessage().getMsg());
+            return collectAtMessage;
+        }if(type==ChatEnum.EMessageType.FILE){
+            CollectSendFileMessage collectSendFileMessage = new CollectSendFileMessage();
+            collectSendFileMessage.setMsgId(msgAllBean.getSendFileMessage().getMsgId());
+            collectSendFileMessage.setFileURL(msgAllBean.getSendFileMessage().getUrl());
+            collectSendFileMessage.setFileName(msgAllBean.getSendFileMessage().getFile_name());
+            collectSendFileMessage.setFileFormat(msgAllBean.getSendFileMessage().getFormat());
+            collectSendFileMessage.setFileSize(msgAllBean.getSendFileMessage().getSize());
+            return collectSendFileMessage;
+        }else {
+            return null;
         }
     }
 }

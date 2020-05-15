@@ -175,4 +175,34 @@ public class DateUtils {
             return false;
         }
     }
+
+
+    /**
+     * 秒转为分秒 00:00
+     * @param i
+     * @return
+     */
+    public static String secondFormat(long i) {
+        if(String.valueOf(i).length() < 2) {
+            return "0"+i;
+        }else {
+            return String.valueOf(i);
+        }
+    }
+
+    /**
+     * 秒转为分秒 00:00
+     * @param m
+     * @return
+     */
+    public static String getSecondFormatTime(long m) {
+        if (m < 60) {//秒
+            return secondFormat(0) + ":" + secondFormat(m);
+        }
+        if (m < 3600) {//分
+            return secondFormat(m / 60) + ":" + secondFormat(m % 60);
+        }
+        return "--";
+    }
+
 }

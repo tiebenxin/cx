@@ -26,7 +26,16 @@ import com.yanlong.im.MainActivity;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
+import com.yanlong.im.chat.bean.CollectAtMessage;
+import com.yanlong.im.chat.bean.CollectChatMessage;
+import com.yanlong.im.chat.bean.CollectImageMessage;
+import com.yanlong.im.chat.bean.CollectLocationMessage;
+import com.yanlong.im.chat.bean.CollectSendFileMessage;
+import com.yanlong.im.chat.bean.CollectShippedExpressionMessage;
+import com.yanlong.im.chat.bean.CollectVideoMessage;
+import com.yanlong.im.chat.bean.CollectVoiceMessage;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -44,6 +53,8 @@ import com.yanlong.im.databinding.ActivityMsgForwardBinding;
 import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.share.ShareDialog;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.CollectionInfo;
+import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
@@ -94,6 +105,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     private MsgAllBean msgAllBean;
     private MsgAllBean sendMessage;//转发消息
+    private CollectionInfo collectionInfo;//收藏转发
 
 
     @CustomTabView.ETabPosition
@@ -132,6 +144,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     //图片编辑地址
     private String editPicPath = "";
+
+    //收藏转发
+    private boolean fromCollect = false;
 
 
     //单条消息转发
@@ -210,6 +225,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         Intent intent = getIntent();
         model = intent.getIntExtra(MODE, ChatEnum.EForwardMode.DEFAULT);
         json = intent.getStringExtra(AGM_JSON);
+        fromCollect = intent.getBooleanExtra("from_collect", false);
         if (model == ChatEnum.EForwardMode.DEFAULT || model == ChatEnum.EForwardMode.MERGE) {
             msgAllBean = GsonUtils.getObject(json, MsgAllBean.class);
         } else if (model == ChatEnum.EForwardMode.ONE_BY_ONE) {
@@ -266,10 +282,12 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         searchKey = null;
         isSingleSelected = true;
         moreSessionBeanList = new ArrayList<>();
-
         json = getIntent().getStringExtra(AGM_JSON);
-        msgAllBean = GsonUtils.getObject(json, MsgAllBean.class);
-
+        if(!fromCollect){
+            msgAllBean = GsonUtils.getObject(json, MsgAllBean.class);
+        }else {
+            collectionInfo = GsonUtils.getObject(json, CollectionInfo.class);//来自收藏的转发特殊处理
+        }
         resetRightText();
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -560,40 +578,73 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         String imageUrl = "";
         int type = 0;
         if (model == ChatEnum.EForwardMode.DEFAULT || model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.SHARE) {
-            if (msgAllBean == null) {
-                return;
-            }
-            type = msgAllBean.getMsg_type();
-            if (msgAllBean.getChat() != null) {//转换文字
-                txt = msgAllBean.getChat().getMsg();
-            } else if (msgAllBean.getImage() != null) {
-                imageUrl = msgAllBean.getImage().getThumbnail();
-                if (TextUtils.isEmpty(imageUrl)) {
-                    if (model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.SHARE) {
-                        imageUrl = msgAllBean.getImage().getLocalimg();
+            //默认转发
+            if(fromCollect==false){
+                if (msgAllBean == null) {
+                    return;
+                }
+                type = msgAllBean.getMsg_type();
+                if (msgAllBean.getChat() != null) {//转换文字
+                    txt = msgAllBean.getChat().getMsg();
+                } else if (msgAllBean.getImage() != null) {
+                    imageUrl = msgAllBean.getImage().getThumbnail();
+                    if (TextUtils.isEmpty(imageUrl)) {
+                        if (model == ChatEnum.EForwardMode.SYS_SEND || model == ChatEnum.EForwardMode.SHARE) {
+                            imageUrl = msgAllBean.getImage().getLocalimg();
+                        }
+                    }
+                } else if (msgAllBean.getAtMessage() != null) {
+                    txt = msgAllBean.getAtMessage().getMsg();
+                } else if (msgAllBean.getVideoMessage() != null) {
+                    imageUrl = msgAllBean.getVideoMessage().getBg_url();
+                } else if (msgAllBean.getLocationMessage() != null) {
+                    txt = "[位置]" + msgAllBean.getLocationMessage().getAddress();
+                } else if (msgAllBean.getShippedExpressionMessage() != null) {
+                    imageUrl = msgAllBean.getShippedExpressionMessage().getId();
+                } else if (msgAllBean.getVideoMessage() != null) {
+                    imageUrl = msgAllBean.getVideoMessage().getBg_url();
+                } else if (msgAllBean.getLocationMessage() != null) {
+                    imageUrl = LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(), msgAllBean.getLocationMessage().getLongitude());
+                } else if (msgAllBean.getSendFileMessage() != null) {
+                    txt = "[文件]" + msgAllBean.getSendFileMessage().getFile_name();
+                } else if (msgAllBean.getWebMessage() != null) {
+                    txt = "[链接]" + msgAllBean.getWebMessage().getTitle();
+                } else if (msgAllBean.getReplyMessage() != null) {
+                    if (msgAllBean.getReplyMessage().getAtMessage() != null) {
+                        txt = msgAllBean.getReplyMessage().getAtMessage().getMsg();
+                    } else if (msgAllBean.getReplyMessage().getChatMessage() != null) {
+                        txt = msgAllBean.getReplyMessage().getChatMessage().getMsg();
                     }
                 }
-            } else if (msgAllBean.getAtMessage() != null) {
-                txt = msgAllBean.getAtMessage().getMsg();
-            } else if (msgAllBean.getVideoMessage() != null) {
-                imageUrl = msgAllBean.getVideoMessage().getBg_url();
-            } else if (msgAllBean.getLocationMessage() != null) {
-                txt = "[位置]" + msgAllBean.getLocationMessage().getAddress();
-            } else if (msgAllBean.getShippedExpressionMessage() != null) {
-                imageUrl = msgAllBean.getShippedExpressionMessage().getId();
-            } else if (msgAllBean.getVideoMessage() != null) {
-                imageUrl = msgAllBean.getVideoMessage().getBg_url();
-            } else if (msgAllBean.getLocationMessage() != null) {
-                imageUrl = LocationUtils.getLocationUrl(msgAllBean.getLocationMessage().getLatitude(), msgAllBean.getLocationMessage().getLongitude());
-            } else if (msgAllBean.getSendFileMessage() != null) {
-                txt = "[文件]" + msgAllBean.getSendFileMessage().getFile_name();
-            } else if (msgAllBean.getWebMessage() != null) {
-                txt = "[链接]" + msgAllBean.getWebMessage().getTitle();
-            } else if (msgAllBean.getReplyMessage() != null) {
-                if (msgAllBean.getReplyMessage().getAtMessage() != null) {
-                    txt = msgAllBean.getReplyMessage().getAtMessage().getMsg();
-                } else if (msgAllBean.getReplyMessage().getChatMessage() != null) {
-                    txt = msgAllBean.getReplyMessage().getChatMessage().getMsg();
+            }else {
+                //收藏转发特殊处理
+                if (collectionInfo == null) {
+                    return;
+                }
+                type = CommonUtils.transformMsgType(collectionInfo.getType());
+                //支持收藏转发的类型
+                if (type==ChatEnum.EMessageType.TEXT) {//转换文字
+                    CollectChatMessage bean1 = new Gson().fromJson(collectionInfo.getData(), CollectChatMessage.class);
+                    txt = bean1.getMsg();
+                } else if (type==ChatEnum.EMessageType.IMAGE) {
+                    CollectImageMessage bean2 = new Gson().fromJson(collectionInfo.getData(), CollectImageMessage.class);
+                    imageUrl = bean2.getThumbnail();
+                } else if (type==ChatEnum.EMessageType.AT) {
+                    CollectAtMessage bean3 = new Gson().fromJson(collectionInfo.getData(), CollectAtMessage.class);
+                    txt = bean3.getMsg();
+                } else if (type==ChatEnum.EMessageType.MSG_VIDEO) {
+                    CollectVideoMessage bean4 = new Gson().fromJson(collectionInfo.getData(), CollectVideoMessage.class);
+                    imageUrl = bean4.getVideoBgURL();
+                } else if (type==ChatEnum.EMessageType.LOCATION) {
+                    CollectLocationMessage bean5 = new Gson().fromJson(collectionInfo.getData(), CollectLocationMessage.class);
+                    txt = "[位置]" + bean5.getAddr();
+                    imageUrl = LocationUtils.getLocationUrl(bean5.getLat(),bean5.getLon());
+                } else if (type==ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+                    CollectShippedExpressionMessage bean6 = new Gson().fromJson(collectionInfo.getData(), CollectShippedExpressionMessage.class);
+                    imageUrl = bean6.getExpression();
+                } else if (type==ChatEnum.EMessageType.FILE) {
+                    CollectSendFileMessage bean7 = new Gson().fromJson(collectionInfo.getData(), CollectSendFileMessage.class);
+                    txt = "[文件]" + bean7.getFileName();
                 }
             }
         } else if (model == ChatEnum.EForwardMode.ONE_BY_ONE) {
@@ -618,7 +669,14 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             @Override
             public void onYes(String content) {
                 if (model == ChatEnum.EForwardMode.DEFAULT || model == ChatEnum.EForwardMode.MERGE) {
-                    send(msgAllBean, content, toUid, toGid);
+                    //默认转发
+                    if(fromCollect==false){
+                        send(msgAllBean, content, toUid, toGid);
+                    }else {
+                        //收藏转发
+                        send(collectionInfo, content, toUid, toGid);
+                    }
+
 //                    doSendSuccess();
                 } else if (model == ChatEnum.EForwardMode.ONE_BY_ONE) {
                     if (msgList != null) {
@@ -1326,5 +1384,196 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     public ForwardViewModel getViewModel() {
         return viewModel;
+    }
+
+    //处理逻辑-收藏转发
+    private void send(CollectionInfo collectionInfo, String content, long toUid, String toGid) {
+        int type = CommonUtils.transformMsgType(collectionInfo.getType());
+        if (type==ChatEnum.EMessageType.TEXT) {//转换文字
+            CollectChatMessage bean1 = new Gson().fromJson(collectionInfo.getData(), CollectChatMessage.class);
+            if (isSingleSelected) {
+                ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), bean1.getMsg());
+                MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, type, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
+                if (allBean != null) {
+                    sendMessage(allBean);
+                }
+                sendLeaveMessage(content, toUid, toGid);
+            } else {
+                for (int i = 0; i < moreSessionBeanList.size(); i++) {
+                    MoreSessionBean bean = moreSessionBeanList.get(i);
+
+                    ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), bean1.getMsg());
+                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), type, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
+                    if (allBean != null) {
+                        sendMessageForMulti(allBean);
+                    }
+                    sendLeaveMessageForMulti(content, bean.getUid(), bean.getGid());
+                }
+                isSingleSelected = true;
+            }
+        } else if (type==ChatEnum.EMessageType.IMAGE) {
+            CollectImageMessage bean2 = new Gson().fromJson(collectionInfo.getData(), CollectImageMessage.class);
+            if (isSingleSelected) {
+                CollectImageMessage imagesrc = bean2;
+                if (collectionInfo.getFromUid() == UserAction.getMyId().longValue()) {
+                    imagesrc.setReadOrigin(true);
+                }
+                ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), imagesrc.getWidth(), imagesrc.getHeight(), !TextUtils.isEmpty(imagesrc.getOrigin()), imagesrc.isReadOrigin(), imagesrc.getSize());
+                MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, type, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), imageMessage);
+                if (allBean != null) {
+                    sendMessage(allBean);
+                }
+                sendLeaveMessage(content, toUid, toGid);
+            } else {
+                for (int i = 0; i < moreSessionBeanList.size(); i++) {
+                    MoreSessionBean bean = moreSessionBeanList.get(i);
+                    CollectImageMessage imagesrc = bean2;
+                    if (collectionInfo.getFromUid() == UserAction.getMyId().longValue()) {
+                        imagesrc.setReadOrigin(true);
+                    }
+                    ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), imagesrc.getWidth(), imagesrc.getHeight(), !TextUtils.isEmpty(imagesrc.getOrigin()), imagesrc.isReadOrigin(), imagesrc.getSize());
+                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), type, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), imageMessage);
+                    if (allBean != null) {
+                        sendMessage(allBean);
+                    }
+                    sendLeaveMessage(content, bean.getUid(), bean.getGid());
+                }
+                isSingleSelected = true;
+            }
+        } else if (type==ChatEnum.EMessageType.AT) {
+            CollectAtMessage bean3 = new Gson().fromJson(collectionInfo.getData(), CollectAtMessage.class);
+            if (isSingleSelected) {
+                ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), bean3.getMsg());
+                MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
+                if (allBean != null) {
+                    sendMessage(allBean);
+                }
+                sendLeaveMessage(content, toUid, toGid);
+            } else {
+                for (int i = 0; i < moreSessionBeanList.size(); i++) {
+                    MoreSessionBean bean = moreSessionBeanList.get(i);
+
+                    ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), bean3.getMsg());
+                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
+                    if (allBean != null) {
+                        sendMessage(allBean);
+                    }
+                    sendLeaveMessage(content, bean.getUid(), bean.getGid());
+                }
+                isSingleSelected = true;
+            }
+        } else if (type==ChatEnum.EMessageType.MSG_VIDEO) {
+            CollectVideoMessage bean4 = new Gson().fromJson(collectionInfo.getData(), CollectVideoMessage.class);
+            if (isSingleSelected) {
+                CollectVideoMessage video = bean4;
+                VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), video.getVideoBgURL(), video.getVideoURL(), video.getVideoDuration(), video.getWidth(), video.getHeight(), video.isReadOrigin());
+                MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, type, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), videoMessage);
+                if (allBean != null) {
+                    sendMessage(allBean);
+                }
+                sendLeaveMessage(content, toUid, toGid);
+            } else {
+                for (int i = 0; i < moreSessionBeanList.size(); i++) {
+                    MoreSessionBean bean = moreSessionBeanList.get(i);
+                    CollectVideoMessage video = bean4;
+                    VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), video.getVideoBgURL(), video.getVideoURL(), video.getVideoDuration(), video.getWidth(), video.getHeight(), video.isReadOrigin());
+                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), type, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), videoMessage);
+                    if (allBean != null) {
+                        sendMessage(allBean);
+                    }
+                    sendLeaveMessage(content, bean.getUid(), bean.getGid());
+                }
+                isSingleSelected = true;
+            }
+        } else if (type==ChatEnum.EMessageType.LOCATION) {
+            CollectLocationMessage bean5 = new Gson().fromJson(collectionInfo.getData(), CollectLocationMessage.class);
+            if (isSingleSelected) {
+                CollectLocationMessage location = bean5;
+                //收藏用的不多，手动创建位置消息
+                LocationMessage locationMessage = new LocationMessage();
+                locationMessage.setMsgId(SocketData.getUUID());
+                locationMessage.setLatitude(location.getLat());
+                locationMessage.setLongitude(location.getLon());
+                locationMessage.setImg(location.getImg());
+                locationMessage.setAddress(location.getAddr());
+                locationMessage.setAddressDescribe(location.getAddressDesc());
+                MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, type, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), locationMessage);
+                if (allBean != null) {
+                    sendMessage(allBean);
+                }
+                sendLeaveMessage(content, toUid, toGid);
+            } else {
+                for (int i = 0; i < moreSessionBeanList.size(); i++) {
+                    MoreSessionBean bean = moreSessionBeanList.get(i);
+                    LocationMessage locationMessage = new LocationMessage();
+                    locationMessage.setMsgId(SocketData.getUUID());
+                    locationMessage.setLatitude(bean5.getLat());
+                    locationMessage.setLongitude(bean5.getLon());
+                    locationMessage.setImg(bean5.getImg());
+                    locationMessage.setAddress(bean5.getAddr());
+                    locationMessage.setAddressDescribe(bean5.getAddressDesc());
+                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), type, ChatEnum.ESendStatus.NORMAL,
+                            SocketData.getFixTime(), locationMessage);
+                    if (allBean != null) {
+                        sendMessage(allBean);
+                    }
+                    sendLeaveMessage(content, bean.getUid(), bean.getGid());
+                }
+                isSingleSelected = true;
+            }
+        } else if (type==ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+            CollectShippedExpressionMessage bean6 = new Gson().fromJson(collectionInfo.getData(), CollectShippedExpressionMessage.class);
+            if (isSingleSelected) {
+                ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(), bean6.getExpression());
+                MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.SHIPPED_EXPRESSION, ChatEnum.ESendStatus.NORMAL,
+                        SocketData.getFixTime(), message);
+                if (allBean != null) {
+                    sendMessage(allBean);
+                }
+                sendLeaveMessage(content, toUid, toGid);
+            } else {
+                for (int i = 0; i < moreSessionBeanList.size(); i++) {
+                    MoreSessionBean bean = moreSessionBeanList.get(i);
+                    ShippedExpressionMessage chatMessage = SocketData.createFaceMessage(SocketData.getUUID(), bean6.getExpression());
+                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), ChatEnum.EMessageType.SHIPPED_EXPRESSION,
+                            ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
+                    if (allBean != null) {
+                        sendMessage(allBean);
+                    }
+                    sendLeaveMessage(content, bean.getUid(), bean.getGid());
+                }
+                isSingleSelected = true;
+            }
+        } else if (type==ChatEnum.EMessageType.FILE) { //转发文件消息
+            CollectSendFileMessage bean8 = new Gson().fromJson(collectionInfo.getData(), CollectSendFileMessage.class);
+            //文件分为两种情况：转发他人/自己转发自己，转发他人的文件需要下载，转发自己的文件直接从本地查找
+            boolean isFromOther;
+            //如果是自己转发自己的文件
+            if (collectionInfo.getFromUid() == UserAction.getMyId().longValue()) {
+                isFromOther = false;
+            } else {
+                isFromOther = true;
+            }
+            if (isSingleSelected) {
+                SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), bean8.getCollectLocalPath(), bean8.getFileURL(), bean8.getFileName(), bean8.getFileSize(), bean8.getFileFormat(), isFromOther);
+                MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, type, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), fileMessage);
+                if (allBean != null) {
+                    sendMessage(allBean);
+                }
+                sendLeaveMessage(content, toUid, toGid);
+            } else {
+                for (int i = 0; i < moreSessionBeanList.size(); i++) {
+                    MoreSessionBean bean = moreSessionBeanList.get(i);
+                    SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), bean8.getCollectLocalPath(), bean8.getFileURL(), bean8.getFileName(), bean8.getFileSize(), bean8.getFileFormat(), isFromOther);
+                    MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), type, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), fileMessage);
+                    if (allBean != null) {
+                        sendMessage(allBean);
+                        sendMessage = allBean;
+                    }
+                    sendLeaveMessage(content, bean.getUid(), bean.getGid());
+                }
+                isSingleSelected = true;
+            }
+        }
     }
 }

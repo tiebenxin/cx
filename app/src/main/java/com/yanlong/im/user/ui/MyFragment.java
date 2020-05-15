@@ -49,10 +49,12 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ClickFilter;
+import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
 
 import org.greenrobot.eventbus.EventBus;
@@ -207,6 +209,13 @@ public class MyFragment extends Fragment {
             public void onClick(View v) {
                 checkCxService();
             }
+        });
+        // 收藏
+        viewCollection.setOnClickListener(o->{
+            if(ViewUtils.isFastDoubleClick()){
+                return;
+            }
+            IntentUtil.gotoActivity(getContext(),CollectionActivity.class);
         });
     }
 

@@ -560,6 +560,9 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void taskGroupInfo(String gid) {
+        if (TextUtils.isEmpty(gid)) {
+            return;
+        }
         group = msgDao.getGroup4Id(gid);
         if (group == null) {
             new MsgAction().groupInfo4UserInfo(gid, new CallBack<ReturnBean<Group>>() {
@@ -751,7 +754,8 @@ public class UserInfoActivity extends AppActivity {
                     userDao.updateReadDestroy(id, 0);
                     // 删除好友后，取消置顶状态
                     msgDao.updateUserSessionTop(id, 0);
-                    if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.deleteSession(id, "");
+                    if (MyAppLication.INSTANCE().repository != null)
+                        MyAppLication.INSTANCE().repository.deleteSession(id, "");
                     MessageManager.getInstance().setMessageChange(true);
                     notifyRefreshRoster(id, CoreEnum.ERosterAction.REMOVE_FRIEND);
                     EventBus.getDefault().post(new CloseActivityEvent("ChatInfoActivity,GroupInfoActivity"));
@@ -778,7 +782,8 @@ public class UserInfoActivity extends AppActivity {
                     List<Long> uids = new ArrayList<>();
                     uids.add(id);
                     //回主线程调用更新session详情
-                    if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
+                    if (MyAppLication.INSTANCE().repository != null)
+                        MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
                     /********通知更新sessionDetail end************************************/
                 }
                 taskUserInfo(id);
