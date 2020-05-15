@@ -108,6 +108,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
+import com.yanlong.im.chat.bean.QuotedMessage;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.ReadMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
@@ -3723,9 +3724,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
             menus.add(new OptionMenu("转发"));
         }
-//        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanReply(type)) {
-//            menus.add(new OptionMenu("回复"));
-//        }
+        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanReply(type)) {
+            menus.add(new OptionMenu("回复"));
+        }
         menus.add(new OptionMenu("删除"));
         switch (type) {
             case ChatEnum.EMessageType.TEXT:
@@ -4208,7 +4209,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         isLoadHistory = true;
         List<MsgAllBean> listTemp = msgAction.getMsg4UserHistory(toGid, toUId, history.getStime());
         taskMkName(listTemp);
-        mAdapter.bindData(listTemp,false);
+        mAdapter.bindData(listTemp, false);
         notifyData();
         mtListView.getListView().smoothScrollToPosition(0);
 
@@ -5629,6 +5630,22 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     return;
                 }
                 resendMessage(message);
+                break;
+            case ChatEnum.ECellEventType.REPLY_CLICK:
+                if (args[0] != null && args[0] instanceof QuotedMessage) {
+                    QuotedMessage quotedMessage = (QuotedMessage) args[0];
+                    MsgAllBean bean = msgDao.getMsgById(quotedMessage.getMsgId());
+                    if (bean != null && mAdapter != null) {
+                        int position = mAdapter.getPosition(bean);
+                        if (position >= 0) {
+                            scrollChatToPosition(position);
+                        } else {
+                            ToastUtil.show("消息不存在");
+                        }
+                    } else {
+                        ToastUtil.show("消息不存在");
+                    }
+                }
                 break;
             case ChatEnum.ECellEventType.WEB_CLICK:
                 break;
