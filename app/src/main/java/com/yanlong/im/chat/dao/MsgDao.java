@@ -11,6 +11,7 @@ import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.ChangeSurvivalTimeMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
+import com.yanlong.im.chat.bean.CollectSendFileMessage;
 import com.yanlong.im.chat.bean.EnvelopeInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
@@ -536,68 +537,6 @@ public class MsgDao {
             e.printStackTrace();
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
-        }
-    }
-
-    /***
-     * 保存收藏信息
-     * @param
-     */
-    public void saveCollection(CollectionInfo collectionInfo) {
-        Realm realm = DaoUtil.open();
-        try {
-            realm.beginTransaction();
-            realm.insertOrUpdate(collectionInfo);
-            realm.commitTransaction();
-            realm.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            DaoUtil.close(realm);
-            DaoUtil.reportException(e);
-        }
-    }
-
-    /**
-     * 查询收藏数据
-     * @param value
-     * @return
-     */
-    public List<CollectionInfo> findCollectionInfo(String value) {
-        Realm realm = DaoUtil.open();
-        List<CollectionInfo> ret=null;
-        try {
-            ret = new ArrayList<>();
-            RealmResults<CollectionInfo> collectList = null;
-//            if(StringUtil.isNotNull(value)){
-//                users = realm.where(CollectionInfo.class).contains("collectionContent",value).or().contains("name",value)
-//                        .sort("createTime", Sort.DESCENDING).findAll();
-//            }else{
-            collectList = realm.where(CollectionInfo.class).sort("createTime", Sort.DESCENDING).findAll();
-//            }
-            if (collectList != null)
-                ret = realm.copyFromRealm(collectList);
-        }catch (Exception e){
-            DaoUtil.reportException(e);
-        }finally {
-            realm.close();
-        }
-        return ret;
-    }
-
-    /**
-     * 删除收藏记录
-     * @param msgId
-     */
-    public void deleteCollectionInfo(String msgId) {
-        Realm realm = DaoUtil.open();
-        try {
-            realm.beginTransaction();
-            realm.where(CollectionInfo.class).equalTo("msgId", msgId).findAll().deleteAllFromRealm();
-            realm.commitTransaction();
-        }catch (Exception e){
-            DaoUtil.reportException(e);
-        }finally {
-            realm.close();
         }
     }
 
@@ -3844,6 +3783,86 @@ public class MsgDao {
             DaoUtil.reportException(e);
         }
         return ret;
+    }
+
+    /**
+     * 删除收藏记录
+     * @param msgId
+     */
+    public void deleteCollectionInfo(String msgId) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            realm.where(CollectionInfo.class).equalTo("msgId", msgId).findAll().deleteAllFromRealm();
+            realm.commitTransaction();
+        }catch (Exception e){
+            DaoUtil.reportException(e);
+        }finally {
+            realm.close();
+        }
+    }
+
+    /***
+     * 保存收藏信息
+     * @param
+     */
+    public void saveCollection(CollectionInfo collectionInfo) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            realm.insertOrUpdate(collectionInfo);
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
+    /**
+     * 查询收藏数据
+     * @param value
+     * @return
+     */
+    public List<CollectionInfo> findCollectionInfo(String value) {
+        Realm realm = DaoUtil.open();
+        List<CollectionInfo> ret=null;
+        try {
+            ret = new ArrayList<>();
+            RealmResults<CollectionInfo> collectList = null;
+//            if(StringUtil.isNotNull(value)){
+//                users = realm.where(CollectionInfo.class).contains("collectionContent",value).or().contains("name",value)
+//                        .sort("createTime", Sort.DESCENDING).findAll();
+//            }else{
+            collectList = realm.where(CollectionInfo.class).sort("createTime", Sort.DESCENDING).findAll();
+//            }
+            if (collectList != null)
+                ret = realm.copyFromRealm(collectList);
+        }catch (Exception e){
+            DaoUtil.reportException(e);
+        }finally {
+            realm.close();
+        }
+        return ret;
+    }
+
+    /**
+     * 保存收藏的文件消息
+     * @param fileMessage
+     */
+    public void saveCollectFileMsg(CollectSendFileMessage fileMessage){
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            realm.insertOrUpdate(fileMessage);
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
     }
 
 
