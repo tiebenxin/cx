@@ -19,6 +19,7 @@ import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.constant.AppHostUtil;
 import net.cb.cb.library.constant.BuglyTag;
 import net.cb.cb.library.event.EventFactory;
+import net.cb.cb.library.manager.excutor.ExecutorManager;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 
@@ -419,7 +420,7 @@ public class SocketUtil {
             return;
         }
         isStart = true;
-        new Thread(new Runnable() {
+        ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
             @Override
             public void run() {
                 LogUtil.getLog().i(TAG, ">>>>>检查socketChannel 空: " + (socketChannel == null));
@@ -434,7 +435,6 @@ public class SocketUtil {
                         LogUtil.getLog().i(TAG, ">>>>>服务器链接isConnected: " + socketChannel.isConnected());
                     }
                     if ((socketChannel == null || !socketChannel.isConnected()) && isRun == 0) {//没有启动,就执行启动
-
                         //线程版本+1
                         threadVer++;
                         SocketUtil.this.run();
@@ -449,7 +449,37 @@ public class SocketUtil {
                     }
                 }
             }
-        }).start();
+        });
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                LogUtil.getLog().i(TAG, ">>>>>检查socketChannel 空: " + (socketChannel == null));
+//                if (socketChannel != null) {
+//                    LogUtil.getLog().i(TAG, ">>>>>检查socketChannel 已连接:" + socketChannel.isConnected());
+//                }
+//
+//                while (isStart) {
+//                    LogUtil.getLog().i(TAG, ">>>>>服务器链接检查isRun: " + isRun);
+////                    LogUtil.getLog().i(TAG, ">>>>>服务器链接socketChannel: " + socketChannel);
+//                    if (socketChannel != null) {
+//                        LogUtil.getLog().i(TAG, ">>>>>服务器链接isConnected: " + socketChannel.isConnected());
+//                    }
+//                    if ((socketChannel == null || !socketChannel.isConnected()) && isRun == 0) {//没有启动,就执行启动
+//                        //线程版本+1
+//                        threadVer++;
+//                        SocketUtil.this.run();
+//                        LogUtil.getLog().i(TAG, ">>>>>新线程结束");
+//                    } else {//已经启动了
+//                    }
+//
+//                    try {
+//                        Thread.sleep(recontTime);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        }).start();
     }
 
     /***
@@ -457,12 +487,19 @@ public class SocketUtil {
      */
     public void endSocket() {
         isStart = false;
-        new Thread(new Runnable() {
+        ExecutorManager.INSTANCE.getSocketThread().execute(new Runnable() {
+
             @Override
             public void run() {
                 stop2();
             }
-        }).start();
+        });
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                stop2();
+//            }
+//        }).start();
     }
 
     /**

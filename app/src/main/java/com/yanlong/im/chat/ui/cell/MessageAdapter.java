@@ -92,6 +92,9 @@ public class MessageAdapter extends RecyclerView.Adapter {
      * 遍历列表，并保存msgid位置
      */
     private void refreshPositions() {
+        if(mMsgIdPositions == null){
+            return;
+        }
         mMsgIdPositions.clear();
         if (mList != null && mList.size() > 0) {
             for (int position = 0; position < mList.size(); position++) {
@@ -393,7 +396,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
     private void updateSurvivalTimeImage(String msgId, int id) {
         try {
-            if (mMsgIdPositions.containsKey(msgId)) {
+            if (mMsgIdPositions!=null && mMsgIdPositions.containsKey(msgId)) {
                 int position = mMsgIdPositions.get(msgId);
 //                ChatCellBase cell = getCellByPosition(position);
 //                if (cell != null) {
