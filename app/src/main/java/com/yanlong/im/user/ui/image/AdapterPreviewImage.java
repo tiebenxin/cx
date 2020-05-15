@@ -526,29 +526,8 @@ public class AdapterPreviewImage extends PagerAdapter {
             }
         } else {
             ivDownload.setVisibility(View.VISIBLE);
-            boolean hasLoadThumbnail = false;
             String url = !TextUtils.isEmpty(media.getPath()) ? media.getPath() : media.getCompressPath();
-            if ((media.getWidth() > 1080 || media.getHeight() > 1920)) {
-                loadImageThumbnail(url, ivZoom, pbLoading);
-                hasLoadThumbnail = true;
-            }
-            if (!hasLoadThumbnail) {//没加载过缩略图，先隐藏ivZoom
-                showZoomView(ivZoom, true);
-            }
-            if (hasLoadThumbnail) {//图片过大需要加载缩略图
-                if (!TextUtils.isEmpty(media.getPath())) {
-                    loadImage(media.getPath(), ivZoom, false, pbLoading);
-                } else {
-                    loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
-                }
-            } else {
-                showZoomView(ivZoom, true);
-                loadImage(url, ivZoom, true, pbLoading);
-
-            }
-            if (hasLoadThumbnail) {//加载过缩略图，后隐藏ivZoom
-                showZoomView(ivZoom, true);
-            }
+            loadImage(url, ivZoom, false, pbLoading);
         }
     }
 

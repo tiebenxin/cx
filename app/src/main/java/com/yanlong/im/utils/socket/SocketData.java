@@ -430,9 +430,14 @@ public class SocketData {
         int survivalTime = new UserDao().getReadDestroy(toId, toGid);
         wrap.setSurvivalTime(survivalTime);
         wrap.setTimestamp(time);
-        if (toId != null && toId > 0) {//给个人发
-//            msg.setToUid(toId);
-            wrap.setToUid(toId);
+        if (toId != null) {//给个人发
+            //是否是文件传输助手消息
+            if (UserAction.getMyId() != null && toId.longValue() == -UserAction.getMyId()) {
+                wrap.setToUid(UserAction.getMyId());
+            } else {
+                wrap.setToUid(toId);
+            }
+
         }
         if (toGid != null && toGid.length() > 0) {//给群发
             wrap.setGid(toGid);
@@ -1556,10 +1561,10 @@ public class SocketData {
 
                 }
                 //群聊 立即更新阅后即焚
-                if(!TextUtils.isEmpty(msgAllBean.getGid())&&msgAllBean.getSurvival_time()>0){
-                    long now=System.currentTimeMillis();
+                if (!TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getSurvival_time() > 0) {
+                    long now = System.currentTimeMillis();
                     msgAllBean.setStartTime(now);
-                    msgAllBean.setEndTime(now+(msgAllBean.getSurvival_time()*1000));
+                    msgAllBean.setEndTime(now + (msgAllBean.getSurvival_time() * 1000));
                 }
                 DaoUtil.update(msgAllBean);
                 if (msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {

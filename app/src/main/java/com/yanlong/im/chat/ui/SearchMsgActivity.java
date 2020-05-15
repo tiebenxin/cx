@@ -25,14 +25,11 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
-import net.cb.cb.library.bean.EventFindHistory;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -161,13 +158,14 @@ public class SearchMsgActivity extends AppActivity {
                         public void run() {
                             InputUtil.hideKeyboard(edtSearch);
                         }
-                    },10);
-                    EventFindHistory eventFindHistory = new EventFindHistory();
-                    eventFindHistory.setStime(msgbean.getTimestamp());
-                    EventBus.getDefault().post(eventFindHistory);
+                    }, 10);
+//                    EventFindHistory eventFindHistory = new EventFindHistory();
+//                    eventFindHistory.setStime(msgbean.getTimestamp());
+//                    EventBus.getDefault().post(eventFindHistory);
                     startActivity(new Intent(getContext(), ChatActivity.class)
                             .putExtra(ChatActivity.AGM_TOGID, gid)
                             .putExtra(ChatActivity.AGM_TOUID, fuid)
+                            .putExtra(ChatActivity.SEARCH_TIME, msgbean.getTimestamp())
                             .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     );
                 }
