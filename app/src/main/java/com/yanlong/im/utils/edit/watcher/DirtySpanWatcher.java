@@ -20,13 +20,10 @@ public class DirtySpanWatcher implements SpanWatcher {
 
     @Override
     public void onSpanAdded(Spannable text, Object what, int start, int end) {
-        int i=1;
     }
 
     @Override
     public void onSpanRemoved(Spannable text, Object what, int start, int end) {
-
-        int i=1;
     }
 
     @Override

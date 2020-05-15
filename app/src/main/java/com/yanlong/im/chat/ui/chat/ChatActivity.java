@@ -10,8 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,11 +24,9 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.style.ImageSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -477,6 +473,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     viewFaceView.setVisibility(View.VISIBLE);
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isOpenEmoj);
+                    editChat.requestFocus();
+                    //定位光标
+                    editChat.setSelection(editChat.getSelectionEnd());
                 } else {//关闭
                     btnEmj.setImageLevel(0);
                     if (mViewModel.isOpenValue()) {//有事件触发
@@ -1051,20 +1050,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             sendMessage(message, ChatEnum.EMessageType.SHIPPED_EXPRESSION);
 
         } else if (FaceView.face_emoji.equals(bean.getGroup()) || FaceView.face_lately_emoji.equals(bean.getGroup())) {
-            Bitmap bitmap = null;
-            if (FaceView.map_FaceEmoji != null) {
-                bitmap = BitmapFactory.decodeResource(getResources(), Integer.parseInt(FaceView.map_FaceEmoji.get(bean.getName()).toString()));
-            } else {
-                bitmap = BitmapFactory.decodeResource(getResources(), bean.getResId());
-            }
-            bitmap = Bitmap.createScaledBitmap(bitmap, ExpressionUtil.dip2px(this, ExpressionUtil.DEFAULT_SIZE),
-                    ExpressionUtil.dip2px(this, ExpressionUtil.DEFAULT_SIZE), true);
-            ImageSpan imageSpan = new ImageSpan(ChatActivity.this, bitmap);
-            String str = bean.getName();
-            SpannableString spannableString = new SpannableString(str);
-            spannableString.setSpan(imageSpan, 0, PatternUtil.FACE_EMOJI_LENGTH, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            // 插入到光标后位置
-            editChat.getText().insert(editChat.getSelectionStart(), spannableString);
+            editChat.addEmojSpan(bean.getName());
         } else if (FaceView.face_custom.equals(bean.getGroup())) {
             if ("add".equals(bean.getName())) {
                 if (!ViewUtils.isFastDoubleClick()) {
