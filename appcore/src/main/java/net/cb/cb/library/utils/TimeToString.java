@@ -110,7 +110,7 @@ public class TimeToString {
             calendar.setTimeInMillis(timestamp);
 
             if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
-                if (todayCalendar.get(Calendar.DATE) == calendar.get(Calendar.DATE)) {//当年
+                if (todayCalendar.get(Calendar.DATE) == calendar.get(Calendar.DATE)) {//当天
                     result = getTime(timestamp, hourTimeFormat);
                 } else if (todayCalendar.get(Calendar.DATE) == (calendar.get(Calendar.DATE) + 1)) {
                     result = getTime(timestamp, dayTimeFormat);
@@ -121,6 +121,46 @@ public class TimeToString {
                 }
             } else {
                 result = getTime(timestamp, yearTimeFormat);
+            }
+            return result;
+        } catch (Exception e) {
+
+            return "";
+        }
+    }
+
+    /**
+     * 收藏时间显示规则
+     * @param timestamp
+     * @return
+     */
+    public static String getTimeForCollect(Long timestamp) {
+        if (timestamp == null || timestamp == 0L) {
+            return "";
+        }
+        String result = "";
+        String todayTimeFormat = "今天";
+        String yesterdayTimeFormat = "昨天";
+        String yearFormat = "yyyy-MM-dd";
+        try {
+            Calendar todayCalendar = Calendar.getInstance();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(timestamp);
+            //同一年
+            if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
+                //当天
+                if (todayCalendar.get(Calendar.DATE) == calendar.get(Calendar.DATE)) {
+                    result = todayTimeFormat;
+                    //昨天
+                } else if (todayCalendar.get(Calendar.DATE) == (calendar.get(Calendar.DATE) + 1)) {
+                    result = yesterdayTimeFormat;
+                    //更久远的直接日期显示
+                } else {
+                    result = getTime(timestamp, yearFormat);
+                }
+            } else {
+                //不同年
+                result = getTime(timestamp, yearFormat);
             }
             return result;
         } catch (Exception e) {
