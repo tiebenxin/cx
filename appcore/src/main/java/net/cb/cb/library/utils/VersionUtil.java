@@ -58,7 +58,7 @@ public class VersionUtil {
                 for (int i = 0; i < newVer.length; i++) {
                     int newNumber = Integer.parseInt(newVer[i]);
                     int oldNumber = Integer.parseInt(oldVer[i]);
-                    if(oldNumber>newNumber){
+                    if (oldNumber > newNumber) {
                         isNeed = false;
                         break;
                     }
@@ -68,7 +68,7 @@ public class VersionUtil {
                     }
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             LogUtil.getLog().e("比较版本号时出错");
         }
@@ -78,6 +78,7 @@ public class VersionUtil {
 
     /**
      * 判断是否为新版本，且为大版本更新（如0.9->1.0 或者 1.0->1.1）
+     *
      * @param context
      * @param newVerName
      * @return
@@ -92,11 +93,11 @@ public class VersionUtil {
                 String[] newVer = newVerName.split("\\.");
                 String[] oldVer = OldVerName.split("\\.");
                 //这里只判断是否为大版本更新，所以只循环比较前两位元素即可，循环次数-1
-                for (int i = 0; i < newVer.length-1; i++) {
+                for (int i = 0; i < newVer.length - 1; i++) {
                     int newNumber = Integer.parseInt(newVer[i]);
                     int oldNumber = Integer.parseInt(oldVer[i]);
                     //旧版本号更大，不需要更新
-                    if(oldNumber > newNumber){
+                    if (oldNumber > newNumber) {
                         isBigVersion = false;
                         break;
                     }
@@ -107,14 +108,45 @@ public class VersionUtil {
                     }
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             LogUtil.getLog().e("比较版本号时出错");
         }
         return isBigVersion;
     }
 
-
+    /**
+     * 判断当前版本是否低于比较版本
+     *
+     * @param context
+     * @param newVerName
+     * @return
+     */
+    public static boolean isLowerVersion(Context context, String newVerName) {
+        boolean isLower = false;
+        try {
+            //获取当前版本
+            String OldVerName = getVerName(context);
+            //截取出每一位，如1.1.1，再分别比较每一个元素
+            if (!TextUtils.isEmpty(newVerName) && !TextUtils.isEmpty(OldVerName)) {
+                String[] newVer = newVerName.split("\\.");
+                String[] oldVer = OldVerName.split("\\.");
+                for (int i = 0; i < newVer.length ; i++) {
+                    int newNumber = Integer.parseInt(newVer[i]);
+                    int oldNumber = Integer.parseInt(oldVer[i]);
+                    //旧版本号更大，不需要更新
+                    if (oldNumber < newNumber) {
+                        isLower = true;
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtil.getLog().e("比较版本号时出错");
+        }
+        return isLower;
+    }
 
 
     public static String getPhoneModel() {
