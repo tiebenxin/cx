@@ -5,6 +5,7 @@ import com.tencent.bugly.crashreport.CrashReport;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.SpUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +74,14 @@ public class DaoUtil {
         if (config == null) {
             LogUtil.getLog().e(TAG, "openRealm");
             Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
-            initConfig("db_user_" + uid);
+            int type = SpUtil.getSpUtil().getSPValue("ipType", 0);
+            String appType = "";//服务器类型名称
+            if (type == 1) {
+                appType = "_debug";
+            } else if (type == 2) {
+                appType = "_pre";
+            }
+            initConfig("db_user_" + uid + appType);
         }
         return Realm.getInstance(config);
     }

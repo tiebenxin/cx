@@ -654,7 +654,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     @Override
     protected void onDestroy() {
         //释放adapter资源
-//        mAdapter.onDestroy();
+        mAdapter.onDestroy();
         //关闭窗口，避免内存溢出
         dismissPop();
         //保存退出即焚消息
@@ -4294,6 +4294,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         isLoadHistory = true;
         List<MsgAllBean> listTemp = msgAction.getMsg4UserHistory(toGid, toUId, history.getStime());
         taskMkName(listTemp);
+        mAdapter.bindData(listTemp,false);
         notifyData();
         mtListView.getListView().smoothScrollToPosition(0);
 

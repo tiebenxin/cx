@@ -353,7 +353,7 @@ public class MainActivity extends AppActivity {
         tabs = new String[]{"消息", "通讯录", "商城", "我"};
         iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_shop, R.mipmap.ic_me};
         iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_shop_h, R.mipmap.ic_me_h};
-        viewPage.setCurrentItem(currentTab,false);
+        viewPage.setCurrentItem(currentTab, false);
         viewPage.setOffscreenPageLimit(4);
         viewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -371,14 +371,14 @@ public class MainActivity extends AppActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if (tab.getPosition() == EMainTab.SHOP) {
-                    viewPage.setCurrentItem(currentTab,false);
+                    viewPage.setCurrentItem(currentTab, false);
                     boolean hasToken = check();
                     if (!hasToken) {
                         showLoginDialog();
                     }
                 }
                 currentTab = tab.getPosition();
-                viewPage.setCurrentItem(tab.getPosition(),false);
+                viewPage.setCurrentItem(tab.getPosition(), false);
                 for (int i = 0; i < bottomTab.getTabCount(); i++) {
                     View rootView = bottomTab.getTabAt(i).getCustomView();
                     LinearLayout viewItem = rootView.findViewById(R.id.view_item);
@@ -832,7 +832,8 @@ public class MainActivity extends AppActivity {
                         gids.add(msgAllbean.getGid());
                     }
                     //回主线程调用更新session详情
-                    if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+                    if (MyAppLication.INSTANCE().repository != null)
+                        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
                     /********通知更新sessionDetail end************************************/
                 }
             }
@@ -993,8 +994,13 @@ public class MainActivity extends AppActivity {
                     NewVersionBean bean = response.body().getData();
                     UpdateManage updateManage = new UpdateManage(context, MainActivity.this);
                     //强制更新
-                    if (response.body().getData().getForceUpdate() != 0) {
-                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
+                    if (bean.getForceUpdate() != 0) {
+                        //有最低不需要强制升级版本
+                        if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
+                        } else {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
+                        }
                     } else {
                         //缓存最新版本
                         SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
@@ -1202,7 +1208,8 @@ public class MainActivity extends AppActivity {
             gids.add(envelopeInfo.getGid());
         }
         //回主线程调用更新session详情
-        if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
+        if (MyAppLication.INSTANCE().repository != null)
+            MyAppLication.INSTANCE().repository.updateSessionDetail(gids, uids);
         /********通知更新sessionDetail end************************************/
     }
 
@@ -1295,12 +1302,12 @@ public class MainActivity extends AppActivity {
                         String country = bdLocation.getCountry();
                         String lat = bdLocation.getLatitude() + "";
                         String lon = bdLocation.getLongitude() + "";
-                        IUser user=UserAction.getMyInfo();
-                        String nickname = user==null? "" : user.getName();
+                        IUser user = UserAction.getMyInfo();
+                        String nickname = user == null ? "" : user.getName();
                         String phoneModel = android.os.Build.MODEL;
-                        String phone = user==null? "" : user.getPhone();
+                        String phone = user == null ? "" : user.getPhone();
                         //请求——>上报用户地理位置信息
-                        userAction.postLocation(city, country, lat, lon,nickname ,phoneModel,phone,new CallBack<ReturnBean>() {
+                        userAction.postLocation(city, country, lat, lon, nickname, phoneModel, phone, new CallBack<ReturnBean>() {
                             @Override
                             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                                 super.onResponse(call, response);
@@ -1412,7 +1419,7 @@ public class MainActivity extends AppActivity {
 
                     @Override
                     public void onCancel() {
-                        viewPage.setCurrentItem(EMainTab.MSG,false);
+                        viewPage.setCurrentItem(EMainTab.MSG, false);
                     }
                 }).show();
 

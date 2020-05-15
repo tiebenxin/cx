@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.QuotedMessage;
 import com.yanlong.im.chat.bean.ReplyMessage;
@@ -75,6 +76,14 @@ public class ChatCellReplyText extends ChatCellBase {
         if (maxWidth > 0 && tv_content != null) {
             tv_content.setMaxWidth((int) maxWidth);
             LogUtil.getLog().i("ChatCellText", "");
+        }
+    }
+
+    @Override
+    public void onBubbleClick() {
+        super.onBubbleClick();
+        if (mCellListener != null && model != null){
+            mCellListener.onEvent(ChatEnum.ECellEventType.REPLY_CLICK,model);
         }
     }
 }

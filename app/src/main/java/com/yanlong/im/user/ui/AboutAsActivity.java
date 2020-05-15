@@ -50,14 +50,14 @@ public class AboutAsActivity extends AppActivity {
         mLlCheckVersions = findViewById(R.id.ll_check_versions);
         mLlService = findViewById(R.id.ll_service);
         mTvVersionNumber.setText("常信     " + VersionUtil.getVerName(this));
-        tvNewVersions =  findViewById(R.id.tv_new_versions);
+        tvNewVersions = findViewById(R.id.tv_new_versions);
 
-        SharedPreferencesUtil sharedPreferencesUtil = new  SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+        SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
         VersionBean bean = sharedPreferencesUtil.get4Json(VersionBean.class);
-        if(bean != null && !TextUtils.isEmpty(bean.getVersion())){
-            if(new UpdateManage(context,AboutAsActivity.this).check(bean.getVersion())){
+        if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
+            if (new UpdateManage(context, AboutAsActivity.this).check(bean.getVersion())) {
                 tvNewVersions.setVisibility(View.VISIBLE);
-            }else{
+            } else {
                 tvNewVersions.setVisibility(View.GONE);
             }
         }
@@ -94,7 +94,7 @@ public class AboutAsActivity extends AppActivity {
 
 
     private void taskNewVersion() {
-        new UserAction().getNewVersion(StringUtil.getChannelName(context),new CallBack<ReturnBean<NewVersionBean>>() {
+        new UserAction().getNewVersion(StringUtil.getChannelName(context), new CallBack<ReturnBean<NewVersionBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<NewVersionBean>> call, Response<ReturnBean<NewVersionBean>> response) {
                 if (response.body() == null || response.body().getData() == null) {
@@ -106,13 +106,15 @@ public class AboutAsActivity extends AppActivity {
                         ToastUtil.show(context, "已经是最新版本");
                         return;
                     }
-
                     UpdateManage updateManage = new UpdateManage(context, AboutAsActivity.this);
                     if (response.body().getData().getForceUpdate() == 0) {
-                        //updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
-                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false,false);
+                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, false);
                     } else {
-                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true,false);
+                        if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, false);
+                        } else {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, false);
+                        }
                     }
                 }
             }
