@@ -3,6 +3,7 @@ package com.yanlong.im.chat.ui.cell;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.QuotedMessage;
 import com.yanlong.im.chat.bean.ReplyMessage;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.utils.ChatBitmapCache;
 import com.yanlong.im.utils.ExpressionUtil;
 
@@ -29,7 +31,7 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
  * */
 public class ChatCellReplyImage extends ChatCellImage {
 
-    private TextView tv_content, tvRefName;
+    private TextView tv_content, tvRefName, tvRefContent;
     private ReplyMessage contentMessage;
     private ImageView ivImage;
 
@@ -42,6 +44,7 @@ public class ChatCellReplyImage extends ChatCellImage {
         super.initView();
         tv_content = getView().findViewById(R.id.tv_content);
         tvRefName = getView().findViewById(R.id.tv_ref_name);
+        tvRefContent = getView().findViewById(R.id.tv_ref_content);
         ivImage = getView().findViewById(R.id.iv_ref_image);
         //设置自定义文字大小
         Integer fontSize = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
@@ -57,7 +60,17 @@ public class ChatCellReplyImage extends ChatCellImage {
         contentMessage = message.getReplyMessage();
         QuotedMessage quotedMessage = contentMessage.getQuotedMessage();
         tvRefName.setText(quotedMessage.getNickName());
-        glide(quotedMessage.getUrl());
+        if (quotedMessage.getMsgType() == ChatEnum.EMessageType.IMAGE || quotedMessage.getMsgType() == ChatEnum.EMessageType.SHIPPED_EXPRESSION
+                || quotedMessage.getMsgType() == ChatEnum.EMessageType.BUSINESS_CARD) {
+            glide(quotedMessage.getUrl());
+        } else if (quotedMessage.getMsgType() == ChatEnum.EMessageType.VOICE) {
+            ivImage.setImageResource(R.mipmap.ic_reply_voice);
+        } else if (quotedMessage.getMsgType() == ChatEnum.EMessageType.MSG_VIDEO) {
+            glide(quotedMessage.getUrl());
+        } else if (quotedMessage.getMsgType() == ChatEnum.EMessageType.FILE) {
+            ivImage.setImageResource(MessageManager.getInstance().getFileIconRid(quotedMessage.getUrl()));
+        }
+        tvRefContent.setText(getRefText(quotedMessage.getMsgType(), quotedMessage));
         String content = "";
         if (contentMessage.getChatMessage() != null) {
             content = contentMessage.getChatMessage().getMsg();
@@ -116,9 +129,30 @@ public class ChatCellReplyImage extends ChatCellImage {
 
     @Override
     public void onBubbleClick() {
-        super.onBubbleClick();
         if (mCellListener != null && model != null) {
             mCellListener.onEvent(ChatEnum.ECellEventType.REPLY_CLICK, model, contentMessage.getQuotedMessage());
         }
+    }
+
+    private String getRefText(@ChatEnum.EMessageType int msgType, QuotedMessage message) {
+        String content = "";
+        switch (msgType) {
+            case ChatEnum.EMessageType.IMAGE:
+                content = "图片";
+                break;
+            case ChatEnum.EMessageType.VOICE:
+                content = "语音";
+                break;
+            case ChatEnum.EMessageType.MSG_VIDEO:
+                content = "视频";
+                break;
+            case ChatEnum.EMessageType.BUSINESS_CARD:
+                content = "名片";
+                break;
+            case ChatEnum.EMessageType.FILE:
+                content = message.getMsg();
+                break;
+        }
+        return content;
     }
 }
