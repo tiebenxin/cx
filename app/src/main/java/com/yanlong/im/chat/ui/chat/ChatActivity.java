@@ -171,6 +171,7 @@ import com.yanlong.im.user.ui.CollectionActivity;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.ExpressionUtil;
@@ -1984,7 +1985,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
         list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
-        list.add(createItemMode("收藏", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.COLLECT));
+        list.add(createItemMode("收藏", R.mipmap.ic_chat_collect, ChatEnum.EFunctionId.COLLECT));
         return list;
     }
 
