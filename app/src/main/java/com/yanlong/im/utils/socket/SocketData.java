@@ -2081,7 +2081,8 @@ public class SocketData {
                     msg = at.getMsg();
                     break;
                 case ChatEnum.EMessageType.BUSINESS_CARD://名片
-
+                    BusinessCardMessage card = bean.getBusiness_card();
+                    url = card.getAvatar();
                     break;
                 case ChatEnum.EMessageType.STAMP://戳一戳
                     StampMessage stamp = bean.getStamp();
@@ -2108,7 +2109,8 @@ public class SocketData {
                     break;
                 case ChatEnum.EMessageType.FILE:// 文件
                     SendFileMessage fileMessage = bean.getSendFileMessage();
-                    url = fileMessage.getUrl();
+                    msg = fileMessage.getFile_name();
+                    url = fileMessage.getFormat();
                     break;
                 case ChatEnum.EMessageType.TRANSFER_NOTICE://转账提醒
 

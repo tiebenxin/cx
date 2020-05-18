@@ -10,8 +10,11 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.VideoMessage;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.cell.OnControllerClickListener;
 import com.yanlong.im.utils.ExpressionUtil;
 
@@ -103,6 +106,23 @@ public class ControllerReplyMessage {
             case ChatEnum.EMessageType.IMAGE:
                 content = "图片";
                 break;
+            case ChatEnum.EMessageType.VOICE:
+                content = "语音";
+                break;
+            case ChatEnum.EMessageType.SHIPPED_EXPRESSION:
+                content = "表情";
+                break;
+            case ChatEnum.EMessageType.MSG_VIDEO:
+                content = "视频";
+                break;
+            case ChatEnum.EMessageType.BUSINESS_CARD:
+                String nick = message.getBusiness_card().getNickname();
+                content = nick + "的名片";
+                break;
+            case ChatEnum.EMessageType.FILE:
+                String file = message.getSendFileMessage().getFile_name();
+                content = "[文件]" + file;
+                break;
         }
         return getSpan(content);
 
@@ -132,6 +152,17 @@ public class ControllerReplyMessage {
                 break;
             case ChatEnum.EMessageType.VOICE:
                 Glide.with(ivImage.getContext()).load(R.mipmap.ic_reply_voice).into(ivImage);
+                break;
+            case ChatEnum.EMessageType.FILE:
+                ivImage.setImageResource(MessageManager.getInstance().getFileIconRid(bean.getSendFileMessage().getFormat()));
+                break;
+            case ChatEnum.EMessageType.BUSINESS_CARD:
+                BusinessCardMessage card = bean.getBusiness_card();
+                Glide.with(ivImage.getContext()).load(card.getAvatar()).into(ivImage);
+                break;
+            case ChatEnum.EMessageType.MSG_VIDEO:
+                VideoMessage video = bean.getVideoMessage();
+                Glide.with(ivImage.getContext()).load(video.getBg_url()).into(ivImage);
                 break;
         }
     }

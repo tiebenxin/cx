@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.MyAppLication;
+import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ApplyBean;
@@ -1824,6 +1825,28 @@ public class MessageManager {
             }
         }
         return false;
+    }
+
+    public int getFileIconRid(String format) {
+        if (TextUtils.isEmpty(format)) {
+            return R.mipmap.ic_unknow;
+        }
+        //不同类型
+        if (format.equals("txt")) {
+            return R.mipmap.ic_txt;
+        } else if (format.equals("xls") || format.equals("xlsx")) {
+            return R.mipmap.ic_excel;
+        } else if (format.equals("ppt") || format.equals("pptx") || format.equals("pdf")) { //PDF暂用此图标
+            return R.mipmap.ic_ppt;
+        } else if (format.equals("doc") || format.equals("docx")) {
+            return R.mipmap.ic_word;
+        } else if (format.equals("rar") || format.equals("zip")) {
+            return R.mipmap.ic_zip;
+        } else if (format.equals("exe")) {
+            return R.mipmap.ic_exe;
+        } else {
+            return R.mipmap.ic_unknow;
+        }
     }
 
 }

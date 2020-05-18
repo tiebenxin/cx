@@ -10,6 +10,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.SendFileMessage;
+import com.yanlong.im.chat.manager.MessageManager;
 
 import net.cb.cb.library.utils.FileUtils;
 
@@ -64,37 +65,15 @@ public class ChatCellFile extends ChatCellFileBase {
         if (contentMessage.getSize() > 0) {
             tvFileSize.setText(FileUtils.getFileSizeString(contentMessage.getSize()));
         }
-        ivFileIcon.setImageResource(getFileIconRid(contentMessage.getFormat()));
+        ivFileIcon.setImageResource(MessageManager.getInstance().getFileIconRid(contentMessage.getFormat()));
     }
 
 
     @Override
     public void onBubbleClick() {
         super.onBubbleClick();
-        if (mCellListener != null && model != null && model.getSend_state()== ChatEnum.ESendStatus.NORMAL) {
+        if (mCellListener != null && model != null && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
             mCellListener.onEvent(ChatEnum.ECellEventType.FILE_CLICK, model, contentMessage);
-        }
-    }
-
-    private int getFileIconRid(String format) {
-        if (TextUtils.isEmpty(format)) {
-            return R.mipmap.ic_unknow;
-        }
-        //不同类型
-        if (format.equals("txt")) {
-            return R.mipmap.ic_txt;
-        } else if (format.equals("xls") || format.equals("xlsx")) {
-            return R.mipmap.ic_excel;
-        } else if (format.equals("ppt") || format.equals("pptx") || format.equals("pdf")) { //PDF暂用此图标
-            return R.mipmap.ic_ppt;
-        } else if (format.equals("doc") || format.equals("docx")) {
-            return R.mipmap.ic_word;
-        } else if (format.equals("rar") || format.equals("zip")) {
-            return R.mipmap.ic_zip;
-        } else if (format.equals("exe")) {
-            return R.mipmap.ic_exe;
-        } else {
-            return R.mipmap.ic_unknow;
         }
     }
 }
