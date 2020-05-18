@@ -3997,22 +3997,22 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         CollectionInfo collectionInfo = new CollectionInfo();
         //区分不同消息类型，转换成新的收藏消息结构，作为data传过去
-        if(msgbean.getMsg_type()==ChatEnum.EMessageType.TEXT){
-            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.TEXT,msgbean)));
-        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.IMAGE){
-            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.IMAGE,msgbean)));
-        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.SHIPPED_EXPRESSION){
-            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.SHIPPED_EXPRESSION,msgbean)));
-        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.MSG_VIDEO){
-            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.MSG_VIDEO,msgbean)));
-        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.VOICE){
-            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.VOICE,msgbean)));
-        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.LOCATION){
-            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.LOCATION,msgbean)));
-        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.AT){
-            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.AT,msgbean)));
-        }else if(msgbean.getMsg_type()==ChatEnum.EMessageType.FILE){
-            CollectSendFileMessage msg = (CollectSendFileMessage)convertCollectBean(ChatEnum.EMessageType.FILE,msgbean);
+        if (msgbean.getMsg_type() == ChatEnum.EMessageType.TEXT) {
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.TEXT, msgbean)));
+        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.IMAGE) {
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.IMAGE, msgbean)));
+        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.SHIPPED_EXPRESSION, msgbean)));
+        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.MSG_VIDEO, msgbean)));
+        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.VOICE) {
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.VOICE, msgbean)));
+        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.LOCATION) {
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.LOCATION, msgbean)));
+        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.AT) {
+            collectionInfo.setData(new Gson().toJson(convertCollectBean(ChatEnum.EMessageType.AT, msgbean)));
+        } else if (msgbean.getMsg_type() == ChatEnum.EMessageType.FILE) {
+            CollectSendFileMessage msg = (CollectSendFileMessage) convertCollectBean(ChatEnum.EMessageType.FILE, msgbean);
             collectionInfo.setData(new Gson().toJson(msg));
             //暂时只对文件进行本地化存储，列表里没有本地路径不方便判断是否下载，避免每次进详情都要下一次
             msgDao.saveCollectFileMsg(msg);
@@ -4023,7 +4023,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         collectionInfo.setFromGid(fromGid);
         collectionInfo.setFromGroupName(fromGroupName);
         collectionInfo.setMsgId(msgbean.getMsg_id());//不同表，id相同
-        collectionInfo.setCreateTime(System.currentTimeMillis()+"");//收藏时间是现在系统时间
+        collectionInfo.setCreateTime(System.currentTimeMillis() + "");//收藏时间是现在系统时间
         httpCollect(collectionInfo);
     }
 
@@ -4071,7 +4071,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void notifyData() {
         LogUtil.getLog().i(TAG, "刷新数据");
 //        mtListView.notifyDataSetChange();
-        if (mAdapter.getMsgList() != null) {
+        if (mAdapter.getMsgList() != null && mAdapter.getItemCount() > 0) {
             //调用该方法，有面板或软键盘弹出时，会使列表跳转到第一项
             mtListView.getListView().getAdapter().notifyItemRangeChanged(0, mAdapter.getItemCount());
         }
@@ -4188,8 +4188,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     public synchronized void sendRead() {
-        //发送已读回执
-        if (TextUtils.isEmpty(toGid) && !UserUtil.isBanSendUser(toUId) && checkIsRead()) {
+        //发送已读回执,不要检测是否已读开关关闭，不然会影响阅后即焚功能
+        if (TextUtils.isEmpty(toGid) && !UserUtil.isBanSendUser(toUId)/* && checkIsRead()*/) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
             if (bean != null) {
                 if (bean.getRead() == 0) {
@@ -6290,7 +6290,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             collectSendFileMessage.setFileName(msgAllBean.getSendFileMessage().getFile_name());
             collectSendFileMessage.setFileFormat(msgAllBean.getSendFileMessage().getFormat());
             collectSendFileMessage.setFileSize(msgAllBean.getSendFileMessage().getSize());
-            if(!TextUtils.isEmpty(msgAllBean.getSendFileMessage().getLocalPath())){
+            if (!TextUtils.isEmpty(msgAllBean.getSendFileMessage().getLocalPath())) {
                 collectSendFileMessage.setCollectLocalPath(msgAllBean.getSendFileMessage().getLocalPath());
             }
             return collectSendFileMessage;
@@ -6323,7 +6323,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             mAdapter.bindData(list, false);
                             mAdapter.setReadStatus(checkIsRead());
                             notifyData();
-                            mtListView.getListView().smoothScrollToPosition(0);
+                            //TODO：此时滚动会引起索引越界
+//                            mtListView.getListView().smoothScrollToPosition(0);
                         }
                     }
                 });

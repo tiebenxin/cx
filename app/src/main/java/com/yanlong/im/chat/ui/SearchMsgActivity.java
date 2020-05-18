@@ -24,6 +24,7 @@ import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -130,11 +131,15 @@ public class SearchMsgActivity extends AppActivity {
                 url = msgbean.getFrom_avatar();
                 name = msgbean.getFrom_nickname();
             } else {
-                UserInfo u = msgbean.getShow_user();
                 url = msgbean.getFrom_avatar(); //u.getHead();
-                name = u.getName4Show();
+                if (msgbean.isMe()) {
+                    name = msgbean.getFrom_nickname();
+                } else {
+                    UserInfo u = msgbean.getShow_user();
+                    name = u.getName4Show();
+                }
             }
-            msg = msgbean.getChat().getMsg();
+            msg = SocketData.getMsg(msgbean);
             int index = msg.indexOf(key);
 
             SpannableString style = new SpannableString(msg);

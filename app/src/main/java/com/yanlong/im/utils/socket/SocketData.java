@@ -2250,5 +2250,40 @@ public class SocketData {
         return messageType;
     }
 
+    public static String getMsg(MsgAllBean bean) {
+        String msg = "";
+        if (bean == null) {
+            return msg;
+        }
+        int msgType = bean.getMsg_type();
+        switch (msgType) {
+            case ChatEnum.EMessageType.TEXT://文本
+                ChatMessage chat = bean.getChat();
+                msg = chat.getMsg();
+                break;
+            case ChatEnum.EMessageType.AT://@
+                AtMessage at = bean.getAtMessage();
+                msg = at.getMsg();
+                break;
+            case ChatEnum.EMessageType.STAMP://戳一戳
+                StampMessage stamp = bean.getStamp();
+                msg = stamp.getComment();
+                break;
+            case ChatEnum.EMessageType.MSG_VOICE_VIDEO:
+                P2PAuVideoMessage p2pMessage = bean.getP2PAuVideoMessage();
+                msg = p2pMessage.getDesc();
+                break;
+            case ChatEnum.EMessageType.REPLY:
+                ReplyMessage replyMessage = bean.getReplyMessage();
+                if (replyMessage.getChatMessage() != null) {
+                    msg = replyMessage.getChatMessage().getMsg();
+                } else if (replyMessage.getAtMessage() != null) {
+                    msg = replyMessage.getAtMessage().getMsg();
+                }
+                break;
+        }
+        return msg;
+    }
+
 
 }

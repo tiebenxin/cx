@@ -78,21 +78,45 @@ public class MessageAdapter extends RecyclerView.Adapter {
         return this;
     }
 
-    public void bindData(List<MsgAllBean> list, boolean isMore) {
-        if (isMore) {
-            mList.addAll(0, list);
-        } else {
-            mList = list;
+//    public synchronized void bindData(List<MsgAllBean> list, boolean isMore) {
+//        try {
+//            int size = mList != null ? mList.size() : 0;
+//            if (isMore) {
+//                mList.addAll(0, list);
+//            } else {
+//                mList.clear();
+//                notifyItemRangeRemoved(0, size);
+//                mList.addAll(list);
+//            }
+//            notifyItemRangeInserted(0, list.size());
+//            refreshPositions();
+//
+////            this.notifyDataSetChanged();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+    public synchronized void bindData(List<MsgAllBean> list, boolean isMore) {
+        try {
+            if (isMore) {
+                mList.addAll(0, list);
+            } else {
+                mList = list;
+            }
+            refreshPositions();
+            this.notifyDataSetChanged();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        refreshPositions();
-        this.notifyDataSetChanged();
+
     }
 
     /**
      * 遍历列表，并保存msgid位置
      */
     private void refreshPositions() {
-        if(mMsgIdPositions == null){
+        if (mMsgIdPositions == null) {
             return;
         }
         mMsgIdPositions.clear();
@@ -137,7 +161,8 @@ public class MessageAdapter extends RecyclerView.Adapter {
         if (msg.getSurvival_time() > 0 && msg.getStartTime() > 0 && msg.getEndTime() > 0) {
             ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), false, msg.isMe());
             bindTimer(msg.getMsg_id(), msg.isMe(), msg.getStartTime(), msg.getEndTime());
-            if(msg.getEndTime()<System.currentTimeMillis())((ChatCellBase) viewHolder).setBellId(R.mipmap.icon_st_12);
+            if (msg.getEndTime() < System.currentTimeMillis())
+                ((ChatCellBase) viewHolder).setBellId(R.mipmap.icon_st_12);
         } else {
             ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), true, msg.isMe());
         }
@@ -178,7 +203,8 @@ public class MessageAdapter extends RecyclerView.Adapter {
             if (msg.getSurvival_time() > 0 && msg.getStartTime() > 0 && msg.getEndTime() > 0) {
                 ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), false, msg.isMe());
                 bindTimer(msg.getMsg_id(), msg.isMe(), msg.getStartTime(), msg.getEndTime());
-                if(msg.getEndTime()<System.currentTimeMillis())((ChatCellBase) viewHolder).setBellId(R.mipmap.icon_st_12);
+                if (msg.getEndTime() < System.currentTimeMillis())
+                    ((ChatCellBase) viewHolder).setBellId(R.mipmap.icon_st_12);
             } else {
                 ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), true, msg.isMe());
             }
@@ -335,7 +361,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
     public void onDestroy() {
         //清除计时器，避免内存溢出
         for (Disposable timer : mTimers.values()) {
-            if(!timer.isDisposed())timer.dispose();
+            if (!timer.isDisposed()) timer.dispose();
         }
         mMsgIdPositions.clear();
         mMsgIdPositions = null;
@@ -396,7 +422,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
     private void updateSurvivalTimeImage(String msgId, int id) {
         try {
-            if (mMsgIdPositions!=null && mMsgIdPositions.containsKey(msgId)) {
+            if (mMsgIdPositions != null && mMsgIdPositions.containsKey(msgId)) {
                 int position = mMsgIdPositions.get(msgId);
 //                ChatCellBase cell = getCellByPosition(position);
 //                if (cell != null) {
