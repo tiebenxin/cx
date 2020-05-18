@@ -177,6 +177,9 @@ public class ChatCellImage extends ChatCellFileBase {
     @Override
     public void onClick(View view) {
         super.onClick(view);
+        if (imageView == null) {
+            return;
+        }
         if (view.getId() == imageView.getId()) {
             if (mCellListener != null && model != null) {
                 mCellListener.onEvent(ChatEnum.ECellEventType.IMAGE_CLICK, model, new Object());
