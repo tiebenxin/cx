@@ -994,20 +994,36 @@ public class MsgDao {
                 msg = realm.where(MsgAllBean.class)
                         .equalTo("gid", gid)
                         .and()
-                        .equalTo("msg_type", 1)
+                        .in("msg_type", new Integer[]{1, 2, 8, 20})
                         .and()
                         .contains("chat.msg", key, Case.INSENSITIVE)
+                        .or()
+                        .contains("atMessage.msg", key, Case.INSENSITIVE)
+                        .or()
+                        .contains("stamp.comment", key, Case.INSENSITIVE)
+                        .or()
+                        .contains("replyMessage.chatMessage.msg", key, Case.INSENSITIVE)
+                        .or()
+                        .contains("replyMessage.atMessage.msg", key, Case.INSENSITIVE)
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
             } else {//单人
                 msg = realm.where(MsgAllBean.class)
-                        .equalTo("gid", "")
-                        .and()
-                        .equalTo("msg_type", 1)
-                        .and()
-                        .contains("chat.msg", key, Case.INSENSITIVE)
+                        .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                         .and()
                         .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                        .and()
+                        .in("msg_type", new Integer[]{1, 2, 8, 20})
+                        .and()
+                        .contains("chat.msg", key, Case.INSENSITIVE)
+                        .or()
+                        .contains("atMessage.msg", key, Case.INSENSITIVE)
+                        .or()
+                        .contains("stamp.comment", key, Case.INSENSITIVE)
+                        .or()
+                        .contains("replyMessage.chatMessage.msg", key, Case.INSENSITIVE)
+                        .or()
+                        .contains("replyMessage.atMessage.msg", key, Case.INSENSITIVE)
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
             }
@@ -3787,6 +3803,7 @@ public class MsgDao {
 
     /**
      * 删除收藏记录
+     *
      * @param msgId
      */
     public void deleteCollectionInfo(String msgId) {
@@ -3795,9 +3812,9 @@ public class MsgDao {
             realm.beginTransaction();
             realm.where(CollectionInfo.class).equalTo("msgId", msgId).findAll().deleteAllFromRealm();
             realm.commitTransaction();
-        }catch (Exception e){
+        } catch (Exception e) {
             DaoUtil.reportException(e);
-        }finally {
+        } finally {
             realm.close();
         }
     }
@@ -3822,12 +3839,13 @@ public class MsgDao {
 
     /**
      * 查询收藏数据
+     *
      * @param value
      * @return
      */
     public List<CollectionInfo> findCollectionInfo(String value) {
         Realm realm = DaoUtil.open();
-        List<CollectionInfo> ret=null;
+        List<CollectionInfo> ret = null;
         try {
             ret = new ArrayList<>();
             RealmResults<CollectionInfo> collectList = null;
@@ -3839,9 +3857,9 @@ public class MsgDao {
 //            }
             if (collectList != null)
                 ret = realm.copyFromRealm(collectList);
-        }catch (Exception e){
+        } catch (Exception e) {
             DaoUtil.reportException(e);
-        }finally {
+        } finally {
             realm.close();
         }
         return ret;
@@ -3849,9 +3867,10 @@ public class MsgDao {
 
     /**
      * 保存收藏的文件消息
+     *
      * @param fileMessage
      */
-    public void saveCollectFileMsg(CollectSendFileMessage fileMessage){
+    public void saveCollectFileMsg(CollectSendFileMessage fileMessage) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
