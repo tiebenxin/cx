@@ -1975,9 +1975,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (!isGroup && !isSystemUser) {
             list.add(createItemMode("戳一下", R.mipmap.ic_chat_action, ChatEnum.EFunctionId.STAMP));
         }
-        if (!isSystemUser) {
-            list.add(createItemMode("名片", R.mipmap.ic_chat_newfrd, ChatEnum.EFunctionId.CARD));
-        }
         if (isGroup) {
             //本人群主
             if (UserAction.getMyId() != null && groupInfo != null && groupInfo.getMaster().equals(UserAction.getMyId().toString())) {
@@ -1986,6 +1983,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
         list.add(createItemMode("收藏", R.mipmap.ic_chat_collect, ChatEnum.EFunctionId.COLLECT));
+        if (!isSystemUser) {
+            list.add(createItemMode("名片", R.mipmap.ic_chat_newfrd, ChatEnum.EFunctionId.CARD));
+        }
         return list;
     }
 

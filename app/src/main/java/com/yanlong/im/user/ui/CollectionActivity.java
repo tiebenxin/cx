@@ -106,6 +106,9 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     private String key = "";//搜索关键字
     public static final int CANCEL_COLLECT = 0;//取消收藏
 
+    public static final int FROM_DEFAULT = 0;//默认来源
+    public static final int FROM_CHAT = 1;//来自聊天面板收藏
+
     //加载布局
     @Override
     protected int setView() {
