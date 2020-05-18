@@ -996,6 +996,7 @@ public class MsgDao {
                         .and()
                         .in("msg_type", new Integer[]{1, 2, 8, 20})
                         .and()
+                        .beginGroup()
                         .contains("chat.msg", key, Case.INSENSITIVE)
                         .or()
                         .contains("atMessage.msg", key, Case.INSENSITIVE)
@@ -1005,16 +1006,20 @@ public class MsgDao {
                         .contains("replyMessage.chatMessage.msg", key, Case.INSENSITIVE)
                         .or()
                         .contains("replyMessage.atMessage.msg", key, Case.INSENSITIVE)
+                        .endGroup()
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
             } else {//单人
                 msg = realm.where(MsgAllBean.class)
-                        .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                        .beginGroup()
+                        .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
                         .and()
                         .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                        .endGroup()
                         .and()
                         .in("msg_type", new Integer[]{1, 2, 8, 20})
                         .and()
+                        .beginGroup()
                         .contains("chat.msg", key, Case.INSENSITIVE)
                         .or()
                         .contains("atMessage.msg", key, Case.INSENSITIVE)
@@ -1024,6 +1029,7 @@ public class MsgDao {
                         .contains("replyMessage.chatMessage.msg", key, Case.INSENSITIVE)
                         .or()
                         .contains("replyMessage.atMessage.msg", key, Case.INSENSITIVE)
+                        .endGroup()
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
             }
