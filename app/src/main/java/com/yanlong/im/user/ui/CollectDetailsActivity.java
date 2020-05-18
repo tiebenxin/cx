@@ -827,6 +827,10 @@ public class CollectDetailsActivity extends AppActivity {
         String url = "";
         if (isMe(uid)) {
             url = vm.getLocalUrl();
+            //IOS没有本地url这个概念，因此当本地url为空的时候，则取网络url
+            if(TextUtils.isEmpty(url)){
+                url = vm.getVoiceURL();
+            }
         } else {
             url = vm.getVoiceURL();
         }
