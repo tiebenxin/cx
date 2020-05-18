@@ -131,9 +131,13 @@ public class SearchMsgActivity extends AppActivity {
                 url = msgbean.getFrom_avatar();
                 name = msgbean.getFrom_nickname();
             } else {
-                UserInfo u = msgbean.getShow_user();
                 url = msgbean.getFrom_avatar(); //u.getHead();
-                name = u.getName4Show();
+                if (msgbean.isMe()) {
+                    name = msgbean.getFrom_nickname();
+                } else {
+                    UserInfo u = msgbean.getShow_user();
+                    name = u.getName4Show();
+                }
             }
             msg = SocketData.getMsg(msgbean);
             int index = msg.indexOf(key);
