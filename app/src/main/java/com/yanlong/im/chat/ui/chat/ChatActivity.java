@@ -167,6 +167,7 @@ import com.yanlong.im.user.bean.CollectionInfo;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.user.ui.CollectionActivity;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
@@ -1929,6 +1930,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     case ChatEnum.EFunctionId.FILE:
                         toSelectFile();
                         break;
+                    case ChatEnum.EFunctionId.COLLECT:
+                        if(ViewUtils.isFastDoubleClick()){
+                            return;
+                        }
+                        IntentUtil.gotoActivity(ChatActivity.this, CollectionActivity.class);
+                        break;
                 }
             }
         });
@@ -1977,6 +1984,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
         list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
+        list.add(createItemMode("收藏", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.COLLECT));
         return list;
     }
 
