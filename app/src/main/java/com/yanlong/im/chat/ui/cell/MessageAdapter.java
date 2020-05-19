@@ -4,7 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -403,7 +402,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
                             @Override
                             public void accept(Long index) throws Exception {
                                 try {
-                                    Log.e("raleigh_test","index="+index);
                                     mTimersIndexs.put(msgId, index.intValue());
                                     long time = nowTimeMillis - DateUtils.getSystemTime();
                                     String name = "icon_st_" + Math.min(COUNT, index + 1);
