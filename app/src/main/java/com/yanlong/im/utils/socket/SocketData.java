@@ -1560,9 +1560,9 @@ public class SocketData {
                     }
 
                 }
-                //群聊 立即更新阅后即焚
+                //群聊 发送成功立即更新阅后即焚
                 if (!TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getSurvival_time() > 0) {
-                    long now = System.currentTimeMillis();
+                    long now = getFixTime();
                     msgAllBean.setStartTime(now);
                     msgAllBean.setEndTime(now + (msgAllBean.getSurvival_time() * 1000));
                 }
