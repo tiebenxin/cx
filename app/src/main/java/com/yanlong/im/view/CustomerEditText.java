@@ -11,7 +11,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 
-import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.utils.edit.IRemovePredicate;
 import com.yanlong.im.utils.edit.KeyCodeDeleteHelper;
@@ -175,6 +174,30 @@ public class CustomerEditText extends AppCompatEditText {
         }
     }
 
+
+    private void insert(String text) throws SecurityException,
+            NumberFormatException, IllegalArgumentException {
+        int index = this.getSelectionStart();
+        if(!TextUtils.isEmpty(text)) {
+            String pattern = PatternUtil.PATTERN_FACE_EMOJI; // 正则表达式，用来判断消息内是否有表情
+            Pattern patten = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
+            Matcher matcher = patten.matcher(text);
+            SpannableStringBuilder sb = new SpannableStringBuilder(text);
+            while (matcher.find()) {
+                String emojText = matcher.group();
+                int start = matcher.start();
+                int end = matcher.start() + emojText.length();
+                SpannableEmoj emoj = new SpannableEmoj(emojText);
+                Spannable spannable = SpanFactory.newSpannable(emoj.getSpannedText(), emoj);
+                sb.replace(start, end, spannable);
+            }
+            SpannableStringBuilder sbText = new SpannableStringBuilder(getText() == null ? "" : getText());
+            sbText.insert(index,sb);
+            setText(sbText);
+            //光标在最后
+            setSelection(index+sb.length());
+        }
+    }
     @Override
     public boolean onTextContextMenuItem(int id) {
         if (id == android.R.id.paste) {
@@ -185,24 +208,12 @@ public class CustomerEditText extends AppCompatEditText {
                     String value = clipboard.getText().toString();
                     Editable edit = getEditableText();
                     // edit.clear();
-                    int index = this.getSelectionStart();
-                    if (index < 0 || index >= edit.length()) {
-                        edit.append(ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, value));
-                    } else {
-                        edit.insert(index, ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, value));// 光标所在位置插入文字
-                    }
-
+                    insert(value);
                 } else {
                     android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
                     String value = clipboard.getText().toString();
-                    Editable edit = getEditableText();
                     // edit.clear();
-                    int index = this.getSelectionStart();
-                    if (index < 0 || index >= edit.length()) {
-                        edit.append(ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, value));
-                    } else {
-                        edit.insert(index, ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, value));// 光标所在位置插入文字
-                    }
+                    insert(value);
                 }
                 return true;
             } catch (Exception e) {
