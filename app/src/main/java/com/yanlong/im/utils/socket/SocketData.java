@@ -2083,6 +2083,7 @@ public class SocketData {
                 case ChatEnum.EMessageType.BUSINESS_CARD://名片
                     BusinessCardMessage card = bean.getBusiness_card();
                     url = card.getAvatar();
+                    msg = card.getNickname() + "的名片";
                     break;
                 case ChatEnum.EMessageType.STAMP://戳一戳
                     StampMessage stamp = bean.getStamp();

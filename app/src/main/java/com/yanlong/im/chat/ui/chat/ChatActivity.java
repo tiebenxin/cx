@@ -428,24 +428,25 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         getOftenUseFace();
     }
 
-    /** 仅群聊
+    /**
+     * 仅群聊
      * 异步处理需要阅后即焚的消息,打开聊天界面表示已读，开启阅后即焚
      */
-    private void dealToBurnMsg(){
-        Realm realm=DaoUtil.open();
+    private void dealToBurnMsg() {
+        Realm realm = DaoUtil.open();
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 RealmResults<MsgAllBean> realmResults = realm.where(MsgAllBean.class)
-                        .equalTo("gid",toGid)
+                        .equalTo("gid", toGid)
                         .greaterThan("survival_time", 0)
                         .lessThanOrEqualTo("endTime", 0)
                         .findAll();
                 long now = System.currentTimeMillis();
-                for(MsgAllBean msg: realmResults){
-                    if(msg.getEndTime() == 0){
+                for (MsgAllBean msg : realmResults) {
+                    if (msg.getEndTime() == 0) {
                         msg.setStartTime(now);
-                        msg.setEndTime(now+(msg.getSurvival_time()*1000));
+                        msg.setEndTime(now + (msg.getSurvival_time() * 1000));
                     }
                 }
             }
@@ -1695,7 +1696,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             isLoadHistory = true;
         }
         onlineState = getIntent().getBooleanExtra(ONLINE_STATE, true);
-        if(isGroup())dealToBurnMsg();
+        if (isGroup()) dealToBurnMsg();
     }
 
     //清除回复状态
@@ -1951,7 +1952,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         toSelectFile();
                         break;
                     case ChatEnum.EFunctionId.COLLECT:
-                        if(ViewUtils.isFastDoubleClick()){
+                        if (ViewUtils.isFastDoubleClick()) {
                             return;
                         }
                         IntentUtil.gotoActivity(ChatActivity.this, CollectionActivity.class);
@@ -3840,7 +3841,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //是否禁止回复
     public boolean isBanReply(@ChatEnum.EMessageType int type) {
         if (/*type == ChatEnum.EMessageType.VOICE ||*/ type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
-                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/|| type == ChatEnum.EMessageType.LOCATION) {
+                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION) {
             return true;
         }
         return false;
@@ -4397,11 +4398,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 userInfo.setHead(msg.getFrom_avatar());
             } else {
                 if (isGroup()) {
-                    String gname = "";//获取对方最新的群昵称
-                    MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(toGid, msg.getFrom_uid());
-                    if (gmsg != null) {
-                        gname = gmsg.getFrom_group_nickname();
-                    }
+                    String gname = msgDao.getGroupMemberName(toGid, msg.getFrom_uid(), null, null);//获取对方最新的群昵称
+//                    MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(toGid, msg.getFrom_uid());
+//                    if (gmsg != null) {
+//                        gname = gmsg.getFrom_group_nickname();
+//                    }
                     if (StringUtil.isNotNull(gname)) {
                         userInfo.setName(gname);
                     }
@@ -5631,6 +5632,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     public void onEvent(int type, MsgAllBean message, Object... args) {
+        if (mViewModel.isInputText.getValue()) {
+            mViewModel.isInputText.setValue(false);
+        }
         switch (type) {
             case ChatEnum.ECellEventType.TXT_CLICK:
                 break;
