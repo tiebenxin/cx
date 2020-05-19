@@ -80,7 +80,6 @@ import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
 import com.yanlong.im.utils.ChatBitmapCache;
-import net.cb.cb.library.manager.excutor.ExecutorManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
@@ -102,6 +101,7 @@ import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.manager.FileManager;
 import net.cb.cb.library.manager.TokenManager;
+import net.cb.cb.library.manager.excutor.ExecutorManager;
 import net.cb.cb.library.net.IRequestListener;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
@@ -1465,7 +1465,8 @@ public class MainActivity extends AppActivity {
         if (TextUtils.isEmpty(ip)) {
             return;
         }
-        userAction.reportIP(ip, new CallBack<ReturnBean>(false) {
+        String phoneModel = android.os.Build.MODEL;
+        userAction.reportIP(ip, phoneModel,new CallBack<ReturnBean>(false) {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);

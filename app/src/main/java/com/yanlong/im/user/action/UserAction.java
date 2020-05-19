@@ -962,8 +962,8 @@ public class UserAction {
     /**
      * 上报IP
      */
-    public void reportIP(String ip, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.reportIPChange(ip), callback);
+    public void reportIP(String ip, String phoneModel,CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.reportIPChange(ip,phoneModel), callback);
     }
 
     private static UserBean convertToUserBean(UserInfo info) {
