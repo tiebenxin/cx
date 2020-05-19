@@ -1094,8 +1094,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * @param message
      */
     protected void showDraftContent(String message) {
-        SpannableString spannableString = ExpressionUtil.getExpressionString(this, ExpressionUtil.DEFAULT_SIZE, message);
-        editChat.setText(spannableString);
+        editChat.showDraftContent(message);
         if (message.length() > 0) editChat.setSelection(editChat.getText().length());
     }
 

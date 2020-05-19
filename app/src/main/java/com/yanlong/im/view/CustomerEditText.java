@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.yanlong.im.utils.ExpressionUtil;
+import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.utils.edit.IRemovePredicate;
 import com.yanlong.im.utils.edit.KeyCodeDeleteHelper;
 import com.yanlong.im.utils.edit.NoCopySpanEditableFactory;
@@ -23,6 +24,8 @@ import com.yanlong.im.utils.edit.watcher.DirtySpanWatcher;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @version V1.0
@@ -124,13 +127,13 @@ public class CustomerEditText extends AppCompatEditText {
     }
 
     /**
-     * 添加Emoj表情
+     * 添加Emoj表情,一个表情
      */
-    public void addEmojSpan(String text) {
+    public void addEmojSpan(String emojText) {
         try {
             int start = getSelectionStart();
             SpannableStringBuilder sb = new SpannableStringBuilder(getText() == null ? "" : getText());
-            SpannableEmoj emoj = new SpannableEmoj(text);
+            SpannableEmoj emoj = new SpannableEmoj(emojText);
             Spannable spannable = SpanFactory.newSpannable(emoj.getSpannedText(), emoj);
             sb.insert(start, spannable);
             setText(sb);
@@ -144,6 +147,7 @@ public class CustomerEditText extends AppCompatEditText {
         }
     }
 
+
     /**
      * 对spanableString进行正则判断，如果符合要求，则以表情图片代替
      *
@@ -151,17 +155,24 @@ public class CustomerEditText extends AppCompatEditText {
      * @throws NumberFormatException
      * @throws IllegalArgumentException
      */
-    public static void showEmoj(String text) throws SecurityException,
+    public void showDraftContent(String text) throws SecurityException,
             NumberFormatException, IllegalArgumentException {
-//        String pattern = PatternUtil.PATTERN_FACE_EMOJI; // 正则表达式，用来判断消息内是否有表情
-//        Pattern patten = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
-//        Matcher matcher = patten.matcher(text);
-//        while (matcher.find()) {
-//            String key = matcher.group();
-//            if (matcher.start() < start) {
-//                continue;
-//            }
-//        }
+        if(!TextUtils.isEmpty(text)) {
+            String pattern = PatternUtil.PATTERN_FACE_EMOJI; // 正则表达式，用来判断消息内是否有表情
+            Pattern patten = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
+            Matcher matcher = patten.matcher(text);
+            SpannableStringBuilder sb = new SpannableStringBuilder(text);
+            while (matcher.find()) {
+                String emojText = matcher.group();
+                int start = matcher.start();
+                int end = matcher.start() + emojText.length();
+                SpannableEmoj emoj = new SpannableEmoj(emojText);
+                Spannable spannable = SpanFactory.newSpannable(emoj.getSpannedText(), emoj);
+//            sb.insert(start, spannable);
+                sb.replace(start, end, spannable);
+            }
+            setText(sb);
+        }
     }
 
     @Override
