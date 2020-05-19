@@ -24,7 +24,6 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -167,10 +166,8 @@ import com.yanlong.im.user.ui.CollectionActivity;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
-import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
-import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
@@ -1296,6 +1293,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Log.e("raleigh_test","s="+s+",isFirst="+isFirst);
 
                 if (s.length() > 0) {
                     btnSend.setVisibility(View.VISIBLE);
@@ -4411,8 +4409,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void taskDraftGet() {
         session = dao.sessionGet(toGid, toUId);
-        if (session == null)
+        if (session == null){
+            isFirst++;
             return;
+        }
+
         draft = session.getDraft();
         if (StringUtil.isNotNull(draft)) {
             //设置完草稿之后清理掉草稿 防止@功能不能及时弹出

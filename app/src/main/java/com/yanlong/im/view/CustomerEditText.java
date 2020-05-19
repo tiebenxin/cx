@@ -91,7 +91,7 @@ public class CustomerEditText extends AppCompatEditText {
                 start = start - 1;
             }
             SpannableUser myTextSpan = new SpannableUser(showText, userId);
-            Spannable spannable = SpanFactory.newSpannable("@" + myTextSpan.getSpannedText() + " ", myTextSpan);
+            Spannable spannable = SpanFactory.newSpannable( myTextSpan.getSpannedText(), myTextSpan);
             //binding @后面带一个空格
             sb.insert(start, spannable);
             setText(sb);

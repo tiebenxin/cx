@@ -2,8 +2,10 @@ package com.yanlong.im.utils.edit.watcher;
 
 import android.text.SpanWatcher;
 import android.text.Spannable;
+import android.util.Log;
 
 import com.yanlong.im.utils.edit.IRemovePredicate;
+import com.yanlong.im.utils.edit.span.DataBindingSpan;
 import com.yanlong.im.utils.edit.span.RemoveOnDirtySpan;
 
 /**
@@ -32,9 +34,18 @@ public class DirtySpanWatcher implements SpanWatcher {
             int spanStart = text.getSpanStart(what);
             int spanEnd = text.getSpanEnd(what);
             Object[] objects = text.getSpans(spanStart, spanEnd, Object.class);
-            for(Object object : objects){
-                if(removePredicate.isToRemove(object)){
-                    text.removeSpan(object);
+            Log.e("raleigh_test", "ostart=" + ostart + ",oend=" + oend + ",nstart=" + nstart + ",nend=" + nend);
+            Log.e("raleigh_test", "text=" + text + ",spanStart=" + spanStart + ",spanEnd=" + spanEnd);
+            for (Object object : objects) {
+                if (removePredicate.isToRemove(object)) {
+                    Log.e("raleigh_test", "object=" + object);
+                    if (object instanceof DataBindingSpan) {
+                        if (spanEnd - spanStart != ((DataBindingSpan) object).getSpannedText().length())
+                            text.removeSpan(object);
+                    } else {
+                        text.removeSpan(object);
+                    }
+
                 }
             }
         }

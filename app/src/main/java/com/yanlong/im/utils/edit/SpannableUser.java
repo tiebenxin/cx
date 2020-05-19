@@ -25,7 +25,7 @@ public class SpannableUser implements DataBindingSpan<Long>, RemoveOnDirtySpan {
 
     @Override
     public CharSequence getSpannedText() {
-        SpannableString sb = new SpannableString(text);
+        SpannableString sb = new SpannableString("@" + text + " ");
         sb.setSpan(new ForegroundColorSpan(Color.BLACK),0,sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return sb;
     }
