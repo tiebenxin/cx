@@ -222,5 +222,5 @@ public interface UserServer {
 
     @POST("/user/report-ip-variation")
     @FormUrlEncoded
-    Call<ReturnBean> reportIPChange(@Field("ip") String code);
+    Call<ReturnBean> reportIPChange(@Field("ip") String code, @Field("phoneModel") String phoneModel);
 }
