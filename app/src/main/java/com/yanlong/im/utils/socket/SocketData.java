@@ -1964,6 +1964,16 @@ public class SocketData {
                         }
                     }
                     break;
+                case ChatEnum.EMessageType.WEB:// 网页消息
+                    WebMessage webMessage = bean.getWebMessage();
+//                    MsgBean.SendFileMessage.Builder fileBuilder = MsgBean.SendFileMessage.newBuilder();
+//                    fileBuilder.setFileName(fileMessage.getFile_name())
+//                            .setUrl(fileMessage.getUrl())
+//                            .setSize(new Long(fileMessage.getSize()).intValue())
+//                            .setFormat(fileMessage.getFormat());
+//                    value = fileBuilder.build();
+//                    type = MsgBean.MessageType.SEND_FILE;
+                    break;
             }
             return this;
         }
