@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.dao;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.hm.cxpay.global.PayEnum;
 import com.yanlong.im.MyAppLication;
@@ -249,6 +250,8 @@ public class MsgDao {
         MsgAllBean msgAllBean = realm.where(MsgAllBean.class)
                 .equalTo("msg_id", msgid).findFirst();
         if (msgAllBean != null) {
+            msgAllBean.setRead(1);
+            msgAllBean.setReadTime(startTime);
             msgAllBean.setEndTime(time);
             msgAllBean.setStartTime(startTime);
             realm.insertOrUpdate(msgAllBean);
@@ -1918,6 +1921,7 @@ public class MsgDao {
                     .beginGroup().notEqualTo("read", 1).endGroup()
                     .findAll();
             if (friendChatMessages != null) {
+                Log.e("raleigh_test","size"+friendChatMessages.size());
                 //每次修改后，friendChatMessages的size 会变化，直到全部修改完，friendChatMessages的size 为0
                 while (friendChatMessages.size() != 0) {
                     MsgAllBean msgAllBean = friendChatMessages.get(0);

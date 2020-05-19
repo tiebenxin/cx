@@ -24,8 +24,6 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -130,6 +128,7 @@ import com.yanlong.im.chat.bean.TransferNoticeMessage;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
+import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.AckEvent;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
@@ -179,8 +178,6 @@ import com.yanlong.im.utils.audio.AudioRecordManager;
 import com.yanlong.im.utils.audio.IAdioTouch;
 import com.yanlong.im.utils.audio.IAudioRecord;
 import com.yanlong.im.utils.audio.IVoicePlayListener;
-import com.yanlong.im.utils.edit.SpanFactory;
-import com.yanlong.im.utils.edit.SpannableEmoj;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SendList;
 import com.yanlong.im.utils.socket.SocketData;
@@ -245,6 +242,7 @@ import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MultiListView;
+import net.cb.cb.library.view.WebPageActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -256,8 +254,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -1335,6 +1331,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Log.e("raleigh_test", "s=" + s + ",isFirst=" + isFirst);
+
                 if (s.length() > 0) {
                     btnSend.setVisibility(View.VISIBLE);
                 } else {
@@ -1686,6 +1684,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onClick() {
                 //取消回复
                 mViewModel.isReplying.setValue(false);
+                isReplying = false;
+                replayMsg = null;
             }
         });
 
@@ -1960,24 +1960,24 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             return;
                         }
                         //区分是单聊还是群聊，把转发需要的参数携带过去
-                        Intent intent = new Intent(ChatActivity.this,CollectionActivity.class);
-                        intent.putExtra("from",CollectionActivity.FROM_CHAT);
-                        if(isGroup()){
-                            intent.putExtra("is_group",true);
-                            if(groupInfo == null){
+                        Intent intent = new Intent(ChatActivity.this, CollectionActivity.class);
+                        intent.putExtra("from", CollectionActivity.FROM_CHAT);
+                        if (isGroup()) {
+                            intent.putExtra("is_group", true);
+                            if (groupInfo == null) {
                                 groupInfo = msgDao.getGroup4Id(toGid);
                             }
-                            intent.putExtra("group_head",groupInfo.getAvatar());
-                            intent.putExtra("group_id",groupInfo.getGid());
-                            intent.putExtra("group_name",msgDao.getGroupName(groupInfo.getGid()));
-                        }else {
-                            intent.putExtra("is_group",false);
+                            intent.putExtra("group_head", groupInfo.getAvatar());
+                            intent.putExtra("group_id", groupInfo.getGid());
+                            intent.putExtra("group_name", msgDao.getGroupName(groupInfo.getGid()));
+                        } else {
+                            intent.putExtra("is_group", false);
                             if (userInfo == null) {
                                 userInfo = userDao.findUserInfo(toUId);
                             }
-                            intent.putExtra("user_head",userInfo.getHead());
-                            intent.putExtra("user_id",userInfo.getUid());
-                            intent.putExtra("user_name",userInfo.getName4Show());
+                            intent.putExtra("user_head", userInfo.getHead());
+                            intent.putExtra("user_id", userInfo.getUid());
+                            intent.putExtra("user_name", userInfo.getName4Show());
                         }
                         startActivity(intent);
                         break;
@@ -3865,7 +3865,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //是否禁止回复
     public boolean isBanReply(@ChatEnum.EMessageType int type) {
         if (/*type == ChatEnum.EMessageType.VOICE ||*/ type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
-                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION) {
+                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION
+                || type == ChatEnum.EMessageType.SHIPPED_EXPRESSION || type == ChatEnum.EMessageType.WEB || type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {
             return true;
         }
         return false;
@@ -3940,7 +3941,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         ClipData mClipData = ClipData.newPlainText(txt, txt);
         cm.setPrimaryClip(mClipData);
     }
-
 
 
     /**
@@ -4472,7 +4472,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void taskDraftGet() {
         session = dao.sessionGet(toGid, toUId);
-        if (session == null){
+        if (session == null) {
             isFirst++;
             return;
         }
@@ -5686,16 +5686,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 clickVideo(message);
                 break;
             case ChatEnum.ECellEventType.CARD_CLICK:
-                if (args[0] == null) {
-                    return;
-                }
-                BusinessCardMessage card = (BusinessCardMessage) args[0];
-                if (card.getUid().longValue() != UserAction.getMyId().longValue()) {
-                    if (isGroup() && !master.equals(card.getUid().toString())) {
-                        startActivity(new Intent(getContext(), UserInfoActivity.class).putExtra(UserInfoActivity.ID,
-                                card.getUid()).putExtra(UserInfoActivity.IS_BUSINESS_CARD, contactIntimately));
-                    } else {
-                        startActivity(new Intent(getContext(), UserInfoActivity.class).putExtra(UserInfoActivity.ID, card.getUid()));
+                if (args[0] != null && args[0] instanceof BusinessCardMessage) {
+                    BusinessCardMessage card = (BusinessCardMessage) args[0];
+                    if (card.getUid().longValue() != UserAction.getMyId().longValue()) {
+                        if (isGroup() && !master.equals(card.getUid().toString())) {
+                            startActivity(new Intent(getContext(), UserInfoActivity.class).putExtra(UserInfoActivity.ID,
+                                    card.getUid()).putExtra(UserInfoActivity.IS_BUSINESS_CARD, contactIntimately));
+                        } else {
+                            startActivity(new Intent(getContext(), UserInfoActivity.class).putExtra(UserInfoActivity.ID, card.getUid()));
+                        }
                     }
                 }
                 break;
@@ -5810,6 +5809,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
                 break;
             case ChatEnum.ECellEventType.WEB_CLICK:
+                if (args[0] != null && args[0] instanceof WebMessage) {
+                    WebMessage webMessage = (WebMessage) args[0];
+                    Intent intent = new Intent(ChatActivity.this, WebPageActivity.class);
+                    intent.putExtra(WebPageActivity.AGM_URL, webMessage.getWebUrl());
+                    startActivity(intent);
+                }
                 break;
             case ChatEnum.ECellEventType.MULTI_CLICK:
                 break;
@@ -6189,16 +6194,34 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //存储正在回复消息,回复内容被content
     private void saveReplying(String content) {
         if (isReplying && replayMsg != null && !TextUtils.isEmpty(content)) {
-            replayMsg.setIsReplying(1);
-            DaoUtil.update(replayMsg);
+            Realm realm=DaoUtil.open();
+            try {
+                //实时从数据库查，再更改，否则影响阅后即焚字段
+                MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", replayMsg.getMsg_id()).findFirst();
+                realm.beginTransaction();
+                msgAllBean.setIsReplying(1);
+                realm.commitTransaction();
+            }catch (Exception e){
+            }finally {
+                DaoUtil.close(realm);
+            }
         }
     }
 
     //发送成功后删除回复消息
     private void updateReplying() {
         if (replayMsg != null) {
-            replayMsg.setIsReplying(0);
-            DaoUtil.update(replayMsg);
+            Realm realm=DaoUtil.open();
+            try {
+                //实时从数据库查，再更改，否则影响阅后即焚字段
+                MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", replayMsg.getMsg_id()).findFirst();
+                realm.beginTransaction();
+                msgAllBean.setIsReplying(0);
+                realm.commitTransaction();
+            }catch (Exception e){
+            }finally {
+                DaoUtil.close(realm);
+            }
         }
     }
 

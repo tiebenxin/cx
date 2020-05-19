@@ -38,13 +38,13 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean<TokenBean>> login(@Field("password") String password, @Field("phone") String phone,
                                       @Field("devid") String devid, @Field("platform") String platform,
-                                      @Field("phoneModel") String phoneModel,@Field("installChannel") String installChannel);
+                                      @Field("phoneModel") String phoneModel,@Field("installChannel") String installChannel,@Field("deviceDetail") String deviceDetail);
 
     @POST("pub/login-by-imid-password")
     @FormUrlEncoded
     Call<ReturnBean<TokenBean>> login4Imid(@Field("password") String password, @Field("imid") String imid,
                                            @Field("devid") String devid, @Field("platform") String platform,
-                                           @Field("phoneModel") String phoneModel,@Field("installChannel") String installChannel);
+                                           @Field("phoneModel") String phoneModel,@Field("installChannel") String installChannel,@Field("deviceDetail") String deviceDetail);
 
     @POST("/user/refresh-access-token")
     @FormUrlEncoded
@@ -126,13 +126,13 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean<TokenBean>> register(@Field("phone") String phone, @Field("captcha") String captcha,
                                          @Field("platform") String platform, @Field("devid") String devid,
-                                         @Field("phoneModel") String phoneModel,@Field("installChannel") String installChannel);
+                                         @Field("phoneModel") String phoneModel,@Field("installChannel") String installChannel,@Field("deviceDetail") String deviceDetail);
 
     @POST("pub/login-by-phone-captcha")
     @FormUrlEncoded
     Call<ReturnBean<TokenBean>> login4Captch(@Field("phone") String phone, @Field("captcha") String captcha,
                                              @Field("platform") String platform, @Field("devid") String devid,
-                                             @Field("phoneModel") String phoneModel,@Field("installChannel") String installChannel);
+                                             @Field("phoneModel") String phoneModel,@Field("installChannel") String installChannel,@Field("deviceDetail") String deviceDetail);
 
     @POST("user/get-user-info-by-imid")
     @FormUrlEncoded

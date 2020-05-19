@@ -4,7 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.utils.audio.AudioPlayManager;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.view.MultiListView;
@@ -402,7 +402,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
                             @Override
                             public void accept(Long index) throws Exception {
                                 try {
-                                    Log.e("raleigh_test","index="+index);
                                     mTimersIndexs.put(msgId, index.intValue());
                                     long time = nowTimeMillis - DateUtils.getSystemTime();
                                     String name = "icon_st_" + Math.min(COUNT, index + 1);
@@ -460,7 +459,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
         //群聊暂时不处理（待后期策略）
         if (isGroup || date == 0) {
-            date = DateUtils.getSystemTime();
+            date = SocketData.getFixTime();
         }
         if (msg.getSurvival_time() > 0 && msg.getEndTime() == 0) {
             msgDao.setMsgEndTime((date + msg.getSurvival_time() * 1000), date, msg.getMsg_id());

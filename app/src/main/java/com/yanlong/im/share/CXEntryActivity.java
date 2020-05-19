@@ -13,7 +13,6 @@ import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.ui.LoginActivity;
-import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.AppConfig;
@@ -68,11 +67,16 @@ public class CXEntryActivity extends AppActivity {
                                 finish();
                                 return;
                             } else {
-                                if (imgSize.getWidth() > 4096 || imgSize.getHeight() > 4096) {
+                                if (imgSize.getSize() >= 1024 * 1024 * 10) {
                                     ToastUtil.show("图片尺寸单边不能超过4096像素");
                                     finish();
                                     return;
                                 }
+//                                if (imgSize.getWidth() > 4096 || imgSize.getHeight() > 4096) {
+//                                    ToastUtil.show("图片尺寸单边不能超过4096像素");
+//                                    finish();
+//                                    return;
+//                                }
                             }
                         }
                     }
