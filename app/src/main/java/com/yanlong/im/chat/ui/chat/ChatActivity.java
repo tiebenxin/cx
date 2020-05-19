@@ -1690,6 +1690,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onClick() {
                 //取消回复
                 mViewModel.isReplying.setValue(false);
+                isReplying = false;
+                replayMsg = null;
             }
         });
 
@@ -1964,24 +1966,24 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             return;
                         }
                         //区分是单聊还是群聊，把转发需要的参数携带过去
-                        Intent intent = new Intent(ChatActivity.this,CollectionActivity.class);
-                        intent.putExtra("from",CollectionActivity.FROM_CHAT);
-                        if(isGroup()){
-                            intent.putExtra("is_group",true);
-                            if(groupInfo == null){
+                        Intent intent = new Intent(ChatActivity.this, CollectionActivity.class);
+                        intent.putExtra("from", CollectionActivity.FROM_CHAT);
+                        if (isGroup()) {
+                            intent.putExtra("is_group", true);
+                            if (groupInfo == null) {
                                 groupInfo = msgDao.getGroup4Id(toGid);
                             }
-                            intent.putExtra("group_head",groupInfo.getAvatar());
-                            intent.putExtra("group_id",groupInfo.getGid());
-                            intent.putExtra("group_name",msgDao.getGroupName(groupInfo.getGid()));
-                        }else {
-                            intent.putExtra("is_group",false);
+                            intent.putExtra("group_head", groupInfo.getAvatar());
+                            intent.putExtra("group_id", groupInfo.getGid());
+                            intent.putExtra("group_name", msgDao.getGroupName(groupInfo.getGid()));
+                        } else {
+                            intent.putExtra("is_group", false);
                             if (userInfo == null) {
                                 userInfo = userDao.findUserInfo(toUId);
                             }
-                            intent.putExtra("user_head",userInfo.getHead());
-                            intent.putExtra("user_id",userInfo.getUid());
-                            intent.putExtra("user_name",userInfo.getName4Show());
+                            intent.putExtra("user_head", userInfo.getHead());
+                            intent.putExtra("user_id", userInfo.getUid());
+                            intent.putExtra("user_name", userInfo.getName4Show());
                         }
                         startActivity(intent);
                         break;
@@ -3870,7 +3872,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     public boolean isBanReply(@ChatEnum.EMessageType int type) {
         if (/*type == ChatEnum.EMessageType.VOICE ||*/ type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
                 || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION
-                || type == ChatEnum.EMessageType.SHIPPED_EXPRESSION|| type == ChatEnum.EMessageType.WEB|| type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {
+                || type == ChatEnum.EMessageType.SHIPPED_EXPRESSION || type == ChatEnum.EMessageType.WEB || type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {
             return true;
         }
         return false;
@@ -3945,7 +3947,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         ClipData mClipData = ClipData.newPlainText(txt, txt);
         cm.setPrimaryClip(mClipData);
     }
-
 
 
     /**
