@@ -11,8 +11,6 @@ public class SendFileMessage extends RealmObject implements IMsgContent{
     private String file_name; // 原始文件名
     private String format; // 格式描述
     private long size = 0; // 文件大小
-
-    //TODO 额外本地属性
     private String localPath;//文件本地路径
     private boolean isFromOther;//true 从别人那里转发过来的文件，则需从下载地址里找  false 本地文件/自己转发自己的文件，则需要在本地路径找
     private String realFileRename;//若存在文件重名，此值为新名称；若不重名，则为原文件名
