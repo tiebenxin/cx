@@ -1932,7 +1932,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         toSelectFile();
                         break;
                     case ChatEnum.EFunctionId.COLLECT:
-                        if(ViewUtils.isFastDoubleClick()){
+                        if (ViewUtils.isFastDoubleClick()) {
                             return;
                         }
                         IntentUtil.gotoActivity(ChatActivity.this, CollectionActivity.class);
@@ -3821,7 +3821,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //是否禁止回复
     public boolean isBanReply(@ChatEnum.EMessageType int type) {
         if (/*type == ChatEnum.EMessageType.VOICE ||*/ type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
-                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/|| type == ChatEnum.EMessageType.LOCATION) {
+                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION) {
             return true;
         }
         return false;
@@ -5609,6 +5609,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     public void onEvent(int type, MsgAllBean message, Object... args) {
+        if (mViewModel.isInputText.getValue()) {
+            mViewModel.isInputText.setValue(false);
+        }
         switch (type) {
             case ChatEnum.ECellEventType.TXT_CLICK:
                 break;

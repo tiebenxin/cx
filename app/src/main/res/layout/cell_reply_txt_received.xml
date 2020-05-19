@@ -90,15 +90,17 @@
                         android:textIsSelectable="false"
                         android:textSize="13sp" />
 
-                    <android.support.v7.widget.AppCompatTextView
+                    <net.cb.cb.library.view.EllipsizedTextView
                         android:id="@+id/tv_ref_msg"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
                         android:layout_marginBottom="3dp"
+                        android:ellipsize="end"
                         android:fontFamily="normal"
                         android:gravity="center_vertical"
                         android:maxWidth="210dp"
+                        android:maxLines="2"
                         android:selectAllOnFocus="true"
                         android:text=""
                         android:textColor="@color/c_727272"
