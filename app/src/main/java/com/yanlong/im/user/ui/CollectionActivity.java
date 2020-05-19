@@ -881,7 +881,11 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
         } else if (type == ChatEnum.EMessageType.FILE) {//文件
             CollectSendFileMessage bean7 = new Gson().fromJson(info.getData(), CollectSendFileMessage.class);
             txt = bean7.getFileName() == null ? "" : "[文件]" + bean7.getFileName();
-        }//todo 回复暂未添加
+        } else if (type == ChatEnum.EMessageType.VOICE){
+            ToastUtil.show("语音不支持转发");
+            return;
+        }
+        //todo 回复暂未添加
         if (isGroup) {
             avatar = groupHead;
             name = groupName;
@@ -1006,7 +1010,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
 
     private void sendMessage(MsgAllBean msgAllBean) {
         SocketData.sendAndSaveMessage(msgAllBean);
-        ToastUtil.show(this, getResources().getString(R.string.forward_success));
+        ToastUtil.show(this, "发送成功");
         finish();
     }
 
