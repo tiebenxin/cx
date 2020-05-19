@@ -24,6 +24,8 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -177,6 +179,8 @@ import com.yanlong.im.utils.audio.AudioRecordManager;
 import com.yanlong.im.utils.audio.IAdioTouch;
 import com.yanlong.im.utils.audio.IAudioRecord;
 import com.yanlong.im.utils.audio.IVoicePlayListener;
+import com.yanlong.im.utils.edit.SpanFactory;
+import com.yanlong.im.utils.edit.SpannableEmoj;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SendList;
 import com.yanlong.im.utils.socket.SocketData;
@@ -252,6 +256,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -1329,8 +1335,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Log.e("raleigh_test","s="+s+",isFirst="+isFirst);
-
                 if (s.length() > 0) {
                     btnSend.setVisibility(View.VISIBLE);
                 } else {
@@ -3916,6 +3920,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         ClipData mClipData = ClipData.newPlainText(txt, txt);
         cm.setPrimaryClip(mClipData);
     }
+
+
 
     /**
      * 删除
