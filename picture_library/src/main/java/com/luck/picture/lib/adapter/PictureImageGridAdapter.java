@@ -459,11 +459,14 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
             return false;
         }
         // ||width*hight>=4096*4096
-        if (width > 4096 || hight > 4096) {
+       /* if (width > 4096 || hight > 4096) {
             return true;
-        } /*else if (localMedia.getSize() >= 20971520) {
+        } else if (localMedia.getSize() >= 20971520) {
             return true;
         }*/
+        if (localMedia.getSize() >= 1024 * 1024 * 10) {
+            return true;
+        }
         return false;
     }
 }
