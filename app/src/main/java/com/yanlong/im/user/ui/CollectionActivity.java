@@ -688,7 +688,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                     return;
                 }
                 if (response.body().isOk()) {
-                    ToastUtil.show(CollectionActivity.this, "删除成功");
+                    ToastUtil.showCenter(CollectionActivity.this, "删除成功");
                     //同时将本地删除
 //                    mMsgDao.deleteCollectionInfo(msgId);
                     mList.remove(postion);
@@ -700,7 +700,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
-                ToastUtil.show(CollectionActivity.this, "删除失败");
+                ToastUtil.showCenter(CollectionActivity.this, "删除失败");
             }
         });
     }

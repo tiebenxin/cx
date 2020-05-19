@@ -65,7 +65,9 @@ import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
+import com.yanlong.im.chat.ui.FileDownloadActivity;
 import com.yanlong.im.chat.ui.VideoPlayActivity;
+import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.location.LocationPersimmions;
 import com.yanlong.im.location.LocationService;
@@ -213,11 +215,11 @@ public class CollectDetailsActivity extends AppActivity {
         tvDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(status==0){
+                if (status == 0) {
                     openAndroidFile(filePath);
-                }else if(status==1){
+                } else if (status == 1) {
                     DownloadFile(fileMessage);
-                }else {
+                } else {
                     ToastUtil.show("文件不存在或者已被删除");
                 }
             }
@@ -227,8 +229,8 @@ public class CollectDetailsActivity extends AppActivity {
     //获取传递过来的数据
     private void getExtras() {
         if (getIntent() != null) {
-            if(getIntent().getIntExtra("position",-1) != (-1)){
-                position = getIntent().getIntExtra("position",-1);
+            if (getIntent().getIntExtra("position", -1) != (-1)) {
+                position = getIntent().getIntExtra("position", -1);
             }
             if (getIntent().getStringExtra("json_data") != null) {
                 collectionInfo = new Gson().fromJson(getIntent().getStringExtra("json_data"), CollectionInfo.class);
@@ -246,7 +248,7 @@ public class CollectDetailsActivity extends AppActivity {
                     }
                     //收藏时间
                     if (!TextUtils.isEmpty(collectionInfo.getCreateTime())) {
-                        tvTime.setText(TimeToString.getTimeForCollect(Long.parseLong(collectionInfo.getCreateTime()))+" 收藏");
+                        tvTime.setText(TimeToString.getTimeForCollect(Long.parseLong(collectionInfo.getCreateTime())) + " 收藏");
                     } else {
                         tvTime.setText("");
                     }
@@ -393,7 +395,7 @@ public class CollectDetailsActivity extends AppActivity {
                             layoutVoice.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    playVoice(collectionInfo.getFromUid(),bean5,true,0);
+                                    playVoice(collectionInfo.getFromUid(), bean5, true, 0);
                                 }
                             });
                             animationDrawable = (AnimationDrawable) ivVoice.getDrawable();
@@ -527,25 +529,11 @@ public class CollectDetailsActivity extends AppActivity {
                                     tvFileSize.setText("文件大小 " + FileUtils.getFileSizeString(bean8.getFileSize()));
                                 }
                                 //显示下载状态
-                                //1 如果是我发的文件
+                                //1 我发的文件
                                 if (isMe(collectionInfo.getFromUid())) {
-                                    //TODO 暂不考虑转发和重名
-                                    //1-1 没有本地路径，代表为同一用户在PC端发的文件，需要下载（安卓端我方发的文件，必定有localpath本地路径）
-                                    if (TextUtils.isEmpty(fileMessage.getCollectLocalPath())) {
-                                        //从下载路径里找，若存在该文件，则允许直接打开；否则需要下载
-                                        if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFileName())) {
-                                            filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getFileName();
-                                            status = 0;
-                                            tvDownload.setText("打开");
-                                        } else {
-                                            if (TextUtils.isEmpty(fileMessage.getFileURL())) {
-                                                ToastUtil.show("文件下载地址错误，请联系客服");
-                                            }
-                                            status = 1;
-                                            tvDownload.setText("下载");
-                                        }
-                                    } else {
-                                        //1-2 有本地路径，则为手机本地文件，从本地路径里找，有则打开，没有提示文件已被删除
+                                    //1-1 若存在本地路径，则为本地文件
+                                    if (!TextUtils.isEmpty(fileMessage.getCollectLocalPath())) {
+                                        //从本地路径找，存在，则打开；不存在，则提示已删除
                                         if (net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getCollectLocalPath())) {
                                             filePath = fileMessage.getCollectLocalPath();
                                             status = 0;
@@ -554,15 +542,36 @@ public class CollectDetailsActivity extends AppActivity {
                                             status = 2;
                                         }
                                         tvDownload.setText("打开");
+                                    } else {
+                                        //1-2 若不存在本地路径，可能为 [PC端我的账号发的] 或者 [转发他人文件消息]
+                                        //从下载路径里找，若存在该文件，则直接打开
+                                        if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFileName())) {
+                                            filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getFileName();
+                                            status = 0;
+                                            tvDownload.setText("打开");
+                                        } else {
+                                            //若不存在该文件，则需要重新下载
+                                            if (TextUtils.isEmpty(fileMessage.getFileURL())) {
+                                                ToastUtil.show("文件下载地址错误，请联系客服");
+                                            }
+                                            status = 1;
+                                            tvDownload.setText("下载");
+                                        }
                                     }
                                 } else {
-                                    //2 如果是别人发的文件
-                                    //从下载路径里找，若存在该文件，则直接打开；否则需要下载 TODO 暂时直接打开原文件名
+                                    //2 别人发的文件
+                                    //从下载路径里找，若存在该文件，则直接打开
                                     if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFileName())) {
-                                        filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getFileName();
+                                        //是否含有重名的情况，若有则打开的是真实文件路径
+                                        if (!TextUtils.isEmpty(fileMessage.getCollectRealFileRename())) {
+                                            filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getCollectRealFileRename();
+                                        } else {
+                                            filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getFileName();
+                                        }
                                         status = 0;
                                         tvDownload.setText("打开");
                                     } else {
+                                        //若不存在该文件，则需要重新下载
                                         if (TextUtils.isEmpty(fileMessage.getFileURL())) {
                                             ToastUtil.show("文件下载地址错误，请联系客服");
                                         }
@@ -610,15 +619,15 @@ public class CollectDetailsActivity extends AppActivity {
     }
 
     private void initPopup() {
-        if(isVoice){
+        if (isVoice) {
             strings = new String[2];
-            strings[0] ="删除";
-            strings[1] ="取消";
-        }else {
+            strings[0] = "删除";
+            strings[1] = "取消";
+        } else {
             strings = new String[3];
-            strings[0] ="转发";
-            strings[1] ="删除";
-            strings[2] ="取消";
+            strings[0] = "转发";
+            strings[1] = "删除";
+            strings[2] = "取消";
         }
         popupSelectView = new PopupSelectView(this, strings);
         popupSelectView.showAtLocation(layoutMain, Gravity.BOTTOM, 0, 0);
@@ -627,26 +636,26 @@ public class CollectDetailsActivity extends AppActivity {
             public void onItem(String string, int postsion) {
                 switch (postsion) {
                     case 0:
-                        if(string.equals("转发")){
+                        if (string.equals("转发")) {
                             //普通类型-转发
                             if (collectionInfo != null) {
                                 startActivity(new Intent(context, MsgForwardActivity.class)
-                                        .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(collectionInfo)).putExtra("from_collect",true));
+                                        .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(collectionInfo)).putExtra("from_collect", true));
                             }
-                        }else {
+                        } else {
                             //语音-删除
                             Intent intent = new Intent();
-                            intent.putExtra("cancel_collect_position",position);
-                            setResult(RESULT_OK,intent);
+                            intent.putExtra("cancel_collect_position", position);
+                            setResult(RESULT_OK, intent);
                             finish();
                         }
                         break;
                     case 1:
-                        if(string.equals("删除")){
+                        if (string.equals("删除")) {
                             //普通类型-删除
                             Intent intent = new Intent();
-                            intent.putExtra("cancel_collect_position",position);
-                            setResult(RESULT_OK,intent);
+                            intent.putExtra("cancel_collect_position", position);
+                            setResult(RESULT_OK, intent);
                             finish();
                         }
                         //语音-取消
@@ -682,7 +691,7 @@ public class CollectDetailsActivity extends AppActivity {
     protected void onResume() {
         super.onResume();
         // 在activity执行onResume时执行mMapView. onResume ()，实现地图生命周期管理
-        if(mapview!=null){
+        if (mapview != null) {
             mapview.onResume();
         }
     }
@@ -691,7 +700,7 @@ public class CollectDetailsActivity extends AppActivity {
     protected void onStop() {
         super.onStop();
         // 在activity执行onPause时执行mMapView. onPause ()，实现地图生命周期管理
-        if(mapview!=null){
+        if (mapview != null) {
             mapview.onPause();
         }
         AudioPlayManager.getInstance().stopPlay();
@@ -701,8 +710,8 @@ public class CollectDetailsActivity extends AppActivity {
     protected void onDestroy() {
         super.onDestroy();
         // 在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
-        if(mapview!=null){
-            if(locService!=null && listener!=null){
+        if (mapview != null) {
+            if (locService != null && listener != null) {
                 locService.unregisterListener(listener);
                 locService.stop();
             }
@@ -786,21 +795,20 @@ public class CollectDetailsActivity extends AppActivity {
                         //下载成功
                         //1 本地数据库刷新：保存一个新增属性-真实文件名，主要用于多个同名文件区分保存，防止重名，方便用户点击打开重名文件
 //                        CollectSendFileMessage reMsg = DaoUtil.findOne(CollectSendFileMessage.class, "msgId", finalFileMsgId);
-//                        reMsg.setCollectLocalPath();
-////                        reMsg.getSendFileMessage().setRealFileRename(fileNewName);
+//                        reMsg.setCollectRealFileRename(fileNewName);
 //                        DaoUtil.update(reMsg);
                         //2 无需再通知ChatActivity刷新该文件消息，场景不符，ChatActivity早不存在了
 
                         //TODO 先都不存表，暂时没做本地化处理
                         status = 0;
                         tvDownload.setText("打开");
-                        filePath = FileConfig.PATH_DOWNLOAD+fileNewName;
+                        filePath = FileConfig.PATH_DOWNLOAD + fileNewName;
                     }
 
                     @Override
                     public void onDownloading(int progress) {
                         status = 3;
-                        tvDownload.setText("下载中 "+progress+"%");
+                        tvDownload.setText("下载中 " + progress + "%");
                     }
 
                     @Override
@@ -818,7 +826,7 @@ public class CollectDetailsActivity extends AppActivity {
         }
     }
 
-    private void playVoice(final Long uid,final CollectVoiceMessage vm, final boolean canAutoPlay,
+    private void playVoice(final Long uid, final CollectVoiceMessage vm, final boolean canAutoPlay,
                            final int position) {
 //        LogUtil.getLog().i(TAG, "playVoice--" + position);
         if (vm == null || TextUtils.isEmpty(vm.getVoiceURL())) {
@@ -828,7 +836,7 @@ public class CollectDetailsActivity extends AppActivity {
         if (isMe(uid)) {
             url = vm.getLocalUrl();
             //IOS没有本地url这个概念，因此当本地url为空的时候，则取网络url
-            if(TextUtils.isEmpty(url)){
+            if (TextUtils.isEmpty(url)) {
                 url = vm.getVoiceURL();
             }
         } else {
@@ -841,8 +849,8 @@ public class CollectDetailsActivity extends AppActivity {
             AudioPlayManager.getInstance().stopPlay();
         } else {
             //本地路径，且存在，则直接打开 (解决换手机以后，语音消息收藏状态为已经下载的错误情况，实际上并未下载)
-            if(!url.contains("http:") && net.cb.cb.library.utils.FileUtils.fileIsExist(url)){
-                AudioPlayManager.getInstance().startPlay(uid,context, vm,  new IVoicePlayListener() {
+            if (!url.contains("http:") && net.cb.cb.library.utils.FileUtils.fileIsExist(url)) {
+                AudioPlayManager.getInstance().startPlay(uid, context, vm, new IVoicePlayListener() {
                     @Override
                     public void onStart(MsgAllBean bean) {
                         vm.setPlayStatus(ChatEnum.EPlayStatus.PLAYING);
@@ -862,7 +870,7 @@ public class CollectDetailsActivity extends AppActivity {
                         animationDrawable.selectDrawable(0);//恢复到初始状态，第一帧
                     }
                 });
-            }else {
+            } else {
                 //否则下载
                 AudioPlayManager.getInstance().downloadAudio(context, vm, new DownloadUtil.IDownloadVoiceListener() {
                     @Override
@@ -870,7 +878,7 @@ public class CollectDetailsActivity extends AppActivity {
                         vm.setPlayStatus(ChatEnum.EPlayStatus.NO_PLAY);
                         //下载成功后本地路径重置为下载后的最新保存地址，AudioPlayerManager统一封装好了逻辑会取bean的旧localurl，不符合当前使用场景
                         vm.setLocalUrl(file.getAbsolutePath());
-                        AudioPlayManager.getInstance().startPlay(uid,context, vm, new IVoicePlayListener() {
+                        AudioPlayManager.getInstance().startPlay(uid, context, vm, new IVoicePlayListener() {
                             @Override
                             public void onStart(MsgAllBean bean) {
                                 vm.setPlayStatus(ChatEnum.EPlayStatus.PLAYING);

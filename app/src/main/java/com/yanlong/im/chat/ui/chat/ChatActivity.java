@@ -5823,79 +5823,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private void clickFile(MsgAllBean message, SendFileMessage fileMessage) {
-        //1 如果是我发的文件
-        if (message.isMe()) {
-            //1-1 判断是否为转发 (特殊场景处理:直接转发别人的文件消息，未下载过该文件)
-            //若是转发他人，则需要先从下载路径里找，有则代表已下载直接打开，没有则需要下载
-            if (fileMessage.isFromOther()) {
-                //通过真实文件名去下载路径找，真实文件名主要用于区分同一重名文件，如123.txt 123(1).txt 123(2).txt
-                if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
-                    openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename());
-                } else {
-                    if (!TextUtils.isEmpty(fileMessage.getUrl())) {
-                        Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
-                        intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
-                        startActivity(intent);
-                    } else {
-                        ToastUtil.show("文件下载地址错误，请联系客服");
-                    }
-                }
-            } else {
-                //若不是转发或者自己转发自己
-                //1-1 没有本地路径，代表为PC端发的文件，需要下载
-                if (TextUtils.isEmpty(fileMessage.getLocalPath())) {
-                    //从下载路径里找，若存在该文件，则直接打开；否则需要下载
-                    if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
-                        openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename());
-                    } else {
-                        if (!TextUtils.isEmpty(fileMessage.getUrl())) {
-                            if (fileMessage.getSize() != 0) {
-                                //小于10M，自动下载+打开
-                                if (fileMessage.getSize() < 10485760) {
-                                    DownloadFile(fileMessage);
-                                } else {
-                                    //大于10M，跳详情，用户自行选择手动下载
-                                    Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
-                                    intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
-                                    startActivity(intent);
-                                }
-                            }
-                        } else {
-                            ToastUtil.show("文件下载地址错误，请联系客服");
-                        }
-                    }
-                } else {
-                    //1-2 有本地路径，则为手机本地文件，从本地路径里找，有则打开，没有提示文件已被删除
-                    if (net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getLocalPath())) {
-                        openAndroidFile(fileMessage.getLocalPath());
-                    } else {
-                        ToastUtil.show("文件不存在或者已被删除");
-                    }
-                }
-            }
-        } else {
-            //2 如果是别人发的文件
-            //从下载路径里找，若存在该文件，则直接打开；否则需要下载
-            if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename())) {
-                openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename());
-            } else {
-                if (!TextUtils.isEmpty(fileMessage.getUrl())) {
-                    if (fileMessage.getSize() != 0) {
-                        //小于10M，自动下载+打开
-                        if (fileMessage.getSize() < 10485760) {
-                            DownloadFile(fileMessage);
-                        } else {
-                            //大于10M，跳详情，用户自行选择手动下载
-                            Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
-                            intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
-                            startActivity(intent);
-                        }
-                    }
-                } else {
-                    ToastUtil.show("文件下载地址错误，请联系客服");
-                }
-            }
-        }
+        CheckFileMsg(message,fileMessage);
     }
 
     private void doAtInput(MsgAllBean message) {
@@ -6143,7 +6071,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         //显示文件名
         if (!TextUtils.isEmpty(sendFileMessage.getFile_name())) {
             fileName = sendFileMessage.getFile_name();
-            //若有同名文件，则重命名，保存最终真实文件名，如123.txt若有重名则依次保存为123.txt(1) 123.txt(2)
+            //若有同名文件，则重命名，保存最终真实文件名，如123.txt若有重名则依次保存为123(1).txt 123(2).txt
             //若没有同名文件，则按默认新文件来保存
             fileName = net.cb.cb.library.utils.FileUtils.getFileRename(fileName);
         }
@@ -6233,7 +6161,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             return;
                         }
                         if (response.body().isOk()) {
-                            ToastUtil.show(ChatActivity.this, "收藏成功");
+                            ToastUtil.showCenter(ChatActivity.this, "已收藏");
 //                    msgDao.saveCollection(collectionInfo);
                         }
                     }
@@ -6241,7 +6169,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     @Override
                     public void onFailure(Call<ReturnBean> call, Throwable t) {
                         super.onFailure(call, t);
-                        ToastUtil.show(ChatActivity.this, "收藏失败");
+                        ToastUtil.showCenter(ChatActivity.this, "收藏失败");
                     }
                 });
     }
@@ -6379,5 +6307,75 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     }
                 });
+    }
+
+
+    //文件点击逻辑
+    private void CheckFileMsg(MsgAllBean message, SendFileMessage fileMessage){
+        //1 我发的文件
+        if (message.isMe()){
+            //1-1 若存在本地路径，则为本地文件
+            if (!TextUtils.isEmpty(fileMessage.getLocalPath())) {
+                //从本地路径找，存在，则打开；不存在，则提示已删除
+                if (net.cb.cb.library.utils.FileUtils.fileIsExist(fileMessage.getLocalPath())) {
+                    openAndroidFile(fileMessage.getLocalPath());
+                } else {
+                    ToastUtil.show("文件不存在或者已被删除");
+                }
+            } else {
+                //1-2 若不存在本地路径，可能为 [PC端我的账号发的] 或者 [转发他人文件消息]
+                //从下载路径里找，若存在该文件，则直接打开
+                if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name())) {
+                    openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
+                } else {
+                    //若不存在该文件，则需要重新下载
+                    if (!TextUtils.isEmpty(fileMessage.getUrl())) {
+                        if (fileMessage.getSize() != 0) {
+                            //小于10M，自动下载+打开
+                            if (fileMessage.getSize() < 10485760) {
+                                DownloadFile(fileMessage);
+                                ToastUtil.show("正在尝试打开文件，请您耐心等待~");
+                            } else {
+                                //大于10M，跳详情，用户自行选择手动下载
+                                Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
+                                intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
+                                startActivity(intent);
+                            }
+                        }
+                    } else {
+                        ToastUtil.show("文件下载地址错误，请联系客服");
+                    }
+                }
+            }
+        }else {
+            //2 别人发的文件
+            //从下载路径里找，若存在该文件，则直接打开
+            if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name())) {
+                //是否含有重名的情况，若有则打开的是真实文件路径
+                if(!TextUtils.isEmpty(fileMessage.getRealFileRename())){
+                    openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getRealFileRename());
+                }else {
+                    openAndroidFile(FileConfig.PATH_DOWNLOAD + fileMessage.getFile_name());
+                }
+            } else {
+                //若不存在该文件，则需要重新下载
+                if (!TextUtils.isEmpty(fileMessage.getUrl())) {
+                    if (fileMessage.getSize() != 0) {
+                        //小于10M，自动下载+打开
+                        if (fileMessage.getSize() < 10485760) {
+                            DownloadFile(fileMessage);
+                            ToastUtil.show("正在尝试打开文件，请您耐心等待~");
+                        } else {
+                            //大于10M，跳详情，用户自行选择手动下载
+                            Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
+                            intent.putExtra("file_msg", new Gson().toJson(message));//直接整个MsgAllBean转JSON后传过去，方便后续刷新聊天消息
+                            startActivity(intent);
+                        }
+                    }
+                } else {
+                    ToastUtil.show("文件下载地址错误，请联系客服");
+                }
+            }
+        }
     }
 }
