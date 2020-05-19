@@ -24,15 +24,13 @@ import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.socket.SocketData;
 
-import net.cb.cb.library.bean.EventFindHistory;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,11 +131,15 @@ public class SearchMsgActivity extends AppActivity {
                 url = msgbean.getFrom_avatar();
                 name = msgbean.getFrom_nickname();
             } else {
-                UserInfo u = msgbean.getShow_user();
                 url = msgbean.getFrom_avatar(); //u.getHead();
-                name = u.getName4Show();
+                if (msgbean.isMe()) {
+                    name = msgbean.getFrom_nickname();
+                } else {
+                    UserInfo u = msgbean.getShow_user();
+                    name = u.getName4Show();
+                }
             }
-            msg = msgbean.getChat().getMsg();
+            msg = SocketData.getMsg(msgbean);
             int index = msg.indexOf(key);
 
             SpannableString style = new SpannableString(msg);
@@ -161,13 +163,14 @@ public class SearchMsgActivity extends AppActivity {
                         public void run() {
                             InputUtil.hideKeyboard(edtSearch);
                         }
-                    },10);
-                    EventFindHistory eventFindHistory = new EventFindHistory();
-                    eventFindHistory.setStime(msgbean.getTimestamp());
-                    EventBus.getDefault().post(eventFindHistory);
+                    }, 10);
+//                    EventFindHistory eventFindHistory = new EventFindHistory();
+//                    eventFindHistory.setStime(msgbean.getTimestamp());
+//                    EventBus.getDefault().post(eventFindHistory);
                     startActivity(new Intent(getContext(), ChatActivity.class)
                             .putExtra(ChatActivity.AGM_TOGID, gid)
                             .putExtra(ChatActivity.AGM_TOUID, fuid)
+                            .putExtra(ChatActivity.SEARCH_TIME, msgbean.getTimestamp())
                             .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     );
                 }

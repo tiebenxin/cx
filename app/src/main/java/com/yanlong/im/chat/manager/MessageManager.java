@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.MyAppLication;
+import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ApplyBean;
@@ -271,6 +272,7 @@ public class MessageManager {
                 historyCleanMsg.put(wrapMessage.getFromUid(), lastNeedCleanTimestamp);
                 //清除好友历史记录
                 msgDao.msgDel(wrapMessage.getFromUid(), lastNeedCleanTimestamp);
+                notifyRefreshChat();
                 break;
             case P2P_AU_VIDEO:// 音视频消息
                 if (bean != null) {
@@ -583,7 +585,7 @@ public class MessageManager {
                     case 0: // 单聊已读
                         userInfo.setFriendRead(switchValue);
                         userDao.updateUserinfo(userInfo);
-                        EventBus.getDefault().post(new EventIsShowRead(uid,EventIsShowRead.EReadSwitchType.SWITCH_FRIEND, switchValue));
+                        EventBus.getDefault().post(new EventIsShowRead(uid, EventIsShowRead.EReadSwitchType.SWITCH_FRIEND, switchValue));
                         break;
                     case 1: //vip
                         if (userBean != null) {
@@ -598,7 +600,7 @@ public class MessageManager {
                     case 2:  //已读总开关
                         userInfo.setMasterRead(switchValue);
                         userDao.updateUserinfo(userInfo);
-                        EventBus.getDefault().post(new EventIsShowRead(uid,EventIsShowRead.EReadSwitchType.SWITCH_MASTER, switchValue));
+                        EventBus.getDefault().post(new EventIsShowRead(uid, EventIsShowRead.EReadSwitchType.SWITCH_MASTER, switchValue));
                         break;
                     case 3: // 单人禁言
                     case 4: // 领取群红包
@@ -1824,6 +1826,28 @@ public class MessageManager {
             }
         }
         return false;
+    }
+
+    public int getFileIconRid(String format) {
+        if (TextUtils.isEmpty(format)) {
+            return R.mipmap.ic_unknow;
+        }
+        //不同类型
+        if (format.equals("txt")) {
+            return R.mipmap.ic_txt;
+        } else if (format.equals("xls") || format.equals("xlsx")) {
+            return R.mipmap.ic_excel;
+        } else if (format.equals("ppt") || format.equals("pptx") || format.equals("pdf")) { //PDF暂用此图标
+            return R.mipmap.ic_ppt;
+        } else if (format.equals("doc") || format.equals("docx")) {
+            return R.mipmap.ic_word;
+        } else if (format.equals("rar") || format.equals("zip")) {
+            return R.mipmap.ic_zip;
+        } else if (format.equals("exe")) {
+            return R.mipmap.ic_exe;
+        } else {
+            return R.mipmap.ic_unknow;
+        }
     }
 
 }

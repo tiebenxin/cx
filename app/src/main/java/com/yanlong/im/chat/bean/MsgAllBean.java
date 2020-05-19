@@ -138,8 +138,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
     public void setEndTime(long endTime) {
         this.endTime = endTime;
-        String log="开始阅后即焚 endTime="+endTime+", nickname="+this.getFrom_nickname()
-                +", fromGruop="+this.getFrom_group_nickname()+", msgId="+this.msg_id+", readTime="+readTime+", sendTime"+timestamp;
+        String log = "开始阅后即焚 endTime=" + endTime + ", nickname=" + this.getFrom_nickname()
+                + ", fromGruop=" + this.getFrom_group_nickname() + ", msgId=" + this.msg_id + ", readTime=" + readTime + ", sendTime" + timestamp;
         LogUtil.writeLog(log);
     }
 
@@ -734,6 +734,13 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 }
                 QuotedMessage quotedMessage = replyMessage.getQuotedMessage();
                 layout = getReplyLayout(quotedMessage.getMsgType(), isMe);
+                if (layout == null) {
+                    if (isMe) {
+                        layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_SEND;
+                    } else {
+                        layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_RECEIVED;
+                    }
+                }
                 break;
 
             case ChatEnum.EMessageType.UNRECOGNIZED://未识别
@@ -767,6 +774,10 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 break;
             case ChatEnum.EMessageType.IMAGE:
             case ChatEnum.EMessageType.SHIPPED_EXPRESSION:
+            case ChatEnum.EMessageType.MSG_VIDEO:
+            case ChatEnum.EMessageType.VOICE:
+            case ChatEnum.EMessageType.BUSINESS_CARD:
+            case ChatEnum.EMessageType.FILE:
                 layout = isMe ? ChatEnum.EChatCellLayout.REPLY_IMAGE_SEND : ChatEnum.EChatCellLayout.REPLY_IMAGE_RECEIVED;
                 break;
         }

@@ -529,17 +529,16 @@ public class CollectDetailsActivity extends AppActivity {
                                 //显示下载状态
                                 //1 如果是我发的文件
                                 if (isMe(collectionInfo.getFromUid())) {
-                                    //TODO 这里不考虑转发和重名
-                                    //1-1 没有本地路径，代表为PC端发的文件，需要下载
+                                    //TODO 暂不考虑转发和重名
+                                    //1-1 没有本地路径，代表为同一用户在PC端发的文件，需要下载（安卓端我方发的文件，必定有localpath本地路径）
                                     if (TextUtils.isEmpty(fileMessage.getCollectLocalPath())) {
                                         //从下载路径里找，若存在该文件，则允许直接打开；否则需要下载
-                                        if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getCollectRealFileRename())) {
-                                            filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getCollectRealFileRename();
+                                        if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFileName())) {
+                                            filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getFileName();
                                             status = 0;
                                             tvDownload.setText("打开");
                                         } else {
-                                            if (!TextUtils.isEmpty(fileMessage.getFileURL())) {
-                                            } else {
+                                            if (TextUtils.isEmpty(fileMessage.getFileURL())) {
                                                 ToastUtil.show("文件下载地址错误，请联系客服");
                                             }
                                             status = 1;
@@ -786,10 +785,13 @@ public class CollectDetailsActivity extends AppActivity {
                         ToastUtil.showLong(CollectDetailsActivity.this, "下载成功! \n文件已保存：" + FileConfig.PATH_DOWNLOAD + "目录下");
                         //下载成功
                         //1 本地数据库刷新：保存一个新增属性-真实文件名，主要用于多个同名文件区分保存，防止重名，方便用户点击打开重名文件
-                        MsgAllBean reMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", finalFileMsgId);
-                        reMsg.getSendFileMessage().setRealFileRename(fileNewName);
-                        DaoUtil.update(reMsg);
+//                        CollectSendFileMessage reMsg = DaoUtil.findOne(CollectSendFileMessage.class, "msgId", finalFileMsgId);
+//                        reMsg.setCollectLocalPath();
+////                        reMsg.getSendFileMessage().setRealFileRename(fileNewName);
+//                        DaoUtil.update(reMsg);
                         //2 无需再通知ChatActivity刷新该文件消息，场景不符，ChatActivity早不存在了
+
+                        //TODO 先都不存表，暂时没做本地化处理
                         status = 0;
                         tvDownload.setText("打开");
                         filePath = FileConfig.PATH_DOWNLOAD+fileNewName;
@@ -825,6 +827,10 @@ public class CollectDetailsActivity extends AppActivity {
         String url = "";
         if (isMe(uid)) {
             url = vm.getLocalUrl();
+            //IOS没有本地url这个概念，因此当本地url为空的时候，则取网络url
+            if(TextUtils.isEmpty(url)){
+                url = vm.getVoiceURL();
+            }
         } else {
             url = vm.getVoiceURL();
         }
