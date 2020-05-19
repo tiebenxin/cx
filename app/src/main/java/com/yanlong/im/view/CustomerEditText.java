@@ -4,16 +4,28 @@ import android.content.Context;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextPaint;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.text.style.MetricAffectingSpan;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
+import android.view.View;
+import android.widget.EditText;
 
 import com.yanlong.im.utils.ExpressionUtil;
+import com.yanlong.im.utils.PatternUtil;
+import com.yanlong.im.utils.edit.IRemovePredicate;
+import com.yanlong.im.utils.edit.KeyCodeDeleteHelper;
+import com.yanlong.im.utils.edit.NoCopySpanEditableFactory;
+import com.yanlong.im.utils.edit.SpanFactory;
+import com.yanlong.im.utils.edit.SpannableEmoj;
+import com.yanlong.im.utils.edit.SpannableUser;
+import com.yanlong.im.utils.edit.span.RemoveOnDirtySpan;
+import com.yanlong.im.utils.edit.watcher.DirtySpanWatcher;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @version V1.0
@@ -28,130 +40,139 @@ public class CustomerEditText extends AppCompatEditText {
 
     public CustomerEditText(Context context) {
         super(context);
+        init();
     }
 
     public CustomerEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public CustomerEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
+        init();
     }
 
-    private StringBuilder builder;
+    private void init() {
+        setText(null);
+        IRemovePredicate iRemovePredicate = new IRemovePredicate() {
+            @Override
+            public boolean isToRemove(Object object) {
+                return object instanceof RemoveOnDirtySpan;
+            }
+        };
+        this.setEditableFactory(new NoCopySpanEditableFactory(
+                new DirtySpanWatcher(iRemovePredicate)));
+        this.setOnKeyListener(new OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN) {
+                    KeyCodeDeleteHelper.onDelDown(((EditText) v).getText());
+                }
+                return false;
+            }
+        });
+    }
+
 
     /**
-     * 添加一个块,在文字的后面添加
+     * 添加@
      *
      * @param showText 显示到界面的内容
      * @param userId   用户ID
      */
     public void addAtSpan(String maskText, String showText, long userId) {
-        builder = new StringBuilder();
-        if (!TextUtils.isEmpty(maskText)) {
-            //已经添加了@
-            builder.append(maskText).append(showText).append(" ");
-        } else {
-            builder.append(showText).append(" ");
-        }
-        getText().insert(getSelectionStart(), builder.toString());
-        SpannableString sps = new SpannableString(getText());
-
-        int start = getSelectionEnd() - builder.toString().length() - (TextUtils.isEmpty(maskText) ? 1 : 0);
-        int end = getSelectionEnd();
-        makeSpan(sps, new UnSpanText(start, end, builder.toString()), userId);
-        setText(sps);
-        setSelection(end);
-    }
-
-    //获取用户Id列表
-    public String getUserIdString() {
-        MyTextSpan[] spans = getText().getSpans(0, getText().length(), MyTextSpan.class);
-        StringBuilder builder = new StringBuilder();
-        for (MyTextSpan myTextSpan : spans) {
-            String realText = getText().toString().substring(getText().getSpanStart(myTextSpan), getText().getSpanEnd(myTextSpan));
-            String showText = myTextSpan.getShowText();
-            if (realText.equals(showText)) {
-                builder.append(myTextSpan.getUserId()).append(",");
+        try {
+            int start = getSelectionStart();
+            SpannableStringBuilder sb = new SpannableStringBuilder(getText() == null ? "" : getText());
+            if (TextUtils.isEmpty(maskText)) {//自己输入的@
+                //移除掉上一个@
+                sb.delete(start - 1, start);
+                start = start - 1;
             }
+            SpannableUser myTextSpan = new SpannableUser(showText, userId);
+            Spannable spannable = SpanFactory.newSpannable( myTextSpan.getSpannedText(), myTextSpan);
+            //binding @后面带一个空格
+            sb.insert(start, spannable);
+            setText(sb);
+            setFocusable(true);
+            setFocusableInTouchMode(true);
+            requestFocus();
+            //光标在最后
+            setSelection(start + spannable.length());
+        } catch (Exception e) {
         }
-        if (!TextUtils.isEmpty(builder.toString())) {
-            builder.deleteCharAt(builder.length() - 1);
-        }
-        return builder.toString();
     }
+
 
     //获取用户Id集合
     public List<Long> getUserIdList() {
         List<Long> list = new ArrayList<>();
-        MyTextSpan[] spans = getText().getSpans(0, getText().length(), MyTextSpan.class);
-        for (MyTextSpan myTextSpan : spans) {
-            String realText = getText().toString().substring(getText().getSpanStart(myTextSpan), getText().getSpanEnd(myTextSpan));
-            String showText = myTextSpan.getShowText();
-            if (realText.contains(showText)) {
-                list.add(myTextSpan.getUserId());
-            }
+        SpannableUser[] spans = getText().getSpans(0, getText().length(), SpannableUser.class);
+        for (SpannableUser user : spans) {
+            list.add(user.bindingData());
         }
         return list;
     }
 
 
     public boolean isAtAll() {
-        MyTextSpan[] spans = getText().getSpans(0, getText().length(), MyTextSpan.class);
-        for (MyTextSpan myTextSpan : spans) {
-            if (myTextSpan.getUserId() == 0) {
+        SpannableUser[] spans = getText().getSpans(0, getText().length(), SpannableUser.class);
+        for (SpannableUser user : spans) {
+            if (user.bindingData() == 0L) {
                 return true;
             }
         }
         return false;
     }
 
-
-    //生成一个需要整体删除的Span
-    private void makeSpan(Spannable sps, UnSpanText unSpanText, long userId) {
-        MyTextSpan what = new MyTextSpan(unSpanText.returnText, userId);
-        int start = unSpanText.start;
-        int end = unSpanText.end;
-        sps.setSpan(what, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    /**
+     * 添加Emoj表情,一个表情
+     */
+    public void addEmojSpan(String emojText) {
+        try {
+            int start = getSelectionStart();
+            SpannableStringBuilder sb = new SpannableStringBuilder(getText() == null ? "" : getText());
+            SpannableEmoj emoj = new SpannableEmoj(emojText);
+            Spannable spannable = SpanFactory.newSpannable(emoj.getSpannedText(), emoj);
+            sb.insert(start, spannable);
+            setText(sb);
+            setFocusable(true);
+            setFocusableInTouchMode(true);
+            requestFocus();
+            //光标在最后
+            setSelection(start + spannable.length());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
-    @Override
-    protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
-        super.onTextChanged(text, start, lengthBefore, lengthAfter);
-        //向前删除一个字符，@后的内容必须大于一个字符，可以在后面加一个空格
-        if (lengthBefore == 1 && lengthAfter == 0) {
-            MyTextSpan[] spans = getText().getSpans(0, getText().length(), MyTextSpan.class);
-            for (MyTextSpan myImageSpan : spans) {
-                if (getText().getSpanEnd(myImageSpan) == start && !text.toString().endsWith(myImageSpan.getShowText())) {
-                    getText().delete(getText().getSpanStart(myImageSpan), getText().getSpanEnd(myImageSpan));
-                    break;
-                }
+    /**
+     * 对spanableString进行正则判断，如果符合要求，则以表情图片代替
+     *
+     * @throws SecurityException
+     * @throws NumberFormatException
+     * @throws IllegalArgumentException
+     */
+    public void showDraftContent(String text) throws SecurityException,
+            NumberFormatException, IllegalArgumentException {
+        if(!TextUtils.isEmpty(text)) {
+            String pattern = PatternUtil.PATTERN_FACE_EMOJI; // 正则表达式，用来判断消息内是否有表情
+            Pattern patten = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
+            Matcher matcher = patten.matcher(text);
+            SpannableStringBuilder sb = new SpannableStringBuilder(text);
+            while (matcher.find()) {
+                String emojText = matcher.group();
+                int start = matcher.start();
+                int end = matcher.start() + emojText.length();
+                SpannableEmoj emoj = new SpannableEmoj(emojText);
+                Spannable spannable = SpanFactory.newSpannable(emoj.getSpannedText(), emoj);
+//            sb.insert(start, spannable);
+                sb.replace(start, end, spannable);
             }
+            setText(sb);
         }
-//        if (lengthBefore>lengthAfter) {//删除操作，即字符减少
-//            //具体的操作代码
-//            // 获取光标的位置。如果在最末，则同字符串长度
-//            // 光标之前至少有一个字符。尽管显示的是图片，其实内容仍是字符
-//            if (start > 0) {
-//                String body = this.getText().toString();
-//                    // 包括起始位置，不包括结束位置
-//                    String substring = body.substring(0, start);
-//                    // 预提取光标前最后一个表情的位置
-//                    int i = substring.lastIndexOf("[");
-//                    // 提取到了
-//                    if (i != -1) {
-//                        // 从预提取位置到光标直接的字符
-//                        CharSequence cs = substring.subSequence(i, start);
-//                        // 是不是表情占位符
-//                        if (FaceView.map_FaceEmoji.containsKey(cs.toString()+"]")) {
-//                            // 是，就删除完整占位符
-//                            this.getEditableText().delete(i, start);
-//                        }
-//                    }
-//            }
-//        }
     }
 
     @Override
@@ -190,47 +211,4 @@ public class CustomerEditText extends AppCompatEditText {
         }
         return super.onTextContextMenuItem(id);
     }
-
-    private class MyTextSpan extends MetricAffectingSpan {
-        private String showText;
-        private long userId;
-
-        public MyTextSpan(String showText, long userId) {
-            this.showText = showText;
-            this.userId = userId;
-        }
-
-
-        public String getShowText() {
-            return showText;
-        }
-
-        public long getUserId() {
-            return userId;
-        }
-
-        @Override
-        public void updateMeasureState(TextPaint p) {
-
-        }
-
-        @Override
-        public void updateDrawState(TextPaint tp) {
-
-        }
-    }
-
-    private class UnSpanText {
-        int start;
-        int end;
-        String returnText;
-
-        UnSpanText(int start, int end, String returnText) {
-            this.start = start;
-            this.end = end;
-            this.returnText = returnText;
-        }
-    }
-
-
 }
