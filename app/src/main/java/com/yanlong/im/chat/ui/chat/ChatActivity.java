@@ -1935,7 +1935,27 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if(ViewUtils.isFastDoubleClick()){
                             return;
                         }
-                        IntentUtil.gotoActivity(ChatActivity.this, CollectionActivity.class);
+                        //区分是单聊还是群聊，把转发需要的参数携带过去
+                        Intent intent = new Intent(ChatActivity.this,CollectionActivity.class);
+                        intent.putExtra("from",CollectionActivity.FROM_CHAT);
+                        if(isGroup()){
+                            intent.putExtra("is_group",true);
+                            if(groupInfo == null){
+                                groupInfo = msgDao.getGroup4Id(toGid);
+                            }
+                            intent.putExtra("group_head",groupInfo.getAvatar());
+                            intent.putExtra("group_id",groupInfo.getGid());
+                            intent.putExtra("group_name",msgDao.getGroupName(groupInfo.getGid()));
+                        }else {
+                            intent.putExtra("is_group",false);
+                            if (userInfo == null) {
+                                userInfo = userDao.findUserInfo(toUId);
+                            }
+                            intent.putExtra("user_head",userInfo.getHead());
+                            intent.putExtra("user_id",userInfo.getUid());
+                            intent.putExtra("user_name",userInfo.getName4Show());
+                        }
+                        startActivity(intent);
                         break;
                 }
             }
@@ -1972,6 +1992,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             list.add(createItemMode("云红包", R.mipmap.ic_chat_rb_zfb, ChatEnum.EFunctionId.ENVELOPE_MF));
         }
         list.add(createItemMode("位置", R.mipmap.location_six, ChatEnum.EFunctionId.LOCATION));
+        list.add(createItemMode("收藏", R.mipmap.ic_chat_collect, ChatEnum.EFunctionId.COLLECT));
         if (!isGroup && !isSystemUser) {
             list.add(createItemMode("戳一下", R.mipmap.ic_chat_action, ChatEnum.EFunctionId.STAMP));
         }
@@ -1982,7 +2003,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
         list.add(createItemMode("文件", R.mipmap.ic_chat_file, ChatEnum.EFunctionId.FILE));
-        list.add(createItemMode("收藏", R.mipmap.ic_chat_collect, ChatEnum.EFunctionId.COLLECT));
         if (!isSystemUser) {
             list.add(createItemMode("名片", R.mipmap.ic_chat_newfrd, ChatEnum.EFunctionId.CARD));
         }
@@ -6181,8 +6201,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             return;
                         }
                         if (response.body().isOk()) {
-//                    ToastUtil.show(ChatActivity.this, "收藏成功!");
-                            Snackbar.make(findViewById(R.id.ll_big_bg), "收藏成功!", Snackbar.LENGTH_SHORT).show();
+                            ToastUtil.show(ChatActivity.this, "收藏成功");
 //                    msgDao.saveCollection(collectionInfo);
                         }
                     }
@@ -6190,7 +6209,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     @Override
                     public void onFailure(Call<ReturnBean> call, Throwable t) {
                         super.onFailure(call, t);
-                        Snackbar.make(findViewById(R.id.ll_big_bg), "收藏失败!", Snackbar.LENGTH_SHORT).show();
+                        ToastUtil.show(ChatActivity.this, "收藏失败");
                     }
                 });
     }

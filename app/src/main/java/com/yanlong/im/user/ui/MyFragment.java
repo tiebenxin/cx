@@ -215,7 +215,9 @@ public class MyFragment extends Fragment {
             if(ViewUtils.isFastDoubleClick()){
                 return;
             }
-            IntentUtil.gotoActivity(getContext(),CollectionActivity.class);
+            Intent intent = new Intent(getActivity(),CollectionActivity.class);
+            intent.putExtra("from",CollectionActivity.FROM_DEFAULT);
+            startActivity(intent);
         });
     }
 

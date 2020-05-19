@@ -25,6 +25,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.cx.sharelib.message.CxMediaMessage;
 import com.example.nim_lib.ui.BaseBindActivity;
 import com.google.gson.Gson;
 import com.hm.cxpay.utils.DateUtils;
@@ -51,10 +52,13 @@ import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.chat.ui.forward.MoreSessionBean;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
+import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityCollectionBinding;
 import com.yanlong.im.databinding.ItemCollectionViewBinding;
 import com.yanlong.im.location.LocationUtils;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.CollectionInfo;
 import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.ExpressionUtil;
@@ -68,10 +72,13 @@ import com.yanlong.im.view.face.FaceView;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.FileUtils;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.UpFileAction;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -106,8 +113,18 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     private String key = "";//搜索关键字
     public static final int CANCEL_COLLECT = 0;//取消收藏
 
-    public static final int FROM_DEFAULT = 0;//默认来源
+    public static final int FROM_DEFAULT = 0;//来自首页我的(默认来源)
     public static final int FROM_CHAT = 1;//来自聊天面板收藏
+    private int fromWhere = 0;//从哪里跳转过来
+
+    //点击转发相关数据
+    private String groupHead = "";
+    private String groupId = "";
+    private String groupName = "";
+    private String userHead = "";
+    private long userId = -1L;
+    private String userName = "";
+    private boolean isGroup = false;//是单聊还是群聊
 
     //加载布局
     @Override
@@ -118,6 +135,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     //初始化
     @Override
     protected void init(Bundle savedInstanceState) {
+        getIntentData();
         mViewAdapter = new CommonRecyclerViewAdapter<CollectionInfo, ItemCollectionViewBinding>(this, R.layout.item_collection_view) {
             //item显示
             @Override
@@ -328,17 +346,26 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
         binding.layoutView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                showPop(view, bean.getMsgId(), position);
-                return true;
+                if (fromWhere == CollectionActivity.FROM_DEFAULT) {
+                    showPop(view, bean.getMsgId(), position);
+                    return true;
+                } else {
+                    return true;
+                }
             }
         });
         binding.layoutView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(CollectionActivity.this,CollectDetailsActivity.class);
-                intent.putExtra("json_data",new Gson().toJson(bean));//转换成json字符串再传过去
-                intent.putExtra("position",position);//位置
-                startActivityForResult(intent,CANCEL_COLLECT);
+                if (fromWhere == CollectionActivity.FROM_DEFAULT) {
+                    Intent intent = new Intent(CollectionActivity.this, CollectDetailsActivity.class);
+                    intent.putExtra("json_data", new Gson().toJson(bean));//转换成json字符串再传过去
+                    intent.putExtra("position", position);//位置
+                    startActivityForResult(intent, CANCEL_COLLECT);
+                } else {
+                    //直接转发收藏消息到当前群或用户
+                    showTransDialog(bean, CommonUtils.transformMsgType(bean.getType()));
+                }
             }
         });
 //        binding.ivPic.setOnClickListener(o->{
@@ -548,12 +575,12 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             if (mPopupWindow != null) {
                 mPopupWindow.dismiss();
             }
-            if(CommonUtils.transformMsgType(mList.get(postion).getType())==ChatEnum.EMessageType.VOICE){
+            if (CommonUtils.transformMsgType(mList.get(postion).getType()) == ChatEnum.EMessageType.VOICE) {
                 ToastUtil.show("语音消息无法转发");
-            }else {
+            } else {
                 if (NetUtil.isNetworkConnected()) {
                     startActivity(new Intent(context, MsgForwardActivity.class)
-                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(mList.get(postion))).putExtra("from_collect",true));
+                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(mList.get(postion))).putExtra("from_collect", true));
 //                Intent intent = MsgForwardActivity.newIntent(this, ChatEnum.EForwardMode.DEFAULT, new Gson().toJson(mList.get(postion)));//传collectinfo
 //                startActivity(intent);
                 } else {
@@ -661,8 +688,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                     return;
                 }
                 if (response.body().isOk()) {
-//                    ToastUtil.show(CollectionActivity.this, "删除成功!");
-                    Snackbar.make(findViewById(R.id.layout_main), "删除成功!", Snackbar.LENGTH_SHORT).show();
+                    ToastUtil.show(CollectionActivity.this, "删除成功");
                     //同时将本地删除
 //                    mMsgDao.deleteCollectionInfo(msgId);
                     mList.remove(postion);
@@ -674,7 +700,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
-                Snackbar.make(findViewById(R.id.layout_main), "删除失败!", Snackbar.LENGTH_SHORT).show();
+                ToastUtil.show(CollectionActivity.this, "删除失败");
             }
         });
     }
@@ -741,7 +767,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 }
                             }
                         }
-                    } else if (msgType== ChatEnum.EMessageType.AT) {
+                    } else if (msgType == ChatEnum.EMessageType.AT) {
                         CollectAtMessage bean3 = new Gson().fromJson(collectionInfo.getData(), CollectAtMessage.class);
                         if (bean3 != null) {
                             if (!TextUtils.isEmpty(bean3.getMsg())) {
@@ -772,10 +798,10 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode==RESULT_OK){
-            if(requestCode==CANCEL_COLLECT){
-                if(data.getIntExtra("cancel_collect_position",-1) != (-1)){
-                    int cancelPosition = data.getIntExtra("cancel_collect_position",-1);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == CANCEL_COLLECT) {
+                if (data.getIntExtra("cancel_collect_position", -1) != (-1)) {
+                    int cancelPosition = data.getIntExtra("cancel_collect_position", -1);
                     if (mList.get(cancelPosition) != null) {
                         if (mList.get(cancelPosition).getId() != 0L) {
                             httpCancelCollect(mList.get(cancelPosition).getId(), cancelPosition);
@@ -798,7 +824,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     }
 
     //按重新时间排序(后端没有处理，改为前端自行排序)
-    private void timeSortList(List<CollectionInfo> sortList){
+    private void timeSortList(List<CollectionInfo> sortList) {
         Collections.sort(sortList, new Comparator<CollectionInfo>() {
             @Override
             public int compare(CollectionInfo o1, CollectionInfo o2) {
@@ -819,6 +845,182 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 return 0;
             }
         });
+    }
+
+
+    //转发
+    private void showTransDialog(CollectionInfo info, int type) {
+        if (info == null) {
+            return;
+        }
+        String txt = "";
+        String imageUrl = "";
+        String avatar = "";
+        String name = "";
+
+        AlertForward alertForward = new AlertForward();
+        if (type == ChatEnum.EMessageType.TEXT) {//文字
+            CollectChatMessage bean1 = new Gson().fromJson(info.getData(), CollectChatMessage.class);
+            txt = bean1.getMsg() == null ? "" : bean1.getMsg();
+        } else if (type == ChatEnum.EMessageType.IMAGE) {//图片
+            CollectImageMessage bean2 = new Gson().fromJson(info.getData(), CollectImageMessage.class);
+            imageUrl = bean2.getThumbnail() == null ? "" : bean2.getThumbnail();
+        } else if (type == ChatEnum.EMessageType.AT) {//AT
+            CollectAtMessage bean3 = new Gson().fromJson(info.getData(), CollectAtMessage.class);
+            txt = bean3.getMsg() == null ? "" : bean3.getMsg();
+        } else if (type == ChatEnum.EMessageType.MSG_VIDEO) {//视频
+            CollectVideoMessage bean4 = new Gson().fromJson(info.getData(), CollectVideoMessage.class);
+            imageUrl = bean4.getVideoBgURL() == null ? "" : bean4.getVideoBgURL();
+        } else if (type == ChatEnum.EMessageType.LOCATION) {//位置
+            CollectLocationMessage bean5 = new Gson().fromJson(info.getData(), CollectLocationMessage.class);
+            txt = bean5.getAddr() == null ? "" : "[位置]" + bean5.getAddr();
+            imageUrl = LocationUtils.getLocationUrl(bean5.getLat(), bean5.getLon());
+        } else if (type == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {//大表情
+            CollectShippedExpressionMessage bean6 = new Gson().fromJson(info.getData(), CollectShippedExpressionMessage.class);
+            imageUrl = bean6.getExpression() == null ? "" : bean6.getExpression();
+        } else if (type == ChatEnum.EMessageType.FILE) {//文件
+            CollectSendFileMessage bean7 = new Gson().fromJson(info.getData(), CollectSendFileMessage.class);
+            txt = bean7.getFileName() == null ? "" : "[文件]" + bean7.getFileName();
+        }//todo 回复暂未添加
+        if (isGroup) {
+            avatar = groupHead;
+            name = groupName;
+        } else {
+            avatar = userHead;
+            name = userName;
+        }
+        alertForward.init(CollectionActivity.this, type, avatar, name, txt, imageUrl, "发送", groupId, new AlertForward.Event() {
+            @Override
+            public void onON() {
+
+            }
+
+            @Override
+            public void onYes(String content) {
+                //收藏转发
+                send(info, content, userId, groupId);
+            }
+        });
+        alertForward.show();
+    }
+
+    //获取传过来的数据
+    private void getIntentData() {
+        fromWhere = getIntent().getIntExtra("from", 0);
+        isGroup = getIntent().getBooleanExtra("is_group", false);
+        groupHead = getIntent().getStringExtra("group_head");
+        groupId = getIntent().getStringExtra("group_id");
+        groupName = getIntent().getStringExtra("group_name");
+        userHead = getIntent().getStringExtra("user_head");
+        userId = getIntent().getLongExtra("user_id", -1L);
+        userName = getIntent().getStringExtra("user_name");
+    }
+
+    //处理逻辑-收藏转发
+    private void send(CollectionInfo collectionInfo, String content, long toUid, String toGid) {
+        int type = CommonUtils.transformMsgType(collectionInfo.getType());
+        if (type == ChatEnum.EMessageType.TEXT) {//转换文字
+            CollectChatMessage bean1 = new Gson().fromJson(collectionInfo.getData(), CollectChatMessage.class);
+            ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), bean1.getMsg());
+            MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, type, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
+            if (allBean != null) {
+                sendMessage(allBean);
+            }
+            sendLeaveMessage(content, toUid, toGid);
+        } else if (type == ChatEnum.EMessageType.IMAGE) {
+            CollectImageMessage bean2 = new Gson().fromJson(collectionInfo.getData(), CollectImageMessage.class);
+            CollectImageMessage imagesrc = bean2;
+            if (collectionInfo.getFromUid() == UserAction.getMyId().longValue()) {
+                imagesrc.setReadOrigin(true);
+            }
+            ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), imagesrc.getWidth(), imagesrc.getHeight(), !TextUtils.isEmpty(imagesrc.getOrigin()), imagesrc.isReadOrigin(), imagesrc.getSize());
+            MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, type, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), imageMessage);
+            if (allBean != null) {
+                sendMessage(allBean);
+            }
+            sendLeaveMessage(content, toUid, toGid);
+
+        } else if (type == ChatEnum.EMessageType.AT) {
+            CollectAtMessage bean3 = new Gson().fromJson(collectionInfo.getData(), CollectAtMessage.class);
+
+            ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), bean3.getMsg());
+            MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
+            if (allBean != null) {
+                sendMessage(allBean);
+            }
+            sendLeaveMessage(content, toUid, toGid);
+
+        } else if (type == ChatEnum.EMessageType.MSG_VIDEO) {
+            CollectVideoMessage bean4 = new Gson().fromJson(collectionInfo.getData(), CollectVideoMessage.class);
+            CollectVideoMessage video = bean4;
+            VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), video.getVideoBgURL(), video.getVideoURL(), video.getVideoDuration(), video.getWidth(), video.getHeight(), video.isReadOrigin());
+            MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, type, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), videoMessage);
+            if (allBean != null) {
+                sendMessage(allBean);
+            }
+            sendLeaveMessage(content, toUid, toGid);
+
+        } else if (type == ChatEnum.EMessageType.LOCATION) {
+            CollectLocationMessage bean5 = new Gson().fromJson(collectionInfo.getData(), CollectLocationMessage.class);
+            CollectLocationMessage location = bean5;
+            //收藏用的不多，手动创建位置消息
+            LocationMessage locationMessage = new LocationMessage();
+            locationMessage.setMsgId(SocketData.getUUID());
+            locationMessage.setLatitude(location.getLat());
+            locationMessage.setLongitude(location.getLon());
+            locationMessage.setImg(location.getImg());
+            locationMessage.setAddress(location.getAddr());
+            locationMessage.setAddressDescribe(location.getAddressDesc());
+            MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, type, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), locationMessage);
+            if (allBean != null) {
+                sendMessage(allBean);
+            }
+            sendLeaveMessage(content, toUid, toGid);
+        } else if (type == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+            CollectShippedExpressionMessage bean6 = new Gson().fromJson(collectionInfo.getData(), CollectShippedExpressionMessage.class);
+            ShippedExpressionMessage message = SocketData.createFaceMessage(SocketData.getUUID(), bean6.getExpression());
+            MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.SHIPPED_EXPRESSION, ChatEnum.ESendStatus.NORMAL,
+                    SocketData.getFixTime(), message);
+            if (allBean != null) {
+                sendMessage(allBean);
+            }
+            sendLeaveMessage(content, toUid, toGid);
+        } else if (type == ChatEnum.EMessageType.FILE) { //转发文件消息
+            CollectSendFileMessage bean8 = new Gson().fromJson(collectionInfo.getData(), CollectSendFileMessage.class);
+            //文件分为两种情况：转发他人/自己转发自己，转发他人的文件需要下载，转发自己的文件直接从本地查找
+            boolean isFromOther;
+            //如果是自己转发自己的文件
+            if (collectionInfo.getFromUid() == UserAction.getMyId().longValue()) {
+                isFromOther = false;
+            } else {
+                isFromOther = true;
+            }
+            SendFileMessage fileMessage = SocketData.createFileMessage(SocketData.getUUID(), bean8.getCollectLocalPath(), bean8.getFileURL(), bean8.getFileName(), bean8.getFileSize(), bean8.getFileFormat(), isFromOther);
+            MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, type, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), fileMessage);
+            if (allBean != null) {
+                sendMessage(allBean);
+            }
+            sendLeaveMessage(content, toUid, toGid);
+        }
+    }
+
+    private void sendMessage(MsgAllBean msgAllBean) {
+        SocketData.sendAndSaveMessage(msgAllBean);
+        ToastUtil.show(this, getResources().getString(R.string.forward_success));
+        finish();
+    }
+
+    /*
+     * 发送留言消息
+     * */
+    private void sendLeaveMessage(String content, long toUid, String toGid) {
+        if (StringUtil.isNotNull(content)) {
+            ChatMessage chat = SocketData.createChatMessage(SocketData.getUUID(), content);
+            MsgAllBean messageBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chat);
+            if (messageBean != null) {
+                sendMessage(messageBean);
+            }
+        }
     }
 
 }
