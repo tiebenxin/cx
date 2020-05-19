@@ -128,6 +128,7 @@ import com.yanlong.im.chat.bean.TransferNoticeMessage;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
+import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.AckEvent;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
@@ -241,6 +242,7 @@ import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MultiListView;
+import net.cb.cb.library.view.WebPageActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -1329,7 +1331,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Log.e("raleigh_test","s="+s+",isFirst="+isFirst);
+                Log.e("raleigh_test", "s=" + s + ",isFirst=" + isFirst);
 
                 if (s.length() > 0) {
                     btnSend.setVisibility(View.VISIBLE);
@@ -3841,7 +3843,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //是否禁止回复
     public boolean isBanReply(@ChatEnum.EMessageType int type) {
         if (/*type == ChatEnum.EMessageType.VOICE ||*/ type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
-                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION) {
+                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION
+                || type == ChatEnum.EMessageType.SHIPPED_EXPRESSION|| type == ChatEnum.EMessageType.WEB|| type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {
             return true;
         }
         return false;
@@ -4446,7 +4449,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void taskDraftGet() {
         session = dao.sessionGet(toGid, toUId);
-        if (session == null){
+        if (session == null) {
             isFirst++;
             return;
         }
@@ -5660,16 +5663,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 clickVideo(message);
                 break;
             case ChatEnum.ECellEventType.CARD_CLICK:
-                if (args[0] == null) {
-                    return;
-                }
-                BusinessCardMessage card = (BusinessCardMessage) args[0];
-                if (card.getUid().longValue() != UserAction.getMyId().longValue()) {
-                    if (isGroup() && !master.equals(card.getUid().toString())) {
-                        startActivity(new Intent(getContext(), UserInfoActivity.class).putExtra(UserInfoActivity.ID,
-                                card.getUid()).putExtra(UserInfoActivity.IS_BUSINESS_CARD, contactIntimately));
-                    } else {
-                        startActivity(new Intent(getContext(), UserInfoActivity.class).putExtra(UserInfoActivity.ID, card.getUid()));
+                if (args[0] != null && args[0] instanceof BusinessCardMessage) {
+                    BusinessCardMessage card = (BusinessCardMessage) args[0];
+                    if (card.getUid().longValue() != UserAction.getMyId().longValue()) {
+                        if (isGroup() && !master.equals(card.getUid().toString())) {
+                            startActivity(new Intent(getContext(), UserInfoActivity.class).putExtra(UserInfoActivity.ID,
+                                    card.getUid()).putExtra(UserInfoActivity.IS_BUSINESS_CARD, contactIntimately));
+                        } else {
+                            startActivity(new Intent(getContext(), UserInfoActivity.class).putExtra(UserInfoActivity.ID, card.getUid()));
+                        }
                     }
                 }
                 break;
@@ -5784,6 +5786,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
                 break;
             case ChatEnum.ECellEventType.WEB_CLICK:
+                if (args[0] != null && args[0] instanceof WebMessage) {
+                    WebMessage webMessage = (WebMessage) args[0];
+                    Intent intent = new Intent(ChatActivity.this, WebPageActivity.class);
+                    intent.putExtra(WebPageActivity.AGM_URL, webMessage.getWebUrl());
+                    startActivity(intent);
+                }
                 break;
             case ChatEnum.ECellEventType.MULTI_CLICK:
                 break;

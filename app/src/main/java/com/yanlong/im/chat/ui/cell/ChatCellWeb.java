@@ -29,7 +29,7 @@ public class ChatCellWeb extends ChatCellBase {
         tvInfo = getView().findViewById(R.id.tv_info);
         ivIcon = getView().findViewById(R.id.iv_icon);
         tvAppName = getView().findViewById(R.id.tv_app_name);
-        ivAppIcon = getView().findViewById(R.id.tv_app_name);
+        ivAppIcon = getView().findViewById(R.id.iv_app_icon);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class ChatCellWeb extends ChatCellBase {
     public void onBubbleClick() {
         super.onBubbleClick();
         if (mCellListener != null && model != null) {
-            mCellListener.onEvent(ChatEnum.ECellEventType.CARD_CLICK, model, contentMessage);
+            mCellListener.onEvent(ChatEnum.ECellEventType.WEB_CLICK, model, contentMessage);
         }
     }
 }
