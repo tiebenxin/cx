@@ -171,7 +171,6 @@ import com.yanlong.im.user.ui.CollectionActivity;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
-import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.ExpressionUtil;
@@ -265,6 +264,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
@@ -432,6 +432,40 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         initEvent();
         initSurvivaltime4Uid();
         getOftenUseFace();
+    }
+
+    /** 仅群聊
+     * 异步处理需要阅后即焚的消息,打开聊天界面表示已读，开启阅后即焚
+     */
+    private void dealToBurnMsg(){
+        Realm realm=DaoUtil.open();
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                RealmResults<MsgAllBean> realmResults = realm.where(MsgAllBean.class)
+                        .equalTo("gid",toGid)
+                        .greaterThan("survival_time", 0)
+                        .lessThanOrEqualTo("endTime", 0)
+                        .findAll();
+                long now = System.currentTimeMillis();
+                for(MsgAllBean msg: realmResults){
+                    if(msg.getEndTime() == 0){
+                        msg.setStartTime(now);
+                        msg.setEndTime(now+(msg.getSurvival_time()*1000));
+                    }
+                }
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+                DaoUtil.close(realm);
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(Throwable error) {
+                DaoUtil.close(realm);
+            }
+        });
     }
 
     private Runnable mPanelRecoverySoftInputModeRunnable = new Runnable() {
@@ -1677,6 +1711,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             isLoadHistory = true;
         }
         onlineState = getIntent().getBooleanExtra(ONLINE_STATE, true);
+        if(isGroup())dealToBurnMsg();
     }
 
     //清除回复状态
