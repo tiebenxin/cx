@@ -147,7 +147,7 @@ public class ChatCellReplyImage extends ChatCellImage {
                 content = "视频";
                 break;
             case ChatEnum.EMessageType.BUSINESS_CARD:
-                content = "名片";
+                content = message.getMsg();
                 break;
             case ChatEnum.EMessageType.FILE:
                 content = message.getMsg();

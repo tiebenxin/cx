@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -364,9 +365,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
             if (!timer.isDisposed()) timer.dispose();
         }
         mMsgIdPositions.clear();
-        mMsgIdPositions = null;
         mTimers.clear();
-        mTimers = null;
     }
 
 
@@ -385,6 +384,12 @@ public class MessageAdapter extends RecyclerView.Adapter {
                 period = Math.round(Double.valueOf(endTime - startTime) / COUNT);
                 if (distance < 0) {//开始时间小于现在，已经开始了
                     start = -distance / period;
+
+                    mTimersIndexs.put(msgId, (int)start);
+                    long time = nowTimeMillis - DateUtils.getSystemTime();
+                    String name = "icon_st_" + Math.min(COUNT, start + 1);
+                    int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
+                    updateSurvivalTimeImage(msgId, id);
                 }
                 start = Math.max(1, start);
                 //延迟initialDelay个unit单位后，以period为周期，依次发射count个以start为初始值并递增的数字。
@@ -397,6 +402,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
                             @Override
                             public void accept(Long index) throws Exception {
                                 try {
+                                    Log.e("raleigh_test","index="+index);
                                     mTimersIndexs.put(msgId, index.intValue());
                                     long time = nowTimeMillis - DateUtils.getSystemTime();
                                     String name = "icon_st_" + Math.min(COUNT, index + 1);

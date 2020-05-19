@@ -10,8 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,10 +25,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.Spannable;
-import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.style.ImageSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -171,10 +168,8 @@ import com.yanlong.im.user.ui.CollectionActivity;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
-import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
-import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
@@ -184,6 +179,8 @@ import com.yanlong.im.utils.audio.AudioRecordManager;
 import com.yanlong.im.utils.audio.IAdioTouch;
 import com.yanlong.im.utils.audio.IAudioRecord;
 import com.yanlong.im.utils.audio.IVoicePlayListener;
+import com.yanlong.im.utils.edit.SpanFactory;
+import com.yanlong.im.utils.edit.SpannableEmoj;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SendList;
 import com.yanlong.im.utils.socket.SocketData;
@@ -259,12 +256,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
@@ -434,6 +434,41 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         getOftenUseFace();
     }
 
+    /**
+     * 仅群聊
+     * 异步处理需要阅后即焚的消息,打开聊天界面表示已读，开启阅后即焚
+     */
+    private void dealToBurnMsg() {
+        Realm realm = DaoUtil.open();
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                RealmResults<MsgAllBean> realmResults = realm.where(MsgAllBean.class)
+                        .equalTo("gid", toGid)
+                        .greaterThan("survival_time", 0)
+                        .lessThanOrEqualTo("endTime", 0)
+                        .findAll();
+                long now = System.currentTimeMillis();
+                for (MsgAllBean msg : realmResults) {
+                    if (msg.getEndTime() == 0) {
+                        msg.setStartTime(now);
+                        msg.setEndTime(now + (msg.getSurvival_time() * 1000));
+                    }
+                }
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+                DaoUtil.close(realm);
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(Throwable error) {
+                DaoUtil.close(realm);
+            }
+        });
+    }
+
     private Runnable mPanelRecoverySoftInputModeRunnable = new Runnable() {
         @Override
         public void run() {
@@ -481,6 +516,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     viewFaceView.setVisibility(View.VISIBLE);
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isOpenEmoj);
+                    editChat.requestFocus();
+                    //定位光标
+                    editChat.setSelection(editChat.getSelectionEnd());
                 } else {//关闭
                     btnEmj.setImageLevel(0);
                     if (mViewModel.isOpenValue()) {//有事件触发
@@ -1064,20 +1102,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             sendMessage(message, ChatEnum.EMessageType.SHIPPED_EXPRESSION);
 
         } else if (FaceView.face_emoji.equals(bean.getGroup()) || FaceView.face_lately_emoji.equals(bean.getGroup())) {
-            Bitmap bitmap = null;
-            if (FaceView.map_FaceEmoji != null) {
-                bitmap = BitmapFactory.decodeResource(getResources(), Integer.parseInt(FaceView.map_FaceEmoji.get(bean.getName()).toString()));
-            } else {
-                bitmap = BitmapFactory.decodeResource(getResources(), bean.getResId());
-            }
-            bitmap = Bitmap.createScaledBitmap(bitmap, ExpressionUtil.dip2px(this, ExpressionUtil.DEFAULT_SIZE),
-                    ExpressionUtil.dip2px(this, ExpressionUtil.DEFAULT_SIZE), true);
-            ImageSpan imageSpan = new ImageSpan(ChatActivity.this, bitmap);
-            String str = bean.getName();
-            SpannableString spannableString = new SpannableString(str);
-            spannableString.setSpan(imageSpan, 0, PatternUtil.FACE_EMOJI_LENGTH, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            // 插入到光标后位置
-            editChat.getText().insert(editChat.getSelectionStart(), spannableString);
+            editChat.addEmojSpan(bean.getName());
         } else if (FaceView.face_custom.equals(bean.getGroup())) {
             if ("add".equals(bean.getName())) {
                 if (!ViewUtils.isFastDoubleClick()) {
@@ -1108,8 +1133,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * @param message
      */
     protected void showDraftContent(String message) {
-        SpannableString spannableString = ExpressionUtil.getExpressionString(this, ExpressionUtil.DEFAULT_SIZE, message);
-        editChat.setText(spannableString);
+        editChat.showDraftContent(message);
         if (message.length() > 0) editChat.setSelection(editChat.getText().length());
     }
 
@@ -1311,7 +1335,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
                 if (s.length() > 0) {
                     btnSend.setVisibility(View.VISIBLE);
                 } else {
@@ -1677,6 +1700,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             isLoadHistory = true;
         }
         onlineState = getIntent().getBooleanExtra(ONLINE_STATE, true);
+        if (isGroup()) dealToBurnMsg();
     }
 
     //清除回复状态
@@ -1932,7 +1956,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         toSelectFile();
                         break;
                     case ChatEnum.EFunctionId.COLLECT:
-                        if(ViewUtils.isFastDoubleClick()){
+                        if (ViewUtils.isFastDoubleClick()) {
                             return;
                         }
                         //区分是单聊还是群聊，把转发需要的参数携带过去
@@ -3841,7 +3865,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //是否禁止回复
     public boolean isBanReply(@ChatEnum.EMessageType int type) {
         if (/*type == ChatEnum.EMessageType.VOICE ||*/ type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
-                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/|| type == ChatEnum.EMessageType.LOCATION) {
+                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION) {
             return true;
         }
         return false;
@@ -3916,6 +3940,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         ClipData mClipData = ClipData.newPlainText(txt, txt);
         cm.setPrimaryClip(mClipData);
     }
+
+
 
     /**
      * 删除
@@ -4398,11 +4424,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 userInfo.setHead(msg.getFrom_avatar());
             } else {
                 if (isGroup()) {
-                    String gname = "";//获取对方最新的群昵称
-                    MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(toGid, msg.getFrom_uid());
-                    if (gmsg != null) {
-                        gname = gmsg.getFrom_group_nickname();
-                    }
+                    String gname = msgDao.getGroupMemberName(toGid, msg.getFrom_uid(), null, null);//获取对方最新的群昵称
+//                    MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(toGid, msg.getFrom_uid());
+//                    if (gmsg != null) {
+//                        gname = gmsg.getFrom_group_nickname();
+//                    }
                     if (StringUtil.isNotNull(gname)) {
                         userInfo.setName(gname);
                     }
@@ -4446,8 +4472,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void taskDraftGet() {
         session = dao.sessionGet(toGid, toUId);
-        if (session == null)
+        if (session == null){
+            isFirst++;
             return;
+        }
+
         draft = session.getDraft();
         if (StringUtil.isNotNull(draft)) {
             //设置完草稿之后清理掉草稿 防止@功能不能及时弹出
@@ -5629,6 +5658,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     public void onEvent(int type, MsgAllBean message, Object... args) {
+        if (mViewModel.isInputText.getValue()) {
+            mViewModel.isInputText.setValue(false);
+        }
         switch (type) {
             case ChatEnum.ECellEventType.TXT_CLICK:
                 break;
