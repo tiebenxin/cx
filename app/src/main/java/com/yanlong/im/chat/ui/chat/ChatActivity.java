@@ -24,8 +24,6 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -179,8 +177,6 @@ import com.yanlong.im.utils.audio.AudioRecordManager;
 import com.yanlong.im.utils.audio.IAdioTouch;
 import com.yanlong.im.utils.audio.IAudioRecord;
 import com.yanlong.im.utils.audio.IVoicePlayListener;
-import com.yanlong.im.utils.edit.SpanFactory;
-import com.yanlong.im.utils.edit.SpannableEmoj;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SendList;
 import com.yanlong.im.utils.socket.SocketData;
@@ -256,8 +252,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -6261,16 +6255,34 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //存储正在回复消息,回复内容被content
     private void saveReplying(String content) {
         if (isReplying && replayMsg != null && !TextUtils.isEmpty(content)) {
-            replayMsg.setIsReplying(1);
-            DaoUtil.update(replayMsg);
+            Realm realm=DaoUtil.open();
+            try {
+                //实时从数据库查，再更改，否则影响阅后即焚字段
+                MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", replayMsg.getMsg_id()).findFirst();
+                realm.beginTransaction();
+                msgAllBean.setIsReplying(1);
+                realm.commitTransaction();
+            }catch (Exception e){
+            }finally {
+                DaoUtil.close(realm);
+            }
         }
     }
 
     //发送成功后删除回复消息
     private void updateReplying() {
         if (replayMsg != null) {
-            replayMsg.setIsReplying(0);
-            DaoUtil.update(replayMsg);
+            Realm realm=DaoUtil.open();
+            try {
+                //实时从数据库查，再更改，否则影响阅后即焚字段
+                MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", replayMsg.getMsg_id()).findFirst();
+                realm.beginTransaction();
+                msgAllBean.setIsReplying(0);
+                realm.commitTransaction();
+            }catch (Exception e){
+            }finally {
+                DaoUtil.close(realm);
+            }
         }
     }
 
