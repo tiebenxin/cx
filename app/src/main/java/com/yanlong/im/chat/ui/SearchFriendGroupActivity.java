@@ -142,11 +142,12 @@ public class SearchFriendGroupActivity extends AppActivity {
             return new SpannableString(message);
         }
         SpannableString ss = new SpannableString(message);
-        int start = message.indexOf(condition, fromIndex);
-        int end = start + condition.length();
-        ss.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.green_500)), start, end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
+        if (fromIndex < message.length()) {
+            int start = message.indexOf(condition, fromIndex);
+            int end = start + condition.length();
+            ss.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.green_500)), start, end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
         return ss;
     }
 

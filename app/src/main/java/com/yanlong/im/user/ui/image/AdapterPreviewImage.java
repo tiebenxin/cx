@@ -163,10 +163,13 @@ public class AdapterPreviewImage extends PagerAdapter {
             hasRead = msgDao.ImgReadStatGet(originUrl);
         }
         pbLoading.setVisibility(View.GONE);
-        if (isGif && !media.isCompressed()) {
-            showGif(media, ivZoom, tvViewOrigin, pbLoading);
-        } else {
-            showImage2(ivZoom, ivLarge, tvViewOrigin, ivDownload, media, isOriginal, hasRead, isHttp, isLong, pbLoading, llLook);
+        try {
+            if (isGif && !media.isCompressed()) {
+                showGif(media, ivZoom, tvViewOrigin, pbLoading);
+            } else {
+                showImage2(ivZoom, ivLarge, tvViewOrigin, ivDownload, media, isOriginal, hasRead, isHttp, isLong, pbLoading, llLook);
+            }
+        } catch (Exception e) {
         }
 
         //下载
@@ -492,7 +495,7 @@ public class AdapterPreviewImage extends PagerAdapter {
         if (isHttp) {
             if (isOrigin) {
                 if (hasRead) {//原图已读,就显示
-                    String cachePath = PictureFileUtils.getFilePathOfImage(media.getPath(), context);
+                    String cachePath = PictureFileUtils.getFilePathOfImage(media.getPath(), AppConfig.getContext());
                     if (PictureFileUtils.hasImageCache(cachePath, media.getSize())) {
                         loadImage(media.getCompressPath(), ivZoom, false, pbLoading);
                         ivZoom.postDelayed(new Runnable() {
@@ -561,7 +564,7 @@ public class AdapterPreviewImage extends PagerAdapter {
         RequestOptions gifOptions = new RequestOptions()
                 .priority(Priority.LOW)
                 .diskCacheStrategy(DiskCacheStrategy.ALL);
-        Glide.with(context)
+        Glide.with(ivZoom.getContext())
                 .asGif()
                 .apply(gifOptions)
                 .load(path)
@@ -573,7 +576,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                         ivZoom.post(new Runnable() {
                             @Override
                             public void run() {
-                                Glide.with(context).asBitmap().load(model).into(ivZoom);
+                                Glide.with(ivZoom.getContext()).asBitmap().load(model).into(ivZoom);
                             }
                         });
                         pbLoading.setVisibility(View.GONE);
