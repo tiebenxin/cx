@@ -223,7 +223,7 @@ public class AddFaceActivity extends BaseBindActivity<ActivityAddFaceBinding> {
         bean.setServerPath(serverPath);
         if (resId == 0) {
             mList.add(1, bean);
-            ToastUtil.showToast(this, "已添加到表情面板");
+            ToastUtil.showToast(this, "已添加到表情面板",0);
         } else {
             mList.add(bean);
         }
