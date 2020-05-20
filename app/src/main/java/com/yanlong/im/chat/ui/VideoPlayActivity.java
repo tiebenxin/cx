@@ -395,13 +395,13 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         }
     }
 
-    @Override //锁屏逻辑
-    protected void onRestart() {
-        super.onRestart();
-        if(!pressHOME){
-            getProgress();
-        }
-    }
+//    @Override //锁屏逻辑
+//    protected void onRestart() {
+//        super.onRestart();
+//        if(!pressHOME){
+//            getProgress();
+//        }
+//    }
 
 
     @Override //HOME键逻辑
@@ -461,11 +461,11 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         activity_video_big_con.setVisibility(View.INVISIBLE);
                         activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
                         //按过HOME键需要重置播放
-                        if(pressHOME){
+//                        if(pressHOME){
                             replay();
-                        }else {
-                            mMediaPlayer.start();
-                        }
+//                        }else {
+//                            mMediaPlayer.start();
+//                        }
                         pressHOME = false;
                     }
                 }
