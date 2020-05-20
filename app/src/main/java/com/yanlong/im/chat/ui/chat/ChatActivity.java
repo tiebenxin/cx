@@ -1331,8 +1331,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Log.e("raleigh_test", "s=" + s + ",isFirst=" + isFirst);
-
                 if (s.length() > 0) {
                     btnSend.setVisibility(View.VISIBLE);
                 } else {

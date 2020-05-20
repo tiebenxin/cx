@@ -2,6 +2,7 @@ package com.yanlong.im.data.local;
 
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -31,14 +32,16 @@ import io.realm.Sort;
  */
 public class UpdateSessionDetail {
     private Realm realm = null;
-    private Handler handler=new Handler();
+    private Handler handler = new Handler();
     //最大重试次数,刚启动Application时，数据库事务无法立即建立，会出现事务异常
-    private final int MAX_UPDATE_RETRY_TIMES=3;
+    private final int MAX_UPDATE_RETRY_TIMES = 3;
     //update(String[] sids) 重试次数
-    private int updateSidsTimes=0;
+    private int updateSidsTimes = 0;
+
     public UpdateSessionDetail(@NonNull Realm realm) {
         this.realm = realm;
     }
+
     public void update(String[] sids) {
         //通过使用异步事务，Realm 会在后台线程中进行写入操作，并在事务完成时将结果传回调用线程。
         realm.executeTransactionAsync(new Realm.Transaction() {
@@ -60,22 +63,22 @@ public class UpdateSessionDetail {
         }, new Realm.Transaction.OnSuccess() {
             @Override
             public void onSuccess() {
-                updateSidsTimes=0;
+                updateSidsTimes = 0;
             }
         }, new Realm.Transaction.OnError() {
             @Override
             public void onError(Throwable error) {
-                if(updateSidsTimes<MAX_UPDATE_RETRY_TIMES){
+                if (updateSidsTimes < MAX_UPDATE_RETRY_TIMES) {
                     //1，秒后重试
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             update(sids);
                         }
-                    },1000);
+                    }, 1000);
                     updateSidsTimes++;
-                }else{//超过最大次数，不再重试
-                    updateSidsTimes=0;
+                } else {//超过最大次数，不再重试
+                    updateSidsTimes = 0;
                 }
 
             }
@@ -109,6 +112,32 @@ public class UpdateSessionDetail {
             @Override
             public void onError(Throwable error) {
 
+            }
+        });
+    }
+
+    /**
+     * 更新我自己的session会话的所有群聊
+     */
+    public void updateSelfGroup() {
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                Log.e("raleigh_test"," updateSelfGroup start");
+                RealmResults<Session> groupSessions = realm.where(Session.class).isNotEmpty("gid").findAll();
+                for (Session session : groupSessions) {
+                    synchGroupMsgSession(realm, session, null);
+                }
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+                Log.e("raleigh_test"," updateSelfGroup onSuccess");
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(Throwable error) {
+                Log.e("raleigh_test"," updateSelfGroup error");
             }
         });
     }
@@ -208,7 +237,12 @@ public class UpdateSessionDetail {
                             List<String> headList = new RealmList<>();
                             for (int j = 0; j < i; j++) {
                                 MemberUser userInfo = group.getUsers().get(j);
-                                headList.add(userInfo.getHead().length() == 0 ? "-" : userInfo.getHead());
+                                String userHead = userInfo.getHead();
+                                if(userInfo.getUid() == UserAction.getMyId()){
+                                    //我自己，使用本地数据
+                                    userHead = UserAction.getMyInfo().getHead();
+                                }
+                                headList.add(userHead.length() == 0 ? "-" : userHead);
                             }
                             //将list转string,逗号分隔的字符串
                             sessionMore.setAvatarList(Joiner.on(",").join(headList));
@@ -232,12 +266,12 @@ public class UpdateSessionDetail {
             if (msg != null) {
                 sessionMore.setMessage(msg);
                 sessionMore.setMessageContent(msg.getMsg_typeStr());
-                if(msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL){//最后一条是撤销消息，去掉红色标志
-                    if(session.getMessageType()!=1000)session.setMessageType(1000);
+                if (msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {//最后一条是撤销消息，去掉红色标志
+                    if (session.getMessageType() != 1000) session.setMessageType(1000);
                 }
 
                 //若消息时间大于session时间，则更新（为处理本地创建的消息）
-                if(msg.getTimestamp()>session.getUp_time()){
+                if (msg.getTimestamp() > session.getUp_time()) {
                     session.setUp_time(msg.getTimestamp());
                 }
                 if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {//通知不要加谁发的消息
@@ -247,7 +281,7 @@ public class UpdateSessionDetail {
                         //8.9 处理群昵称
                         String name = getUsername4Show(realm, msg.getGid(), msg.getFrom_uid(), msg.getFrom_nickname(), msg.getFrom_group_nickname()) + " : ";
                         sessionMore.setSenderName(name);
-                    }else{
+                    } else {
                         sessionMore.setSenderName("");
                     }
                 }
@@ -296,7 +330,7 @@ public class UpdateSessionDetail {
 
             if (msg != null) {
                 //若消息时间大于session时间，则更新（为处理本地创建的消息）
-                if(msg.getTimestamp()>session.getUp_time()){
+                if (msg.getTimestamp() > session.getUp_time()) {
                     session.setUp_time(msg.getTimestamp());
                 }
                 sessionMore.setMessage(msg);
@@ -363,10 +397,15 @@ public class UpdateSessionDetail {
                 int len = users.size();
                 for (int i = 0; i < len; i++) {
                     MemberUser info = users.get(i);
+
+                    String username = info.getName();
+                    if(info.getUid() == UserAction.getMyId()){ //我自己，使用本地实时数据
+                        username = UserAction.getMyInfo().getName();
+                    }
                     if (i == len - 1) {
-                        result += StringUtil.getUserName("", info.getMembername(), info.getName(), info.getUid());
+                        result += StringUtil.getUserName("", info.getMembername(), username, info.getUid());
                     } else {
-                        result += StringUtil.getUserName(/*info.getMkName()*/"", info.getMembername(), info.getName(), info.getUid()) + "、";
+                        result += StringUtil.getUserName(/*info.getMkName()*/"", info.getMembername(), username, info.getUid()) + "、";
                     }
                 }
                 result = result.length() > 14 ? StringUtil.splitEmojiString2(result, 0, 14) : result;

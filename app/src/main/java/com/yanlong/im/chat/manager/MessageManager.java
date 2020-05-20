@@ -2,7 +2,6 @@ package com.yanlong.im.chat.manager;
 
 import android.content.Intent;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.MyAppLication;
@@ -187,7 +186,6 @@ public class MessageManager {
                 //historyCleanMsg的消息时间，比当前接收消息时间超过10分钟的消息，从historyCleanMsg移除
                 historyCleanMsg.remove(uid);
         }
-        Log.e("raleigh_test", "" + historyCleanMsg.size());
         return result;
     }
 
@@ -637,15 +635,40 @@ public class MessageManager {
                     result = saveMessageNew(bean, isList);
                 }
                 break;
-            case MULTI_TERMINAL_SYNC:// 多端同步
-                switch (wrapMessage.getMultiTerminalSync().getSyncType()){
+            case MULTI_TERMINAL_SYNC:// PC端同步 更改信息，只同步自己的操作
+                userAction = new UserAction();
+                switch (wrapMessage.getMultiTerminalSync().getSyncType()) {
                     case MY_SELF_CHANGED://自己的个人信息变更
+                        userAction.getMyInfo4Web(UserAction.getMyId(), UserAction.getMyInfo().getImid());
+                        /********通知更新sessionDetail************************************/
+                        //回主线程调用更新session详情
+                        if (MyAppLication.INSTANCE().repository != null)
+                            MyAppLication.INSTANCE().repository.updateSelfGroupSessionDetail();
+                        /********通知更新sessionDetail end************************************/
                         break;
-                    case MY_FRIEND_CHANGED://我的好友信息变更（备注名等）
-//                        wrapMessage.getMultiTerminalSync().getUid()
+                    case MY_FRIEND_CHANGED://更改我的好友信息（备注名等）
+                        userAction.getUserInfo4Id(wrapMessage.getMultiTerminalSync().getUid(), null);
+                        /********通知更新sessionDetail************************************/
+                        List<Long> fUids = new ArrayList<>();
+                        fUids.add(wrapMessage.getMultiTerminalSync().getUid());
+                        //回主线程调用更新session详情
+                        if (MyAppLication.INSTANCE().repository != null)
+                            MyAppLication.INSTANCE().repository.updateSessionDetail(null, fUids);
+                        /********通知更新sessionDetail end************************************/
                         break;
-                    case MY_GROUP_CHANGED://我所在的群信息变更（备注名等）
-//                        wrapMessage.getMultiTerminalSync().getGid()
+                    case MY_GROUP_CHANGED://更改我所在的群信息变更（备注名等）
+                        MsgAction msgAction = new MsgAction();
+                        String gid = wrapMessage.getMultiTerminalSync().getGid();
+                        msgAction.groupInfo(gid, false, null);
+                        /********通知更新sessionDetail************************************/
+                        List<String> gids = new ArrayList<>();
+                        if (!TextUtils.isEmpty(gid)) {
+                            gids.add(gid);
+                        }
+                        //回主线程调用更新session详情
+                        if (MyAppLication.INSTANCE().repository != null)
+                            MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
+                        /********通知更新sessionDetail end************************************/
                         break;
                 }
                 break;
@@ -1732,9 +1755,8 @@ public class MessageManager {
         });
     }
 
-    public void notifyRefreshUser(UserInfo info) {
+    public void notifyRefreshUser() {
         EventRefreshUser eventRefreshUser = new EventRefreshUser();
-        eventRefreshUser.setInfo(info);
         EventBus.getDefault().post(eventRefreshUser);
     }
 

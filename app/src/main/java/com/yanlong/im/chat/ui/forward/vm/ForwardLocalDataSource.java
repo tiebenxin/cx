@@ -38,7 +38,6 @@ public class ForwardLocalDataSource {
             e.printStackTrace();
             DaoUtil.reportException(e);
         }
-        Log.e("raleigh_test", "getSession" + list.size() + ",t=" + DateUtils.timeStamp2Date(DateUtils.getSystemTime(), null));
         return list;
     }
 
@@ -55,7 +54,6 @@ public class ForwardLocalDataSource {
             e.printStackTrace();
             DaoUtil.reportException(e);
         }
-        Log.e("raleigh_test", "getSession" + list.size() + ",t=" + DateUtils.timeStamp2Date(DateUtils.getSystemTime(), null));
         return list;
     }
 

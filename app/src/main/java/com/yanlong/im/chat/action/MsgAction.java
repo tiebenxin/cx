@@ -230,15 +230,15 @@ public class MsgAction {
                             MessageManager.getInstance().updateCacheGroup(group);
                         }
                         //8.8 取消从数据库里读取群成员信息
-                        callback.onResponse(call, response);
+                        if(callback != null)callback.onResponse(call, response);
                     } else {
                         LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid);
                         MessageManager.getInstance().removeLoadGids(gid);
                         if (!response.body().isOk() && StringUtil.isNotNull(response.body().getMsg())) {
                             ToastUtil.show(response.body().getMsg());
-                            callback.onFailure(call, new Throwable());
+                            if(callback != null)callback.onFailure(call, new Throwable());
                         } else {
-                            callback.onFailure(call, new Throwable());
+                            if(callback != null)callback.onFailure(call, new Throwable());
                         }
                     }
                 }
@@ -248,7 +248,7 @@ public class MsgAction {
                     super.onFailure(call, t);
                     LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid + t.getMessage());
                     MessageManager.getInstance().removeLoadGids(gid);
-                    callback.onFailure(call, new Throwable());
+                    if(callback != null)callback.onFailure(call, new Throwable());
                 }
             });
         } else {//从缓存中读
@@ -279,11 +279,11 @@ public class MsgAction {
                         newGroup.getMygroupName();
                         dao.groupNumberSave(newGroup);
                         MessageManager.getInstance().updateCacheGroup(newGroup);
-                        callback.onResponse(call, response);
+                        if(callback != null)callback.onResponse(call, response);
                     } else {
                         LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid);
                         MessageManager.getInstance().removeLoadGids(gid);
-                        callback.onFailure(call, new Throwable());
+                        if(callback != null)callback.onFailure(call, new Throwable());
                     }
                 }
 
@@ -293,7 +293,7 @@ public class MsgAction {
                     LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid + t.getMessage());
 //                    t.printStackTrace();
 //                    MessageManager.getInstance().removeLoadGids(gid);
-                    callback.onFailure(call, new Throwable());
+                    if(callback != null)callback.onFailure(call, new Throwable());
                 }
             });
         } else {//从缓存中读
@@ -324,7 +324,7 @@ public class MsgAction {
 //                }
 //            }
 //        }
-        callback.onResponse(null, response);
+        if(callback != null)callback.onResponse(null, response);
     }
 
 

@@ -225,7 +225,7 @@ public class UserAction {
     /***
      * 拉取服务器的自己的信息到数据库
      */
-    private void getMyInfo4Web(Long usrid, String imid) {
+    public void getMyInfo4Web(Long usrid, String imid) {
         NetUtil.getNet().exec(server.getUserBean(usrid), new CallBack<ReturnBean<UserBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserBean>> call, Response<ReturnBean<UserBean>> response) {
@@ -240,6 +240,8 @@ public class UserAction {
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).save2Json(userInfo.getUid());
                     userInfo.toTag();
                     updateUser2DB(userInfo);
+                    //通知UI更新用户信息
+                    MessageManager.getInstance().notifyRefreshUser();
                 }
             }
         });
@@ -276,9 +278,9 @@ public class UserAction {
                         if (hasChange) {
                             MessageManager.getInstance().notifyRefreshFriend(true, userInfo.getUid(), CoreEnum.ERosterAction.UPDATE_INFO);
                         }
-                        callBack.onResponse(call, response);
+                        if(callBack!=null)callBack.onResponse(call, response);
                     } else {
-                        callBack.onFailure(call, new Throwable());
+                        if(callBack!=null)callBack.onFailure(call, new Throwable());
                     }
                 }
             }
@@ -286,7 +288,7 @@ public class UserAction {
             @Override
             public void onFailure(Call<ReturnBean<UserInfo>> call, Throwable t) {
                 super.onFailure(call, t);
-                callBack.onFailure(call, t);
+                if(callBack!=null)callBack.onFailure(call, t);
             }
         });
     }

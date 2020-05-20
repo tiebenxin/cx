@@ -372,6 +372,7 @@ public class MsgMainFragment extends Fragment {
         @Override
         public void onChange(RealmResults<SessionDetail> sessionDetails, OrderedCollectionChangeSet changeSet) {
             try {
+
                 /***必须先更新位置信息*********************************************************/
                 viewModel.sessionMoresPositions.clear();
                 for (int i = 0; i < viewModel.sessionMores.size(); i++) {
@@ -403,6 +404,7 @@ public class MsgMainFragment extends Fragment {
                 //获取更新信息
                 for (int position : modifications) {
                     String sid = sessionDetails.get(position).getSid();
+
                     if (MyAppLication.INSTANCE().repository!=null&&MyAppLication.INSTANCE().repository.sessionSidPositons.containsKey(sid)) {
                         int startId = MyAppLication.INSTANCE().repository.sessionSidPositons.get(sid);
                         mtListView.getListView().getAdapter().notifyItemRangeChanged(startId + 1, 1);
@@ -415,6 +417,7 @@ public class MsgMainFragment extends Fragment {
 //                handler.removeCallbacks(updateSessionMoreAgain);
 //                handler.postDelayed(updateSessionMoreAgain,1000);
 //            }
+
             } catch (Exception e) {
             }
         }

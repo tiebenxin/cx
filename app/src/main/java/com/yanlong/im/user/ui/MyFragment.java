@@ -49,7 +49,6 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ClickFilter;
-import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -133,9 +132,7 @@ public class MyFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void refreshUser(EventRefreshUser event) {
         LogUtil.getLog().d("a=", MyFragment.class.getSimpleName() + "刷新用户信息");
-        if (event.getInfo() != null) {
-            initData((com.yanlong.im.user.bean.UserBean) event.getInfo());
-        }
+        initData((com.yanlong.im.user.bean.UserBean) UserAction.getMyInfo());
     }
 
 
@@ -211,12 +208,12 @@ public class MyFragment extends Fragment {
             }
         });
         // 收藏
-        viewCollection.setOnClickListener(o->{
-            if(ViewUtils.isFastDoubleClick()){
+        viewCollection.setOnClickListener(o -> {
+            if (ViewUtils.isFastDoubleClick()) {
                 return;
             }
-            Intent intent = new Intent(getActivity(),CollectionActivity.class);
-            intent.putExtra("from",CollectionActivity.FROM_DEFAULT);
+            Intent intent = new Intent(getActivity(), CollectionActivity.class);
+            intent.putExtra("from", CollectionActivity.FROM_DEFAULT);
             startActivity(intent);
         });
     }
@@ -296,7 +293,7 @@ public class MyFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        initData((com.yanlong.im.user.bean.UserBean)UserAction.getMyInfo());
+        initData((com.yanlong.im.user.bean.UserBean) UserAction.getMyInfo());
     }
 
     @Override
@@ -332,7 +329,7 @@ public class MyFragment extends Fragment {
     //钱包
     private void taskWallet() {
         IUser info = UserAction.getMyInfo();
-        if (info == null){
+        if (info == null) {
             return;
         }
         if (info != null && info.getLockCloudRedEnvelope() == 1) {//红包功能被锁定

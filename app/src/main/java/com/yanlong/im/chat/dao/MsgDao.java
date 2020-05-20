@@ -1921,7 +1921,6 @@ public class MsgDao {
                     .beginGroup().notEqualTo("read", 1).endGroup()
                     .findAll();
             if (friendChatMessages != null) {
-                Log.e("raleigh_test","size"+friendChatMessages.size());
                 //每次修改后，friendChatMessages的size 会变化，直到全部修改完，friendChatMessages的size 为0
                 while (friendChatMessages.size() != 0) {
                     MsgAllBean msgAllBean = friendChatMessages.get(0);
