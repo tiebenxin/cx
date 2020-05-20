@@ -223,11 +223,13 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                                 long duration = Long.parseLong(getVideoAtt(path));
                                 // 大于50M、5分钟不发送
                                 if (PicImgSizeUtil.formetFileSize(length) > 50) {
-                                    ToastManage.s(context, "不能选择超过50M的视频");
+                                    Toast.makeText(context, "不能选择超过50M的视频", Toast.LENGTH_SHORT)
+                                            .show();
                                     return;
                                 }
                                 if (duration > 5 * 60000) {
-                                    ToastManage.s(context, "不能选择超过5分钟的视频");
+                                    Toast.makeText(context, "不能选择超过5分钟的视频", Toast.LENGTH_SHORT)
+                                            .show();
                                     return;
                                 }
                             }
