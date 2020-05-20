@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -374,7 +373,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
             if (mTimers.containsKey(msgId)) {
                 return;
             }
-            long nowTimeMillis = DateUtils.getSystemTime();
+            long nowTimeMillis = SocketData.getFixTime();
             long period = 0;
             long start = 1;
             if (nowTimeMillis < endTime) {//当前时间还在倒计时结束前
@@ -386,7 +385,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
                     start = -distance / period;
 
                     mTimersIndexs.put(msgId, (int)start);
-                    long time = nowTimeMillis - DateUtils.getSystemTime();
                     String name = "icon_st_" + Math.min(COUNT, start + 1);
                     int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
                     updateSurvivalTimeImage(msgId, id);
@@ -403,7 +401,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
                             public void accept(Long index) throws Exception {
                                 try {
                                     mTimersIndexs.put(msgId, index.intValue());
-                                    long time = nowTimeMillis - DateUtils.getSystemTime();
                                     String name = "icon_st_" + Math.min(COUNT, index + 1);
                                     int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
                                     updateSurvivalTimeImage(msgId, id);

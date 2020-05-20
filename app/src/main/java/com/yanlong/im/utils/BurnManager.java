@@ -243,10 +243,13 @@ public class BurnManager {
                     if (alarmManager == null)
                         alarmManager = (AlarmManager) MyAppLication.getInstance().getSystemService(Context.ALARM_SERVICE);
                     else alarmManager.cancel(pendingIntent);
+                    //矫正一次时间,防止用户自定义设置时间
+                    long distance=nearlyEndTime-SocketData.getFixTime();
+                    long startTime=System.currentTimeMillis()+distance>0?distance:0;
                     if (Build.VERSION.SDK_INT < 19) {
-                        alarmManager.set(AlarmManager.RTC_WAKEUP, nearlyEndTime, pendingIntent);
+                        alarmManager.set(AlarmManager.RTC_WAKEUP, startTime, pendingIntent);
                     } else {
-                        alarmManager.setExact(AlarmManager.RTC_WAKEUP, nearlyEndTime, pendingIntent);
+                        alarmManager.setExact(AlarmManager.RTC_WAKEUP, startTime, pendingIntent);
                     }
                 } else {//小于当前时间-得删除了
                     notifyBurnQuene();
