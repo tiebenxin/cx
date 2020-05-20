@@ -637,6 +637,18 @@ public class MessageManager {
                     result = saveMessageNew(bean, isList);
                 }
                 break;
+            case MULTI_TERMINAL_SYNC:// 多端同步
+                switch (wrapMessage.getMultiTerminalSync().getSyncType()){
+                    case MY_SELF_CHANGED://自己的个人信息变更
+                        break;
+                    case MY_FRIEND_CHANGED://我的好友信息变更（备注名等）
+//                        wrapMessage.getMultiTerminalSync().getUid()
+                        break;
+                    case MY_GROUP_CHANGED://我所在的群信息变更（备注名等）
+//                        wrapMessage.getMultiTerminalSync().getGid()
+                        break;
+                }
+                break;
         }
         //刷新单个,接收到音视频通话消息不需要刷新
         if (result && !hasNotified && !isList && bean != null && wrapMessage.getMsgType() != P2P_AU_VIDEO_DIAL) {
