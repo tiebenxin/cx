@@ -794,9 +794,9 @@ public class CollectDetailsActivity extends AppActivity {
                         ToastUtil.showLong(CollectDetailsActivity.this, "下载成功! \n文件已保存：" + FileConfig.PATH_DOWNLOAD + "目录下");
                         //下载成功
                         //1 本地数据库刷新：保存一个新增属性-真实文件名，主要用于多个同名文件区分保存，防止重名，方便用户点击打开重名文件
-//                        CollectSendFileMessage reMsg = DaoUtil.findOne(CollectSendFileMessage.class, "msgId", finalFileMsgId);
-//                        reMsg.setCollectRealFileRename(fileNewName);
-//                        DaoUtil.update(reMsg);
+                        CollectSendFileMessage reMsg = DaoUtil.findOne(CollectSendFileMessage.class, "msgId", finalFileMsgId);
+                        reMsg.setCollectRealFileRename(fileNewName);
+                        DaoUtil.update(reMsg);
                         //2 无需再通知ChatActivity刷新该文件消息，场景不符，ChatActivity早不存在了
 
                         //TODO 先都不存表，暂时没做本地化处理
