@@ -543,10 +543,16 @@ public class CollectDetailsActivity extends AppActivity {
                                         }
                                         tvDownload.setText("打开");
                                     } else {
-                                        //1-2 若不存在本地路径，可能为 [PC端我的账号发的] 或者 [转发他人文件消息]
-                                        //从下载路径里找，若存在该文件，则直接打开
+                                        //1-2 若不存在本地路径，可能为 [PC端我的账号发的] 或者 [转发他人文件消息]，则需要下载
+                                        //首先从下载路径里找，若存在该文件，说明下载过，如123.txt，但此时需要考虑是否重名，避免多个123.txt文件却每次打开同一个文件
                                         if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFileName())) {
-                                            filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getFileName();
+                                            //接着判断是否含有重名的情况，若有则打开的是真实文件路径，每个重名文件都是不相同的文件
+                                            if (!TextUtils.isEmpty(fileMessage.getCollectRealFileRename())) {
+                                                filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getCollectRealFileRename();
+                                            } else {
+                                                //如果没有重名的情况，则只能打开当前文件
+                                                filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getFileName();
+                                            }
                                             status = 0;
                                             tvDownload.setText("打开");
                                         } else {
@@ -560,12 +566,13 @@ public class CollectDetailsActivity extends AppActivity {
                                     }
                                 } else {
                                     //2 别人发的文件
-                                    //从下载路径里找，若存在该文件，则直接打开
+                                    //首先从下载路径里找，若存在该文件，说明下载过，如123.txt，但此时需要考虑是否重名，避免多个123.txt文件却每次打开同一个文件
                                     if (net.cb.cb.library.utils.FileUtils.fileIsExist(FileConfig.PATH_DOWNLOAD + fileMessage.getFileName())) {
-                                        //是否含有重名的情况，若有则打开的是真实文件路径
+                                        //接着判断是否含有重名的情况，若有则打开的是真实文件路径，每个重名文件都是不相同的文件
                                         if (!TextUtils.isEmpty(fileMessage.getCollectRealFileRename())) {
                                             filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getCollectRealFileRename();
                                         } else {
+                                            //如果没有重名的情况，则只能打开当前文件
                                             filePath = FileConfig.PATH_DOWNLOAD + fileMessage.getFileName();
                                         }
                                         status = 0;
@@ -798,8 +805,6 @@ public class CollectDetailsActivity extends AppActivity {
                         reMsg.setCollectRealFileRename(fileNewName);
                         DaoUtil.update(reMsg);
                         //2 无需再通知ChatActivity刷新该文件消息，场景不符，ChatActivity早不存在了
-
-                        //TODO 先都不存表，暂时没做本地化处理
                         status = 0;
                         tvDownload.setText("打开");
                         filePath = FileConfig.PATH_DOWNLOAD + fileNewName;
