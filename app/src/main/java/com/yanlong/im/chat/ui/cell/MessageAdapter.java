@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -15,7 +16,6 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.utils.audio.AudioPlayManager;
-import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.view.MultiListView;
@@ -373,10 +373,11 @@ public class MessageAdapter extends RecyclerView.Adapter {
             if (mTimers.containsKey(msgId)) {
                 return;
             }
-            long nowTimeMillis = SocketData.getFixTime();
+            long nowTimeMillis = DateUtils.getSystemTime();
             long period = 0;
             long start = 1;
             if (nowTimeMillis < endTime) {//当前时间还在倒计时结束前
+
                 mTimersIndexs.put(msgId, 1);
                 long distance = startTime - nowTimeMillis;//和现在时间相差的毫秒数
                 //四舍五入
@@ -456,7 +457,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
         //群聊暂时不处理（待后期策略）
         if (isGroup || date == 0) {
-            date = SocketData.getFixTime();
+            date = DateUtils.getSystemTime();
         }
         if (msg.getSurvival_time() > 0 && msg.getEndTime() == 0) {
             msgDao.setMsgEndTime((date + msg.getSurvival_time() * 1000), date, msg.getMsg_id());

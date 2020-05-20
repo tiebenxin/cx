@@ -1,8 +1,10 @@
 package com.yanlong.im.chat.dao;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.hm.cxpay.global.PayEnum;
+import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
@@ -1924,6 +1926,7 @@ public class MsgDao {
                 while (friendChatMessages.size() != 0) {
                     MsgAllBean msgAllBean = friendChatMessages.get(0);
                     long endTime = timestamp + msgAllBean.getSurvival_time() * 1000;
+
                     realm.beginTransaction();
                     if (msgAllBean.getSurvival_time() > 0) {//有设置阅后即焚
 //                        if (endTime > DateUtils.getSystemTime()) {//还未到阅后即焚时间点，记录已读
