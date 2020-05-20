@@ -59,7 +59,7 @@ public class BurnManager {
     /**
      * 初始化
      */
-    private void initBurnQueue(){
+    private void initBurnQueue() {
         toBurnMessages = realm.where(MsgAllBean.class)
                 .greaterThan("endTime", 0)
                 .findAllAsync();
@@ -133,11 +133,11 @@ public class BurnManager {
      * 处理数据
      */
     public void notifyBurnQuene() {
-        if(toBurnMessages == null){
+        if (toBurnMessages == null) {
             initBurnQueue();
             return;
         }
-        if (toBurnMessages!=null&&toBurnMessages.size() > 0) {
+        if (toBurnMessages != null && toBurnMessages.size() > 0) {
             Map<String, List<String>> gids = new HashMap<>();
             Map<Long, List<String>> uids = new HashMap<>();
             //异步删除
@@ -148,6 +148,7 @@ public class BurnManager {
                     RealmResults<MsgAllBean> toDeletedResults = realm.where(MsgAllBean.class)
                             .greaterThan("endTime", 0)
                             .lessThanOrEqualTo("endTime", currentTime).findAll();
+
                     //复制一份，为了聊天界面的更新-非数据库对象
                     List<MsgAllBean> toDeletedResultsTemp = realm.copyFromRealm(toDeletedResults);
                     //保存待删除的gids和uids,以及msgId
@@ -238,24 +239,28 @@ public class BurnManager {
             if (toBurnMessages != null && toBurnMessages.size() > 0) {
                 //删除之后，剩下来的数据，获取距离最近的阅后即焚时间点
                 long nearlyEndTime = toBurnMessages.where().min("endTime").longValue();
+                long currentTime = SocketData.getFixTime();
                 //大于当前时间
-                if (nearlyEndTime > SocketData.getFixTime()) {
+                if (nearlyEndTime > currentTime) {
                     if (alarmManager == null)
                         alarmManager = (AlarmManager) MyAppLication.getInstance().getSystemService(Context.ALARM_SERVICE);
                     else alarmManager.cancel(pendingIntent);
                     //矫正一次时间,防止用户自定义设置时间
-                    long distance=nearlyEndTime-SocketData.getFixTime();
-                    long startTime=System.currentTimeMillis()+distance>0?distance:0;
-                    if (Build.VERSION.SDK_INT < 19) {
-                        alarmManager.set(AlarmManager.RTC_WAKEUP, startTime, pendingIntent);
-                    } else {
+
+                    long distance = nearlyEndTime - currentTime;
+                    long startTime = System.currentTimeMillis() + (distance > 0 ? distance : 0);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, startTime, pendingIntent);
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                         alarmManager.setExact(AlarmManager.RTC_WAKEUP, startTime, pendingIntent);
+                    } else {
+                        alarmManager.set(AlarmManager.RTC_WAKEUP, startTime, pendingIntent);
                     }
                 } else {//小于当前时间-得删除了
                     notifyBurnQuene();
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
         }
     }
 
