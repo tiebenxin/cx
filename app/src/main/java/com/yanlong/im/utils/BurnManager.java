@@ -8,12 +8,12 @@ import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
 
+import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.BurnBroadcastReceiver;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 
@@ -59,7 +59,7 @@ public class BurnManager {
     /**
      * 初始化
      */
-    private void initBurnQueue(){
+    private void initBurnQueue() {
         toBurnMessages = realm.where(MsgAllBean.class)
                 .greaterThan("endTime", 0)
                 .findAllAsync();
@@ -133,21 +133,23 @@ public class BurnManager {
      * 处理数据
      */
     public void notifyBurnQuene() {
-        if(toBurnMessages == null){
+        if (toBurnMessages == null) {
             initBurnQueue();
             return;
         }
-        if (toBurnMessages!=null&&toBurnMessages.size() > 0) {
+
+        if (toBurnMessages != null && toBurnMessages.size() > 0) {
             Map<String, List<String>> gids = new HashMap<>();
             Map<Long, List<String>> uids = new HashMap<>();
             //异步删除
             realm.executeTransactionAsync(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
-                    long currentTime = SocketData.getFixTime();
+                    long currentTime = DateUtils.getSystemTime();
                     RealmResults<MsgAllBean> toDeletedResults = realm.where(MsgAllBean.class)
                             .greaterThan("endTime", 0)
                             .lessThanOrEqualTo("endTime", currentTime).findAll();
+
                     //复制一份，为了聊天界面的更新-非数据库对象
                     List<MsgAllBean> toDeletedResultsTemp = realm.copyFromRealm(toDeletedResults);
                     //保存待删除的gids和uids,以及msgId
@@ -228,6 +230,7 @@ public class BurnManager {
 
     private void startBurnAlarm() {
         try {
+
             if (pendingIntent == null) {//销毁了数据仓库
                 return;
             }
@@ -238,21 +241,25 @@ public class BurnManager {
             if (toBurnMessages != null && toBurnMessages.size() > 0) {
                 //删除之后，剩下来的数据，获取距离最近的阅后即焚时间点
                 long nearlyEndTime = toBurnMessages.where().min("endTime").longValue();
+                long currentTime = DateUtils.getSystemTime();
                 //大于当前时间
-                if (nearlyEndTime > SocketData.getFixTime()) {
+                if (nearlyEndTime > currentTime) {
                     if (alarmManager == null)
                         alarmManager = (AlarmManager) MyAppLication.getInstance().getSystemService(Context.ALARM_SERVICE);
                     else alarmManager.cancel(pendingIntent);
-                    if (Build.VERSION.SDK_INT < 19) {
-                        alarmManager.set(AlarmManager.RTC_WAKEUP, nearlyEndTime, pendingIntent);
-                    } else {
+                    //矫正一次时间,防止用户自定义设置时间
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nearlyEndTime, pendingIntent);
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                         alarmManager.setExact(AlarmManager.RTC_WAKEUP, nearlyEndTime, pendingIntent);
+                    } else {
+                        alarmManager.set(AlarmManager.RTC_WAKEUP, nearlyEndTime, pendingIntent);
                     }
                 } else {//小于当前时间-得删除了
                     notifyBurnQuene();
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
         }
     }
 
