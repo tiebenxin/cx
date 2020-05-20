@@ -972,6 +972,14 @@ public final class MsgBean {
      * <code>LOCKED = 1;</code>
      */
     LOCKED(1),
+    /**
+     * <pre>
+     * 密码被修改
+     * </pre>
+     *
+     * <code>PASSWORD_CHANGED = 2;</code>
+     */
+    PASSWORD_CHANGED(2),
     UNRECOGNIZED(-1),
     ;
 
@@ -991,6 +999,14 @@ public final class MsgBean {
      * <code>LOCKED = 1;</code>
      */
     public static final int LOCKED_VALUE = 1;
+    /**
+     * <pre>
+     * 密码被修改
+     * </pre>
+     *
+     * <code>PASSWORD_CHANGED = 2;</code>
+     */
+    public static final int PASSWORD_CHANGED_VALUE = 2;
 
 
     public final int getNumber() {
@@ -1013,6 +1029,7 @@ public final class MsgBean {
       switch (value) {
         case 0: return CONFLICT;
         case 1: return LOCKED;
+        case 2: return PASSWORD_CHANGED;
         default: return null;
       }
     }
@@ -58374,19 +58391,20 @@ public final class MsgBean {
       "URCE_LOCK\020\312\001\022\022\n\rSWITCH_CHANGE\020\313\001\022\030\n\023MULT" +
       "I_TERMINAL_SYNC\020\314\001\022\017\n\nPAY_RESULT\020\264\002\022\026\n\021B" +
       "ALANCE_ASSISTANT\020\265\002\022\021\n\014TRANS_NOTIFY\020\266\002*&" +
-      "\n\014OnlineStatus\022\n\n\006ONLINE\020\000\022\n\n\006HIDDEN\020\001*." +
+      "\n\014OnlineStatus\022\n\n\006ONLINE\020\000\022\n\n\006HIDDEN\020\001*D" +
       "\n\022ForceOfflineReason\022\014\n\010CONFLICT\020\000\022\n\n\006LO" +
-      "CKED\020\001*\240\001\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033N" +
-      "OT_FRIENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_BLACK" +
-      "LIST\020\002\022\025\n\021WORDS_NOT_ALLOWED\020\003\022\021\n\rFRIEND_" +
-      "FROZEN\020\004\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_UNAV" +
-      "AILABLE\020d*(\n\rJoinGroupType\022\n\n\006QRCODE\020\000\022\013" +
-      "\n\007PASSIVE\020\001*Y\n\025MultiTerminalSyncType\022\023\n\017" +
-      "MY_SELF_CHANGED\020\000\022\025\n\021MY_FRIEND_CHANGED\020\001" +
-      "\022\024\n\020MY_GROUP_CHANGED\020\002*(\n\017RedEnvelopeTyp" +
-      "e\022\t\n\005MFPAY\020\000\022\n\n\006SYSTEM\020\001*#\n\013AuVideoType\022" +
-      "\t\n\005Audio\020\000\022\t\n\005Vedio\020\001B&\n\033com.yanlong.im." +
-      "utils.socketB\007MsgBeanb\006proto3"
+      "CKED\020\001\022\024\n\020PASSWORD_CHANGED\020\002*\240\001\n\nRejectT" +
+      "ype\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT_FRIENDS_OR_GROU" +
+      "P_MEMBER\020\001\022\020\n\014IN_BLACKLIST\020\002\022\025\n\021WORDS_NO" +
+      "T_ALLOWED\020\003\022\021\n\rFRIEND_FROZEN\020\004\022\016\n\nRATE_L" +
+      "IMIT\020c\022\027\n\023SERVICE_UNAVAILABLE\020d*(\n\rJoinG" +
+      "roupType\022\n\n\006QRCODE\020\000\022\013\n\007PASSIVE\020\001*Y\n\025Mul" +
+      "tiTerminalSyncType\022\023\n\017MY_SELF_CHANGED\020\000\022" +
+      "\025\n\021MY_FRIEND_CHANGED\020\001\022\024\n\020MY_GROUP_CHANG" +
+      "ED\020\002*(\n\017RedEnvelopeType\022\t\n\005MFPAY\020\000\022\n\n\006SY" +
+      "STEM\020\001*#\n\013AuVideoType\022\t\n\005Audio\020\000\022\t\n\005Vedi" +
+      "o\020\001B&\n\033com.yanlong.im.utils.socketB\007MsgB" +
+      "eanb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
