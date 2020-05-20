@@ -258,7 +258,6 @@ public class MessageManager {
             case TAKE_SCREENSHOT:// 截屏通知
             case SEND_FILE:// 文件消息
             case TRANS_NOTIFY:// 转账提醒通知
-            case REPLY_SPECIFIC:// 回复消息
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }
@@ -633,6 +632,14 @@ public class MessageManager {
                         }
                     }
                     result = saveMessageNew(bean, isList);
+                }
+                break;
+            case REPLY_SPECIFIC:// 回复消息
+                if (bean != null) {
+                    result = saveMessageNew(bean, isList);
+                    if (!TextUtils.isEmpty(bean.getGid()) && bean.getReplyMessage().getAtMessage() != null) {
+                        msgDao.atMessage(bean.getGid(), bean.getReplyMessage().getAtMessage().getMsg(), bean.getReplyMessage().getAtMessage().getAt_type());
+                    }
                 }
                 break;
             case MULTI_TERMINAL_SYNC:// PC端同步 更改信息，只同步自己的操作

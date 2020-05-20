@@ -29,7 +29,7 @@ import java.util.List;
  * 5 判断本地文件是否存在
  * 6 获取文件的MIME类型
  * 7 判断文件是否为图片/视频
- * 8 获取文件重命名 { 如123.txt若有重名则依次保存为123.txt(1) 123.txt(2) }
+ * 8 获取文件重命名 { 如123.txt若有重名则依次保存为123(1).txt 123(2).txt }
  */
 public class FileUtils {
 
@@ -464,7 +464,7 @@ public class FileUtils {
 
 
     /**
-     * 获取文件重命名 { 如123.txt若有重名则依次保存为123.txt(1) 123.txt(2) }
+     * 获取文件重命名 { 如123.txt若有重名则依次保存为123(1).txt  123(2).txt}
      *
      * @param fileName 文件名
      */
