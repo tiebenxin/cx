@@ -405,7 +405,7 @@ public class AdapterPreviewImage extends PagerAdapter {
 
     //从本地缓存中存储到本地
     private void saveImageFromCacheFile(String filePath, ZoomImageView ivZoom) {
-        if (!TextUtils.isEmpty(filePath)) {
+        if (!TextUtils.isEmpty(filePath) && context != null && ivZoom != null) {
             boolean isSuccess = PicSaveUtils.saveOriginImage(context, filePath);
             ivZoom.postDelayed(new Runnable() {
                 @Override
@@ -415,8 +415,6 @@ public class AdapterPreviewImage extends PagerAdapter {
                     }
                 }
             }, 100);
-
-
         }
     }
 
