@@ -6166,7 +6166,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             return;
                         }
                         if (response.body().isOk()) {
-                            ToastUtil.showCenter(ChatActivity.this, "已收藏");
+                            ToastUtil.showToast(ChatActivity.this, "已收藏",1);
 //                    msgDao.saveCollection(collectionInfo);
                         }
                     }
@@ -6174,7 +6174,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     @Override
                     public void onFailure(Call<ReturnBean> call, Throwable t) {
                         super.onFailure(call, t);
-                        ToastUtil.showCenter(ChatActivity.this, "收藏失败");
+                        ToastUtil.showToast(ChatActivity.this, "收藏失败",1);
                     }
                 });
     }
