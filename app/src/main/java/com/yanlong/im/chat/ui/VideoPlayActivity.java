@@ -66,7 +66,6 @@ import static android.widget.RelativeLayout.CENTER_IN_PARENT;
  * @updateDate 2019-11-01
  * @description 小视频播放
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
- * @备注 TODO zjy 2020/5/1 整体优化
  */
 public class VideoPlayActivity extends AppActivity implements View.OnClickListener, SurfaceHolder.Callback, MediaPlayer.OnVideoSizeChangedListener {
     private InputMethodManager manager;

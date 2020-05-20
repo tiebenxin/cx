@@ -2997,14 +2997,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                 long length = ImgSizeUtil.getVideoSize(filePath);
                                 long duration = Long.parseLong(getVideoAtt(filePath));
                                 // 大于50M、5分钟不发送
-                                if (ImgSizeUtil.formetFileSize(length) > 50) {
-                                    ToastUtil.show(this, "不能选择超过50M的视频");
-                                    continue;
-                                }
-                                if (duration > 5 * 60000) {
-                                    ToastUtil.show(this, "不能选择超过5分钟的视频");
-                                    continue;
-                                }
+//                                if (PicImgSizeUtil.formetFileSize(length) > 50) {
+//                                    ToastUtil.show(this, "不能选择超过50M的视频");
+//                                    continue;
+//                                }
+//                                if (duration > 5 * 60000) {
+//                                    ToastUtil.show(this, "不能选择超过5分钟的视频");
+//                                    continue;
+//                                }
                                 VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + filePath, getVideoAttBitmap(filePath), false, duration, Long.parseLong(getVideoAttWidth(filePath)), Long.parseLong(getVideoAttHeigh(filePath)), filePath);
                                 videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
                                 // 不等于常信小助手，需要上传到服务器
