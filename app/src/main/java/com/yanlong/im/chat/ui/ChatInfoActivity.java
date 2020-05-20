@@ -83,7 +83,7 @@ public class ChatInfoActivity extends AppActivity {
 
     private ReadDestroyUtil readDestroyUtil = new ReadDestroyUtil();
     private LinearLayout viewDestroyTime;
-    private TextView tvDestroyTime,tvTwoWayClearChat,tvTwoWayClearChatHint;
+    private TextView tvDestroyTime, tvTwoWayClearChat, tvTwoWayClearChatHint;
     private CheckBox ckSetRead;
 
 
@@ -94,7 +94,7 @@ public class ChatInfoActivity extends AppActivity {
         findViews();
         initEvent();
         initData();
-        if(!EventBus.getDefault().isRegistered(this)){
+        if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
     }
@@ -120,6 +120,7 @@ public class ChatInfoActivity extends AppActivity {
     }
 
     private final String IS_VIP = "1";// (0:普通|1:vip)
+
     //自动生成的控件事件
     private void initEvent() {
         IUser userInfo = UserAction.getMyInfo();
@@ -127,7 +128,7 @@ public class ChatInfoActivity extends AppActivity {
             //vip才开启双向清除功能
             tvTwoWayClearChat.setVisibility(View.VISIBLE);
             tvTwoWayClearChatHint.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             tvTwoWayClearChat.setVisibility(View.GONE);
             tvTwoWayClearChatHint.setVisibility(View.GONE);
         }
@@ -254,7 +255,7 @@ public class ChatInfoActivity extends AppActivity {
                     public void onYes() {
                         taskDelMsg(getString(R.string.two_way_clear_chat_success));//删除本地记录
                         //发送双向删除请求
-                        SocketData.send4TwoWayClean(fuid,System.currentTimeMillis());
+                        SocketData.send4TwoWayClean(fuid, System.currentTimeMillis());
                     }
                 });
                 alertYesNo.show();
@@ -330,8 +331,8 @@ public class ChatInfoActivity extends AppActivity {
                 case 0:
                     userInfo = fUserInfo;
                     // holder.imgHead.setImageURI(Uri.parse("" + userInfo.getHead()));
-                    if(userInfo!=null){
-                        if(!TextUtils.isEmpty(userInfo.getHead())){
+                    if (userInfo != null) {
+                        if (!TextUtils.isEmpty(userInfo.getHead())) {
                             Glide.with(context).load(userInfo.getHead())
                                     .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
                         }
@@ -481,7 +482,7 @@ public class ChatInfoActivity extends AppActivity {
                 if (response.body() == null) {
                     return;
                 }
-                EventBus.getDefault().post(new EventIsShowRead());
+                EventBus.getDefault().post(new EventIsShowRead(uid, EventIsShowRead.EReadSwitchType.SWITCH_FRIEND, read));
             }
         });
     }
@@ -524,11 +525,12 @@ public class ChatInfoActivity extends AppActivity {
                     return;
                 } else {
                     if (response.body().isOk()) {
-                        MsgNotice notice = SocketData.createMsgNoticeOfSnapshotSwitch(SocketData.getUUID(),screenshot);
+                        MsgNotice notice = SocketData.createMsgNoticeOfSnapshotSwitch(SocketData.getUUID(), screenshot);
                         MsgAllBean bean = SocketData.createMessageBean(fuid, "", ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
                         if (bean != null) {
                             SocketData.saveMessage(bean);
-                        }                    }
+                        }
+                    }
                 }
                 ToastUtil.show(getContext(), response.body().getMsg());
             }

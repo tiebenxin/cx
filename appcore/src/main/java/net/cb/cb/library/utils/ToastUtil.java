@@ -87,7 +87,7 @@ public class ToastUtil {
     }
 
     /**
-     * 新增->长提示
+     * 长提示toast
      *
      * @param context
      * @param txt
@@ -123,17 +123,28 @@ public class ToastUtil {
 
     }
 
-    public static void showToast(Context context, String txt) {
+    /**
+     * 自定义风格toast
+     * @param context
+     * @param txt
+     * @param type 0 默认样式  1 收藏样式
+     */
+    public static void showToast(Context context, String txt,int type) {
         if (toast != null)
             toast.cancel();
         try {
             toast = Toast.makeText(context, txt, Toast.LENGTH_SHORT);
-
-            View inflate = ((Activity)context).getLayoutInflater().inflate(R.layout.view_custom_toast, null);
-            TextView toast_msg = inflate.findViewById(R.id.txt_msg);
-            toast_msg.setText(txt);
-            toast.setView(inflate);
-
+            if(type==0){
+                View inflate = ((Activity)context).getLayoutInflater().inflate(R.layout.view_custom_toast, null);
+                TextView toast_msg = inflate.findViewById(R.id.txt_msg);
+                toast_msg.setText(txt);
+                toast.setView(inflate);
+            }else {
+                View inflate = ((Activity)context).getLayoutInflater().inflate(R.layout.view_collect_toast, null);
+                TextView toast_msg = inflate.findViewById(R.id.txt_msg);
+                toast_msg.setText(txt);
+                toast.setView(inflate);
+            }
         } catch (Resources.NotFoundException e) {
             e.printStackTrace();
         }

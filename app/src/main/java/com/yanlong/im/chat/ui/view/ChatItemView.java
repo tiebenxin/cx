@@ -703,6 +703,7 @@ public class ChatItemView extends LinearLayout {
         }
 
         menus.add(new OptionMenu("转发"));
+        menus.add(new OptionMenu("收藏"));
         menus.add(new OptionMenu("删除"));
     }
 
@@ -721,6 +722,7 @@ public class ChatItemView extends LinearLayout {
         txtOt1.setText(spannableString);
         menus.add(new OptionMenu("复制"));
         menus.add(new OptionMenu("转发"));
+        menus.add(new OptionMenu("收藏"));
         menus.add(new OptionMenu("删除"));
         menus.add(new OptionMenu("多选"));
     }

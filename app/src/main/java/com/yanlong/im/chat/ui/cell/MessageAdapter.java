@@ -16,6 +16,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.utils.audio.AudioPlayManager;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.view.MultiListView;
@@ -78,20 +79,47 @@ public class MessageAdapter extends RecyclerView.Adapter {
         return this;
     }
 
-    public void bindData(List<MsgAllBean> list, boolean isMore) {
-        if (isMore) {
-            mList.addAll(0, list);
-        } else {
-            mList = list;
+//    public synchronized void bindData(List<MsgAllBean> list, boolean isMore) {
+//        try {
+//            int size = mList != null ? mList.size() : 0;
+//            if (isMore) {
+//                mList.addAll(0, list);
+//            } else {
+//                mList.clear();
+//                notifyItemRangeRemoved(0, size);
+//                mList.addAll(list);
+//            }
+//            notifyItemRangeInserted(0, list.size());
+//            refreshPositions();
+//
+////            this.notifyDataSetChanged();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+    public synchronized void bindData(List<MsgAllBean> list, boolean isMore) {
+        try {
+            if (isMore) {
+                mList.addAll(0, list);
+            } else {
+                mList = list;
+            }
+            refreshPositions();
+            this.notifyDataSetChanged();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        refreshPositions();
-        this.notifyDataSetChanged();
+
     }
 
     /**
      * 遍历列表，并保存msgid位置
      */
     private void refreshPositions() {
+        if (mMsgIdPositions == null) {
+            return;
+        }
         mMsgIdPositions.clear();
         if (mList != null && mList.size() > 0) {
             for (int position = 0; position < mList.size(); position++) {
@@ -134,7 +162,8 @@ public class MessageAdapter extends RecyclerView.Adapter {
         if (msg.getSurvival_time() > 0 && msg.getStartTime() > 0 && msg.getEndTime() > 0) {
             ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), false, msg.isMe());
             bindTimer(msg.getMsg_id(), msg.isMe(), msg.getStartTime(), msg.getEndTime());
-            if(msg.getEndTime()<System.currentTimeMillis())((ChatCellBase) viewHolder).setBellId(R.mipmap.icon_st_12);
+            if (msg.getEndTime() < System.currentTimeMillis())
+                ((ChatCellBase) viewHolder).setBellId(R.mipmap.icon_st_12);
         } else {
             ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), true, msg.isMe());
         }
@@ -175,7 +204,8 @@ public class MessageAdapter extends RecyclerView.Adapter {
             if (msg.getSurvival_time() > 0 && msg.getStartTime() > 0 && msg.getEndTime() > 0) {
                 ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), false, msg.isMe());
                 bindTimer(msg.getMsg_id(), msg.isMe(), msg.getStartTime(), msg.getEndTime());
-                if(msg.getEndTime()<System.currentTimeMillis())((ChatCellBase) viewHolder).setBellId(R.mipmap.icon_st_12);
+                if (msg.getEndTime() < System.currentTimeMillis())
+                    ((ChatCellBase) viewHolder).setBellId(R.mipmap.icon_st_12);
             } else {
                 ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), true, msg.isMe());
             }
@@ -332,13 +362,10 @@ public class MessageAdapter extends RecyclerView.Adapter {
     public void onDestroy() {
         //清除计时器，避免内存溢出
         for (Disposable timer : mTimers.values()) {
-            timer.dispose();
-            timer = null;
+            if (!timer.isDisposed()) timer.dispose();
         }
         mMsgIdPositions.clear();
-        mMsgIdPositions = null;
         mTimers.clear();
-        mTimers = null;
     }
 
 
@@ -357,6 +384,12 @@ public class MessageAdapter extends RecyclerView.Adapter {
                 period = Math.round(Double.valueOf(endTime - startTime) / COUNT);
                 if (distance < 0) {//开始时间小于现在，已经开始了
                     start = -distance / period;
+
+                    mTimersIndexs.put(msgId, (int)start);
+                    long time = nowTimeMillis - DateUtils.getSystemTime();
+                    String name = "icon_st_" + Math.min(COUNT, start + 1);
+                    int id = context.getResources().getIdentifier(name, "mipmap", context.getPackageName());
+                    updateSurvivalTimeImage(msgId, id);
                 }
                 start = Math.max(1, start);
                 //延迟initialDelay个unit单位后，以period为周期，依次发射count个以start为初始值并递增的数字。
@@ -394,7 +427,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
     private void updateSurvivalTimeImage(String msgId, int id) {
         try {
-            if (mMsgIdPositions.containsKey(msgId)) {
+            if (mMsgIdPositions != null && mMsgIdPositions.containsKey(msgId)) {
                 int position = mMsgIdPositions.get(msgId);
 //                ChatCellBase cell = getCellByPosition(position);
 //                if (cell != null) {
@@ -426,7 +459,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
         //群聊暂时不处理（待后期策略）
         if (isGroup || date == 0) {
-            date = DateUtils.getSystemTime();
+            date = SocketData.getFixTime();
         }
         if (msg.getSurvival_time() > 0 && msg.getEndTime() == 0) {
             msgDao.setMsgEndTime((date + msg.getSurvival_time() * 1000), date, msg.getMsg_id());

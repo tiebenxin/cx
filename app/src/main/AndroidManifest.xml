@@ -559,6 +559,11 @@
         <activity
             android:name=".user.ui.CollectionActivity"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
+        <!--收藏详情-->
+        <activity
+            android:name=".user.ui.CollectDetailsActivity"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".user.ui.FeedbackShowImageActivity"

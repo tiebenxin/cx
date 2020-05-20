@@ -193,13 +193,22 @@ public class GroupInfoMumberActivity extends AppActivity {
                         if (number.getUid() == UserAction.getMyId().longValue()) {
                             return;
                         }
+                        boolean value = false;
+                        if (isAdmin()) {
+                            value = true;
+                        } else {
+                            if (isAdministrators(UserAction.getMyId())) {
+                                value = !isAdministrators(number.getUid());
+                            }
+                        }
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, number.getUid())
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
                                 .putExtra(UserInfoActivity.GID, gid)
-                                .putExtra(UserInfoActivity.MUC_NICK, number.getMembername())
+                                .putExtra(UserInfoActivity.IS_GROUP, true)
+                                .putExtra(UserInfoActivity.IS_ADMINS, value)
+                                .putExtra(UserInfoActivity.MUC_NICK, number.getMembername()));
 
-                        );
                     }
                 });
                 if (ginfo.getMaster().equals("" + number.getUid())) {
@@ -351,7 +360,7 @@ public class GroupInfoMumberActivity extends AppActivity {
         };
 
         msgAction.groupInfo4Db(gid, callBack);
-        msgAction.groupInfo(gid,true, callBack);
+        msgAction.groupInfo(gid, true, callBack);
     }
 
 

@@ -8,12 +8,12 @@ import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
 
-import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.BurnBroadcastReceiver;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 
@@ -144,7 +144,7 @@ public class BurnManager {
             realm.executeTransactionAsync(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
-                    long currentTime = DateUtils.getSystemTime();
+                    long currentTime = SocketData.getFixTime();
                     RealmResults<MsgAllBean> toDeletedResults = realm.where(MsgAllBean.class)
                             .greaterThan("endTime", 0)
                             .lessThanOrEqualTo("endTime", currentTime).findAll();
@@ -239,7 +239,7 @@ public class BurnManager {
                 //删除之后，剩下来的数据，获取距离最近的阅后即焚时间点
                 long nearlyEndTime = toBurnMessages.where().min("endTime").longValue();
                 //大于当前时间
-                if (nearlyEndTime > System.currentTimeMillis()) {
+                if (nearlyEndTime > SocketData.getFixTime()) {
                     if (alarmManager == null)
                         alarmManager = (AlarmManager) MyAppLication.getInstance().getSystemService(Context.ALARM_SERVICE);
                     else alarmManager.cancel(pendingIntent);

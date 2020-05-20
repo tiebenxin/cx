@@ -92,6 +92,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     private Timer mTimer;
     private boolean dontShake = false;//视频播放完成后禁止抖动(暂时处理)
     private boolean pressHOME = false;//监测是否按了HOME键
+    private int from = 0;//默认0 来自收藏详情1
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +108,9 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         msgAllBean = (String) getIntent().getExtras().get("videomsg");
         msg_id = getIntent().getExtras().getString("msg_id");
         bgUrl = getIntent().getExtras().getString("bg_url");
+        if(getIntent().getExtras().getInt("from")!=0){
+            from = getIntent().getExtras().getInt("from");
+        }
         initView();
         initEvent();
         Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
@@ -115,31 +119,38 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             Glide.with(this).load(bgUrl).into(img_bg);
         }
         if (!TextUtils.isEmpty(msgAllBean)) {
-            MsgAllBean msgAllBeanForm = new Gson().fromJson(msgAllBean, MsgAllBean.class);
-            if (mPath.contains("http://")) {
-                downVideo(msgAllBeanForm, msgAllBeanForm.getVideoMessage());
+            if(from==1){
+                VideoMessage videoMessage = new Gson().fromJson(msgAllBean, VideoMessage.class);
+                if (mPath.contains("http://")) {
+                    downVideo(videoMessage);
+                }
+            }else {
+                MsgAllBean msgAllBeanForm = new Gson().fromJson(msgAllBean, MsgAllBean.class);
+                if (mPath.contains("http://")) {
+                    downVideo(msgAllBeanForm.getVideoMessage());
+                }
             }
         }
         MessageManager.getInstance().setCanStamp(false);
     }
 
 
-    private void downVideo(final MsgAllBean msgAllBean, final VideoMessage videoMessage) {
+    private void downVideo(final VideoMessage videoMessage) {
 
         final File appDir = new File(getExternalCacheDir().getAbsolutePath() + "/Mp4/");
         if (!appDir.exists()) {
             appDir.mkdir();
         }
-        final String fileName = MyDiskCache.getFileNmae(msgAllBean.getVideoMessage().getUrl()) + ".mp4";
+        final String fileName = MyDiskCache.getFileNmae(videoMessage.getUrl()) + ".mp4";
         final File fileVideo = new File(appDir, fileName);
 
         try {
-            DownloadUtil.get().downLoadFile(msgAllBean.getVideoMessage().getUrl(), fileVideo, new DownloadUtil.OnDownloadListener() {
+            DownloadUtil.get().downLoadFile(videoMessage.getUrl(), fileVideo, new DownloadUtil.OnDownloadListener() {
                 @Override
                 public void onDownloadSuccess(File file) {
                     videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
                     MsgDao dao = new MsgDao();
-                    dao.fixVideoLocalUrl(msgAllBean.getVideoMessage().getMsgId(), fileVideo.getAbsolutePath());
+                    dao.fixVideoLocalUrl(videoMessage.getMsgId(), fileVideo.getAbsolutePath());
                     MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
                 }
 

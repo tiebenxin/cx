@@ -164,7 +164,8 @@ public class ChatEnum {
      * */
     @IntDef({ECellEventType.TXT_CLICK, ECellEventType.IMAGE_CLICK, ECellEventType.CARD_CLICK, ECellEventType.RED_ENVELOPE_CLICK, ECellEventType.LONG_CLICK, ECellEventType.TRANSFER_CLICK,
             ECellEventType.AVATAR_CLICK, ECellEventType.RESEND_CLICK, ECellEventType.AVATAR_LONG_CLICK, ECellEventType.VOICE_CLICK, ECellEventType.VIDEO_CLICK, ECellEventType.FILE_CLICK,
-            ECellEventType.BALANCE_ASSISTANT_CLICK, ECellEventType.WEB_CLICK, ECellEventType.MULTI_CLICK, ECellEventType.MAP_CLICK, ECellEventType.VOICE_VIDEO_CALL, ECellEventType.EXPRESS_CLICK})
+            ECellEventType.BALANCE_ASSISTANT_CLICK, ECellEventType.WEB_CLICK, ECellEventType.MULTI_CLICK, ECellEventType.MAP_CLICK, ECellEventType.VOICE_VIDEO_CALL, ECellEventType.EXPRESS_CLICK,
+            ECellEventType.REPLY_CLICK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ECellEventType {
         int TXT_CLICK = 0; //点击文本消息
@@ -185,6 +186,7 @@ public class ChatEnum {
         int MAP_CLICK = 15;//位置消息
         int VOICE_VIDEO_CALL = 16;//点击音视频电话消息
         int EXPRESS_CLICK = 17;//点击表情
+        int REPLY_CLICK = 18;//点击回复
     }
 
 
@@ -384,7 +386,7 @@ public class ChatEnum {
      *聊天拓展功能id
      * */
     @IntDef({EFunctionId.GALLERY, EFunctionId.TAKE_PHOTO, EFunctionId.ENVELOPE_SYS, EFunctionId.ENVELOPE_MF, EFunctionId.STAMP, EFunctionId.TRANSFER,
-            EFunctionId.CARD, EFunctionId.VIDEO_CALL, EFunctionId.LOCATION, EFunctionId.GROUP_ASSISTANT, EFunctionId.FILE})
+            EFunctionId.CARD, EFunctionId.VIDEO_CALL, EFunctionId.LOCATION, EFunctionId.GROUP_ASSISTANT, EFunctionId.FILE,EFunctionId.COLLECT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EFunctionId {
         int GALLERY = 1; // 相册
@@ -398,6 +400,7 @@ public class ChatEnum {
         int CARD = 9;//名片
         int GROUP_ASSISTANT = 10;//群助手
         int FILE = 11;//文件
+        int COLLECT = 12;//收藏
     }
 
 
@@ -440,4 +443,6 @@ public class ChatEnum {
         int DISBAND = 1; // 群被解散
         int BANED = 2; // 群被封禁
     }
+
+
 }

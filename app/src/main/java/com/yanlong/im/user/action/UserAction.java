@@ -35,6 +35,7 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.DeviceUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetIntrtceptor;
 import net.cb.cb.library.utils.NetUtil;
@@ -161,7 +162,7 @@ public class UserAction {
     public void login(final String phone, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
 
         cleanInfo();
-        NetUtil.getNet().exec(server.login(MD5.md5(pwd), phone, devid, "android", VersionUtil.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext())), new CallBack<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.login(MD5.md5(pwd), phone, devid, "android", VersionUtil.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext()), DeviceUtils.getIMEI(AppConfig.getContext())), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
@@ -195,7 +196,7 @@ public class UserAction {
     public void login4Imid(final String imid, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
 
         cleanInfo();
-        NetUtil.getNet().exec(server.login4Imid(MD5.md5(pwd), imid, devid, "android", VersionUtil.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext())), new CallBack<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.login4Imid(MD5.md5(pwd), imid, devid, "android", VersionUtil.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext()), DeviceUtils.getIMEI(AppConfig.getContext())), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
@@ -435,7 +436,14 @@ public class UserAction {
      */
     private void initDB(String uuid) {
         LogUtil.getLog().i("dbinfo", ">>>>>>>>>>>>>>>>>>>初始数据库:" + "db_user_" + uuid);
-        DaoUtil.get().initConfig("db_user_" + uuid);
+        int type = SpUtil.getSpUtil().getSPValue("ipType", 0);
+        String appType = "";//服务器类型名称
+        if (type == 1) {
+            appType = "_debug";
+        } else if (type == 2) {
+            appType = "_pre";
+        }
+        DaoUtil.get().initConfig("db_user_" + uuid + appType);
     }
 
     /***
@@ -503,14 +511,6 @@ public class UserAction {
 
                 if (response.body().isOk()) {
                     List<UserInfo> list = response.body().getData();
-                    //TODO zjy 模拟新增文件小助手项 id=3，展示在通讯录，暂无接口
-//                    UserInfo tempUser = new UserInfo();
-//                    tempUser.setName("常信文件传输助手");
-//                    tempUser.setUid(Constants.CX_FILE_HELPER_UID);
-//                    tempUser.setuType(ChatEnum.EUserType.ASSISTANT);
-//                    tempUser.setHead("http://zx-im-img.zhixun6.com/static/%E5%B8%B8%E4%BF%A1%E5%B0%8F%E5%8A%A9%E6%89%8B.png");
-//                    tempUser.setStat(9);
-//                    list.add(tempUser);
                     //更新库
                     dao.friendMeUpdate(list);
 
@@ -585,25 +585,26 @@ public class UserAction {
         NetUtil.getNet().exec(server.userInfoSet(imid, avatar, nickname, gender), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-               try {
-                   if (response.body() == null)
-                       return;
-                   if (response.body().isOk()) {
-                       myInfo = dao.findUserBean(getMyId());
-                       if(myInfo!=null) {
-                           if (!TextUtils.isEmpty(imid))
-                               myInfo.setImid(imid);
-                           if (!TextUtils.isEmpty(avatar))
-                               myInfo.setHead(avatar);
-                           if (!TextUtils.isEmpty(nickname))
-                               myInfo.setName(nickname);
-                           if (gender != null)
-                               myInfo.setSex(gender);
-                           updateUser2DB(myInfo);
-                           upMyinfoToPay();
-                       }
-                   }
-               }catch (Exception e){}
+                try {
+                    if (response.body() == null)
+                        return;
+                    if (response.body().isOk()) {
+                        myInfo = dao.findUserBean(getMyId());
+                        if (myInfo != null) {
+                            if (!TextUtils.isEmpty(imid))
+                                myInfo.setImid(imid);
+                            if (!TextUtils.isEmpty(avatar))
+                                myInfo.setHead(avatar);
+                            if (!TextUtils.isEmpty(nickname))
+                                myInfo.setName(nickname);
+                            if (gender != null)
+                                myInfo.setSex(gender);
+                            updateUser2DB(myInfo);
+                            upMyinfoToPay();
+                        }
+                    }
+                } catch (Exception e) {
+                }
                 callback.onResponse(call, response);
             }
         });
@@ -640,7 +641,7 @@ public class UserAction {
      */
     public void register(String phone, String captcha, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
         cleanInfo();
-        NetUtil.getNet().exec(server.register(phone, captcha, "android", devid, VersionUtil.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext())), new CallBack<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.register(phone, captcha, "android", devid, VersionUtil.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext()), DeviceUtils.getIMEI(AppConfig.getContext())), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 super.onResponse(call, response);
@@ -666,7 +667,7 @@ public class UserAction {
      */
     public void login4Captch(final String phone, String captcha, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
         cleanInfo();
-        NetUtil.getNet().exec(server.login4Captch(phone, captcha, "android", devid, VersionUtil.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext())), new Callback<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.login4Captch(phone, captcha, "android", devid, VersionUtil.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext()), DeviceUtils.getIMEI(AppConfig.getContext())), new Callback<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
@@ -927,9 +928,9 @@ public class UserAction {
     /**
      * 上报用户地理位置信息 5/8新增昵称 手机等信息
      */
-    public void postLocation(String city, String country, String lat, String lon,String nickname
-            ,String phoneModel,String phone, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.postLocation(city, country, lat, lon,nickname,phoneModel,phone), callback);
+    public void postLocation(String city, String country, String lat, String lon, String nickname
+            , String phoneModel, String phone, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.postLocation(city, country, lat, lon, nickname, phoneModel, phone), callback);
     }
 
     /**
@@ -962,8 +963,8 @@ public class UserAction {
     /**
      * 上报IP
      */
-    public void reportIP(String ip, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.reportIPChange(ip), callback);
+    public void reportIP(String ip, String phoneModel, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.reportIPChange(ip, phoneModel), callback);
     }
 
     private static UserBean convertToUserBean(UserInfo info) {

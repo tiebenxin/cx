@@ -67,7 +67,7 @@ public class QRCodeManage {
     public static final String DOWNLOAD_APP_URL = "https://www.zln365.com"; //下载地址
     public static final String PC_LOGIN_URL = "cx://login/"; //扫码登录地址
     private static String code = "";//扫码后的code
-    private static String synck = "0";//是否同步  1同步 0不同步
+    private static String synck = "1";//是否同步  1同步 0不同步  默认改为同步
 
 
     /**
@@ -211,7 +211,8 @@ public class QRCodeManage {
         } else {
             String text = result.getText();
             if (text.contains("qr.alipay.com") || text.contains("QR.ALIPAY.COM")) {
-                openAliPay2Pay(mContext, text);
+//                openAliPay2Pay(mContext, text);
+                ToastUtil.show(mContext, "识别二维码失败");
             } else if (text.contains(DOWNLOAD_APP_URL)) {
                 openUri(mContext, text);
             } else {
@@ -228,7 +229,8 @@ public class QRCodeManage {
             ToastUtil.show(mContext, "识别二维码失败");
         } else {
             if (result.contains("qr.alipay.com") || result.contains("QR.ALIPAY.COM")) {
-                openAliPay2Pay(mContext, result);
+//                openAliPay2Pay(mContext, result);
+                ToastUtil.show(mContext, "识别二维码失败");
             } else if (result.contains(DOWNLOAD_APP_URL)) {
                 openUri(mContext, result);
             } else if (result.contains(PC_LOGIN_URL)) {
@@ -316,7 +318,6 @@ public class QRCodeManage {
      * 扫码登录弹框(特殊样式/暂不复用/加底部弹出动画效果)
      */
     private static void showSweepCodeLoginDialog(Activity activity) {
-        synck = "0";
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setCancelable(true);
         final AlertDialog dialog = dialogBuilder.create();

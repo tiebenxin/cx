@@ -430,9 +430,14 @@ public class SocketData {
         int survivalTime = new UserDao().getReadDestroy(toId, toGid);
         wrap.setSurvivalTime(survivalTime);
         wrap.setTimestamp(time);
-        if (toId != null && toId > 0) {//给个人发
-//            msg.setToUid(toId);
-            wrap.setToUid(toId);
+        if (toId != null) {//给个人发
+            //是否是文件传输助手消息
+            if (UserAction.getMyId() != null && toId.longValue() == -UserAction.getMyId()) {
+                wrap.setToUid(UserAction.getMyId());
+            } else {
+                wrap.setToUid(toId);
+            }
+
         }
         if (toGid != null && toGid.length() > 0) {//给群发
             wrap.setGid(toGid);
@@ -1555,6 +1560,12 @@ public class SocketData {
                     }
 
                 }
+                //群聊 立即更新阅后即焚
+                if (!TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getSurvival_time() > 0) {
+                    long now = System.currentTimeMillis();
+                    msgAllBean.setStartTime(now);
+                    msgAllBean.setEndTime(now + (msgAllBean.getSurvival_time() * 1000));
+                }
                 DaoUtil.update(msgAllBean);
                 if (msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {
                     /********通知更新sessionDetail************************************/
@@ -1953,6 +1964,16 @@ public class SocketData {
                         }
                     }
                     break;
+                case ChatEnum.EMessageType.WEB:// 网页消息
+                    WebMessage webMessage = bean.getWebMessage();
+//                    MsgBean.SendFileMessage.Builder fileBuilder = MsgBean.SendFileMessage.newBuilder();
+//                    fileBuilder.setFileName(fileMessage.getFile_name())
+//                            .setUrl(fileMessage.getUrl())
+//                            .setSize(new Long(fileMessage.getSize()).intValue())
+//                            .setFormat(fileMessage.getFormat());
+//                    value = fileBuilder.build();
+//                    type = MsgBean.MessageType.SEND_FILE;
+                    break;
             }
             return this;
         }
@@ -2070,7 +2091,9 @@ public class SocketData {
                     msg = at.getMsg();
                     break;
                 case ChatEnum.EMessageType.BUSINESS_CARD://名片
-
+                    BusinessCardMessage card = bean.getBusiness_card();
+                    url = card.getAvatar();
+                    msg = card.getNickname() + "的名片";
                     break;
                 case ChatEnum.EMessageType.STAMP://戳一戳
                     StampMessage stamp = bean.getStamp();
@@ -2097,7 +2120,8 @@ public class SocketData {
                     break;
                 case ChatEnum.EMessageType.FILE:// 文件
                     SendFileMessage fileMessage = bean.getSendFileMessage();
-                    url = fileMessage.getUrl();
+                    msg = fileMessage.getFile_name();
+                    url = fileMessage.getFormat();
                     break;
                 case ChatEnum.EMessageType.TRANSFER_NOTICE://转账提醒
 
@@ -2173,6 +2197,9 @@ public class SocketData {
             case TRANS_NOTIFY:
                 messageType = ChatEnum.EMessageType.TRANSFER_NOTICE;
                 break;
+            case SEND_FILE:
+                messageType = ChatEnum.EMessageType.FILE;
+                break;
         }
         return messageType;
     }
@@ -2229,8 +2256,46 @@ public class SocketData {
             case ChatEnum.EMessageType.TRANSFER_NOTICE:
                 messageType = MsgBean.MessageType.TRANS_NOTIFY;
                 break;
+            case ChatEnum.EMessageType.FILE:
+                messageType = MsgBean.MessageType.SEND_FILE;
+                break;
         }
         return messageType;
+    }
+
+    public static String getMsg(MsgAllBean bean) {
+        String msg = "";
+        if (bean == null) {
+            return msg;
+        }
+        int msgType = bean.getMsg_type();
+        switch (msgType) {
+            case ChatEnum.EMessageType.TEXT://文本
+                ChatMessage chat = bean.getChat();
+                msg = chat.getMsg();
+                break;
+            case ChatEnum.EMessageType.AT://@
+                AtMessage at = bean.getAtMessage();
+                msg = at.getMsg();
+                break;
+            case ChatEnum.EMessageType.STAMP://戳一戳
+                StampMessage stamp = bean.getStamp();
+                msg = stamp.getComment();
+                break;
+            case ChatEnum.EMessageType.MSG_VOICE_VIDEO:
+                P2PAuVideoMessage p2pMessage = bean.getP2PAuVideoMessage();
+                msg = p2pMessage.getDesc();
+                break;
+            case ChatEnum.EMessageType.REPLY:
+                ReplyMessage replyMessage = bean.getReplyMessage();
+                if (replyMessage.getChatMessage() != null) {
+                    msg = replyMessage.getChatMessage().getMsg();
+                } else if (replyMessage.getAtMessage() != null) {
+                    msg = replyMessage.getAtMessage().getMsg();
+                }
+                break;
+        }
+        return msg;
     }
 
 

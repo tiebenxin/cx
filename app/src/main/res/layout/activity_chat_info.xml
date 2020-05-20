@@ -229,6 +229,7 @@
                             style="@style/app_txt_title_2"
                             android:layout_marginRight="@dimen/app_margin_item"
                             android:layout_weight="1"
+                            android:gravity="center"
                             android:text="清空聊天记录" />
 
                     </LinearLayout>
@@ -238,7 +239,7 @@
                     android:id="@+id/tv_two_way_clear_chat"
                     android:layout_width="match_parent"
                     android:layout_height="48dip"
-                    android:gravity="center_vertical"
+                    android:gravity="center"
                     android:background="@drawable/item_default_trans"
                     android:text="@string/two_way_clear_chat"
                     android:visibility="gone"

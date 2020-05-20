@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.dao;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.hm.cxpay.global.PayEnum;
 import com.yanlong.im.MyAppLication;
@@ -11,6 +12,7 @@ import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.ChangeSurvivalTimeMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
+import com.yanlong.im.chat.bean.CollectSendFileMessage;
 import com.yanlong.im.chat.bean.EnvelopeInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
@@ -33,6 +35,7 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
+import com.yanlong.im.user.bean.CollectionInfo;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
@@ -247,6 +250,8 @@ public class MsgDao {
         MsgAllBean msgAllBean = realm.where(MsgAllBean.class)
                 .equalTo("msg_id", msgid).findFirst();
         if (msgAllBean != null) {
+            msgAllBean.setRead(1);
+            msgAllBean.setReadTime(startTime);
             msgAllBean.setEndTime(time);
             msgAllBean.setStartTime(startTime);
             realm.insertOrUpdate(msgAllBean);
@@ -537,7 +542,6 @@ public class MsgDao {
             DaoUtil.reportException(e);
         }
     }
-
 
     /***
      * 离线获取群信息
@@ -993,20 +997,42 @@ public class MsgDao {
                 msg = realm.where(MsgAllBean.class)
                         .equalTo("gid", gid)
                         .and()
-                        .equalTo("msg_type", 1)
+                        .in("msg_type", new Integer[]{1, 2, 8, 20})
                         .and()
+                        .beginGroup()
                         .contains("chat.msg", key, Case.INSENSITIVE)
+                        .or()
+                        .contains("atMessage.msg", key, Case.INSENSITIVE)
+                        .or()
+                        .contains("stamp.comment", key, Case.INSENSITIVE)
+                        .or()
+                        .contains("replyMessage.chatMessage.msg", key, Case.INSENSITIVE)
+                        .or()
+                        .contains("replyMessage.atMessage.msg", key, Case.INSENSITIVE)
+                        .endGroup()
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
             } else {//单人
                 msg = realm.where(MsgAllBean.class)
-                        .equalTo("gid", "")
-                        .and()
-                        .equalTo("msg_type", 1)
-                        .and()
-                        .contains("chat.msg", key, Case.INSENSITIVE)
+                        .beginGroup()
+                        .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
                         .and()
                         .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                        .endGroup()
+                        .and()
+                        .in("msg_type", new Integer[]{1, 2, 8, 20})
+                        .and()
+                        .beginGroup()
+                        .contains("chat.msg", key, Case.INSENSITIVE)
+                        .or()
+                        .contains("atMessage.msg", key, Case.INSENSITIVE)
+                        .or()
+                        .contains("stamp.comment", key, Case.INSENSITIVE)
+                        .or()
+                        .contains("replyMessage.chatMessage.msg", key, Case.INSENSITIVE)
+                        .or()
+                        .contains("replyMessage.atMessage.msg", key, Case.INSENSITIVE)
+                        .endGroup()
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
             }
@@ -1895,6 +1921,7 @@ public class MsgDao {
                     .beginGroup().notEqualTo("read", 1).endGroup()
                     .findAll();
             if (friendChatMessages != null) {
+                Log.e("raleigh_test","size"+friendChatMessages.size());
                 //每次修改后，friendChatMessages的size 会变化，直到全部修改完，friendChatMessages的size 为0
                 while (friendChatMessages.size() != 0) {
                     MsgAllBean msgAllBean = friendChatMessages.get(0);
@@ -3782,6 +3809,89 @@ public class MsgDao {
             DaoUtil.reportException(e);
         }
         return ret;
+    }
+
+    /**
+     * 删除收藏记录
+     *
+     * @param msgId
+     */
+    public void deleteCollectionInfo(String msgId) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            realm.where(CollectionInfo.class).equalTo("msgId", msgId).findAll().deleteAllFromRealm();
+            realm.commitTransaction();
+        } catch (Exception e) {
+            DaoUtil.reportException(e);
+        } finally {
+            realm.close();
+        }
+    }
+
+    /***
+     * 保存收藏信息
+     * @param
+     */
+    public void saveCollection(CollectionInfo collectionInfo) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            realm.insertOrUpdate(collectionInfo);
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
+    /**
+     * 查询收藏数据
+     *
+     * @param value
+     * @return
+     */
+    public List<CollectionInfo> findCollectionInfo(String value) {
+        Realm realm = DaoUtil.open();
+        List<CollectionInfo> ret = null;
+        try {
+            ret = new ArrayList<>();
+            RealmResults<CollectionInfo> collectList = null;
+//            if(StringUtil.isNotNull(value)){
+//                users = realm.where(CollectionInfo.class).contains("collectionContent",value).or().contains("name",value)
+//                        .sort("createTime", Sort.DESCENDING).findAll();
+//            }else{
+            collectList = realm.where(CollectionInfo.class).sort("createTime", Sort.DESCENDING).findAll();
+//            }
+            if (collectList != null)
+                ret = realm.copyFromRealm(collectList);
+        } catch (Exception e) {
+            DaoUtil.reportException(e);
+        } finally {
+            realm.close();
+        }
+        return ret;
+    }
+
+    /**
+     * 保存收藏的文件消息
+     *
+     * @param fileMessage
+     */
+    public void saveCollectFileMsg(CollectSendFileMessage fileMessage) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            realm.insertOrUpdate(fileMessage);
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
     }
 
 

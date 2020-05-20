@@ -2,6 +2,8 @@ package net.cb.cb.library.utils;
 
 import android.util.Log;
 
+import net.cb.cb.library.manager.excutor.ExecutorManager;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -132,7 +134,7 @@ public class LogUtil {
      * @param value
      */
     public synchronized static void writeLog(final String value) {
-        new Thread(new Runnable() {
+        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -143,7 +145,7 @@ public class LogUtil {
                     String moment = momentFormat.format(curDate);
                     StringBuffer sb = new StringBuffer();
                     sb.append(moment + "  " + value + "\n");
-                    File file = new File(FileConfig.PATH_LOG + "log" + day+".txt");
+                    File file = new File(FileConfig.PATH_LOG + "log" + day + ".txt");
                     if (!file.exists()) {
                         file.createNewFile();
                     }
@@ -155,7 +157,7 @@ public class LogUtil {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        });
     }
 
     /**
@@ -164,7 +166,7 @@ public class LogUtil {
      * @param value
      */
     public synchronized static void writeEnvelopeLog(final String value) {
-        new Thread(new Runnable() {
+        ExecutorManager.INSTANCE.getNormalThread().execute(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -175,7 +177,7 @@ public class LogUtil {
                     String moment = momentFormat.format(curDate);
                     StringBuffer sb = new StringBuffer();
                     sb.append(moment + "  " + value + "\n");
-                    File file = new File(FileConfig.PATH_LOG + "envelope" +".txt");
+                    File file = new File(FileConfig.PATH_LOG + "envelope" + ".txt");
                     if (!file.exists()) {
                         file.createNewFile();
                     }
@@ -187,7 +189,7 @@ public class LogUtil {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        });
     }
 
 

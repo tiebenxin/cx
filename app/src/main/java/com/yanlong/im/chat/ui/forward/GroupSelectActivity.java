@@ -177,7 +177,6 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
             @Override
             public void onYes(String content) {
                 send(content, uid, gid);
-
                 ToastUtil.show(GroupSelectActivity.this, getResources().getString(net.cb.cb.library.R.string.forward_success));
                 finish();
             }

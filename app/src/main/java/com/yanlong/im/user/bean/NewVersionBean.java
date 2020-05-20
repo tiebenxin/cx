@@ -12,6 +12,7 @@ public class NewVersionBean extends BaseBean {
     private String url;
     private int forceUpdate;
     private String publishTime;
+    private String minEscapeVersion;//最小不强制升级版本
 
     public int getId() {
         return id;
@@ -67,5 +68,13 @@ public class NewVersionBean extends BaseBean {
 
     public void setPublishTime(String publishTime) {
         this.publishTime = publishTime;
+    }
+
+    public String getMinEscapeVersion() {
+        return minEscapeVersion;
+    }
+
+    public void setMinEscapeVersion(String minEscapeVersion) {
+        this.minEscapeVersion = minEscapeVersion;
     }
 }
