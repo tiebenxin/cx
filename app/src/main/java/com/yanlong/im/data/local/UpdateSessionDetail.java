@@ -2,7 +2,6 @@ package com.yanlong.im.data.local;
 
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -123,7 +122,6 @@ public class UpdateSessionDetail {
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                Log.e("raleigh_test"," updateSelfGroup start");
                 RealmResults<Session> groupSessions = realm.where(Session.class).isNotEmpty("gid").findAll();
                 for (Session session : groupSessions) {
                     synchGroupMsgSession(realm, session, null);
@@ -132,12 +130,10 @@ public class UpdateSessionDetail {
         }, new Realm.Transaction.OnSuccess() {
             @Override
             public void onSuccess() {
-                Log.e("raleigh_test"," updateSelfGroup onSuccess");
             }
         }, new Realm.Transaction.OnError() {
             @Override
             public void onError(Throwable error) {
-                Log.e("raleigh_test"," updateSelfGroup error");
             }
         });
     }
