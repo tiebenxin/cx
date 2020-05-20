@@ -80,7 +80,6 @@ import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
-import com.luck.picture.lib.tools.DateUtils;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.BuildConfig;
@@ -426,7 +425,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         findViews();
         initObserver();
         initEvent();
-        initSurvivaltime4Uid();
         getOftenUseFace();
     }
 
@@ -855,9 +853,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                     //群聊自己发送的消息直接加入阅后即焚队列
                     MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsgId(0));
-                    if (isGroup()) {
-                        addSurvivalTime(msgAllBean);
-                    }
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
                         taskRefreshMessage(false);
                     } else {
@@ -1001,9 +996,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     }
                     //群聊自己发送的消息直接加入阅后即焚队列
                     MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsgId(0));
-                    if (isGroup()) {
-                        addSurvivalTime(msgAllBean);
-                    }
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
                         taskRefreshMessage(false);
                     } else {
@@ -2695,13 +2687,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }).start();
     }
 
-    //单聊获取已读阅后即焚消息
-    private void initSurvivaltime4Uid() {
-        if (!isGroup()) {
-            List<MsgAllBean> list = msgDao.getMsg4SurvivalTimeAndRead(toUId);
-            addSurvivalTimeForList(list);
-        }
-    }
 
 
     private void initUnreadCount() {
@@ -4968,48 +4953,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
             }
         });
-    }
-
-    /**
-     * 添加阅读即焚消息到队列
-     */
-    public void addSurvivalTime(MsgAllBean msgbean) {
-        boolean isGroup = isGroup();
-        boolean isMe = msgbean.isMe();
-        //单聊 自己发的消息，需等待对方已读
-        boolean checkNotGroupAndNotRead = !isGroup && isMe && msgbean.getRead() != 1;
-        if (msgbean == null || msgbean.getEndTime() > 0 || msgbean.getSend_state() != ChatEnum.ESendStatus.NORMAL
-                || checkNotGroupAndNotRead) {
-            return;
-        }
-        //单聊使用已读时间作为焚开始时间
-        long date = msgbean.getReadTime();
-
-        //群聊暂时不处理（待后期策略）
-        if (isGroup || date == 0) {
-            date = DateUtils.getSystemTime();
-        }
-        if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0) {
-            msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000), date, msgbean.getMsg_id());
-            msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
-            msgbean.setStartTime(date);
-        }
-    }
-
-
-    public void addSurvivalTimeForList(List<MsgAllBean> list) {
-        if (list == null && list.size() == 0) {
-            return;
-        }
-        for (int i = 0; i < list.size(); i++) {
-            MsgAllBean msgbean = list.get(i);
-            if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0) {
-                long date = DateUtils.getSystemTime();
-                msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000), date, msgbean.getMsg_id());
-                msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
-                msgbean.setStartTime(date);
-            }
-        }
     }
 
     /*
