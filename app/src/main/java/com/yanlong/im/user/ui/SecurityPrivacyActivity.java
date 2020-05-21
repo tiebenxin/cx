@@ -34,6 +34,7 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
     private CheckBox mCbVerification;
     private LinearLayout mViewSettingPassword;
     private LinearLayout mViewBlacklist;
+    private LinearLayout viewSafeCenter;
     private HeadView mHeadView;
     private UserAction userAction;
     private UserBean userInfo;
@@ -60,13 +61,15 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
         mViewSettingPassword = findViewById(R.id.view_setting_password);
         mViewBlacklist = findViewById(R.id.view_blacklist);
         mHeadView = findViewById(R.id.headView);
-        ckSetRead =  findViewById(R.id.ck_set_read);
+        ckSetRead = findViewById(R.id.ck_set_read);
+        viewSafeCenter = findViewById(R.id.view_safe_center);
     }
 
 
     private void initEvent() {
         mViewSettingPassword.setOnClickListener(this);
         mViewBlacklist.setOnClickListener(this);
+        viewSafeCenter.setOnClickListener(this);
         mCbFindPhone.setOnCheckedChangeListener(this);
         mCbFindProductNumber.setOnCheckedChangeListener(this);
         mCbVerification.setOnCheckedChangeListener(this);
@@ -130,6 +133,9 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
                 break;
             case R.id.view_blacklist:
                 go(BlacklistActivity.class);
+                break;
+            case R.id.view_safe_center:
+                go(SafetyCenterActivity.class);
                 break;
         }
     }
@@ -228,14 +234,14 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
     }
 
     //已读
-    private void taskUserMaskRead(int switchval, int avatar){
+    private void taskUserMaskRead(int switchval, int avatar) {
         userAction.userMaskSet(switchval, avatar, new CallBack4Btn<ReturnBean>(ckSetRead) {
             @Override
             public void onResp(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
                     return;
                 }
-                EventBus.getDefault().post(new EventIsShowRead(userInfo.getUid().longValue(), EventIsShowRead.EReadSwitchType.SWITCH_MASTER,switchval));
+                EventBus.getDefault().post(new EventIsShowRead(userInfo.getUid().longValue(), EventIsShowRead.EReadSwitchType.SWITCH_MASTER, switchval));
 //                if (userInfo.getMasterRead() == 0) {
 //                    userInfo.setMasterRead(1);
 //                    userDao.updateUserBean(userInfo);
@@ -284,9 +290,6 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
             }
         });
     }
-
-
-
 
 
 }
