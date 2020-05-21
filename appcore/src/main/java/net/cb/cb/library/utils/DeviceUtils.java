@@ -119,6 +119,7 @@ public class DeviceUtils {
         }
     }
 
+    @SuppressLint("HardwareIds")
     public static String getIMEI(Context context) {
         String imei = "";
         try {
@@ -132,16 +133,33 @@ public class DeviceUtils {
                     //                                          int[] grantResults)
                     // to handle the case where the user grants the permission. See the documentation
                     // for ActivityCompat#requestPermissions for more details.
+                    imei = android.os.Build.SERIAL;
                     return imei;
                 }
-                imei = tm.getDeviceId();
+                if (!TextUtils.isEmpty(tm.getDeviceId())) {
+                    imei = tm.getDeviceId();
+                } else {
+                    imei = android.os.Build.SERIAL;
+                }
             } else {
                 Method method = tm.getClass().getMethod("getImei");
                 imei = (String) method.invoke(tm);
+                if (TextUtils.isEmpty(imei)) {
+                    imei = android.os.Build.SERIAL;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return imei;
+    }
+
+    /**
+     * 获取当前手机系统版本号
+     *
+     * @return 系统版本号
+     */
+    public static String getSystemVersion() {
+        return android.os.Build.VERSION.RELEASE;
     }
 }
