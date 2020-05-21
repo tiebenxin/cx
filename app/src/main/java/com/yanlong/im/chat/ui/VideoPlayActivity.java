@@ -225,7 +225,37 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                mMediaPlayer.start();
+                if(mTimer==null){ //如果恢复播放后，直接拖动进度条，此时没有继续计时，则需要重新计时
+                    try {
+                        if(mMediaPlayer==null){
+                            mMediaPlayer = new MediaPlayer();
+                        }
+                        mMediaPlayer.reset();
+                        mMediaPlayer.setDataSource(mPath);
+                        mMediaPlayer.setDisplay(textureView.getHolder());
+                        mMediaPlayer.setLooping(false);
+                        mMediaPlayer.prepareAsync();
+                        mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                            @Override
+                            public void onPrepared(MediaPlayer mp) {
+                                mMediaPlayer.seekTo(mLastTime);
+                                mMediaPlayer.start();
+                                getProgress();
+                            }
+                        });
+                        mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                            @Override
+                            public boolean onError(MediaPlayer mp, int what, int extra) {
+
+                                return false;
+                            }
+                        });
+                    } catch (Exception e) {
+                        LogUtil.getLog().d("TAG",e.getMessage());
+                    }
+                }else {
+                    mMediaPlayer.start();
+                }
                 activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
             }
         });
@@ -486,6 +516,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     }
                 }
                 break;
+
             case R.id.activity_video_img_close:
                 if (null != mMediaPlayer) {
                     mMediaPlayer.stop();
@@ -608,11 +639,14 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
+        mMediaPlayer.setDisplay(holder);
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
+        if(mMediaPlayer!=null && mMediaPlayer.isPlaying()){
+            mMediaPlayer.pause();
+        }
 
     }
 
