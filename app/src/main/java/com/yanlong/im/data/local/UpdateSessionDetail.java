@@ -31,14 +31,16 @@ import io.realm.Sort;
  */
 public class UpdateSessionDetail {
     private Realm realm = null;
-    private Handler handler=new Handler();
+    private Handler handler = new Handler();
     //最大重试次数,刚启动Application时，数据库事务无法立即建立，会出现事务异常
-    private final int MAX_UPDATE_RETRY_TIMES=3;
+    private final int MAX_UPDATE_RETRY_TIMES = 3;
     //update(String[] sids) 重试次数
-    private int updateSidsTimes=0;
+    private int updateSidsTimes = 0;
+
     public UpdateSessionDetail(@NonNull Realm realm) {
         this.realm = realm;
     }
+
     public void update(String[] sids) {
         //通过使用异步事务，Realm 会在后台线程中进行写入操作，并在事务完成时将结果传回调用线程。
         realm.executeTransactionAsync(new Realm.Transaction() {
@@ -60,22 +62,22 @@ public class UpdateSessionDetail {
         }, new Realm.Transaction.OnSuccess() {
             @Override
             public void onSuccess() {
-                updateSidsTimes=0;
+                updateSidsTimes = 0;
             }
         }, new Realm.Transaction.OnError() {
             @Override
             public void onError(Throwable error) {
-                if(updateSidsTimes<MAX_UPDATE_RETRY_TIMES){
+                if (updateSidsTimes < MAX_UPDATE_RETRY_TIMES) {
                     //1，秒后重试
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             update(sids);
                         }
-                    },1000);
+                    }, 1000);
                     updateSidsTimes++;
-                }else{//超过最大次数，不再重试
-                    updateSidsTimes=0;
+                } else {//超过最大次数，不再重试
+                    updateSidsTimes = 0;
                 }
 
             }
@@ -232,12 +234,12 @@ public class UpdateSessionDetail {
             if (msg != null) {
                 sessionMore.setMessage(msg);
                 sessionMore.setMessageContent(msg.getMsg_typeStr());
-                if(msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL){//最后一条是撤销消息，去掉红色标志
-                    if(session.getMessageType()!=1000)session.setMessageType(1000);
+                if (msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {//最后一条是撤销消息，去掉红色标志
+                    if (session.getMessageType() != 1000) session.setMessageType(1000);
                 }
 
                 //若消息时间大于session时间，则更新（为处理本地创建的消息）
-                if(msg.getTimestamp()>session.getUp_time()){
+                if (msg.getTimestamp() > session.getUp_time()) {
                     session.setUp_time(msg.getTimestamp());
                 }
                 if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL) {//通知不要加谁发的消息
@@ -247,7 +249,7 @@ public class UpdateSessionDetail {
                         //8.9 处理群昵称
                         String name = getUsername4Show(realm, msg.getGid(), msg.getFrom_uid(), msg.getFrom_nickname(), msg.getFrom_group_nickname()) + " : ";
                         sessionMore.setSenderName(name);
-                    }else{
+                    } else {
                         sessionMore.setSenderName("");
                     }
                 }
@@ -296,7 +298,7 @@ public class UpdateSessionDetail {
 
             if (msg != null) {
                 //若消息时间大于session时间，则更新（为处理本地创建的消息）
-                if(msg.getTimestamp()>session.getUp_time()){
+                if (msg.getTimestamp() > session.getUp_time()) {
                     session.setUp_time(msg.getTimestamp());
                 }
                 sessionMore.setMessage(msg);
@@ -318,36 +320,38 @@ public class UpdateSessionDetail {
      */
     public String getUsername4Show(Realm realm, String gid, Long uid, String uname, String groupName) {
         String name = "";
-        UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
-        if (userInfo != null) {
-            //1.获取本地用户昵称
-            name = userInfo.getName();
-            //1.5如果有带过来的昵称先显示昵称
-            name = StringUtil.isNotNull(uname) ? uname : name;
+        try {
+            UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+            if (userInfo != null) {
+                //1.获取本地用户昵称
+                name = userInfo.getName();
+                //1.5如果有带过来的昵称先显示昵称
+                name = StringUtil.isNotNull(uname) ? uname : name;
 
-            //1.8  如果有带过来的群昵称先显示群昵称
-            if (StringUtil.isNotNull(groupName)) {
-                name = groupName;
+                //1.8  如果有带过来的群昵称先显示群昵称
+                if (StringUtil.isNotNull(groupName)) {
+                    name = groupName;
+                } else {
+                    MemberUser memberUser = realm.where(MemberUser.class)
+                            .beginGroup().equalTo("uid", uid).endGroup()
+                            .beginGroup().equalTo("gid", gid).endGroup()
+                            .findFirst();
+                    if (memberUser != null) {
+                        name = StringUtil.isNotNull(memberUser.getMembername()) ? memberUser.getMembername() : name;
+                    }
+                }
+                //3.获取用户备注名
+                name = StringUtil.isNotNull(userInfo.getMkName()) ? userInfo.getMkName() : name;
             } else {
                 MemberUser memberUser = realm.where(MemberUser.class)
                         .beginGroup().equalTo("uid", uid).endGroup()
                         .beginGroup().equalTo("gid", gid).endGroup()
                         .findFirst();
                 if (memberUser != null) {
-                    name = StringUtil.isNotNull(memberUser.getMembername()) ? memberUser.getMembername() : name;
+                    name = StringUtil.isNotNull(memberUser.getMembername()) ? memberUser.getMembername() : memberUser.getName();
                 }
             }
-            //3.获取用户备注名
-            name = StringUtil.isNotNull(userInfo.getMkName()) ? userInfo.getMkName() : name;
-        } else {
-            MemberUser memberUser = realm.where(MemberUser.class)
-                    .beginGroup().equalTo("uid", uid).endGroup()
-                    .beginGroup().equalTo("gid", gid).endGroup()
-                    .findFirst();
-            if (memberUser != null) {
-                name = StringUtil.isNotNull(memberUser.getMembername()) ? memberUser.getMembername() : memberUser.getName();
-            }
-        }
+        }catch (Exception e){}
         return name;
     }
 
@@ -356,22 +360,25 @@ public class UpdateSessionDetail {
      * */
     public String getGroupName(Group group) {
         String result = "";
-        result = group.getName();
-        if (TextUtils.isEmpty(result)) {
-            List<MemberUser> users = group.getUsers();
-            if (users != null && users.size() > 0) {
-                int len = users.size();
-                for (int i = 0; i < len; i++) {
-                    MemberUser info = users.get(i);
-                    if (i == len - 1) {
-                        result += StringUtil.getUserName("", info.getMembername(), info.getName(), info.getUid());
-                    } else {
-                        result += StringUtil.getUserName(/*info.getMkName()*/"", info.getMembername(), info.getName(), info.getUid()) + "、";
+        try {
+            result = group.getName();
+            if (TextUtils.isEmpty(result)) {
+                List<MemberUser> users = group.getUsers();
+                if (users != null && users.size() > 0) {
+                    int len = users.size();
+                    for (int i = 0; i < len; i++) {
+                        MemberUser info = users.get(i);
+                        if (i == len - 1) {
+                            result += StringUtil.getUserName("", info.getMembername(), info.getName(), info.getUid());
+                        } else {
+                            result += StringUtil.getUserName(/*info.getMkName()*/"", info.getMembername(), info.getName(), info.getUid()) + "、";
+                        }
                     }
+                    result = result.length() > 14 ? StringUtil.splitEmojiString2(result, 0, 14) : result;
+                    result += "的群";
                 }
-                result = result.length() > 14 ? StringUtil.splitEmojiString2(result, 0, 14) : result;
-                result += "的群";
             }
+        } catch (Exception e) {
         }
         return result;
     }
