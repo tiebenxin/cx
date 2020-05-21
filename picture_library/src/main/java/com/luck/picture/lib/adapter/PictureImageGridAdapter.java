@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -31,8 +33,10 @@ import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.StringUtils;
 import com.luck.picture.lib.tools.ToastManage;
 import com.luck.picture.lib.tools.VoiceUtils;
+import com.luck.picture.lib.utils.PicImgSizeUtil;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -212,6 +216,23 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                         if (!new File(path).exists()) {
                             ToastManage.s(context, PictureMimeType.s(context, mediaMimeType));
                             return;
+                        }
+                        if(mediaMimeType == PictureConfig.TYPE_VIDEO){
+                            if(!TextUtils.isEmpty(path)){
+                                long length = PicImgSizeUtil.getVideoSize(path);
+                                long duration = Long.parseLong(getVideoAtt(path));
+                                // 大于50M、5分钟不发送
+                                if (PicImgSizeUtil.formetFileSize(length) > 50) {
+                                    Toast.makeText(context, "不能选择超过50M的视频", Toast.LENGTH_SHORT)
+                                            .show();
+                                    return;
+                                }
+                                if (duration > 5 * 60000) {
+                                    Toast.makeText(context, "不能选择超过5分钟的视频", Toast.LENGTH_SHORT)
+                                            .show();
+                                    return;
+                                }
+                            }
                         }
                         changeCheckboxState(contentHolder, image);
                     }
@@ -468,5 +489,23 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
             return true;
         }
         return false;
+    }
+
+    private String getVideoAtt(String mUri) {
+        String duration = null;
+        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+        try {
+            if (mUri != null) {
+                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
+                mmr.setDataSource(inputStream.getFD());
+            }
+            duration = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
+
+        } catch (Exception ex) {
+            Log.e("TAG", "MediaMetadataRetriever exception " + ex);
+        } finally {
+            mmr.release();
+        }
+        return duration;
     }
 }

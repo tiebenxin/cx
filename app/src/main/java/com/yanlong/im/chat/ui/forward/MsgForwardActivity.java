@@ -1095,7 +1095,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                             ToastUtil.show("路径解析异常，分享失败");
                         } /*else {
                             if (mediaType == CxMediaMessage.EMediaType.IMAGE) {
-                                ImgSizeUtil.ImageSize imgSize = ImgSizeUtil.getAttribute(filePath);
+                                PicImgSizeUtil.ImageSize imgSize = PicImgSizeUtil.getAttribute(filePath);
                                 if (imgSize == null) {
                                     filePath = "";
                                     return;

@@ -356,103 +356,105 @@ public class MsgAllBean extends RealmObject implements IChatModel {
      */
     public String getMsg_typeStr() {
         String str = "";
-        if (msg_type == ChatEnum.EMessageType.NOTICE) {
-            //公告:
-            //8.9 过滤拉人通知里面的颜色标签
-            if (getMsgNotice() != null) {
-                str = "" + StringUtil.delHTMLTag(getMsgNotice().getNote());
+        try {
+            if (msg_type == ChatEnum.EMessageType.NOTICE) {
+                //公告:
+                //8.9 过滤拉人通知里面的颜色标签
+                if (getMsgNotice() != null) {
+                    str = "" + StringUtil.delHTMLTag(getMsgNotice().getNote());
+                }
+            } else if (msg_type == ChatEnum.EMessageType.TEXT) {//普通消息
+                str = getChat().getMsg();
+            } else if (msg_type == ChatEnum.EMessageType.STAMP) {
+                str = "[戳一下]" + getStamp().getComment();
+            } else if (msg_type == ChatEnum.EMessageType.RED_ENVELOPE) {
+                RedEnvelopeMessage envelopeMessage = getRed_envelope();
+                if (envelopeMessage != null) {
+                    int reType = envelopeMessage.getRe_type();
+                    if (reType == 1) {
+                        str = "[零钱红包]" + getRed_envelope().getComment();
+                    } else {
+                        str = "[云红包]" + getRed_envelope().getComment();
+                    }
+                }
+            } else if (msg_type == ChatEnum.EMessageType.IMAGE) {
+                str = "[图片]";
+            } else if (msg_type == ChatEnum.EMessageType.BUSINESS_CARD) {
+                str = "[名片]";// + getBusiness_card().getNickname();
+            } else if (msg_type == ChatEnum.EMessageType.TRANSFER) {
+                TransferMessage transferMessage = getTransfer();
+                if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_SEND) {
+                    if (isMe()) {
+                        str = "[转账]：等待朋友收款";
+                    } else {
+                        str = "[转账]：等待你收款";
+                    }
+                } else if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_RECEIVE) {
+                    if (isMe()) {
+                        str = "[转账]：朋友已确认收款";
+                    } else {
+                        str = "[转账]：已收款";
+                    }
+                } else if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_REJECT) {
+                    if (isMe()) {
+                        str = "[转账]：已退款";
+                    } else {
+                        str = "[转账]：已退款";
+                    }
+                } else if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_PAST) {
+                    if (isMe()) {
+                        str = "[转账]：已过期";
+                    } else {
+                        str = "[转账]：已过期";
+                    }
+                } else {
+                    if (isMe()) {
+                        str = "[转账]";
+                    } else {
+                        str = "[转账]";
+                    }
+                }
+            } else if (msg_type == ChatEnum.EMessageType.VOICE) {
+                str = "[语音]";
+            } else if (msg_type == ChatEnum.EMessageType.AT) {
+                str = getAtMessage().getMsg();
+            } else if (msg_type == ChatEnum.EMessageType.ASSISTANT) {
+                str = "[常信通知]";
+            } else if (msg_type == ChatEnum.EMessageType.MSG_CANCEL) {//撤回消息
+                str = "" + StringUtil.delHTMLTag(getMsgCancel().getNote());
+            } else if (msg_type == ChatEnum.EMessageType.MSG_VIDEO) {//撤回消息
+                str = "[视频]";
+            } else if (msg_type == ChatEnum.EMessageType.MSG_VOICE_VIDEO) {// 音视频消息
+                if (getP2PAuVideoMessage().getAv_type() == MsgBean.AuVideoType.Vedio.getNumber()) {
+                    str = "[视频通话]";
+                } else {
+                    str = "[语音通话]";
+                }
+            } else if (msg_type == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME) {//阅后即焚
+                str = getMsgCancel().getNote();
+            } else if (msg_type == ChatEnum.EMessageType.LOCATION) {//位置
+                str = "[位置]";
+            } else if (msg_type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {//阅后即焚
+                str = "[零钱小助手消息]";
+            } else if (msg_type == ChatEnum.EMessageType.FILE) {//文件
+                str = "[文件]";
+            } else if (msg_type == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
+                str = "[动态表情]";
+            } else if (msg_type == ChatEnum.EMessageType.WEB) {
+                str = "[链接]" + getWebMessage().getTitle();
+            } else if (msg_type == ChatEnum.EMessageType.TRANSFER_NOTICE) {//转账提醒消息
+                str = "你有一笔等待收款的转账";
+            } else if (msg_type == ChatEnum.EMessageType.REPLY) {//回复消息
+                ReplyMessage reply = getReplyMessage();
+                String content = "";
+                if (reply.getAtMessage() != null) {
+                    content = reply.getAtMessage().getMsg();
+                } else if (reply.getChatMessage() != null) {
+                    content = reply.getChatMessage().getMsg();
+                }
+                str = content;
             }
-        } else if (msg_type == ChatEnum.EMessageType.TEXT) {//普通消息
-            str = getChat().getMsg();
-        } else if (msg_type == ChatEnum.EMessageType.STAMP) {
-            str = "[戳一下]" + getStamp().getComment();
-        } else if (msg_type == ChatEnum.EMessageType.RED_ENVELOPE) {
-            RedEnvelopeMessage envelopeMessage = getRed_envelope();
-            if (envelopeMessage != null) {
-                int reType = envelopeMessage.getRe_type();
-                if (reType == 1) {
-                    str = "[零钱红包]" + getRed_envelope().getComment();
-                } else {
-                    str = "[云红包]" + getRed_envelope().getComment();
-                }
-            }
-        } else if (msg_type == ChatEnum.EMessageType.IMAGE) {
-            str = "[图片]";
-        } else if (msg_type == ChatEnum.EMessageType.BUSINESS_CARD) {
-            str = "[名片]";// + getBusiness_card().getNickname();
-        } else if (msg_type == ChatEnum.EMessageType.TRANSFER) {
-            TransferMessage transferMessage = getTransfer();
-            if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_SEND) {
-                if (isMe()) {
-                    str = "[转账]：等待朋友收款";
-                } else {
-                    str = "[转账]：等待你收款";
-                }
-            } else if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_RECEIVE) {
-                if (isMe()) {
-                    str = "[转账]：朋友已确认收款";
-                } else {
-                    str = "[转账]：已收款";
-                }
-            } else if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_REJECT) {
-                if (isMe()) {
-                    str = "[转账]：已退款";
-                } else {
-                    str = "[转账]：已退款";
-                }
-            } else if (transferMessage.getOpType() == PayEnum.ETransferOpType.TRANS_PAST) {
-                if (isMe()) {
-                    str = "[转账]：已过期";
-                } else {
-                    str = "[转账]：已过期";
-                }
-            } else {
-                if (isMe()) {
-                    str = "[转账]";
-                } else {
-                    str = "[转账]";
-                }
-            }
-        } else if (msg_type == ChatEnum.EMessageType.VOICE) {
-            str = "[语音]";
-        } else if (msg_type == ChatEnum.EMessageType.AT) {
-            str = getAtMessage().getMsg();
-        } else if (msg_type == ChatEnum.EMessageType.ASSISTANT) {
-            str = "[常信通知]";
-        } else if (msg_type == ChatEnum.EMessageType.MSG_CANCEL) {//撤回消息
-            str = "" + StringUtil.delHTMLTag(getMsgCancel().getNote());
-        } else if (msg_type == ChatEnum.EMessageType.MSG_VIDEO) {//撤回消息
-            str = "[视频]";
-        } else if (msg_type == ChatEnum.EMessageType.MSG_VOICE_VIDEO) {// 音视频消息
-            if (getP2PAuVideoMessage().getAv_type() == MsgBean.AuVideoType.Vedio.getNumber()) {
-                str = "[视频通话]";
-            } else {
-                str = "[语音通话]";
-            }
-        } else if (msg_type == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME) {//阅后即焚
-            str = getMsgCancel().getNote();
-        } else if (msg_type == ChatEnum.EMessageType.LOCATION) {//位置
-            str = "[位置]";
-        } else if (msg_type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {//阅后即焚
-            str = "[零钱小助手消息]";
-        } else if (msg_type == ChatEnum.EMessageType.FILE) {//文件
-            str = "[文件]";
-        } else if (msg_type == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
-            str = "[动态表情]";
-        } else if (msg_type == ChatEnum.EMessageType.WEB) {
-            str = "[链接]" + getWebMessage().getTitle();
-        } else if (msg_type == ChatEnum.EMessageType.TRANSFER_NOTICE) {//转账提醒消息
-            str = "你有一笔等待收款的转账";
-        } else if (msg_type == ChatEnum.EMessageType.REPLY) {//回复消息
-            ReplyMessage reply = getReplyMessage();
-            String content = "";
-            if (reply.getAtMessage() != null) {
-                content = reply.getAtMessage().getMsg();
-            } else if (reply.getChatMessage() != null) {
-                content = reply.getChatMessage().getMsg();
-            }
-            str = content;
-        }
+        }catch (Exception e){}
 
         return str;
     }

@@ -126,7 +126,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     private void initData() {
         userAction = new UserAction();
         userInfo = UserAction.getMyInfo();
-        if(userInfo!=null) {
+        if (userInfo != null) {
             imageHead = userInfo.getHead();
             mTvPhone.setText(userInfo.getPhone() + "");
             oldImid = userInfo.getOldimid();
@@ -177,7 +177,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.view_nickname:
-                if (isSystemUser()){
+                if (isSystemUser()) {
                     return;
                 }
                 Intent nicknameIntent = new Intent(MyselfInfoActivity.this, CommonSetingActivity.class);
@@ -214,7 +214,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
 //                }
                 break;
             case R.id.view_head:
-                if (isSystemUser()){
+                if (isSystemUser()) {
                     return;
                 }
                 Intent headIntent = new Intent(MyselfInfoActivity.this, ImageHeadActivity.class);
@@ -268,29 +268,36 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 if (response.body() == null) {
                     return;
                 }
-                if (!TextUtils.isEmpty(imid)) {
-                    MyselfInfoActivity.this.imid = imid;
-                    mTvProductNumber.setText(imid);
-                    mIvProductNumber.setVisibility(View.GONE);
-                    mViewProductNumber.setClickable(false);
-                }
+                if (response.body().isOk()) {
+                    if (!TextUtils.isEmpty(imid)) {
+                        MyselfInfoActivity.this.imid = imid;
+                        mTvProductNumber.setText(imid);
+                        mIvProductNumber.setVisibility(View.GONE);
+                        mViewProductNumber.setClickable(false);
+                    }
 
-                if (!TextUtils.isEmpty(nickname)) {
-                    MyselfInfoActivity.this.nickName = nickname;
-                    mTvNickname.setText(nickname);
-                }
-                if (gender != null) {
-                    MyselfInfoActivity.this.sex = gender;
-                    if (gender == 1) {
-                        sex = 1;
-                        mTvSex.setText("男");
-                    } else if (gender == 2) {
-                        sex = 2;
-                        mTvSex.setText("女");
-                    } else {
-                        mTvSex.setText("未知");
+                    if (!TextUtils.isEmpty(nickname)) {
+                        MyselfInfoActivity.this.nickName = nickname;
+                        mTvNickname.setText(nickname);
+                    }
+                    if (gender != null) {
+                        MyselfInfoActivity.this.sex = gender;
+                        if (gender == 1) {
+                            sex = 1;
+                            mTvSex.setText("男");
+                        } else if (gender == 2) {
+                            sex = 2;
+                            mTvSex.setText("女");
+                        } else {
+                            mTvSex.setText("未知");
+                        }
                     }
                 }
+//                if (!TextUtils.isEmpty(imid)) {
+//                    ToastUtil.show(MyselfInfoActivity.this, "该常信号已存在，设置失败");
+//                } else {
+//                    ToastUtil.show(MyselfInfoActivity.this, response.body().getMsg());
+//                }
                 ToastUtil.show(MyselfInfoActivity.this, response.body().getMsg());
             }
         });

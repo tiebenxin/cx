@@ -76,7 +76,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     @Override
     public int getItemCount() { // TODO　增加文件头，默认的位置加1
-        return viewModel.sessions == null ? 1 : viewModel.sessions.size() + 1;
+        return viewModel.getSessionSize() + 1;
     }
 
     @Override
@@ -108,7 +108,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             if (viewModel.isNeedCloseSwipe.getValue()) {
                 holder.swipeLayout.quickClose();
             }
-            final Session bean = viewModel.sessions.get(position - 1);
+            final Session bean = viewModel.getSession().get(position - 1);
             String icon = "";
             String title = "";
             MsgAllBean msginfo = null;

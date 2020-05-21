@@ -135,7 +135,8 @@ public class FriendMainFragment extends Fragment {
                 for (int i = 0; i < viewModel.friends.size(); i++) {
                     String tag = viewModel.friends.get(i).getTag();
                     list.add(tag);
-                    viewType.putTag(tag, i);
+                    //默认第一项是头部，这里位置得+1
+                    viewType.putTag(tag, i+1);
                 }
             }
         } catch (Exception e) {
