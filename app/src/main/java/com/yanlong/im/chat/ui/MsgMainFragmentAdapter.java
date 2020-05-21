@@ -267,8 +267,10 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 @Override
                 public void onClick(View v) {
                     holder.swipeLayout.quickClose();
-                    //删除数据
-                    viewModel.currentDeleteSid.setValue(bean.getSid());
+                    if(bean.isValid()){//数据有效，防止其他线程删除 Bugly#109910
+                        //删除数据
+                        viewModel.currentDeleteSid.setValue(bean.getSid());
+                    }
                 }
             });
             holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#F2F2F2"));
