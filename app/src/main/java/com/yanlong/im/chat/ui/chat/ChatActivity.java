@@ -485,6 +485,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     InputUtil.showKeyboard(editChat);
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isInputText);
+                    mtListView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mtListView.scrollToEnd();
+                        }
+                    },100);
                 } else {//关闭
                     //清除焦点
                     editChat.clearFocus();
