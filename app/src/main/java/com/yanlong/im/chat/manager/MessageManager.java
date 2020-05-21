@@ -472,6 +472,7 @@ public class MessageManager {
             case GROUP_ANNOUNCEMENT://群公告
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
+                    updateAtMessage(bean.getGid(), bean.getAtMessage().getAt_type(), bean.getAtMessage().getMsg(), bean.getAtMessage().getUid());
                 }
                 updateAtMessage(wrapMessage);
                 break;
@@ -640,7 +641,7 @@ public class MessageManager {
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                     if (!TextUtils.isEmpty(bean.getGid()) && bean.getReplyMessage().getAtMessage() != null) {
-                        msgDao.atMessage(bean.getGid(), bean.getReplyMessage().getAtMessage().getMsg(), bean.getReplyMessage().getAtMessage().getAt_type());
+                        updateAtMessage(bean.getGid(), bean.getReplyMessage().getAtMessage().getAt_type(), bean.getReplyMessage().getAtMessage().getMsg(), bean.getAtMessage().getUid());
                     }
                 }
                 break;
@@ -1313,6 +1314,38 @@ public class MessageManager {
         } else {
             if (atMessage.getUidList() == null || atMessage.getUidList().size() == 0) {//是群公告
                 refreshGroupInfo(msg.getGid());
+            }
+            LogUtil.getLog().e(TAG, "@所有人");
+            if (!gid.equals(SESSION_GID)) {
+                msgDao.atMessage(gid, message, atType);
+                playDingDong();
+            }
+            isAt = true;
+        }
+        return isAt;
+    }
+
+    private boolean updateAtMessage(String gid, int atType, String message, List<Long> list) {
+        boolean isAt = false;
+        if (atType == 0) {
+            if (list == null)
+                isAt = false;
+
+            Long uid = UserAction.getMyId();
+            for (int i = 0; i < list.size(); i++) {
+                if (uid.equals(list.get(i))) {
+                    LogUtil.getLog().e(TAG, "有人@我" + uid);
+                    if (!gid.equals(SESSION_GID)) {
+                        msgDao.atMessage(gid, message, atType);
+                        playDingDong();
+                    }
+
+                    isAt = true;
+                }
+            }
+        } else {
+            if (list == null || list.size() == 0) {//是群公告
+                refreshGroupInfo(gid);
             }
             LogUtil.getLog().e(TAG, "@所有人");
             if (!gid.equals(SESSION_GID)) {
