@@ -11,8 +11,6 @@ import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.repository.MainRepository;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,8 +26,6 @@ public class MainViewModel extends ViewModel {
     private MainRepository repository;
     //会话详情
     public RealmResults<SessionDetail> sessionMores = null;
-    //会话列表
-    public RealmResults<Session> sessions = null;
 
     //当前删除操作位置,为数据源中的位置
     public MutableLiveData<String> currentDeleteSid = new MutableLiveData();
@@ -40,7 +36,6 @@ public class MainViewModel extends ViewModel {
     public MutableLiveData<Boolean> onlineState = new MutableLiveData<>();
     //是否要主动关闭展开的删除按钮
     public MutableLiveData<Boolean> isNeedCloseSwipe = new MutableLiveData<>();
-    public Set<String> allSids = new HashSet<>();
 
     //是否进主页显示加载动画
     public MutableLiveData<Boolean> isShowLoadAnim = new MutableLiveData<>();
@@ -51,45 +46,39 @@ public class MainViewModel extends ViewModel {
         isNeedCloseSwipe.setValue(false);
         repository = new MainRepository();
         isShowLoadAnim.setValue(true);
-        this.sessionMoresListener=sessionMoresListener;
+        this.sessionMoresListener = sessionMoresListener;
     }
 
-    public void initSession(List<String> sids) {
-        repository.checkRealmStatus();
-        //指向内存堆中同一个对象,session数据变化时，Application中会自动更新session详情
-        if (MyAppLication.INSTANCE().iSSessionsLoad()) {
-            sessions = MyAppLication.INSTANCE().getSessions();
-            if (sids == null) {
-                if (sessions.size() > 0) {
-                    for (Session session : sessions) {
-                        allSids.add(session.getSid());
-                    }
-                    updateSessionMore();
-                } else {
-                    isShowLoadAnim.setValue(false);
-                }
-            } else {
-                if (sids.size() > 0) {
-                    allSids.addAll(sids);
-                    updateSessionMore();
-                } else {
-                    isShowLoadAnim.setValue(false);
-                }
-            }
+    public int getSessionSize(){
+        int size=0;
+        if (MyAppLication.INSTANCE().repository != null) {
+            size = MyAppLication.INSTANCE().repository.sessionSidPositons.size();
         }
+        return size;
+    }
+    public RealmResults<Session> getSession(){
+        RealmResults<Session> sessions = null;
+        if (MyAppLication.INSTANCE().repository != null) {
+            sessions = MyAppLication.INSTANCE().repository.sessions;
+        }
+        return sessions;
     }
 
 
     public void updateSessionMore() {
-        RealmResults<SessionDetail> temp = null;
         try {
-            //做一层保护，可能会有事务冲突或其他奔溃,引起的无法进行异步查询
-            temp = repository.getSessionMore(allSids.toArray(new String[allSids.size()]));
-            if (temp != null) {
-                if (sessionMores != null) sessionMores.removeAllChangeListeners();
-                sessionMores = temp;
-                //监听列表数据变化
-               if(sessionMoresListener!=null) sessionMores.addChangeListener(sessionMoresListener);
+            repository.checkRealmStatus();
+            if (MyAppLication.INSTANCE().repository != null) {
+                //做一层保护，可能会有事务冲突或其他奔溃,引起的无法进行异步查询
+                Set<String> allSids = MyAppLication.INSTANCE().repository.sessionSidPositons.keySet();
+                RealmResults<SessionDetail> temp = repository.getSessionMore(allSids.toArray(new String[allSids.size()]));
+                if (temp != null) {
+                    if (sessionMores != null) sessionMores.removeAllChangeListeners();
+                    sessionMores = temp;
+                    //监听列表数据变化
+                    if (sessionMoresListener != null)
+                        sessionMores.addChangeListener(sessionMoresListener);
+                }
             }
         } catch (Exception e) {
         }
@@ -108,7 +97,7 @@ public class MainViewModel extends ViewModel {
     }
 
     public String getSessionJson() {
-        return sessions == null ? "" : repository.getSessionJson(sessions);
+        return getSession() == null ? "" : repository.getSessionJson(getSession());
     }
 
     /***

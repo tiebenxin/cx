@@ -145,7 +145,8 @@ public class MsgMainFragment extends Fragment {
 
             @Override
             public void onLoadMore() {
-                if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.loadMoreSessions();
+                if (MyAppLication.INSTANCE().repository != null)
+                    MyAppLication.INSTANCE().repository.loadMoreSessions();
             }
 
             @Override
@@ -328,10 +329,15 @@ public class MsgMainFragment extends Fragment {
         viewModel = new MainViewModel(sessionMoresListener);
         EventBus.getDefault().register(this);
         MyAppLication.INSTANCE().addSessionChangeListener(sessionChangeListener);
-        viewModel.initSession(null);
         //初始化观察器
         initObserver();
-
+        if (MyAppLication.INSTANCE().iSSessionsLoad()) {
+            if (viewModel.getSessionSize() == 0) {
+                viewModel.isShowLoadAnim.setValue(false);
+            } else {
+                viewModel.updateSessionMore();
+            }
+        }
     }
 
 
@@ -347,8 +353,11 @@ public class MsgMainFragment extends Fragment {
     private ApplicationRepository.SessionChangeListener sessionChangeListener = new ApplicationRepository.SessionChangeListener() {
         @Override
         public void init(RealmResults<Session> sessions, List<String> sids) {
-            //每次session初始化，都需要重新赋值
-            viewModel.initSession(sids);
+            if (viewModel.getSessionSize() == 0) {
+                viewModel.isShowLoadAnim.setValue(false);
+            } else {
+                viewModel.updateSessionMore();
+            }
         }
 
         @Override
@@ -359,13 +368,12 @@ public class MsgMainFragment extends Fragment {
         @Override
         public void insert(int[] positions, List<String> sids) {
             viewModel.isNeedCloseSwipe.setValue(true);
-            viewModel.allSids.addAll(sids);
             viewModel.updateSessionMore();
         }
 
         @Override
         public void update(int[] positions, List<String> sids) {
-            mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+            mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.getSessionSize());
         }
     };
     private OrderedRealmCollectionChangeListener sessionMoresListener = new OrderedRealmCollectionChangeListener<RealmResults<SessionDetail>>() {
@@ -377,25 +385,26 @@ public class MsgMainFragment extends Fragment {
                 for (int i = 0; i < viewModel.sessionMores.size(); i++) {
                     viewModel.sessionMoresPositions.put(viewModel.sessionMores.get(i).getSid(), i);
                 }
-                if (viewModel.isShowLoadAnim.getValue() && sessionDetails.size() >= Math.min(50, viewModel.sessions.size())) {
+                if (viewModel.isShowLoadAnim.getValue() && sessionDetails.size() >= Math.min(50, viewModel.getSessionSize())) {
                     //只有第一次加载才会出现，有50条（可调整）数据，短时间内应该是看不到白板情况，可关闭进度条了
                     viewModel.isShowLoadAnim.setValue(false);
                 }
                 /*****第一次初始化******************************************************************************************/
                 if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
                     mtListView.getListView().getAdapter().notifyDataSetChanged();
+//                    checkSessionDetailIsFullLoad(sessionDetails.size());
                 }
 
                 /*****增加了数据-需要更新全部*******************************************************************************************/
                 if (changeSet.getInsertionRanges().length > 0) {
-                    mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                    mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.getSessionSize());
                 }
                 /*****删除了数据，*******************************************************************************************/
                 if (changeSet.getDeletionRanges().length > 0) {
-                    if (viewModel.sessions.size() == 0) {
+                    if (viewModel.getSessionSize() == 0) {
                         mtListView.getListView().getAdapter().notifyDataSetChanged();
                     } else {
-                        mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                        mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.getSessionSize());
                     }
                 }
                 /*****更新了数据*******************************************************************************************/
@@ -403,22 +412,32 @@ public class MsgMainFragment extends Fragment {
                 //获取更新信息
                 for (int position : modifications) {
                     String sid = sessionDetails.get(position).getSid();
-                    if (MyAppLication.INSTANCE().repository!=null&&MyAppLication.INSTANCE().repository.sessionSidPositons.containsKey(sid)) {
+                    if (MyAppLication.INSTANCE().repository != null && MyAppLication.INSTANCE().repository.sessionSidPositons.containsKey(sid)) {
                         int startId = MyAppLication.INSTANCE().repository.sessionSidPositons.get(sid);
                         mtListView.getListView().getAdapter().notifyItemRangeChanged(startId + 1, 1);
                     } else {
-                        mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.sessions.size());
+                        mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.getSessionSize());
                     }
                 }
-                //详情未全部加载时，1秒后再次请求
-//            if(sessionDetails.size() < viewModel.sessions.size()){
-//                handler.removeCallbacks(updateSessionMoreAgain);
-//                handler.postDelayed(updateSessionMoreAgain,1000);
-//            }
             } catch (Exception e) {
             }
         }
     };
+
+    /**
+     * 检查sessionDetail是否加载完成
+     */
+    private void checkSessionDetailIsFullLoad(int sessionDetailSize) {
+        //详情未全部加载时，半秒后再次请求
+        if (MyAppLication.INSTANCE().repository != null) {
+            if (sessionDetailSize > 0 &&
+                    sessionDetailSize < MyAppLication.INSTANCE().repository.sessionSidPositons.size()) {
+                handler.removeCallbacks(updateSessionMoreAgain);
+                handler.postDelayed(updateSessionMoreAgain, 500);
+            }
+        }
+    }
+
     private Runnable updateSessionMoreAgain = new Runnable() {
         @Override
         public void run() {
@@ -437,7 +456,8 @@ public class MsgMainFragment extends Fragment {
             @Override
             public void onChanged(@Nullable String sid) {
                 //删除session
-                if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.deleteSession(sid);
+                if (MyAppLication.INSTANCE().repository != null)
+                    MyAppLication.INSTANCE().repository.deleteSession(sid);
             }
         });
         viewModel.isNeedCloseSwipe.observe(this, new Observer<Boolean>() {
@@ -467,9 +487,11 @@ public class MsgMainFragment extends Fragment {
         });
 
     }
+
     @Override
     public void onDestroy() {
-        if(sessionChangeListener!=null)MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
+        if (sessionChangeListener != null)
+            MyAppLication.INSTANCE().removeSessionChangeListener(sessionChangeListener);
         super.onDestroy();
         //释放数据对象
         viewModel.onDestory(this);
@@ -545,9 +567,10 @@ public class MsgMainFragment extends Fragment {
     //滑动到未读消息项
     public void moveToUnread() {
         List<Integer> positionList = new ArrayList<>();//保存有未读消息的位置
-        if (viewModel.sessions.size() > 0) {
-            for (int i = 0; i < viewModel.sessions.size(); i++) {
-                Session bean = viewModel.sessions.get(i);
+        if (viewModel.getSessionSize() > 0) {
+            RealmResults<Session> sessions = viewModel.getSession();
+            for (int i = 0; i < viewModel.getSessionSize(); i++) {
+                Session bean = sessions.get(i);
                 if (bean.getUnread_count() > 0) {
                     positionList.add(i);
                 }
