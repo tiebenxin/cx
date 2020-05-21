@@ -147,7 +147,7 @@ public class ApplicationLocalDataSource {
      * 保存当前会话退出即焚消息，endTime到数据库-自动会加入焚队列，存入数据库
      */
     public void saveExitSurvivalMsg(String gid, Long userid) {
-        realm.executeTransactionAsync(new Realm.Transaction() {
+        DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 if (!TextUtils.isEmpty(gid)) {
@@ -187,6 +187,7 @@ public class ApplicationLocalDataSource {
             public void onError(Throwable error) {
             }
         });
+
     }
 
     /**
@@ -197,7 +198,7 @@ public class ApplicationLocalDataSource {
      */
     public void deleteAllMsg(String sid, Long uid, String gid) {
         //异步线程删除
-        realm.executeTransactionAsync(new Realm.Transaction() {
+        DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 try {

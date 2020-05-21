@@ -14,6 +14,7 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.utils.StringUtil;
 
@@ -43,7 +44,7 @@ public class UpdateSessionDetail {
 
     public void update(String[] sids) {
         //通过使用异步事务，Realm 会在后台线程中进行写入操作，并在事务完成时将结果传回调用线程。
-        realm.executeTransactionAsync(new Realm.Transaction() {
+        DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {//异步线程更新更新
                 //获取session列表-本地数据
@@ -82,11 +83,10 @@ public class UpdateSessionDetail {
 
             }
         });
-
     }
 
     public void update(String[] gids, Long[] fromUids) {
-        realm.executeTransactionAsync(new Realm.Transaction() {
+        DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 if (gids != null && gids.length > 0) {
@@ -113,6 +113,7 @@ public class UpdateSessionDetail {
 
             }
         });
+
     }
 
     /**
@@ -121,7 +122,7 @@ public class UpdateSessionDetail {
      * @param
      */
     public void clearContent(String[] gids, Long[] fromUids) {
-        realm.executeTransactionAsync(new Realm.Transaction() {
+        DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 if (gids != null && gids.length > 0) {
@@ -351,7 +352,8 @@ public class UpdateSessionDetail {
                     name = StringUtil.isNotNull(memberUser.getMembername()) ? memberUser.getMembername() : memberUser.getName();
                 }
             }
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
         return name;
     }
 
