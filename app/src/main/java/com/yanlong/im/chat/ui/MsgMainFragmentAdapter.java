@@ -109,6 +109,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 holder.swipeLayout.quickClose();
             }
             final Session bean = viewModel.getSession().get(position - 1);
+            String sid = bean.getSid();
             String icon = "";
             String title = "";
             MsgAllBean msginfo = null;
@@ -196,7 +197,7 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                             ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
                             style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             showMessage(holder.txtInfo, info, style);
-                        }else{
+                        } else {
                             showMessage(holder.txtInfo, info, null);
                         }
                     }
@@ -267,10 +268,8 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 @Override
                 public void onClick(View v) {
                     holder.swipeLayout.quickClose();
-                    if(bean.isValid()){//数据有效，防止其他线程删除 Bugly#109910
-                        //删除数据
-                        viewModel.currentDeleteSid.setValue(bean.getSid());
-                    }
+                    //删除数据
+                    viewModel.currentDeleteSid.setValue(sid);
                 }
             });
             holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#F2F2F2"));
