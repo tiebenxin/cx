@@ -711,6 +711,10 @@ public class CollectDetailsActivity extends AppActivity {
             mapview.onPause();
         }
         AudioPlayManager.getInstance().stopPlay();
+        if(animationDrawable!=null){
+            animationDrawable.stop();
+            animationDrawable.selectDrawable(0);//恢复到初始状态
+        }
     }
 
     @Override
