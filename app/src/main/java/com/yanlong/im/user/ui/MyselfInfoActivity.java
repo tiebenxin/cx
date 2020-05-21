@@ -293,7 +293,11 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                         }
                     }
                 }
-                ToastUtil.show(MyselfInfoActivity.this, response.body().getMsg());
+                if (!TextUtils.isEmpty(imid)) {
+                    ToastUtil.show(MyselfInfoActivity.this, "该常信号已存在，设置失败");
+                } else {
+                    ToastUtil.show(MyselfInfoActivity.this, response.body().getMsg());
+                }
             }
         });
     }
