@@ -119,12 +119,15 @@ public class DeviceUtils {
         }
     }
 
+    /*
+     * deviceId, 设备序列号，imei 都具备唯一性
+     * */
     @SuppressLint("HardwareIds")
     public static String getIMEI(Context context) {
         String imei = "";
         try {
             TelephonyManager tm = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
                     //    ActivityCompat#requestPermissions
@@ -150,6 +153,9 @@ public class DeviceUtils {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        if (TextUtils.isEmpty(imei)) {
+            imei = android.os.Build.SERIAL;
         }
         return imei;
     }
