@@ -17,7 +17,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -822,7 +821,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 //如果bottom小于oldBottom,说明键盘是弹起。
                 if (bottom < oldBottom) {
                     //滑动到底部
-                    mtListView.scrollToEnd();
+//                    mtListView.scrollToEnd();
                 }
             }
         });
@@ -2037,7 +2036,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private void scrollChatToPosition(int position) {
         LogUtil.getLog().i(TAG, "scrollChatToPosition--" + position);
-        mtListView.getListView().scrollToPosition(position);
+        mtListView.getLayoutManager().scrollToPosition(position);
         currentScrollPosition = position;
 //        initLastPosition();
         View topView = mtListView.getLayoutManager().getChildAt(currentScrollPosition);
@@ -2465,6 +2464,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
                         scrollChatToPosition(length);
                     } else {
+//                        scrollChatToPosition(lastPosition);
                         if (lastOffset == -1) {
                             scrollChatToPosition(lastPosition);
                         } else {
@@ -2491,6 +2491,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
                             scrollChatToPosition(length);
                         } else {
+//                            scrollChatToPosition(lastPosition);
                             if (lastOffset < 0) {
                                 scrollChatToPosition(lastPosition);
                             } else {
@@ -2499,7 +2500,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                     } else {
                         if (currentScrollPosition > 0) {
-                            scrollChatToPositionWithOffset(currentScrollPosition, lastPosition);
+                            scrollChatToPosition(currentScrollPosition);
                         } else {
                             scrollChatToPosition(length);
                         }
