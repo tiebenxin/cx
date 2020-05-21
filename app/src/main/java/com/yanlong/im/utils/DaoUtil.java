@@ -1,6 +1,9 @@
 package com.yanlong.im.utils;
 
+import android.util.Log;
+
 import com.tencent.bugly.crashreport.CrashReport;
+import com.yanlong.im.MyAppLication;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.LogUtil;
@@ -9,6 +12,7 @@ import net.cb.cb.library.utils.SpUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -243,6 +247,35 @@ public class DaoUtil {
 
     public interface EventTransaction {
         void run(Realm realm);
+    }
+
+    /**
+     * 启动数据库异步事务
+     * 注意：不需关闭Realm数据库对象
+     *
+     * @param realm
+     * @param transaction
+     * @param onSuccess
+     * @param onError
+     */
+    public static void executeTransactionAsync(Realm realm, Realm.Transaction transaction,
+                                               Realm.Transaction.OnSuccess onSuccess,
+                                               Realm.Transaction.OnError onError) {
+        try {
+            MyAppLication.INSTANCE().size++;
+            if (realm != null && !realm.isClosed())
+                realm.executeTransactionAsync(transaction, onSuccess, onError);
+        } catch (RejectedExecutionException e) {//异步线程过多异常，等待一秒后再+重试
+            Log.e("raleigh_test", "RejectedExecutionException size="+ MyAppLication.INSTANCE().size);
+            MyAppLication.INSTANCE().size--;
+            MyAppLication.INSTANCE().handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    executeTransactionAsync(realm, transaction, onSuccess, onError);
+                }
+            },1000);
+
+        }
     }
 
     public static void close(Realm realm) {
