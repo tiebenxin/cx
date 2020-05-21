@@ -434,7 +434,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void dealToBurnMsg() {
         Realm realm = DaoUtil.open();
-        realm.executeTransactionAsync(new Realm.Transaction() {
+        DaoUtil.executeTransactionAsync(realm,new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 RealmResults<MsgAllBean> realmResults = realm.where(MsgAllBean.class)
