@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<net.cb.cb.library.view.HeadView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    app:headview_title="注销账号">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -136,4 +138,4 @@
 
     </ScrollView>
 
-</LinearLayout>
+</net.cb.cb.library.view.HeadView>

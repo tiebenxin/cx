@@ -1347,7 +1347,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         .setContent(getProgressText(position, count, progress), false)
                         .setListener(new DialogCommon2.IDialogListener() {
                             @Override
-                            public void onCancel() {
+                            public void onClick() {
                                 if (msgList != null) {
                                     msgList.clear();
                                 }

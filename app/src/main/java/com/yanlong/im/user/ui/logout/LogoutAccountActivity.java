@@ -7,6 +7,7 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 
 import net.cb.cb.library.dialog.DialogCommon;
+import net.cb.cb.library.dialog.DialogCommon2;
 import net.cb.cb.library.view.AppActivity;
 
 /**
@@ -31,9 +32,9 @@ public class LogoutAccountActivity extends AppActivity {
         });
     }
 
-    private void showConfirmDialog(){
+    private void showConfirmDialog() {
         DialogCommon dialogConfirm = new DialogCommon(this);
-        dialogConfirm.setTitleAndSure(false,true)
+        dialogConfirm.setTitleAndSure(false, true)
                 .setLeft("取消")
                 .setRight("确定")
                 .setListener(new DialogCommon.IDialogListener() {
@@ -44,6 +45,19 @@ public class LogoutAccountActivity extends AppActivity {
 
                     @Override
                     public void onCancel() {
+
+                    }
+                });
+    }
+
+    private void showCommitedDialog() {
+        DialogCommon2 dialogCommited = new DialogCommon2(this);
+        dialogCommited.setButtonTxt("确定")
+                .setTitle("已经提交注册申请")
+                .setContent("工作人员将在30天内处理您的申请并删除账号下所有数据。在此期间，请不要登录常信。", false)
+                .setListener(new DialogCommon2.IDialogListener() {
+                    @Override
+                    public void onClick() {
 
                     }
                 });
