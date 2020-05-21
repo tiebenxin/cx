@@ -433,7 +433,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void dealToBurnMsg() {
         Realm realm = DaoUtil.open();
-        realm.executeTransactionAsync(new Realm.Transaction() {
+        DaoUtil.executeTransactionAsync(realm,new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 RealmResults<MsgAllBean> realmResults = realm.where(MsgAllBean.class)
@@ -3809,9 +3809,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
             menus.add(new OptionMenu("转发"));
         }
-        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanReply(type)) {
-            menus.add(new OptionMenu("回复"));
-        }
+//        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanReply(type)) {
+//            menus.add(new OptionMenu("回复"));
+//        }
         menus.add(new OptionMenu("删除"));
         switch (type) {
             case ChatEnum.EMessageType.TEXT:

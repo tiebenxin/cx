@@ -105,6 +105,9 @@ public class LogUtil {
                 overDivider.append("=");
             }
             StringBuffer sb = new StringBuffer();
+            if( ex == null ||ex.getCause() == null ||ex.getCause().getStackTrace() == null){
+                return;
+            }
             StackTraceElement[] element = ex.getCause().getStackTrace();
             sb.append(moment + "\n");
             sb.append(timeDivider.toString() + "\n");
