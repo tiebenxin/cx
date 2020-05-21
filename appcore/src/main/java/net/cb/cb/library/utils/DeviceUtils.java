@@ -127,7 +127,7 @@ public class DeviceUtils {
         String imei = "";
         try {
             TelephonyManager tm = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
                     //    ActivityCompat#requestPermissions
@@ -136,26 +136,28 @@ public class DeviceUtils {
                     //                                          int[] grantResults)
                     // to handle the case where the user grants the permission. See the documentation
                     // for ActivityCompat#requestPermissions for more details.
-                    imei = android.os.Build.SERIAL;
+                    imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
                     return imei;
                 }
                 if (!TextUtils.isEmpty(tm.getDeviceId())) {
                     imei = tm.getDeviceId();
                 } else {
-                    imei = android.os.Build.SERIAL;
+                    imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
                 }
-            } else {
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && Build.VERSION.SDK_INT < 29) {
                 Method method = tm.getClass().getMethod("getImei");
                 imei = (String) method.invoke(tm);
                 if (TextUtils.isEmpty(imei)) {
-                    imei = android.os.Build.SERIAL;
+                    imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
                 }
+            } else if (Build.VERSION.SDK_INT >= 29) {
+                imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         if (TextUtils.isEmpty(imei)) {
-            imei = android.os.Build.SERIAL;
+            imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         }
         return imei;
     }
