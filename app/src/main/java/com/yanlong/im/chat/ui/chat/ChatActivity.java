@@ -518,6 +518,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     editChat.requestFocus();
                     //定位光标
                     editChat.setSelection(editChat.getSelectionEnd());
+                    mtListView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mtListView.scrollToEnd();
+                        }
+                    },100);
                 } else {//关闭
                     btnEmj.setImageLevel(0);
                     if (mViewModel.isOpenValue()) {//有事件触发
@@ -552,6 +558,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     viewExtendFunction.setVisibility(View.VISIBLE);
                     //重置其他状态
                     mViewModel.recoveryOtherValue(mViewModel.isOpenFuction);
+                    mtListView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mtListView.scrollToEnd();
+                        }
+                    },100);
                 } else {//关闭
                     if (mViewModel.isOpenValue()) {//有事件触发
                         if (mViewModel.isInputText.getValue()) {//无其他功能触发，则弹出输入框

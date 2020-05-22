@@ -10,6 +10,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ApplyBean;
+import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
@@ -640,8 +641,9 @@ public class MessageManager {
             case REPLY_SPECIFIC:// 回复消息
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
-                    if (!TextUtils.isEmpty(bean.getGid()) && bean.getReplyMessage().getAtMessage() != null) {
-                        updateAtMessage(bean.getGid(), bean.getReplyMessage().getAtMessage().getAt_type(), bean.getReplyMessage().getAtMessage().getMsg(), bean.getAtMessage().getUid());
+                    if (!TextUtils.isEmpty(bean.getGid()) && bean.getReplyMessage() != null && bean.getReplyMessage().getAtMessage() != null) {
+                        AtMessage atMessage = bean.getReplyMessage().getAtMessage();
+                        updateAtMessage(bean.getGid(), atMessage.getAt_type(), atMessage.getMsg(), atMessage.getUid());
                     }
                 }
                 break;

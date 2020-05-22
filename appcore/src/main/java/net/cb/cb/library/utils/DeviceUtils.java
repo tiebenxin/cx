@@ -119,6 +119,10 @@ public class DeviceUtils {
         }
     }
 
+    /*
+     * deviceId, 设备序列号，imei 都具备唯一性
+     * */
+    @SuppressLint("HardwareIds")
     public static String getIMEI(Context context) {
         String imei = "";
         try {
@@ -132,16 +136,38 @@ public class DeviceUtils {
                     //                                          int[] grantResults)
                     // to handle the case where the user grants the permission. See the documentation
                     // for ActivityCompat#requestPermissions for more details.
+                    imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
                     return imei;
                 }
-                imei = tm.getDeviceId();
-            } else {
+                if (!TextUtils.isEmpty(tm.getDeviceId())) {
+                    imei = tm.getDeviceId();
+                } else {
+                    imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+                }
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && Build.VERSION.SDK_INT < 29) {
                 Method method = tm.getClass().getMethod("getImei");
                 imei = (String) method.invoke(tm);
+                if (TextUtils.isEmpty(imei)) {
+                    imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+                }
+            } else if (Build.VERSION.SDK_INT >= 29) {
+                imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        if (TextUtils.isEmpty(imei)) {
+            imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        }
         return imei;
+    }
+
+    /**
+     * 获取当前手机系统版本号
+     *
+     * @return 系统版本号
+     */
+    public static String getSystemVersion() {
+        return android.os.Build.VERSION.RELEASE;
     }
 }
