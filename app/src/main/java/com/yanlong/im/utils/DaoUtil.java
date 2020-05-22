@@ -262,12 +262,9 @@ public class DaoUtil {
                                                Realm.Transaction.OnSuccess onSuccess,
                                                Realm.Transaction.OnError onError) {
         try {
-            MyAppLication.INSTANCE().size++;
             if (realm != null && !realm.isClosed())
                 realm.executeTransactionAsync(transaction, onSuccess, onError);
         } catch (RejectedExecutionException e) {//异步线程过多异常，等待一秒后再+重试
-            Log.e("raleigh_test", "RejectedExecutionException size="+ MyAppLication.INSTANCE().size);
-            MyAppLication.INSTANCE().size--;
             MyAppLication.INSTANCE().handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
