@@ -1,9 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<net.cb.cb.library.view.HeadView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/headView"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:headview_title="登录设备管理">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-</net.cb.cb.library.view.HeadView>
+    <net.cb.cb.library.view.HeadView
+        android:id="@+id/headView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:headview_title="登录设备管理">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="最近登录的手机和电脑等设备。新设备登录需要身份验证。你也可以删除可信任设备。" />
+
+            <LinearLayout
+                android:id="@+id/ll_device"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
+
+    </net.cb.cb.library.view.HeadView>
+</layout>
