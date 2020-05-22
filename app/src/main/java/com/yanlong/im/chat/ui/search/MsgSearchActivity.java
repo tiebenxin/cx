@@ -1,54 +1,30 @@
 package com.yanlong.im.chat.ui.search;
 
 import android.arch.lifecycle.Observer;
-import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.style.ForegroundColorSpan;
 import android.view.KeyEvent;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.utils.ExpressionUtil;
-import com.yanlong.im.utils.PatternUtil;
-import com.yanlong.im.wight.avatar.MultiImageView;
 
 import net.cb.cb.library.utils.InputUtil;
-import net.cb.cb.library.utils.StringUtil;
-import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
-import net.cb.cb.library.view.StrikeButton;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @类名：消息搜索界面
@@ -70,6 +46,7 @@ public class MsgSearchActivity extends AppActivity {
     private boolean onlineState = true;//判断网络状态 true在线 false离线
     private final String TYPE_FACE = "[动画表情]";
     private MsgSearchViewModel viewModel = new MsgSearchViewModel();
+    private MsgSearchAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,7 +97,8 @@ public class MsgSearchActivity extends AppActivity {
 
             }
         });
-        mtListView.init(new RecyclerViewAdapter());
+        adapter = new MsgSearchAdapter(this,viewModel);
+        mtListView.init(adapter);
         mtListView.getLoadView().setStateNormal();
         edtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
