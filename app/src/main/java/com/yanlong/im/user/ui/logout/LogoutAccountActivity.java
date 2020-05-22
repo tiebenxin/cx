@@ -1,10 +1,12 @@
 package com.yanlong.im.user.ui.logout;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.databinding.ActivityLogoutBinding;
 
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.dialog.DialogCommon2;
@@ -18,13 +20,13 @@ import net.cb.cb.library.view.AppActivity;
 public class LogoutAccountActivity extends AppActivity {
 
     private TextView tvConfirm;
+    private ActivityLogoutBinding ui;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_logout);
-        tvConfirm = findViewById(R.id.tv_confirm);
-        tvConfirm.setOnClickListener(new View.OnClickListener() {
+        ui = DataBindingUtil.setContentView(this, R.layout.activity_logout);
+        ui.tvConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showConfirmDialog();
