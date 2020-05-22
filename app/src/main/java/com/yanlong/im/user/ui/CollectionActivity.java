@@ -1010,7 +1010,6 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
 
     private void sendMessage(MsgAllBean msgAllBean) {
         SocketData.sendAndSaveMessage(msgAllBean);
-        ToastUtil.show(this, "发送成功");
         finish();
     }
 

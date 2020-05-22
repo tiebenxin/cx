@@ -140,7 +140,15 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                         if (groupInfoBeans != null && groupInfoBeans.size() > 0) {
                             groupInfoBeans.clear();
                         }
-                        groupInfoBeans.addAll(list);
+                        //过滤掉全员禁言和将我禁言的群
+                        List<Group> newList = new ArrayList<>();
+                        newList.addAll(list);
+                        for(int i=0;i<newList.size();i++){
+                            if(newList.get(i).getWordsNotAllowed()==1){ //全员禁言
+                                newList.remove(i);
+                            }
+                        }
+                        groupInfoBeans.addAll(newList);
                         ui.mtListView.notifyDataSetChange();
                     }
                 });
