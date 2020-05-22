@@ -108,6 +108,11 @@ public class MessageManager {
      */
     private Map<Long, Long> historyCleanMsg = new HashMap<>();
 
+    /**
+     * 保存单聊发送已读消息时间戳
+     */
+    private Map<Long, Long> readTimeMap = new HashMap<>();
+
 
     public static MessageManager getInstance() {
         if (INSTANCE == null) {
@@ -1901,6 +1906,25 @@ public class MessageManager {
         } else {
             return R.mipmap.ic_unknow;
         }
+    }
+
+    public void addReadTime(Long uid, long time) {
+        if (uid != null) {
+            readTimeMap.put(uid, time);
+        }
+    }
+
+    //是否已读时间有效,已读时间小于或者等于缓存的已读时间，都是无效时间
+    public boolean isReadTimeValid(Long uid, long time) {
+        if (readTimeMap.containsKey(uid)) {
+            long oldTime = readTimeMap.get(uid);
+            if (oldTime < time) {
+                return true;
+            }
+        } else if (!readTimeMap.containsKey(uid)) {
+            return true;
+        }
+        return false;
     }
 
 }

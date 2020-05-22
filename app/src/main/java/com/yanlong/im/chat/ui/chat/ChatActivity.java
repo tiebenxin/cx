@@ -433,7 +433,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void dealToBurnMsg() {
         Realm realm = DaoUtil.open();
-        DaoUtil.executeTransactionAsync(realm,new Realm.Transaction() {
+        DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 RealmResults<MsgAllBean> realmResults = realm.where(MsgAllBean.class)
@@ -490,7 +490,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         public void run() {
                             mtListView.scrollToEnd();
                         }
-                    },100);
+                    }, 100);
                 } else {//关闭
                     //清除焦点
                     editChat.clearFocus();
@@ -523,7 +523,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         public void run() {
                             mtListView.scrollToEnd();
                         }
-                    },100);
+                    }, 100);
                 } else {//关闭
                     btnEmj.setImageLevel(0);
                     if (mViewModel.isOpenValue()) {//有事件触发
@@ -563,7 +563,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         public void run() {
                             mtListView.scrollToEnd();
                         }
-                    },100);
+                    }, 100);
                 } else {//关闭
                     if (mViewModel.isOpenValue()) {//有事件触发
                         if (mViewModel.isInputText.getValue()) {//无其他功能触发，则弹出输入框
@@ -4254,8 +4254,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
             if (bean != null) {
                 if (bean.getRead() == 0) {
-                    ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
-                    sendMessage(read, ChatEnum.EMessageType.READ);
+                    if (MessageManager.getInstance().isReadTimeValid(toUId, bean.getTimestamp())) {
+                        MessageManager.getInstance().addReadTime(toUId, bean.getTimestamp());
+                        LogUtil.getLog().i(TAG, "发送已读--msgID=" + bean.getMsg_id() + "--time=" + bean.getTimestamp());
+                        ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
+                        sendMessage(read, ChatEnum.EMessageType.READ);
+                    }
                 }
             }
         }
