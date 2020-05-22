@@ -147,9 +147,9 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                     if (!TextUtils.isEmpty(collectionInfo.getData())) {
                         //显示用户名或群名
                         if (!TextUtils.isEmpty(collectionInfo.getFromGroupName())) {
-                            binding.tvName.setText("来自群聊 " + collectionInfo.getFromGroupName());
+                            binding.tvName.setText(collectionInfo.getFromGroupName());
                         } else if (!TextUtils.isEmpty(collectionInfo.getFromUsername())) {
-                            binding.tvName.setText("来自用户 " + collectionInfo.getFromUsername());
+                            binding.tvName.setText(collectionInfo.getFromUsername());
                         } else {
                             binding.tvName.setText("未知来源");
                         }

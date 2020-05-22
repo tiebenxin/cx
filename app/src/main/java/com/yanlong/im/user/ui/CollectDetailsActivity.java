@@ -127,6 +127,7 @@ public class CollectDetailsActivity extends AppActivity {
     private RelativeLayout layoutText;
     private RelativeLayout layoutPic;
     private RelativeLayout layoutMap;
+    private RelativeLayout layoutTop;
     private LinearLayout layoutAddr;
     private LinearLayout layoutVoice;
     private LinearLayout layoutMain;
@@ -194,6 +195,7 @@ public class CollectDetailsActivity extends AppActivity {
         tvFileSize = findViewById(R.id.tv_file_size);
         ivFilePic = findViewById(R.id.iv_file_image);
         tvDownload = findViewById(R.id.tv_download);
+        layoutTop = findViewById(R.id.layout_top);
         actionbar = mHeadView.getActionbar();
         actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         actionbar.getBtnRight().setVisibility(VISIBLE);
@@ -237,10 +239,10 @@ public class CollectDetailsActivity extends AppActivity {
                 if (!TextUtils.isEmpty(collectionInfo.getData())) {
                     //显示用户名或群名
                     if (!TextUtils.isEmpty(collectionInfo.getFromGroupName())) {
-                        tvOne.setText("来自群聊");
+                        tvOne.setText("来自");
                         tvFrom.setText(collectionInfo.getFromGroupName());
                     } else if (!TextUtils.isEmpty(collectionInfo.getFromUsername())) {
-                        tvOne.setText("来自用户");
+                        tvOne.setText("来自");
                         tvFrom.setText(collectionInfo.getFromUsername());
                     } else {
                         tvOne.setText("未知来源");
@@ -261,6 +263,7 @@ public class CollectDetailsActivity extends AppActivity {
                             layoutFile.setVisibility(GONE);
                             layoutMap.setVisibility(GONE);
                             layoutAddr.setVisibility(GONE);
+                            layoutTop.setVisibility(VISIBLE);
                             CollectChatMessage bean1 = new Gson().fromJson(collectionInfo.getData(), CollectChatMessage.class);
                             if (bean1 != null) {
                                 if (!TextUtils.isEmpty(bean1.getMsg())) {
@@ -280,6 +283,7 @@ public class CollectDetailsActivity extends AppActivity {
                             ivPlay.setVisibility(GONE);
                             layoutMap.setVisibility(GONE);
                             layoutAddr.setVisibility(GONE);
+                            layoutTop.setVisibility(VISIBLE);
                             CollectImageMessage bean2 = new Gson().fromJson(collectionInfo.getData(), CollectImageMessage.class);
                             if (bean2 != null) { //显示预览图或者缩略图
                                 String thumbnail = bean2.getThumbnailShow();
@@ -327,6 +331,7 @@ public class CollectDetailsActivity extends AppActivity {
                             ivPlay.setVisibility(GONE);
                             layoutMap.setVisibility(GONE);
                             layoutAddr.setVisibility(GONE);
+                            layoutTop.setVisibility(VISIBLE);
                             CollectShippedExpressionMessage bean3 = new Gson().fromJson(collectionInfo.getData(), CollectShippedExpressionMessage.class);
                             if (bean3 != null) {
                                 if (!TextUtils.isEmpty(bean3.getExpression())) {
@@ -362,6 +367,7 @@ public class CollectDetailsActivity extends AppActivity {
                             ivPlay.setVisibility(VISIBLE);
                             layoutMap.setVisibility(GONE);
                             layoutAddr.setVisibility(GONE);
+                            layoutTop.setVisibility(VISIBLE);
                             CollectVideoMessage bean4 = new Gson().fromJson(collectionInfo.getData(), CollectVideoMessage.class);
                             if (bean4 != null) {
                                 if (!TextUtils.isEmpty(bean4.getVideoBgURL())) {
@@ -386,6 +392,7 @@ public class CollectDetailsActivity extends AppActivity {
                             layoutFile.setVisibility(GONE);
                             layoutMap.setVisibility(GONE);
                             layoutAddr.setVisibility(GONE);
+                            layoutTop.setVisibility(VISIBLE);
                             CollectVoiceMessage bean5 = new Gson().fromJson(collectionInfo.getData(), CollectVoiceMessage.class);
                             if (bean5 != null) {
                                 if (bean5.getVoiceDuration() != 0) {
@@ -407,6 +414,7 @@ public class CollectDetailsActivity extends AppActivity {
                             layoutFile.setVisibility(GONE);
                             layoutMap.setVisibility(VISIBLE);
                             layoutAddr.setVisibility(VISIBLE);
+                            layoutTop.setVisibility(GONE);
                             CollectLocationMessage bean6 = new Gson().fromJson(collectionInfo.getData(), CollectLocationMessage.class);
                             if (!LocationPersimmions.checkPermissions(CollectDetailsActivity.this)) {
                                 return;
@@ -485,6 +493,7 @@ public class CollectDetailsActivity extends AppActivity {
                             layoutFile.setVisibility(GONE);
                             layoutMap.setVisibility(GONE);
                             layoutAddr.setVisibility(GONE);
+                            layoutTop.setVisibility(VISIBLE);
                             CollectAtMessage bean7 = new Gson().fromJson(collectionInfo.getData(), CollectAtMessage.class);
                             if (bean7 != null) {
                                 if (!TextUtils.isEmpty(bean7.getMsg())) {
@@ -501,6 +510,7 @@ public class CollectDetailsActivity extends AppActivity {
                             layoutFile.setVisibility(VISIBLE);
                             layoutMap.setVisibility(GONE);
                             layoutAddr.setVisibility(GONE);
+                            layoutTop.setVisibility(VISIBLE);
                             CollectSendFileMessage bean8 = new Gson().fromJson(collectionInfo.getData(), CollectSendFileMessage.class);
                             if (bean8 != null) {
                                 fileMessage = bean8;
@@ -632,7 +642,7 @@ public class CollectDetailsActivity extends AppActivity {
             strings[1] = "取消";
         } else {
             strings = new String[3];
-            strings[0] = "转发";
+            strings[0] = "发送给朋友";
             strings[1] = "删除";
             strings[2] = "取消";
         }
@@ -643,7 +653,7 @@ public class CollectDetailsActivity extends AppActivity {
             public void onItem(String string, int postsion) {
                 switch (postsion) {
                     case 0:
-                        if (string.equals("转发")) {
+                        if (string.equals("发送给朋友")) {
                             //普通类型-转发
                             if (collectionInfo != null) {
                                 startActivity(new Intent(context, MsgForwardActivity.class)

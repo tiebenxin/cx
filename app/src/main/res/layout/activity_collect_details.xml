@@ -13,6 +13,7 @@
         android:background="@color/white"
         android:orientation="vertical">
         <RelativeLayout
+            android:id="@+id/layout_top"
             android:layout_width="match_parent"
             android:layout_height="44dp">
             <TextView
@@ -23,7 +24,7 @@
                 android:textColor="@color/c_868686"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="15dp"
-                android:layout_marginRight="12dp"
+                android:layout_marginRight="8dp"
                 android:text="来自"/>
             <TextView
                 android:id="@+id/tv_from"
