@@ -392,7 +392,7 @@ public class GroupManageActivity extends BaseBindActivity<ActivityGroupManageBin
             MsgNotice notice = SocketData.createMsgNoticeOfBanWords(SocketData.getUUID(), flag);
             MsgAllBean msgAllBean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.NOTICE, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), notice);
             MessageManager.getInstance().saveMessage(msgAllBean);
-            MessageManager.getInstance().notifyRefreshChat();
+            MessageManager.getInstance().notifyRefreshChat(gid,-1L);
         }
     }
 }
