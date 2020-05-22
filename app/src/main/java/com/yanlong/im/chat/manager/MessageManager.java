@@ -269,10 +269,10 @@ public class MessageManager {
                 //最后一条需要清除的聊天记录时间戳
                 long lastNeedCleanTimestamp = wrapMessage.getTimestamp();
                 //保存双向清除指令发送方和时间戳，用于丢弃在此时间戳之前的消息
-                historyCleanMsg.put(wrapMessage.getFromUid(), lastNeedCleanTimestamp);
+                historyCleanMsg.put(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), lastNeedCleanTimestamp);
                 //清除好友历史记录
-                msgDao.msgDel(wrapMessage.getFromUid(), lastNeedCleanTimestamp);
-                notifyRefreshChat();
+                msgDao.msgDel(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), lastNeedCleanTimestamp);
+                notifyRefreshChat(wrapMessage.getGid(), isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid());
                 break;
             case P2P_AU_VIDEO:// 音视频消息
                 if (bean != null) {
@@ -522,7 +522,7 @@ public class MessageManager {
                             isCancelValid = true;
                         }
                     }
-                    notifyRefreshChat();
+                    notifyRefreshChat(bean.getGid(), isFromSelf ? bean.getTo_uid() : bean.getFrom_uid());
                     // 处理图片撤回，在预览弹出提示
                     EventFactory.ClosePictureEvent event = new EventFactory.ClosePictureEvent();
                     event.msg_id = bean.getMsgCancel().getMsgidCancel();
@@ -566,7 +566,7 @@ public class MessageManager {
                     gid = gid == null ? "" : gid;
                     msgDao.sessionReadClean(gid, uids);
                 }
-                notifyRefreshChat();
+                notifyRefreshChat(wrapMessage.getGid(), uids);
                 break;
             case SWITCH_CHANGE: //开关变更
                 // TODO　处理老版本不兼容问题
@@ -1159,6 +1159,17 @@ public class MessageManager {
     public void notifySwitchDisturb() {
         EventBus.getDefault().post(new EventSwitchDisturb());
 
+    }
+
+    /*
+     * 通知刷新聊天界面
+     * */
+    public void notifyRefreshChat(String gid, Long uid) {
+        if (!isMsgFromCurrentChat(gid, uid)) {
+            return;
+        }
+        EventRefreshChat event = new EventRefreshChat();
+        EventBus.getDefault().post(event);
     }
 
     /*

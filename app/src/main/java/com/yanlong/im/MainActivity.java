@@ -1009,17 +1009,17 @@ public class MainActivity extends AppActivity {
                         versionBean.setVersion(bean.getVersion());
                         preferencesUtil.save2Json(versionBean);
                         //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
-                        if (VersionUtil.isBigVersion(context, bean.getVersion())) {
+                        if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
                             updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
                         } else {
                             updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
-                        }
-                        //如有新版本，首页底部提示红点
-                        if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
-                            if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
-                                sbme.setNum(1, true);
-                            } else {
-                                sbme.setNum(0, true);
+                            //如有新版本，首页底部提示红点
+                            if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
+                                if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
+                                    sbme.setNum(1, true);
+                                } else {
+                                    sbme.setNum(0, true);
+                                }
                             }
                         }
                     }
@@ -1467,7 +1467,7 @@ public class MainActivity extends AppActivity {
             return;
         }
         String phoneModel = android.os.Build.MODEL;
-        userAction.reportIP(ip, phoneModel,new CallBack<ReturnBean>(false) {
+        userAction.reportIP(ip, phoneModel, new CallBack<ReturnBean>(false) {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
