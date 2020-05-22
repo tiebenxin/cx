@@ -47,13 +47,22 @@ public class MsgSearchViewModel extends ViewModel {
 //        });
     }
 
+    public int getSearchFriendsSize(){
+        return searchFriends == null ? 0 : searchFriends.size();
+    }
+    public int getSearchGroupsSize(){
+        return searchGroups == null ? 0 : searchGroups.size();
+    }
+    public int getSearchSessionsSize(){
+        return searchSessions == null ? 0 : searchSessions.size();
+    }
 
     public void onDestory(LifecycleOwner owner) {
         key.removeObservers(owner);
         repository.onDestory();
         repository = null;
         if(searchFriends!=null)searchFriends.removeAllChangeListeners();
-        if(searchFriends!=null)searchGroups.removeAllChangeListeners();
-        if(searchFriends!=null)searchSessions.removeAllChangeListeners();
+        if(searchGroups!=null)searchGroups.removeAllChangeListeners();
+        if(searchSessions!=null)searchSessions.removeAllChangeListeners();
     }
 }
