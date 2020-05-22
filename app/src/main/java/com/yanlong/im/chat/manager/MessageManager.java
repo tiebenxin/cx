@@ -646,36 +646,55 @@ public class MessageManager {
                 userAction = new UserAction();
                 switch (wrapMessage.getMultiTerminalSync().getSyncType()) {
                     case MY_SELF_CHANGED://自己的个人信息变更
-                        userAction.getMyInfo4Web(UserAction.getMyId(), UserAction.getMyInfo().getImid());
-                        /********通知更新sessionDetail************************************/
-                        //回主线程调用更新session详情
-                        if (MyAppLication.INSTANCE().repository != null)
-                            MyAppLication.INSTANCE().repository.updateSelfGroupSessionDetail();
-                        /********通知更新sessionDetail end************************************/
+                        userAction.getMyInfo4Web(UserAction.getMyId(), UserAction.getMyInfo().getImid(),
+                                new CallBack<ReturnBean<UserBean>>() {
+                                    @Override
+                                    public void onResponse(Call<ReturnBean<UserBean>> call, Response<ReturnBean<UserBean>> response) {
+                                        super.onResponse(call, response);
+                                        /********通知更新sessionDetail************************************/
+                                        //回主线程调用更新session详情
+                                        if (MyAppLication.INSTANCE().repository != null)
+                                            MyAppLication.INSTANCE().repository.updateSelfGroupSessionDetail();
+                                        /********通知更新sessionDetail end************************************/
+                                    }
+                                });
+
                         break;
                     case MY_FRIEND_CHANGED://更改我的好友信息（备注名等）
-                        userAction.getUserInfo4Id(wrapMessage.getMultiTerminalSync().getUid(), null);
-                        /********通知更新sessionDetail************************************/
-                        List<Long> fUids = new ArrayList<>();
-                        fUids.add(wrapMessage.getMultiTerminalSync().getUid());
-                        //回主线程调用更新session详情
-                        if (MyAppLication.INSTANCE().repository != null)
-                            MyAppLication.INSTANCE().repository.updateSessionDetail(null, fUids);
-                        /********通知更新sessionDetail end************************************/
+                        userAction.updateUserInfo4Id(wrapMessage.getMultiTerminalSync().getUid(), new CallBack<ReturnBean<UserInfo>>() {
+                            @Override
+                            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+                                super.onResponse(call, response);
+                                /********通知更新sessionDetail************************************/
+                                List<Long> fUids = new ArrayList<>();
+                                fUids.add(wrapMessage.getMultiTerminalSync().getUid());
+                                //回主线程调用更新session详情
+                                if (MyAppLication.INSTANCE().repository != null)
+                                    MyAppLication.INSTANCE().repository.updateSessionDetail(null, fUids);
+                                /********通知更新sessionDetail end************************************/
+                            }
+                        });
+
                         break;
                     case MY_GROUP_CHANGED://更改我所在的群信息变更（备注名等）
                         MsgAction msgAction = new MsgAction();
                         String gid = wrapMessage.getMultiTerminalSync().getGid();
-                        msgAction.groupInfo(gid, false, null);
-                        /********通知更新sessionDetail************************************/
-                        List<String> gids = new ArrayList<>();
-                        if (!TextUtils.isEmpty(gid)) {
-                            gids.add(gid);
-                        }
-                        //回主线程调用更新session详情
-                        if (MyAppLication.INSTANCE().repository != null)
-                            MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
-                        /********通知更新sessionDetail end************************************/
+                        msgAction.groupInfo(gid, false, new CallBack<ReturnBean<Group>>() {
+                            @Override
+                            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                                super.onResponse(call, response);
+                                /********通知更新sessionDetail************************************/
+                                List<String> gids = new ArrayList<>();
+                                if (!TextUtils.isEmpty(gid)) {
+                                    gids.add(gid);
+                                }
+                                //回主线程调用更新session详情
+                                if (MyAppLication.INSTANCE().repository != null)
+                                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
+                                /********通知更新sessionDetail end************************************/
+                            }
+                        });
+
                         break;
                 }
                 break;

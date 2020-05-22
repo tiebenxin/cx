@@ -154,6 +154,7 @@ public class UserAction {
     public void updateUser2DB(UserBean user) {
         user.setuType(1);
         dao.updateUserBean(user);
+        myInfo = null;
     }
 
     /**
@@ -226,6 +227,13 @@ public class UserAction {
      * 拉取服务器的自己的信息到数据库
      */
     public void getMyInfo4Web(Long usrid, String imid) {
+        getMyInfo4Web(usrid, imid, null);
+    }
+
+    /***
+     * 拉取服务器的自己的信息到数据库
+     */
+    public void getMyInfo4Web(Long usrid, String imid, CallBack<ReturnBean<UserBean>> callBack) {
         NetUtil.getNet().exec(server.getUserBean(usrid), new CallBack<ReturnBean<UserBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserBean>> call, Response<ReturnBean<UserBean>> response) {
@@ -242,6 +250,7 @@ public class UserAction {
                     updateUser2DB(userInfo);
                     //通知UI更新用户信息
                     MessageManager.getInstance().notifyRefreshUser();
+                    if (callBack != null) callBack.onResponse(call, response);
                 }
             }
         });
@@ -278,9 +287,9 @@ public class UserAction {
                         if (hasChange) {
                             MessageManager.getInstance().notifyRefreshFriend(true, userInfo.getUid(), CoreEnum.ERosterAction.UPDATE_INFO);
                         }
-                        if(callBack!=null)callBack.onResponse(call, response);
+                        if (callBack != null) callBack.onResponse(call, response);
                     } else {
-                        if(callBack!=null)callBack.onFailure(call, new Throwable());
+                        if (callBack != null) callBack.onFailure(call, new Throwable());
                     }
                 }
             }
@@ -288,7 +297,49 @@ public class UserAction {
             @Override
             public void onFailure(Call<ReturnBean<UserInfo>> call, Throwable t) {
                 super.onFailure(call, t);
-                if(callBack!=null)callBack.onFailure(call, t);
+                if (callBack != null) callBack.onFailure(call, t);
+            }
+        });
+    }
+
+    /**
+     * 更新用户信息
+     */
+    public void updateUserInfo4Id(Long usrid, final CallBack<ReturnBean<UserInfo>> callBack) {
+        NetUtil.getNet().exec(server.getUserInfo(usrid), new CallBack<ReturnBean<UserInfo>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+                super.onResponse(call, response);
+                //写入用户信息到数据库
+                if (response.body() != null) {
+                    UserInfo userInfo = response.body().getData();
+                    if (userInfo != null && userInfo.getUid() != null) {
+                        if (userInfo.getStat() == 0) {
+                            userInfo.setuType(ChatEnum.EUserType.FRIEND);
+                        } else if (userInfo.getStat() == 2) {
+                            userInfo.setuType(ChatEnum.EUserType.BLACK);
+                        } else if (userInfo.getStat() == 1) {
+                            userInfo.setuType(ChatEnum.EUserType.STRANGE);
+                        } else if (userInfo.getStat() == 9) {
+                            userInfo.setuType(ChatEnum.EUserType.ASSISTANT);
+                        }
+                        userInfo.toTag();
+                        dao.updateUserinfo(userInfo);
+                        boolean hasChange = MessageManager.getInstance().updateUserAvatarAndNick(userInfo.getUid(), userInfo.getHead(), userInfo.getName());
+                        if (hasChange) {
+                            MessageManager.getInstance().notifyRefreshFriend(true, userInfo.getUid(), CoreEnum.ERosterAction.UPDATE_INFO);
+                        }
+                        if (callBack != null) callBack.onResponse(call, response);
+                    } else {
+                        if (callBack != null) callBack.onFailure(call, new Throwable());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<UserInfo>> call, Throwable t) {
+                super.onFailure(call, t);
+                if (callBack != null) callBack.onFailure(call, t);
             }
         });
     }
