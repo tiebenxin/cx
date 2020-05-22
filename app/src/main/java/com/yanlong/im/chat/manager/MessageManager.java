@@ -1749,6 +1749,9 @@ public class MessageManager {
         if (taskMaps != null) {
             taskMaps.clear();
         }
+        if (readTimeMap != null) {
+            readTimeMap.clear();
+        }
         //用户退出登录需清除阅后即焚数据
 //        BurnManager.getInstance().clear();
     }
