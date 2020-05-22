@@ -433,7 +433,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void dealToBurnMsg() {
         Realm realm = DaoUtil.open();
-        DaoUtil.executeTransactionAsync(realm,new Realm.Transaction() {
+        DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 RealmResults<MsgAllBean> realmResults = realm.where(MsgAllBean.class)
@@ -490,7 +490,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         public void run() {
                             mtListView.scrollToEnd();
                         }
-                    },100);
+                    }, 100);
                 } else {//关闭
                     //清除焦点
                     editChat.clearFocus();
@@ -523,7 +523,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         public void run() {
                             mtListView.scrollToEnd();
                         }
-                    },100);
+                    }, 100);
                 } else {//关闭
                     btnEmj.setImageLevel(0);
                     if (mViewModel.isOpenValue()) {//有事件触发
@@ -563,7 +563,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         public void run() {
                             mtListView.scrollToEnd();
                         }
-                    },100);
+                    }, 100);
                 } else {//关闭
                     if (mViewModel.isOpenValue()) {//有事件触发
                         if (mViewModel.isInputText.getValue()) {//无其他功能触发，则弹出输入框
@@ -3829,7 +3829,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             case ChatEnum.EMessageType.TEXT:
             case ChatEnum.EMessageType.AT:
                 menus.add(0, new OptionMenu("复制"));
-                menus.add(1, new OptionMenu("收藏"));
+                //发送状态正常，且未开启阅后即焚，则允许收藏
+                if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
+                    menus.add(1, new OptionMenu("收藏"));
+                }
                 break;
             case ChatEnum.EMessageType.VOICE:
                 if (msgDao.userSetingGet().getVoicePlayer() == 0) {
@@ -3837,14 +3840,20 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 } else {
                     menus.add(0, new OptionMenu("扬声器播放"));
                 }
-                menus.add(1, new OptionMenu("收藏"));
+                //发送状态正常，且未开启阅后即焚，则允许收藏
+                if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
+                    menus.add(1, new OptionMenu("收藏"));
+                }
                 break;
             case ChatEnum.EMessageType.LOCATION:
             case ChatEnum.EMessageType.IMAGE:
             case ChatEnum.EMessageType.MSG_VIDEO:
             case ChatEnum.EMessageType.SHIPPED_EXPRESSION:
             case ChatEnum.EMessageType.FILE:
-                menus.add(1, new OptionMenu("收藏"));
+                //发送状态正常，且未开启阅后即焚，则允许收藏
+                if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
+                    menus.add(1, new OptionMenu("收藏"));
+                }
                 break;
         }
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && type != ChatEnum.EMessageType.MSG_VOICE_VIDEO) {
@@ -3927,16 +3936,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         } else if ("多选".equals(value)) {
             onMore(msgbean);
         } else if ("收藏".equals(value)) {
-            if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-                if (msgbean.getSurvival_time() == 0) {
-                    onCollect(msgbean);
-                } else {
-                    ToastUtil.show("开启阅后即焚的会话，不允许收藏!");
-                }
-            } else {
-                ToastUtil.show("仅支持收藏发送成功的消息");
-            }
-
+//            if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+//                if (msgbean.getSurvival_time() == 0) {
+//
+//                } else {
+//                    ToastUtil.show("开启阅后即焚的会话，不允许收藏");
+//                }
+//            } else {
+//                ToastUtil.show("仅支持收藏发送成功的消息");
+//            }
+            onCollect(msgbean);
         }
     }
 
@@ -4254,8 +4263,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
             if (bean != null) {
                 if (bean.getRead() == 0) {
-                    ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
-                    sendMessage(read, ChatEnum.EMessageType.READ);
+                    if (MessageManager.getInstance().isReadTimeValid(toUId, bean.getTimestamp())) {
+                        MessageManager.getInstance().addReadTime(toUId, bean.getTimestamp());
+                        LogUtil.getLog().i(TAG, "发送已读--msgID=" + bean.getMsg_id() + "--time=" + bean.getTimestamp());
+                        ReadMessage read = SocketData.createReadMessage(SocketData.getUUID(), bean.getTimestamp());
+                        sendMessage(read, ChatEnum.EMessageType.READ);
+                    }
                 }
             }
         }
