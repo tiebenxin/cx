@@ -1,9 +1,11 @@
-package com.yanlong.im.chat.ui;
+package com.yanlong.im.chat.ui.search;
 
+import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -27,7 +29,6 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
-import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.bean.UserInfo;
@@ -45,9 +46,7 @@ import net.cb.cb.library.view.StrikeButton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,9 +69,7 @@ public class MsgSearchActivity extends AppActivity {
     private UserDao userDao;
     private boolean onlineState = true;//判断网络状态 true在线 false离线
     private final String TYPE_FACE = "[动画表情]";
-    private List<SessionDetail> sessionDetails = null;
-    //保存session 位置
-    public Map<String, Integer> sessionMoresPositions = new HashMap<>();
+    private MsgSearchViewModel viewModel = new MsgSearchViewModel();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,11 +77,16 @@ public class MsgSearchActivity extends AppActivity {
         setContentView(R.layout.activity_search_frd_grp);
         findViews();
         getIntentData();
-        sessionDetails = msgDao.getSessionDetail();
-        for (int i = 0; i < sessionDetails.size(); i++) {
-            sessionMoresPositions.put(sessionDetails.get(i).getSid(), i);
-        }
         initEvent();
+        initObserver();
+    }
+    private void initObserver(){
+        viewModel.key.observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                viewModel.search(s);
+            }
+        });
     }
 
     @Override
@@ -453,5 +455,9 @@ public class MsgSearchActivity extends AppActivity {
         mtListView.notifyDataSetChange();
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        viewModel.onDestory(this);
+    }
 }

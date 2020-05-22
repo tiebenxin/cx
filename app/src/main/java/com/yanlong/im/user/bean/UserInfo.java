@@ -27,7 +27,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     @SerializedName("gender")
     private int sex;
     private String imid;
-    //数据库中，数字存储的是a（非#） >Z，便于排序
+    //数据库中，数字存储的是Z1（非#） >Z，便于排序
     private String tag;
     @SerializedName("avatar")
     private String head;

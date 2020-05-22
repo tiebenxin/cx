@@ -24,6 +24,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
+import com.yanlong.im.chat.ui.search.MsgSearchActivity;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.wight.avatar.MultiImageView;
 
