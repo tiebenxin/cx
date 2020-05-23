@@ -207,12 +207,12 @@ public class QRCodeManage {
 
     public static void toZhifubao(Context mContext, Result result) {
         if (result == null) {
-            ToastUtil.show(mContext, "识别二维码失败");
+            ToastUtil.showCenter(mContext, "无法识别二维码");
         } else {
             String text = result.getText();
             if (text.contains("qr.alipay.com") || text.contains("QR.ALIPAY.COM")) {
 //                openAliPay2Pay(mContext, text);
-                ToastUtil.show(mContext, "识别二维码失败");
+                ToastUtil.showCenter(mContext, "无法识别二维码");
             } else if (text.contains(DOWNLOAD_APP_URL)) {
                 openUri(mContext, text);
             } else {
@@ -226,11 +226,11 @@ public class QRCodeManage {
 
     public static void goToPage(Context mContext, String result) {
         if (result == null) {
-            ToastUtil.show(mContext, "识别二维码失败");
+            ToastUtil.showCenter(mContext, "无法识别二维码");
         } else {
             if (result.contains("qr.alipay.com") || result.contains("QR.ALIPAY.COM")) {
 //                openAliPay2Pay(mContext, result);
-                ToastUtil.show(mContext, "识别二维码失败");
+                ToastUtil.showCenter(mContext, "无法识别二维码");
             } else if (result.contains(DOWNLOAD_APP_URL)) {
                 openUri(mContext, result);
             } else if (result.contains(PC_LOGIN_URL)) {

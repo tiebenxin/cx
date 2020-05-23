@@ -55,8 +55,11 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
     private ForwardSessionAdapter adapter;
     private IForwardListener listener;
     private List<Session> sessionsList;
-    private List<Session> tempSessionsList;//第一次过滤掉全员禁言后的数据
-    private int requestNums = 0;//需要http请求的次数
+    private List<Session> ListOne;//含有全部禁言的数据
+    private List<Session> ListTwo;//含有将我禁言的数据
+    private List<Session> ListThree;//含有个人会话的数据
+    private int needRequestNums = 0;//需要http请求的次数
+    private int finalRequestNums = 0;//实际http请求的次数
     private SingleMeberInfoBean singleMeberInfoBean;// 单个群成员信息，主要查看是否被单人禁言
 
     @Nullable
@@ -113,29 +116,34 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
             return;
         }
         sessionsList = sessions;
-        //先过滤掉全员禁言的群
+        ListOne = new ArrayList<>();
+        ListTwo = new ArrayList<>();
+        ListThree = new ArrayList<>();
+        //1 先统计全员禁言的群，过滤掉不显示
         for(int i=0; i<sessionsList.size();i++){
             if(!TextUtils.isEmpty(sessionsList.get(i).getGid())){
                 Group group = msgDao.groupNumberGet(sessionsList.get(i).getGid());
-                if(group.getWordsNotAllowed()==1){ //全员禁言
-                    sessionsList.remove(i);
+                if(group.getWordsNotAllowed()==1){
+                    ListOne.add(sessionsList.get(i));
                 }
             }
+            if(sessionsList.get(i).getFrom_uid()!=(-1)){
+                ListThree.add(sessionsList.get(i));
+            }
         }
-//        requestNums = sessionsList.size();
-//        tempSessionsList = new ArrayList<>();
-//        tempSessionsList.addAll(sessionsList);
-//        //然后过滤掉将我禁言的群
-//        //需要多次请求，防止直接修改sessionsList数量导致位置不准的问题，因此复制一份tempSessionsList，找到一个被禁言的，直接sessionsList删掉对应的那条数据
-//        for(int i=0; i<tempSessionsList.size();i++){
-//            if(!TextUtils.isEmpty(tempSessionsList.get(i).getGid())){
-//                getSingleMemberInfo(tempSessionsList.get(i).getGid(),i);
-//            }
-//        }
-
-        List<Session> temp = searchSessionBykey(sessionsList, MsgForwardActivity.searchKey);
-        adapter.bindData(temp);
-        ui.listView.init(adapter);
+        if(ListOne.size()>0){
+            sessionsList.removeAll(ListOne);
+        }
+        //再统计所有个人会话，无需发请求判断是否被禁言，得到最终需要请求的次数
+        if(ListThree.size()>0){
+            needRequestNums = sessionsList.size()-ListThree.size();
+        }
+        //2 然后过滤掉将我禁言的群
+        for(int i=0; i<sessionsList.size();i++){
+            if(!TextUtils.isEmpty(sessionsList.get(i).getGid())){
+                getSingleMemberInfo(sessionsList.get(i).getGid(),i);
+            }
+        }
     }
 
     @Override
@@ -195,27 +203,47 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
      * 获取单个群成员信息
      * 备注：这里用于查询并过滤将我禁言的群
      */
-//    private void getSingleMemberInfo(String toGid,int position) {
-//        new UserAction().getSingleMemberInfo(toGid, Integer.parseInt(UserAction.getMyId() + ""), new CallBack<ReturnBean<SingleMeberInfoBean>>() {
-//            @Override
-//            public void onResponse(Call<ReturnBean<SingleMeberInfoBean>> call, Response<ReturnBean<SingleMeberInfoBean>> response) {
-//                super.onResponse(call, response);
-//                if (response != null && response.body() != null && response.body().isOk()) {
-//                    singleMeberInfoBean = response.body().getData();
-//                    //1 是否被单人禁言
-//                    if (singleMeberInfoBean.getShutUpDuration() == 1) {
-//                        asd
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ReturnBean<SingleMeberInfoBean>> call, Throwable t) {
-//                super.onFailure(call, t);
-//                ToastUtil.show(getActivity(), t.getMessage());
-//            }
-//        });
-//    }
+    private void getSingleMemberInfo(String toGid,int position) {
+        new UserAction().getSingleMemberInfo(toGid, Integer.parseInt(UserAction.getMyId() + ""), new CallBack<ReturnBean<SingleMeberInfoBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<SingleMeberInfoBean>> call, Response<ReturnBean<SingleMeberInfoBean>> response) {
+                super.onResponse(call, response);
+                finalRequestNums++;
+                if (response != null && response.body() != null && response.body().isOk()) {
+                    singleMeberInfoBean = response.body().getData();
+                    //被单人禁言的时间
+                    if (singleMeberInfoBean.getShutUpDuration() != 0) {
+                        ListTwo.add(sessionsList.get(position));
+                    }
+                    //如果执行到最后一次请求，即全部走完，再判断是否存在需要过滤掉的将我禁言的群
+                    if(finalRequestNums == needRequestNums){
+                        if(ListTwo.size()>0){
+                            sessionsList.removeAll(ListTwo);
+                        }
+                        List<Session> temp = searchSessionBykey(sessionsList, MsgForwardActivity.searchKey);
+                        adapter.bindData(temp);
+                        ui.listView.init(adapter);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<SingleMeberInfoBean>> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show(getActivity(), t.getMessage());
+                finalRequestNums++;
+                //如果执行到最后一次请求，即全部走完，再判断是否存在需要过滤掉的将我禁言的群
+                if(finalRequestNums == needRequestNums){
+                    if(ListTwo.size()>0){
+                        sessionsList.removeAll(ListTwo);
+                    }
+                    List<Session> temp = searchSessionBykey(sessionsList, MsgForwardActivity.searchKey);
+                    adapter.bindData(temp);
+                    ui.listView.init(adapter);
+                }
+            }
+        });
+    }
 
 
 }

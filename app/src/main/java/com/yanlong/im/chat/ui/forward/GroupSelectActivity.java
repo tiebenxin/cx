@@ -19,7 +19,9 @@ import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
+import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.view.AlertForward;
@@ -28,6 +30,8 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.wight.avatar.MultiImageView;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -47,6 +51,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import retrofit2.Call;
+import retrofit2.Response;
 
 import static com.yanlong.im.chat.ui.forward.MsgForwardActivity.AGM_JSON;
 
@@ -63,6 +69,11 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
     private MsgDao msgDao = new MsgDao();
     private MsgAllBean sendMesage;
     private int mCount = 0;
+    private List<Group> ListOne;//含有全部禁言的数据
+    private List<Group> ListTwo;//含有将我禁言的数据
+    private int needRequestNums = 0;//需要http请求的次数
+    private int finalRequestNums = 0;//实际http请求的次数
+    private SingleMeberInfoBean singleMeberInfoBean;// 单个群成员信息，主要查看是否被单人禁言
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,16 +151,25 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                         if (groupInfoBeans != null && groupInfoBeans.size() > 0) {
                             groupInfoBeans.clear();
                         }
-                        //过滤掉全员禁言和将我禁言的群
-                        List<Group> newList = new ArrayList<>();
-                        newList.addAll(list);
-                        for(int i=0;i<newList.size();i++){
-                            if(newList.get(i).getWordsNotAllowed()==1){ //全员禁言
-                                newList.remove(i);
+                        groupInfoBeans.addAll(list);
+                        ListOne = new ArrayList<>();
+                        ListTwo = new ArrayList<>();
+                        //1 先统计全员禁言的群，过滤掉不显示
+                        for (int i = 0; i < groupInfoBeans.size(); i++) {
+                            if (groupInfoBeans.get(i).getWordsNotAllowed() == 1) {
+                                ListOne.add(groupInfoBeans.get(i));
                             }
                         }
-                        groupInfoBeans.addAll(newList);
-                        ui.mtListView.notifyDataSetChange();
+                        if (ListOne.size() > 0) {
+                            groupInfoBeans.removeAll(ListOne);
+                        }
+                        needRequestNums = groupInfoBeans.size();//需要请求的次数，判断每个群是否对我禁言
+                        //2 然后过滤掉将我禁言的群
+                        for (int i = 0; i < groupInfoBeans.size(); i++) {
+                            if (!TextUtils.isEmpty(groupInfoBeans.get(i).getGid())) {
+                                getSingleMemberInfo(groupInfoBeans.get(i).getGid(), i);
+                            }
+                        }
                     }
                 });
     }
@@ -419,6 +439,49 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
         } else {
             actionbar.setTxtRight("完成(" + event.type + ")");
         }
+    }
+
+
+    /**
+     * 获取单个群成员信息
+     * 备注：这里用于查询并过滤将我禁言的群
+     */
+    private void getSingleMemberInfo(String toGid,int position) {
+        new UserAction().getSingleMemberInfo(toGid, Integer.parseInt(UserAction.getMyId() + ""), new CallBack<ReturnBean<SingleMeberInfoBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<SingleMeberInfoBean>> call, Response<ReturnBean<SingleMeberInfoBean>> response) {
+                super.onResponse(call, response);
+                finalRequestNums++;
+                if (response != null && response.body() != null && response.body().isOk()) {
+                    singleMeberInfoBean = response.body().getData();
+                    //被单人禁言的时间
+                    if (singleMeberInfoBean.getShutUpDuration() != 0) {
+                        ListTwo.add(groupInfoBeans.get(position));
+                    }
+                    //如果执行到最后一次请求，即全部走完，再判断是否存在需要过滤掉的将我禁言的群
+                    if(finalRequestNums == needRequestNums){
+                        if(ListTwo.size()>0){
+                            groupInfoBeans.removeAll(ListTwo);
+                        }
+                        ui.mtListView.notifyDataSetChange();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<SingleMeberInfoBean>> call, Throwable t) {
+                super.onFailure(call, t);
+                ToastUtil.show(GroupSelectActivity.this, t.getMessage());
+                finalRequestNums++;
+                //如果执行到最后一次请求，即全部走完，再判断是否存在需要过滤掉的将我禁言的群
+                if(finalRequestNums == needRequestNums){
+                    if(ListTwo.size()>0){
+                        groupInfoBeans.removeAll(ListTwo);
+                    }
+                    ui.mtListView.notifyDataSetChange();
+                }
+            }
+        });
     }
 
 }

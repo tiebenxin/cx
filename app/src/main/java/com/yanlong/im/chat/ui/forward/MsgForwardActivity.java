@@ -1011,7 +1011,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     }
 
     public void doSendSuccess() {
-        ToastUtil.show(this, getResources().getString(R.string.forward_success));
+        ToastUtil.showCenter(this, getResources().getString(R.string.forward_success));
         finish();
     }
 
