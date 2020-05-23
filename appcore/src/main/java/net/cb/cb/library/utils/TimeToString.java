@@ -141,6 +141,7 @@ public class TimeToString {
         String result = "";
         String todayTimeFormat = "今天";
         String yesterdayTimeFormat = "昨天";
+        String bfYesterdayTimeFormat = "前天";
         String yearFormat = "yyyy-MM-dd";
         try {
             Calendar todayCalendar = Calendar.getInstance();
@@ -154,6 +155,9 @@ public class TimeToString {
                     //昨天
                 } else if (todayCalendar.get(Calendar.DATE) == (calendar.get(Calendar.DATE) + 1)) {
                     result = yesterdayTimeFormat;
+                    //前天
+                } else if (todayCalendar.get(Calendar.DATE) == (calendar.get(Calendar.DATE) + 2)) {
+                    result = bfYesterdayTimeFormat;
                     //更久远的直接日期显示
                 } else {
                     result = getTime(timestamp, yearFormat);
