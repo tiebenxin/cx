@@ -46,6 +46,10 @@ public class DialogCommon2 extends BaseDialog {
         return this;
     }
 
+    public DialogCommon2 hasTitle(boolean flag) {
+        tvTitle.setVisibility(flag ? View.VISIBLE : View.GONE);
+        return this;
+    }
 
     public DialogCommon2 setButtonTxt(String txt) {
         tvButton.setText(txt);

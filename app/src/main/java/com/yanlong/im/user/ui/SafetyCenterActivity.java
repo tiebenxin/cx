@@ -53,6 +53,7 @@ public class SafetyCenterActivity extends AppActivity {
         ui.viewManagerDevice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                go(DeviceManagerActivity.class);
 
             }
         });

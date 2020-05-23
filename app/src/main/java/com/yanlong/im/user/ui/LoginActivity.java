@@ -19,6 +19,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -30,6 +31,7 @@ import com.yanlong.im.utils.PasswordTextWather;
 import net.cb.cb.library.BuildConfig;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.constant.AppHostUtil;
+import net.cb.cb.library.dialog.DialogCommon2;
 import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.InputUtil;
@@ -107,17 +109,18 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
 
     /**
      * 显示或隐藏密码
+     *
      * @param view
      */
-    public void showOrHidePassword(View view){
-        ImageView ivEye=(ImageView)view;
-        int level=ivEye.getDrawable().getLevel();
-        if(level==0){//隐藏转显示
+    public void showOrHidePassword(View view) {
+        ImageView ivEye = (ImageView) view;
+        int level = ivEye.getDrawable().getLevel();
+        if (level == 0) {//隐藏转显示
             mEtPasswordContent.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
             ivEye.setImageLevel(1);
             //光标定位到最后
             mEtPasswordContent.setSelection(mEtPasswordContent.getText().length());
-        }else{//显示转隐藏
+        } else {//显示转隐藏
             mEtPasswordContent.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             ivEye.setImageLevel(0);
             //光标定位到最后
@@ -240,9 +243,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.tv_identifying_code:
-                Intent intent = new Intent(this, IdentifyingCodeActivity.class);
-                intent.putExtra(PHONE, phone);
-                startActivity(intent);
+                goIdentifyCodeActivity();
                 break;
             case R.id.tv_forget_password:
                 Intent forgotPasswordIntent = new Intent(this, ForgotPasswordActivity.class);
@@ -252,6 +253,12 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                 initPopup();
                 break;
         }
+    }
+
+    private void goIdentifyCodeActivity() {
+        Intent intent = new Intent(this, IdentifyingCodeActivity.class);
+        intent.putExtra(PHONE, phone);
+        startActivity(intent);
     }
 
     private void initPopup() {
@@ -346,8 +353,11 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                                 }
                                 count += 1;
                             }
+
                             if (response.body().getCode().longValue() == 10004) {//账号未注册
                                 ToastUtil.show(getContext(), response.body().getMsg());
+                            } else if (response.body().getCode().longValue() == 10088) {//非安全设备
+                                showNewDeviceDialog();
                             } else {
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             }
@@ -385,6 +395,8 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                             }
                             if (response.body().getCode().longValue() == 10004) {//账号不存在
                                 ToastUtil.show(getContext(), response.body().getMsg());
+                            } else if (response.body().getCode().longValue() == 10088) {//非安全设备
+                                showNewDeviceDialog();
                             } else {
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             }
@@ -441,6 +453,25 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
             SpUtil spUtil = SpUtil.getSpUtil();
             spUtil.putSPValue("isConfigIP", isShowIPSelector);
         }
+    }
+
+    public void showNewDeviceDialog() {
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                DialogCommon2 dialogNewDevice = new DialogCommon2(LoginActivity.this);
+                dialogNewDevice.setContent("您正在新设备上登录常信，为确保账号安全请使用验证码登录", true)
+                        .setButtonTxt("确定")
+                        .hasTitle(false)
+                        .setListener(new DialogCommon2.IDialogListener() {
+                            @Override
+                            public void onClick() {
+                                goIdentifyCodeActivity();
+                            }
+                        }).show();
+            }
+        });
+
     }
 }
 

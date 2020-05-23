@@ -131,7 +131,7 @@ public class VersionUtil {
             if (!TextUtils.isEmpty(newVerName) && !TextUtils.isEmpty(OldVerName)) {
                 String[] newVer = newVerName.split("\\.");
                 String[] oldVer = OldVerName.split("\\.");
-                for (int i = 0; i < newVer.length ; i++) {
+                for (int i = 0; i < newVer.length; i++) {
                     int newNumber = Integer.parseInt(newVer[i]);
                     int oldNumber = Integer.parseInt(oldVer[i]);
                     //旧版本号更大，不需要更新
@@ -147,10 +147,4 @@ public class VersionUtil {
         }
         return isLower;
     }
-
-
-    public static String getPhoneModel() {
-        return android.os.Build.BRAND + " " + android.os.Build.MODEL;
-    }
-
 }
