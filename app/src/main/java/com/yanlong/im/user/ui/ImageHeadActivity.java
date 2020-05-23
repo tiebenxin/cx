@@ -341,11 +341,6 @@ public class ImageHeadActivity extends AppActivity {
                 if (avatar != null) {
                     UserInfo userInfo = new UserInfo();
                     userInfo.setHead(avatar);
-                    /********通知更新sessionDetail************************************/
-                    //回主线程调用更新session详情
-                    if (MyAppLication.INSTANCE().repository != null)
-                        MyAppLication.INSTANCE().repository.updateSelfGroupSessionDetail();
-                    /********通知更新sessionDetail end************************************/
                     EventBus.getDefault().post(new EventMyUserInfo(userInfo, EventMyUserInfo.ALTER_HEAD));
                 }
                 ToastUtil.show(ImageHeadActivity.this, response.body().getMsg());

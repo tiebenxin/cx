@@ -10,7 +10,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
 import com.yanlong.im.user.action.UserAction;
@@ -293,11 +292,6 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                         mTvSex.setText("未知");
                     }
                 }
-                /********通知更新sessionDetail************************************/
-                //回主线程调用更新session详情
-                if (MyAppLication.INSTANCE().repository != null)
-                    MyAppLication.INSTANCE().repository.updateSelfGroupSessionDetail();
-                /********通知更新sessionDetail end************************************/
                 ToastUtil.show(MyselfInfoActivity.this, response.body().getMsg());
             }
         });

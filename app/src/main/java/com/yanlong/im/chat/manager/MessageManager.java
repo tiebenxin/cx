@@ -2,6 +2,7 @@ package com.yanlong.im.chat.manager;
 
 import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.MyAppLication;
@@ -644,21 +645,10 @@ public class MessageManager {
                 break;
             case MULTI_TERMINAL_SYNC:// PC端同步 更改信息，只同步自己的操作
                 userAction = new UserAction();
+                Log.e("raleigh_test","PC端同步消息="+wrapMessage.getMultiTerminalSync().getSyncType());
                 switch (wrapMessage.getMultiTerminalSync().getSyncType()) {
                     case MY_SELF_CHANGED://自己的个人信息变更
-                        userAction.getMyInfo4Web(UserAction.getMyId(), UserAction.getMyInfo().getImid(),
-                                new CallBack<ReturnBean<UserBean>>() {
-                                    @Override
-                                    public void onResponse(Call<ReturnBean<UserBean>> call, Response<ReturnBean<UserBean>> response) {
-                                        super.onResponse(call, response);
-                                        /********通知更新sessionDetail************************************/
-                                        //回主线程调用更新session详情
-                                        if (MyAppLication.INSTANCE().repository != null)
-                                            MyAppLication.INSTANCE().repository.updateSelfGroupSessionDetail();
-                                        /********通知更新sessionDetail end************************************/
-                                    }
-                                });
-
+                        userAction.getMyInfo4Web(UserAction.getMyId(), UserAction.getMyInfo().getImid(),null);
                         break;
                     case MY_FRIEND_CHANGED://更改我的好友信息（备注名等）
                         userAction.updateUserInfo4Id(wrapMessage.getMultiTerminalSync().getUid(), new CallBack<ReturnBean<UserInfo>>() {
