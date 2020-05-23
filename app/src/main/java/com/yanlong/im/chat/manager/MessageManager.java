@@ -351,7 +351,7 @@ public class MessageManager {
                 }
                 break;
             case REMOVE_GROUP_MEMBER://自己被移除群聊，如果该群是已保存群聊，需要改为未保存
-                if (bean != null) {
+                if (bean != null&&!isFromSelf) {//除去自己PC端移除
                     result = saveMessageNew(bean, isList);
                     MemberUser memberUser = userToMember(userBean, bean.getGid());
                     msgDao.removeGroupMember(bean.getGid(), memberUser);
