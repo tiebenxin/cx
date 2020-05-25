@@ -86,8 +86,7 @@ public class AdapterDeviceList extends BaseAdapter {
         public void bindData(DeviceBean bean) {
             tvName.setText(bean.getName());
             if (model == 1) {
-                ivIcon.setImageResource(R.mipmap.ic_btn_goto);
-
+                ivIcon.setImageResource(R.mipmap.ic_delete);
             } else {
                 ivIcon.setImageResource(R.mipmap.ic_btn_goto);
             }
