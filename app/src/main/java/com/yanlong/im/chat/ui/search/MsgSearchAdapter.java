@@ -1,7 +1,6 @@
 package com.yanlong.im.chat.ui.search;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -44,32 +43,16 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
         return viewModel.getSearchFriendsSize() + viewModel.getSearchGroupsSize() + viewModel.getSearchSessionsSize();
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        if (position < viewModel.searchFriends.size()) {//单人
-            return 0;
-        } else if (position < (viewModel.searchFriends.size() + viewModel.getSearchGroupsSize())) {//群
-            return 1;
-        } else {//聊天记录
-            return 2;
-        }
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull RCViewHolder holder, int position, @NonNull List<Object> payloads) {
-        if (payloads.isEmpty()) {
-            onBindViewHolder(holder, position);
-        } else {
-            int type = (int) payloads.get(0);
-            switch (type) {
-                case 0:
-                    break;
-                case 1:
-                    break;
-            }
-            onBindViewHolder(holder, position);
-        }
-    }
+//    @Override
+//    public int getItemViewType(int position) {
+//        if (position < viewModel.searchFriends.size()) {//单人
+//            return 0;
+//        } else if (position < (viewModel.searchFriends.size() + viewModel.getSearchGroupsSize())) {//群
+//            return 1;
+//        } else {//聊天记录
+//            return 2;
+//        }
+//    }
 
     //自动生成控件事件
     @Override
@@ -100,19 +83,20 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
             //头像地址
             List<String> headList = new ArrayList<>();
             String groupName = "";
-            for (int j = 0; j < 14; j++) {
+            int headMaxPosition = Math.min(group.getUsers().size(),14);
+            for (int j = 0; j < headMaxPosition; j++) {
                 MemberUser userInfo = group.getUsers().get(j);
-                if(j<i) {
+                if (j < i) {
                     headList.add(userInfo.getHead());
                 }
                 groupName += StringUtil.getUserName(/*info.getMkName()*/"", userInfo.getMembername(), userInfo.getName(), userInfo.getUid()) + "、";
             }
-            if (TextUtils.isEmpty(group.getName())){
+            if (TextUtils.isEmpty(group.getName())) {
                 //去掉最后一个顿号
-                groupName = groupName.substring(0,groupName.length()-1);
+                groupName = groupName.substring(0, groupName.length() - 1);
                 groupName = groupName.length() > 14 ? StringUtil.splitEmojiString2(groupName, 0, 14) : groupName;
                 groupName += "的群";
-            }else{
+            } else {
                 groupName = group.getName();
             }
             holder.imgHead.setList(headList);
@@ -122,13 +106,19 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
                 holder.vInfoPanel.setVisibility(View.GONE);
             } else {//4.群名称不包含关键字，则说明群成员包含，显示第二行
                 holder.vInfoPanel.setVisibility(View.VISIBLE);
-                for(MemberUser user: group.getUsers()){
+                String memeberName = null;
+                for (MemberUser user : group.getUsers()) {
+                    if (user.getMembername().contains(viewModel.key.getValue())) {
+                        memeberName = user.getMembername();
+                        break;
+                    } else if (user.getName().contains(viewModel.key.getValue())) {
+                        memeberName = user.getName();
+                        break;
+                    }
                 }
-//TODO                holder.txtInfo.setText("包含：" + userInfo.getName());
+                holder.txtInfo.setText("包含：" + memeberName);
             }
-
-
-        } else {
+        } else {//聊天记录
             holder.vInfoPanel.setVisibility(View.VISIBLE);
         }
 
