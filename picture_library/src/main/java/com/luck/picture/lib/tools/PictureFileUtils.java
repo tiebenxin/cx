@@ -384,7 +384,7 @@ public class PictureFileUtils {
         //旋转图片 动作
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
-        LogManager.getLogger().i("a===","angle2=" + angle);
+        LogManager.getLogger().i("a===", "angle2=" + angle);
         // 创建新的图片
         Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
                 bitmap.getWidth(), bitmap.getHeight(), matrix, true);
@@ -667,7 +667,21 @@ public class PictureFileUtils {
         if (TextUtils.isEmpty(url)) {
             return "";
         }
-        return url.substring(url.lastIndexOf("/") + 1);
+        int start = url.lastIndexOf("/");
+        int end = url.lastIndexOf(".");
+        return url.substring(start + 1, end);
+    }
+
+    //获取文件格式名
+    public static String getFileFormatName(String url) {
+        if (TextUtils.isEmpty(url)) {
+            return "";
+        }
+        String name = url.substring(url.lastIndexOf("." ));
+        if (!TextUtils.isEmpty(name) &&name.contains("/")){
+            name = name.substring(0,name.lastIndexOf("/"));
+        }
+        return name;
     }
 
     //获取保存图片全路径
@@ -684,7 +698,7 @@ public class PictureFileUtils {
             if (file.exists()) {
 //                long fileSize = file.length();
 //                if (size == fileSize) {
-                    return true;
+                return true;
 //                }
             }
         }
