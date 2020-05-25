@@ -282,7 +282,6 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 public void onClick(View view) {
                     Intent intent = new Intent(context, MsgSearchActivity.class);
                     intent.putExtra("online_state", viewModel.onlineState.getValue());
-                    intent.putExtra("conversition_data", viewModel.getSessionJson());
                     context.startActivity(intent);
                 }
             });

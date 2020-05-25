@@ -1,6 +1,5 @@
 package com.yanlong.im.data.local;
 
-import com.google.gson.Gson;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.Remind;
@@ -29,9 +28,6 @@ public class MainLocalDataSource {
         realm = DaoUtil.open();
     }
 
-    public String getSessionJson(RealmResults<Session> sessions) {
-        return new Gson().toJson(realm.copyFromRealm(sessions));
-    }
 
     /**
      * 获取群信息

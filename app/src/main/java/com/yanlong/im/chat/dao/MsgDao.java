@@ -1,10 +1,8 @@
 package com.yanlong.im.chat.dao;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.hm.cxpay.global.PayEnum;
-import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
@@ -989,12 +987,15 @@ public class MsgDao {
      * 备注：新增不区分大小写模糊查询
      */
     public List<MsgAllBean> searchMsg4key(String key, String gid, Long uid) {
+        String searchKey = String.format("*%s*",key);
         Realm realm = DaoUtil.open();
         List<MsgAllBean> ret = null;
         try {
             ret = new ArrayList<>();
             RealmResults<MsgAllBean> msg;
             if (StringUtil.isNotNull(gid)) {//群
+
+
                 msg = realm.where(MsgAllBean.class)
                         .equalTo("gid", gid)
                         .and()

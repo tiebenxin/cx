@@ -9,8 +9,6 @@ import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -49,7 +47,6 @@ public class MsgSearchActivity extends AppActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_frd_grp);
         findViews();
-        getIntentData();
         initEvent();
         initObserver();
     }
@@ -57,6 +54,7 @@ public class MsgSearchActivity extends AppActivity {
         viewModel.key.observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
+                viewModel.clear();
                 viewModel.search(s);
                 mtListView.getListView().getAdapter().notifyDataSetChanged();
             }
@@ -131,21 +129,7 @@ public class MsgSearchActivity extends AppActivity {
 
             }
         });
-
     }
-
-    //页面跳转->数据传递
-    private void getIntentData() {
-        if (getIntent() != null) {
-            onlineState = getIntent().getBooleanExtra("online_state", true);
-            if (getIntent().getStringExtra("conversition_data") != null) {
-                String json = getIntent().getStringExtra("conversition_data");
-                totalData.addAll(new Gson().fromJson(json, new TypeToken<List<Session>>() {
-                }.getType()));
-            }
-        }
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();

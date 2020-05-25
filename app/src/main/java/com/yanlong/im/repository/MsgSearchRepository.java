@@ -1,6 +1,7 @@
 package com.yanlong.im.repository;
 
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.data.local.MsgSearchLocalDataSource;
 import com.yanlong.im.user.bean.UserInfo;
@@ -38,8 +39,16 @@ public class MsgSearchRepository {
      *
      * @return
      */
-    public RealmResults<SessionDetail> searchSessions() {
+    public RealmResults<Session> searchSessions() {
         return localDataSource.searchSessions();
+    }
+    /**
+     * 获取满足条件的sessionDetail
+     *
+     * @return
+     */
+    public RealmResults<SessionDetail> getSessionDetails(String[] sids) {
+        return localDataSource.getSessionDetails(sids);
     }
     /**
      * 搜索聊天记录

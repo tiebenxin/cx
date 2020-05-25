@@ -6,6 +6,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.view.KeyEvent;
 import android.view.View;
@@ -42,6 +43,7 @@ public class SearchMsgActivity extends AppActivity {
     public static final String AGM_GID = "gid";
 
     public static final String AGM_FUID = "fuid";
+    public static final String AGM_SEARCH_KEY = "search_key";
     private Long fuid;
     private String gid;
 
@@ -66,6 +68,7 @@ public class SearchMsgActivity extends AppActivity {
     private void initEvent() {
         gid = getIntent().getStringExtra(AGM_GID);
         fuid = getIntent().getLongExtra(AGM_FUID, 0);
+
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -89,6 +92,13 @@ public class SearchMsgActivity extends AppActivity {
                 return false;
             }
         });
+        String searchKey = getIntent().getStringExtra(AGM_SEARCH_KEY);
+        if(!TextUtils.isEmpty(searchKey)){//直接搜索
+            edtSearch.setText(searchKey);
+            edtSearch.setSelection(searchKey.length());
+            taskSearch();
+        }
+
     }
 
 

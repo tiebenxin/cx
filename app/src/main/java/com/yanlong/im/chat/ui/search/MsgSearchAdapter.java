@@ -1,19 +1,20 @@
 package com.yanlong.im.chat.ui.search;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
-import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.bean.SessionDetail;
+import com.yanlong.im.chat.ui.SearchMsgActivity;
+import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.wight.avatar.MultiImageView;
 
@@ -21,6 +22,7 @@ import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.StrikeButton;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -74,6 +76,14 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
                     holder.txtInfo.setText("常信号：" + userInfo.getImid());
                 }
             }
+            holder.viewIt.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    context.startActivity(new Intent(context, ChatActivity.class)
+                            .putExtra(ChatActivity.AGM_TOUID, userInfo.getUid())
+                    );
+                }
+            });
 
         } else if (position < (viewModel.searchFriends.size() + viewModel.getSearchGroupsSize())) {//群
             holder.vInfoPanel.setVisibility(View.VISIBLE);
@@ -118,28 +128,58 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
                 }
                 holder.txtInfo.setText("包含：" + memeberName);
             }
+            holder.viewIt.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    context.startActivity(new Intent(context, ChatActivity.class)
+                            .putExtra(ChatActivity.AGM_TOGID, group.getGid())
+                    );
+                }
+            });
         } else {//聊天记录
             holder.vInfoPanel.setVisibility(View.VISIBLE);
+            int p=position - viewModel.searchFriends.size() - viewModel.getSearchGroupsSize();
+            SessionDetail sessionDetail=viewModel.searchSessions.get(p);
+
+            //头像地址
+            List<String> headList = new ArrayList<>();
+            if (StringUtil.isNotNull(sessionDetail.getAvatar())) {
+                headList.add(sessionDetail.getAvatar());
+            } else {
+                List<String > avatarList = null;
+                String avatarListString = sessionDetail.getAvatarList();
+                if (avatarListString != null) {
+                    avatarList = Arrays.asList(avatarListString.split(","));
+                }
+                if (avatarList == null || avatarList.size() == 0) {//没有头像，设个默认的，否则会出现头像为全灰色
+                    avatarList = new ArrayList<>();
+                    avatarList.add("");
+                }
+                headList.addAll(avatarList);
+            }
+
+            holder.imgHead.setList(headList);
+            holder.txtName.setText(sessionDetail.getName());
+            if(viewModel.sessionSearch.containsKey(sessionDetail.getSid())){
+                MsgSearchViewModel.SessionSearch sessionSearch = viewModel.sessionSearch.get(sessionDetail.getSid());
+                holder.txtInfo.setText(sessionSearch.getCount()+"条相关的聊天记录");
+                holder.viewIt.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        context.startActivity(new Intent(context, SearchMsgActivity.class)
+                                .putExtra(SearchMsgActivity.AGM_GID, sessionSearch.getGid())
+                                .putExtra(SearchMsgActivity.AGM_FUID, sessionSearch.getUid())
+                                .putExtra(SearchMsgActivity.AGM_SEARCH_KEY, viewModel.key.getValue())
+                        );
+                    }
+                });
+            }else{
+                holder.txtInfo.setText("0条相关的聊天记录");
+                holder.viewIt.setOnClickListener(null);
+            }
         }
 
     }
-
-    //加载群头像
-    public synchronized void loadGroupHeads(Session bean, MultiImageView imgHead) {
-//        Group gginfo = msgDao.getGroup4Id(bean.getGid());
-//        if (gginfo != null) {
-//            int i = gginfo.getUsers().size();
-//            i = i > 9 ? 9 : i;
-//            //头像地址
-//            List<String> headList = new ArrayList<>();
-//            for (int j = 0; j < i; j++) {
-//                MemberUser userInfo = gginfo.getUsers().get(j);
-//                headList.add(userInfo.getHead());
-//            }
-//            imgHead.setList(headList);
-//        }
-    }
-
 
     //自动寻找ViewHold
     @Override
@@ -155,28 +195,19 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
         private StrikeButton sb;
 
         private View viewIt, vInfoPanel;
-        private SwipeMenuLayout swipeLayout;
         private TextView txtName;
         private TextView txtInfo;
-        private TextView txtTime;
-        private final ImageView iv_disturb, iv_disturb_unread;
 //            private final TextView tv_num;
 
         //自动寻找ViewHold
         public RCViewHolder(View convertView) {
             super(convertView);
             imgHead = convertView.findViewById(R.id.img_head);
-            swipeLayout = convertView.findViewById(R.id.swipeLayout);
             sb = convertView.findViewById(R.id.sb);
             viewIt = convertView.findViewById(R.id.view_it);
             txtName = convertView.findViewById(R.id.txt_name);
             txtInfo = convertView.findViewById(R.id.txt_info);
-            txtTime = convertView.findViewById(R.id.txt_time);
-            iv_disturb = convertView.findViewById(R.id.iv_disturb);
-//                tv_num = convertView.findViewById(R.id.tv_num);
-            iv_disturb_unread = convertView.findViewById(R.id.iv_disturb_unread);
             vInfoPanel = convertView.findViewById(R.id.ll_info);
-
         }
 
     }

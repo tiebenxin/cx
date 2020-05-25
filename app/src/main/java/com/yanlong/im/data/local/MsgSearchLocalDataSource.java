@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
@@ -57,8 +58,16 @@ public class MsgSearchLocalDataSource {
      *
      * @return
      */
-    public RealmResults<SessionDetail> searchSessions() {
-        return realm.where(SessionDetail.class).findAllAsync();
+    public RealmResults<Session> searchSessions() {
+        return realm.where(Session.class).findAll();
+    }
+    /**
+     * 获取满足条件的sessionDetail
+     *
+     * @return
+     */
+    public RealmResults<SessionDetail> getSessionDetails(String[] sids) {
+        return realm.where(SessionDetail.class).in("sid",sids).findAll();
     }
 
     /**
