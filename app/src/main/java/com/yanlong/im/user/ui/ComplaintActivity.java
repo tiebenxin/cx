@@ -23,9 +23,9 @@ public class ComplaintActivity extends AppActivity {
     private ActionbarView actionbar;
     private net.cb.cb.library.view.MultiListView mtListView;
     private String[] strings = {
-            "发布色情广告",
+            "发布色情、广告对我造成骚扰",
             "存在欺诈骗钱行为",
-            "此账号可能被盗用",
+            "此账号可能被盗用了",
             "通过不正当手段获取他人或公司机密"
     };
 
