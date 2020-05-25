@@ -12,6 +12,7 @@ import com.yanlong.im.user.bean.DeviceBean;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
@@ -31,6 +32,7 @@ public class DeviceManagerActivity extends AppActivity {
     private ControllerLinearList viewDeviceList;
     private AdapterDeviceList adapter;
     private UserAction userAction = new UserAction();
+    private List<DeviceBean> mData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +51,8 @@ public class DeviceManagerActivity extends AppActivity {
                     ui.headView.getActionbar().setTxtRight("编辑");
                     adapter.setModel(0);
                 } else {
-                    ui.headView.getActionbar().setTxtRight("完成");
+//                    ui.headView.getActionbar().setTxtRight("完成");
+                    ui.headView.getActionbar().setTxtRight("");
                     adapter.setModel(1);
                 }
             }
@@ -60,9 +63,7 @@ public class DeviceManagerActivity extends AppActivity {
             @Override
             public void onClick(DeviceBean bean) {
                 if (adapter.getModel() == 1) {//删除
-                    deleDevice(bean);
-                } else {
-
+                    deleteDevice(bean);
                 }
             }
         });
@@ -76,8 +77,8 @@ public class DeviceManagerActivity extends AppActivity {
             public void onResponse(Call<ReturnBean<List<DeviceBean>>> call, Response<ReturnBean<List<DeviceBean>>> response) {
                 super.onResponse(call, response);
                 if (response != null && response.body() != null && response.isSuccessful()) {
-                    List<DeviceBean> list = response.body().getData();
-                    adapter.bindData(list);
+                    mData = response.body().getData();
+                    adapter.bindData(mData);
                 }
             }
 
@@ -88,16 +89,21 @@ public class DeviceManagerActivity extends AppActivity {
         });
     }
 
-    private void deleDevice(DeviceBean bean) {
+    private void deleteDevice(DeviceBean bean) {
         userAction.deleteDevice(bean.getDevice(), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
+                if (response != null && response.isSuccessful()) {
+                    mData.remove(bean);
+                    adapter.bindData(mData);
+                }
             }
 
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
+                ToastUtil.show("删除失败");
             }
         });
     }

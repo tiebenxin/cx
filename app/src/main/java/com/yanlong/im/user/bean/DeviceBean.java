@@ -1,5 +1,9 @@
 package com.yanlong.im.user.bean;
 
+import android.text.TextUtils;
+
+import androidx.annotation.Nullable;
+
 import net.cb.cb.library.base.BaseBean;
 
 /**
@@ -61,5 +65,17 @@ public class DeviceBean extends BaseBean {
 
     public void setUid(long uid) {
         this.uid = uid;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        DeviceBean bean = (DeviceBean) obj;
+        if (!TextUtils.isEmpty(device) && !TextUtils.isEmpty(bean.getDevice())) {
+            if (device.equalsIgnoreCase(bean.getDevice())) {
+                return true;
+            }
+        }
+        return false;
+
     }
 }

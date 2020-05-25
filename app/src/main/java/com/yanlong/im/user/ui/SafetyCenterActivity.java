@@ -10,6 +10,7 @@ import com.yanlong.im.databinding.ActivitySafetyCenterBinding;
 import com.yanlong.im.user.ui.freeze.FreezeAccountActivity;
 import com.yanlong.im.user.ui.logout.LogoutAccountActivity;
 
+import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
 /**
@@ -25,6 +26,17 @@ public class SafetyCenterActivity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_safety_center);
+
+        ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+            @Override
+            public void onBack() {
+                finish();
+            }
+
+            @Override
+            public void onRight() {
+            }
+        });
         //设置登录密码
         ui.viewSettingPswOfLogin.setOnClickListener(new View.OnClickListener() {
             @Override
