@@ -21,7 +21,7 @@
                 style="@style/app_layout_list2_item">
 
                 <TextView
-                    style="@style/app_txt_title_2"
+                    style="@style/app_txt_title_353535"
                     android:layout_marginRight="@dimen/app_margin_item"
                     android:layout_weight="1"
                     android:text="冻结账号" />
@@ -29,14 +29,14 @@
 
                 <TextView
                     android:id="@+id/tv_device_name"
-                    style="@style/app_txt_title_4"
+                    style="@style/app_txt_title_868686"
                     android:text="" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/view_device_os"
                 style="@style/app_layout_list2_item"
-                android:layout_marginTop="4dp">
+                android:layout_marginTop="1dp">
 
                 <TextView
                     style="@style/app_txt_title_2"
@@ -47,7 +47,7 @@
 
                 <TextView
                     android:id="@+id/tv_device_os"
-                    style="@style/app_txt_title_4"
+                    style="@style/app_txt_title_868686"
                     android:text="" />
             </LinearLayout>
 

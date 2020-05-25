@@ -16,8 +16,13 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="最近登录的手机和电脑等设备。新设备登录需要身份验证。你也可以删除可信任设备。" />
+                android:paddingLeft="16dp"
+                android:paddingTop="10dp"
+                android:paddingRight="16dp"
+                android:paddingBottom="10dp"
+                android:text="最近登录的手机和电脑等设备。新设备登录需要身份验证。你也可以删除可信任设备。"
+                android:textColor="@color/c_868686"
+                android:textSize="12sp" />
 
             <LinearLayout
                 android:id="@+id/ll_device"
