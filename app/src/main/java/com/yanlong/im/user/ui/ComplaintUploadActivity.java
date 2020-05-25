@@ -6,13 +6,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.luck.picture.lib.PictureSelector;
@@ -58,6 +61,7 @@ public class ComplaintUploadActivity extends AppActivity {
     private HeadView headView;
     private EditText edContent;
     private Button btnCommit;
+    private TextView tvWords;
     private String imageUrl;
     private int complaintType;
     private String gid;
@@ -83,7 +87,7 @@ public class ComplaintUploadActivity extends AppActivity {
         edContent = findViewById(R.id.ed_content);
         btnCommit = findViewById(R.id.btn_commit);
         recyclerView = findViewById(R.id.recyclerView);
-        recyclerView = findViewById(R.id.recyclerView);
+        tvWords = findViewById(R.id.tv_words);
         recyclerView.addItemDecoration(new GridSpacingItemDecoration(3,
                 ScreenUtils.dip2px(this, 10), false));
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
@@ -112,6 +116,21 @@ public class ComplaintUploadActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 commit();
+            }
+        });
+        edContent.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                tvWords.setText(s.toString().length()+"/300");
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
             }
         });
     }
