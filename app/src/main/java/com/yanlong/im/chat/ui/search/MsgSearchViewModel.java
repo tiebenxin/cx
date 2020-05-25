@@ -1,7 +1,6 @@
 package com.yanlong.im.chat.ui.search;
 
 import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
@@ -19,7 +18,7 @@ import io.realm.RealmResults;
  */
 public class MsgSearchViewModel extends ViewModel {
     private MsgSearchRepository repository = new MsgSearchRepository();
-    public LiveData<String> key = new MutableLiveData<String>();
+    public MutableLiveData<String> key = new MutableLiveData<String>();
     public RealmResults<UserInfo> searchFriends = null;
     public RealmResults<Group> searchGroups = null;
     public RealmResults<SessionDetail> searchSessions = null;

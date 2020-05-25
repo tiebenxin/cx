@@ -102,10 +102,10 @@ public class MsgSearchActivity extends AppActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
                     String key = edtSearch.getText().toString();
-                    viewModel.search(key);
+                    viewModel.key.setValue(key);
                 } else if (event != null && (KeyEvent.KEYCODE_ENTER == event.getKeyCode() || KeyEvent.ACTION_DOWN == event.getAction())) {
                     String key = edtSearch.getText().toString();
-                    viewModel.search(key);
+                    viewModel.key.setValue(key);
                 }
                 return false;
             }

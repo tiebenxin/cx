@@ -31,21 +31,23 @@ public class MsgSearchLocalDataSource {
     /**
      * 搜索好友昵称、备注名
      *
-     * @param searchKey
+     * @param key
      * @return
      */
-    public RealmResults<UserInfo> searchFriends(String searchKey) {
-        return realm.where(UserInfo.class).like("name", getKey(searchKey)).or().like("mkName", getKey(searchKey))
+    public RealmResults<UserInfo> searchFriends(String key) {
+        String searchKey = getKey(key);
+        return realm.where(UserInfo.class).like("name", searchKey).or().like("mkName", searchKey)
                 .findAll();
     }
 
     /**
      * 搜索群名 和群成员名
      *
-     * @param searchKey
+     * @param key
      * @return
      */
-    public RealmResults<Group> searchGroups(String searchKey) {
+    public RealmResults<Group> searchGroups(String key) {
+        String searchKey = getKey(key);
         return realm.where(Group.class).like("name", searchKey).or()
                 .like("members.membername", searchKey).or().like("members.name", searchKey)
                 .findAll();
@@ -62,10 +64,11 @@ public class MsgSearchLocalDataSource {
     /**
      * 搜索聊天记录
      *
-     * @param searchKey
+     * @param key
      * @return
      */
-    public long searchMessagesCount(String searchKey,String gid,long uid) {
+    public long searchMessagesCount(String key,String gid,long uid) {
+        String searchKey = getKey(key);
         if(TextUtils.isEmpty(gid)){
             return realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("from_uid",uid).or().equalTo("to_uid",uid).endGroup()
