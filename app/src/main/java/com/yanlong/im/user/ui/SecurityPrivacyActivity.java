@@ -17,7 +17,6 @@ import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CallBack4Btn;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
@@ -123,8 +122,8 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
                 if (!UserAction.getMyInfo().isEmptyPassword()) {
                     go(ChangePasswordActivity.class);
                 } else {
-                    Intent intent = new Intent(this, SetingPasswordActitity.class);
-                    intent.putExtra(SetingPasswordActitity.TYPE, 1);
+                    Intent intent = new Intent(this, SetingPasswordActivity.class);
+                    intent.putExtra(SetingPasswordActivity.TYPE, 1);
                     startActivity(intent);
                 }
                 break;

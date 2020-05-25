@@ -205,7 +205,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
             });
             alertYesNo.show();
         } else {
-            go(SetingPasswordActitity.class);
+            go(SetingPasswordActivity.class);
         }
     }
 
