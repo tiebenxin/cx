@@ -420,9 +420,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingLeft="@dimen/app_margin_main"
-                    android:paddingRight="@dimen/app_margin_main"
+                    android:layout_marginRight="65dp"
                     android:paddingBottom="5dp"
-                    android:text="如果设置该选项,该聊天里面发送和接受消息将在阅读后指定时间内消失" />
+                    android:text="如果设置该选项,该聊天里面发送和接受的消息将在阅读后指定时间内消失" />
 
             </LinearLayout>
 
