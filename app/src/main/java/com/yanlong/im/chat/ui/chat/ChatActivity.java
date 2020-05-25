@@ -3974,7 +3974,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      */
     private void onDelete(final MsgAllBean msgbean) {
         AlertYesNo alertYesNo = new AlertYesNo();
-        alertYesNo.init(ChatActivity.this, "删除", "确定删除吗?", "确定", "取消", new AlertYesNo.Event() {
+        alertYesNo.init(ChatActivity.this, "删除", "确认删除该条消息?", "确定", "取消", new AlertYesNo.Event() {
             @Override
             public void onON() {
 

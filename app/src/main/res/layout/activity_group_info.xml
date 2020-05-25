@@ -273,7 +273,7 @@
                         style="@style/app_txt_title_2"
                         android:layout_marginRight="@dimen/app_margin_item"
                         android:layout_weight="1"
-                        android:text="查找聊天记录" />
+                        android:text="搜索聊天内容" />
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -454,7 +454,7 @@
                 android:paddingLeft="@dimen/app_margin_main"
                 android:paddingRight="@dimen/app_margin_main"
                 android:paddingBottom="5dp"
-                android:text="开启后，群成员在聊天中的截屏，所有人收到通知" />
+                android:text="开启后，群成员在聊天中的截屏，所有人将收到通知" />
 
             <LinearLayout style="@style/app_layout_list2">
 
