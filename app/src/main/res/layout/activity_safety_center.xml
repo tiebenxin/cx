@@ -20,7 +20,8 @@
 
             <LinearLayout
                 android:id="@+id/view_setting_psw_of_login"
-                style="@style/app_layout_list2_item">
+                style="@style/app_layout_list2_item"
+                android:visibility="gone">
 
 
                 <TextView
@@ -41,7 +42,8 @@
 
             <LinearLayout
                 android:id="@+id/view_setting_psw_of_pay"
-                style="@style/app_layout_list2_item">
+                style="@style/app_layout_list2_item"
+                android:visibility="gone">
 
 
                 <TextView
@@ -62,7 +64,8 @@
 
             <LinearLayout
                 android:id="@+id/view_find_psw_of_pay"
-                style="@style/app_layout_list2_item">
+                style="@style/app_layout_list2_item"
+                android:visibility="gone">
 
 
                 <TextView
@@ -82,8 +85,8 @@
 
             <LinearLayout
                 android:id="@+id/view_manager_device"
-                style="@style/app_layout_list2_item"
-                android:layout_marginTop="20dp">
+                style="@style/app_layout_list2_item">
+                <!--                android:layout_marginTop="20dp"-->
 
                 <TextView
                     style="@style/app_txt_title_2"
@@ -103,7 +106,7 @@
             <LinearLayout
                 android:id="@+id/view_freeze_account"
                 style="@style/app_layout_list2_item"
-                android:layout_marginTop="40dp">
+                android:layout_marginTop="20dp">
 
                 <TextView
                     style="@style/app_txt_title_2"
