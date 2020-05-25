@@ -1294,13 +1294,13 @@ public class MessageManager {
         return null /* cacheSessions*/;
     }
 
-    //检测是否是双重消息，及一条消息需要产生两条本地消息记录,回执在通知消息中发送
+    //检测是否是双重消息，及一条消息需要产生两条本地消息记录,回执在通知消息中发送,招呼语消息要在好友通知前面
     private void checkDoubleMessage(MsgBean.UniversalMessage.WrapMessage wmsg) {
         if (wmsg.getMsgType() == ACCEPT_BE_FRIENDS) {
             MsgBean.AcceptBeFriendsMessage receiveMessage = wmsg.getAcceptBeFriends();
             if (receiveMessage != null && !TextUtils.isEmpty(receiveMessage.getSayHi())) {
                 ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), receiveMessage.getSayHi());
-                MsgAllBean message = createMsgBean(wmsg, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
+                MsgAllBean message = createMsgBean(wmsg, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, wmsg.getTimestamp() - 1, chatMessage);
                 DaoUtil.save(message);
             }
         }
