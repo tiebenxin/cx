@@ -31,7 +31,7 @@ public class MsgSearchLocalDataSource {
      */
     public RealmResults<UserInfo> searchFriends(String searchKey) {
         return realm.where(UserInfo.class).like("name", searchKey).or().like("mkName", searchKey)
-                .findAllAsync();
+                .findAll();
     }
 
     /**
@@ -43,7 +43,7 @@ public class MsgSearchLocalDataSource {
     public RealmResults<Group> searchGroups(String searchKey) {
         return realm.where(Group.class).like("name", searchKey).or()
                 .like("members.membername", searchKey).or().like("members.name", searchKey)
-                .findAllAsync();
+                .findAll();
     }
     /**
      * 搜索所有session

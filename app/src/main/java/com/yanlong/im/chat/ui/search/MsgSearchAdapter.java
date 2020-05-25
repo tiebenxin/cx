@@ -124,7 +124,7 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
                 holder.vInfoPanel.setVisibility(View.VISIBLE);
                 for(MemberUser user: group.getUsers()){
                 }
-                holder.txtInfo.setText("包含：" + userInfo.getName());
+//TODO                holder.txtInfo.setText("包含：" + userInfo.getName());
             }
 
 

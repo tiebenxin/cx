@@ -23,6 +23,7 @@ public class MsgSearchViewModel extends ViewModel {
     public RealmResults<UserInfo> searchFriends = null;
     public RealmResults<Group> searchGroups = null;
     public RealmResults<SessionDetail> searchSessions = null;
+
     public void search(String key){
         searchFriends = repository.searchFriends(key);
         searchGroups = repository.searchGroups(key);

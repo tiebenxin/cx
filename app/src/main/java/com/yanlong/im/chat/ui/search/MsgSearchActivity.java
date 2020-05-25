@@ -12,14 +12,10 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.R;
-import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 
-import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
@@ -62,6 +58,7 @@ public class MsgSearchActivity extends AppActivity {
             @Override
             public void onChanged(@Nullable String s) {
                 viewModel.search(s);
+                mtListView.getListView().getAdapter().notifyDataSetChanged();
             }
         });
     }
@@ -104,9 +101,11 @@ public class MsgSearchActivity extends AppActivity {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
-                    taskSearch();
+                    String key = edtSearch.getText().toString();
+                    viewModel.search(key);
                 } else if (event != null && (KeyEvent.KEYCODE_ENTER == event.getKeyCode() || KeyEvent.ACTION_DOWN == event.getAction())) {
-                    taskSearch();
+                    String key = edtSearch.getText().toString();
+                    viewModel.search(key);
                 }
                 return false;
             }
@@ -145,53 +144,6 @@ public class MsgSearchActivity extends AppActivity {
                 }.getType()));
             }
         }
-    }
-
-    private void taskSearch() {
-        InputUtil.hideKeyboard(edtSearch);
-        String key = edtSearch.getText().toString();
-        if (key.length() <= 0)
-            return;
-        List<Session> temp = new ArrayList<>();
-        //每次查询，将listData重置为默认数据
-        listData.clear();
-        listData.addAll(totalData);
-        for (Session bean : listData) {
-            String title = "";
-            String info = "";
-            MsgAllBean msginfo;
-            if (bean.getType() == 0) {//单人
-
-
-                UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
-
-                title = finfo.getName4Show();
-
-                //获取最后一条消息
-                msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
-                if (msginfo != null) {
-                    info = msginfo.getMsg_typeStr();
-                }
-
-            } else if (bean.getType() == 1) {//群
-                Group ginfo = msgDao.getGroup4Id(bean.getGid());
-
-                //获取最后一条群消息
-                msginfo = msgDao.msgGetLast4Gid(bean.getGid());
-                title = /*ginfo.getName()*/msgDao.getGroupName(bean.getGid());
-                if (msginfo != null) {
-                    info = msginfo.getMsg_typeStr();
-                }
-            }
-
-            if (title.contains(key) || info.contains(key)) {
-                bean.setUnread_count(0);
-                temp.add(bean);
-            }
-        }
-        listData = temp;
-
-        mtListView.notifyDataSetChange();
     }
 
     @Override
