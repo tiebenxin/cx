@@ -413,7 +413,13 @@ public class GroupInfoActivity extends AppActivity {
                 txtGroupNick.setText(UserAction.getMyInfo().getName());
             }
         }
-        if (!isPercentage) {
+        if(isAdmin()){
+            if (isPercentage) {
+                viewGroupAdd.setVisibility(View.VISIBLE);
+            }else {
+                viewGroupAdd.setVisibility(View.GONE);
+            }
+        }else {
             viewGroupAdd.setVisibility(View.GONE);
         }
         ckDisturb.setChecked(ginfo.getNotNotify() == 1);
