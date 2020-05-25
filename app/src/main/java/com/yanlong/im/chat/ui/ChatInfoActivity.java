@@ -292,6 +292,10 @@ public class ChatInfoActivity extends AppActivity {
                 //如果阅后即焚已关闭，则正常开关；如果阅后即焚开启中，则不允许关掉
                 if (fUserInfo != null) {
                     //开
+                    boolean currentStatus = fUserInfo.getScreenshotNotification() == 1;
+                    if (currentStatus == isChecked) {
+                        return;
+                    }
                     if (isChecked) {
                         ckScreenshot.setChecked(true);//选中
                         fUserInfo.setScreenshotNotification(1);//截屏通知字段设置为打开
