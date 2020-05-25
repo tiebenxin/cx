@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+    </data>
+
+    <net.cb.cb.library.view.HeadView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:headview_title="设备详情">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/view_device_name"
+                style="@style/app_layout_list2_item">
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:layout_weight="1"
+                    android:text="冻结账号" />
+
+
+                <TextView
+                    android:id="@+id/tv_device_name"
+                    style="@style/app_txt_title_4"
+                    android:text="" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/view_device_os"
+                style="@style/app_layout_list2_item"
+                android:layout_marginTop="4dp">
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:layout_weight="1"
+                    android:text="设备系统" />
+
+
+                <TextView
+                    android:id="@+id/tv_device_os"
+                    style="@style/app_txt_title_4"
+                    android:text="" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </net.cb.cb.library.view.HeadView>
+</layout>

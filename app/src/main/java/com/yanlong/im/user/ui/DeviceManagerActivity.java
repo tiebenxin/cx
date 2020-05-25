@@ -1,5 +1,6 @@
 package com.yanlong.im.user.ui;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 
@@ -9,6 +10,7 @@ import com.yanlong.im.chat.ui.view.ControllerLinearList;
 import com.yanlong.im.databinding.ActivityDeviceManagerBinding;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.DeviceBean;
+import com.yanlong.im.user.ui.freeze.DeviceDetailActivity;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -64,6 +66,12 @@ public class DeviceManagerActivity extends AppActivity {
             public void onClick(DeviceBean bean) {
                 if (adapter.getModel() == 1) {//删除
                     deleteDevice(bean);
+                } else {
+                    Intent intent = new Intent(DeviceManagerActivity.this, DeviceDetailActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable("data", bean);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
                 }
             }
         });
