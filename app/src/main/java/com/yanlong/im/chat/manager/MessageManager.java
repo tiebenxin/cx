@@ -2,7 +2,6 @@ package com.yanlong.im.chat.manager;
 
 import android.content.Intent;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.MyAppLication;
@@ -18,6 +17,7 @@ import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventRefreshGroup;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
@@ -241,7 +241,6 @@ public class MessageManager {
                 bean.setFrom_uid(-wrapMessage.getFromUid());
             }
         }
-        Log.e("raleigh_test","msgType="+wrapMessage.getMsgType());
         switch (wrapMessage.getMsgType()) {
             case CHAT://文本
             case IMAGE://图片
@@ -465,6 +464,8 @@ public class MessageManager {
                     eventLoginOut4Conflict.setMsg("您的账号" + phone + "已经在另一台设备上登录。如果不是您本人操作,请尽快修改密码");
                 } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.LOCKED) {//被冻结
                     eventLoginOut4Conflict.setMsg("你已被限制登录");
+                } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.PASSWORD_CHANGED) {//修改密码
+                    eventLoginOut4Conflict.setMsg("你修改了密码，请使用新密码登录");
                 }
                 EventBus.getDefault().post(eventLoginOut4Conflict);
                 break;
@@ -646,7 +647,6 @@ public class MessageManager {
                 break;
             case MULTI_TERMINAL_SYNC:// PC端同步 更改信息，只同步自己的操作
                 userAction = new UserAction();
-                Log.e("raleigh_test","PC端同步消息="+wrapMessage.getMultiTerminalSync().getSyncType());
                 switch (wrapMessage.getMultiTerminalSync().getSyncType()) {
                     case MY_SELF_CHANGED://自己的个人信息变更
                         userAction.getMyInfo4Web(UserAction.getMyId(), UserAction.getMyInfo().getImid(),null);
@@ -660,14 +660,15 @@ public class MessageManager {
                                     UserInfo user = response.body().getData();
                                     if(user!=null)//更新session设置
                                         msgDao.updateSessionTopAndDisturb(null,user.getUid(),user.getIstop(),user.getDisturb());
+                                    /********通知更新sessionDetail************************************/
+                                    List<Long> fUids = new ArrayList<>();
+                                    fUids.add(wrapMessage.getMultiTerminalSync().getUid());
+                                    //回主线程调用更新session详情
+                                    if (MyAppLication.INSTANCE().repository != null)
+                                        MyAppLication.INSTANCE().repository.updateSessionDetail(null, fUids);
+                                    /********通知更新sessionDetail end************************************/
                                 }
-                                /********通知更新sessionDetail************************************/
-                                List<Long> fUids = new ArrayList<>();
-                                fUids.add(wrapMessage.getMultiTerminalSync().getUid());
-                                //回主线程调用更新session详情
-                                if (MyAppLication.INSTANCE().repository != null)
-                                    MyAppLication.INSTANCE().repository.updateSessionDetail(null, fUids);
-                                /********通知更新sessionDetail end************************************/
+
                             }
                         });
 
@@ -683,16 +684,20 @@ public class MessageManager {
                                     Group group = response.body().getData();
                                     if(group!=null)//更新session设置
                                         msgDao.updateSessionTopAndDisturb(gid,null,group.getIsTop(),group.getNotNotify());
+                                    //通知更新UI
+                                    notifyGroupChange(gid);
+
+                                    /********通知更新sessionDetail************************************/
+                                    List<String> gids = new ArrayList<>();
+                                    if (!TextUtils.isEmpty(gid)) {
+                                        gids.add(gid);
+                                    }
+                                    //回主线程调用更新session详情
+                                    if (MyAppLication.INSTANCE().repository != null)
+                                        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
+                                    /********通知更新sessionDetail end************************************/
                                 }
-                                /********通知更新sessionDetail************************************/
-                                List<String> gids = new ArrayList<>();
-                                if (!TextUtils.isEmpty(gid)) {
-                                    gids.add(gid);
-                                }
-                                //回主线程调用更新session详情
-                                if (MyAppLication.INSTANCE().repository != null)
-                                    MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
-                                /********通知更新sessionDetail end************************************/
+
                             }
                         });
 
@@ -1858,6 +1863,12 @@ public class MessageManager {
     public void notifyGroupMetaChange(Group group) {
         GroupStatusChangeEvent event = new GroupStatusChangeEvent();
         event.setData(group);
+        EventBus.getDefault().post(event);
+    }
+    //群变化
+    public void notifyGroupChange(String gid) {
+        EventRefreshGroup event = new EventRefreshGroup();
+        event.setGid(gid);
         EventBus.getDefault().post(event);
     }
 

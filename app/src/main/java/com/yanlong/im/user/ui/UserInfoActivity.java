@@ -21,7 +21,6 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
-import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -466,7 +465,21 @@ public class UserInfoActivity extends AppActivity {
         }
     }
 
-
+    /**
+     * 更新用户信息
+     * @param event
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void refreshFriend(EventRefreshFriend event) {
+        if(event!=null && event.getUid()==id){
+            taskUserInfo(id);
+        }
+    }
+    @Override
+    protected void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
+    }
     private void taskUserInfo(Long id) {
         if (id == 1L || id == 3L) {
             UserInfo info = userDao.findUserInfo(id);
@@ -503,9 +516,6 @@ public class UserInfoActivity extends AppActivity {
                         userInfoLocal = userInfo;
                     }
                     setData(userInfo);
-                    if (userInfo != null) {
-                        Session session = new MsgDao().sessionGet("", userInfo.getUid());
-                    }
 
                 }
             });

@@ -326,9 +326,9 @@ public class UserAction {
                         userInfo.toTag();
                         dao.updateUserinfo(userInfo);
                         boolean hasChange = MessageManager.getInstance().updateUserAvatarAndNick(userInfo.getUid(), userInfo.getHead(), userInfo.getName());
-                        if (hasChange) {
+//                        if (hasChange) {
                             MessageManager.getInstance().notifyRefreshFriend(true, userInfo.getUid(), CoreEnum.ERosterAction.UPDATE_INFO);
-                        }
+//                        }
                         if (callBack != null) callBack.onResponse(call, response);
                     } else {
                         if (callBack != null) callBack.onFailure(call, new Throwable());

@@ -51,7 +51,7 @@ public class AppHostUtil {
         if (isEmpty()) {
             throw new NullPointerException("请检查config.gradle#host配置");
         }
-//        connectHostApi="e7.inner.zhixun6.com";
+        connectHostApi="e7.inner.zhixun6.com";
         LogUtil.getLog().i("AppHostUtil", "主机地址：" + connectHostApi);
         return connectHostApi;
     }
