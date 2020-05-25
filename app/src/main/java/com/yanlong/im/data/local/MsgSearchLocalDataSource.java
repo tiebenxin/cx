@@ -23,6 +23,11 @@ public class MsgSearchLocalDataSource {
         realm = DaoUtil.open();
     }
 
+    private String getKey(String searchKey){
+        return String.format("*%s*",searchKey);
+
+    }
+
     /**
      * 搜索好友昵称、备注名
      *
@@ -30,7 +35,7 @@ public class MsgSearchLocalDataSource {
      * @return
      */
     public RealmResults<UserInfo> searchFriends(String searchKey) {
-        return realm.where(UserInfo.class).like("name", searchKey).or().like("mkName", searchKey)
+        return realm.where(UserInfo.class).like("name", getKey(searchKey)).or().like("mkName", getKey(searchKey))
                 .findAll();
     }
 
