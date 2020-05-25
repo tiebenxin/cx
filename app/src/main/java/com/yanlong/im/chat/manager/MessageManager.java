@@ -241,6 +241,7 @@ public class MessageManager {
                 bean.setFrom_uid(-wrapMessage.getFromUid());
             }
         }
+        Log.e("raleigh_test","msgType="+wrapMessage.getMsgType());
         switch (wrapMessage.getMsgType()) {
             case CHAT://文本
             case IMAGE://图片
@@ -655,6 +656,11 @@ public class MessageManager {
                             @Override
                             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
                                 super.onResponse(call, response);
+                                if (response.body().isOk() && response.body().getData() != null) {
+                                    UserInfo user = response.body().getData();
+                                    if(user!=null)//更新session设置
+                                        msgDao.updateSessionTopAndDisturb(null,user.getUid(),user.getIstop(),user.getDisturb());
+                                }
                                 /********通知更新sessionDetail************************************/
                                 List<Long> fUids = new ArrayList<>();
                                 fUids.add(wrapMessage.getMultiTerminalSync().getUid());
@@ -673,6 +679,11 @@ public class MessageManager {
                             @Override
                             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                                 super.onResponse(call, response);
+                                if (response.body().isOk() && response.body().getData() != null) {
+                                    Group group = response.body().getData();
+                                    if(group!=null)//更新session设置
+                                        msgDao.updateSessionTopAndDisturb(gid,null,group.getIsTop(),group.getNotNotify());
+                                }
                                 /********通知更新sessionDetail************************************/
                                 List<String> gids = new ArrayList<>();
                                 if (!TextUtils.isEmpty(gid)) {

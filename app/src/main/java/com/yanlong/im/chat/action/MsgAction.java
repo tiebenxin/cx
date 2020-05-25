@@ -208,6 +208,7 @@ public class MsgAction {
                     }
                     if (response.body().isOk() && response.body().getData() != null) {//保存群友信息到数据库
                         Group newGroup = response.body().getData();
+
                         newGroup.getMygroupName();
                         Group group = DaoUtil.findOne(Group.class, "gid", gid);
                         if (group != null && group.getUsers() != null) {
