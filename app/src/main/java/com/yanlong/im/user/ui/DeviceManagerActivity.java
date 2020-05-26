@@ -18,6 +18,7 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -86,6 +87,7 @@ public class DeviceManagerActivity extends AppActivity {
                 super.onResponse(call, response);
                 if (response != null && response.body() != null && response.isSuccessful()) {
                     mData = response.body().getData();
+                    Collections.sort(mData);
                     adapter.bindData(mData);
                 }
             }

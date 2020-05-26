@@ -11,6 +11,8 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 import com.yanlong.im.user.bean.DeviceBean;
 
+import net.cb.cb.library.utils.TimeToString;
+
 import java.util.List;
 
 /**
@@ -68,12 +70,13 @@ public class AdapterDeviceList extends BaseAdapter {
 
     class DeviceViewHolder {
         private final View root;
-        private final TextView tvName;
+        private final TextView tvName, tvTime;
         private final ImageView ivIcon;
 
         public DeviceViewHolder(View v) {
             root = v;
             tvName = v.findViewById(R.id.tv_name);
+            tvTime = v.findViewById(R.id.tv_time);
             ivIcon = v.findViewById(R.id.iv_icon);
 
         }
@@ -85,6 +88,7 @@ public class AdapterDeviceList extends BaseAdapter {
 
         public void bindData(DeviceBean bean) {
             tvName.setText(bean.getName());
+            tvTime.setText(TimeToString.YYYY_MM_DD_HH_MM_SS(bean.getLastUpdate()));
             if (model == 1) {
                 ivIcon.setImageResource(R.mipmap.ic_delete);
             } else {

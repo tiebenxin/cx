@@ -13,19 +13,19 @@ import net.cb.cb.library.base.BaseBean;
  * @date 2020/5/23
  * Description
  */
-public class DeviceBean extends BaseBean implements Parcelable {
-    String createTime;
+public class DeviceBean extends BaseBean implements Parcelable, Comparable {
+    long createTime;
     String detail;
     String device;
-    String lastUpdate;
+    long lastUpdate;
     String name;
     long uid;
 
     protected DeviceBean(Parcel in) {
-        createTime = in.readString();
+        createTime = in.readLong();
         detail = in.readString();
         device = in.readString();
-        lastUpdate = in.readString();
+        lastUpdate = in.readLong();
         name = in.readString();
         uid = in.readLong();
     }
@@ -42,11 +42,11 @@ public class DeviceBean extends BaseBean implements Parcelable {
         }
     };
 
-    public String getCreateTime() {
+    public long getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(String createTime) {
+    public void setCreateTime(long createTime) {
         this.createTime = createTime;
     }
 
@@ -66,11 +66,11 @@ public class DeviceBean extends BaseBean implements Parcelable {
         this.device = device;
     }
 
-    public String getLastUpdate() {
+    public long getLastUpdate() {
         return lastUpdate;
     }
 
-    public void setLastUpdate(String lastUpdate) {
+    public void setLastUpdate(long lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
 
@@ -109,11 +109,20 @@ public class DeviceBean extends BaseBean implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(createTime);
+        parcel.writeLong(createTime);
         parcel.writeString(detail);
         parcel.writeString(device);
-        parcel.writeString(lastUpdate);
+        parcel.writeLong(lastUpdate);
         parcel.writeString(name);
         parcel.writeLong(uid);
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if (o == null) {
+            return -1;
+        }
+        DeviceBean bean = (DeviceBean) o;
+        return (int) (this.lastUpdate - bean.getLastUpdate());
     }
 }

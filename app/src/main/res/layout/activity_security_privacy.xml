@@ -35,11 +35,12 @@
                     android:src="@mipmap/ic_btn_goto" />
             </LinearLayout>
 
-<!--            <TextView-->
-<!--                style="@style/app_txt_content_2"-->
-<!--                android:text="" />-->
+            <!--            <TextView-->
+            <!--                style="@style/app_txt_content_2"-->
+            <!--                android:text="" />-->
 
-            <LinearLayout style="@style/app_layout_list2_item"
+            <LinearLayout
+                style="@style/app_layout_list2_item"
                 android:layout_marginTop="20dp">
 
                 <TextView
@@ -96,7 +97,9 @@
                     android:src="@mipmap/ic_btn_goto" />
             </LinearLayout>
 
-            <LinearLayout style="@style/app_layout_list2_item">
+            <LinearLayout
+                style="@style/app_layout_list2_item"
+                android:layout_marginTop="20dp">
 
                 <TextView
                     style="@style/app_txt_title_2"
