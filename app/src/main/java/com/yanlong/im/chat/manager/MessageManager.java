@@ -468,7 +468,7 @@ public class MessageManager {
                 EventLoginOut4Conflict eventLoginOut4Conflict = new EventLoginOut4Conflict();
                 if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.CONFLICT) {// 登录冲突
                     String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
-                    eventLoginOut4Conflict.setMsg("您的账号" + phone + "已经在另一台设备上登录。如果不是您本人操作,请尽快修改密码");
+                    eventLoginOut4Conflict.setMsg("您的账号" + phone + "已经在另外一台设备上登录。如果不是您本人操作,请尽快修改密码");
                 } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.LOCKED) {//被冻结
                     eventLoginOut4Conflict.setMsg("你已被限制登录");
                 }
