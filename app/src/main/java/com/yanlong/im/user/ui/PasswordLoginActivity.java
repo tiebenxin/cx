@@ -204,7 +204,7 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
                                 }
                                 count += 1;
                             } else if (response.body().getCode().longValue() == 10088) {//非安全设备
-                                showNewDeviceDialog(phone);
+                                showNewDeviceDialog(phone, response.body().getMsg());
                             } else {
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             }
@@ -246,7 +246,7 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
                                 }
                                 count += 1;
                             } else if (response.body().getCode().longValue() == 10088) {//非安全设备
-                                showNewDeviceDialog(phone);
+                                showNewDeviceDialog(phone, response.body().getMsg());
                             } else {
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             }
@@ -270,12 +270,12 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
         startActivity(intent);
     }
 
-    public void showNewDeviceDialog(String phone) {
+    public void showNewDeviceDialog(String phone, String content) {
         ThreadUtil.getInstance().runMainThread(new Runnable() {
             @Override
             public void run() {
                 DialogCommon2 dialogNewDevice = new DialogCommon2(PasswordLoginActivity.this);
-                dialogNewDevice.setContent("您正在新设备上登录常信，为确保账号安全请使用验证码登录", true)
+                dialogNewDevice.setContent(content/*"您正在新设备上登录常信，为确保账号安全请使用验证码登录"*/, true)
                         .setButtonTxt("确定")
                         .hasTitle(false)
                         .setListener(new DialogCommon2.IDialogListener() {

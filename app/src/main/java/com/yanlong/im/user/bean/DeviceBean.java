@@ -123,6 +123,6 @@ public class DeviceBean extends BaseBean implements Parcelable, Comparable {
             return -1;
         }
         DeviceBean bean = (DeviceBean) o;
-        return (int) (this.lastUpdate - bean.getLastUpdate());
+        return (int) (bean.getLastUpdate() - this.lastUpdate);
     }
 }

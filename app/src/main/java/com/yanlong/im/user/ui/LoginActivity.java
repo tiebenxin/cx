@@ -358,7 +358,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                             if (response.body().getCode().longValue() == 10004) {//账号未注册
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             } else if (response.body().getCode().longValue() == 10088) {//非安全设备
-                                showNewDeviceDialog();
+                                showNewDeviceDialog(response.body().getMsg());
                             } else {
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             }
@@ -398,7 +398,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                             if (response.body().getCode().longValue() == 10004) {//账号不存在
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             } else if (response.body().getCode().longValue() == 10088) {//非安全设备
-                                showNewDeviceDialog();
+                                showNewDeviceDialog(response.body().getMsg());
                             } else {
                                 ToastUtil.show(getContext(), response.body().getMsg());
                             }
@@ -457,12 +457,12 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         }
     }
 
-    public void showNewDeviceDialog() {
+    public void showNewDeviceDialog(String content) {
         ThreadUtil.getInstance().runMainThread(new Runnable() {
             @Override
             public void run() {
                 DialogCommon2 dialogNewDevice = new DialogCommon2(LoginActivity.this);
-                dialogNewDevice.setContent("您正在新设备上登录常信，为确保账号安全请使用验证码登录", true)
+                dialogNewDevice.setContent(content/*"您正在新设备上登录常信，为确保账号安全请使用验证码登录"*/, true)
                         .setButtonTxt("确定")
                         .hasTitle(false)
                         .setListener(new DialogCommon2.IDialogListener() {
