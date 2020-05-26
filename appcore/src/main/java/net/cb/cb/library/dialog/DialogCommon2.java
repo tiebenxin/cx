@@ -17,7 +17,7 @@ import net.cb.cb.library.base.BaseDialog;
  */
 public class DialogCommon2 extends BaseDialog {
 
-    private TextView tvTitle, tvContent, tvCancel;
+    private TextView tvTitle, tvContent, tvButton;
     private IDialogListener listener;
     private int colorSure = Color.parseColor("#32b053");
 
@@ -34,8 +34,8 @@ public class DialogCommon2 extends BaseDialog {
         setContentView(R.layout.dialog_default2);
         tvTitle = findViewById(R.id.tv_title);
         tvContent = findViewById(R.id.tv_content);
-        tvCancel = findViewById(R.id.tv_cancel);
-        tvCancel.setOnClickListener(this);
+        tvButton = findViewById(R.id.tv_cancel);
+        tvButton.setOnClickListener(this);
     }
 
     public DialogCommon2 setTitle(String title) {
@@ -46,9 +46,13 @@ public class DialogCommon2 extends BaseDialog {
         return this;
     }
 
+    public DialogCommon2 hasTitle(boolean flag) {
+        tvTitle.setVisibility(flag ? View.VISIBLE : View.GONE);
+        return this;
+    }
 
     public DialogCommon2 setButtonTxt(String txt) {
-        tvCancel.setText(txt);
+        tvButton.setText(txt);
         return this;
     }
 
@@ -70,9 +74,9 @@ public class DialogCommon2 extends BaseDialog {
     @Override
     public void processClick(View view) {
         int id = view.getId();
-        if (id == tvCancel.getId()) {
+        if (id == tvButton.getId()) {
             if (listener != null) {
-                listener.onCancel();
+                listener.onClick();
                 dismiss();
             }
         }
@@ -86,6 +90,6 @@ public class DialogCommon2 extends BaseDialog {
     public interface IDialogListener {
 
         //取消
-        void onCancel();
+        void onClick();
     }
 }

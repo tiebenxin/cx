@@ -93,6 +93,18 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
+    <style name="app_txt_title_353535" parent="app_txt_base">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/c_353535</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="app_txt_title_868686" parent="app_txt_base">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/c_868686</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
 
     <style name="app_txt_content_1" parent="app_txt_base">
         <item name="android:textSize">12sp</item>

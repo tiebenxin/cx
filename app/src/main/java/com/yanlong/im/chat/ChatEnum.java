@@ -289,13 +289,14 @@ public class ChatEnum {
      * 通知类型
      *
      * */
-    @IntDef({ENoticeType.ENTER_BY_QRCODE, ENoticeType.INVITED, ENoticeType.KICK, ENoticeType.FORTH, ENoticeType.TRANSFER_GROUP_OWNER, ENoticeType.LEAVE, ENoticeType.RED_ENVELOPE_RECEIVED,
+    @IntDef({ENoticeType.DEFAULT, ENoticeType.ENTER_BY_QRCODE, ENoticeType.INVITED, ENoticeType.KICK, ENoticeType.FORTH, ENoticeType.TRANSFER_GROUP_OWNER, ENoticeType.LEAVE, ENoticeType.RED_ENVELOPE_RECEIVED,
             ENoticeType.RECEIVE_RED_ENVELOPE, ENoticeType.CANCEL, ENoticeType.BLACK_ERROR, ENoticeType.NO_FRI_ERROR, ENoticeType.LOCK, ENoticeType.CHANGE_VICE_ADMINS_ADD,
             ENoticeType.CHANGE_VICE_ADMINS_CANCEL, ENoticeType.FORBIDDEN_WORDS_OPEN, ENoticeType.FORBIDDEN_WORDS_CLOSE, ENoticeType.RED_ENVELOPE_RECEIVED_SELF,
             ENoticeType.FORBIDDEN_WORDS_SINGE, ENoticeType.OPEN_UP_RED_ENVELOPER, ENoticeType.SYS_ENVELOPE_RECEIVED_SELF, ENoticeType.RECEIVE_SYS_ENVELOPE, ENoticeType.SYS_ENVELOPE_RECEIVED,
-            ENoticeType.GROUP_FORBID, ENoticeType.GROUP_BAN_WORDS, ENoticeType.CANCEL_CAN_EDIT})
+            ENoticeType.GROUP_FORBID, ENoticeType.GROUP_BAN_WORDS, ENoticeType.CANCEL_CAN_EDIT, ENoticeType.FREEZE_ACCOUNT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ENoticeType {
+        int DEFAULT = 0;//默认，简单文本
         int ENTER_BY_QRCODE = 1; //扫二维码进群
         int INVITED = 2; //被邀请进群
         int KICK = 3; //被移出群聊
@@ -322,6 +323,7 @@ public class ChatEnum {
         int GROUP_FORBID = 24;//封群通知
         int GROUP_BAN_WORDS = 25;//自己开启或者关闭群禁言
         int CANCEL_CAN_EDIT = 26;//能重新编辑的撤销消息
+        int FREEZE_ACCOUNT = 27;//冻结账号
     }
 
     /*
@@ -386,7 +388,7 @@ public class ChatEnum {
      *聊天拓展功能id
      * */
     @IntDef({EFunctionId.GALLERY, EFunctionId.TAKE_PHOTO, EFunctionId.ENVELOPE_SYS, EFunctionId.ENVELOPE_MF, EFunctionId.STAMP, EFunctionId.TRANSFER,
-            EFunctionId.CARD, EFunctionId.VIDEO_CALL, EFunctionId.LOCATION, EFunctionId.GROUP_ASSISTANT, EFunctionId.FILE,EFunctionId.COLLECT})
+            EFunctionId.CARD, EFunctionId.VIDEO_CALL, EFunctionId.LOCATION, EFunctionId.GROUP_ASSISTANT, EFunctionId.FILE, EFunctionId.COLLECT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EFunctionId {
         int GALLERY = 1; // 相册

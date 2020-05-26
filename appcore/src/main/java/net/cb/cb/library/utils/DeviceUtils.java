@@ -2,6 +2,7 @@ package net.cb.cb.library.utils;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -9,6 +10,8 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+
+import net.cb.cb.library.AppConfig;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -169,5 +172,25 @@ public class DeviceUtils {
      */
     public static String getSystemVersion() {
         return android.os.Build.VERSION.RELEASE;
+    }
+
+    //获取设备名称，及手机型号
+    public static String getPhoneModel() {
+        return android.os.Build.BRAND + " " + android.os.Build.MODEL + " " + android.os.Build.VERSION.RELEASE;
+    }
+
+    //获取设备名称
+    public static String getDeviceName() {
+        String name = Settings.Global.getString(AppConfig.getContext().getContentResolver(), Settings.Global.DEVICE_NAME);
+        if (TextUtils.isEmpty(name) || name.equalsIgnoreCase("unknown")) {
+            BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+            if (mBluetoothAdapter != null) {
+                name = mBluetoothAdapter.getName();
+            }
+            if (TextUtils.isEmpty(name) || name.equalsIgnoreCase("unknown")) {
+                name = android.os.Build.MODEL;
+            }
+        }
+        return name;
     }
 }

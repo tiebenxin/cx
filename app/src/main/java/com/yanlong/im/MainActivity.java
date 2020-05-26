@@ -106,6 +106,7 @@ import net.cb.cb.library.net.IRequestListener;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
