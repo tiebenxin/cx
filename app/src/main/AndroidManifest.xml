@@ -296,7 +296,7 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".user.ui.SetingPasswordActitity"
+            android:name=".user.ui.SetingPasswordActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 

@@ -32,7 +32,7 @@ import retrofit2.Response;
  * @创建人 shenxin
  * @创建时间 2019/8/6 0006 15:25
  */
-public class SetingPasswordActitity extends AppActivity {
+public class SetingPasswordActivity extends AppActivity {
     public static final String TYPE = "type"; // 1.弹出提示框退出 0.正常退出
     private HeadView headView;
     private ClearEditText edPassword;
@@ -75,7 +75,7 @@ public class SetingPasswordActitity extends AppActivity {
             @Override
             public void onClick(View v) {
                 //关闭软键盘
-                InputUtil.hideKeyboard(SetingPasswordActitity.this);
+                InputUtil.hideKeyboard(SetingPasswordActivity.this);
                 commit();
             }
         });
@@ -146,10 +146,9 @@ public class SetingPasswordActitity extends AppActivity {
                 if(response.body().isOk()){
                     if(type == 0){
                         taskExit();
-                        finish();
                     }else{
                         AlertYesNo alertYesNo = new AlertYesNo();
-                        alertYesNo.init(SetingPasswordActitity.this, "设置密码", "设置密码成功", "确定退出", "取消", new AlertYesNo.Event() {
+                        alertYesNo.init(SetingPasswordActivity.this, "设置密码", "设置密码成功", "确定退出", "取消", new AlertYesNo.Event() {
                             @Override
                             public void onON() {
                                 finish();
@@ -158,10 +157,11 @@ public class SetingPasswordActitity extends AppActivity {
                             @Override
                             public void onYes() {
                                 taskExit();
-                                finish();
                             }
                         });
-                        alertYesNo.show();
+                        if(!isFinishing()){
+                            alertYesNo.show();
+                        }
                     }
                 }
             }
@@ -173,9 +173,11 @@ public class SetingPasswordActitity extends AppActivity {
      * 退出
      */
     private void taskExit() {
-        finish();
         new UserAction().loginOut();
         EventBus.getDefault().post(new EventLoginOut(1));
+        if(!isFinishing()){
+            finish();
+        }
     }
 
 
