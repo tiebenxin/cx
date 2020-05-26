@@ -203,6 +203,7 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
                                     initDialog();
                                 }
                                 count += 1;
+                                return;
                             } else if (response.body().getCode().longValue() == 10088) {//非安全设备
                                 showNewDeviceDialog(phone, response.body().getMsg());
                             } else {
