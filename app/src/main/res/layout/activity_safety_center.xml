@@ -38,7 +38,9 @@
                     android:src="@mipmap/ic_btn_goto" />
             </LinearLayout>
 
-            <View style="@style/app_line" />
+            <View
+                style="@style/app_line"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/view_setting_psw_of_pay"
@@ -60,7 +62,9 @@
                     android:src="@mipmap/ic_btn_goto" />
             </LinearLayout>
 
-            <View style="@style/app_line" />
+            <View
+                style="@style/app_line"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/view_find_psw_of_pay"
@@ -106,7 +110,8 @@
             <LinearLayout
                 android:id="@+id/view_freeze_account"
                 style="@style/app_layout_list2_item"
-                android:layout_marginTop="20dp">
+                android:layout_marginTop="20dp"
+                android:visibility="gone">
 
                 <TextView
                     style="@style/app_txt_title_2"
@@ -123,11 +128,14 @@
             </LinearLayout>
 
 
-            <View style="@style/app_line" />
+            <View
+                style="@style/app_line"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/view_appeal_account"
-                style="@style/app_layout_list2_item">
+                style="@style/app_layout_list2_item"
+                android:visibility="gone">
 
                 <TextView
                     style="@style/app_txt_title_2"
@@ -144,11 +152,14 @@
             </LinearLayout>
 
 
-            <View style="@style/app_line" />
+            <View
+                style="@style/app_line"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/view_logout_account"
-                style="@style/app_layout_list2_item">
+                style="@style/app_layout_list2_item"
+                android:visibility="gone">
 
                 <TextView
                     style="@style/app_txt_title_2"

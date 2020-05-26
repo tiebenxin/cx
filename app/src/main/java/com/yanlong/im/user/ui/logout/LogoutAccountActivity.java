@@ -3,7 +3,6 @@ package com.yanlong.im.user.ui.logout;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.TextView;
 
 import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.R;
@@ -20,8 +19,6 @@ import net.cb.cb.library.view.AppActivity;
  * Description 注销常信账号
  */
 public class LogoutAccountActivity extends AppActivity {
-
-    private TextView tvConfirm;
     private ActivityLogoutBinding ui;
 
     @Override
