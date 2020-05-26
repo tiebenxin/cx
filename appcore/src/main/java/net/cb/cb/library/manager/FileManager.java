@@ -154,7 +154,7 @@ public class FileManager {
     }
 
     public String createImagePath() {
-        return getImageCachePath() + System.currentTimeMillis() + ".jpg";
+        return getImageCachePath() + "/" + System.currentTimeMillis() + ".jpg";
     }
 
 }
