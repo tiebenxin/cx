@@ -88,7 +88,7 @@ public class AdapterDeviceList extends BaseAdapter {
 
         public void bindData(DeviceBean bean) {
             tvName.setText(bean.getName());
-            tvTime.setText(TimeToString.YYYY_MM_DD_HH_MM_SS(bean.getLastUpdate()));
+            tvTime.setText(TimeToString.getTimeWx(bean.getLastUpdate()));
             if (model == 1) {
                 ivIcon.setImageResource(R.mipmap.ic_delete);
             } else {
