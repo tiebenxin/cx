@@ -2972,17 +2972,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 ToastUtil.show(this, "视频处理失败");
 //                                    return;
             }
-            long length = videoSize.getSize();
             long duration = videoSize.getDuration();
-            // 大于50M、5分钟不发送
-            if (ImgSizeUtil.formetFileSize(length) > 50) {
-                ToastUtil.show(this, "不能选择超过50M的视频");
-                return;
-            }
-            if (duration > 5 * 60000) {
-                ToastUtil.show(this, "不能选择超过5分钟的视频");
-                return;
-            }
             VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + videofile, videoSize.getBgUrl(), false, duration, videoSize.getWidth(), videoSize.getHeight(), videofile);
             videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
             // 不等于常信小助手，需要上传到服务器
