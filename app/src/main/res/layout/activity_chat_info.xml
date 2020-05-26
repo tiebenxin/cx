@@ -156,7 +156,7 @@
                         android:paddingBottom="5dp"
                         android:paddingLeft="@dimen/app_margin_main"
                         android:paddingRight="65dp"
-                        android:text="如果设置该选项,该聊天里面发送和接受消息将在阅读后指定时间内消失" />
+                        android:text="如果设置该选项,该聊天里面发送和接收的消息将在阅读后指定时间内消失" />
                 </LinearLayout>
 
         <View

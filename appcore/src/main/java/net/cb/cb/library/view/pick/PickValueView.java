@@ -13,6 +13,8 @@ import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
+import com.umeng.socialize.utils.CommonUtil;
+
 /**
  * 选择日期视图
  */
@@ -32,23 +34,23 @@ public class PickValueView extends LinearLayout implements NumberPicker.OnValueC
     /**
      * 一组数据长度
      */
-    private final int DATA_SIZE = 3;
+    private int dataSize = 3;//之前是固定为3，且会在滑动后动态生成新数据，因此导致setWrapSelectorWheel(false)禁止循环无效
 
     /**
      * 需要设置的值与默认值
      */
-    private Object[] mLeftValues;
+    private String[] mLeftValues;
     private Object[] mMiddleValues;
     private Object[] mRightValues;
-    private Object mDefaultLeftValue;
+    private String mDefaultLeftValue;
     private Object mDefaultMiddleValue;
     private Object mDefaultRightValue;
     /**
      * 当前正在显示的值
      */
-    private Object[] mShowingLeft = new Object[DATA_SIZE];
-    private Object[] mShowingMiddle = new Object[DATA_SIZE];
-    private Object[] mShowingRight = new Object[DATA_SIZE];
+    private String[] mShowingLeft;
+    private Object[] mShowingMiddle;
+    private Object[] mShowingRight;
 
     /**
      * 步长
@@ -60,6 +62,9 @@ public class PickValueView extends LinearLayout implements NumberPicker.OnValueC
      * 回调接口对象
      */
     private onSelectedChangeListener mSelectedChangeListener;
+
+//    String[] newValueStr = new String[]{"关闭", "退出即焚", "5秒", "10秒", "30秒", "1分钟",
+//            "5分钟", "30分钟", "1小时", "6小时", "12小时", "1天", "一个星期"};
 
     public PickValueView(Context context) {
         super(context);
@@ -149,47 +154,35 @@ public class PickValueView extends LinearLayout implements NumberPicker.OnValueC
             this.mNpRight.setVisibility(GONE);
             this.mUnitRight.setVisibility(GONE);
         }
-
         //初始化数组值
         if (mLeftValues != null && mLeftValues.length != 0) {
-            if (mLeftValues.length < DATA_SIZE) {
-                for (int i = 0; i < mLeftValues.length; i++) {
-                    mShowingLeft[i] = mLeftValues[i];
-                }
-                for (int i = mLeftValues.length; i < DATA_SIZE; i++) {
-                    mShowingLeft[i] = -9999;
-                }
-            } else {
-                for (int i = 0; i < DATA_SIZE; i++) {
-                    mShowingLeft[i] = mLeftValues[i];
-                }
-            }
+            //设置最小最大显示值、默认值、展示的数据集合、禁止循环滚动
             mNpLeft.setMinValue(0);
-            mNpLeft.setMaxValue(DATA_SIZE - 1);
-            if (mDefaultLeftValue != null)
-                updateLeftView(mDefaultLeftValue);
-            else
-                updateLeftView(mShowingLeft[0]);
+            mNpLeft.setMaxValue(dataSize - 1);
+            mNpLeft.setValue(getIndex(mLeftValues,mDefaultLeftValue));
+            mNpLeft.setDisplayedValues(mLeftValues);
+            mNpLeft.setWrapSelectorWheel(false);
+//            mNpLeft.postInvalidate();
         }
         /**
          * 中间控件
          */
         if (mViewCount == 2 || mViewCount == 3) {
             if (mMiddleValues != null && mMiddleValues.length != 0) {
-                if (mMiddleValues.length < DATA_SIZE) {
+                if (mMiddleValues.length < dataSize) {
                     for (int i = 0; i < mMiddleValues.length; i++) {
                         mShowingMiddle[i] = mMiddleValues[i];
                     }
-                    for (int i = mMiddleValues.length; i < DATA_SIZE; i++) {
+                    for (int i = mMiddleValues.length; i < dataSize; i++) {
                         mShowingMiddle[i] = -9999;
                     }
                 } else {
-                    for (int i = 0; i < DATA_SIZE; i++) {
+                    for (int i = 0; i < dataSize; i++) {
                         mShowingMiddle[i] = mMiddleValues[i];
                     }
                 }
                 mNpMiddle.setMinValue(0);
-                mNpMiddle.setMaxValue(DATA_SIZE - 1);
+                mNpMiddle.setMaxValue(dataSize - 1);
                 if (mDefaultMiddleValue != null)
                     updateMiddleView(mDefaultMiddleValue);
                 else
@@ -202,20 +195,20 @@ public class PickValueView extends LinearLayout implements NumberPicker.OnValueC
          */
         if (mViewCount == 3) {
             if (mRightValues != null && mRightValues.length != 0) {
-                if (mRightValues.length < DATA_SIZE) {
+                if (mRightValues.length < dataSize) {
                     for (int i = 0; i < mRightValues.length; i++) {
                         mShowingRight[i] = mRightValues[i];
                     }
-                    for (int i = mRightValues.length; i < DATA_SIZE; i++) {
+                    for (int i = mRightValues.length; i < dataSize; i++) {
                         mShowingRight[i] = -9999;
                     }
                 } else {
-                    for (int i = 0; i < DATA_SIZE; i++) {
+                    for (int i = 0; i < dataSize; i++) {
                         mShowingRight[i] = mRightValues[i];
                     }
                 }
                 mNpRight.setMinValue(0);
-                mNpRight.setMaxValue(DATA_SIZE - 1);
+                mNpRight.setMaxValue(dataSize - 1);
                 if (mDefaultRightValue != null)
                     updateRightView(mDefaultRightValue);
                 else
@@ -226,9 +219,9 @@ public class PickValueView extends LinearLayout implements NumberPicker.OnValueC
 
     }
 
-    private void updateLeftView(Object value) {
-        updateValue(value, 0);
-    }
+//    private void updateLeftView(Object value) {
+//        updateValue(value, 0);
+//    }
 
     private void updateMiddleView(Object value) {
         updateValue(value, 1);
@@ -245,7 +238,7 @@ public class PickValueView extends LinearLayout implements NumberPicker.OnValueC
      * @param index
      */
     private void updateValue(Object value, int index) {
-        String showStr[] = new String[DATA_SIZE];
+        String showStr[] = new String[dataSize];
         MyNumberPicker picker;
         Object[] showingValue;
         Object[] values;
@@ -268,8 +261,8 @@ public class PickValueView extends LinearLayout implements NumberPicker.OnValueC
         }
 
         if (values instanceof Integer[]) {
-            for (int i = 0; i < DATA_SIZE; i++) {
-                showingValue[i] = (int) value - step * (DATA_SIZE / 2 - i);
+            for (int i = 0; i < dataSize; i++) {
+                showingValue[i] = (int) value - step * (dataSize / 2 - i);
                 int offset = (int) values[values.length - 1] - (int) values[0] + step;
                 if ((int) showingValue[i] < (int) values[0]) {
                     showingValue[i] = (int) showingValue[i] + offset;
@@ -287,8 +280,8 @@ public class PickValueView extends LinearLayout implements NumberPicker.OnValueC
                     break;
                 }
             }
-            for (int i = 0; i < DATA_SIZE; i++) {
-                int temp = strIndex - (DATA_SIZE / 2 - i);
+            for (int i = 0; i < dataSize; i++) {
+                int temp = strIndex - (dataSize / 2 - i);
                 if (temp < 0) {
                     temp += values.length;
                 }
@@ -300,7 +293,7 @@ public class PickValueView extends LinearLayout implements NumberPicker.OnValueC
             }
         }
         picker.setDisplayedValues(showStr);
-        picker.setValue(DATA_SIZE / 2);
+        picker.setValue(dataSize / 2);
         picker.postInvalidate();
     }
 
@@ -308,28 +301,33 @@ public class PickValueView extends LinearLayout implements NumberPicker.OnValueC
     @Override
     public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
         if (picker == mNpLeft) {
-            updateLeftView(mShowingLeft[newVal]);
+//            updateLeftView(mShowingLeft[newVal]);
+//            picker.setValue(dataSize / 2);
+//            picker.postInvalidate();
         } else if (picker == mNpMiddle) {
             updateMiddleView(mShowingMiddle[newVal]);
         } else if (picker == mNpRight) {
             updateRightView(mShowingRight[newVal]);
         }
         if (mSelectedChangeListener != null) {
-            mSelectedChangeListener.onSelected(this, mShowingLeft[DATA_SIZE / 2], mShowingMiddle[DATA_SIZE / 2], mShowingRight[DATA_SIZE / 2]);
+            mSelectedChangeListener.onSelected(this, mLeftValues[newVal], mShowingMiddle[dataSize / 2], mShowingRight[dataSize / 2]);
         }
     }
 
     /**
      * 设置数据--单列数据
      *
-     * @param leftValues
-     * @param mDefaultLeftValue
+     * @param leftValues        总数据
+     * @param mDefaultLeftValue 默认值
      */
-    public void setValueData(Object[] leftValues, Object mDefaultLeftValue) {
+    public void setValueData(String[] leftValues, String mDefaultLeftValue) {
         this.mViewCount = 1;
         this.mLeftValues = leftValues;
         this.mDefaultLeftValue = mDefaultLeftValue;
-
+        dataSize = leftValues.length;
+        mShowingLeft = new String[dataSize];
+        mShowingMiddle = new Object[dataSize];
+        mShowingRight = new Object[dataSize];
         initViewAndPicker();
     }
 
@@ -341,7 +339,7 @@ public class PickValueView extends LinearLayout implements NumberPicker.OnValueC
      * @param middleValues
      * @param defaultMiddleValue
      */
-    public void setValueData(Object[] leftValues, Object mDefaultLeftValue, Object[] middleValues, Object defaultMiddleValue) {
+    public void setValueData(String[] leftValues, String mDefaultLeftValue, String[] middleValues, String defaultMiddleValue) {
         this.mViewCount = 2;
         this.mLeftValues = leftValues;
         this.mDefaultLeftValue = mDefaultLeftValue;
@@ -362,7 +360,7 @@ public class PickValueView extends LinearLayout implements NumberPicker.OnValueC
      * @param rightValues
      * @param defaultRightValue
      */
-    public void setValueData(Object[] leftValues, Object mDefaultLeftValue, Object[] middleValues, Object defaultMiddleValue, Object[] rightValues, Object defaultRightValue) {
+    public void setValueData(String[] leftValues, String mDefaultLeftValue, String[] middleValues, String defaultMiddleValue, String[] rightValues, String defaultRightValue) {
         this.mViewCount = 3;
         this.mLeftValues = leftValues;
         this.mDefaultLeftValue = mDefaultLeftValue;
@@ -489,5 +487,22 @@ public class PickValueView extends LinearLayout implements NumberPicker.OnValueC
      */
     public interface onSelectedChangeListener {
         void onSelected(PickValueView view, Object leftValue, Object middleValue, Object rightValue);
+    }
+
+
+    /**
+     * 获取某元素在数组中位置
+     * @param arr
+     * @param value
+     * @return
+     * @备注 由于这里没有引用模块，无法调用公用工具类，故暂时使用临时方法
+     */
+    public int getIndex(String[] arr, String value) {
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i].equals(value)) {
+                return i;
+            }
+        }
+        return 0;//如果未找到返回0，滚轮直接显示第一位元素
     }
 }
