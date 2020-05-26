@@ -207,6 +207,7 @@ import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.bean.GroupStatusChangeEvent;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.bean.VideoSize;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.dialog.DialogEnvelopePast;
 import net.cb.cb.library.event.EventFactory;
@@ -2748,62 +2749,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private boolean clickAble = false;
 
 
-    private String getVideoAtt(String mUri) {
-        String duration = null;
-        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
-        try {
-            if (mUri != null) {
-                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
-                mmr.setDataSource(inputStream.getFD());
-            }
-            duration = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
-
-        } catch (Exception ex) {
-            LogUtil.getLog().e("TAG", "MediaMetadataRetriever exception " + ex);
-        } finally {
-            mmr.release();
-        }
-        return duration;
-    }
-
-    private String getVideoAttWidth(String mUri) {
-        String width = null;
-        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
-        try {
-            if (mUri != null) {
-                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
-                mmr.setDataSource(inputStream.getFD());
-            } else {
-            }
-            width = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);//宽
-
-        } catch (Exception ex) {
-            LogUtil.getLog().e("TAG", "MediaMetadataRetriever exception " + ex);
-        } finally {
-            mmr.release();
-        }
-        return width;
-    }
-
-    private String getVideoAttHeigh(String mUri) {
-        String height = null;
-        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
-        try {
-            if (mUri != null) {
-                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
-                mmr.setDataSource(inputStream.getFD());
-            } else {
-            }
-            height = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);//高
-
-        } catch (Exception ex) {
-            LogUtil.getLog().e("TAG", "MediaMetadataRetriever exception " + ex);
-        } finally {
-            mmr.release();
-        }
-        return height;
-    }
-
     private String getVideoAttBitmap(String mUri) {
         File file = null;
         android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
@@ -2907,28 +2852,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
                         } else {
                             String videofile = localMedia.getPath();
-                            if (null != videofile) {
-                                long length = ImgSizeUtil.getVideoSize(videofile);
-                                long duration = Long.parseLong(getVideoAtt(videofile));
-                                // 大于50M、5分钟不发送
-                                if (ImgSizeUtil.formetFileSize(length) > 50) {
-                                    ToastUtil.show(this, "不能选择超过50M的视频");
-                                    continue;
-                                }
-                                if (duration > 5 * 60000) {
-                                    ToastUtil.show(this, "不能选择超过5分钟的视频");
-                                    continue;
-                                }
-                                VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + videofile, getVideoAttBitmap(videofile), false, duration, Long.parseLong(getVideoAttWidth(videofile)), Long.parseLong(getVideoAttHeigh(videofile)), videofile);
-                                videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
-                                // 不等于常信小助手，需要上传到服务器
-                                if (!Constants.CX_HELPER_UID.equals(toUId)) {
-                                    UpLoadService.onAddVideo(this.context, videoMsgBean, false);
-                                    startService(new Intent(getContext(), UpLoadService.class));
-                                }
-                            } else {
-                                ToastUtil.show(this, "文件已损坏，请重新选择");
-                            }
+                            sendVideo(videofile);
                         }
                     }
                     notifyData2Bottom(true);
@@ -3009,24 +2933,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                                     startService(new Intent(getContext(), UpLoadService.class));
                                 }
                             } else if (net.cb.cb.library.utils.FileUtils.isVideo(fileFormat)) {
-                                long length = ImgSizeUtil.getVideoSize(filePath);
-                                long duration = Long.parseLong(getVideoAtt(filePath));
-                                // 大于50M、5分钟不发送
-//                                if (PicImgSizeUtil.formetFileSize(length) > 50) {
-//                                    ToastUtil.show(this, "不能选择超过50M的视频");
-//                                    continue;
-//                                }
-//                                if (duration > 5 * 60000) {
-//                                    ToastUtil.show(this, "不能选择超过5分钟的视频");
-//                                    continue;
-//                                }
-                                VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + filePath, getVideoAttBitmap(filePath), false, duration, Long.parseLong(getVideoAttWidth(filePath)), Long.parseLong(getVideoAttHeigh(filePath)), filePath);
-                                videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
-                                // 不等于常信小助手，需要上传到服务器
-                                if (!Constants.CX_HELPER_UID.equals(toUId)) {
-                                    UpLoadService.onAddVideo(this.context, videoMsgBean, false);
-                                    startService(new Intent(getContext(), UpLoadService.class));
-                                }
+                                sendVideo(filePath);
                             } else {
                                 //创建文件消息，本地预先准备好这条文件消息，等文件上传成功后刷新
                                 SendFileMessage fileMessage = SocketData.createFileMessage(fileMsgId, filePath, "", fileName, new Double(fileSize).longValue(), fileFormat, false);
@@ -3054,6 +2961,37 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             UserInfo userInfo = gson.fromJson(json, UserInfo.class);
             BusinessCardMessage cardMessage = SocketData.createCardMessage(SocketData.getUUID(), userInfo.getHead(), userInfo.getName(), userInfo.getImid(), userInfo.getUid());
             sendMessage(cardMessage, ChatEnum.EMessageType.BUSINESS_CARD);
+        }
+    }
+
+    private void sendVideo(String videofile) {
+        MsgAllBean videoMsgBean;
+        if (null != videofile) {
+            VideoSize videoSize = ImgSizeUtil.getVideoAttribute(videofile);
+            if (videoSize == null) {
+                ToastUtil.show(this, "视频处理失败");
+//                                    return;
+            }
+            long length = videoSize.getSize();
+            long duration = videoSize.getDuration();
+            // 大于50M、5分钟不发送
+            if (ImgSizeUtil.formetFileSize(length) > 50) {
+                ToastUtil.show(this, "不能选择超过50M的视频");
+                return;
+            }
+            if (duration > 5 * 60000) {
+                ToastUtil.show(this, "不能选择超过5分钟的视频");
+                return;
+            }
+            VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + videofile, videoSize.getBgUrl(), false, duration, videoSize.getWidth(), videoSize.getHeight(), videofile);
+            videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
+            // 不等于常信小助手，需要上传到服务器
+            if (!Constants.CX_HELPER_UID.equals(toUId)) {
+                UpLoadService.onAddVideo(this.context, videoMsgBean, false);
+                startService(new Intent(getContext(), UpLoadService.class));
+            }
+        } else {
+            ToastUtil.show(this, "文件已损坏，请重新选择");
         }
     }
 
