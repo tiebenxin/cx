@@ -58,7 +58,7 @@
 
             <TextView
                 style="@style/app_txt_content_2"
-                android:text="关闭后,你不会被其他用户通过手机号找到,也不会被其他用户通过手机通讯录匹配到." />
+                android:text="关闭后,你不会被其他用户通过手机号找到,也不会被其他用户通过手机通讯录匹配到。" />
 
             <LinearLayout style="@style/app_layout_list2_item">
 
@@ -77,7 +77,7 @@
 
             <TextView
                 style="@style/app_txt_content_2"
-                android:text="关闭后,你不会被其他用户通过常信号找到." />
+                android:text="关闭后,你不会被其他用户通过常信号找到。" />
 
 
             <LinearLayout
@@ -101,7 +101,7 @@
 
             <TextView
                 style="@style/app_txt_content_2"
-                android:text="设置登录密码后,可以使用密码登录." />
+                android:text="关闭后,其他人将可以直接添加你为好友" />
 
 
             <View style="@style/app_line" />
@@ -164,7 +164,7 @@
 
             <TextView
                 style="@style/app_txt_content_2"
-                android:text="被添加的联系人将无法发送消息给你" />
+                android:text="被添加的联系人将无法发送消息给你。" />
 
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
