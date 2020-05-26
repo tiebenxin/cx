@@ -81,25 +81,7 @@
 
 
             <LinearLayout
-                android:id="@+id/view_setting_password"
                 style="@style/app_layout_list2_item">
-
-
-                <TextView
-                    style="@style/app_txt_title_2"
-                    android:layout_marginRight="@dimen/app_margin_item"
-                    android:layout_weight="1"
-                    android:text="设置登录密码" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@mipmap/ic_btn_goto" />
-            </LinearLayout>
-
-            <LinearLayout
-                style="@style/app_layout_list2_item"
-                android:layout_marginTop="20dp">
 
                 <TextView
                     style="@style/app_txt_title_2"
@@ -144,9 +126,27 @@
                 style="@style/app_txt_content_2"
                 android:text="查看所有会话消息已读状态,如果关闭已读回执,您也将无法查看所有人的消息已读回执" />
 
+            <LinearLayout
+                android:id="@+id/view_setting_password"
+                style="@style/app_layout_list2_item">
+
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:layout_weight="1"
+                    android:text="设置登录密码" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_btn_goto" />
+            </LinearLayout>
+
 
             <LinearLayout
                 android:id="@+id/view_blacklist"
+                android:layout_marginTop="20dp"
                 style="@style/app_layout_list2_item">
 
 
