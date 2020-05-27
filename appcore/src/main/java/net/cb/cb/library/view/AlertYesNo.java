@@ -73,7 +73,7 @@ public class AlertYesNo {
 
 
     public void dismiss() {
-        alertDialog.dismiss();
+        if(alertDialog!=null)alertDialog.dismiss();
     }
 
     public void init(Context activity, String title, String msg, String y, String n, Event e) {
@@ -97,7 +97,7 @@ public class AlertYesNo {
     }
 
     public boolean isShowing() {
-        return alertDialog.isShowing();
+        return alertDialog == null?false:alertDialog.isShowing();
     }
 
     public void show() {

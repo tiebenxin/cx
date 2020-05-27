@@ -745,7 +745,7 @@ public class MessageManager {
                         });
                         MessageManager.getInstance().setMessageChange(true);
                         EventRefreshFriend eventRefreshFriend = new EventRefreshFriend();
-                        eventRefreshFriend.setLocal(false);
+                        eventRefreshFriend.setLocal(true);
                         eventRefreshFriend.setUid(uid);
                         eventRefreshFriend.setRosterAction(CoreEnum.ERosterAction.REMOVE_FRIEND);
                         EventBus.getDefault().post(eventRefreshFriend);

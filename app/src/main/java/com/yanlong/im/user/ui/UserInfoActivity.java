@@ -106,6 +106,8 @@ public class UserInfoActivity extends AppActivity {
     private Button mBtnAdd;
     private Button btnMsg;
     private TextView txtPower;
+    //是否操作了删除联系人
+    private boolean isDeleteUser = false;
 
     private int type; //0.已经是好友 1.不是好友添加好友 2.黑名单 3.自己
     private int isApply;//是否是好友申请 0 不是 1.是
@@ -135,7 +137,7 @@ public class UserInfoActivity extends AppActivity {
 
     @ChatEnum.EFromType
     private int from;
-    private  AlertYesNo alertYesNo;
+    private  AlertYesNo alertYesNo = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -478,10 +480,7 @@ public class UserInfoActivity extends AppActivity {
                 @CoreEnum.ERosterAction int action = event.getRosterAction();
                 if (action == UPDATE_INFO) {
                     taskUserInfo(id);
-                }
-            } else if (!event.isLocal()) {//PC端删除了好友
-                @CoreEnum.ERosterAction int action = event.getRosterAction();
-                if (action == REMOVE_FRIEND) {
+                }else if(action == REMOVE_FRIEND&&!isDeleteUser){//PC端删除了好友
                     userInfoLocal = userAction.getUserInfoInLocal(id);
                     if (userInfoLocal != null) {
                         if(alertYesNo!=null&&alertYesNo.isShowing())alertYesNo.dismiss();
@@ -780,6 +779,7 @@ public class UserInfoActivity extends AppActivity {
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
                 //刷新好友和退出
                 if (response.body().isOk()) {
+                    isDeleteUser = true;
                     //删除好友后 取消阅后即焚状态
                     userDao.updateReadDestroy(id, 0);
                     // 删除好友后，取消置顶状态
