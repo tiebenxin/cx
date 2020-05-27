@@ -82,6 +82,7 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.BuildConfig;
+import com.yanlong.im.MainActivity;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.AdapterPopMenu;
@@ -2621,7 +2622,19 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefresh(EventExitChat event) {
-        onBackPressed();
+        if(!TextUtils.isEmpty(event.getGid())&&!TextUtils.isEmpty(toGid)&&event.getGid().equals(toGid)){//PC端操作,退群
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        }else if(TextUtils.isEmpty(toGid)&&event.getUid() != null&&event.getUid() == toUId){//PC端操作,删除好友
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        }else{
+            onBackPressed();
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

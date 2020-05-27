@@ -1,6 +1,8 @@
 package com.yanlong.im.chat.manager;
 
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 
 import com.hm.cxpay.eventbus.PayResultEvent;
@@ -36,6 +38,8 @@ import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.CloseActivityEvent;
+import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
@@ -676,7 +680,6 @@ public class MessageManager {
                                         MyAppLication.INSTANCE().repository.updateSessionDetail(null, fUids);
                                     /********通知更新sessionDetail end************************************/
                                 }
-
                             }
                         });
 
@@ -709,6 +712,46 @@ public class MessageManager {
                             }
                         });
 
+                        break;
+                    case MY_GROUP_QUIT://自己退群
+                        gid = wrapMessage.getMultiTerminalSync().getGid();
+                        //回主线程调用更新session详情
+                        Handler mainHandler = new Handler(Looper.getMainLooper());
+                        mainHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(MyAppLication.INSTANCE().repository!=null)
+                                    MyAppLication.INSTANCE().repository.deleteSession(null,gid);
+                            }
+                        });
+                        //删除群成员及秀阿贵群保存逻辑
+                        MemberUser memberUser = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), gid);
+                        msgDao.removeGroupMember(gid, memberUser);
+                        EventBus.getDefault().post(new EventExitChat(gid,null));
+                        break;
+                    case MY_FRIEND_DELETED://删除好友
+                        uid = wrapMessage.getMultiTerminalSync().getUid();
+                        //删除好友后 取消阅后即焚状态
+                        userDao.updateReadDestroy(uid, 0);
+                        // 删除好友后，取消置顶状态
+                        msgDao.updateUserSessionTop(uid, 0);
+                        //回主线程调用更新session详情
+                        mainHandler = new Handler(Looper.getMainLooper());
+                        mainHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (MyAppLication.INSTANCE().repository != null)
+                                    MyAppLication.INSTANCE().repository.deleteSession(uid, "");
+                            }
+                        });
+                        MessageManager.getInstance().setMessageChange(true);
+                        EventRefreshFriend eventRefreshFriend = new EventRefreshFriend();
+                        eventRefreshFriend.setLocal(true);
+                        eventRefreshFriend.setUid(uid);
+                        eventRefreshFriend.setRosterAction(CoreEnum.ERosterAction.REMOVE_FRIEND);
+                        EventBus.getDefault().post(eventRefreshFriend);
+                        EventBus.getDefault().post(new CloseActivityEvent("ChatInfoActivity,GroupInfoActivity"));
+                        EventBus.getDefault().post(new EventExitChat(null,uid));
                         break;
                 }
                 break;
