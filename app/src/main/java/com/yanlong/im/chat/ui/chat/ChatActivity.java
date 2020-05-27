@@ -2048,11 +2048,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         Intent intent = new Intent(ChatActivity.this, CollectionActivity.class);
                         intent.putExtra("from", CollectionActivity.FROM_CHAT);
                         if (isGroup()) {
+                            if(mViewModel.groupInfo == null) return;
                             intent.putExtra("is_group", true);
                             intent.putExtra("group_head", mViewModel.groupInfo.getAvatar());
                             intent.putExtra("group_id", mViewModel.groupInfo.getGid());
                             intent.putExtra("group_name", msgDao.getGroupName(mViewModel.groupInfo.getGid()));
                         } else {
+                            if(mViewModel.userInfo == null) return;
                             intent.putExtra("is_group", false);
                             intent.putExtra("user_head", mViewModel.userInfo.getHead());
                             intent.putExtra("user_id", mViewModel.userInfo.getUid());
@@ -3334,7 +3336,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         String name = "";
         if (isGroup()) {
             name = msgDao.getGroupMemberName2(toGid, uid);
-        } else {
+        } else if(mViewModel.userInfo!=null){
             name = mViewModel.userInfo.getName4Show();
         }
         startActivity(new Intent(getContext(), UserInfoActivity.class)

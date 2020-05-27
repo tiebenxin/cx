@@ -51,11 +51,17 @@ public class ChatViewModel extends ViewModel {
     public void loadData( RealmObjectChangeListener<RealmModel> groupInfoChangeListener,
                           RealmObjectChangeListener<RealmModel> userInfoChangeListener){
         if(TextUtils.isEmpty(toGid)){
-            if(userInfo != null)userInfo.removeAllChangeListeners();
+            if(userInfo != null){
+                userInfo.removeAllChangeListeners();
+                userInfo = null;
+            }
             userInfo = repository.getFriend(this.toUId);
             if(userInfo != null )userInfo.addChangeListener(userInfoChangeListener);
         }else{
-            if(groupInfo != null)groupInfo.removeAllChangeListeners();
+            if(groupInfo != null){
+                groupInfo.removeAllChangeListeners();
+                userInfo = null;
+            }
             groupInfo = repository.getGroup(this.toGid);
             if(groupInfo != null )groupInfo.addChangeListener(groupInfoChangeListener);
         }
