@@ -3,6 +3,7 @@ package com.yanlong.im.user.server;
 
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
+import com.yanlong.im.user.bean.DeviceBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IdCardBean;
 import com.yanlong.im.user.bean.LoginBean;
@@ -38,13 +39,13 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean<TokenBean>> login(@Field("password") String password, @Field("phone") String phone,
                                       @Field("devid") String devid, @Field("platform") String platform,
-                                      @Field("phoneModel") String phoneModel,@Field("installChannel") String installChannel,@Field("deviceDetail") String deviceDetail);
+                                      @Field("phoneModel") String phoneModel, @Field("installChannel") String installChannel, @Field("deviceDetail") String deviceDetail, @Field("deviceName") String deviceName);
 
     @POST("pub/login-by-imid-password")
     @FormUrlEncoded
     Call<ReturnBean<TokenBean>> login4Imid(@Field("password") String password, @Field("imid") String imid,
                                            @Field("devid") String devid, @Field("platform") String platform,
-                                           @Field("phoneModel") String phoneModel,@Field("installChannel") String installChannel,@Field("deviceDetail") String deviceDetail);
+                                           @Field("phoneModel") String phoneModel, @Field("installChannel") String installChannel, @Field("deviceDetail") String deviceDetail, @Field("deviceName") String deviceName);
 
     @POST("/user/refresh-access-token")
     @FormUrlEncoded
@@ -71,11 +72,11 @@ public interface UserServer {
 
     @POST("/friends/request-friend")
     @FormUrlEncoded
-    Call<ReturnBean> requestFriend(@Field("friend") Long uid, @Field("sayHi") String sayHi,@Field("contactName") String contactName);
+    Call<ReturnBean> requestFriend(@Field("friend") Long uid, @Field("sayHi") String sayHi, @Field("contactName") String contactName);
 
     @POST("/friends/accept-friend")
     @FormUrlEncoded
-    Call<ReturnBean> acceptFriend(@Field("friend") Long uid,@Field("contactName") String contactName);
+    Call<ReturnBean> acceptFriend(@Field("friend") Long uid, @Field("contactName") String contactName);
 
     @POST("/friends/add-black-list")
     @FormUrlEncoded
@@ -126,13 +127,13 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean<TokenBean>> register(@Field("phone") String phone, @Field("captcha") String captcha,
                                          @Field("platform") String platform, @Field("devid") String devid,
-                                         @Field("phoneModel") String phoneModel,@Field("installChannel") String installChannel,@Field("deviceDetail") String deviceDetail);
+                                         @Field("phoneModel") String phoneModel, @Field("installChannel") String installChannel, @Field("deviceDetail") String deviceDetail, @Field("deviceName") String deviceName);
 
     @POST("pub/login-by-phone-captcha")
     @FormUrlEncoded
     Call<ReturnBean<TokenBean>> login4Captch(@Field("phone") String phone, @Field("captcha") String captcha,
                                              @Field("platform") String platform, @Field("devid") String devid,
-                                             @Field("phoneModel") String phoneModel,@Field("installChannel") String installChannel,@Field("deviceDetail") String deviceDetail);
+                                             @Field("phoneModel") String phoneModel, @Field("installChannel") String installChannel, @Field("deviceDetail") String deviceDetail, @Field("deviceName") String deviceName);
 
     @POST("user/get-user-info-by-imid")
     @FormUrlEncoded
@@ -200,7 +201,7 @@ public interface UserServer {
 
     @POST("/friends/set-read")
     @FormUrlEncoded
-    Call<ReturnBean> friendsSetRead(@Field("friend") long uid,@Field("read") int read);
+    Call<ReturnBean> friendsSetRead(@Field("friend") long uid, @Field("read") int read);
 
     @POST("/group/get-single-member")
     @FormUrlEncoded
@@ -208,14 +209,14 @@ public interface UserServer {
 
     @POST("/user/report-geo-position")
     @FormUrlEncoded
-    Call<ReturnBean> postLocation(@Field("city") String city, @Field("country") String country, @Field("lat") String lat,@Field("lon") String lon
-    ,@Field("nickname") String nickname, @Field("phoneModel") String phoneModel, @Field("phone") String phone);
+    Call<ReturnBean> postLocation(@Field("city") String city, @Field("country") String country, @Field("lat") String lat, @Field("lon") String lon
+            , @Field("nickname") String nickname, @Field("phoneModel") String phoneModel, @Field("phone") String phone);
 
     @POST("/user/scan_qr_code")
     Call<ReturnBean> sweepCodeLoginCommit(@Query("code") String code);
 
     @POST("/user/confirm_login")
-    Call<ReturnBean> sweepCodeLoginSure(@Query("code") String code,@Query("sync") String sync);
+    Call<ReturnBean> sweepCodeLoginSure(@Query("code") String code, @Query("sync") String sync);
 
     @POST("/user/cancel_login")
     Call<ReturnBean> sweepCodeLoginCancel(@Query("code") String code);
@@ -223,4 +224,11 @@ public interface UserServer {
     @POST("/user/report-ip-variation")
     @FormUrlEncoded
     Call<ReturnBean> reportIPChange(@Field("ip") String code, @Field("phoneModel") String phoneModel);
+
+    @POST("/user/device-get-all")
+    Call<ReturnBean<List<DeviceBean>>> getAllDevice();
+
+    @POST("/user/device-del")
+    @FormUrlEncoded
+    Call<ReturnBean> deleteDevice(@Field("device") String device);
 }

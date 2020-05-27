@@ -71,7 +71,7 @@
                                 style="@style/app_txt_title_3"
                                 android:layout_marginRight="@dimen/app_margin_item"
                                 android:layout_weight="1"
-                                android:text="此对话中所发送的信息都已经进行端到端加密"
+                                android:text="聊天中所有信息已经进行端到端加密保护"
                                 android:textColor="@color/gray_300" />
 
                         </LinearLayout>
@@ -155,8 +155,8 @@
                         android:layout_height="wrap_content"
                         android:paddingBottom="5dp"
                         android:paddingLeft="@dimen/app_margin_main"
-                        android:paddingRight="@dimen/app_margin_main"
-                        android:text="如果设置该选项,该聊天里面发送和接受消息将在阅读后指定时间内消失" />
+                        android:paddingRight="65dp"
+                        android:text="如果设置该选项,该聊天里面发送和接收的消息将在阅读后指定时间内消失" />
                 </LinearLayout>
 
         <View

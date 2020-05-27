@@ -66,7 +66,6 @@ import static android.widget.RelativeLayout.CENTER_IN_PARENT;
  * @updateDate 2019-11-01
  * @description 小视频播放
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
- * @备注 TODO zjy 2020/5/1 整体优化
  */
 public class VideoPlayActivity extends AppActivity implements View.OnClickListener, SurfaceHolder.Callback, MediaPlayer.OnVideoSizeChangedListener {
     private InputMethodManager manager;
@@ -226,7 +225,37 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                mMediaPlayer.start();
+                if(mTimer==null){ //如果恢复播放后，直接拖动进度条，此时没有继续计时，则需要重新计时
+                    try {
+                        if(mMediaPlayer==null){
+                            mMediaPlayer = new MediaPlayer();
+                        }
+                        mMediaPlayer.reset();
+                        mMediaPlayer.setDataSource(mPath);
+                        mMediaPlayer.setDisplay(textureView.getHolder());
+                        mMediaPlayer.setLooping(false);
+                        mMediaPlayer.prepareAsync();
+                        mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                            @Override
+                            public void onPrepared(MediaPlayer mp) {
+                                mMediaPlayer.seekTo(mLastTime);
+                                mMediaPlayer.start();
+                                getProgress();
+                            }
+                        });
+                        mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                            @Override
+                            public boolean onError(MediaPlayer mp, int what, int extra) {
+
+                                return false;
+                            }
+                        });
+                    } catch (Exception e) {
+                        LogUtil.getLog().d("TAG",e.getMessage());
+                    }
+                }else {
+                    mMediaPlayer.start();
+                }
                 activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
             }
         });
@@ -396,13 +425,13 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         }
     }
 
-    @Override //锁屏逻辑
-    protected void onRestart() {
-        super.onRestart();
-        if(!pressHOME){
-            getProgress();
-        }
-    }
+//    @Override //锁屏逻辑
+//    protected void onRestart() {
+//        super.onRestart();
+//        if(!pressHOME){
+//            getProgress();
+//        }
+//    }
 
 
     @Override //HOME键逻辑
@@ -458,15 +487,19 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         mMediaPlayer.pause();
                         activity_video_big_con.setVisibility(View.VISIBLE);
                         activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
+                        if (null != mTimer) {
+                            mTimer.cancel();
+                            mTimer = null;
+                        }
                     } else {
                         activity_video_big_con.setVisibility(View.INVISIBLE);
                         activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
                         //按过HOME键需要重置播放
-                        if(pressHOME){
+//                        if(pressHOME){
                             replay();
-                        }else {
-                            mMediaPlayer.start();
-                        }
+//                        }else {
+//                            mMediaPlayer.start();
+//                        }
                         pressHOME = false;
                     }
                 }
@@ -477,16 +510,24 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         mMediaPlayer.pause();
                         activity_video_big_con.setVisibility(View.VISIBLE);
                         activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
+                        if (null != mTimer) {
+                            mTimer.cancel();
+                            mTimer = null;
+                        }
                     } else {
-                        mMediaPlayer.start();
                         activity_video_big_con.setVisibility(View.INVISIBLE);
                         activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
-                        getProgress();
-                        dontShake = false;
+                        //按过HOME键需要重置播放
+//                        if(pressHOME){
+                        replay();
+//                        }else {
+//                            mMediaPlayer.start();
+//                        }
                         pressHOME = false;
                     }
                 }
                 break;
+
             case R.id.activity_video_img_close:
                 if (null != mMediaPlayer) {
                     mMediaPlayer.stop();
@@ -609,11 +650,14 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
+        mMediaPlayer.setDisplay(holder);
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
+        if(mMediaPlayer!=null && mMediaPlayer.isPlaying()){
+            mMediaPlayer.pause();
+        }
 
     }
 

@@ -14,6 +14,7 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.utils.StringUtil;
 
@@ -43,7 +44,7 @@ public class UpdateSessionDetail {
 
     public void update(String[] sids) {
         //通过使用异步事务，Realm 会在后台线程中进行写入操作，并在事务完成时将结果传回调用线程。
-        realm.executeTransactionAsync(new Realm.Transaction() {
+        DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {//异步线程更新更新
                 //获取session列表-本地数据
@@ -82,11 +83,10 @@ public class UpdateSessionDetail {
 
             }
         });
-
     }
 
     public void update(String[] gids, Long[] fromUids) {
-        realm.executeTransactionAsync(new Realm.Transaction() {
+        DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 if (gids != null && gids.length > 0) {
@@ -113,6 +113,7 @@ public class UpdateSessionDetail {
 
             }
         });
+
     }
 
     /**
@@ -144,7 +145,7 @@ public class UpdateSessionDetail {
      * @param
      */
     public void clearContent(String[] gids, Long[] fromUids) {
-        realm.executeTransactionAsync(new Realm.Transaction() {
+        DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 if (gids != null && gids.length > 0) {
@@ -348,35 +349,38 @@ public class UpdateSessionDetail {
      */
     public String getUsername4Show(Realm realm, String gid, Long uid, String uname, String groupName) {
         String name = "";
-        UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
-        if (userInfo != null) {
-            //1.获取本地用户昵称
-            name = userInfo.getName();
-            //1.5如果有带过来的昵称先显示昵称
-            name = StringUtil.isNotNull(uname) ? uname : name;
+        try {
+            UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+            if (userInfo != null) {
+                //1.获取本地用户昵称
+                name = userInfo.getName();
+                //1.5如果有带过来的昵称先显示昵称
+                name = StringUtil.isNotNull(uname) ? uname : name;
 
-            //1.8  如果有带过来的群昵称先显示群昵称
-            if (StringUtil.isNotNull(groupName)) {
-                name = groupName;
+                //1.8  如果有带过来的群昵称先显示群昵称
+                if (StringUtil.isNotNull(groupName)) {
+                    name = groupName;
+                } else {
+                    MemberUser memberUser = realm.where(MemberUser.class)
+                            .beginGroup().equalTo("uid", uid).endGroup()
+                            .beginGroup().equalTo("gid", gid).endGroup()
+                            .findFirst();
+                    if (memberUser != null) {
+                        name = StringUtil.isNotNull(memberUser.getMembername()) ? memberUser.getMembername() : name;
+                    }
+                }
+                //3.获取用户备注名
+                name = StringUtil.isNotNull(userInfo.getMkName()) ? userInfo.getMkName() : name;
             } else {
                 MemberUser memberUser = realm.where(MemberUser.class)
                         .beginGroup().equalTo("uid", uid).endGroup()
                         .beginGroup().equalTo("gid", gid).endGroup()
                         .findFirst();
                 if (memberUser != null) {
-                    name = StringUtil.isNotNull(memberUser.getMembername()) ? memberUser.getMembername() : name;
+                    name = StringUtil.isNotNull(memberUser.getMembername()) ? memberUser.getMembername() : memberUser.getName();
                 }
             }
-            //3.获取用户备注名
-            name = StringUtil.isNotNull(userInfo.getMkName()) ? userInfo.getMkName() : name;
-        } else {
-            MemberUser memberUser = realm.where(MemberUser.class)
-                    .beginGroup().equalTo("uid", uid).endGroup()
-                    .beginGroup().equalTo("gid", gid).endGroup()
-                    .findFirst();
-            if (memberUser != null) {
-                name = StringUtil.isNotNull(memberUser.getMembername()) ? memberUser.getMembername() : memberUser.getName();
-            }
+        } catch (Exception e) {
         }
         return name;
     }
@@ -386,27 +390,25 @@ public class UpdateSessionDetail {
      * */
     public String getGroupName(Group group) {
         String result = "";
-        result = group.getName();
-        if (TextUtils.isEmpty(result)) {
-            List<MemberUser> users = group.getUsers();
-            if (users != null && users.size() > 0) {
-                int len = users.size();
-                for (int i = 0; i < len; i++) {
-                    MemberUser info = users.get(i);
-
-                    String username = info.getName();
-                    if(info.getUid() == UserAction.getMyId()){ //我自己，使用本地实时数据
-                        username = UserAction.getMyInfo().getName();
+        try {
+            result = group.getName();
+            if (TextUtils.isEmpty(result)) {
+                List<MemberUser> users = group.getUsers();
+                if (users != null && users.size() > 0) {
+                    int len = users.size();
+                    for (int i = 0; i < len; i++) {
+                        MemberUser info = users.get(i);
+                        if (i == len - 1) {
+                            result += StringUtil.getUserName("", info.getMembername(), info.getName(), info.getUid());
+                        } else {
+                            result += StringUtil.getUserName(/*info.getMkName()*/"", info.getMembername(), info.getName(), info.getUid()) + "、";
+                        }
                     }
-                    if (i == len - 1) {
-                        result += StringUtil.getUserName("", info.getMembername(), username, info.getUid());
-                    } else {
-                        result += StringUtil.getUserName(/*info.getMkName()*/"", info.getMembername(), username, info.getUid()) + "、";
-                    }
+                    result = result.length() > 14 ? StringUtil.splitEmojiString2(result, 0, 14) : result;
+                    result += "的群";
                 }
-                result = result.length() > 14 ? StringUtil.splitEmojiString2(result, 0, 14) : result;
-                result += "的群";
             }
+        } catch (Exception e) {
         }
         return result;
     }

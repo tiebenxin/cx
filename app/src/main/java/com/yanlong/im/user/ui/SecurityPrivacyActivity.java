@@ -17,7 +17,6 @@ import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CallBack4Btn;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
@@ -34,6 +33,7 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
     private CheckBox mCbVerification;
     private LinearLayout mViewSettingPassword;
     private LinearLayout mViewBlacklist;
+    private LinearLayout viewSafeCenter;
     private HeadView mHeadView;
     private UserAction userAction;
     private UserBean userInfo;
@@ -60,13 +60,15 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
         mViewSettingPassword = findViewById(R.id.view_setting_password);
         mViewBlacklist = findViewById(R.id.view_blacklist);
         mHeadView = findViewById(R.id.headView);
-        ckSetRead =  findViewById(R.id.ck_set_read);
+        ckSetRead = findViewById(R.id.ck_set_read);
+        viewSafeCenter = findViewById(R.id.view_safe_center);
     }
 
 
     private void initEvent() {
         mViewSettingPassword.setOnClickListener(this);
         mViewBlacklist.setOnClickListener(this);
+        viewSafeCenter.setOnClickListener(this);
         mCbFindPhone.setOnCheckedChangeListener(this);
         mCbFindProductNumber.setOnCheckedChangeListener(this);
         mCbVerification.setOnCheckedChangeListener(this);
@@ -123,13 +125,16 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
                 if (!UserAction.getMyInfo().isEmptyPassword()) {
                     go(ChangePasswordActivity.class);
                 } else {
-                    Intent intent = new Intent(this, SetingPasswordActitity.class);
-                    intent.putExtra(SetingPasswordActitity.TYPE, 1);
+                    Intent intent = new Intent(this, SetingPasswordActivity.class);
+                    intent.putExtra(SetingPasswordActivity.TYPE, 1);
                     startActivity(intent);
                 }
                 break;
             case R.id.view_blacklist:
                 go(BlacklistActivity.class);
+                break;
+            case R.id.view_safe_center:
+                go(SafetyCenterActivity.class);
                 break;
         }
     }
@@ -228,14 +233,14 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
     }
 
     //已读
-    private void taskUserMaskRead(int switchval, int avatar){
+    private void taskUserMaskRead(int switchval, int avatar) {
         userAction.userMaskSet(switchval, avatar, new CallBack4Btn<ReturnBean>(ckSetRead) {
             @Override
             public void onResp(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
                     return;
                 }
-                EventBus.getDefault().post(new EventIsShowRead(userInfo.getUid().longValue(), EventIsShowRead.EReadSwitchType.SWITCH_MASTER,switchval));
+                EventBus.getDefault().post(new EventIsShowRead(userInfo.getUid().longValue(), EventIsShowRead.EReadSwitchType.SWITCH_MASTER, switchval));
 //                if (userInfo.getMasterRead() == 0) {
 //                    userInfo.setMasterRead(1);
 //                    userDao.updateUserBean(userInfo);
@@ -284,9 +289,6 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
             }
         });
     }
-
-
-
 
 
 }

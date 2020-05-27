@@ -1001,6 +1001,9 @@ public class SocketData {
                 case ChatEnum.ENoticeType.LOCK:
                     note = "聊天中所有信息已进行" + "<font color='#1f5305' tag=" + ChatEnum.ETagType.LOCK + ">" + "端对端加密" + "</font>" + "保护";
                     break;
+                case ChatEnum.ENoticeType.FREEZE_ACCOUNT:
+                    note = "此账号因涉嫌违规，已被停用";
+                    break;
             }
         }
         return note;

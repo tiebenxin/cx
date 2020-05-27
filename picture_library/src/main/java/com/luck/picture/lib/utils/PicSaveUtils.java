@@ -7,6 +7,7 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -58,15 +59,18 @@ public class PicSaveUtils {
     }
 
     //有缓存的
-    public static boolean saveOriginImage(Context context, String filePath) {
+    public static boolean saveOriginImage(Context context, String filePath, String fileFormat) {
         boolean result = false;
         File fileSrc = new File(filePath);//源文件
         if (fileSrc.exists()) {
             String fileName = PictureFileUtils.getFileName(filePath);
-            String path = PictureFileUtils.createDir(context, fileName, null);
-            LogManager.getLogger().e("=","filePath======"+filePath);
-            LogManager.getLogger().e("=","path=========="+filePath);
-            if(filePath!=null&&filePath.equals(path)){
+            if (TextUtils.isEmpty(fileFormat)) {
+                fileFormat = ".jpg";
+            }
+            String path = PictureFileUtils.createDir(context, fileName + fileFormat, null);
+            LogManager.getLogger().e("=", "filePath======" + filePath);
+            LogManager.getLogger().e("=", "path==========" + filePath);
+            if (filePath != null && filePath.equals(path)) {
                 return true;//本身图片就在常信文件夹
             }
             File fileDest = new File(path);//目标文件

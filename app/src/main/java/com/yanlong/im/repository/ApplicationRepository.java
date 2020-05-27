@@ -299,7 +299,7 @@ public class ApplicationRepository {
                 @Override
                 public void run() {
                     //更新Detail详情
-                    localDataSource.updateSessionDetail(gids, uids);
+                    if(localDataSource != null)localDataSource.updateSessionDetail(gids, uids);
                 }
             });
         }

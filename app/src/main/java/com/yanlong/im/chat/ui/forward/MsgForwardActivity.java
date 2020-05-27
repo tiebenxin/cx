@@ -26,7 +26,6 @@ import com.yanlong.im.MainActivity;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.CollectAtMessage;
 import com.yanlong.im.chat.bean.CollectChatMessage;
@@ -35,7 +34,6 @@ import com.yanlong.im.chat.bean.CollectLocationMessage;
 import com.yanlong.im.chat.bean.CollectSendFileMessage;
 import com.yanlong.im.chat.bean.CollectShippedExpressionMessage;
 import com.yanlong.im.chat.bean.CollectVideoMessage;
-import com.yanlong.im.chat.bean.CollectVoiceMessage;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -456,7 +454,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 if (sendQueue != null && sendQueue.size() > 0) {
                     removeSendQueue(ackMessage.getMsgId(0));
                 } else {
-                    ToastUtil.show(this, "发送失败");
+                    ToastUtil.showCenter(MsgForwardActivity.this, "发送失败");
                 }
             }
         }
@@ -478,13 +476,13 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 startActivity(new Intent(MsgForwardActivity.this, MainActivity.class));
                 MsgForwardActivity.this.finish();
             } else if (model == ChatEnum.EForwardMode.EDIT_PIC) {
-                ToastUtil.show("转发成功!");
+                ToastUtil.showCenter(MsgForwardActivity.this, "发送成功");
                 MsgForwardActivity.this.finish();
             } else if (model == ChatEnum.EForwardMode.DEFAULT) {
-                ToastUtil.show("转发成功!");
+                ToastUtil.showCenter(MsgForwardActivity.this, "发送成功");
                 MsgForwardActivity.this.finish();
             } else if (model == ChatEnum.EForwardMode.MERGE) {
-                ToastUtil.show("转发成功!");
+                ToastUtil.showCenter(MsgForwardActivity.this, "发送成功");
                 MsgForwardActivity.this.finish();
             }
         }
@@ -1013,7 +1011,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     }
 
     public void doSendSuccess() {
-        ToastUtil.show(this, getResources().getString(R.string.forward_success));
+        ToastUtil.showCenter(this, getResources().getString(R.string.forward_success));
         finish();
     }
 
@@ -1095,7 +1093,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                             ToastUtil.show("路径解析异常，分享失败");
                         } /*else {
                             if (mediaType == CxMediaMessage.EMediaType.IMAGE) {
-                                ImgSizeUtil.ImageSize imgSize = ImgSizeUtil.getAttribute(filePath);
+                                PicImgSizeUtil.ImageSize imgSize = PicImgSizeUtil.getAttribute(filePath);
                                 if (imgSize == null) {
                                     filePath = "";
                                     return;
@@ -1347,7 +1345,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         .setContent(getProgressText(position, count, progress), false)
                         .setListener(new DialogCommon2.IDialogListener() {
                             @Override
-                            public void onCancel() {
+                            public void onClick() {
                                 if (msgList != null) {
                                     msgList.clear();
                                 }

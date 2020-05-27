@@ -1,7 +1,13 @@
 package net.cb.cb.library.utils;
 
 import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.text.TextUtils;
+
+import com.luck.picture.lib.tools.PictureFileUtils;
+
+import net.cb.cb.library.bean.VideoSize;
+import net.cb.cb.library.manager.FileManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -156,6 +162,57 @@ public class ImgSizeUtil {
         public void setSizeStr(String sizeStr) {
             this.sizeStr = sizeStr;
         }
+    }
+
+
+    //获取视频参数信息
+    public static VideoSize getVideoAttribute(String file) {
+        VideoSize size = null;
+        try {
+            size = new VideoSize();
+            android.media.MediaMetadataRetriever retriever = new android.media.MediaMetadataRetriever();
+            retriever.setDataSource(file);
+            long length = getVideoSize(file);
+            size.setSize(length);
+            String duration = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
+            size.setDuration(Long.parseLong(duration));
+            int orientation = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+            long width = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+            long height = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+            if (orientation == 90) {
+                size.setWidth(Math.min(width, height));
+                size.setHeight(Math.max(width, height));
+            } else {
+                size.setWidth(Math.max(width, height));
+                size.setHeight(Math.min(width, height));
+            }
+            String bgUrl = getVideoAttBitmap(file);
+            if (!TextUtils.isEmpty(bgUrl)) {
+                size.setBgUrl(bgUrl);
+            }
+        } catch (Exception e) {
+        }
+
+        return size;
+    }
+
+    private static String getVideoAttBitmap(String mUri) {
+        File file = null;
+        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+        try {
+            if (mUri != null) {
+                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
+                mmr.setDataSource(inputStream.getFD());
+            } else {
+            }
+            file = new File(FileManager.getInstance().createImagePath());
+            PictureFileUtils.saveBitmapFile(mmr.getFrameAtTime(), file);
+        } catch (Exception ex) {
+            LogUtil.getLog().e("TAG", "MediaMetadataRetriever exception " + ex);
+        } finally {
+            mmr.release();
+        }
+        return file.getAbsolutePath();
     }
 
 }

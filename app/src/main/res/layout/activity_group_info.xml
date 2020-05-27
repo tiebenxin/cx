@@ -52,8 +52,6 @@
                 </LinearLayout>
 
 
-
-
                 <!--     <ImageView
                          android:id="@+id/btn_add"
                          android:layout_width="wrap_content"
@@ -97,6 +95,7 @@
                         android:layout_height="wrap_content"
                         android:src="@mipmap/ic_btn_goto" />
                 </LinearLayout>
+
                 <LinearLayout
                     android:id="@+id/view_group_img"
                     style="@style/app_layout_list2_item">
@@ -173,15 +172,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/white"
-                    android:orientation="vertical"
-                    android:minHeight="48dp">
+                    android:minHeight="48dp"
+                    android:orientation="vertical">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
-                        android:gravity="center_vertical"
                         android:layout_marginLeft="@dimen/app_margin_main"
-                        android:layout_marginRight="@dimen/app_margin_main">
+                        android:layout_marginRight="@dimen/app_margin_main"
+                        android:gravity="center_vertical">
 
                         <TextView
                             style="@style/app_txt_title_2"
@@ -209,10 +208,10 @@
                         style="@style/app_txt_content_3"
                         android:layout_marginLeft="@dimen/app_margin_main"
                         android:layout_marginRight="@dimen/app_margin_main"
-                        android:maxLines="4"
-                        tool:text=""
                         android:layout_marginBottom="5dp"
-                        android:textColor="@color/gray_300" />
+                        android:maxLines="4"
+                        android:textColor="@color/gray_300"
+                        tool:text="" />
                 </LinearLayout>
 
 
@@ -244,16 +243,16 @@
 
                     <TextView
                         style="@style/app_txt_title_red"
-                        android:textColor="@color/red_400"
                         android:layout_marginRight="@dimen/app_margin_item"
-                        android:text="增加群人数上限至1000人" />
+                        android:text="增加群人数上限至1000人"
+                        android:textColor="@color/red_400" />
 
                     <TextView
-                        android:layout_weight="1"
-                        android:gravity="right"
                         android:id="@+id/txt_group_add"
                         style="@style/app_txt_title_4"
                         android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:gravity="right"
                         android:text="" />
 
                     <ImageView
@@ -274,7 +273,7 @@
                         style="@style/app_txt_title_2"
                         android:layout_marginRight="@dimen/app_margin_item"
                         android:layout_weight="1"
-                        android:text="查找聊天记录" />
+                        android:text="搜索聊天内容" />
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -282,18 +281,6 @@
                         android:src="@mipmap/ic_btn_goto" />
                 </LinearLayout>
 
-
-                <LinearLayout
-                    android:id="@+id/view_clear_chat_record"
-                    style="@style/app_layout_list2_item">
-
-                    <TextView
-                        style="@style/app_txt_title_2"
-                        android:layout_marginRight="@dimen/app_margin_item"
-                        android:layout_weight="1"
-                        android:text="清空聊天记录" />
-
-                </LinearLayout>
 
             </LinearLayout>
 
@@ -313,13 +300,14 @@
                             style="@style/app_txt_title_2"
                             android:layout_marginRight="@dimen/app_margin_item"
                             android:layout_weight="1"
+                            android:gravity="center_vertical"
                             android:text="加密" />
 
                         <TextView
                             style="@style/app_txt_title_3"
                             android:layout_marginRight="@dimen/app_margin_item"
                             android:layout_weight="1"
-                            android:text="此对话中所发送的信息都已经进行端到端加密"
+                            android:text="聊天中所有信息已经进行端到端加密保护"
                             android:textColor="@color/gray_300" />
 
                     </LinearLayout>
@@ -418,8 +406,8 @@
                         android:id="@+id/tv_destroy_time"
                         style="@style/app_txt_title_2"
                         android:layout_marginRight="@dimen/app_margin_item"
-                        android:textColor="@color/gray_300"
-                        android:text="关闭"/>
+                        android:text="关闭"
+                        android:textColor="@color/gray_300" />
 
 
                     <ImageView
@@ -431,18 +419,17 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="5dp"
                     android:paddingLeft="@dimen/app_margin_main"
-                    android:paddingRight="@dimen/app_margin_main"
-                    android:text="如果设置该选项,该聊天里面发送和接受消息将在阅读后指定时间内消失" />
+                    android:layout_marginRight="65dp"
+                    android:paddingBottom="5dp"
+                    android:text="如果设置该选项,该聊天里面发送和接收的消息将在阅读后指定时间内消失" />
 
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/gray_100"
-                />
+                android:background="@color/gray_100" />
 
             <LinearLayout
                 android:id="@+id/layout_creenshot"
@@ -459,14 +446,15 @@
                     style="@style/app_check" />
 
             </LinearLayout>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="5dp"
+                android:background="@color/white"
                 android:paddingLeft="@dimen/app_margin_main"
                 android:paddingRight="@dimen/app_margin_main"
-                android:background="@color/white"
-                android:text="开启后，群成员在聊天中的截屏，所有人收到通知" />
+                android:paddingBottom="5dp"
+                android:text="开启后，群成员在聊天中的截屏，所有人将收到通知" />
 
             <LinearLayout style="@style/app_layout_list2">
 
@@ -484,6 +472,22 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@mipmap/ic_btn_goto" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout style="@style/app_layout_list2">
+
+                <LinearLayout
+                    android:id="@+id/view_clear_chat_record"
+                    style="@style/app_layout_list2_item">
+
+                    <TextView
+                        style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:text="清空聊天记录" />
+
                 </LinearLayout>
 
             </LinearLayout>

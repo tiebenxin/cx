@@ -147,9 +147,9 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                     if (!TextUtils.isEmpty(collectionInfo.getData())) {
                         //显示用户名或群名
                         if (!TextUtils.isEmpty(collectionInfo.getFromGroupName())) {
-                            binding.tvName.setText("来自群聊 " + collectionInfo.getFromGroupName());
+                            binding.tvName.setText(collectionInfo.getFromGroupName());
                         } else if (!TextUtils.isEmpty(collectionInfo.getFromUsername())) {
-                            binding.tvName.setText("来自用户 " + collectionInfo.getFromUsername());
+                            binding.tvName.setText(collectionInfo.getFromUsername());
                         } else {
                             binding.tvName.setText("未知来源");
                         }
@@ -576,7 +576,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 mPopupWindow.dismiss();
             }
             if (CommonUtils.transformMsgType(mList.get(postion).getType()) == ChatEnum.EMessageType.VOICE) {
-                ToastUtil.show("语音消息无法转发");
+                ToastUtil.showToast(CollectionActivity.this,"收藏的语音信息不可以转发",1);
             } else {
                 if (NetUtil.isNetworkConnected()) {
                     startActivity(new Intent(context, MsgForwardActivity.class)
@@ -882,7 +882,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             CollectSendFileMessage bean7 = new Gson().fromJson(info.getData(), CollectSendFileMessage.class);
             txt = bean7.getFileName() == null ? "" : "[文件]" + bean7.getFileName();
         } else if (type == ChatEnum.EMessageType.VOICE){
-            ToastUtil.show("语音不支持转发");
+            ToastUtil.showToast(CollectionActivity.this,"收藏的语音信息不可以转发",1);
             return;
         }
         //todo 回复暂未添加
@@ -1010,7 +1010,6 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
 
     private void sendMessage(MsgAllBean msgAllBean) {
         SocketData.sendAndSaveMessage(msgAllBean);
-        ToastUtil.show(this, "发送成功");
         finish();
     }
 

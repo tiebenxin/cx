@@ -3,6 +3,7 @@ package com.yanlong.im;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.os.Handler;
 import android.text.TextUtils;
 
 import com.alibaba.android.arouter.launcher.ARouter;
@@ -67,6 +68,8 @@ public class MyAppLication extends MainApplication {
     //    public Vibrator mVibrator;
     //全局数据仓库
     public ApplicationRepository repository;
+    public Handler handler = new Handler();
+    public int size=0;
 
     @Override
     public void onCreate() {
@@ -401,6 +404,7 @@ public class MyAppLication extends MainApplication {
         ChatBitmapCache.getInstance().clear();
         //清除仓库对象
         destoryRepository();
+        handler = null;
         super.onTerminate();
     }
 

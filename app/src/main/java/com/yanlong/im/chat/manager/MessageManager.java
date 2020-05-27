@@ -9,6 +9,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ApplyBean;
+import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
@@ -106,6 +107,11 @@ public class MessageManager {
      * 用于丢弃在此时间戳之前的消息
      */
     private Map<Long, Long> historyCleanMsg = new HashMap<>();
+
+    /**
+     * 保存单聊发送已读消息时间戳
+     */
+    private Map<Long, Long> readTimeMap = new HashMap<>();
 
 
     public static MessageManager getInstance() {
@@ -267,10 +273,10 @@ public class MessageManager {
                 //最后一条需要清除的聊天记录时间戳
                 long lastNeedCleanTimestamp = wrapMessage.getTimestamp();
                 //保存双向清除指令发送方和时间戳，用于丢弃在此时间戳之前的消息
-                historyCleanMsg.put(wrapMessage.getFromUid(), lastNeedCleanTimestamp);
+                historyCleanMsg.put(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), lastNeedCleanTimestamp);
                 //清除好友历史记录
-                msgDao.msgDel(wrapMessage.getFromUid(), lastNeedCleanTimestamp);
-                notifyRefreshChat();
+                msgDao.msgDel(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), lastNeedCleanTimestamp);
+                notifyRefreshChat(wrapMessage.getGid(), isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid());
                 break;
             case P2P_AU_VIDEO:// 音视频消息
                 if (bean != null) {
@@ -461,7 +467,7 @@ public class MessageManager {
                 EventLoginOut4Conflict eventLoginOut4Conflict = new EventLoginOut4Conflict();
                 if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.CONFLICT) {// 登录冲突
                     String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
-                    eventLoginOut4Conflict.setMsg("您的账号" + phone + "已经在另一台设备上登录。如果不是您本人操作,请尽快修改密码");
+                    eventLoginOut4Conflict.setMsg("您的账号" + phone + "已经在另外一台设备上登录。如果不是您本人操作,请尽快修改密码");
                 } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.LOCKED) {//被冻结
                     eventLoginOut4Conflict.setMsg("你已被限制登录");
                 } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.PASSWORD_CHANGED) {//修改密码
@@ -473,6 +479,7 @@ public class MessageManager {
             case GROUP_ANNOUNCEMENT://群公告
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
+                    updateAtMessage(bean.getGid(), bean.getAtMessage().getAt_type(), bean.getAtMessage().getMsg(), bean.getAtMessage().getUid());
                 }
                 updateAtMessage(wrapMessage);
                 break;
@@ -521,7 +528,7 @@ public class MessageManager {
                             isCancelValid = true;
                         }
                     }
-                    notifyRefreshChat();
+                    notifyRefreshChat(bean.getGid(), isFromSelf ? bean.getTo_uid() : bean.getFrom_uid());
                     // 处理图片撤回，在预览弹出提示
                     EventFactory.ClosePictureEvent event = new EventFactory.ClosePictureEvent();
                     event.msg_id = bean.getMsgCancel().getMsgidCancel();
@@ -565,7 +572,7 @@ public class MessageManager {
                     gid = gid == null ? "" : gid;
                     msgDao.sessionReadClean(gid, uids);
                 }
-                notifyRefreshChat();
+                notifyRefreshChat(wrapMessage.getGid(), uids);
                 break;
             case SWITCH_CHANGE: //开关变更
                 // TODO　处理老版本不兼容问题
@@ -640,8 +647,9 @@ public class MessageManager {
             case REPLY_SPECIFIC:// 回复消息
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
-                    if (!TextUtils.isEmpty(bean.getGid()) && bean.getReplyMessage().getAtMessage() != null) {
-                        msgDao.atMessage(bean.getGid(), bean.getReplyMessage().getAtMessage().getMsg(), bean.getReplyMessage().getAtMessage().getAt_type());
+                    if (!TextUtils.isEmpty(bean.getGid()) && bean.getReplyMessage() != null && bean.getReplyMessage().getAtMessage() != null) {
+                        AtMessage atMessage = bean.getReplyMessage().getAtMessage();
+                        updateAtMessage(bean.getGid(), atMessage.getAt_type(), atMessage.getMsg(), atMessage.getUid());
                     }
                 }
                 break;
@@ -1221,6 +1229,17 @@ public class MessageManager {
     /*
      * 通知刷新聊天界面
      * */
+    public void notifyRefreshChat(String gid, Long uid) {
+        if (!isMsgFromCurrentChat(gid, uid)) {
+            return;
+        }
+        EventRefreshChat event = new EventRefreshChat();
+        EventBus.getDefault().post(event);
+    }
+
+    /*
+     * 通知刷新聊天界面
+     * */
     public void notifyRefreshChat() {
         EventRefreshChat event = new EventRefreshChat();
         EventBus.getDefault().post(event);
@@ -1335,13 +1354,13 @@ public class MessageManager {
         return null /* cacheSessions*/;
     }
 
-    //检测是否是双重消息，及一条消息需要产生两条本地消息记录,回执在通知消息中发送
+    //检测是否是双重消息，及一条消息需要产生两条本地消息记录,回执在通知消息中发送,招呼语消息要在好友通知前面
     private void checkDoubleMessage(MsgBean.UniversalMessage.WrapMessage wmsg) {
         if (wmsg.getMsgType() == ACCEPT_BE_FRIENDS) {
             MsgBean.AcceptBeFriendsMessage receiveMessage = wmsg.getAcceptBeFriends();
             if (receiveMessage != null && !TextUtils.isEmpty(receiveMessage.getSayHi())) {
                 ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), receiveMessage.getSayHi());
-                MsgAllBean message = createMsgBean(wmsg, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
+                MsgAllBean message = createMsgBean(wmsg, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, wmsg.getTimestamp() - 1, chatMessage);
                 DaoUtil.save(message);
             }
         }
@@ -1373,6 +1392,38 @@ public class MessageManager {
         } else {
             if (atMessage.getUidList() == null || atMessage.getUidList().size() == 0) {//是群公告
                 refreshGroupInfo(msg.getGid());
+            }
+            LogUtil.getLog().e(TAG, "@所有人");
+            if (!gid.equals(SESSION_GID)) {
+                msgDao.atMessage(gid, message, atType);
+                playDingDong();
+            }
+            isAt = true;
+        }
+        return isAt;
+    }
+
+    private boolean updateAtMessage(String gid, int atType, String message, List<Long> list) {
+        boolean isAt = false;
+        if (atType == 0) {
+            if (list == null)
+                isAt = false;
+
+            Long uid = UserAction.getMyId();
+            for (int i = 0; i < list.size(); i++) {
+                if (uid.equals(list.get(i))) {
+                    LogUtil.getLog().e(TAG, "有人@我" + uid);
+                    if (!gid.equals(SESSION_GID)) {
+                        msgDao.atMessage(gid, message, atType);
+                        playDingDong();
+                    }
+
+                    isAt = true;
+                }
+            }
+        } else {
+            if (list == null || list.size() == 0) {//是群公告
+                refreshGroupInfo(gid);
             }
             LogUtil.getLog().e(TAG, "@所有人");
             if (!gid.equals(SESSION_GID)) {
@@ -1758,6 +1809,9 @@ public class MessageManager {
         if (taskMaps != null) {
             taskMaps.clear();
         }
+        if (readTimeMap != null) {
+            readTimeMap.clear();
+        }
         //用户退出登录需清除阅后即焚数据
 //        BurnManager.getInstance().clear();
     }
@@ -1920,6 +1974,25 @@ public class MessageManager {
         } else {
             return R.mipmap.ic_unknow;
         }
+    }
+
+    public void addReadTime(Long uid, long time) {
+        if (uid != null) {
+            readTimeMap.put(uid, time);
+        }
+    }
+
+    //是否已读时间有效,已读时间小于或者等于缓存的已读时间，都是无效时间
+    public boolean isReadTimeValid(Long uid, long time) {
+        if (readTimeMap.containsKey(uid)) {
+            long oldTime = readTimeMap.get(uid);
+            if (oldTime < time) {
+                return true;
+            }
+        } else if (!readTimeMap.containsKey(uid)) {
+            return true;
+        }
+        return false;
     }
 
 }

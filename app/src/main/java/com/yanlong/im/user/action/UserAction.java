@@ -19,6 +19,7 @@ import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
+import com.yanlong.im.user.bean.DeviceBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.IdCardBean;
@@ -43,7 +44,6 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
-import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.utils.encrypt.EncrypUtil;
 import net.cb.cb.library.utils.encrypt.MD5;
 
@@ -164,7 +164,7 @@ public class UserAction {
     public void login(final String phone, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
 
         cleanInfo();
-        NetUtil.getNet().exec(server.login(MD5.md5(pwd), phone, devid, "android", VersionUtil.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext()), DeviceUtils.getIMEI(AppConfig.getContext())), new CallBack<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.login(MD5.md5(pwd), phone, devid, "android", DeviceUtils.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext()), DeviceUtils.getIMEI(AppConfig.getContext()), DeviceUtils.getDeviceName()), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
@@ -198,7 +198,7 @@ public class UserAction {
     public void login4Imid(final String imid, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
 
         cleanInfo();
-        NetUtil.getNet().exec(server.login4Imid(MD5.md5(pwd), imid, devid, "android", VersionUtil.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext()), DeviceUtils.getIMEI(AppConfig.getContext())), new CallBack<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.login4Imid(MD5.md5(pwd), imid, devid, "android", DeviceUtils.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext()), DeviceUtils.getIMEI(AppConfig.getContext()), DeviceUtils.getDeviceName()), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
@@ -695,7 +695,7 @@ public class UserAction {
      */
     public void register(String phone, String captcha, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
         cleanInfo();
-        NetUtil.getNet().exec(server.register(phone, captcha, "android", devid, VersionUtil.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext()), DeviceUtils.getIMEI(AppConfig.getContext())), new CallBack<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.register(phone, captcha, "android", devid, DeviceUtils.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext()), DeviceUtils.getIMEI(AppConfig.getContext()), DeviceUtils.getDeviceName()), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 super.onResponse(call, response);
@@ -721,7 +721,7 @@ public class UserAction {
      */
     public void login4Captch(final String phone, String captcha, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
         cleanInfo();
-        NetUtil.getNet().exec(server.login4Captch(phone, captcha, "android", devid, VersionUtil.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext()), DeviceUtils.getIMEI(AppConfig.getContext())), new Callback<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.login4Captch(phone, captcha, "android", devid, DeviceUtils.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext()), DeviceUtils.getIMEI(AppConfig.getContext()), DeviceUtils.getDeviceName()), new Callback<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
@@ -1065,6 +1065,46 @@ public class UserAction {
         userBean.setuType(info.getuType());
         userBean.setBankReqSignKey(info.getBankReqSignKey());
         return userBean;
+    }
+
+
+    /**
+     * 获取通讯录好友在线状态
+     */
+    public void getAllDevice(final CallBack<ReturnBean<List<DeviceBean>>> callback) {
+        NetUtil.getNet().exec(server.getAllDevice(), new CallBack<ReturnBean<List<DeviceBean>>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<List<DeviceBean>>> call, Response<ReturnBean<List<DeviceBean>>> response) {
+                if (response.body() == null)
+                    return;
+                if (response.body().isOk()) {
+//                    List<DeviceBean> list = response.body().getData();
+                }
+                callback.onResponse(call, response);
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<List<DeviceBean>>> call, Throwable t) {
+                super.onFailure(call, t);
+            }
+        });
+    }
+
+    /**
+     * 获取通讯录好友在线状态
+     */
+    public void deleteDevice(String device, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.deleteDevice(device), new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                callback.onResponse(call, response);
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+            }
+        });
     }
 
 
