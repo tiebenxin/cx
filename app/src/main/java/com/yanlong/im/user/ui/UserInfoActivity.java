@@ -135,7 +135,7 @@ public class UserInfoActivity extends AppActivity {
 
     @ChatEnum.EFromType
     private int from;
-
+    private  AlertYesNo alertYesNo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +144,7 @@ public class UserInfoActivity extends AppActivity {
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
+        alertYesNo = new AlertYesNo();
         initView();
         initData();
         initEvent();
@@ -209,7 +210,6 @@ public class UserInfoActivity extends AppActivity {
         viewBlack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final AlertYesNo alertYesNo = new AlertYesNo();
                 if (type == 0) {
                     alertYesNo.init(UserInfoActivity.this, "提示",
                             "加入黑名单，你将不再收到对方的消息", "确定", "取消", new AlertYesNo.Event() {
@@ -252,7 +252,6 @@ public class UserInfoActivity extends AppActivity {
         viewDel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final AlertYesNo alertYesNo = new AlertYesNo();
                 alertYesNo.init(UserInfoActivity.this, "删除好友",
                         "删除联系人，将在双方好友列表里同时删除，并删除与该联系人的聊天记录", "确定", "取消", new AlertYesNo.Event() {
                             @Override
@@ -474,15 +473,21 @@ public class UserInfoActivity extends AppActivity {
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void refreshFriend(EventRefreshFriend event) {
-        if (event.isLocal()&& event.getUid()==id) {
-            @CoreEnum.ERosterAction int action = event.getRosterAction();
-            if(action == UPDATE_INFO) {
-                taskUserInfo(id);
-            }else if(action == REMOVE_FRIEND){
-                userInfoLocal = userAction.getUserInfoInLocal(id);
-                if (userInfoLocal != null) {
-                    type = 1;
-                    setData(userInfoLocal);
+        if(event.getUid()==id) {
+            if (event.isLocal()) {
+                @CoreEnum.ERosterAction int action = event.getRosterAction();
+                if (action == UPDATE_INFO) {
+                    taskUserInfo(id);
+                }
+            } else if (!event.isLocal()) {//PC端删除了好友
+                @CoreEnum.ERosterAction int action = event.getRosterAction();
+                if (action == REMOVE_FRIEND) {
+                    userInfoLocal = userAction.getUserInfoInLocal(id);
+                    if (userInfoLocal != null) {
+                        if(alertYesNo!=null&&alertYesNo.isShowing())alertYesNo.dismiss();
+                        type = 1;
+                        setData(userInfoLocal);
+                    }
                 }
             }
         }
@@ -490,6 +495,7 @@ public class UserInfoActivity extends AppActivity {
     @Override
     protected void onDestroy() {
         EventBus.getDefault().unregister(this);
+        if(alertYesNo!=null&&alertYesNo.isShowing())alertYesNo.dismiss();
         super.onDestroy();
     }
     private void taskUserInfo(Long id) {
