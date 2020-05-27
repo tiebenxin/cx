@@ -551,7 +551,8 @@ public class UserInfoActivity extends AppActivity {
         doGetAndSetName(info);
         mkName = info.getMkName();
         name = info.getName();
-        if ((info.getuType() != null && info.getuType() == 3) || (info.getStat() != null && info.getStat() == 2)) {
+        //黑名单，且是好友
+        if ((info.getuType() != null && info.getuType() == 3) || (info.getStat() != null && info.getStat() == 2 && info.getuType() != 0)) {
             type = 2;
         }
         if (info.getStat() != 9) {//不是常信小助手
