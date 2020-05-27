@@ -2627,7 +2627,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
-        }else if(TextUtils.isEmpty(toGid)&&event.getUid() != null&&event.getUid() == toUId){//PC端操作,删除好友
+        }else if(TextUtils.isEmpty(toGid)&&event.getUid() != null&&event.getUid().longValue() == toUId.longValue()){//PC端操作,删除好友
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);

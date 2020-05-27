@@ -38,7 +38,6 @@ import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
-import net.cb.cb.library.bean.CloseActivityEvent;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.EventIsShowRead;
@@ -750,7 +749,6 @@ public class MessageManager {
                         eventRefreshFriend.setUid(uid);
                         eventRefreshFriend.setRosterAction(CoreEnum.ERosterAction.REMOVE_FRIEND);
                         EventBus.getDefault().post(eventRefreshFriend);
-                        EventBus.getDefault().post(new CloseActivityEvent("ChatInfoActivity,GroupInfoActivity"));
                         EventBus.getDefault().post(new EventExitChat(null,uid));
                         break;
                 }
