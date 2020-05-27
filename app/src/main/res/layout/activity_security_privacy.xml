@@ -101,7 +101,7 @@
 
             <TextView
                 style="@style/app_txt_content_2"
-                android:text="关闭后,其他人将可以直接添加你为好友" />
+                android:text="关闭后,其他人将可以直接添加你为好友。" />
 
 
             <View style="@style/app_line" />
@@ -124,7 +124,7 @@
 
             <TextView
                 style="@style/app_txt_content_2"
-                android:text="查看所有会话消息已读状态,如果关闭已读回执,您也将无法查看所有人的消息已读回执" />
+                android:text="查看所有会话消息已读状态,如果关闭已读回执,您也将无法查看所有人的消息已读回执。" />
 
             <LinearLayout
                 android:id="@+id/view_setting_password"

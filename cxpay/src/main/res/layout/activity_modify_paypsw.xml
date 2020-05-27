@@ -152,7 +152,7 @@
             android:textColor="@color/c_868686"
             android:layout_marginTop="9dp"
             android:layout_marginLeft="14dp"
-            android:text="支付密码仅支持6位，且仅支持数字"/>
+            android:text="支付密码仅支持6位，且仅支持数字。"/>
 
 
         <TextView
