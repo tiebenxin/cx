@@ -1,6 +1,5 @@
 package com.yanlong.im.chat.ui;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -9,15 +8,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
-import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.wight.avatar.MultiImageView;
 
-import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
@@ -26,13 +22,8 @@ import net.cb.cb.library.view.AppActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Response;
+import io.realm.RealmChangeListener;
+import io.realm.RealmResults;
 
 /***
  * 保存的群聊
@@ -41,9 +32,8 @@ public class GroupSaveActivity extends AppActivity {
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private net.cb.cb.library.view.MultiListView mtListView;
-    private List<Group> groupInfoBeans;
-    MsgDao msgDao = new MsgDao();
 
+    private GroupSaveViewModel viewModel = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +41,16 @@ public class GroupSaveActivity extends AppActivity {
         setContentView(R.layout.activity_group_save);
         findViews();
         initEvent();
-        initData();
+        mtListView.init(new RecyclerViewAdapter());
+        viewModel = new GroupSaveViewModel();
+        if(viewModel.groups!=null){
+            viewModel.groups.addChangeListener(new RealmChangeListener<RealmResults<Group>>() {
+                @Override
+                public void onChange(RealmResults<Group> groups) {
+                    mtListView.getListView().getAdapter().notifyDataSetChanged();
+                }
+            });
+        }
     }
 
     //自动寻找控件
@@ -79,55 +78,22 @@ public class GroupSaveActivity extends AppActivity {
         mtListView.getLoadView().setStateNormal();
     }
 
-    private void initData() {
-        groupInfoBeans = new ArrayList<>();
-        mtListView.init(new RecyclerViewAdapter());
-//        taskMySaved();
-        loadSavedGroup();
-    }
 
-
-    private void taskMySaved() {
-        new MsgAction().getMySaved(new CallBack<ReturnBean<List<Group>>>(mtListView) {
-            @Override
-            public void onResponse(Call<ReturnBean<List<Group>>> call, Response<ReturnBean<List<Group>>> response) {
-                if (response.body() == null || !response.body().isOk()) {
-                    mtListView.getLoadView().setStateNoData(R.mipmap.ic_nodate);
-                    return;
-                }
-                groupInfoBeans.addAll(response.body().getData());
-//                mtListView.notifyDataSetChange(response);
-                mtListView.notifyDataSetChange();
-            }
-        });
-    }
-
-    @SuppressLint("CheckResult")
-    private void loadSavedGroup() {
-        Observable.just(0)
-                .map(new Function<Integer, List<Group>>() {
-                    @Override
-                    public List<Group> apply(Integer integer) throws Exception {
-                        return msgDao.getMySavedGroup(true);
-                    }
-                }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .onErrorResumeNext(Observable.<List<Group>>empty())
-                .subscribe(new Consumer<List<Group>>() {
-                    @Override
-                    public void accept(List<Group> list) throws Exception {
-                        if (list == null || list.size() <= 0) {
-                            mtListView.getLoadView().setStateNoData(R.mipmap.ic_nodate);
-                            return;
-                        }
-                        if (groupInfoBeans != null && groupInfoBeans.size() > 0) {
-                            groupInfoBeans.clear();
-                        }
-                        groupInfoBeans.addAll(list);
-                        mtListView.notifyDataSetChange();
-                    }
-                });
-    }
+//    private void taskMySaved() {
+//        new MsgAction().getMySaved(new CallBack<ReturnBean<List<Group>>>(mtListView) {
+//            @Override
+//            public void onResponse(Call<ReturnBean<List<Group>>> call, Response<ReturnBean<List<Group>>> response) {
+//                if (response.body() == null || !response.body().isOk()) {
+//                    mtListView.getLoadView().setStateNoData(R.mipmap.ic_nodate);
+//                    return;
+//                }
+//                groupInfoBeans.clear();
+//                groupInfoBeans.addAll(response.body().getData());
+////                mtListView.notifyDataSetChange(response);
+//                mtListView.notifyDataSetChange();
+//            }
+//        });
+//    }
 
 
     //自动生成RecyclerViewAdapter
@@ -135,14 +101,14 @@ public class GroupSaveActivity extends AppActivity {
 
         @Override
         public int getItemCount() {
-            return null == groupInfoBeans ? 0 : groupInfoBeans.size();
+            return null == viewModel.groups ? 0 : viewModel.groups.size();
         }
 
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
             MsgDao msgDao = new MsgDao();
-            final Group groupInfoBean = groupInfoBeans.get(position);
+            final Group groupInfoBean = viewModel.groups.get(position);
             if (StringUtil.isNotNull(groupInfoBean.getName())) {
                 holder.txtName.setText(groupInfoBean.getName());
             } else {
@@ -156,7 +122,7 @@ public class GroupSaveActivity extends AppActivity {
                 headList.add(imageHead);
                 holder.imgHead.setList(headList);
             } else {
-                loadGroupHeads(groupInfoBean.getGid(), holder.imgHead);
+                loadGroupHeads(groupInfoBean, holder.imgHead);
             }
 
             holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -190,18 +156,16 @@ public class GroupSaveActivity extends AppActivity {
         /**
          * 加载群头像
          *
-         * @param gid
          * @param imgHead
          */
-        public synchronized void loadGroupHeads(String gid, MultiImageView imgHead) {
-            Group gginfo = msgDao.getGroup4Id(gid);
-            if (gginfo != null) {
-                int i = gginfo.getUsers().size();
+        public synchronized void loadGroupHeads(Group group, MultiImageView imgHead) {
+            if (group != null) {
+                int i = group.getUsers().size();
                 i = i > 9 ? 9 : i;
                 //头像地址
                 List<String> headList = new ArrayList<>();
                 for (int j = 0; j < i; j++) {
-                    MemberUser userInfo = gginfo.getUsers().get(j);
+                    MemberUser userInfo = group.getUsers().get(j);
                     headList.add(userInfo.getHead());
                 }
                 imgHead.setList(headList);
