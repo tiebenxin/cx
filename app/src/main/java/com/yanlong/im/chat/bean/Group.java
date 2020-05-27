@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.bean;
 
+import android.text.TextUtils;
+
 import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
@@ -81,29 +83,24 @@ public class Group extends RealmObject {
     }
 
     public String getMygroupName() {
+        String membername="";
         if (!StringUtil.isNotNull(mygroupName) && members != null) {
             for (MemberUser user : members) {
                 if (UserAction.getMyId().longValue() == user.getUid()) {
-                    mygroupName = user.getMembername();
+                    membername = user.getMembername();
                     break;
                 }
             }
         }
-        return mygroupName;
+        return TextUtils.isEmpty(membername) ? mygroupName : membername;
     }
 
     public Integer getContactIntimately() {
-        if (contactIntimately == null) {
-            contactIntimately = 0;
-        }
-        return contactIntimately;
+        return contactIntimately == null? 0 : contactIntimately;
     }
 
     public Integer getWordsNotAllowed() {
-        if (wordsNotAllowed == null) {
-            wordsNotAllowed = 0;
-        }
-        return wordsNotAllowed;
+        return wordsNotAllowed == null? 0:wordsNotAllowed;
     }
 
     public int getCantOpenUpRedEnv() {
@@ -160,8 +157,7 @@ public class Group extends RealmObject {
 //    }
 
     public RealmList<MemberUser> getUsers() {
-        members = members == null ? new RealmList<MemberUser>() : members;
-        return members;
+        return members == null ? new RealmList<MemberUser>() : members;
     }
 
     public void setUsers(RealmList<MemberUser> users) {
@@ -169,8 +165,7 @@ public class Group extends RealmObject {
     }
 
     public String getName() {
-        name = name == null ? "" : name;
-        return name;
+        return name == null ? "" : name;
     }
 
     public void setName(String name) {

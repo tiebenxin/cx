@@ -373,6 +373,7 @@ public class MsgMainFragment extends Fragment {
 
         @Override
         public void update(int[] positions, List<String> sids) {
+            checkSessionDetailIsFullLoad();
             mtListView.getListView().getAdapter().notifyItemRangeChanged(1, viewModel.getSessionSize());
         }
     };
@@ -380,6 +381,7 @@ public class MsgMainFragment extends Fragment {
         @Override
         public void onChange(RealmResults<SessionDetail> sessionDetails, OrderedCollectionChangeSet changeSet) {
             try {
+
                 /***必须先更新位置信息*********************************************************/
                 viewModel.sessionMoresPositions.clear();
                 for (int i = 0; i < viewModel.sessionMores.size(); i++) {
@@ -427,11 +429,10 @@ public class MsgMainFragment extends Fragment {
     /**
      * 检查sessionDetail是否加载完成
      */
-    private void checkSessionDetailIsFullLoad(int sessionDetailSize) {
+    private void checkSessionDetailIsFullLoad() {
         //详情未全部加载时，半秒后再次请求
         if (MyAppLication.INSTANCE().repository != null) {
-            if (sessionDetailSize > 0 &&
-                    sessionDetailSize < MyAppLication.INSTANCE().repository.sessionSidPositons.size()) {
+            if (viewModel.sessionMoresPositions.size() < MyAppLication.INSTANCE().repository.sessionSidPositons.size()) {
                 handler.removeCallbacks(updateSessionMoreAgain);
                 handler.postDelayed(updateSessionMoreAgain, 500);
             }

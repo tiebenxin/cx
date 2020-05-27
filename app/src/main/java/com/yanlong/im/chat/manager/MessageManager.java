@@ -1,8 +1,9 @@
 package com.yanlong.im.chat.manager;
 
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.MyAppLication;
@@ -19,6 +20,7 @@ import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventRefreshGroup;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
@@ -36,6 +38,7 @@ import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
@@ -193,7 +196,6 @@ public class MessageManager {
                 //historyCleanMsg的消息时间，比当前接收消息时间超过10分钟的消息，从historyCleanMsg移除
                 historyCleanMsg.remove(uid);
         }
-        Log.e("raleigh_test", "" + historyCleanMsg.size());
         return result;
     }
 
@@ -358,7 +360,7 @@ public class MessageManager {
                 }
                 break;
             case REMOVE_GROUP_MEMBER://自己被移除群聊，如果该群是已保存群聊，需要改为未保存
-                if (bean != null) {
+                if (bean != null&&!isFromSelf) {//除去自己PC端移除
                     result = saveMessageNew(bean, isList);
                     MemberUser memberUser = userToMember(userBean, bean.getGid());
                     msgDao.removeGroupMember(bean.getGid(), memberUser);
@@ -471,6 +473,8 @@ public class MessageManager {
                     eventLoginOut4Conflict.setMsg("您的账号" + phone + "已经在另外一台设备上登录。如果不是您本人操作,请尽快修改密码");
                 } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.LOCKED) {//被冻结
                     eventLoginOut4Conflict.setMsg("你已被限制登录");
+                } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.PASSWORD_CHANGED) {//修改密码
+                    eventLoginOut4Conflict.setMsg("你修改了密码，请使用新密码登录");
                 }
                 EventBus.getDefault().post(eventLoginOut4Conflict);
                 break;
@@ -650,6 +654,103 @@ public class MessageManager {
                         AtMessage atMessage = bean.getReplyMessage().getAtMessage();
                         updateAtMessage(bean.getGid(), atMessage.getAt_type(), atMessage.getMsg(), atMessage.getUid());
                     }
+                }
+                break;
+            case MULTI_TERMINAL_SYNC:// PC端同步 更改信息，只同步自己的操作
+                userAction = new UserAction();
+                switch (wrapMessage.getMultiTerminalSync().getSyncType()) {
+                    case MY_SELF_CHANGED://自己的个人信息变更
+                        userAction.getMyInfo4Web(UserAction.getMyId(), UserAction.getMyInfo().getImid(),null);
+                        break;
+                    case MY_FRIEND_CHANGED://更改我的好友信息（备注名等）
+                        userAction.updateUserInfo4Id(wrapMessage.getMultiTerminalSync().getUid(), new CallBack<ReturnBean<UserInfo>>() {
+                            @Override
+                            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+                                super.onResponse(call, response);
+                                if (response.body().isOk() && response.body().getData() != null) {
+                                    UserInfo user = response.body().getData();
+                                    if(user!=null)//更新session设置
+                                        msgDao.updateSessionTopAndDisturb(null,user.getUid(),user.getIstop(),user.getDisturb());
+                                    /********通知更新sessionDetail************************************/
+                                    List<Long> fUids = new ArrayList<>();
+                                    fUids.add(wrapMessage.getMultiTerminalSync().getUid());
+                                    //回主线程调用更新session详情
+                                    if (MyAppLication.INSTANCE().repository != null)
+                                        MyAppLication.INSTANCE().repository.updateSessionDetail(null, fUids);
+                                    /********通知更新sessionDetail end************************************/
+                                }
+                            }
+                        });
+
+                        break;
+                    case MY_GROUP_CHANGED://更改我所在的群信息变更（备注名等）
+                        MsgAction msgAction = new MsgAction();
+                        String gid = wrapMessage.getMultiTerminalSync().getGid();
+                        msgAction.groupInfo(gid, false, new CallBack<ReturnBean<Group>>() {
+                            @Override
+                            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                                super.onResponse(call, response);
+                                if (response.body().isOk() && response.body().getData() != null) {
+                                    Group group = response.body().getData();
+                                    if(group!=null)//更新session设置
+                                        msgDao.updateSessionTopAndDisturb(gid,null,group.getIsTop(),group.getNotNotify());
+                                    //通知更新UI
+                                    notifyGroupChange(gid);
+
+                                    /********通知更新sessionDetail************************************/
+                                    List<String> gids = new ArrayList<>();
+                                    if (!TextUtils.isEmpty(gid)) {
+                                        gids.add(gid);
+                                    }
+                                    //回主线程调用更新session详情
+                                    if (MyAppLication.INSTANCE().repository != null)
+                                        MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
+                                    /********通知更新sessionDetail end************************************/
+                                }
+
+                            }
+                        });
+
+                        break;
+                    case MY_GROUP_QUIT://自己退群
+                        gid = wrapMessage.getMultiTerminalSync().getGid();
+                        //回主线程调用更新session详情
+                        Handler mainHandler = new Handler(Looper.getMainLooper());
+                        mainHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(MyAppLication.INSTANCE().repository!=null)
+                                    MyAppLication.INSTANCE().repository.deleteSession(null,gid);
+                            }
+                        });
+                        //删除群成员及秀阿贵群保存逻辑
+                        MemberUser memberUser = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), gid);
+                        msgDao.removeGroupMember(gid, memberUser);
+                        EventBus.getDefault().post(new EventExitChat(gid,null));
+                        break;
+                    case MY_FRIEND_DELETED://删除好友
+                        uid = wrapMessage.getMultiTerminalSync().getUid();
+                        //删除好友后 取消阅后即焚状态
+                        userDao.updateReadDestroy(uid, 0);
+                        // 删除好友后，取消置顶状态
+                        msgDao.updateUserSessionTop(uid, 0);
+                        //回主线程调用更新session详情
+                        mainHandler = new Handler(Looper.getMainLooper());
+                        mainHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (MyAppLication.INSTANCE().repository != null)
+                                    MyAppLication.INSTANCE().repository.deleteSession(uid, "");
+                            }
+                        });
+                        MessageManager.getInstance().setMessageChange(true);
+                        EventRefreshFriend eventRefreshFriend = new EventRefreshFriend();
+                        eventRefreshFriend.setLocal(true);
+                        eventRefreshFriend.setUid(uid);
+                        eventRefreshFriend.setRosterAction(CoreEnum.ERosterAction.REMOVE_FRIEND);
+                        EventBus.getDefault().post(eventRefreshFriend);
+                        EventBus.getDefault().post(new EventExitChat(null,uid));
+                        break;
                 }
                 break;
         }
@@ -1781,9 +1882,8 @@ public class MessageManager {
         });
     }
 
-    public void notifyRefreshUser(UserInfo info) {
+    public void notifyRefreshUser() {
         EventRefreshUser eventRefreshUser = new EventRefreshUser();
-        eventRefreshUser.setInfo(info);
         EventBus.getDefault().post(eventRefreshUser);
     }
 
@@ -1858,6 +1958,12 @@ public class MessageManager {
     public void notifyGroupMetaChange(Group group) {
         GroupStatusChangeEvent event = new GroupStatusChangeEvent();
         event.setData(group);
+        EventBus.getDefault().post(event);
+    }
+    //群变化
+    public void notifyGroupChange(String gid) {
+        EventRefreshGroup event = new EventRefreshGroup();
+        event.setGid(gid);
         EventBus.getDefault().post(event);
     }
 

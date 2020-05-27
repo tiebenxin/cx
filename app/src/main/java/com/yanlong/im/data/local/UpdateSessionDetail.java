@@ -117,6 +117,29 @@ public class UpdateSessionDetail {
     }
 
     /**
+     * 更新我自己的session会话的所有群聊
+     */
+    public void updateSelfGroup() {
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                RealmResults<Session> groupSessions = realm.where(Session.class).isNotEmpty("gid").findAll();
+                for (Session session : groupSessions) {
+                    synchGroupMsgSession(realm, session, null);
+                }
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(Throwable error) {
+            }
+        });
+    }
+
+    /**
      * 清除会话详情的内容
      *
      * @param
@@ -211,7 +234,12 @@ public class UpdateSessionDetail {
                             List<String> headList = new RealmList<>();
                             for (int j = 0; j < i; j++) {
                                 MemberUser userInfo = group.getUsers().get(j);
-                                headList.add(userInfo.getHead().length() == 0 ? "-" : userInfo.getHead());
+                                String userHead = userInfo.getHead();
+                                if(userInfo.getUid() == UserAction.getMyId()){
+                                    //我自己，使用本地数据
+                                    userHead = UserAction.getMyInfo().getHead();
+                                }
+                                headList.add(userHead.length() == 0 ? "-" : userHead);
                             }
                             //将list转string,逗号分隔的字符串
                             sessionMore.setAvatarList(Joiner.on(",").join(headList));

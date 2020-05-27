@@ -117,7 +117,6 @@ public class ChatCellImage extends ChatCellFileBase {
 
     public void glide(RequestOptions rOptions, String url) {
 //        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
-        Log.e("raleigh_test", "url=" + url);
         Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(url);
         if (localBitmap == null) {
             RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()

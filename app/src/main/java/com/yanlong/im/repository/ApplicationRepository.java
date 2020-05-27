@@ -324,6 +324,23 @@ public class ApplicationRepository {
         updateSessionDetail(gids == null || gids.size() == 0 ? null : gids.toArray(new String[gids.size()]), uids == null || uids.size() == 0 ? null : uids.toArray(new Long[uids.size()]));
     }
 
+    /**
+     * 更新因个人信息更改，所有session群的session详情
+     *
+     * @param
+     */
+    public void updateSelfGroupSessionDetail() {
+        //回主线程调用更新session详情
+        Handler mainHandler = new Handler(Looper.getMainLooper());
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                //更新Detail详情
+                localDataSource.updateSelfGroup();
+            }
+        });
+    }
+
     public RealmResults<UserInfo> getFriends() {
         return friends;
     }

@@ -102,7 +102,6 @@ public class ChatCellReplyImage extends ChatCellImage {
 
     public void glide(String url) {
 //        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "--加载图片--url=" + url);
-        Log.e("raleigh_test", "url=" + url);
         Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(url);
         RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
