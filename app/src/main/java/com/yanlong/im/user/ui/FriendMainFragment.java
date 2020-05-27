@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 /***
  * 首页通讯录
@@ -234,6 +235,17 @@ public class FriendMainFragment extends Fragment {
                     break;
                 case CoreEnum.ERosterAction.REQUEST_FRIEND://请求添加为好友
                     mtListView.getListView().getAdapter().notifyItemChanged(0, 0);
+                    break;
+                case CoreEnum.ERosterAction.UPDATE_INFO:
+                    //TODO #3646 更改多个用户备注名以后，重新排序再刷新，多条件排序
+//                    String limits[] = new String[2];
+//                    Sort SortType[] = new Sort[2];
+//                    limits[0]="mkName";
+//                    limits[1]="name";
+//                    SortType[0]=Sort.DESCENDING;
+//                    SortType[1]=Sort.DESCENDING;
+//                    viewModel.friends.sort(limits, SortType);
+                    mtListView.getListView().getAdapter().notifyDataSetChanged();
                     break;
                 default:
                     if (uid > 0) {
