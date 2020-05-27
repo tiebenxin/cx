@@ -432,8 +432,7 @@ public class MsgMainFragment extends Fragment {
     private void checkSessionDetailIsFullLoad() {
         //详情未全部加载时，半秒后再次请求
         if (MyAppLication.INSTANCE().repository != null) {
-            if (viewModel.sessionMoresPositions.size() > 0 &&
-                    viewModel.sessionMoresPositions.size() < MyAppLication.INSTANCE().repository.sessionSidPositons.size()) {
+            if (viewModel.sessionMoresPositions.size() < MyAppLication.INSTANCE().repository.sessionSidPositons.size()) {
                 handler.removeCallbacks(updateSessionMoreAgain);
                 handler.postDelayed(updateSessionMoreAgain, 500);
             }
