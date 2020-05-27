@@ -167,6 +167,16 @@ public class MessageAdapter extends RecyclerView.Adapter {
             ((ChatCellBase) viewHolder).setBellUI(msg.getSurvival_time(), true, msg.isMe());
         }
         cellBase.putMessage(mList.get(position), position);
+        //TODO 修复#3567 语音播放动画在滚动出一屏幕然后返回，动画仍然处于播放中的问题
+        if (msg.getMsg_type() == ChatEnum.EMessageType.VOICE) {
+            ChatCellVoice voiceCell = (ChatCellVoice) viewHolder;
+            if (msg == null && msg.getVoiceMessage() == null) {
+                return;
+            }
+            voiceCell.setSendStatus(false);
+            String url = msg.isMe() ? msg.getVoiceMessage().getLocalUrl() : msg.getVoiceMessage().getUrl();
+            voiceCell.updateVoice(AudioPlayManager.getInstance().isPlay(Uri.parse(url)));
+        }
     }
 
     /**
