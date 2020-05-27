@@ -155,6 +155,7 @@ public class UserAction {
         user.setuType(1);
         dao.updateUserBean(user);
         myInfo = null;
+        getMyInfo();
     }
 
     /**
