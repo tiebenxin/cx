@@ -61,6 +61,9 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Response;
 
+import static net.cb.cb.library.CoreEnum.ERosterAction.REMOVE_FRIEND;
+import static net.cb.cb.library.CoreEnum.ERosterAction.UPDATE_INFO;
+
 /***
  * 资料界面
  * txtMkname显示优先级;
@@ -471,8 +474,17 @@ public class UserInfoActivity extends AppActivity {
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void refreshFriend(EventRefreshFriend event) {
-        if(event!=null && event.getUid()==id){
-            taskUserInfo(id);
+        if (event.isLocal()&& event.getUid()==id) {
+            @CoreEnum.ERosterAction int action = event.getRosterAction();
+            if(action == UPDATE_INFO) {
+                taskUserInfo(id);
+            }else if(action == REMOVE_FRIEND){
+                userInfoLocal = userAction.getUserInfoInLocal(id);
+                if (userInfoLocal != null) {
+                    type = 1;
+                    setData(userInfoLocal);
+                }
+            }
         }
     }
     @Override
@@ -769,7 +781,7 @@ public class UserInfoActivity extends AppActivity {
                     if (MyAppLication.INSTANCE().repository != null)
                         MyAppLication.INSTANCE().repository.deleteSession(id, "");
                     MessageManager.getInstance().setMessageChange(true);
-                    notifyRefreshRoster(id, CoreEnum.ERosterAction.REMOVE_FRIEND);
+                    notifyRefreshRoster(id, REMOVE_FRIEND);
                     EventBus.getDefault().post(new CloseActivityEvent("ChatInfoActivity,GroupInfoActivity"));
                     EventBus.getDefault().post(new EventExitChat());
                     finish();
@@ -788,7 +800,7 @@ public class UserInfoActivity extends AppActivity {
                 //6.3
                 if (response.body().isOk()) {
                     updateUserInfo(mark);
-                    notifyRefreshRoster(0, CoreEnum.ERosterAction.UPDATE_INFO);// TODO　id改成0 需要全部刷新，改变通讯录的位置
+                    notifyRefreshRoster(0, UPDATE_INFO);// TODO　id改成0 需要全部刷新，改变通讯录的位置
                     /********通知更新sessionDetail************************************/
                     //因为msg对象 uid有两个，都得添加
                     List<Long> uids = new ArrayList<>();
