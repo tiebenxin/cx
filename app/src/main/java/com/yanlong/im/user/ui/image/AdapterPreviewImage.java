@@ -553,7 +553,8 @@ public class AdapterPreviewImage extends PagerAdapter {
             tvViewOrigin.setVisibility(View.VISIBLE);
             llLook.setVisibility(View.VISIBLE);
             if (size > 0) {
-                tvViewOrigin.setText("查看原图(" + ImgSizeUtil.formatFileSize(size) + ")");
+//                tvViewOrigin.setText("查看原图(" + ImgSizeUtil.formatFileSize(size) + ")");
+                tvViewOrigin.setText("查看原图(" + net.cb.cb.library.utils.FileUtils.getFileSizeString(size) + ")");
             } else {
                 tvViewOrigin.setText("查看原图");
             }

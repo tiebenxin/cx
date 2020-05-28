@@ -17,6 +17,7 @@ import com.yanlong.im.adapter.CommonRecyclerViewAdapter;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.NoRedEnvelopesBean;
+import com.yanlong.im.chat.eventbus.EventRefreshGroup;
 import com.yanlong.im.chat.ui.GroupSelectUserActivity;
 import com.yanlong.im.databinding.ActivityNoredEnvelopesBinding;
 import com.yanlong.im.databinding.ItemNoredEnvelopesBinding;
@@ -33,6 +34,8 @@ import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.AlertYesNo;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +71,9 @@ public class NoRedEnvelopesActivity extends BaseBindActivity<ActivityNoredEnvelo
 
     @Override
     protected void init(Bundle savedInstanceState) {
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         mViewAdapter = new CommonRecyclerViewAdapter<UserInfo, ItemNoredEnvelopesBinding>(this, R.layout.item_nored_envelopes) {
 
             @Override
@@ -288,5 +294,22 @@ public class NoRedEnvelopesActivity extends BaseBindActivity<ActivityNoredEnvelo
             mList.add(userInfo);
         }
         mViewAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * 更新列表
+     * @param event
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void refreshGroup(EventRefreshGroup event) {
+        if(event!=null&&event.getGid().equals(mGid)){
+            getCantOpenUpRedMembers();
+        }
+
+    }
+    @Override
+    protected void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
     }
 }

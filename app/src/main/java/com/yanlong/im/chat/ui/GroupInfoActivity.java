@@ -710,7 +710,7 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body().isOk()) {
-                    EventBus.getDefault().post(new EventExitChat());
+                    EventBus.getDefault().post(new EventExitChat(gid,null));
 //                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.DELETE, null);
                     finish();
                 } else {

@@ -55,6 +55,10 @@ public abstract class CallBack<T> implements Callback<T> {
         if (t != null) {
             LogUtil.getLog().e("==响应异常=解析异常==" + t.getMessage());
         }
+        //TODO #3708 异常环境登录失败后置灰，无法再次点击登录，是因为下面捕获UnknownHostException异常直接return了，这段代码放前面即可
+        if (btnView != null) {
+            btnView.setEnabled(true);
+        }
         if (t instanceof UnknownHostException || t instanceof ConnectException || t instanceof SocketTimeoutException) {
             return;
         }
@@ -74,10 +78,6 @@ public abstract class CallBack<T> implements Callback<T> {
             });
 
         }
-        if (btnView != null) {
-            btnView.setEnabled(true);
-        }
-
         if (t != null)
             t.printStackTrace();
     }

@@ -2942,10 +2942,8 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
         } else if (type == CoreEnum.ERefreshType.DELETE) {
             dismissPop();
             if (event.getObject() != null && event.getObject() instanceof MsgAllBean) {
-                Log.e("raleigh_test", "deleteAllMsg");
                 deleteMsg((MsgAllBean) event.getObject());
             } else if (event.getList() != null) {
-                Log.e("raleigh_test", "deleteMsgList");
                 deleteMsgList(event.getList());
             }
         }

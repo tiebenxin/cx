@@ -21,7 +21,6 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
-import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SingleMeberInfoBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -61,6 +60,9 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Response;
+
+import static net.cb.cb.library.CoreEnum.ERosterAction.REMOVE_FRIEND;
+import static net.cb.cb.library.CoreEnum.ERosterAction.UPDATE_INFO;
 
 /***
  * 资料界面
@@ -104,6 +106,8 @@ public class UserInfoActivity extends AppActivity {
     private Button mBtnAdd;
     private Button btnMsg;
     private TextView txtPower;
+    //是否操作了删除联系人
+    private boolean isDeleteUser = false;
 
     private int type; //0.已经是好友 1.不是好友添加好友 2.黑名单 3.自己
     private int isApply;//是否是好友申请 0 不是 1.是
@@ -133,7 +137,7 @@ public class UserInfoActivity extends AppActivity {
 
     @ChatEnum.EFromType
     private int from;
-
+    private  AlertYesNo alertYesNo = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,6 +146,7 @@ public class UserInfoActivity extends AppActivity {
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
+        alertYesNo = new AlertYesNo();
         initView();
         initData();
         initEvent();
@@ -207,7 +212,6 @@ public class UserInfoActivity extends AppActivity {
         viewBlack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final AlertYesNo alertYesNo = new AlertYesNo();
                 if (type == 0) {
                     alertYesNo.init(UserInfoActivity.this, "提示",
                             "加入黑名单，你将不再收到对方的消息", "确定", "取消", new AlertYesNo.Event() {
@@ -250,7 +254,6 @@ public class UserInfoActivity extends AppActivity {
         viewDel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final AlertYesNo alertYesNo = new AlertYesNo();
                 alertYesNo.init(UserInfoActivity.this, "删除好友",
                         "删除联系人，将在双方好友列表里同时删除，并删除与该联系人的聊天记录", "确定", "取消", new AlertYesNo.Event() {
                             @Override
@@ -466,7 +469,34 @@ public class UserInfoActivity extends AppActivity {
         }
     }
 
-
+    /**
+     * 更新用户信息
+     * @param event
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void refreshFriend(EventRefreshFriend event) {
+        if(event.getUid()==id) {
+            if (event.isLocal()) {
+                @CoreEnum.ERosterAction int action = event.getRosterAction();
+                if (action == UPDATE_INFO) {
+                    taskUserInfo(id);
+                }else if(action == REMOVE_FRIEND&&!isDeleteUser){//PC端删除了好友
+                    userInfoLocal = userAction.getUserInfoInLocal(id);
+                    if (userInfoLocal != null) {
+                        if(alertYesNo!=null&&alertYesNo.isShowing())alertYesNo.dismiss();
+                        type = 1;
+                        setData(userInfoLocal);
+                    }
+                }
+            }
+        }
+    }
+    @Override
+    protected void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        if(alertYesNo!=null&&alertYesNo.isShowing())alertYesNo.dismiss();
+        super.onDestroy();
+    }
     private void taskUserInfo(Long id) {
         if (id == 1L || id == 3L) {
             UserInfo info = userDao.findUserInfo(id);
@@ -503,9 +533,6 @@ public class UserInfoActivity extends AppActivity {
                         userInfoLocal = userInfo;
                     }
                     setData(userInfo);
-                    if (userInfo != null) {
-                        Session session = new MsgDao().sessionGet("", userInfo.getUid());
-                    }
 
                 }
             });
@@ -524,7 +551,8 @@ public class UserInfoActivity extends AppActivity {
         doGetAndSetName(info);
         mkName = info.getMkName();
         name = info.getName();
-        if ((info.getuType() != null && info.getuType() == 3) || (info.getStat() != null && info.getStat() == 2)) {
+        //黑名单，且是好友
+        if ((info.getuType() != null && info.getuType() == 3) || (info.getStat() != null && info.getStat() == 2 && info.getuType() != 0)) {
             type = 2;
         }
         if (info.getStat() != 9) {//不是常信小助手
@@ -752,6 +780,7 @@ public class UserInfoActivity extends AppActivity {
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
                 //刷新好友和退出
                 if (response.body().isOk()) {
+                    isDeleteUser = true;
                     //删除好友后 取消阅后即焚状态
                     userDao.updateReadDestroy(id, 0);
                     // 删除好友后，取消置顶状态
@@ -759,7 +788,7 @@ public class UserInfoActivity extends AppActivity {
                     if (MyAppLication.INSTANCE().repository != null)
                         MyAppLication.INSTANCE().repository.deleteSession(id, "");
                     MessageManager.getInstance().setMessageChange(true);
-                    notifyRefreshRoster(id, CoreEnum.ERosterAction.REMOVE_FRIEND);
+                    notifyRefreshRoster(id, REMOVE_FRIEND);
                     EventBus.getDefault().post(new CloseActivityEvent("ChatInfoActivity,GroupInfoActivity"));
                     EventBus.getDefault().post(new EventExitChat());
                     finish();
@@ -778,7 +807,7 @@ public class UserInfoActivity extends AppActivity {
                 //6.3
                 if (response.body().isOk()) {
                     updateUserInfo(mark);
-                    notifyRefreshRoster(0, CoreEnum.ERosterAction.UPDATE_INFO);// TODO　id改成0 需要全部刷新，改变通讯录的位置
+                    notifyRefreshRoster(0, UPDATE_INFO);// TODO　id改成0 需要全部刷新，改变通讯录的位置
                     /********通知更新sessionDetail************************************/
                     //因为msg对象 uid有两个，都得添加
                     List<Long> uids = new ArrayList<>();

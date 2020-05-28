@@ -73,6 +73,7 @@ public class ApplicationLocalDataSource {
         updateSessionDetail.update(sids);
     }
 
+
     /**
      * 更新指定一些消息对应的session详情
      *
@@ -82,6 +83,12 @@ public class ApplicationLocalDataSource {
         updateSessionDetail.update(gids, uids);
     }
 
+    /** 因个人信息更改
+     * 更新我自己的session会话的所有群聊
+     */
+    public void updateSelfGroup(){
+        updateSessionDetail.updateSelfGroup();
+    }
     /**
      * 清除会话详情的内容
      *
