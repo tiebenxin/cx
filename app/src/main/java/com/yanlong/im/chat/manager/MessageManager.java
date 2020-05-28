@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.MyAppLication;
@@ -250,6 +251,7 @@ public class MessageManager {
                 bean.setFrom_uid(-wrapMessage.getFromUid());
             }
         }
+        Log.e("raleigh_test","type="+wrapMessage.getMsgType());
         switch (wrapMessage.getMsgType()) {
             case CHAT://文本
             case IMAGE://图片

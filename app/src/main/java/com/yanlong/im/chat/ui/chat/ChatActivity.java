@@ -624,11 +624,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         public void onChange(RealmModel realmModel, @javax.annotation.Nullable ObjectChangeSet changeSet) {
             if (changeSet.isDeleted()) {//对象被删除，退出聊天界面
                 finish();
-            } else if (changeSet.isFieldChanged("name")//群名被修改
-                    || changeSet.isFieldChanged("contactIntimately")//群保护
-                    || changeSet.isFieldChanged("master")//群主
-                    || changeSet.isFieldChanged("stat")//群状态 //0 正常群， 1. 群已被解散，2. 群已被封
-            ) {//字段被修改
+            } else{//字段被修改
                 refreshUI(true);
             }
         }
@@ -638,13 +634,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         public void onChange(RealmModel realmModel, @javax.annotation.Nullable ObjectChangeSet changeSet) {
             if (changeSet.isDeleted()) {//对象被删除，退出聊天界面
                 finish();
-            } else if (changeSet.isFieldChanged("name")
-                    || changeSet.isFieldChanged("mkName")
-                    || changeSet.isFieldChanged("lastonline")
-                    || changeSet.isFieldChanged("uType")
-                    || changeSet.isFieldChanged("activeType")
-
-            ) {//字段被修改
+            } else {//字段被修改
                 refreshUI(true);
             }
         }
@@ -696,6 +686,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         actionbar.setChatTitle(title);
         setDisturb();
+        initSurvivaltimeState();
         viewExtendFunction.bindDate(getItemModels());
     }
 
@@ -2253,7 +2244,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     private void initSurvivaltimeState() {
-        survivaltime = userDao.getReadDestroy(toUId, toGid);
+        if(isGroup()){
+            survivaltime = mViewModel.groupInfo.getSurvivaltime();
+        }else{
+            survivaltime = mViewModel.userInfo.getDestroy();
+        }
         util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
     }
 
