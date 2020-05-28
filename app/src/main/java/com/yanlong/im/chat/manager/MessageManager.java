@@ -660,7 +660,7 @@ public class MessageManager {
                 userAction = new UserAction();
                 switch (wrapMessage.getMultiTerminalSync().getSyncType()) {
                     case MY_SELF_CHANGED://自己的个人信息变更
-                        userAction.getMyInfo4Web(UserAction.getMyId(), UserAction.getMyInfo().getImid(),null);
+                        userAction.getMyInfo4Web(UserAction.getMyId(), null,null);
                         break;
                     case MY_FRIEND_CHANGED://更改我的好友信息（备注名等）
                         userAction.updateUserInfo4Id(wrapMessage.getMultiTerminalSync().getUid(), new CallBack<ReturnBean<UserInfo>>() {
