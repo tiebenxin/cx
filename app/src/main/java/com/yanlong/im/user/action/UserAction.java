@@ -326,7 +326,7 @@ public class UserAction {
                         }
                         userInfo.toTag();
                         dao.updateUserinfo(userInfo);
-                        boolean hasChange = MessageManager.getInstance().updateUserAvatarAndNick(userInfo.getUid(), userInfo.getHead(), userInfo.getName());
+//                        boolean hasChange = MessageManager.getInstance().updateUserAvatarAndNick(userInfo.getUid(), userInfo.getHead(), userInfo.getName());
 //                        if (hasChange) {
                         MessageManager.getInstance().notifyRefreshFriend(true, userInfo.getUid(), CoreEnum.ERosterAction.UPDATE_INFO);
 //                        }
