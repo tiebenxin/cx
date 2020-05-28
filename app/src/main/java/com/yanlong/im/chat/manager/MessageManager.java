@@ -360,7 +360,7 @@ public class MessageManager {
                 }
                 break;
             case REMOVE_GROUP_MEMBER://自己被移除群聊，如果该群是已保存群聊，需要改为未保存
-                if (bean != null&&!isFromSelf) {//除去自己PC端移除
+                if (bean != null && !isFromSelf) {//除去自己PC端移除
                     result = saveMessageNew(bean, isList);
                     MemberUser memberUser = userToMember(userBean, bean.getGid());
                     msgDao.removeGroupMember(bean.getGid(), memberUser);
@@ -660,7 +660,7 @@ public class MessageManager {
                 userAction = new UserAction();
                 switch (wrapMessage.getMultiTerminalSync().getSyncType()) {
                     case MY_SELF_CHANGED://自己的个人信息变更
-                        userAction.getMyInfo4Web(UserAction.getMyId(), null,null);
+                        userAction.getMyInfo4Web(UserAction.getMyId(), null, null);
                         break;
                     case MY_FRIEND_CHANGED://更改我的好友信息（备注名等）
                         userAction.updateUserInfo4Id(wrapMessage.getMultiTerminalSync().getUid(), new CallBack<ReturnBean<UserInfo>>() {
@@ -669,8 +669,8 @@ public class MessageManager {
                                 super.onResponse(call, response);
                                 if (response.body().isOk() && response.body().getData() != null) {
                                     UserInfo user = response.body().getData();
-                                    if(user!=null)//更新session设置
-                                        msgDao.updateSessionTopAndDisturb(null,user.getUid(),user.getIstop(),user.getDisturb());
+                                    if (user != null)//更新session设置
+                                        msgDao.updateSessionTopAndDisturb(null, user.getUid(), user.getIstop(), user.getDisturb());
                                     /********通知更新sessionDetail************************************/
                                     List<Long> fUids = new ArrayList<>();
                                     fUids.add(wrapMessage.getMultiTerminalSync().getUid());
@@ -692,8 +692,8 @@ public class MessageManager {
                                 super.onResponse(call, response);
                                 if (response.body().isOk() && response.body().getData() != null) {
                                     Group group = response.body().getData();
-                                    if(group!=null)//更新session设置
-                                        msgDao.updateSessionTopAndDisturb(gid,null,group.getIsTop(),group.getNotNotify());
+                                    if (group != null)//更新session设置
+                                        msgDao.updateSessionTopAndDisturb(gid, null, group.getIsTop(), group.getNotNotify());
                                     //通知更新UI
                                     notifyGroupChange(gid);
 
@@ -719,14 +719,14 @@ public class MessageManager {
                         mainHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                if(MyAppLication.INSTANCE().repository!=null)
-                                    MyAppLication.INSTANCE().repository.deleteSession(null,gid);
+                                if (MyAppLication.INSTANCE().repository != null)
+                                    MyAppLication.INSTANCE().repository.deleteSession(null, gid);
                             }
                         });
                         //删除群成员及秀阿贵群保存逻辑
                         MemberUser memberUser = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), gid);
                         msgDao.removeGroupMember(gid, memberUser);
-                        EventBus.getDefault().post(new EventExitChat(gid,null));
+                        EventBus.getDefault().post(new EventExitChat(gid, null));
                         break;
                     case MY_FRIEND_DELETED://删除好友
                         uid = wrapMessage.getMultiTerminalSync().getUid();
@@ -749,7 +749,7 @@ public class MessageManager {
                         eventRefreshFriend.setUid(uid);
                         eventRefreshFriend.setRosterAction(CoreEnum.ERosterAction.REMOVE_FRIEND);
                         EventBus.getDefault().post(eventRefreshFriend);
-                        EventBus.getDefault().post(new EventExitChat(null,uid));
+                        EventBus.getDefault().post(new EventExitChat(null, uid));
                         break;
                 }
                 break;
@@ -893,7 +893,7 @@ public class MessageManager {
 
             } else {
                 DaoUtil.update(msgAllBean);
-                if (isMsgFromCurrentChat(msgAllBean.getGid(), msgAllBean.getFrom_uid())) {
+                if (isMsgFromCurrentChat(msgAllBean.getGid(), isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid())) {
                     notifyRefreshChat(msgAllBean, CoreEnum.ERefreshType.ADD);
                 }
             }
@@ -1960,6 +1960,7 @@ public class MessageManager {
         event.setData(group);
         EventBus.getDefault().post(event);
     }
+
     //群变化
     public void notifyGroupChange(String gid) {
         EventRefreshGroup event = new EventRefreshGroup();
