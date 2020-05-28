@@ -90,6 +90,7 @@ public class AlertTouch {
 
     public void setContent(String content){
         mEdContent.setText(content);
+        mEdContent.setSelection(content.length());
     }
 
 
