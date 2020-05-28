@@ -21,6 +21,11 @@ public class ToastUtil {
     private static Toast toast;
     private static boolean isShow = true;
 
+    /**
+     * 默认显示toast
+     * @param context
+     * @param txt
+     */
     public static void show(Context context, String txt) {
         try {
             if (context.getResources().getString(R.string.forward_success).equals(txt)) {// 用于处理转发多条，有禁言的时候，只弹出转发成功提示
@@ -43,6 +48,7 @@ public class ToastUtil {
             try {
                 //  Looper.prepare();
                 toast = Toast.makeText(context, txt, Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
                 //    Looper.loop();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -52,6 +58,11 @@ public class ToastUtil {
         }
     }
 
+    /**
+     * 自定义context的居中显示toast
+     * @param context
+     * @param txt
+     */
     public static void showCenter(Context context, String txt) {
         if (isShow) {// 用于处理转发多条，有禁言的时候，只弹出转发成功提示
             if (txt != null && txt.length() > 0) {
@@ -72,6 +83,11 @@ public class ToastUtil {
         }
     }
 
+    /**
+     * 自定义context的居中显示toast
+     * @param context
+     * @param txt
+     */
     public static void show(Context context, int txt) {
         if (toast != null)
             toast.cancel();
@@ -87,7 +103,7 @@ public class ToastUtil {
     }
 
     /**
-     * 长提示toast
+     * 居中的长提示toast
      *
      * @param context
      * @param txt
@@ -108,6 +124,10 @@ public class ToastUtil {
 
     }
 
+    /**
+     * 系统级context的居中toast
+     * @param txt
+     */
     public static void show(String txt) {
         if (txt != null && txt.length() > 0 && AppConfig.APP_CONTEXT != null) {
             if (toast != null) {
@@ -115,6 +135,7 @@ public class ToastUtil {
             }
             try {
                 toast = Toast.makeText(AppConfig.APP_CONTEXT, txt, Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
             } catch (Exception e) {
                 e.printStackTrace();

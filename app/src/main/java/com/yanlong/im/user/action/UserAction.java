@@ -44,6 +44,7 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.encrypt.EncrypUtil;
 import net.cb.cb.library.utils.encrypt.MD5;
 
@@ -187,6 +188,7 @@ public class UserAction {
             public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
                 super.onFailure(call, t);
                 callback.onFailure(call, t);
+                ToastUtil.show("登录失败，请检查您的网络环境或联系客服");
             }
         });
     }
@@ -219,6 +221,7 @@ public class UserAction {
             public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
                 super.onFailure(call, t);
                 callback.onFailure(call, t);
+                ToastUtil.show("登录失败，请检查您的网络环境或联系客服");
             }
         });
     }

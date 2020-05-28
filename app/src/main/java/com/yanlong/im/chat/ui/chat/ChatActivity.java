@@ -6245,7 +6245,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             //小于10M，自动下载+打开
                             if (fileMessage.getSize() < 10485760) {
                                 DownloadFile(fileMessage);
-                                ToastUtil.show("正在尝试打开文件，请您耐心等待~");
                             } else {
                                 //大于10M，跳详情，用户自行选择手动下载
                                 Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);
@@ -6275,7 +6274,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         //小于10M，自动下载+打开
                         if (fileMessage.getSize() < 10485760) {
                             DownloadFile(fileMessage);
-                            ToastUtil.show("正在尝试打开文件，请您耐心等待~");
                         } else {
                             //大于10M，跳详情，用户自行选择手动下载
                             Intent intent = new Intent(ChatActivity.this, FileDownloadActivity.class);

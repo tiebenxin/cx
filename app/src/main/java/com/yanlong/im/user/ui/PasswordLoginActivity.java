@@ -16,6 +16,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.utils.PasswordTextWather;
+import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.dialog.DialogCommon2;
@@ -24,6 +25,7 @@ import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -119,6 +121,9 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
             @Override
             public void onClick(View v) {
                 InputUtil.hideKeyboard(PasswordLoginActivity.this);
+                if (!checkNetConnectStatus()) {
+                    return;
+                }
                 login();
             }
         });
@@ -288,6 +293,15 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
             }
         });
 
+    }
+
+    public boolean checkNetConnectStatus() {
+        boolean isOk = true;
+        if (!NetUtil.isNetworkConnected()) {
+            ToastUtil.show(this, "网络连接不可用，请稍后重试");
+            isOk = false;
+        }
+        return isOk;
     }
 
 

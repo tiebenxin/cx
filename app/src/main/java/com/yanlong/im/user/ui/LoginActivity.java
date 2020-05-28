@@ -27,6 +27,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PasswordTextWather;
+import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.BuildConfig;
 import net.cb.cb.library.bean.ReturnBean;
@@ -36,6 +37,7 @@ import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
@@ -193,6 +195,9 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
             @Override
             public void onClick(View v) {
                 InputUtil.hideKeyboard(LoginActivity.this);
+//                if (!checkNetConnectStatus()) {
+//                    return;
+//                }
                 login();
             }
         });
@@ -468,7 +473,15 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                         }).show();
             }
         });
+    }
 
+    public boolean checkNetConnectStatus() {
+        boolean isOk = true;
+        if (!NetUtil.isNetworkConnected()) {
+            ToastUtil.show(this, "网络连接不可用，请稍后重试");
+            isOk = false;
+        }
+        return isOk;
     }
 }
 
