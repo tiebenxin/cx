@@ -535,7 +535,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 } else {
                     imgDownloadEvent(ivDownload, tvLookOrigin, imgpath, imageView, isOriginal, readStat);
                     tvLookOrigin.setVisibility(View.VISIBLE);
-                    tvLookOrigin.setText("查看原图(" + ImgSizeUtil.formatFileSize(images.get(position).getSize()) + ")");
+                    tvLookOrigin.setText("查看原图(" + net.cb.cb.library.utils.FileUtils.getFileSizeString(images.get(position).getSize()) + ")");
                     initLookOriginEvent(imageView, imgLarge, tvLookOrigin, ivDownload, imgpath);
                 }
             } else {
