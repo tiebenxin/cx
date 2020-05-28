@@ -313,6 +313,7 @@ public class SocketUtil {
             socketChannel = null;
         }
 
+        isStart = false;
         LogUtil.getLog().d(TAG, ">>>>关闭连接-------------------------");
 
     }

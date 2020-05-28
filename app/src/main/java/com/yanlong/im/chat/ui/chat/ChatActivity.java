@@ -618,32 +618,23 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         });
 
     }
-    private RealmObjectChangeListener<RealmModel> groupInfoChangeListener=new RealmObjectChangeListener<RealmModel>() {
+
+    private RealmObjectChangeListener<RealmModel> groupInfoChangeListener = new RealmObjectChangeListener<RealmModel>() {
         @Override
         public void onChange(RealmModel realmModel, @javax.annotation.Nullable ObjectChangeSet changeSet) {
             if (changeSet.isDeleted()) {//对象被删除，退出聊天界面
                 finish();
-            } else if (changeSet.isFieldChanged("name")//群名被修改
-                    || changeSet.isFieldChanged("contactIntimately")//群保护
-                    || changeSet.isFieldChanged("master")//群主
-                    || changeSet.isFieldChanged("stat")//群状态 //0 正常群， 1. 群已被解散，2. 群已被封
-            ) {//字段被修改
+            } else{//字段被修改
                 refreshUI(true);
             }
         }
     };
-    private RealmObjectChangeListener<RealmModel> userInfoChangeListener=new RealmObjectChangeListener<RealmModel>() {
+    private RealmObjectChangeListener<RealmModel> userInfoChangeListener = new RealmObjectChangeListener<RealmModel>() {
         @Override
         public void onChange(RealmModel realmModel, @javax.annotation.Nullable ObjectChangeSet changeSet) {
             if (changeSet.isDeleted()) {//对象被删除，退出聊天界面
                 finish();
-            } else if (changeSet.isFieldChanged("name")
-                    ||changeSet.isFieldChanged("mkName")
-                    ||changeSet.isFieldChanged("lastonline")
-                    ||changeSet.isFieldChanged("uType")
-                    ||changeSet.isFieldChanged("activeType")
-
-            ) {//字段被修改
+            } else {//字段被修改
                 refreshUI(true);
             }
         }
@@ -695,6 +686,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         actionbar.setChatTitle(title);
         setDisturb();
+        initSurvivaltimeState();
         viewExtendFunction.bindDate(getItemModels());
     }
 
@@ -1789,7 +1781,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         onlineState = getIntent().getBooleanExtra(ONLINE_STATE, true);
         if (isGroup()) dealToBurnMsg();
         mViewModel.init(toGid, toUId);
-        mViewModel.loadData(groupInfoChangeListener,userInfoChangeListener);
+        mViewModel.loadData(groupInfoChangeListener, userInfoChangeListener);
     }
 
     //清除回复状态
@@ -2049,13 +2041,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         Intent intent = new Intent(ChatActivity.this, CollectionActivity.class);
                         intent.putExtra("from", CollectionActivity.FROM_CHAT);
                         if (isGroup()) {
-                            if(mViewModel.groupInfo == null) return;
+                            if (mViewModel.groupInfo == null) return;
                             intent.putExtra("is_group", true);
                             intent.putExtra("group_head", mViewModel.groupInfo.getAvatar());
                             intent.putExtra("group_id", mViewModel.groupInfo.getGid());
                             intent.putExtra("group_name", msgDao.getGroupName(mViewModel.groupInfo.getGid()));
                         } else {
-                            if(mViewModel.userInfo == null) return;
+                            if (mViewModel.userInfo == null) return;
                             intent.putExtra("is_group", false);
                             intent.putExtra("user_head", mViewModel.userInfo.getHead());
                             intent.putExtra("user_id", mViewModel.userInfo.getUid());
@@ -2253,7 +2245,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     private void initSurvivaltimeState() {
-        survivaltime = userDao.getReadDestroy(toUId, toGid);
+        if(isGroup()){
+            survivaltime = mViewModel.groupInfo.getSurvivaltime();
+        }else{
+            survivaltime = mViewModel.userInfo.getDestroy();
+        }
         util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
     }
 
@@ -2625,17 +2621,17 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefresh(EventExitChat event) {
-        if(!TextUtils.isEmpty(event.getGid())&&!TextUtils.isEmpty(toGid)&&event.getGid().equals(toGid)){//PC端操作,退群
+        if (!TextUtils.isEmpty(event.getGid()) && !TextUtils.isEmpty(toGid) && event.getGid().equals(toGid)) {//PC端操作,退群
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
-        }else if(TextUtils.isEmpty(toGid)&&event.getUid() != null&&event.getUid().longValue() == toUId.longValue()){//PC端操作,删除好友
+        } else if (TextUtils.isEmpty(toGid) && event.getUid() != null && event.getUid().longValue() == toUId.longValue()) {//PC端操作,删除好友
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
-        }else{
+        } else {
             onBackPressed();
         }
     }
@@ -3084,12 +3080,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         } else if (type == CoreEnum.ERefreshType.ADD) {
             if (event.getObject() != null && event.getObject() instanceof MsgAllBean) {
-                MsgAllBean bean = (MsgAllBean) event.getObject();
-                if (isMsgFromCurrentChat(bean.getGid(), bean.getFrom_uid())) {
+                taskRefreshMessage(false);
+//                MsgAllBean bean = (MsgAllBean) event.getObject();
+//                if (isMsgFromCurrentChat(bean.getGid(), bean.getFrom_uid())) {
 //                    addMsg(bean);
 //                    sendRead(bean);
-                    taskRefreshMessage(false);
-                }
+//                }
             } /*else if (event.getList() != null) {
                 addMsg(event.getList());
             }*/
@@ -3337,7 +3333,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         String name = "";
         if (isGroup()) {
             name = msgDao.getGroupMemberName2(toGid, uid);
-        } else if(mViewModel.userInfo!=null){
+        } else if (mViewModel.userInfo != null) {
             name = mViewModel.userInfo.getName4Show();
         }
         startActivity(new Intent(getContext(), UserInfoActivity.class)
@@ -4160,25 +4156,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     private void setDisturb() {
-        Session session = dao.sessionGet(toGid, toUId);
         int disturb = 0;
-        if (session == null) {
-            if (isGroup()) {
-                Group group = dao.getGroup4Id(toGid);
-                if (group != null && group.getNotNotify() != null) {
-                    disturb = group.getNotNotify();
-                }
-            } else {
-                UserInfo info = userDao.findUserInfo(toUId);
-                if (info != null && info.getDisturb() != null) {
-                    disturb = info.getDisturb();
-                }
-            }
+        if (isGroup()) {
+            disturb = mViewModel.groupInfo.getNotNotify();
         } else {
-            disturb = session.getIsMute();
+            disturb = mViewModel.userInfo.getDisturb();
         }
         actionbar.showDisturb(disturb == 1);
-
     }
 
     /***
@@ -4475,7 +4459,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     private boolean checkAndSaveDraft() {
-        if (isGroup() &&mViewModel.groupInfo !=null && !MessageManager.getInstance().isGroupValid(mViewModel.groupInfo)) {//无效群，不存草稿
+        if (isGroup() && mViewModel.groupInfo != null && !MessageManager.getInstance().isGroupValid(mViewModel.groupInfo)) {//无效群，不存草稿
             return false;
         }
         String df = editChat.getText().toString().trim();
@@ -4742,7 +4726,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         msgAction.groupInfo(toGid, true, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-                if(mViewModel.groupInfo == null)mViewModel.loadData(groupInfoChangeListener,userInfoChangeListener);
+                if (mViewModel.groupInfo == null)
+                    mViewModel.loadData(groupInfoChangeListener, userInfoChangeListener);
                 refreshUI(true);
             }
 
@@ -5451,7 +5436,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     //1 是否被单人禁言
                     if (singleMeberInfoBean.getShutUpDuration() == 0) {
                         //2 该群是否全员禁言
-                        if (mViewModel.groupInfo!=null&&mViewModel.groupInfo.getWordsNotAllowed() == 0) {
+                        if (mViewModel.groupInfo != null && mViewModel.groupInfo.getWordsNotAllowed() == 0) {
                             resendFileMsg(reMsg);
                         } else {
                             ToastUtil.showCenter(ChatActivity.this, "本群全员禁言中");
