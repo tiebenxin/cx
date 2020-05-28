@@ -336,10 +336,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Integer getDisturb() {
-        if (disturb == null) {
-            disturb = 0;
-        }
-        return disturb;
+        return disturb == null ? 0 : disturb;
     }
 
     public void setDisturb(Integer disturb) {
@@ -347,10 +344,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Integer getIstop() {
-        if (istop == null) {
-            istop = 0;
-        }
-        return istop;
+        return istop == null?0:istop;
     }
 
     public void setIstop(Integer istop) {
@@ -376,10 +370,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
 
     //用户类型 0:陌生人或者群友,1:自己,2:通讯录,3黑名单(不区分和陌生人)
     public Integer getuType() {
-        if (uType == null) {
-            uType = 0;
-        }
-        return uType;
+        return uType == null?0:uType;
     }
 
     public void setuType(Integer uType) {
