@@ -5427,11 +5427,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if (context.getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
                 startActivity(intent);
             } else {
-                Toast.makeText(context, "不支持打开该文件类型，请下载相关软件！", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "不支持打开此类型文件，请下载相关软件", Toast.LENGTH_SHORT).show();
             }
 //            startActivity(intent);
         } catch (ActivityNotFoundException e) {
-            ToastUtil.show("附件不能打开，请下载相关软件！");
+            ToastUtil.show("附件不能打开，请下载相关软件");
         } catch (Exception e) {
             e.printStackTrace();
         }
