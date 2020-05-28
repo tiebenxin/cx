@@ -1901,12 +1901,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     StampMessage message = SocketData.createStampMessage(SocketData.getUUID(), content);
                     sendMessage(message, ChatEnum.EMessageType.STAMP);
                 } else {
-                    ToastUtil.show(getContext(), "留言不能为空");
+                    ToastUtil.show(getContext(), "戳一下内容不能为空");
                 }
             }
         });
+        alertTouch.setContent("快来聊天");
         alertTouch.show();
-        alertTouch.setEdHintOrSize(null, 15);
+        alertTouch.setEdHintOrSize(null, 20);
     }
 
     private void toTransfer() {
