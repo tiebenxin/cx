@@ -6,6 +6,7 @@ import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
@@ -18,9 +19,21 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.yanlong.im.R;
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.NewVersionBean;
+import com.yanlong.im.user.bean.VersionBean;
+import com.yanlong.im.utils.update.UpdateManage;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.WebPageActivity;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class SelectLoginActivity extends AppActivity implements View.OnClickListener {
 
@@ -43,6 +56,11 @@ public class SelectLoginActivity extends AppActivity implements View.OnClickList
         initEvent();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        taskNewVersion();
+    }
 
     private void initView(){
         mBtnLogin =  findViewById(R.id.btn_login);
@@ -124,4 +142,43 @@ public class SelectLoginActivity extends AppActivity implements View.OnClickList
         mTvMattersNeedAttention.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
+
+    /**
+     * 发请求---判断是否需要更新
+     */
+    private void taskNewVersion() {
+        new UserAction().getNewVersion(StringUtil.getChannelName(context), new CallBack<ReturnBean<NewVersionBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<NewVersionBean>> call, Response<ReturnBean<NewVersionBean>> response) {
+                if (response.body() == null || response.body().getData() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    NewVersionBean bean = response.body().getData();
+                    UpdateManage updateManage = new UpdateManage(context, SelectLoginActivity.this);
+                    //强制更新
+                    if (bean.getForceUpdate() != 0) {
+                        //有最低不需要强制升级版本
+                        if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
+                        } else {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
+                        }
+                    } else {
+                        //缓存最新版本
+                        SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+                        VersionBean versionBean = new VersionBean();
+                        versionBean.setVersion(bean.getVersion());
+                        preferencesUtil.save2Json(versionBean);
+                        //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
+                        if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
+                        } else {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
+                        }
+                    }
+                }
+            }
+        });
+    }
 }

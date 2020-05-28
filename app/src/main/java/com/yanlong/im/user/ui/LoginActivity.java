@@ -24,15 +24,19 @@ import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.TokenBean;
+import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PasswordTextWather;
 import com.yanlong.im.utils.socket.SocketUtil;
+import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.BuildConfig;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.constant.AppHostUtil;
 import net.cb.cb.library.dialog.DialogCommon2;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.InputUtil;
@@ -44,6 +48,7 @@ import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PopupSelectView;
@@ -85,6 +90,11 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         initData();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        taskNewVersion();
+    }
 
     private void initView() {
         mImgHead = findViewById(R.id.img_head);
@@ -482,6 +492,46 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
             isOk = false;
         }
         return isOk;
+    }
+
+    /**
+     * 发请求---判断是否需要更新
+     */
+    private void taskNewVersion() {
+        new UserAction().getNewVersion(StringUtil.getChannelName(context), new CallBack<ReturnBean<NewVersionBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<NewVersionBean>> call, Response<ReturnBean<NewVersionBean>> response) {
+                if (response.body() == null || response.body().getData() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    NewVersionBean bean = response.body().getData();
+                    UpdateManage updateManage = new UpdateManage(context, LoginActivity.this);
+                    //强制更新
+                    if (bean.getForceUpdate() != 0) {
+                        //有最低不需要强制升级版本
+                        if (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion())) {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
+                        } else {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
+                        }
+                    } else {
+                        //缓存最新版本
+                        SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+                        VersionBean versionBean = new VersionBean();
+                        versionBean.setVersion(bean.getVersion());
+                        preferencesUtil.save2Json(versionBean);
+                        //非强制更新（新增一层判断：如果是大版本，则需要直接改为强制更新）
+                        if (VersionUtil.isBigVersion(context, bean.getVersion()) || (!TextUtils.isEmpty(bean.getMinEscapeVersion()) && VersionUtil.isLowerVersion(context, bean.getMinEscapeVersion()))) {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true, true);
+                        } else {
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false, true);
+                            //如有新版本，首页底部提示红点
+                        }
+                    }
+                }
+            }
+        });
     }
 }
 
