@@ -1,10 +1,8 @@
 package com.yanlong.im.chat.dao;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.hm.cxpay.global.PayEnum;
-import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
@@ -1277,9 +1275,9 @@ public class MsgDao {
 
         if (StringUtil.isNotNull(cancelId)) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
             if (StringUtil.isNotNull(gid)) {//群聊
-                if (!checkUnReadAtMsg(session, cancelId)) {//检查是否还有未读的@我的消息
+//                if (!checkUnReadAtMsg(session, cancelId)) {//检查是否还有未读的@我的消息
                     session.setMessageType(1000);
-                }
+//                }
             } else {
                 session.setMessageType(1000);
             }
@@ -1300,8 +1298,8 @@ public class MsgDao {
      *
      * @param session
      */
-    private boolean checkUnReadAtMsg(Session session, String cancelId) {
-        boolean result = false;
+//    private boolean checkUnReadAtMsg(Session session, String cancelId) {
+//        boolean result = false;
 //        Realm realm = DaoUtil.open();
 //        try {
 //            //检查是否存在未读的@我的消息,保存上一个未读的@消息
@@ -1347,8 +1345,8 @@ public class MsgDao {
 //        } finally {
 //            DaoUtil.close(realm);
 //        }
-        return result;
-    }
+//        return result;
+//    }
 
     /**
      * 对方撤回消息时，检查是否还有未读的@消息，有就显示上一个
