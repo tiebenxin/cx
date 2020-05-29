@@ -21,7 +21,7 @@
             <LinearLayout
                 android:id="@+id/view_setting_psw_of_login"
                 style="@style/app_layout_list2_item"
-                android:visibility="gone">
+                android:visibility="visible">
 
 
                 <TextView
@@ -89,8 +89,9 @@
 
             <LinearLayout
                 android:id="@+id/view_manager_device"
-                style="@style/app_layout_list2_item">
-                <!--                android:layout_marginTop="20dp"-->
+                style="@style/app_layout_list2_item"
+                android:layout_marginTop="20dp">
+
 
                 <TextView
                     style="@style/app_txt_title_2"

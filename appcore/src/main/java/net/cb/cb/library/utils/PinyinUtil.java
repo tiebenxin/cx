@@ -1,5 +1,7 @@
 package net.cb.cb.library.utils;
 
+import android.text.TextUtils;
+
 import net.sourceforge.pinyin4j.PinyinHelper;
 import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
 import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
@@ -97,6 +99,37 @@ public class PinyinUtil {
             }
         }
         return result;
+    }
+    /**
+     * 字符串全拼,全部小写
+     * @param text
+     */
+    public static String toPinyin(String text){
+        String pinyin="";
+        for(int i=0;i<text.length();i++){
+            String[] charPinYin = PinyinHelper.toHanyuPinyinStringArray(text.charAt(i));
+            if(charPinYin == null){//不是拼音，存储原字符
+                pinyin += text.charAt(i);
+            }else{
+                // 判断是否为多音字
+                String value = "";//大写
+                if (charPinYin.length > 1) {
+                    value = PinyinUtil.getUserName(text.charAt(0) + "");
+                    if (TextUtils.isEmpty(value)) {//去掉最后一个数字
+                        pinyin += charPinYin[0].toLowerCase().substring(0,charPinYin[0].length()-1);
+                    } else {
+                        for(String str:charPinYin){
+                            if((""+str.charAt(0)).equalsIgnoreCase(value))
+                            pinyin += str;
+                            break;
+                        }
+                    }
+                } else {//去掉最后一个数字
+                    pinyin +=  charPinYin[0].toLowerCase().substring(0,charPinYin[0].length()-1);
+                }
+            }
+        }
+        return pinyin;
     }
 
 

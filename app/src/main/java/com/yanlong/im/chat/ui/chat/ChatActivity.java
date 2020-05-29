@@ -3831,7 +3831,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 menus.add(0, new OptionMenu("复制"));
                 //发送状态正常，且未开启阅后即焚，则允许收藏
                 if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
-                    menus.add(1, new OptionMenu("收藏"));
+                    menus.add(2, new OptionMenu("收藏"));
                 }
                 break;
             case ChatEnum.EMessageType.VOICE:
@@ -4158,9 +4158,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void setDisturb() {
         int disturb = 0;
         if (isGroup()) {
-            disturb = mViewModel.groupInfo.getNotNotify();
+           if(mViewModel.groupInfo != null) disturb = mViewModel.groupInfo.getNotNotify();
         } else {
-            disturb = mViewModel.userInfo.getDisturb();
+            if(mViewModel.userInfo != null) disturb = mViewModel.userInfo.getDisturb();
         }
         actionbar.showDisturb(disturb == 1);
     }

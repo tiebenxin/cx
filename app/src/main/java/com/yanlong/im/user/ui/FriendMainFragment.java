@@ -80,16 +80,15 @@ public class FriendMainFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         //MainActivity的viewModel
         viewModel = new FriendViewModel();
-        viewModel.initFriend();
         //显示右侧字母
-        if(viewModel.friends!=null)viewType.addItemView(userParseString());
+        if(viewModel.getFriends()!=null &&viewModel.getFriends().isLoaded())
+            viewType.addItemView(userParseString());
         initEvent();
     }
 
     private ApplicationRepository.FriendChangeListener friendChangeListener = new ApplicationRepository.FriendChangeListener() {
         @Override
         public void init(RealmResults<UserInfo> friends) {
-            viewModel.initFriend();
             //显示右侧字母
             updateViewType();
         }
@@ -130,10 +129,11 @@ public class FriendMainFragment extends Fragment {
     public List<String> userParseString() {
         List<String> list = new ArrayList<>();
         try {
+            RealmResults<UserInfo> friends = viewModel.getFriends();
             //数据库中存储的是Z1，便于排序
-            if (viewModel.friends != null) {
-                for (int i = 0; i < viewModel.friends.size(); i++) {
-                    String tag = viewModel.friends.get(i).getTag();
+            if (friends != null) {
+                for (int i = 0; i <  friends.size(); i++) {
+                    String tag =  friends.get(i).getTag();
                     list.add(tag);
                     //默认第一项是头部，这里位置得+1
                     viewType.putTag(tag, i+1);

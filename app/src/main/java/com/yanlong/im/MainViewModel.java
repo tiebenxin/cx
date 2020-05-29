@@ -49,19 +49,20 @@ public class MainViewModel extends ViewModel {
         this.sessionMoresListener = sessionMoresListener;
     }
 
-    public int getSessionSize(){
-        int size=0;
+    public int getSessionSize() {
+        int size = 0;
         if (MyAppLication.INSTANCE().repository != null) {
             size = MyAppLication.INSTANCE().repository.sessionSidPositons.size();
         }
         return size;
     }
-    public RealmResults<Session> getSession(){
-        RealmResults<Session> sessions = null;
+
+    public RealmResults<Session> getSession() {
         if (MyAppLication.INSTANCE().repository != null) {
-            sessions = MyAppLication.INSTANCE().repository.sessions;
+            return MyAppLication.INSTANCE().repository.sessions;
+        } else {
+            return null;
         }
-        return sessions;
     }
 
 

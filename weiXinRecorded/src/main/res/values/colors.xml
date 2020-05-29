@@ -14,5 +14,7 @@
     <color name="black">#000000</color>
     <color name="black2">#262F40</color>
     <color name="progress_green">#db07c160</color>
+    <color name="transparent">#00000000</color>
+
 
 </resources>
