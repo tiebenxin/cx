@@ -4158,9 +4158,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void setDisturb() {
         int disturb = 0;
         if (isGroup()) {
-            disturb = mViewModel.groupInfo.getNotNotify();
+           if(mViewModel.groupInfo != null) disturb = mViewModel.groupInfo.getNotNotify();
         } else {
-            disturb = mViewModel.userInfo.getDisturb();
+            if(mViewModel.userInfo != null) disturb = mViewModel.userInfo.getDisturb();
         }
         actionbar.showDisturb(disturb == 1);
     }
