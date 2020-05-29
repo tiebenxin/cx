@@ -1067,6 +1067,52 @@ public class UserAction {
         return userBean;
     }
 
+    public static UserInfo convertToUserInfo(UserBean info) {
+        if (info == null) {
+            return null;
+        }
+        UserInfo userBean = new UserInfo();
+        userBean.setUid(info.getUid());
+        userBean.setName(info.getName());
+        userBean.setMkName(info.getMkName());
+        userBean.setVip(info.getVip());
+        userBean.setHead(info.getHead());
+        userBean.setActiveType(info.getActiveType());
+        userBean.setAuthStat(info.getAuthStat());
+        userBean.setDisturb(info.getDisturb());
+        userBean.setTag(info.getTag());
+        userBean.setIstop(info.getIstop());
+        userBean.setDestroy(info.getDestroy());
+        userBean.setSex(info.getSex());
+        userBean.setEmptyPassword(info.isEmptyPassword());
+        userBean.setLockCloudRedEnvelope(info.getLockCloudRedEnvelope());
+        userBean.setDisplaydetail(info.getDisplaydetail());
+        userBean.setFriendRead(info.getFriendRead());
+        userBean.setMasterRead(info.getMasterRead());
+        userBean.setFriendvalid(info.getFriendvalid());
+        userBean.setGroupvalid(info.getGroupvalid());
+        userBean.setImid(info.getImid());
+        userBean.setOldimid(info.getOldimid());
+        userBean.setInviter(info.getInviter());
+        userBean.setInviterName(info.getInviterName());
+        userBean.setMessagenotice(info.getMessagenotice());
+        userBean.setJoinTime(info.getJoinTime());
+        userBean.setJoinType(info.getJoinType());
+        userBean.setImidfind(info.getImidfind());
+        userBean.setDestroyTime(info.getDestroyTime());
+        userBean.setMyRead(info.getMyRead());
+        userBean.setNeteaseAccid(info.getNeteaseAccid());
+        userBean.setLastonline(info.getLastonline());
+        userBean.setPhone(info.getPhone());
+        userBean.setPhonefind(info.getPhonefind());
+        userBean.setSayHi(info.getSayHi());
+        userBean.setScreenshotNotification(info.getScreenshotNotification());
+        userBean.setStat(info.getStat());
+        userBean.setuType(info.getuType());
+        userBean.setBankReqSignKey(info.getBankReqSignKey());
+        return userBean;
+    }
+
 
     /**
      * 获取通讯录好友在线状态
