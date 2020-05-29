@@ -2,17 +2,12 @@ package com.yanlong.im.utils;
 
 import androidx.annotation.Nullable;
 
-import com.google.gson.annotations.SerializedName;
-
 import net.cb.cb.library.utils.LogUtil;
 
 import io.realm.DynamicRealm;
 import io.realm.FieldAttribute;
-import io.realm.Realm;
 import io.realm.RealmMigration;
 import io.realm.RealmSchema;
-import io.realm.annotations.Ignore;
-import io.realm.annotations.PrimaryKey;
 
 // 1.建bean  继承 RealmObject 2.DaoMigration 写schema 升级updateVxx  3. DaoUtil 升级dbVer
 public class DaoMigration implements RealmMigration {
@@ -151,6 +146,10 @@ public class DaoMigration implements RealmMigration {
             }
             if (newVersion > oldVersion && oldVersion == 31) {
                 updateV32(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 32) {
+                updateV33(schema);
                 oldVersion++;
             }
         }
@@ -641,7 +640,11 @@ public class DaoMigration implements RealmMigration {
                 .addField("playStatus",int.class)
                 .addField("localUrl",String.class);
     }
-
+    //新增用户全拼字段
+    private final void updateV33(RealmSchema schema) {
+        schema.get("UserInfo")
+                .addField("pinyin", String.class);
+    }
 
     @Override
     public boolean equals(@Nullable Object obj) {
