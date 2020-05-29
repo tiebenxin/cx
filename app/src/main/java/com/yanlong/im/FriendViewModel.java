@@ -17,13 +17,18 @@ import io.realm.RealmResults;
 public class FriendViewModel extends ViewModel {
     private MainRepository repository;
     //通讯录好友
-    public RealmResults<UserInfo> friends = null;
     public FriendViewModel() {
         repository = new MainRepository();
     }
-    public void initFriend() {
-        friends = MyAppLication.INSTANCE().getFriends();
+
+    public RealmResults<UserInfo> getFriends(){
+        if (MyAppLication.INSTANCE().repository != null) {
+            return MyAppLication.INSTANCE().repository.friends;
+        }else{
+            return null;
+        }
     }
+
     /***
      * 清除红点的值
      * @param type

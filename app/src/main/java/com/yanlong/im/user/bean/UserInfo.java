@@ -17,6 +17,10 @@ import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
+/**
+ * 好友信息
+ * 注意：不可在get方法中赋值，对于Alive的对象会造成写操作
+ */
 public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser {
     @PrimaryKey
     private Long uid;
@@ -29,6 +33,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     private String imid;
     //数据库中，数字存储的是a（非#） >Z，便于排序
     private String tag;
+    private String pinyin;//存储的备注名/昵称全拼音，数字TODO
     @SerializedName("avatar")
     private String head;
     //用户类型 0:陌生人或者群友,1:自己,2:通讯录,3黑名单,4小助手
@@ -83,6 +88,13 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
 
     private String bankReqSignKey;//支付签名
 
+    public String getPinyin() {
+        return pinyin;
+    }
+
+    public void setPinyin(String pinyin) {
+        this.pinyin = pinyin;
+    }
 
     public int getMasterRead() {
         return masterRead;
@@ -189,10 +201,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Long getLastonline() {
-        if (lastonline == null) {
-            lastonline = 0L;
-        }
-        return lastonline;
+        return lastonline == null? 0L: lastonline;
     }
 
     public String getNeteaseAccid() {
@@ -243,10 +252,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Integer getMessagenotice() {
-        if (messagenotice == null) {
-            messagenotice = 0;
-        }
-        return messagenotice;
+        return messagenotice == null? 0: messagenotice;
     }
 
     public void setMessagenotice(Integer messagenotice) {
@@ -254,10 +260,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Integer getDisplaydetail() {
-        if (displaydetail == null) {
-            displaydetail = 0;
-        }
-        return displaydetail;
+        return displaydetail == null? 0:displaydetail;
     }
 
     public void setDisplaydetail(Integer displaydetail) {
@@ -265,10 +268,8 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Integer getStat() {
-        if (stat == null) {//stat== null 一定是非好友
-            stat = 1;
-        }
-        return stat;
+        //stat== null 一定是非好友
+        return stat == null? 1: stat;
     }
 
     public void setStat(Integer stat) {
@@ -292,10 +293,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Integer getPhonefind() {
-        if (phonefind == null) {
-            phonefind = 0;
-        }
-        return phonefind;
+        return phonefind == null?0:phonefind;
     }
 
     public void setPhonefind(Integer phonefind) {
@@ -303,10 +301,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Integer getImidfind() {
-        if (imidfind == null) {
-            imidfind = 0;
-        }
-        return imidfind;
+        return imidfind == null? 0:imidfind;
     }
 
     public void setImidfind(Integer imidfind) {
@@ -314,10 +309,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Integer getFriendvalid() {
-        if (friendvalid == null) {
-            friendvalid = 0;
-        }
-        return friendvalid;
+        return friendvalid == null?0:friendvalid;
     }
 
     public void setFriendvalid(Integer friendvalid) {
@@ -325,10 +317,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public Integer getGroupvalid() {
-        if (groupvalid == null) {
-            groupvalid = 0;
-        }
-        return groupvalid;
+        return groupvalid == null? 0:groupvalid;
     }
 
     public void setGroupvalid(Integer groupvalid) {
@@ -400,11 +389,8 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
 
 
     public void setName(String name) {
-
         this.name = name == null ? "" : name;
-
         toTag();
-
     }
 
     public String getHead() {
@@ -424,24 +410,28 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
         toTag();
     }
 
+
     /***
      * 重设tag
-
      */
     public void toTag() {
         try {
             String name = StringUtil.isNotNull(this.mkName) ? this.mkName : this.name;
             if (TextUtils.isEmpty(name)) {
                 setTag(FRIEND_NUMBER_TAG);
+                setPinyin("");
             } else if (!("" + name.charAt(0)).matches("^[0-9a-zA-Z\\u4e00-\\u9fa5]+$")) {
                 setTag(FRIEND_NUMBER_TAG);
+                setPinyin(PinyinUtil.toPinyin(name));
             } else {
                 String[] n = PinyinHelper.toHanyuPinyinStringArray(name.charAt(0));
                 if (n == null) {
                     if (StringUtil.ifContainEmoji(name)) {
                         setTag(FRIEND_NUMBER_TAG);
+                        setPinyin("");
                     } else {
                         setTag("" + (name.toUpperCase()).charAt(0));
+                        setPinyin(PinyinUtil.toPinyin(name));
                     }
                 } else {
                     String value = "";
@@ -456,6 +446,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
                     } else {
                         setTag("" + n[0].toUpperCase().charAt(0));
                     }
+                    setPinyin(PinyinUtil.toPinyin(name));
                 }
             }
         } catch (Exception e) {
@@ -464,7 +455,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public void setTag(String tag) {
-        if (tag.hashCode() < 65 || tag.hashCode() > 91) {
+        if (tag.hashCode() < 65 || tag.hashCode() > 91) {//非字母开头
             tag = FRIEND_NUMBER_TAG;
         }
         this.tag = tag;
@@ -500,10 +491,6 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     }
 
     public String getTag() {
-
-        if (TextUtils.isEmpty(tag)) {
-            toTag();
-        }
         //数据库中存储的是Z1，便于排序
         return TextUtils.isEmpty(tag) || tag.equals(FRIEND_NUMBER_TAG) ? FRIEND_NUMBER_SHOW_TAG : tag;
     }
