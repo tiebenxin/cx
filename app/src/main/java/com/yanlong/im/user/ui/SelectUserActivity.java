@@ -12,6 +12,9 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
@@ -192,6 +195,16 @@ public class SelectUserActivity extends AppActivity {
 
     private void taskListData() {
         listData = userDao.friendGetAll(true);
+        if (listData == null) {
+            return;
+        }
+        UserBean userBean = (UserBean) UserAction.getMyInfo();
+        if (userBean != null) {
+            UserInfo mUserInfo = new UserAction().convertToUserInfo(userBean);
+            if (!listData.contains(mUserInfo)) {
+                listData.add(0, mUserInfo);
+            }
+        }
         // 升序
         Collections.sort(listData, new Comparator<UserInfo>() {
             @Override
