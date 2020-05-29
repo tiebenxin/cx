@@ -40,7 +40,7 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
 
     @Override
     public int getItemCount() {
-        return viewModel.friends == null ? 2 : viewModel.friends.size()+2;
+        return  viewModel.getFriends().size()+2;
     }
 
     //自动生成控件事件
@@ -82,14 +82,14 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
         } else if (holder instanceof RCViewBtnHolder) {
 
             final RCViewBtnHolder hd = (RCViewBtnHolder) holder;
-            if (viewModel.friends != null) {
-                hd.friend_numb_tv.setText("共" + (viewModel.friends.size()) + "位联系人");
+            if (viewModel.getFriends() != null) {
+                hd.friend_numb_tv.setText("共" + (viewModel.getFriends().size()) + "位联系人");
             } else {
                 hd.friend_numb_tv.setText("共0位联系人");
             }
 
         } else if (holder instanceof RCViewHolder) {
-            final UserInfo bean = viewModel.friends.get(position-1);
+            final UserInfo bean = viewModel.getFriends().get(position-1);
             RCViewHolder hd = (RCViewHolder) holder;
             hd.txtType.setText(bean.getTag());
             //      hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
@@ -117,7 +117,7 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
             }
 
             //相同的字母，隐藏横排字母-匹配上一个项的字母，是否相同
-            if(position!=1&&viewModel.friends.get(position - 2).getTag().equals(bean.getTag())){
+            if(position!=1&&viewModel.getFriends().get(position - 2).getTag().equals(bean.getTag())){
                 //相同的字母，不显示横排字母
                 hd.viewType.setVisibility(View.GONE);
             }else{
@@ -125,7 +125,7 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
                 hd.viewType.setVisibility(View.VISIBLE);
             }
             //不同字母，隐藏项的底部横线-匹配下一个字母的项是否相同
-            if (position == getItemCount() - 2||!viewModel.friends.get(position).getTag().equals(bean.getTag())) {
+            if (position == getItemCount() - 2||!viewModel.getFriends().get(position).getTag().equals(bean.getTag())) {
                 hd.viewLine.setVisibility(View.GONE);
             } else {
                 hd.viewLine.setVisibility(View.VISIBLE);

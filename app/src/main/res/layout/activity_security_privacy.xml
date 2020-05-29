@@ -128,7 +128,8 @@
 
             <LinearLayout
                 android:id="@+id/view_setting_password"
-                style="@style/app_layout_list2_item">
+                style="@style/app_layout_list2_item"
+                android:visibility="gone">
 
 
                 <TextView
@@ -146,7 +147,6 @@
 
             <LinearLayout
                 android:id="@+id/view_blacklist"
-                android:layout_marginTop="20dp"
                 style="@style/app_layout_list2_item">
 
 

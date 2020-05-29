@@ -144,10 +144,11 @@ public class ApplicationLocalDataSource {
                 }
             });
         }
-
+        String[] orderFiled = {"tag", "pinyin"};
+        Sort[] sorts = {Sort.ASCENDING, Sort.ASCENDING};
         return realm.where(UserInfo.class)
                 .beginGroup().equalTo("uType", 2).or().equalTo("uType", 4).endGroup()
-                .sort("tag", Sort.ASCENDING).limit(limit).findAllAsync();
+                .sort(orderFiled,sorts).limit(limit).findAllAsync();
     }
 
     /**
