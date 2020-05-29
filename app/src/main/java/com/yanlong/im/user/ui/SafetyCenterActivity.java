@@ -7,6 +7,7 @@ import android.view.View;
 
 import com.yanlong.im.R;
 import com.yanlong.im.databinding.ActivitySafetyCenterBinding;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.ui.freeze.FreezeAccountActivity;
 import com.yanlong.im.user.ui.logout.LogoutAccountActivity;
 
@@ -41,7 +42,13 @@ public class SafetyCenterActivity extends AppActivity {
         ui.viewSettingPswOfLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if (!UserAction.getMyInfo().isEmptyPassword()) {
+                    go(ChangePasswordActivity.class);
+                } else {
+                    Intent intent = new Intent(SafetyCenterActivity.this, SetingPasswordActivity.class);
+                    intent.putExtra(SetingPasswordActivity.TYPE, 1);
+                    startActivity(intent);
+                }
             }
         });
 
