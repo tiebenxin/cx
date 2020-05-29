@@ -430,7 +430,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
     /**
-     * 仅群聊
+     * 群聊、单聊
+     * 群聊、单聊接收：打开聊天界面，表示已读，立即加入阅后即焚
      * 异步处理需要阅后即焚的消息,打开聊天界面表示已读，开启阅后即焚
      */
     private void dealToBurnMsg() {
@@ -438,16 +439,28 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                RealmResults<MsgAllBean> realmResults = realm.where(MsgAllBean.class)
-                        .equalTo("gid", toGid)
-                        .greaterThan("survival_time", 0)
-                        .lessThanOrEqualTo("endTime", 0)
-                        .findAll();
+                RealmResults<MsgAllBean> realmResults = null;
+                if (isGroup()) {//群聊
+                    realmResults = realm.where(MsgAllBean.class)
+                            .equalTo("gid", toGid)
+                            .greaterThan("survival_time", 0)
+                            .lessThanOrEqualTo("endTime", 0)
+                            .findAll();
+                } else {//单聊,好友发送的消息
+                    realmResults = realm.where(MsgAllBean.class)
+                            .notEqualTo("from_uid",UserAction.getMyInfo().getUid().longValue())
+                            .greaterThan("survival_time", 0)
+                            .lessThanOrEqualTo("endTime", 0)
+                            .findAll();
+                }
+
                 long now = System.currentTimeMillis();
-                for (MsgAllBean msg : realmResults) {
-                    if (msg.getEndTime() == 0) {
-                        msg.setStartTime(now);
-                        msg.setEndTime(now + (msg.getSurvival_time() * 1000));
+                if (realmResults != null) {
+                    for (MsgAllBean msg : realmResults) {
+                        if (msg.getEndTime() == 0) {
+                            msg.setStartTime(now);
+                            msg.setEndTime(now + (msg.getSurvival_time() * 1000));
+                        }
                     }
                 }
             }
@@ -460,6 +473,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             @Override
             public void onError(Throwable error) {
                 DaoUtil.close(realm);
+                dealToBurnMsg();
             }
         });
     }
@@ -624,7 +638,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         public void onChange(RealmModel realmModel, @javax.annotation.Nullable ObjectChangeSet changeSet) {
             if (changeSet.isDeleted()) {//对象被删除，退出聊天界面
                 finish();
-            } else{//字段被修改
+            } else {//字段被修改
                 refreshUI(true);
             }
         }
@@ -1779,7 +1793,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             isLoadHistory = true;
         }
         onlineState = getIntent().getBooleanExtra(ONLINE_STATE, true);
-        if (isGroup()) dealToBurnMsg();
+        dealToBurnMsg();
         mViewModel.init(toGid, toUId);
         mViewModel.loadData(groupInfoChangeListener, userInfoChangeListener);
     }
@@ -2245,9 +2259,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     private void initSurvivaltimeState() {
-        if(isGroup()){
+        if (isGroup()) {
             survivaltime = mViewModel.groupInfo.getSurvivaltime();
-        }else{
+        } else {
             survivaltime = mViewModel.userInfo.getDestroy();
         }
         util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
@@ -4158,9 +4172,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void setDisturb() {
         int disturb = 0;
         if (isGroup()) {
-           if(mViewModel.groupInfo != null) disturb = mViewModel.groupInfo.getNotNotify();
+            if (mViewModel.groupInfo != null) disturb = mViewModel.groupInfo.getNotNotify();
         } else {
-            if(mViewModel.userInfo != null) disturb = mViewModel.userInfo.getDisturb();
+            if (mViewModel.userInfo != null) disturb = mViewModel.userInfo.getDisturb();
         }
         actionbar.showDisturb(disturb == 1);
     }
