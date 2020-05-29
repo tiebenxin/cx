@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="TypeButton">
+        <attr name="button_type" format="enum">
+            <enum name="cancel" value="0" />
+            <enum name="sure" value="1" />
+        </attr>
+
+        <attr name="bt_size" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="VideoButton">
+        <attr name="button_size" format="dimension" />
+    </declare-styleable>
+
+</resources>
