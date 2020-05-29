@@ -3831,7 +3831,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 menus.add(0, new OptionMenu("复制"));
                 //发送状态正常，且未开启阅后即焚，则允许收藏
                 if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
-                    menus.add(1, new OptionMenu("收藏"));
+                    menus.add(2, new OptionMenu("收藏"));
                 }
                 break;
             case ChatEnum.EMessageType.VOICE:
