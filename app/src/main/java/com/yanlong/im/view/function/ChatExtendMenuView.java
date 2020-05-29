@@ -122,10 +122,12 @@ public class ChatExtendMenuView extends LinearLayout {
 
 
     }
+
     public class ViewPagerAdapter extends PagerAdapter {
         private Context context;
-        public ViewPagerAdapter(Context context){
-            this.context=context;
+
+        public ViewPagerAdapter(Context context) {
+            this.context = context;
 
         }
 
@@ -146,7 +148,7 @@ public class ChatExtendMenuView extends LinearLayout {
 
             container.addView(view);
 
-            RecyclerView recyclerView =view.findViewById(R.id.recycler_view);
+            RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
             GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 4);
             recyclerView.setLayoutManager(layoutManager);
             AdapterFunctionView adapterFunctionView = new AdapterFunctionView(getContext());
@@ -172,9 +174,11 @@ public class ChatExtendMenuView extends LinearLayout {
         }
 
     }
+
     private void initDots() {
         if (pagerCount > 1) {
             rgDots.setVisibility(VISIBLE);
+            rgDots.removeAllViews();
             for (int i = 0; i < pagerCount; i++) {
                 RadioButton radioButton = new RadioButton(getContext());
                 radioButton.setId(i);
