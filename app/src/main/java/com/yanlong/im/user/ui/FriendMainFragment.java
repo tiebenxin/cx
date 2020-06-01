@@ -148,6 +148,7 @@ public class FriendMainFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        viewModel.onDestory();
         MyAppLication.INSTANCE().removeFriendChangeListener(friendChangeListener);
         EventBus.getDefault().unregister(this);
     }

@@ -28,9 +28,14 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 
 /**
- * @创建人 shenxin
- * @创建时间 2019/10/21 0021 10:51
+ * @创建人 Raleigh
  * 阅后即焚管理类
+ */
+/**非退出即焚逻辑（后台操作）
+ * 群聊发送：发送成功，立即加入阅后即焚
+ * 群聊接收：打开聊天界面，表示已读，立即加入阅后即焚
+ * 单聊发送：发送成功且对方已读，立即加入阅后即焚
+ * 单聊接收：打开聊天界面，表示已读，立即加入阅后即焚
  */
 public class BurnManager {
     //需要焚的消息-不包括退出即焚
@@ -229,6 +234,9 @@ public class BurnManager {
     }
 
 
+    /**
+     * 设置最近待焚闹钟
+     */
     private void startBurnAlarm() {
         try {
 

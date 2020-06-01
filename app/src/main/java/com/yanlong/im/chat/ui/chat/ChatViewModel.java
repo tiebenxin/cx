@@ -5,11 +5,15 @@ import android.arch.lifecycle.ViewModel;
 import android.text.TextUtils;
 
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.repository.ChatRepository;
 import com.yanlong.im.user.bean.UserInfo;
 
+import io.realm.OrderedCollectionChangeSet;
+import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.RealmModel;
 import io.realm.RealmObjectChangeListener;
+import io.realm.RealmResults;
 
 public class ChatViewModel extends ViewModel {
     private ChatRepository repository;
@@ -28,12 +32,17 @@ public class ChatViewModel extends ViewModel {
 
     public Group groupInfo = null;
     public UserInfo userInfo = null;
-    public String toGid ;
-    public long toUId ;
-    public ChatViewModel(){
+    public String toGid;
+    public long toUId;
+
+    //待添加到数据库阅后即焚消息
+    private RealmResults<MsgAllBean> toAddBurnForDBMsgs = null;
+
+    public ChatViewModel() {
         repository = new ChatRepository();
     }
-    public void init(String toGid,Long toUId){
+
+    public void init(String toGid, Long toUId) {
         //主线程使用setValue,子线程使用postValue赋值
         isInputText.setValue(false);
         isOpenEmoj.setValue(false);
@@ -42,34 +51,60 @@ public class ChatViewModel extends ViewModel {
         adapterCount.setValue(0);
         isReplying.setValue(false);
         this.toGid = toGid;
-        this.toUId = toUId == null?0:toUId;
+        this.toUId = toUId == null ? 0 : toUId;
+        //观察需要添加到数据库的阅后即焚的消息
+        observerToAddBurnMsgs();
+    }
+
+    /**观察
+     * 1.群聊或单聊
+     * 2.好友发送的消息
+     * 3.未添加到阅后即焚的消息
+     * 打开聊天界面说明 已读，有新消息则立即加入到阅后即焚队列
+     *
+     */
+    public void observerToAddBurnMsgs() {
+        if (toAddBurnForDBMsgs != null) {
+            toAddBurnForDBMsgs.removeAllChangeListeners();
+            toAddBurnForDBMsgs = null;
+        }
+        toAddBurnForDBMsgs = repository.getToAddBurnForDBMsgs(toGid, toUId);
+        toAddBurnForDBMsgs.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<MsgAllBean>>() {
+            @Override
+            public void onChange(RealmResults<MsgAllBean> msgAllBeans, OrderedCollectionChangeSet changeSet) {
+                if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL || changeSet.getInsertions().length > 0) {
+                    //初始化或新增时，进行数据库操作，添加到阅后即焚队列
+                    repository.dealToBurnMsgs(toGid, toUId);
+                }
+            }
+        });
     }
 
     /**
      * 加载群信息、好友信息
      */
-    public void loadData( RealmObjectChangeListener<RealmModel> groupInfoChangeListener,
-                          RealmObjectChangeListener<RealmModel> userInfoChangeListener){
-        if(TextUtils.isEmpty(toGid)){
-            if(userInfo != null){
+    public void loadData(RealmObjectChangeListener<RealmModel> groupInfoChangeListener,
+                         RealmObjectChangeListener<RealmModel> userInfoChangeListener) {
+        if (TextUtils.isEmpty(toGid)) {
+            if (userInfo != null) {
                 userInfo.removeAllChangeListeners();
                 userInfo = null;
             }
             userInfo = repository.getFriend(this.toUId);
-            if(userInfo != null )userInfo.addChangeListener(userInfoChangeListener);
-        }else{
-            if(groupInfo != null){
+            if (userInfo != null) userInfo.addChangeListener(userInfoChangeListener);
+        } else {
+            if (groupInfo != null) {
                 groupInfo.removeAllChangeListeners();
                 userInfo = null;
             }
             groupInfo = repository.getGroup(this.toGid);
-            if(groupInfo != null )groupInfo.addChangeListener(groupInfoChangeListener);
+            if (groupInfo != null) groupInfo.addChangeListener(groupInfoChangeListener);
         }
     }
 
     /**
      * 重置其他状态值
-      1.data＝null，所有状态值重置为false
+     * 1.data＝null，所有状态值重置为false
      * 2.data不为null,data本身不重置
      *
      * @param data
@@ -98,18 +133,34 @@ public class ChatViewModel extends ViewModel {
                 isOpenFuction.getValue() || isOpenSpeak.getValue() || isReplying.getValue();
 
     }
+
     /**
      * onResume检查realm状态,避免系统奔溃后，主页重新启动realm对象已被关闭，需重新连接
      */
-    public boolean checkRealmStatus(){
+    public boolean checkRealmStatus() {
         return repository.checkRealmStatus();
     }
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        if(userInfo!=null)userInfo.removeAllChangeListeners();
-        if(groupInfo!=null)groupInfo.removeAllChangeListeners();
-        if(repository!=null)repository.onDestory();
+
+    public void onDestory() {
+        if (toAddBurnForDBMsgs != null){
+            toAddBurnForDBMsgs.removeAllChangeListeners();
+            toAddBurnForDBMsgs = null;
+        }
+
+        if (userInfo != null){
+            userInfo.removeAllChangeListeners();
+            userInfo = null;
+        }
+
+        if (groupInfo != null){
+            groupInfo.removeAllChangeListeners();
+            groupInfo = null;
+        }
+
+        if (repository != null){
+            repository.onDestory();
+            repository = null;
+        }
 
     }
 }
