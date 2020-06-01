@@ -29,6 +29,7 @@ public class LocalMedia implements Parcelable {
     private int height;
     private long size;
     private String msg_id;
+    private boolean canCollect=false;//是否显示收藏，点击大图可左右滑动，需要判断每张图片的条件，阅后即焚/发送失败不允许收藏
 
     public LocalMedia() {
 
@@ -73,6 +74,14 @@ public class LocalMedia implements Parcelable {
             pictureType = "image/jpeg";
         }
         return pictureType;
+    }
+
+    public boolean isCanCollect() {
+        return canCollect;
+    }
+
+    public void setCanCollect(boolean canCollect) {
+        this.canCollect = canCollect;
     }
 
     public void setPictureType(String pictureType) {
@@ -206,6 +215,7 @@ public class LocalMedia implements Parcelable {
         dest.writeInt(this.height);
         dest.writeLong(this.size);
         dest.writeString(this.msg_id);
+        dest.writeByte(this.canCollect ? (byte) 1 : (byte) 0);
     }
 
     protected LocalMedia(Parcel in) {
@@ -224,6 +234,7 @@ public class LocalMedia implements Parcelable {
         this.height = in.readInt();
         this.size=in.readLong();
         this.msg_id=in.readString();
+        this.canCollect = in.readByte() != 0;
     }
 
     public static final Parcelable.Creator<LocalMedia> CREATOR = new Parcelable.Creator<LocalMedia>() {

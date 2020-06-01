@@ -1,6 +1,9 @@
 package com.yanlong.im.chat.bean;
 
 
+import android.text.TextUtils;
+import android.widget.TextView;
+
 import androidx.annotation.Nullable;
 
 import com.hm.cxpay.global.PayEnum;
@@ -437,7 +440,13 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             } else if (msg_type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {//阅后即焚
                 str = "[零钱小助手消息]";
             } else if (msg_type == ChatEnum.EMessageType.FILE) {//文件
-                str = "[文件]";
+                if(getSendFileMessage()!=null){
+                    if(!TextUtils.isEmpty(getSendFileMessage().getFile_name())){
+                        str = "[文件]"+getSendFileMessage().getFile_name();
+                    }else {
+                        str = "[文件]";
+                    }
+                }
             } else if (msg_type == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {
                 str = "[动态表情]";
             } else if (msg_type == ChatEnum.EMessageType.WEB) {

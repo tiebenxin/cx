@@ -130,6 +130,7 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.bean.WebMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.AckEvent;
+import com.yanlong.im.chat.eventbus.EventCollectImgOrVideo;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
 import com.yanlong.im.chat.interf.IActionTagClickListener;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
@@ -3260,6 +3261,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
             lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
             lc.setMsg_id(msgl.getMsg_id());
+            //发送状态正常，且未开启阅后即焚，则允许收藏
+            if (msgl.getSend_state() != ChatEnum.ESendStatus.ERROR && msgl.getSurvival_time() == 0) {
+                lc.setCanCollect(true);
+            }
             temp.add(lc);
         }
         int size = temp.size();
@@ -5707,11 +5712,17 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             } else {
                 localUrl = msg.getVideoMessage().getUrl();
             }
+            //发送状态正常，且未开启阅后即焚，则允许收藏
+            boolean canCollect = false;
+            if (msg.getSend_state() != ChatEnum.ESendStatus.ERROR && msg.getSurvival_time() == 0) {
+                canCollect = true;
+            }
             Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
             intent.putExtra("videopath", localUrl);
             intent.putExtra("videomsg", new Gson().toJson(msg));
             intent.putExtra("msg_id", msg.getMsg_id());
             intent.putExtra("bg_url", msg.getVideoMessage().getBg_url());
+            intent.putExtra("can_collect", canCollect);
             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(intent);
 
@@ -6237,6 +6248,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 } else {
                     ToastUtil.show("文件下载地址错误，请联系客服");
                 }
+            }
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void collectImgOrVideo(EventCollectImgOrVideo event) {
+        if (!TextUtils.isEmpty(event.getMsgId())) {
+            MsgAllBean msgAllBean = msgDao.getMsgById(event.getMsgId());
+            if (msgAllBean != null) {
+                onCollect(msgAllBean);
             }
         }
     }
