@@ -1708,6 +1708,7 @@ public class SocketData {
      */
     public static byte[] requestOffline() {
         LogUtil.getLog().i(TAG, "--请求离线--最新" + getOfflineCount());
+        LogUtil.writeLog("requestOffline 请求离线--最新:" + getOfflineCount());
         MsgBean.OfflineMsgRequest.Builder request = MsgBean.OfflineMsgRequest.newBuilder();
         request.setReqCount(getOfflineCount());
         request.setLatest(true);
