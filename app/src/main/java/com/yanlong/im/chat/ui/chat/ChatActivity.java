@@ -419,7 +419,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         //底部导航栏
 //        window.setNavigationBarColor(getResources().getColor(R.color.red_100));
 
-
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
@@ -429,40 +428,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         getOftenUseFace();
     }
 
-    /**
-     * 仅群聊
-     * 异步处理需要阅后即焚的消息,打开聊天界面表示已读，开启阅后即焚
-     */
-    private void dealToBurnMsg() {
-        Realm realm = DaoUtil.open();
-        DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                RealmResults<MsgAllBean> realmResults = realm.where(MsgAllBean.class)
-                        .equalTo("gid", toGid)
-                        .greaterThan("survival_time", 0)
-                        .lessThanOrEqualTo("endTime", 0)
-                        .findAll();
-                long now = System.currentTimeMillis();
-                for (MsgAllBean msg : realmResults) {
-                    if (msg.getEndTime() == 0) {
-                        msg.setStartTime(now);
-                        msg.setEndTime(now + (msg.getSurvival_time() * 1000));
-                    }
-                }
-            }
-        }, new Realm.Transaction.OnSuccess() {
-            @Override
-            public void onSuccess() {
-                DaoUtil.close(realm);
-            }
-        }, new Realm.Transaction.OnError() {
-            @Override
-            public void onError(Throwable error) {
-                DaoUtil.close(realm);
-            }
-        });
-    }
+
+
 
     private Runnable mPanelRecoverySoftInputModeRunnable = new Runnable() {
         @Override
@@ -624,7 +591,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         public void onChange(RealmModel realmModel, @javax.annotation.Nullable ObjectChangeSet changeSet) {
             if (changeSet.isDeleted()) {//对象被删除，退出聊天界面
                 finish();
-            } else{//字段被修改
+            } else {//字段被修改
                 refreshUI(true);
             }
         }
@@ -783,6 +750,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     protected void onDestroy() {
         //释放adapter资源
         mAdapter.onDestroy();
+        mViewModel.onDestory();
         //关闭窗口，避免内存溢出
         dismissPop();
         //保存退出即焚消息
@@ -1779,7 +1747,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             isLoadHistory = true;
         }
         onlineState = getIntent().getBooleanExtra(ONLINE_STATE, true);
-        if (isGroup()) dealToBurnMsg();
         mViewModel.init(toGid, toUId);
         mViewModel.loadData(groupInfoChangeListener, userInfoChangeListener);
     }
@@ -2245,9 +2212,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     private void initSurvivaltimeState() {
-        if(isGroup()){
+        if (isGroup()) {
             survivaltime = mViewModel.groupInfo.getSurvivaltime();
-        }else{
+        } else {
             survivaltime = mViewModel.userInfo.getDestroy();
         }
         util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
@@ -4158,9 +4125,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void setDisturb() {
         int disturb = 0;
         if (isGroup()) {
-           if(mViewModel.groupInfo != null) disturb = mViewModel.groupInfo.getNotNotify();
+            if (mViewModel.groupInfo != null) disturb = mViewModel.groupInfo.getNotNotify();
         } else {
-            if(mViewModel.userInfo != null) disturb = mViewModel.userInfo.getDisturb();
+            if (mViewModel.userInfo != null) disturb = mViewModel.userInfo.getDisturb();
         }
         actionbar.showDisturb(disturb == 1);
     }

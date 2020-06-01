@@ -251,7 +251,6 @@ public class MessageManager {
                 bean.setFrom_uid(-wrapMessage.getFromUid());
             }
         }
-        Log.e("raleigh_test","type="+wrapMessage.getMsgType());
         switch (wrapMessage.getMsgType()) {
             case CHAT://文本
             case IMAGE://图片

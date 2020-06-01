@@ -30,17 +30,18 @@ import java.util.List;
  * @createDate 2020/4/11 0011
  * @description
  */
-public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context context;
     private FriendViewModel viewModel;
-    public FriendMainFragmentAdapter(Context context,FriendViewModel viewModel){
-        this.context=context;
-        this.viewModel=viewModel;
+
+    public FriendMainFragmentAdapter(Context context, FriendViewModel viewModel) {
+        this.context = context;
+        this.viewModel = viewModel;
     }
 
     @Override
     public int getItemCount() {
-        return  viewModel.getFriends().size()+2;
+        return viewModel.getFriendSize() + 2;
     }
 
     //自动生成控件事件
@@ -80,16 +81,10 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
             });
             hd.sbApply.setNum(viewModel.getRemindCount("friend_apply"), false);
         } else if (holder instanceof RCViewBtnHolder) {
-
             final RCViewBtnHolder hd = (RCViewBtnHolder) holder;
-            if (viewModel.getFriends() != null) {
-                hd.friend_numb_tv.setText("共" + (viewModel.getFriends().size()) + "位联系人");
-            } else {
-                hd.friend_numb_tv.setText("共0位联系人");
-            }
-
+            hd.friend_numb_tv.setText("共" + viewModel.getFriendSize() + "位联系人");
         } else if (holder instanceof RCViewHolder) {
-            final UserInfo bean = viewModel.getFriends().get(position-1);
+            final UserInfo bean = viewModel.getFriends().get(position - 1);
             RCViewHolder hd = (RCViewHolder) holder;
             hd.txtType.setText(bean.getTag());
             //      hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
@@ -117,15 +112,15 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
             }
 
             //相同的字母，隐藏横排字母-匹配上一个项的字母，是否相同
-            if(position!=1&&viewModel.getFriends().get(position - 2).getTag().equals(bean.getTag())){
+            if (position != 1 && viewModel.getFriends().get(position - 2).getTag().equals(bean.getTag())) {
                 //相同的字母，不显示横排字母
                 hd.viewType.setVisibility(View.GONE);
-            }else{
+            } else {
                 //不同的字母，显示横排字母
                 hd.viewType.setVisibility(View.VISIBLE);
             }
             //不同字母，隐藏项的底部横线-匹配下一个字母的项是否相同
-            if (position == getItemCount() - 2||!viewModel.getFriends().get(position).getTag().equals(bean.getTag())) {
+            if (position == getItemCount() - 2 || !viewModel.getFriends().get(position).getTag().equals(bean.getTag())) {
                 hd.viewLine.setVisibility(View.GONE);
             } else {
                 hd.viewLine.setVisibility(View.VISIBLE);
@@ -135,10 +130,10 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
                 @Override
                 public void onClick(View v) {
                     if (bean.getuType() == ChatEnum.EUserType.ASSISTANT) {
-                        context.startActivity(new Intent( context, ChatActivity.class)
+                        context.startActivity(new Intent(context, ChatActivity.class)
                                 .putExtra(ChatActivity.AGM_TOUID, bean.getUid()));
                     } else {
-                        context.startActivity(new Intent( context, UserInfoActivity.class)
+                        context.startActivity(new Intent(context, UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, bean.getUid()));
                     }
                 }
@@ -156,7 +151,7 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
         int type = 0;
         if (position == 0) {//顶部-4个功能菜单
             type = 0;
-        } else if (position == getItemCount()-1) {//底部-联系人数量
+        } else if (position == getItemCount() - 1) {//底部-联系人数量
             type = 1;
         } else {
             type = 2;
@@ -179,6 +174,7 @@ public class FriendMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView
             return holder;
         }
     }
+
     //自动生成ViewHold
     public class RCViewHolder extends RecyclerView.ViewHolder {
         private TextView txtType;
