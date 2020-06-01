@@ -92,7 +92,7 @@ public class RecordButtonView extends FrameLayout {
                 if (listener != null) {
                     listener.recordStart();
                 }
-                resetUI(false);
+                resetNotice(false);
             }
 
             @Override
@@ -170,7 +170,7 @@ public class RecordButtonView extends FrameLayout {
         btCancel.setVisibility(VISIBLE);
         btSure.setVisibility(VISIBLE);
         btCancel.setClickable(false);
-        btCancel.setClickable(false);
+        btSure.setClickable(false);
 //        ObjectAnimator animator_cancel = ObjectAnimator.ofFloat(btCancel, "translationX", layout_width / 4, 0);
 //        ObjectAnimator animator_confirm = ObjectAnimator.ofFloat(btSure, "translationX", -layout_width / 4, 0);
         ObjectAnimator animator_cancel = ObjectAnimator.ofFloat(btCancel, "translationX", 0, -layout_width / 4);
@@ -194,10 +194,30 @@ public class RecordButtonView extends FrameLayout {
         if (flag) {
             tvNotice.setVisibility(VISIBLE);
             btReturn.setVisibility(VISIBLE);
+            btCapture.setVisibility(VISIBLE);
+            if (llResult.isShown()) {
+                llResult.setVisibility(GONE);
+            }
+        } else {
+            tvNotice.setVisibility(GONE);
+            btReturn.setVisibility(GONE);
+            btCapture.setVisibility(GONE);
+        }
+    }
+
+    public void resetNotice(boolean flag) {
+        if (flag) {
+            tvNotice.setVisibility(VISIBLE);
+            btReturn.setVisibility(VISIBLE);
+
         } else {
             tvNotice.setVisibility(GONE);
             btReturn.setVisibility(GONE);
         }
+    }
+
+    public void recordEnd(){
+        btCapture.recordEnd();
     }
 
 }

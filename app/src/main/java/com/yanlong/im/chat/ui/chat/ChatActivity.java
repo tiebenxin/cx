@@ -2859,7 +2859,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         LogUtil.getLog().i(TAG, "--视频Chat--" + file);
                         int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
                         int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
-                        int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME, 0);
+                        long time = data.getLongExtra(RecordedActivity.INTENT_PATH_TIME, 0L);
                         //app内拍摄的视频经检查已经实现了自动压缩
                         VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + file, getVideoAttBitmap(file), false, time, width, height, file);
                         videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);

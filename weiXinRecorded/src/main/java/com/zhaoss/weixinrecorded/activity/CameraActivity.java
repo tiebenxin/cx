@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
@@ -107,7 +108,6 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
 
         }
     };
-    private long recordDuration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -236,7 +236,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
 
             @Override
             public void recordEnd(long time) {
-                recordDuration = time;
+                System.out.println("视频录制--duration=" + time);
                 stopRecord();
             }
 
@@ -257,6 +257,12 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
 
             @Override
             public void onCancel() {
+                recordView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        recordView.resetUI(true);
+                    }
+                }, 100);
                 initCamera();
             }
 
@@ -343,14 +349,18 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
     }
 
     private void setResult() {
-        if (TextUtils.isEmpty(mp4FilePath) || recordDuration <= 0) {
+        if (TextUtils.isEmpty(mp4FilePath)) {
+            return;
+        }
+        long duration = getVideoLength(mp4FilePath);
+        if (duration <= 0) {
             return;
         }
         Intent intentMas = new Intent();
         intentMas.putExtra(CameraActivity.INTENT_PATH, mp4FilePath);
         intentMas.putExtra(INTENT_VIDEO_WIDTH, mCameraHelp.getHeight());
         intentMas.putExtra(INTENT_PATH_HEIGHT, mCameraHelp.getWidth());
-        intentMas.putExtra(INTENT_PATH_TIME, recordDuration);
+        intentMas.putExtra(INTENT_PATH_TIME, duration);
         intentMas.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
         setResult(RESULT_OK, intentMas);
         finish();
@@ -521,9 +531,9 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         //声道
         mMediaRecorder.setAudioChannels(1);
         //设置最大录像时间 单位：毫秒
-        mMediaRecorder.setMaxDuration(60 * 1000);
-        //设置最大录制的大小60M 单位，字节
-        mMediaRecorder.setMaxFileSize(60 * 1024 * 1024);
+        mMediaRecorder.setMaxDuration(18 * 1000);
+        //设置最大录制的大小50M 单位，字节
+        mMediaRecorder.setMaxFileSize(50 * 1024 * 1024);
         //再用44.1Hz采样率
         mMediaRecorder.setAudioEncodingBitRate(22050);
         //设置帧率，该帧率必须是硬件支持的，可以通过Camera.CameraParameter.getSupportedPreviewFpsRange()方法获取相机支持的帧率
@@ -532,6 +542,21 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         mMediaRecorder.setVideoEncodingBitRate(500 * 1024 * 8);
         //设置视频尺寸，通常搭配码率一起使用，可调整视频清晰度
         mMediaRecorder.setVideoSize(1280, 720);
+        mMediaRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
+            @Override
+            public void onInfo(MediaRecorder mediaRecorder, int what, int extra) {
+                if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
+                    System.out.println(TAG + "--视频录制超时");
+                    stopRecord();
+                    recordView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            recordView.recordEnd();
+                        }
+                    }, 100);
+                }
+            }
+        });
     }
 
 
@@ -573,6 +598,23 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         releaseMediaRecorder();
         releaseCamera();
     }
+
+    //获取视频参数信息
+    public long getVideoLength(String file) {
+        long length = 0;
+        try {
+            android.media.MediaMetadataRetriever retriever = new android.media.MediaMetadataRetriever();
+            retriever.setDataSource(file);
+            String duration = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
+            if (!TextUtils.isEmpty(duration)) {
+                length = Long.parseLong(duration);
+            }
+        } catch (Exception e) {
+        }
+
+        return length;
+    }
+
 
 }
 

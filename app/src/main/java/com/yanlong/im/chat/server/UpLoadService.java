@@ -349,7 +349,7 @@ public class UpLoadService extends Service {
                 oldUptime = System.currentTimeMillis();
 
                 int pg = new Double(progress / (zong + 0.0f) * 100.0).intValue();
-                LogUtil.getLog().d(TAG, "inProgress : 视频上传进度===============>" + pg);
+//                LogUtil.getLog().d(TAG, "inProgress : 视频上传进度===============>" + pg);
                 updateProgress(bean.getMsg_id(), pg);
                 eventUpImgLoadEvent.setMsgid(bean.getMsg_id());
                 eventUpImgLoadEvent.setMsgAllBean(bean);
