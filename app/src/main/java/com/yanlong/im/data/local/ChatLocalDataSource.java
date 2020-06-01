@@ -71,20 +71,20 @@ public class ChatLocalDataSource {
         return true;
     }
 
-    /**
-     *  获取群聊、单聊接收的接收消息查询对象
+    /** 查询条件
+     *  获取群聊、单聊接收对方发的消息，且是未加入到阅后即焚队列的消息对象
      * @param realm
      * @param toGid
      * @param toUid
      * @return
      */
     private RealmQuery<MsgAllBean> getToAddBurnForDBMsgsRealmQuery(Realm realm, String toGid, Long toUid){
-        if (!TextUtils.isEmpty(toGid)) {//群聊
+        if (!TextUtils.isEmpty(toGid)) {//群聊-好友发送的，未加入到阅后即焚队列的消息
             return realm.where(MsgAllBean.class)
                     .equalTo("gid", toGid)
                     .greaterThan("survival_time", 0)
                     .lessThanOrEqualTo("endTime", 0);
-        } else {//单聊,好友发送的消息
+        } else {//单聊-好友发送的消息，未加入到阅后即焚队列的消息
             return realm.where(MsgAllBean.class)
                     .beginGroup()
                     .isEmpty("gid").or().isNull("gid")
@@ -99,20 +99,10 @@ public class ChatLocalDataSource {
     }
 
     /**
-     * 异步获取待焚的接收消息
-     * 群聊、单聊接收：打开聊天界面，表示已读，立即加入阅后即焚
-     * 异步处理需要阅后即焚的消息,打开聊天界面表示已读，开启阅后即焚
+     * 异步获取好友发送的待焚消息
      */
     public RealmResults<MsgAllBean> getToAddBurnForDBMsgsAsync(String toGid, Long toUid) {
       return getToAddBurnForDBMsgsRealmQuery(realm,toGid,toUid).findAllAsync();
-    }
-    /**
-     * 同步获取待焚的接收消息
-     * 群聊、单聊接收：打开聊天界面，表示已读，立即加入阅后即焚
-     * 异步处理需要阅后即焚的消息,打开聊天界面表示已读，开启阅后即焚
-     */
-    private RealmResults<MsgAllBean> getToAddBurnForDBMsgs(Realm realm,String toGid, Long toUid) {
-        return getToAddBurnForDBMsgsRealmQuery(realm,toGid,toUid).findAll();
     }
 
     private boolean isFinishedToBurn = true;
@@ -137,7 +127,7 @@ public class ChatLocalDataSource {
         DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                RealmResults<MsgAllBean> realmResults = getToAddBurnForDBMsgs(realm,toGid,toUid);
+                RealmResults<MsgAllBean> realmResults = getToAddBurnForDBMsgsRealmQuery(realm,toGid,toUid).findAll();
                 //对方发的消息，当前时间为起点
                 long now = DateUtils.getSystemTime();
                 if (realmResults != null) {

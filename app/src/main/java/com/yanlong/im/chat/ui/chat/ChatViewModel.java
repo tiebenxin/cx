@@ -56,8 +56,12 @@ public class ChatViewModel extends ViewModel {
         observerToAddBurnMsgs();
     }
 
-    /**
-     * 观察需要添加到数据库的阅后即焚的消息
+    /**观察
+     * 1.群聊或单聊
+     * 2.好友发送的消息
+     * 3.未添加到阅后即焚的消息
+     * 打开聊天界面说明 已读，有新消息则立即加入到阅后即焚队列
+     *
      */
     public void observerToAddBurnMsgs() {
         if (toAddBurnForDBMsgs != null) {
@@ -137,16 +141,26 @@ public class ChatViewModel extends ViewModel {
         return repository.checkRealmStatus();
     }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        if (toAddBurnForDBMsgs != null)
+    public void onDestory() {
+        if (toAddBurnForDBMsgs != null){
             toAddBurnForDBMsgs.removeAllChangeListeners();
-        if (userInfo != null)
+            toAddBurnForDBMsgs = null;
+        }
+
+        if (userInfo != null){
             userInfo.removeAllChangeListeners();
-        if (groupInfo != null)
+            userInfo = null;
+        }
+
+        if (groupInfo != null){
             groupInfo.removeAllChangeListeners();
-        if (repository != null)
+            groupInfo = null;
+        }
+
+        if (repository != null){
             repository.onDestory();
+            repository = null;
+        }
+
     }
 }

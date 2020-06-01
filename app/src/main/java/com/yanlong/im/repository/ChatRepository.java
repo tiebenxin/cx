@@ -37,9 +37,7 @@ public class ChatRepository {
     }
 
     /**
-     * 获取待焚的接收消息
-     * 群聊、单聊接收：打开聊天界面，表示已读，立即加入阅后即焚
-     * 异步处理需要阅后即焚的消息,打开聊天界面表示已读，开启阅后即焚
+     * 异步获取好友发送的待焚消息
      */
     public RealmResults<MsgAllBean> getToAddBurnForDBMsgs(String toGid, Long toUid) {
         return localDataSource.getToAddBurnForDBMsgsAsync(toGid, toUid);
