@@ -7,6 +7,7 @@ import android.hardware.Camera;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
+import android.text.TextUtils;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.TextureView;
@@ -76,8 +77,6 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
     private boolean mPhotoFlg = false;// 小于1秒进入拍照判断
 
     private String mp4FilePath;
-    private long mRecordTime;
-    private long mVideoDuration;
     private MediaRecorder mMediaRecorder;
     private int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
 
@@ -102,6 +101,14 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
     private int mFps;
     private SurfaceTexture mSurfaceTexture;
 
+    private Camera.PreviewCallback mPreviewCallback = new Camera.PreviewCallback() {
+        @Override
+        public void onPreviewFrame(byte[] bytes, Camera camera) {
+
+        }
+    };
+    private long recordDuration;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,17 +118,16 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         mp4FilePath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".mp4";
         initUI();
         initListener();
-        initMediaRecorder();
-
+//        initMediaRecorder();
         EventBus.getDefault().post(new CanStampEventWX(false));
     }
 
     private void initUI() {
         surfaceView = findViewById(R.id.surfaceView);
-        recordView = findViewById(R.id.recordView);
+        recordView = findViewById(R.id.record_view);
         viewSwitchCamera = findViewById(R.id.layout_camera_mode);
         viewFlash = findViewById(R.id.layout_flash_video);
-
+        surfaceView.setSurfaceTextureListener(this);
         surfaceView.post(new Runnable() {
             @Override
             public void run() {
@@ -215,17 +221,23 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
 
             @Override
             public void recordShort(long time) {
-
+                recordView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(CameraActivity.this, "录制时间不能少于1s", Toast.LENGTH_SHORT).show();
+                    }
+                }, 100);
             }
 
             @Override
             public void recordStart() {
-
+                startRecord();
             }
 
             @Override
             public void recordEnd(long time) {
-
+                recordDuration = time;
+                stopRecord();
             }
 
             @Override
@@ -245,12 +257,12 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
 
             @Override
             public void onCancel() {
-
+                initCamera();
             }
 
             @Override
             public void onSure() {
-
+                setResult();
             }
         });
 
@@ -330,6 +342,20 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         }
     }
 
+    private void setResult() {
+        if (TextUtils.isEmpty(mp4FilePath) || recordDuration <= 0) {
+            return;
+        }
+        Intent intentMas = new Intent();
+        intentMas.putExtra(CameraActivity.INTENT_PATH, mp4FilePath);
+        intentMas.putExtra(INTENT_VIDEO_WIDTH, mCameraHelp.getHeight());
+        intentMas.putExtra(INTENT_PATH_HEIGHT, mCameraHelp.getWidth());
+        intentMas.putExtra(INTENT_PATH_TIME, recordDuration);
+        intentMas.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
+        setResult(RESULT_OK, intentMas);
+        finish();
+    }
+
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int i, int i1) {
         mSurfaceTexture = surfaceTexture;
@@ -372,7 +398,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
             mCamera.setPreviewCallback(new Camera.PreviewCallback() {
                 @Override
                 public void onPreviewFrame(byte[] bytes, Camera camera) {
-
+                    mPreviewCallback.onPreviewFrame(bytes, camera);
                 }
             });
             mRotationDegree = CameraUtil.getCameraDisplayOrientation(this, mCameraId);
@@ -518,6 +544,35 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         int RELEASED = 3; // 释放
     }
 
+
+    /**
+     * 开始录制
+     */
+    private void startRecord() {
+        if (mCamera == null) {
+            initCamera();
+        }
+        mCamera.unlock();
+        initMediaRecorder();
+        try {
+            mMediaRecorder.prepare();
+            mMediaRecorder.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+//        chronometer.setBase(SystemClock.elapsedRealtime());
+//        chronometer.start();
+        mStatus = RecorderStatus.RECORDING;
+    }
+
+    /**
+     * 停止录制
+     */
+    private void stopRecord() {
+        releaseMediaRecorder();
+        releaseCamera();
+    }
 
 }
 

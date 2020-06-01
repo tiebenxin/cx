@@ -108,8 +108,8 @@ public class CaptureButton extends View {
 
         state = STATE_IDLE;                //初始化为空闲状态
         button_state = BUTTON_STATE_BOTH;  //初始化按钮为可录制可拍照
-        duration = 10 * 1000;              //默认最长录制时间为10s
-        min_duration = 1500;              //默认最短录制时间为1.5s
+        duration = 18 * 1000;              //默认最长录制时间为18s
+        min_duration = 1000;              //默认最短录制时间为1.5s
 
         center_X = (button_size + outside_add_size * 2) / 2;
         center_Y = (button_size + outside_add_size * 2) / 2;
@@ -161,7 +161,7 @@ public class CaptureButton extends View {
 
                 //判断按钮状态是否为可录制状态
                 if ((button_state == BUTTON_STATE_ONLY_RECORDER || button_state == BUTTON_STATE_BOTH))
-                    postDelayed(longPressRunnable, 500);    //同时延长500启动长按后处理的逻辑Runnable
+                    postDelayed(longPressRunnable, 300);    //同时延长300启动长按后处理的逻辑Runnable
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (captureListener != null
@@ -319,7 +319,7 @@ public class CaptureButton extends View {
     private class LongPressRunnable implements Runnable {
         @Override
         public void run() {
-            state = STATE_LONG_PRESS;   //如果按下后经过500毫秒则会修改当前状态为长按状态
+            state = STATE_LONG_PRESS;   //如果按下后经过300毫秒则会修改当前状态为长按状态
             //没有录制权限
             if (CheckPermission.getRecordState() != CheckPermission.STATE_SUCCESS) {
                 state = STATE_IDLE;

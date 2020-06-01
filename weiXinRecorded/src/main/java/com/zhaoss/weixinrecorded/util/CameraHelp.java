@@ -192,9 +192,7 @@ public class CameraHelp {
     }
 
     private void focusOnTouch(int x, int y) {
-
         Rect rect = new Rect(x - 100, y - 100, x + 100, y + 100);
-
         int left = rect.left * 2000 / previewSize[0] - 1000;
         int top = rect.top * 2000 / previewSize[1] - 1000;
         int right = rect.right * 2000 / previewSize[0] - 1000;

@@ -191,6 +191,7 @@ import com.yanlong.im.view.face.ShowBigFaceActivity;
 import com.yanlong.im.view.face.bean.FaceBean;
 import com.yanlong.im.view.function.ChatExtendMenuView;
 import com.yanlong.im.view.function.FunctionItemModel;
+import com.zhaoss.weixinrecorded.activity.CameraActivity;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 
@@ -1982,7 +1983,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (ViewUtils.isFastDoubleClick()) {
                         return;
                     }
-                    Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+//                    Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+//                    startActivityForResult(intent, VIDEO_RP);
+                    Intent intent = new Intent(ChatActivity.this, CameraActivity.class);
                     startActivityForResult(intent, VIDEO_RP);
                 }
             }
