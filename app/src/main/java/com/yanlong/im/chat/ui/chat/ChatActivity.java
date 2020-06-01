@@ -592,7 +592,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if (changeSet.isDeleted()) {//对象被删除，退出聊天界面
                 finish();
             } else {//字段被修改
-                refreshUI(true);
+                refreshUI();
             }
         }
     };
@@ -602,7 +602,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if (changeSet.isDeleted()) {//对象被删除，退出聊天界面
                 finish();
             } else {//字段被修改
-                refreshUI(true);
+                refreshUI();
             }
         }
     };
@@ -610,51 +610,53 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     /***
      * 获取会话信息
      */
-    private void refreshUI(boolean needRefresh) {
-        String title = "";
-        if (isGroup()) {
-            if (mViewModel.groupInfo != null) {
-                contactIntimately = mViewModel.groupInfo.getContactIntimately();
-                master = mViewModel.groupInfo.getMaster();
-                if (!TextUtils.isEmpty(mViewModel.groupInfo.getName())) {
-                    title = mViewModel.groupInfo.getName();
-                } else {
-                    title = "群聊";
-                }
-
-                //显示成员数量，数量为0则不显示
-                int memberCount = mViewModel.groupInfo.getUsers() == null ? 0 : mViewModel.groupInfo.getUsers().size();
-                actionbar.setNumber(memberCount, memberCount > 0);
-                //如果自己不在群里面
-                boolean isExit = false;
-                for (MemberUser uifo : mViewModel.groupInfo.getUsers()) {
-                    if (uifo.getUid() == UserAction.getMyId().longValue()) {
-                        isExit = true;
-                    }
-                }
-                boolean forbid = mViewModel.groupInfo.getStat() == ChatEnum.EGroupStatus.BANED;
-                setBanView(!isExit, forbid);
-                //6.15 设置右上角点击
-                taskGroupConf();
-
-            }
-        } else {
-            if (mViewModel.userInfo != null) {
-                title = mViewModel.userInfo.getName4Show();
-                if (mViewModel.userInfo.getLastonline() > 0) {
-                    // 客服不显示时间状态
-                    if (onlineState && !UserUtil.isSystemUser(mViewModel.toUId) && mViewModel.userInfo.getuType() != ChatEnum.EUserType.ASSISTANT) {
-                        actionbar.setTitleMore(TimeToString.getTimeOnline(mViewModel.userInfo.getLastonline(), mViewModel.userInfo.getActiveType(), true), true);
+    private void refreshUI() {
+        try {
+            String title = "";
+            if (isGroup()) {
+                if (mViewModel.groupInfo != null) {
+                    contactIntimately = mViewModel.groupInfo.getContactIntimately();
+                    master = mViewModel.groupInfo.getMaster();
+                    if (!TextUtils.isEmpty(mViewModel.groupInfo.getName())) {
+                        title = mViewModel.groupInfo.getName();
                     } else {
-                        actionbar.setTitleMore(TimeToString.getTimeOnline(mViewModel.userInfo.getLastonline(), mViewModel.userInfo.getActiveType(), true), false);
+                        title = "群聊";
+                    }
+
+                    //显示成员数量，数量为0则不显示
+                    int memberCount = mViewModel.groupInfo.getUsers() == null ? 0 : mViewModel.groupInfo.getUsers().size();
+                    actionbar.setNumber(memberCount, memberCount > 0);
+                    //如果自己不在群里面
+                    boolean isExit = false;
+                    for (MemberUser uifo : mViewModel.groupInfo.getUsers()) {
+                        if (uifo.getUid() == UserAction.getMyId().longValue()) {
+                            isExit = true;
+                        }
+                    }
+                    boolean forbid = mViewModel.groupInfo.getStat() == ChatEnum.EGroupStatus.BANED;
+                    setBanView(!isExit, forbid);
+                    //6.15 设置右上角点击
+                    taskGroupConf();
+
+                }
+            } else {
+                if (mViewModel.userInfo != null) {
+                    title = mViewModel.userInfo.getName4Show();
+                    if (mViewModel.userInfo.getLastonline() > 0) {
+                        // 客服不显示时间状态
+                        if (onlineState && !UserUtil.isSystemUser(mViewModel.toUId) && mViewModel.userInfo.getuType() != ChatEnum.EUserType.ASSISTANT) {
+                            actionbar.setTitleMore(TimeToString.getTimeOnline(mViewModel.userInfo.getLastonline(), mViewModel.userInfo.getActiveType(), true), true);
+                        } else {
+                            actionbar.setTitleMore(TimeToString.getTimeOnline(mViewModel.userInfo.getLastonline(), mViewModel.userInfo.getActiveType(), true), false);
+                        }
                     }
                 }
             }
-        }
-        actionbar.setChatTitle(title);
-        setDisturb();
-        initSurvivaltimeState();
-        viewExtendFunction.bindDate(getItemModels());
+            actionbar.setChatTitle(title);
+            setDisturb();
+            initSurvivaltimeState();
+            viewExtendFunction.bindDate(getItemModels());
+        }catch (Exception e){}
     }
 
     private String originalText = "";
@@ -670,7 +672,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             MessageManager.getInstance().setSessionSolo(toUId);
         }
         //刷新群资料
-        refreshUI(false);
+        refreshUI();
         clickAble = true;
         //更新阅后即焚状态
         initSurvivaltimeState();
@@ -1090,16 +1092,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         switch (msg.getMsgType()) {
             case DESTROY_GROUP:
-                refreshUI(true);
+                refreshUI();
                 break;
             case REMOVE_GROUP_MEMBER://退出群
-                refreshUI(true);
+                refreshUI();
                 break;
             case ACCEPT_BE_GROUP://邀请进群刷新
-                refreshUI(true);
+                refreshUI();
                 break;
             case CHANGE_GROUP_META:// 修改群信息
-                refreshUI(true);
+                refreshUI();
                 break;
         }
 
@@ -1203,7 +1205,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             }
         }
         toUId = toUId == 0 ? null : toUId;
-        refreshUI(false);
+        refreshUI();
         if (!TextUtils.isEmpty(mViewModel.toGid)) {
             taskGroupInfo();
         } else {
@@ -3029,7 +3031,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (event.isNeedLoad()) {
             taskGroupInfo();
         } else {
-            refreshUI(true);
+            refreshUI();
         }
     }
 
@@ -3062,7 +3064,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventSwitchDisturb(EventSwitchDisturb event) {
-        refreshUI(true);
+        refreshUI();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -4695,7 +4697,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (mViewModel.groupInfo == null)
                     mViewModel.loadData(groupInfoChangeListener, userInfoChangeListener);
-                refreshUI(true);
+                refreshUI();
             }
 
             @Override
@@ -4725,7 +4727,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             UserInfo userInfo = userInfoList.get(0);
                             userInfo.setuType(ChatEnum.EUserType.FRIEND);//TODO 记得设置类型为好友
                             userDao.updateUserinfo(userInfo);//本地更新对方数据
-                            refreshUI(true);
+                            refreshUI();
                         }
                     }
                 }
@@ -6054,7 +6056,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (replayMsg != null) {
             Realm realm = DaoUtil.open();
             try {
-                //实时从数据库查，再更改，否则影响阅后即焚字段
+//                //实时从数据库查，再更改，否则影响阅后即焚字段
                 MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", replayMsg.getMsg_id()).findFirst();
                 realm.beginTransaction();
                 msgAllBean.setIsReplying(0);
