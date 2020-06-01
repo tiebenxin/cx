@@ -2,8 +2,12 @@ package com.yanlong.im.chat.ui.search;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,6 +60,30 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
 //        }
 //    }
 
+    /**
+     * 搜索关键字标绿色
+     *
+     * @param text
+     * @return
+     */
+    private SpannableString getSpannableString(String title, String text) {
+        int index = text.indexOf(viewModel.key.getValue());
+        SpannableString sp = null;
+        if (TextUtils.isEmpty(title)) {
+            sp = new SpannableString(text);
+        } else {
+            sp = new SpannableString(title + text);
+        }
+        if (index >= 0 && index < text.length()) {
+            if (!TextUtils.isEmpty(title)) {
+                index = index + title.length();
+            }
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.green_500));
+            sp.setSpan(protocolColorSpan, index, index + viewModel.key.getValue().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        return sp;
+    }
+
     //自动生成控件事件
     @Override
     public void onBindViewHolder(final RCViewHolder holder, int position) {
@@ -64,16 +92,17 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
             List<String> head = new ArrayList<String>();
             head.add(userInfo.getHead());
             holder.imgHead.setList(head);
-            holder.txtName.setText(userInfo.getName4Show());
+            holder.txtName.setText(getSpannableString(null, userInfo.getName4Show()));
+            /*****好友 昵称/微信号包含****************************************************************************/
             if (userInfo.getName4Show().contains(viewModel.key.getValue())) {
                 //1.名称包含关键字，则只显示名称，隐藏描述
                 holder.vInfoPanel.setVisibility(View.GONE);
             } else {//2.名称不包含关键字，则说明昵称/微信号包含，显示第二行
                 holder.vInfoPanel.setVisibility(View.VISIBLE);
                 if (userInfo.getName().contains(viewModel.key.getValue())) {
-                    holder.txtInfo.setText("昵称：" + userInfo.getName());
+                    holder.txtInfo.setText(getSpannableString("昵称：", userInfo.getName()));
                 } else {
-                    holder.txtInfo.setText("常信号：" + userInfo.getImid());
+                    holder.txtInfo.setText(getSpannableString("常信号：", userInfo.getImid()));
                 }
             }
             holder.viewIt.setOnClickListener(new View.OnClickListener() {
@@ -85,7 +114,8 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
                 }
             });
 
-        } else if (position < (viewModel.searchFriends.size() + viewModel.getSearchGroupsSize())) {//群
+        } else if (position < (viewModel.searchFriends.size() + viewModel.getSearchGroupsSize())) {
+            /*****群 昵称/成员包含****************************************************************************/
             holder.vInfoPanel.setVisibility(View.VISIBLE);
             Group group = viewModel.searchGroups.get(position - viewModel.searchFriends.size());
             int i = group.getUsers().size();
@@ -93,7 +123,7 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
             //头像地址
             List<String> headList = new ArrayList<>();
             String groupName = "";
-            int headMaxPosition = Math.min(group.getUsers().size(),14);
+            int headMaxPosition = Math.min(group.getUsers().size(), 14);
             for (int j = 0; j < headMaxPosition; j++) {
                 MemberUser userInfo = group.getUsers().get(j);
                 if (j < i) {
@@ -110,8 +140,8 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
                 groupName = group.getName();
             }
             holder.imgHead.setList(headList);
-            holder.txtName.setText(groupName);
-            if (group.getName().contains(viewModel.key.getValue())) {
+            holder.txtName.setText(getSpannableString(null, groupName));
+            if (groupName.contains(viewModel.key.getValue())) {
                 //3.群名称包含关键字，则只显示名称，隐藏描述
                 holder.vInfoPanel.setVisibility(View.GONE);
             } else {//4.群名称不包含关键字，则说明群成员包含，显示第二行
@@ -126,7 +156,7 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
                         break;
                     }
                 }
-                holder.txtInfo.setText("包含：" + memeberName);
+                holder.txtInfo.setText(getSpannableString("包含：", memeberName));
             }
             holder.viewIt.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -136,17 +166,18 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
                     );
                 }
             });
-        } else {//聊天记录
+        } else {
+            /*****聊天记录 内容包含****************************************************************************/
             holder.vInfoPanel.setVisibility(View.VISIBLE);
-            int p=position - viewModel.searchFriends.size() - viewModel.getSearchGroupsSize();
-            SessionDetail sessionDetail=viewModel.searchSessions.get(p);
+            int p = position - viewModel.searchFriends.size() - viewModel.getSearchGroupsSize();
+            SessionDetail sessionDetail = viewModel.searchSessions.get(p);
 
             //头像地址
             List<String> headList = new ArrayList<>();
             if (StringUtil.isNotNull(sessionDetail.getAvatar())) {
                 headList.add(sessionDetail.getAvatar());
             } else {
-                List<String > avatarList = null;
+                List<String> avatarList = null;
                 String avatarListString = sessionDetail.getAvatarList();
                 if (avatarListString != null) {
                     avatarList = Arrays.asList(avatarListString.split(","));
@@ -157,12 +188,11 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
                 }
                 headList.addAll(avatarList);
             }
-
             holder.imgHead.setList(headList);
             holder.txtName.setText(sessionDetail.getName());
-            if(viewModel.sessionSearch.containsKey(sessionDetail.getSid())){
+            if (viewModel.sessionSearch.containsKey(sessionDetail.getSid())) {
                 MsgSearchViewModel.SessionSearch sessionSearch = viewModel.sessionSearch.get(sessionDetail.getSid());
-                holder.txtInfo.setText(sessionSearch.getCount()+"条相关的聊天记录");
+                holder.txtInfo.setText(sessionSearch.getCount() + "条相关的聊天记录");
                 holder.viewIt.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -173,7 +203,7 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
                         );
                     }
                 });
-            }else{
+            } else {
                 holder.txtInfo.setText("0条相关的聊天记录");
                 holder.viewIt.setOnClickListener(null);
             }

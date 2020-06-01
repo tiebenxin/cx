@@ -2,6 +2,7 @@ package com.yanlong.im.data.local;
 
 import android.text.TextUtils;
 
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
@@ -81,6 +82,7 @@ public class MsgSearchLocalDataSource {
         if(TextUtils.isEmpty(gid)){
             return realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("from_uid",uid).or().equalTo("to_uid",uid).endGroup()
+                    .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
                     .like("chat.msg", searchKey).or()//文本聊天
                     .like("atMessage.msg", searchKey).or()//@消息
                     .like("msgNotice.note", searchKey).or()//通知消息
@@ -95,6 +97,8 @@ public class MsgSearchLocalDataSource {
         }else{
             return realm.where(MsgAllBean.class)
                     .equalTo("gid",gid)
+                    .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
+                    .in("msg_type", new Integer[]{1, 2, 8, 20})
                     .like("chat.msg", searchKey).or()//文本聊天
                     .like("atMessage.msg", searchKey).or()//@消息
                     .like("msgNotice.note", searchKey).or()//通知消息
