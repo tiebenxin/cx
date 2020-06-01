@@ -34,6 +34,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventCollectImgOrVideo;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.MyDiskCache;
@@ -92,6 +93,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     private boolean dontShake = false;//视频播放完成后禁止抖动(暂时处理)
     private boolean pressHOME = false;//监测是否按了HOME键
     private int from = 0;//默认0 来自收藏详情1
+    private boolean canCollect = false;//是否显示收藏项
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +109,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         msgAllBean = (String) getIntent().getExtras().get("videomsg");
         msg_id = getIntent().getExtras().getString("msg_id");
         bgUrl = getIntent().getExtras().getString("bg_url");
+        canCollect = getIntent().getExtras().getBoolean("can_collect");
         if(getIntent().getExtras().getInt("from")!=0){
             from = getIntent().getExtras().getInt("from");
         }
@@ -200,6 +203,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         textureView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+
                 showDownLoadDialog();
                 return false;
             }
@@ -543,18 +547,42 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
      * 下载图片提示
      */
     private String[] strings = new String[]{"发送给朋友", "保存视频", "取消"};
+    private String[] newStrings = {"发送给朋友", "收藏","保存视频", "取消"};
+
 
     private void showDownLoadDialog() {
-        final PopupSelectView popupSelectView = new PopupSelectView(this, strings);
+        final PopupSelectView popupSelectView;
+        if(canCollect){
+            popupSelectView = new PopupSelectView(VideoPlayActivity.this, newStrings);
+        }else {
+            popupSelectView = new PopupSelectView(VideoPlayActivity.this, strings);
+        }
         popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
             @Override
             public void onItem(String string, int postsion) {
-                if (postsion == 0) {
-                    onRetransmission(msgAllBean);
-                } else if (postsion == 1) {
-                    insertVideoToMediaStore(getContext(), mPath, System.currentTimeMillis(), mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight(), mMediaPlayer.getDuration());
-                    ToastUtil.show(VideoPlayActivity.this, "保存成功");
-                } else {
+                if(canCollect){
+                    if (postsion == 0) {
+                        onRetransmission(msgAllBean);
+                    } else if (postsion == 1) {
+                        EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
+                        MsgAllBean msgAllBeanForm = new Gson().fromJson(msgAllBean, MsgAllBean.class);
+                        eventCollectImgOrVideo.setMsgId(msgAllBeanForm.getMsg_id());
+                        EventBus.getDefault().post(eventCollectImgOrVideo);
+                    } else if (postsion == 2) {
+                        insertVideoToMediaStore(getContext(), mPath, System.currentTimeMillis(), mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight(), mMediaPlayer.getDuration());
+                        ToastUtil.show(VideoPlayActivity.this, "保存成功");
+                    } else {
+
+                    }
+                }else {
+                    if (postsion == 0) {
+                        onRetransmission(msgAllBean);
+                    } else if (postsion == 1) {
+                        insertVideoToMediaStore(getContext(), mPath, System.currentTimeMillis(), mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight(), mMediaPlayer.getDuration());
+                        ToastUtil.show(VideoPlayActivity.this, "保存成功");
+                    } else {
+
+                    }
 
                 }
                 popupSelectView.dismiss();
