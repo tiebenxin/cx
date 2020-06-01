@@ -1,6 +1,5 @@
 package com.yanlong.im;
 
-import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.ViewModel;
 
 import com.yanlong.im.chat.ChatEnum;
@@ -74,7 +73,7 @@ public class FriendViewModel extends ViewModel {
         return repository.getRemindCount(type);
     }
 
-    public void onDestory(LifecycleOwner owner) {
+    public void onDestory() {
         repository.onDestory();
     }
 
