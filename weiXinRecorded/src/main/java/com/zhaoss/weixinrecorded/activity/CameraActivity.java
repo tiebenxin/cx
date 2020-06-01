@@ -2,41 +2,38 @@ package com.zhaoss.weixinrecorded.activity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.support.annotation.IntDef;
+import android.view.Surface;
 import android.view.SurfaceHolder;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gl.CameraGLView;
-import com.lansosdk.videoeditor.LanSoEditor;
 import com.lansosdk.videoeditor.LanSongFileUtil;
-import com.lansosdk.videoeditor.VideoEditor;
-import com.lansosdk.videoeditor.onVideoEditorProgressListener;
 import com.libyuv.LibyuvUtil;
-import com.muxer.MediaEncoder;
-import com.muxer.MediaVideoEncoder;
-import com.muxer.RecordHelper;
+import com.listener.IRecordListener;
+import com.widgt.RecordButtonView;
 import com.zhaoss.weixinrecorded.CanStampEventWX;
 import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.util.CameraHelp;
-import com.zhaoss.weixinrecorded.util.MyVideoEditor;
-import com.zhaoss.weixinrecorded.util.RecordUtil;
+import com.zhaoss.weixinrecorded.util.CameraUtil;
 import com.zhaoss.weixinrecorded.util.RxJavaUtil;
 import com.zhaoss.weixinrecorded.util.ViewUtils;
-import com.zhaoss.weixinrecorded.view.LineProgressView;
-import com.zhaoss.weixinrecorded.view.RecordView;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 
 /**
  * @version V1.0
@@ -47,9 +44,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @description 小视频、拍照
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
-public class CameraActivity extends BaseActivity {
+public class CameraActivity extends BaseActivity implements TextureView.SurfaceTextureListener {
 
-    private final String TAG =getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
     public static final String INTENT_PATH = "intent_path";
     public static final String INTENT_VIDEO_WIDTH = "intent_width";
     public static final String INTENT_PATH_HEIGHT = "intent_height";
@@ -69,37 +66,41 @@ public class CameraActivity extends BaseActivity {
     private final int TYPE_EDIT = 2;// 编辑
     private final int TYPE_PREVIEW = 3;// 预览
 
-    private CameraGLView surfaceView;
-    private RecordView recordView;
-    private ImageView iv_delete;
-    private ImageView iv_next;
-    private RelativeLayout layout_change_camera, layout_flash_video;
-    private LineProgressView lineProgressView;
-    private ImageView iv_delete_back;
-    private TextView iv_recorded_edit;
-    private TextView editorTextView;
-    private TextView tv_hint;
-    private View view_back;
+    private TextureView surfaceView;
+    private RecordButtonView recordView;
+    private RelativeLayout viewSwitchCamera, viewFlash;
 
-    private ArrayList<String> mSegmentList = new ArrayList<>();//分段视频地址
-    private ArrayList<String> mAacList = new ArrayList<>();//分段音频地址
-    private ArrayList<Long> mTimeList = new ArrayList<>();//分段录制时间
 
-    private AtomicBoolean isRecordVideo = new AtomicBoolean(false);//是否在录制视频
-    private AtomicBoolean isShotPhoto = new AtomicBoolean(false); //拍照
     private CameraHelp mCameraHelp = new CameraHelp();
     private SurfaceHolder mSurfaceHolder;
-    private MyVideoEditor mVideoEditor = new MyVideoEditor();
     private boolean mPhotoFlg = false;// 小于1秒进入拍照判断
 
-    private int mExecuteCount;//总编译次数
-    private float mExecuteProgress;//编译进度
-    private long mLastClickTime;
-    private RecordUtil.OnPreviewFrameListener mOnPreviewFrameListener;
-    private RecordHelper recordHelper;
     private String mp4FilePath;
     private long mRecordTime;
     private long mVideoDuration;
+    private MediaRecorder mMediaRecorder;
+    private int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+
+
+    //录制出错的回调
+    private MediaRecorder.OnErrorListener onErrorListener = new MediaRecorder.OnErrorListener() {
+        @Override
+        public void onError(MediaRecorder mr, int what, int extra) {
+            try {
+                if (mMediaRecorder != null) {
+                    mMediaRecorder.reset();
+                }
+            } catch (Exception e) {
+                Toast.makeText(CameraActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
+    private Camera mCamera;
+    private int mRotationDegree;
+    @RecorderStatus
+    private int mStatus = RecorderStatus.RELEASED;//录制状态
+    private int mFps;
+    private SurfaceTexture mSurfaceTexture;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,12 +108,9 @@ public class CameraActivity extends BaseActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_camera);
 
-        LanSoEditor.initSDK(this, null);
-        LanSongFileUtil.setFileDir(DEFAULT_DIR + System.currentTimeMillis() + "/");
-        LibyuvUtil.loadLibrary();
-
+        mp4FilePath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".mp4";
         initUI();
-        initData();
+        initListener();
         initMediaRecorder();
 
         EventBus.getDefault().post(new CanStampEventWX(false));
@@ -121,15 +119,8 @@ public class CameraActivity extends BaseActivity {
     private void initUI() {
         surfaceView = findViewById(R.id.surfaceView);
         recordView = findViewById(R.id.recordView);
-        iv_delete = findViewById(R.id.iv_delete);
-        iv_next = findViewById(R.id.iv_next);
-        iv_recorded_edit = findViewById(R.id.iv_recorded_edit);
-        layout_change_camera = findViewById(R.id.layout_camera_mode);
-        lineProgressView = findViewById(R.id.lineProgressView);
-        tv_hint = findViewById(R.id.tv_hint);
-        layout_flash_video = findViewById(R.id.layout_flash_video);
-        iv_delete_back = findViewById(R.id.iv_delete_back);
-        view_back = findViewById(R.id.layout_back);
+        viewSwitchCamera = findViewById(R.id.layout_camera_mode);
+        viewFlash = findViewById(R.id.layout_flash_video);
 
         surfaceView.post(new Runnable() {
             @Override
@@ -147,7 +138,6 @@ public class CameraActivity extends BaseActivity {
                     layoutParams.height = height;
                 }
                 surfaceView.setLayoutParams(layoutParams);
-                surfaceView.setVideoSize(layoutParams.width, layoutParams.height);
             }
         });
     }
@@ -155,77 +145,13 @@ public class CameraActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mPhotoFlg = false;
-        surfaceView.onResume();
     }
 
     @Override
     protected void onPause() {
-        if (recordHelper != null) {
-            recordHelper.stopRecording();
-        }
-        surfaceView.onPause();
         super.onPause();
     }
 
-    private void initMediaRecorder() {
-        mCameraHelp.setPreviewCallback(new Camera.PreviewCallback() {
-            @Override
-            public void onPreviewFrame(byte[] data, Camera camera) {
-                if (isShotPhoto.get()) {
-                    mPhotoFlg = true;
-                    isShotPhoto.set(false);
-                    shotPhoto(data);
-                } else {
-                    if (isRecordVideo.get() && mOnPreviewFrameListener != null) {
-                        mOnPreviewFrameListener.onPreviewFrame(data);
-                    }
-                }
-            }
-        });
-
-        surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
-            @Override
-            public void surfaceCreated(SurfaceHolder holder) {
-                mSurfaceHolder = holder;
-                mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_BACK, mSurfaceHolder);
-            }
-
-            @Override
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-            }
-
-            @Override
-            public void surfaceDestroyed(SurfaceHolder holder) {
-                mCameraHelp.release();
-            }
-        });
-
-        surfaceView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCameraHelp.callFocusMode();
-            }
-        });
-        view_back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                finishVideo(2);
-                finish();
-            }
-        });
-        mVideoEditor.setOnProgessListener(new onVideoEditorProgressListener() {
-            @Override
-            public void onProgress(VideoEditor v, int percent) {
-                if (percent == 100) {
-                    mExecuteProgress++;
-                }
-                int pro = (int) (mExecuteProgress / mExecuteCount * 100);
-                editorTextView.setText("视频编辑中" + pro + "%");
-            }
-        });
-    }
 
     private void shotPhoto(final byte[] nv21) {
         RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
@@ -280,87 +206,66 @@ public class CameraActivity extends BaseActivity {
         });
     }
 
-    private void initData() {
-        lineProgressView.setMinProgress(MIN_VIDEO_TIME / MAX_VIDEO_TIME);
-        recordView.setOnGestureListener(new RecordView.OnGestureListener() {
+    private void initListener() {
+        recordView.setListener(new IRecordListener() {
             @Override
-            public void onDown() {
-                mLastClickTime = System.currentTimeMillis();
-                //长按录像
-                isRecordVideo.set(true);
-                view_back.setVisibility(View.INVISIBLE);
-                mp4FilePath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".mp4";
-                recordHelper = new RecordHelper();
-                recordHelper.startRecording(mp4FilePath, mCameraHelp.getWidth(), mCameraHelp.getHeight(), mMediaEncoderListener);
-                mRecordTime = System.currentTimeMillis();
-                goneRecordLayout();
-                runLoopPro();
+            public void takePictures() {
 
             }
 
             @Override
-            public void onUp() {
-                if (android.os.Build.BRAND.toUpperCase().equals("MEIZU")) {
-                    if ((System.currentTimeMillis() - mLastClickTime) < MIN_VIDEO_TIME_MEIZU) {
-                        isShotPhoto.set(true);
-                    }
-                } else {
-                    if ((System.currentTimeMillis() - mLastClickTime) < MIN_VIDEO_TIME) {
-                        isShotPhoto.set(true);
-                    }
-                }
-                if (isRecordVideo.get()) {
-                    isRecordVideo.set(false);
-                    upEvent();
-                }
-                if (recordHelper != null) {
-                    recordHelper.stopRecording();
-                }
+            public void recordShort(long time) {
+
             }
 
             @Override
-            public void onClick() {
-                if (mSegmentList.size() == 0) {
-                    isShotPhoto.set(true);
-                }
-            }
-        });
+            public void recordStart() {
 
-        iv_next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ViewUtils.isFastDoubleClick2()) {
-                    return;
-                }
-                if (!isFinishing()) {
-                    editorTextView = showProgressDialog();
-                    mExecuteCount = mSegmentList.size() + 4;
-                    finishVideo(TYPE_PREVIEW);
-                }
             }
-        });
-        iv_delete.setOnClickListener(new View.OnClickListener() {
+
             @Override
-            public void onClick(View v) {
+            public void recordEnd(long time) {
+
+            }
+
+            @Override
+            public void recordZoom(float zoom) {
+
+            }
+
+            @Override
+            public void recordError() {
+
+            }
+
+            @Override
+            public void onReturn() {
                 finish();
             }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onSure() {
+
+            }
         });
-        layout_flash_video.setOnClickListener(new View.OnClickListener() {
+
+
+        viewFlash.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
                 mCameraHelp.changeFlash();
-                if (mCameraHelp.isFlashOpen()) {
-//                    layout_flash_video.setImageResource(R.mipmap.video_flash_open);
-                } else {
-//                    layout_flash_video.setImageResource(R.mipmap.video_flash_close);
-                }
             }
         });
 
-        layout_change_camera.setOnClickListener(new View.OnClickListener() {
+        viewSwitchCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (ViewUtils.isFastDoubleClick()) {
@@ -373,92 +278,14 @@ public class CameraActivity extends BaseActivity {
                         mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_BACK, mSurfaceHolder);
                     }
                 }
-//                if (mRecordUtil != null) {
-//                    if (mCameraHelp.getCameraId() == Camera.CameraInfo.CAMERA_FACING_BACK) {
-//                        mRecordUtil.setRotation(90);
-//                    } else {
-//                        mRecordUtil.setRotation(270);
-//                    }
-//                }
             }
         });
     }
 
-    public void finishVideo(final int type) {
-        switch (type) {
-            case TYPE_EDIT:
-                Intent intent = new Intent(mContext, EditVideoActivity.class);
-                intent.putExtra(INTENT_PATH, mp4FilePath);
-                startActivityForResult(intent, REQUEST_CODE_KEY);
-                break;
-            case TYPE_PREVIEW:
-                Intent intentPre = new Intent(mContext, VideoPreviewActivity.class);
-                intentPre.putExtra(INTENT_PATH, mp4FilePath);
-                startActivityForResult(intentPre, REQUEST_CODE_PREVIEW);
-                break;
-        }
-
-    }
-
-    private void goneRecordLayout() {
-        iv_delete.setVisibility(View.INVISIBLE);
-        iv_next.setVisibility(View.INVISIBLE);
-        iv_recorded_edit.setVisibility(View.GONE);
-    }
-
-
-    private void upEvent() {
-        if (recordHelper != null) {
-            recordHelper.stopRecording();
-            recordHelper = null;
-        }
-        initRecorderState(false);
-    }
-
-    /**
-     * 初始化视频拍摄状态
-     */
-    private void initRecorderState(boolean isShow) {
-        if (isShow) {
-            tv_hint.setVisibility(View.VISIBLE);
-            recordView.setVisibility(View.VISIBLE);
-        } else {
-            tv_hint.setVisibility(View.GONE);
-        }
-        view_back.setVisibility(View.VISIBLE);
-        if (lineProgressView.getProgress() * MAX_VIDEO_TIME < MIN_VIDEO_TIME) {
-            iv_recorded_edit.setVisibility(View.GONE);
-            iv_delete_back.setVisibility(View.VISIBLE);
-        } else {
-            recordView.setVisibility(View.GONE);
-            iv_recorded_edit.setVisibility(View.GONE);
-            iv_delete_back.setVisibility(View.GONE);
-        }
-    }
-
-    /**
-     * 清除录制信息
-     */
-    private void cleanRecord() {
-        recordView.initState();
-        lineProgressView.cleanSplit();
-        mSegmentList.clear();
-        mAacList.clear();
-        mTimeList.clear();
-
-        mExecuteCount = 0;
-        mExecuteProgress = 0;
-
-        iv_delete.setVisibility(View.INVISIBLE);
-        iv_next.setVisibility(View.INVISIBLE);
-        iv_recorded_edit.setVisibility(View.INVISIBLE);
-    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        cleanRecord();
         if (mCameraHelp != null) {
             mCameraHelp.release();
         }
@@ -486,8 +313,7 @@ public class CameraActivity extends BaseActivity {
                     setResult(RESULT_OK, intent);
                     finish();
                 } else {
-                    cleanRecord();
-                    initRecorderState(true);
+                    releaseCamera();
                 }
             } else if (requestCode == REQUEST_CODE_PREVIEW) {
                 Intent intentMas = new Intent();
@@ -500,76 +326,198 @@ public class CameraActivity extends BaseActivity {
                 finish();
             }
         } else {
-            cleanRecord();
-            initRecorderState(true);
+            releaseCamera();
         }
     }
 
-    private void runLoopPro() {
+    @Override
+    public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int i, int i1) {
+        mSurfaceTexture = surfaceTexture;
+        initCamera();
+    }
 
-        RxJavaUtil.loop(20, new RxJavaUtil.OnRxLoopListener() {
-            @Override
-            public Boolean takeWhile() {
-//                return mRecordUtil != null && mRecordUtil.isRecording();
-                return false;
-            }
+    @Override
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int i, int i1) {
 
-            @Override
-            public void onExecute() {
-                long currentTime = System.currentTimeMillis();
-                mVideoDuration += currentTime - mRecordTime;
-                mRecordTime = currentTime;
-                long countTime = mVideoDuration;
-                for (long time : mTimeList) {
-                    countTime += time;
+    }
+
+    @Override
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
+        return false;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
+
+    }
+
+
+    /**
+     * 初始化相机
+     */
+    private void initCamera() {
+        if (mSurfaceTexture == null) return;
+        if (mCamera != null) {
+            releaseCamera();
+        }
+
+        mCamera = Camera.open(mCameraId);
+        if (mCamera == null) {
+            Toast.makeText(this, "没有可用相机", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            mCamera.setPreviewTexture(mSurfaceTexture);
+            mCamera.setPreviewCallback(new Camera.PreviewCallback() {
+                @Override
+                public void onPreviewFrame(byte[] bytes, Camera camera) {
+
                 }
-                if (countTime <= MAX_VIDEO_TIME) {
-                    lineProgressView.setProgress(countTime / MAX_VIDEO_TIME);
-                    recordView.updateProgress(countTime / MAX_VIDEO_TIME * 360);
-//                  tv_hint.setText(countTime/1000+"秒");
-                    tv_hint.setVisibility(View.GONE);
-                } else {
-                    upEvent();
-//                    iv_next.callOnClick();
-                }
-            }
-
-            @Override
-            public void onFinish() {
-                mSegmentList.add(mp4FilePath);
-                mTimeList.add(mVideoDuration);
-                initRecorderState(false);
-                if (!isShotPhoto.get()) {
-                    // 录制完成后进入预览视频
-                    if (!mPhotoFlg) {
-                        iv_next.callOnClick();
-                    }
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                e.printStackTrace();
-                lineProgressView.removeSplit();
-            }
-        });
+            });
+            mRotationDegree = CameraUtil.getCameraDisplayOrientation(this, mCameraId);
+            mCamera.setDisplayOrientation(mRotationDegree);
+            setCameraParameter(mCamera);
+            mCamera.startPreview();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
-     * callback methods from encoder
+     * 释放相机
      */
-    private final MediaEncoder.MediaEncoderListener mMediaEncoderListener = new MediaEncoder.MediaEncoderListener() {
-        @Override
-        public void onPrepared(final MediaEncoder encoder) {
-            if (encoder instanceof MediaVideoEncoder)
-                surfaceView.setVideoEncoder((MediaVideoEncoder) encoder);
+    private void releaseCamera() {
+        if (mCamera != null) {
+            mCamera.setPreviewCallback(null);
+            mCamera.stopPreview();
+            mCamera.release();
+            mCamera = null;
+        }
+    }
+
+    /**
+     * 设置相机的参数
+     *
+     * @param camera
+     */
+    private void setCameraParameter(Camera camera) {
+        if (camera == null) return;
+        Camera.Parameters parameters = camera.getParameters();
+        //获取相机支持的>=20fps的帧率，用于设置给MediaRecorder
+        //因为获取的数值是*1000的，所以要除以1000
+        List<int[]> previewFpsRange = parameters.getSupportedPreviewFpsRange();
+        for (int[] ints : previewFpsRange) {
+            if (ints[0] >= 20000) {
+                mFps = ints[0] / 1000;
+                break;
+            }
+        }
+        //设置聚焦模式
+        List<String> focusModes = parameters.getSupportedFocusModes();
+        if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+        } else if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        } else {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
         }
 
-        @Override
-        public void onStopped(final MediaEncoder encoder) {
-            if (encoder instanceof MediaVideoEncoder)
-                surfaceView.setVideoEncoder(null);
+
+        //设置预览尺寸,因为预览的尺寸和最终是录制视频的尺寸无关，所以我们选取最大的数值
+        //通常最大的是手机的分辨率，这样可以让预览画面尽可能清晰并且尺寸不变形，前提是TextureView的尺寸是全屏或者接近全屏
+        List<Camera.Size> supportedPreviewSizes = parameters.getSupportedPreviewSizes();
+        parameters.setPreviewSize(supportedPreviewSizes.get(0).width, supportedPreviewSizes.get(0).height);
+        //缩短Recording启动时间
+        parameters.setRecordingHint(true);
+        //是否支持影像稳定能力，支持则开启
+        if (parameters.isVideoStabilizationSupported())
+            parameters.setVideoStabilization(true);
+        camera.setParameters(parameters);
+    }
+
+    /**
+     * 初始化MediaRecorder
+     */
+    private void initMediaRecorder() {
+        //如果是处于release状态，那么只有重新new一个进入initial状态
+        //否则其他状态都可以通过reset()方法回到initial状态
+        if (mStatus == RecorderStatus.RELEASED) {
+            mMediaRecorder = new MediaRecorder();
+        } else {
+            mMediaRecorder.reset();
         }
-    };
+        //设置选择角度，顺时针方向，因为默认是逆向90度的，这样图像就是正常显示了,这里设置的是观看保存后的视频的角度
+        mMediaRecorder.setCamera(mCamera);
+        mMediaRecorder.setOrientationHint(mRotationDegree);
+        mMediaRecorder.setOnErrorListener(onErrorListener);
+        //采集声音来源、mic是麦克风
+        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        //采集图像来源、
+        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+        //设置编码参数
+//        setProfile();
+        setConfig();
+
+        mMediaRecorder.setPreviewDisplay(new Surface(mSurfaceTexture));
+        //设置输出的文件路径
+        mMediaRecorder.setOutputFile(mp4FilePath);
+    }
+
+
+    /**
+     * 释放MediaRecorder
+     */
+    private void releaseMediaRecorder() {
+        if (mMediaRecorder != null) {
+            if (mStatus == RecorderStatus.RELEASED) return;
+            mMediaRecorder.setOnErrorListener(null);
+            mMediaRecorder.setPreviewDisplay(null);
+            mMediaRecorder.reset();
+            mMediaRecorder.release();
+            mMediaRecorder = null;
+            mStatus = RecorderStatus.RELEASED;
+            //停止计时
+//            chronometer.stop();
+        }
+    }
+
+    /**
+     * 自定义MediaRecorder的录制参数
+     */
+    private void setConfig() {
+        //设置封装格式 默认是MP4
+        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
+        //音频编码
+        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        //图像编码
+        mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+        //声道
+        mMediaRecorder.setAudioChannels(1);
+        //设置最大录像时间 单位：毫秒
+        mMediaRecorder.setMaxDuration(60 * 1000);
+        //设置最大录制的大小60M 单位，字节
+        mMediaRecorder.setMaxFileSize(60 * 1024 * 1024);
+        //再用44.1Hz采样率
+        mMediaRecorder.setAudioEncodingBitRate(22050);
+        //设置帧率，该帧率必须是硬件支持的，可以通过Camera.CameraParameter.getSupportedPreviewFpsRange()方法获取相机支持的帧率
+        mMediaRecorder.setVideoFrameRate(mFps);
+        //设置码率
+        mMediaRecorder.setVideoEncodingBitRate(500 * 1024 * 8);
+        //设置视频尺寸，通常搭配码率一起使用，可调整视频清晰度
+        mMediaRecorder.setVideoSize(1280, 720);
+    }
+
+
+    @IntDef({RecorderStatus.INITIAL, RecorderStatus.INITIALIZED, RecorderStatus.RECORDING, RecorderStatus.RELEASED})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface RecorderStatus {
+        int INITIAL = 0; // 默认
+        int INITIALIZED = 1; // 好友搜索界面
+        int RECORDING = 2; // 正在录制
+        int RELEASED = 3; // 释放
+    }
+
+
 }
 
