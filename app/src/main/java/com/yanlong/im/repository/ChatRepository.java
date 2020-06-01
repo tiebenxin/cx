@@ -2,8 +2,11 @@ package com.yanlong.im.repository;
 
 
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.data.local.ChatLocalDataSource;
 import com.yanlong.im.user.bean.UserInfo;
+
+import io.realm.RealmResults;
 
 /**
  * @createAuthor Raleigh.Luo
@@ -31,6 +34,22 @@ public class ChatRepository {
      */
     public UserInfo getFriend(Long uid){
         return localDataSource.getFriend(uid);
+    }
+
+    /**
+     * 异步获取好友发送的待焚消息
+     */
+    public RealmResults<MsgAllBean> getToAddBurnForDBMsgs(String toGid, Long toUid) {
+        return localDataSource.getToAddBurnForDBMsgsAsync(toGid, toUid);
+    }
+
+    /**
+     * 阅后即焚消息批量添加到数据库，异步事务
+     * @param toGid
+     * @param toUid
+     */
+    public void dealToBurnMsgs(String toGid, Long toUid){
+        localDataSource.dealToBurnMsgs(toGid,toUid);
     }
 
     /**

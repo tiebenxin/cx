@@ -69,7 +69,6 @@ public class MyAppLication extends MainApplication {
     //全局数据仓库
     public ApplicationRepository repository;
     public Handler handler = new Handler();
-    public int size=0;
 
     @Override
     public void onCreate() {
