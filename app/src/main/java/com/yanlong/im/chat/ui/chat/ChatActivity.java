@@ -2213,9 +2213,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private void initSurvivaltimeState() {
         if (isGroup()) {
-            survivaltime = mViewModel.groupInfo.getSurvivaltime();
+            if(mViewModel.groupInfo!=null)survivaltime = mViewModel.groupInfo.getSurvivaltime();
         } else {
-            survivaltime = mViewModel.userInfo.getDestroy();
+            if(mViewModel.userInfo!=null) survivaltime = mViewModel.userInfo.getDestroy();
         }
         util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
     }
