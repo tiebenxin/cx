@@ -470,7 +470,12 @@ public class MessageAdapter extends RecyclerView.Adapter {
             date = DateUtils.getSystemTime();
         }
         if (msg.getSurvival_time() > 0 && msg.getEndTime() == 0) {
-            msgDao.setMsgEndTime((date + msg.getSurvival_time() * 1000), date, msg.getMsg_id());
+            /**非退出即焚,后台操作
+             * 群聊发送：发送成功，立即加入阅后即焚
+             * 群聊接收：打开聊天界面，表示已读，立即加入阅后即焚
+             * 单聊发送：发送成功且对方已读，立即加入阅后即焚
+             * 单聊接收：打开聊天界面，表示已读，立即加入阅后即焚
+             */
             msg.setEndTime(date + msg.getSurvival_time() * 1000);
             msg.setStartTime(date);
         }

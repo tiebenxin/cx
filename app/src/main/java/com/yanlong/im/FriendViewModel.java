@@ -28,6 +28,9 @@ public class FriendViewModel extends ViewModel {
             return null;
         }
     }
+    public int getFriendSize(){
+        return getFriends() == null ? 0 : getFriends().size();
+    }
 
     /***
      * 清除红点的值

@@ -244,19 +244,19 @@ public class MsgDao {
      * 设置阅后即焚销毁时间 和开始时间
      */
     public void setMsgEndTime(long time, long startTime, String msgid) {
-        Realm realm = DaoUtil.open();
-        realm.beginTransaction();
-        MsgAllBean msgAllBean = realm.where(MsgAllBean.class)
-                .equalTo("msg_id", msgid).findFirst();
-        if (msgAllBean != null) {
-            msgAllBean.setRead(1);
-            msgAllBean.setReadTime(startTime);
-            msgAllBean.setEndTime(time);
-            msgAllBean.setStartTime(startTime);
-            realm.insertOrUpdate(msgAllBean);
-        }
-        realm.commitTransaction();
-        realm.close();
+//        Realm realm = DaoUtil.open();
+//        realm.beginTransaction();
+//        MsgAllBean msgAllBean = realm.where(MsgAllBean.class)
+//                .equalTo("msg_id", msgid).findFirst();
+//        if (msgAllBean != null) {
+//            msgAllBean.setRead(1);
+//            msgAllBean.setReadTime(startTime);
+//            msgAllBean.setEndTime(time);
+//            msgAllBean.setStartTime(startTime);
+//            realm.insertOrUpdate(msgAllBean);
+//        }
+//        realm.commitTransaction();
+//        realm.close();
     }
 
 
@@ -1902,7 +1902,8 @@ public class MsgDao {
     }
 
     /**
-     * 更新已读状态
+     * 更新已读状态和阅后即焚
+     * 单聊发送：发送成功且对方已读，立即加入阅后即焚
      */
     public void setUpdateRead(long uid, long timestamp) {
         Realm realm = DaoUtil.open();

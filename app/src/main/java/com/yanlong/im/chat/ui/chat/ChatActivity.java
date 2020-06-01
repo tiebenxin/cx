@@ -419,7 +419,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         //底部导航栏
 //        window.setNavigationBarColor(getResources().getColor(R.color.red_100));
 
-
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
@@ -429,54 +428,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         getOftenUseFace();
     }
 
-    /**
-     * 群聊、单聊
-     * 群聊、单聊接收：打开聊天界面，表示已读，立即加入阅后即焚
-     * 异步处理需要阅后即焚的消息,打开聊天界面表示已读，开启阅后即焚
-     */
-    private void dealToBurnMsg() {
-        Realm realm = DaoUtil.open();
-        DaoUtil.executeTransactionAsync(realm, new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                RealmResults<MsgAllBean> realmResults = null;
-                if (isGroup()) {//群聊
-                    realmResults = realm.where(MsgAllBean.class)
-                            .equalTo("gid", toGid)
-                            .greaterThan("survival_time", 0)
-                            .lessThanOrEqualTo("endTime", 0)
-                            .findAll();
-                } else {//单聊,好友发送的消息
-                    realmResults = realm.where(MsgAllBean.class)
-                            .notEqualTo("from_uid",UserAction.getMyInfo().getUid().longValue())
-                            .greaterThan("survival_time", 0)
-                            .lessThanOrEqualTo("endTime", 0)
-                            .findAll();
-                }
 
-                long now = System.currentTimeMillis();
-                if (realmResults != null) {
-                    for (MsgAllBean msg : realmResults) {
-                        if (msg.getEndTime() == 0) {
-                            msg.setStartTime(now);
-                            msg.setEndTime(now + (msg.getSurvival_time() * 1000));
-                        }
-                    }
-                }
-            }
-        }, new Realm.Transaction.OnSuccess() {
-            @Override
-            public void onSuccess() {
-                DaoUtil.close(realm);
-            }
-        }, new Realm.Transaction.OnError() {
-            @Override
-            public void onError(Throwable error) {
-                DaoUtil.close(realm);
-                dealToBurnMsg();
-            }
-        });
-    }
+
 
     private Runnable mPanelRecoverySoftInputModeRunnable = new Runnable() {
         @Override
@@ -1793,7 +1746,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             isLoadHistory = true;
         }
         onlineState = getIntent().getBooleanExtra(ONLINE_STATE, true);
-        dealToBurnMsg();
         mViewModel.init(toGid, toUId);
         mViewModel.loadData(groupInfoChangeListener, userInfoChangeListener);
     }
