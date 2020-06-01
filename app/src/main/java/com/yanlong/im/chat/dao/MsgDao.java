@@ -3,6 +3,7 @@ package com.yanlong.im.chat.dao;
 import android.text.TextUtils;
 
 import com.hm.cxpay.global.PayEnum;
+import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
@@ -1903,7 +1904,7 @@ public class MsgDao {
 
     /**
      * 更新已读状态和阅后即焚
-     * 单聊发送：发送成功且对方已读，立即加入阅后即焚
+     * 单聊发送：自己发送成功且对方已读，立即加入阅后即焚
      */
     public void setUpdateRead(long uid, long timestamp) {
         Realm realm = DaoUtil.open();
@@ -1916,7 +1917,7 @@ public class MsgDao {
             RealmResults<MsgAllBean> friendChatMessages = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                     .and()
-                    .beginGroup().equalTo("to_uid", uid).or().equalTo("from_uid", uid).endGroup()
+                    .beginGroup().equalTo("to_uid", uid).endGroup()
                     .and()
                     .beginGroup().notEqualTo("read", 1).endGroup()
                     .findAll();
@@ -1924,15 +1925,17 @@ public class MsgDao {
                 //每次修改后，friendChatMessages的size 会变化，直到全部修改完，friendChatMessages的size 为0
                 while (friendChatMessages.size() != 0) {
                     MsgAllBean msgAllBean = friendChatMessages.get(0);
-                    long endTime = timestamp + msgAllBean.getSurvival_time() * 1000;
+                    //防止手机上的时间与PC时间不一致情况，只处理手机比PC时间早的情况，即手机时间调慢了
+                    long startTime = Math.min(timestamp , DateUtils.getSystemTime());
+                    long endTime = startTime + msgAllBean.getSurvival_time() * 1000;
 
                     realm.beginTransaction();
-                    if (msgAllBean.getSurvival_time() > 0) {//有设置阅后即焚
+                    if (msgAllBean.getSurvival_time() > 0 ) {//有设置阅后即焚
 //                        if (endTime > DateUtils.getSystemTime()) {//还未到阅后即焚时间点，记录已读
                         msgAllBean.setRead(1);
                         msgAllBean.setReadTime(timestamp);
                         /**处理需要阅后即焚的消息***********************************/
-                        msgAllBean.setStartTime(timestamp);
+                        msgAllBean.setStartTime(startTime);
                         msgAllBean.setEndTime(endTime);
 //                        }
                     } else {//普通消息，记录已读状态和时间

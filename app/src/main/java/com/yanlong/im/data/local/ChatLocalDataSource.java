@@ -130,7 +130,7 @@ public class ChatLocalDataSource {
                 RealmResults<MsgAllBean> realmResults = getToAddBurnForDBMsgsRealmQuery(realm,toGid,toUid).findAll();
                 //对方发的消息，当前时间为起点
                 long now = DateUtils.getSystemTime();
-                if (realmResults != null) {
+                if (realmResults != null&&realmResults.size()>0) {
                     for (MsgAllBean msg : realmResults) {
                         if (msg.getEndTime() == 0) {
                             msg.setStartTime(now);
