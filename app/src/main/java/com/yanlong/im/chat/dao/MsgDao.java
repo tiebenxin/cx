@@ -1903,7 +1903,7 @@ public class MsgDao {
 
     /**
      * 更新已读状态和阅后即焚
-     * 单聊发送：发送成功且对方已读，立即加入阅后即焚
+     * 单聊发送：自己发送成功且对方已读，立即加入阅后即焚
      */
     public void setUpdateRead(long uid, long timestamp) {
         Realm realm = DaoUtil.open();
@@ -1916,7 +1916,7 @@ public class MsgDao {
             RealmResults<MsgAllBean> friendChatMessages = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                     .and()
-                    .beginGroup().equalTo("to_uid", uid).or().equalTo("from_uid", uid).endGroup()
+                    .beginGroup().equalTo("to_uid", uid).endGroup()
                     .and()
                     .beginGroup().notEqualTo("read", 1).endGroup()
                     .findAll();
@@ -1927,7 +1927,7 @@ public class MsgDao {
                     long endTime = timestamp + msgAllBean.getSurvival_time() * 1000;
 
                     realm.beginTransaction();
-                    if (msgAllBean.getSurvival_time() > 0) {//有设置阅后即焚
+                    if (msgAllBean.getSurvival_time() > 0 ) {//有设置阅后即焚
 //                        if (endTime > DateUtils.getSystemTime()) {//还未到阅后即焚时间点，记录已读
                         msgAllBean.setRead(1);
                         msgAllBean.setReadTime(timestamp);
