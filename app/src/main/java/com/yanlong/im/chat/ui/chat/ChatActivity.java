@@ -3790,20 +3790,20 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         int type = msgAllBean.getMsg_type();
         int sendStatus = msgAllBean.getSend_state();
         List<OptionMenu> menus = new ArrayList<>();
-        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
-            menus.add(new OptionMenu("转发"));
-        }
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanReply(type)) {
             menus.add(new OptionMenu("回复"));
         }
-        menus.add(new OptionMenu("删除"));
+        if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
+            menus.add(new OptionMenu("转发"));
+        }
+
         switch (type) {
             case ChatEnum.EMessageType.TEXT:
             case ChatEnum.EMessageType.AT:
                 menus.add(0, new OptionMenu("复制"));
                 //发送状态正常，且未开启阅后即焚，则允许收藏
                 if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
-                    menus.add(2, new OptionMenu("收藏"));
+                    menus.add(3, new OptionMenu("收藏"));
                 }
                 break;
             case ChatEnum.EMessageType.VOICE:
@@ -3814,7 +3814,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
                 //发送状态正常，且未开启阅后即焚，则允许收藏
                 if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
-                    menus.add(1, new OptionMenu("收藏"));
+                    menus.add(3, new OptionMenu("收藏"));
                 }
                 break;
             case ChatEnum.EMessageType.LOCATION:
@@ -3824,7 +3824,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             case ChatEnum.EMessageType.FILE:
                 //发送状态正常，且未开启阅后即焚，则允许收藏
                 if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
-                    menus.add(1, new OptionMenu("收藏"));
+                    menus.add(2, new OptionMenu("收藏"));
                 }
                 break;
         }
@@ -3846,6 +3846,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
             }
         }
+        menus.add(new OptionMenu("删除"));
         return menus;
     }
 
@@ -3908,15 +3909,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         } else if ("多选".equals(value)) {
             onMore(msgbean);
         } else if ("收藏".equals(value)) {
-//            if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-//                if (msgbean.getSurvival_time() == 0) {
-//
-//                } else {
-//                    ToastUtil.show("开启阅后即焚的会话，不允许收藏");
-//                }
-//            } else {
-//                ToastUtil.show("仅支持收藏发送成功的消息");
-//            }
             onCollect(msgbean);
         }
     }
@@ -5903,8 +5895,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     public final void updateMsgUnread(int num) {
         LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + num);
         if (num > 99) {
-            actionbar.setTxtLeft(num + "+", R.drawable.shape_unread_oval_bg, DensityUtil.sp2px(ChatActivity.this, 5));
-        } else if (num > 0) {
+            actionbar.setTxtLeft("99+", R.drawable.shape_unread_oval_bg, DensityUtil.sp2px(ChatActivity.this, 5));
+        } else if (num > 0 && num <= 99) {
             actionbar.setTxtLeft(num + "", R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
         } else {
             actionbar.setTxtLeft("", R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
