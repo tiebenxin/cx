@@ -2819,7 +2819,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     int dataType = data.getIntExtra(RecordedActivity.INTENT_DATA_TYPE, RecordedActivity.RESULT_TYPE_VIDEO);
                     MsgAllBean videoMsgBean = null;
                     if (dataType == RecordedActivity.RESULT_TYPE_VIDEO) {
-//                        if (!checkNetConnectStatus()) {
+//                        if (!checkNetConnectStatus(0)) {
 //                            return;
 //                        }
                         String file = data.getStringExtra(RecordedActivity.INTENT_PATH);
