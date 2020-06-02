@@ -12,6 +12,7 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.dao.UserDao;
 
+import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
@@ -62,7 +63,6 @@ public class MsgSearchActivity extends AppActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        showSoftKeyword(edtSearch);
     }
 
     private void findViews() {
@@ -99,9 +99,11 @@ public class MsgSearchActivity extends AppActivity {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
                     String key = edtSearch.getText().toString();
                     viewModel.key.setValue(key);
+                    InputUtil.hideKeyboard(MsgSearchActivity.this);
                 } else if (event != null && (KeyEvent.KEYCODE_ENTER == event.getKeyCode() || KeyEvent.ACTION_DOWN == event.getAction())) {
                     String key = edtSearch.getText().toString();
                     viewModel.key.setValue(key);
+                    InputUtil.hideKeyboard(MsgSearchActivity.this);
                 }
                 return false;
             }
