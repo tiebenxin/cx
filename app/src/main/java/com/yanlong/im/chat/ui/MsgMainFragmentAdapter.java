@@ -24,6 +24,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
+import com.yanlong.im.chat.ui.search.MsgSearchActivity;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.wight.avatar.MultiImageView;
 
@@ -281,7 +282,6 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 public void onClick(View view) {
                     Intent intent = new Intent(context, MsgSearchActivity.class);
                     intent.putExtra("online_state", viewModel.onlineState.getValue());
-                    intent.putExtra("conversition_data", viewModel.getSessionJson());
                     context.startActivity(intent);
                 }
             });

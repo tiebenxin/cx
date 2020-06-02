@@ -3,7 +3,6 @@ package com.yanlong.im.chat.dao;
 import android.text.TextUtils;
 
 import com.hm.cxpay.global.PayEnum;
-import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
@@ -58,7 +57,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
@@ -988,6 +986,7 @@ public class MsgDao {
      * 备注：新增不区分大小写模糊查询
      */
     public List<MsgAllBean> searchMsg4key(String key, String gid, Long uid) {
+        String searchKey = String.format("*%s*",key);
         Realm realm = DaoUtil.open();
         List<MsgAllBean> ret = null;
         try {
@@ -995,43 +994,36 @@ public class MsgDao {
             RealmResults<MsgAllBean> msg;
             if (StringUtil.isNotNull(gid)) {//群
                 msg = realm.where(MsgAllBean.class)
-                        .equalTo("gid", gid)
-                        .and()
-                        .in("msg_type", new Integer[]{1, 2, 8, 20})
-                        .and()
-                        .beginGroup()
-                        .contains("chat.msg", key, Case.INSENSITIVE)
-                        .or()
-                        .contains("atMessage.msg", key, Case.INSENSITIVE)
-                        .or()
-                        .contains("stamp.comment", key, Case.INSENSITIVE)
-                        .or()
-                        .contains("replyMessage.chatMessage.msg", key, Case.INSENSITIVE)
-                        .or()
-                        .contains("replyMessage.atMessage.msg", key, Case.INSENSITIVE)
-                        .endGroup()
+                        .equalTo("gid",gid)
+                        .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
+                        .like("chat.msg", searchKey).or()//文本聊天
+                        .like("atMessage.msg", searchKey).or()//@消息
+                        .like("assistantMessage.msg", searchKey).or()//小助手消息
+                        .like("locationMessage.addressDescribe", searchKey).or()//位置消息
+                        .like("transferNoticeMessage.content", searchKey).or()//转账消息
+                        .like("sendFileMessage.file_name", searchKey).or()//文件消息
+                        .like("webMessage.title", searchKey).or()//链接消息
+                        .like("replyMessage.chatMessage.msg", searchKey).or()//回复消息
+                        .like("replyMessage.atMessage.msg", searchKey)//回复@消息
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
             } else {//单人
                 msg = realm.where(MsgAllBean.class)
-                        .beginGroup()
                         .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
                         .and()
-                        .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
-                        .endGroup()
-                        .and()
-                        .in("msg_type", new Integer[]{1, 2, 8, 20})
+                        .beginGroup().equalTo("from_uid",uid).or().equalTo("to_uid",uid).endGroup()
                         .and()
                         .beginGroup()
-                        .contains("chat.msg", key, Case.INSENSITIVE)
-                        .or()
-                        .contains("atMessage.msg", key, Case.INSENSITIVE)
-                        .or()
-                        .contains("stamp.comment", key, Case.INSENSITIVE)
-                        .or()
-                        .contains("replyMessage.chatMessage.msg", key, Case.INSENSITIVE)
-                        .or()
-                        .contains("replyMessage.atMessage.msg", key, Case.INSENSITIVE)
+                        .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
+                        .like("chat.msg", searchKey).or()//文本聊天
+                        .like("atMessage.msg", searchKey).or()//@消息
+                        .like("assistantMessage.msg", searchKey).or()//小助手消息
+                        .like("locationMessage.addressDescribe", searchKey).or()//位置消息
+                        .like("transferNoticeMessage.content", searchKey).or()//转账消息
+                        .like("sendFileMessage.file_name", searchKey).or()//文件消息
+                        .like("webMessage.title", searchKey).or()//链接消息
+                        .like("replyMessage.chatMessage.msg", searchKey).or()//回复消息
+                        .like("replyMessage.atMessage.msg", searchKey)//回复@消息
                         .endGroup()
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();

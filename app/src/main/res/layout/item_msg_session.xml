@@ -54,6 +54,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right|top"
+                    android:visibility="invisible"
                     android:layout_marginTop="6dp"
                     android:layout_marginRight="3dp"
                     android:background="@drawable/shape_disturb_unread_bg" />
@@ -140,6 +141,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="1"
+                        android:id="@+id/ll_info"
                         android:orientation="horizontal">
 
                         <net.cb.cb.library.view.EllipsizedTextView
@@ -158,6 +160,7 @@
                             android:layout_height="12dp"
                             android:layout_gravity="right"
                             android:layout_marginLeft="10dp"
+                            android:visibility="gone"
                             android:layout_marginTop="3dp"
                             android:src="@mipmap/ic_disturb" />
                     </LinearLayout>

@@ -4,7 +4,6 @@ import android.text.TextUtils;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.data.local.MainLocalDataSource;
@@ -55,9 +54,6 @@ public class MainRepository {
         return localDataSource.getSessionMore(sids);
     }
 
-    public String getSessionJson(RealmResults<Session> sessions) {
-        return localDataSource.getSessionJson(sessions);
-    }
 
      
 
