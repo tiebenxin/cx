@@ -17,6 +17,7 @@ import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.lansosdk.videoeditor.LanSoEditor;
 import com.lansosdk.videoeditor.LanSongFileUtil;
 import com.listener.IRecordListener;
 import com.widgt.RecordButtonView;
@@ -24,11 +25,13 @@ import com.zhaoss.weixinrecorded.CanStampEventWX;
 import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.util.CameraHelp;
 import com.zhaoss.weixinrecorded.util.CameraUtil;
+import com.zhaoss.weixinrecorded.util.MyVideoEditor;
 import com.zhaoss.weixinrecorded.util.RxJavaUtil;
 import com.zhaoss.weixinrecorded.util.ViewUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.annotation.Retention;
@@ -68,6 +71,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
     private String mp4FilePath;
     private MediaRecorder mMediaRecorder;
     private int mCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
+    private MyVideoEditor mVideoEditor = new MyVideoEditor();
 
 
     //录制出错的回调
@@ -100,12 +104,14 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         }
     };
     private boolean takePhone;
+    private InitVideoAttribute initVideoAttribute;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_camera);
+        LanSoEditor.initSDK(this, null);
 
         mp4FilePath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".mp4";
         initUI();
@@ -335,7 +341,9 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         if (TextUtils.isEmpty(mp4FilePath)) {
             return;
         }
-        InitVideoAttribute initVideoAttribute = new InitVideoAttribute(mp4FilePath).invoke();
+        if (initVideoAttribute == null) {
+            initVideoAttribute = new InitVideoAttribute(mp4FilePath).invoke();
+        }
         long duration = initVideoAttribute.getDuration();
         int width = (int) initVideoAttribute.getWidth();
         int height = (int) initVideoAttribute.getHeight();
@@ -476,12 +484,12 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         }
         //设置选择角度，顺时针方向，因为默认是逆向90度的，这样图像就是正常显示了,这里设置的是观看保存后的视频的角度
         mMediaRecorder.setCamera(mCamera);
-//        mMediaRecorder.setOrientationHint(mRotationDegree);
-        if (isCameraFrontFacing()) {
-            mMediaRecorder.setOrientationHint(270);
-        } else {
-            mMediaRecorder.setOrientationHint(90);
-        }
+        mMediaRecorder.setOrientationHint(mRotationDegree);
+//        if (isCameraFrontFacing()) {
+//            mMediaRecorder.setOrientationHint(270);
+//        } else {
+//            mMediaRecorder.setOrientationHint(90);
+//        }
         mMediaRecorder.setOnErrorListener(onErrorListener);
         //采集声音来源、mic是麦克风
         mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -593,6 +601,21 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
     private void stopRecord() {
         releaseMediaRecorder();
         releaseCamera();
+        try {
+            if (isCameraFrontFacing()) {
+                initVideoAttribute = new InitVideoAttribute(mp4FilePath).invoke();
+                System.out.println(TAG + "--rotate=" + initVideoAttribute.getRotate());
+//                String tempPath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".mp4";
+//                mVideoEditor.rotateMp4(mp4FilePath, tempPath);
+//                delete(mp4FilePath);
+//                mp4FilePath = tempPath;
+//                initVideoAttribute = new InitVideoAttribute(tempPath).invoke();
+//                System.out.println(TAG + "--rotate=" + initVideoAttribute.getRotate());
+            }
+        } catch (Exception e) {
+
+
+        }
     }
 
     public void switchCamera() {
@@ -615,6 +638,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         private long duration;
         private long width;
         private long height;
+        private int rotate;
         private final String videoPath;
 
         public InitVideoAttribute(String video) {
@@ -629,10 +653,10 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
                 if (!TextUtils.isEmpty(time)) {
                     duration = Long.parseLong(time);
                 }
-                int orientation = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+                rotate = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
                 long w = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
                 long h = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-                if (orientation == 90) {
+                if (rotate == 90) {
                     width = Math.min(w, h);
                     height = Math.max(w, h);
                 } else {
@@ -657,10 +681,21 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         public long getHeight() {
             return height;
         }
+
+        public int getRotate() {
+            return rotate;
+        }
     }
 
     private boolean isCameraFrontFacing() {
         return mCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT;
+    }
+
+    private void delete(String path) {
+        File file = new File(path);
+        if (file.exists()) {
+            file.delete();
+        }
     }
 }
 
