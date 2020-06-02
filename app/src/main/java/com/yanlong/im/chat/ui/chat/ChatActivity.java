@@ -1138,7 +1138,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
      * 添加表情、发送自定义表情
      */
     protected void sendFace(FaceBean bean) {
-        if (!checkNetConnectStatus()) {
+        if (!checkNetConnectStatus(0)) {
             return;
         }
         if (FaceView.face_animo.equals(bean.getGroup())) {
@@ -1156,7 +1156,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     IntentUtil.gotoActivity(this, AddFaceActivity.class);
                 }
             } else {
-                if (!checkNetConnectStatus()) {
+                if (!checkNetConnectStatus(0)) {
                     return;
                 }
                 final String imgMsgId = SocketData.getUUID();
@@ -1262,7 +1262,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     return;
                 }
 
-                if (!checkNetConnectStatus()) {
+                if (!checkNetConnectStatus(0)) {
                     return;
                 }
                 //test 8.
@@ -1510,7 +1510,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         AudioRecordManager.getInstance(this).setAudioRecordListener(audioRecord = new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
             @Override
             public void completeRecord(String file, int duration) {
-                if (!checkNetConnectStatus()) {
+                if (!checkNetConnectStatus(0)) {
                     return;
                 }
                 VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
@@ -1828,7 +1828,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
             @Override
             public void onSuccess() {
-                if (!checkNetConnectStatus()) {
+                if (!checkNetConnectStatus(0)) {
                     return;
                 }
                 startVoice(null);
@@ -1946,7 +1946,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_voice));
                     }
                 } else {
-                    if (!checkNetConnectStatus()) {
+                    if (!checkNetConnectStatus(0)) {
                         return;
                     }
                     if (ViewUtils.isFastDoubleClick()) {
@@ -2836,7 +2836,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             startService(new Intent(getContext(), UpLoadService.class));
                         }
                     } else if (dataType == RecordedActivity.RESULT_TYPE_PHOTO) {
-                        if (!checkNetConnectStatus()) {
+                        if (!checkNetConnectStatus(0)) {
                             return;
                         }
                         String photoPath = data.getStringExtra(RecordedActivity.INTENT_PATH);
@@ -2864,7 +2864,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     break;
                 case PictureConfig.REQUEST_CAMERA:
                 case PictureConfig.CHOOSE_REQUEST:
-                    if (!checkNetConnectStatus()) {
+                    if (!checkNetConnectStatus(0)) {
                         return;
                     }
                     // 图片选择结果回调
@@ -2904,7 +2904,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     LogUtil.writeEnvelopeLog("云红包回调了");
                     LogUtil.getLog().e("云红包回调了");
                     EnvelopeBean envelopeInfo = JrmfRpClient.getEnvelopeInfo(data);
-                    if (!checkNetConnectStatus()) {
+                    if (!checkNetConnectStatus(0)) {
                         if (envelopeInfo != null) {
                             saveMFEnvelope(envelopeInfo);
                         }
@@ -2942,7 +2942,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     break;
                 case FilePickerManager.REQUEST_CODE:
                     //断网提示
-                    if (!checkNetConnectStatus()) {
+                    if (!checkNetConnectStatus(0)) {
                         return;
                     }
                     MsgAllBean fileMsgBean = null;
@@ -2996,7 +2996,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             }
         } else if (resultCode == SelectUserActivity.RET_CODE_SELECTUSR) {//选择通讯录中的某个人
-            if (!checkNetConnectStatus()) {
+            if (!checkNetConnectStatus(0)) {
                 return;
             }
             String json = data.getStringExtra(SelectUserActivity.RET_JSON);
@@ -3388,7 +3388,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     taskRefreshMessage(false);
                 }
             } else if (reMsg.getMsg_type() == ChatEnum.EMessageType.FILE) { //文件消息失败重发机制
-                if (!checkNetConnectStatus()) {
+                if (!checkNetConnectStatus(0)) {
                     return;
                 }
                 //群文件重发，判断是否被禁言
@@ -4008,10 +4008,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         mtListView.scrollToEnd();
     }
 
-    //收藏 (暂时只做有网收藏的情况)
+    //收藏
     private void onCollect(MsgAllBean msgbean) {
-        if (!checkNetConnectStatus()) {
-            return;
+        //1 有网收藏
+        if (checkNetConnectStatus(1)) {
+
+            //2 无网收藏
+        }else {
+
         }
         String fromUsername = "";//用户名称
         String fromGid = "";//群组id
@@ -4860,16 +4864,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     /*
      * 发送消息前，需要检测网络连接状态，网络不可用，不能发送
      * 每条消息发送前，需要检测，语音和小视频录制之前，仍需要检测
+     * type=0 默认提示 type=1 仅获取断网状态/不提示
      * */
-    public boolean checkNetConnectStatus() {
+    public boolean checkNetConnectStatus(int type) {
         boolean isOk;
         if (!NetUtil.isNetworkConnected()) {
-            ToastUtil.show(this, "网络连接不可用，请稍后重试");
+            if(type==0){
+                ToastUtil.show(this, "网络连接不可用，请稍后重试");
+            }
             isOk = false;
         } else {
             isOk = SocketUtil.getSocketUtil().getOnLineState();
             if (!isOk) {
-                ToastUtil.show(this, "连接已断开，请稍后再试");
+                if(type==0){
+                    ToastUtil.show(this, "连接已断开，请稍后再试");
+                }
             }
         }
         return isOk;
