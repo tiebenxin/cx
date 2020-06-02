@@ -114,7 +114,7 @@ public class ChatViewModel extends ViewModel {
         recoveryValue(data, isOpenEmoj);
         recoveryValue(data, isOpenFuction);
         recoveryValue(data, isOpenSpeak);
-        recoveryValue(data, isReplying);
+//        recoveryValue(data, isReplying);
     }
 
     private void recoveryValue(MutableLiveData<Boolean> data, MutableLiveData<Boolean> orignalData) {
