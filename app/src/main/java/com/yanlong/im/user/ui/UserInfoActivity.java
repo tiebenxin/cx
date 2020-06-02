@@ -254,7 +254,7 @@ public class UserInfoActivity extends AppActivity {
         viewDel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                alertYesNo.init(UserInfoActivity.this, "删除好友",
+                alertYesNo.init(UserInfoActivity.this, "提示",
                         "删除联系人，将在双方好友列表里同时删除，并删除与该联系人的聊天记录", "确定", "取消", new AlertYesNo.Event() {
                             @Override
                             public void onON() {
@@ -275,9 +275,9 @@ public class UserInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(UserInfoActivity.this, CommonSetingActivity.class);
-                intent.putExtra(CommonSetingActivity.TITLE, "设置备注和描述");
-                intent.putExtra(CommonSetingActivity.REMMARK, "设置备注和描述");
-                intent.putExtra(CommonSetingActivity.HINT, "设置备注和描述");
+                intent.putExtra(CommonSetingActivity.TITLE, "设置备注");
+                intent.putExtra(CommonSetingActivity.REMMARK, "备注");
+                intent.putExtra(CommonSetingActivity.HINT, "备注名称");
                 intent.putExtra(CommonSetingActivity.SIZE, 16);
                 intent.putExtra(CommonSetingActivity.SETING, mkName);
                 startActivityForResult(intent, SETING_REMARK);
