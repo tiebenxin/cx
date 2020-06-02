@@ -87,7 +87,14 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
     //自动生成控件事件
     @Override
     public void onBindViewHolder(final RCViewHolder holder, int position) {
-        if (position < viewModel.searchFriends.size()) {//单人
+        int firstPosition = 0;
+        int lastPostion = 0;
+        if (position < viewModel.getSearchFriendsSize()) {//单人
+            firstPosition = 0;
+            lastPostion = viewModel.getSearchFriendsSize() - 1;
+            holder.tvTitle.setText("联系人");
+
+
             UserInfo userInfo = viewModel.searchFriends.get(position);
             List<String> head = new ArrayList<String>();
             head.add(userInfo.getHead());
@@ -114,8 +121,13 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
                 }
             });
 
-        } else if (position < (viewModel.searchFriends.size() + viewModel.getSearchGroupsSize())) {
+        } else if (position < (viewModel.getSearchFriendsSize() + viewModel.getSearchGroupsSize())) {
             /*****群 昵称/成员包含****************************************************************************/
+            holder.tvTitle.setText("群聊");
+            firstPosition = viewModel.getSearchFriendsSize();
+            lastPostion = firstPosition + viewModel.getSearchGroupsSize() - 1;
+
+
             holder.vInfoPanel.setVisibility(View.VISIBLE);
             Group group = viewModel.searchGroups.get(position - viewModel.searchFriends.size());
             int i = group.getUsers().size();
@@ -168,6 +180,10 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
             });
         } else {
             /*****聊天记录 内容包含****************************************************************************/
+            holder.tvTitle.setText("聊天记录");
+            firstPosition = viewModel.getSearchFriendsSize() + viewModel.getSearchGroupsSize();
+            lastPostion = getItemCount() - 1;
+
             holder.vInfoPanel.setVisibility(View.VISIBLE);
             int p = position - viewModel.searchFriends.size() - viewModel.getSearchGroupsSize();
             SessionDetail sessionDetail = viewModel.searchSessions.get(p);
@@ -209,12 +225,18 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
             }
         }
 
+        //第一个显示标题
+        holder.tvTitle.setVisibility(position == firstPosition ? View.VISIBLE : View.GONE);
+        holder.vTitleLine.setVisibility(position == firstPosition ? View.VISIBLE : View.GONE);
+        //最后一项，显示底部灰色条
+        holder.vBottomLine.setVisibility(position == lastPostion ? View.VISIBLE : View.GONE);
+
     }
 
     //自动寻找ViewHold
     @Override
     public RCViewHolder onCreateViewHolder(ViewGroup view, int i) {
-        RCViewHolder holder = new RCViewHolder(LayoutInflater.from(context).inflate(R.layout.item_msg_session, view, false));
+        RCViewHolder holder = new RCViewHolder(LayoutInflater.from(context).inflate(R.layout.item_msg_search, view, false));
         return holder;
     }
 
@@ -224,14 +246,17 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
         private MultiImageView imgHead;
         private StrikeButton sb;
 
-        private View viewIt, vInfoPanel;
+        private View viewIt, vInfoPanel, vBottomLine, vTitleLine;
         private TextView txtName;
-        private TextView txtInfo;
+        private TextView txtInfo, tvTitle;
 //            private final TextView tv_num;
 
         //自动寻找ViewHold
         public RCViewHolder(View convertView) {
             super(convertView);
+            tvTitle = convertView.findViewById(R.id.tvTitle);
+            vBottomLine = convertView.findViewById(R.id.vBottomLine);
+            vTitleLine = convertView.findViewById(R.id.vTitleLine);
             imgHead = convertView.findViewById(R.id.img_head);
             sb = convertView.findViewById(R.id.sb);
             viewIt = convertView.findViewById(R.id.view_it);

@@ -81,11 +81,14 @@ public class MsgSearchLocalDataSource {
         String searchKey = getKey(key);
         if(TextUtils.isEmpty(gid)){
             return realm.where(MsgAllBean.class)
+                    .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
+                    .and()
                     .beginGroup().equalTo("from_uid",uid).or().equalTo("to_uid",uid).endGroup()
+                    .and()
+                    .beginGroup()
                     .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
                     .like("chat.msg", searchKey).or()//文本聊天
                     .like("atMessage.msg", searchKey).or()//@消息
-                    .like("msgNotice.note", searchKey).or()//通知消息
                     .like("assistantMessage.msg", searchKey).or()//小助手消息
                     .like("locationMessage.addressDescribe", searchKey).or()//位置消息
                     .like("transferNoticeMessage.content", searchKey).or()//转账消息
@@ -93,15 +96,14 @@ public class MsgSearchLocalDataSource {
                     .like("webMessage.title", searchKey).or()//链接消息
                     .like("replyMessage.chatMessage.msg", searchKey).or()//回复消息
                     .like("replyMessage.atMessage.msg", searchKey)//回复@消息
+                    .endGroup()
                     .count();
         }else{
             return realm.where(MsgAllBean.class)
                     .equalTo("gid",gid)
                     .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
-                    .in("msg_type", new Integer[]{1, 2, 8, 20})
                     .like("chat.msg", searchKey).or()//文本聊天
                     .like("atMessage.msg", searchKey).or()//@消息
-                    .like("msgNotice.note", searchKey).or()//通知消息
                     .like("assistantMessage.msg", searchKey).or()//小助手消息
                     .like("locationMessage.addressDescribe", searchKey).or()//位置消息
                     .like("transferNoticeMessage.content", searchKey).or()//转账消息

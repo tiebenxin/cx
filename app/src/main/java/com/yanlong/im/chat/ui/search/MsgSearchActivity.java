@@ -3,8 +3,6 @@ package com.yanlong.im.chat.ui.search;
 import android.arch.lifecycle.Observer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
@@ -106,27 +104,6 @@ public class MsgSearchActivity extends AppActivity {
                     viewModel.key.setValue(key);
                 }
                 return false;
-            }
-        });
-        edtSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (edtSearch.getText().toString().length() == 0) {
-                    //搜索关键字为0的时候，重新显示全部消息
-                    listData.clear();
-                    listData.addAll(totalData);
-                    mtListView.notifyDataSetChange();
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
             }
         });
     }

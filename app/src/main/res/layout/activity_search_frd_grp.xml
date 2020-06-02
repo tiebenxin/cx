@@ -71,7 +71,6 @@
 
         </LinearLayout>
 
-        <View style="@style/app_line" />
 
         <net.cb.cb.library.view.MultiListView
             android:id="@+id/mtListView"
