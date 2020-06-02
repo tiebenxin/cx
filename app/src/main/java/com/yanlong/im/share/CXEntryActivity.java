@@ -54,6 +54,12 @@ public class CXEntryActivity extends AppActivity {
                         finish();
                         return;
                     }
+                    //处理数据为空异常
+                    if(!extras.containsKey(Intent.EXTRA_STREAM)){
+                        ToastUtil.show(this, "分享失败，无分享数据");
+                        finish();
+                        return;
+                    }
                     Uri uri = (Uri) extras.getParcelable(Intent.EXTRA_STREAM);
                     String filePath = FileUtils.getFilePathByUri(CXEntryActivity.this, uri);
                     int mediaType = getMediaType(type);
@@ -87,6 +93,12 @@ public class CXEntryActivity extends AppActivity {
                         finish();
                         return;
                     } else {
+                        //处理数据为空异常
+                        if(!extras.containsKey(Intent.EXTRA_STREAM)){
+                            ToastUtil.show(this, "分享失败，无分享数据");
+                            finish();
+                            return;
+                        }
                         List<Uri> uriList = extras.getParcelableArrayList(Intent.EXTRA_STREAM);
                         if (uriList != null && uriList.size() > 9) {
                             ToastUtil.show(this, "分享失败，暂不支持分享超过9张图片给朋友");

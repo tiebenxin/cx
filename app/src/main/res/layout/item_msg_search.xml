@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="33333"
+        android:textColor="#868686"
+        android:paddingLeft="15dip"
+        android:paddingTop="5dip"
+        android:paddingBottom="5dip"
+        android:background="@android:color/white"
+        />
+    <View
+        android:id="@+id/vTitleLine"
+        style="@style/app_line"/>
+
+    <LinearLayout
+        android:id="@+id/view_it"
+        android:layout_width="match_parent"
+        android:layout_height="68dp"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:layout_width="68dp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="6dp"
+            android:paddingLeft="@dimen/app_margin_main">
+
+            <ImageView
+                style="@style/app_img_head"
+                android:layout_gravity="center|left"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/iv_disturb_unread"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|top"
+                android:layout_marginTop="6dp"
+                android:layout_marginRight="3dp"
+                android:background="@drawable/shape_disturb_unread_bg"
+                android:visibility="invisible" />
+
+            <com.yanlong.im.wight.avatar.MultiImageView
+                android:id="@+id/img_head"
+                style="@style/app_img_head"
+                android:layout_gravity="center|left"
+                android:background="@drawable/bg_head_gray_shape" />
+
+            <net.cb.cb.library.view.StrikeButton
+                android:id="@+id/sb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right" />
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingRight="@dimen/app_margin_main">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:paddingTop="8dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/txt_name"
+                            style="@style/app_txt_title_2"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:text="" />
+
+                        <TextView
+                            android:id="@+id/usertype_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="5dp"
+                            android:background="@drawable/shape_stroke_bule5"
+                            android:paddingLeft="5dp"
+                            android:paddingTop="2dp"
+                            android:paddingRight="5dp"
+                            android:paddingBottom="2dp"
+                            android:text="官方"
+                            android:textColor="@color/blue_title"
+                            android:textSize="@dimen/font_size8"
+                            android:visibility="gone" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/txt_time"
+                        style="@style/app_txt_content_1"
+                        android:layout_marginTop="0dp"
+                        android:text=""
+                        android:textColor="@color/gray_400" />
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/iv_disturb"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:layout_gravity="right"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginTop="3dp"
+                        android:src="@mipmap/ic_disturb"
+                        android:visibility="gone" />
+
+                    <net.cb.cb.library.view.EllipsizedTextView
+                        android:id="@+id/txt_info"
+                        style="@style/app_txt_content_1"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:fontFamily="normal"
+                        android:text="" />
+                </LinearLayout>
+            </LinearLayout>
+
+
+            <View style="@style/app_line" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/vBottomLine"
+        android:layout_width="wrap_content"
+        android:layout_height="10dip"
+        android:visibility="gone"
+        />
+</LinearLayout>

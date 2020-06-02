@@ -97,9 +97,6 @@ public class MainViewModel extends ViewModel {
         return repository.getGroup4Id(gid);
     }
 
-    public String getSessionJson() {
-        return getSession() == null ? "" : repository.getSessionJson(getSession());
-    }
 
     /***
      * 获取红点的值

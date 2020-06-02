@@ -233,7 +233,7 @@
         </activity>
         <!--消息搜索跳转-->
         <activity
-            android:name=".chat.ui.MsgSearchActivity"
+            android:name=".chat.ui.search.MsgSearchActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait">
 

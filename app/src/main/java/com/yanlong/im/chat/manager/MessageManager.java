@@ -2038,4 +2038,13 @@ public class MessageManager {
         return false;
     }
 
+    public boolean isFromSelf(Long uid) {
+        if (uid != null && UserAction.getMyId() != null) {
+            if (uid.longValue() == UserAction.getMyId().longValue()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
