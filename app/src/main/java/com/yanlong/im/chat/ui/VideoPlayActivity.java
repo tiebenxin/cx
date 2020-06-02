@@ -90,10 +90,10 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     private int mCurrentTime = 0;
     private int mLastTime = 0;
     private Timer mTimer;
-    private boolean dontShake = false;//视频播放完成后禁止抖动(暂时处理)
     private boolean pressHOME = false;//监测是否按了HOME键
     private int from = 0;//默认0 来自收藏详情1
     private boolean canCollect = false;//是否显示收藏项
+    private boolean isPlayFinished = false;//是否播放完成 (播放完成禁止进度条胡乱抖动)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -217,7 +217,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     mMediaPlayer.seekTo(progress * mMediaPlayer.getDuration() / 100);
-                    dontShake = false;
+                    isPlayFinished = false;
                 }
             }
 
@@ -273,7 +273,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             if (!isFinishing() && mMediaPlayer != null) {
                 DecimalFormat df = new DecimalFormat("0.00");
                 String result = df.format((double) mCurrentTime / mMediaPlayer.getDuration());
-                if(dontShake){
+                if(isPlayFinished){
                     activity_video_seek.setProgress(100);
                 }else {
                     activity_video_seek.setProgress((int) (Double.parseDouble(result) * 100));
@@ -401,7 +401,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     if (!isFinishing()) {
                         activity_video_big_con.setVisibility(View.VISIBLE);
                         activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
-                        dontShake = true;
+                        isPlayFinished = true;
                     }
                 }
             });
@@ -485,29 +485,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 }
                 break;
             case R.id.activity_video_big_con:
-                if (null != mMediaPlayer) {
-                    dontShake = false;
-                    if (mMediaPlayer.isPlaying()) {
-                        mMediaPlayer.pause();
-                        activity_video_big_con.setVisibility(View.VISIBLE);
-                        activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
-                        if (null != mTimer) {
-                            mTimer.cancel();
-                            mTimer = null;
-                        }
-                    } else {
-                        activity_video_big_con.setVisibility(View.INVISIBLE);
-                        activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
-                        //按过HOME键需要重置播放
-//                        if(pressHOME){
-                            replay();
-//                        }else {
-//                            mMediaPlayer.start();
-//                        }
-                        pressHOME = false;
-                    }
-                }
-                break;
             case R.id.activity_video_img_con:
                 if (null != mMediaPlayer) {
                     if (mMediaPlayer.isPlaying()) {
@@ -519,19 +496,19 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                             mTimer = null;
                         }
                     } else {
+                        if(isPlayFinished){
+                            mMediaPlayer.seekTo(0);
+                            mMediaPlayer.start();
+                            isPlayFinished = false;
+                        }else {
+                            replay();
+                        }
                         activity_video_big_con.setVisibility(View.INVISIBLE);
                         activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
-                        //按过HOME键需要重置播放
-//                        if(pressHOME){
-                        replay();
-//                        }else {
-//                            mMediaPlayer.start();
-//                        }
                         pressHOME = false;
                     }
                 }
                 break;
-
             case R.id.activity_video_img_close:
                 if (null != mMediaPlayer) {
                     mMediaPlayer.stop();

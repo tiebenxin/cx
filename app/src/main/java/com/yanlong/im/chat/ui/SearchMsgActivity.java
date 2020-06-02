@@ -6,6 +6,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.view.KeyEvent;
 import android.view.View;
@@ -42,6 +43,7 @@ public class SearchMsgActivity extends AppActivity {
     public static final String AGM_GID = "gid";
 
     public static final String AGM_FUID = "fuid";
+    public static final String AGM_SEARCH_KEY = "search_key";
     private Long fuid;
     private String gid;
 
@@ -66,6 +68,7 @@ public class SearchMsgActivity extends AppActivity {
     private void initEvent() {
         gid = getIntent().getStringExtra(AGM_GID);
         fuid = getIntent().getLongExtra(AGM_FUID, 0);
+
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -89,6 +92,13 @@ public class SearchMsgActivity extends AppActivity {
                 return false;
             }
         });
+        String searchKey = getIntent().getStringExtra(AGM_SEARCH_KEY);
+        if(!TextUtils.isEmpty(searchKey)){//直接搜索
+            edtSearch.setText(searchKey);
+            edtSearch.setSelection(searchKey.length());
+            taskSearch();
+        }
+
     }
 
 
@@ -140,17 +150,36 @@ public class SearchMsgActivity extends AppActivity {
                 }
             }
             msg = SocketData.getMsg(msgbean);
-            int index = msg.indexOf(key);
 
-            SpannableString style = new SpannableString(msg);
-            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.green_500));
-            style.setSpan(protocolColorSpan, index, index + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             holder.txtName.setText(name);
 
             holder.txtTimer.setText(TimeToString.YYYY_MM_DD_HH_MM_SS(msgbean.getTimestamp()));
 
+            final int index = msg.indexOf(key);
+            SpannableString style = new SpannableString(msg);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.green_500));
+            style.setSpan(protocolColorSpan, index, index + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             showMessage(holder.txtContext, msg, style);
+
+            if(holder.txtContext.getLayout()==null){
+                final String msg1=msg;
+                holder.txtContext.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(holder.txtContext.getLayout() == null) return;
+                        int ellipsisCount = holder.txtContext.getLayout().getEllipsisCount(0);
+                        int showCount = msg1.length()-ellipsisCount;
+                        if(showCount>0&&showCount<index){//超出文本了
+                            String subMsg=msg1.substring(Math.min(index-showCount/2,msg1.length()-showCount+1));
+                            int mindex = subMsg.indexOf(key)+3;
+                            SpannableString style = new SpannableString("..."+subMsg);
+                            style.setSpan(protocolColorSpan, mindex, mindex + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            showMessage(holder.txtContext, subMsg, style);
+                        }
+                    }
+                });
+            }
 
             Glide.with(context).load(url)
                     .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
@@ -218,6 +247,7 @@ public class SearchMsgActivity extends AppActivity {
                 spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, spannableString);
             }
             txtInfo.setText(spannableString, TextView.BufferType.SPANNABLE);
+
         }
     }
 

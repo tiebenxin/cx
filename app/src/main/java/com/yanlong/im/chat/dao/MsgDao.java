@@ -3,6 +3,7 @@ package com.yanlong.im.chat.dao;
 import android.text.TextUtils;
 
 import com.hm.cxpay.global.PayEnum;
+import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
@@ -57,7 +58,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
@@ -987,6 +987,7 @@ public class MsgDao {
      * 备注：新增不区分大小写模糊查询
      */
     public List<MsgAllBean> searchMsg4key(String key, String gid, Long uid) {
+        String searchKey = String.format("*%s*",key);
         Realm realm = DaoUtil.open();
         List<MsgAllBean> ret = null;
         try {
@@ -994,43 +995,36 @@ public class MsgDao {
             RealmResults<MsgAllBean> msg;
             if (StringUtil.isNotNull(gid)) {//群
                 msg = realm.where(MsgAllBean.class)
-                        .equalTo("gid", gid)
-                        .and()
-                        .in("msg_type", new Integer[]{1, 2, 8, 20})
-                        .and()
-                        .beginGroup()
-                        .contains("chat.msg", key, Case.INSENSITIVE)
-                        .or()
-                        .contains("atMessage.msg", key, Case.INSENSITIVE)
-                        .or()
-                        .contains("stamp.comment", key, Case.INSENSITIVE)
-                        .or()
-                        .contains("replyMessage.chatMessage.msg", key, Case.INSENSITIVE)
-                        .or()
-                        .contains("replyMessage.atMessage.msg", key, Case.INSENSITIVE)
-                        .endGroup()
+                        .equalTo("gid",gid)
+                        .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
+                        .like("chat.msg", searchKey).or()//文本聊天
+                        .like("atMessage.msg", searchKey).or()//@消息
+                        .like("assistantMessage.msg", searchKey).or()//小助手消息
+                        .like("locationMessage.addressDescribe", searchKey).or()//位置消息
+                        .like("transferNoticeMessage.content", searchKey).or()//转账消息
+                        .like("sendFileMessage.file_name", searchKey).or()//文件消息
+                        .like("webMessage.title", searchKey).or()//链接消息
+                        .like("replyMessage.chatMessage.msg", searchKey).or()//回复消息
+                        .like("replyMessage.atMessage.msg", searchKey)//回复@消息
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
             } else {//单人
                 msg = realm.where(MsgAllBean.class)
-                        .beginGroup()
                         .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
                         .and()
-                        .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
-                        .endGroup()
-                        .and()
-                        .in("msg_type", new Integer[]{1, 2, 8, 20})
+                        .beginGroup().equalTo("from_uid",uid).or().equalTo("to_uid",uid).endGroup()
                         .and()
                         .beginGroup()
-                        .contains("chat.msg", key, Case.INSENSITIVE)
-                        .or()
-                        .contains("atMessage.msg", key, Case.INSENSITIVE)
-                        .or()
-                        .contains("stamp.comment", key, Case.INSENSITIVE)
-                        .or()
-                        .contains("replyMessage.chatMessage.msg", key, Case.INSENSITIVE)
-                        .or()
-                        .contains("replyMessage.atMessage.msg", key, Case.INSENSITIVE)
+                        .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
+                        .like("chat.msg", searchKey).or()//文本聊天
+                        .like("atMessage.msg", searchKey).or()//@消息
+                        .like("assistantMessage.msg", searchKey).or()//小助手消息
+                        .like("locationMessage.addressDescribe", searchKey).or()//位置消息
+                        .like("transferNoticeMessage.content", searchKey).or()//转账消息
+                        .like("sendFileMessage.file_name", searchKey).or()//文件消息
+                        .like("webMessage.title", searchKey).or()//链接消息
+                        .like("replyMessage.chatMessage.msg", searchKey).or()//回复消息
+                        .like("replyMessage.atMessage.msg", searchKey)//回复@消息
                         .endGroup()
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
@@ -1903,7 +1897,7 @@ public class MsgDao {
 
     /**
      * 更新已读状态和阅后即焚
-     * 单聊发送：发送成功且对方已读，立即加入阅后即焚
+     * 单聊发送：自己发送成功且对方已读，立即加入阅后即焚
      */
     public void setUpdateRead(long uid, long timestamp) {
         Realm realm = DaoUtil.open();
@@ -1916,7 +1910,7 @@ public class MsgDao {
             RealmResults<MsgAllBean> friendChatMessages = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                     .and()
-                    .beginGroup().equalTo("to_uid", uid).or().equalTo("from_uid", uid).endGroup()
+                    .beginGroup().equalTo("to_uid", uid).endGroup()
                     .and()
                     .beginGroup().notEqualTo("read", 1).endGroup()
                     .findAll();
@@ -1924,15 +1918,17 @@ public class MsgDao {
                 //每次修改后，friendChatMessages的size 会变化，直到全部修改完，friendChatMessages的size 为0
                 while (friendChatMessages.size() != 0) {
                     MsgAllBean msgAllBean = friendChatMessages.get(0);
-                    long endTime = timestamp + msgAllBean.getSurvival_time() * 1000;
+                    //防止手机上的时间与PC时间不一致情况，只处理手机比PC时间早的情况，即手机时间调慢了
+                    long startTime = Math.min(timestamp , DateUtils.getSystemTime());
+                    long endTime = startTime + msgAllBean.getSurvival_time() * 1000;
 
                     realm.beginTransaction();
-                    if (msgAllBean.getSurvival_time() > 0) {//有设置阅后即焚
+                    if (msgAllBean.getSurvival_time() > 0 ) {//有设置阅后即焚
 //                        if (endTime > DateUtils.getSystemTime()) {//还未到阅后即焚时间点，记录已读
                         msgAllBean.setRead(1);
                         msgAllBean.setReadTime(timestamp);
                         /**处理需要阅后即焚的消息***********************************/
-                        msgAllBean.setStartTime(timestamp);
+                        msgAllBean.setStartTime(startTime);
                         msgAllBean.setEndTime(endTime);
 //                        }
                     } else {//普通消息，记录已读状态和时间

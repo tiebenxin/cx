@@ -187,10 +187,10 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 if (bean2 != null) { //显示预览图或者缩略图
                                     if (!TextUtils.isEmpty(bean2.getPreview())) {
                                         Glide.with(CollectionActivity.this).load(bean2.getPreview())
-                                                .apply(GlideOptionsUtil.headImageOptions()).into(binding.ivPic);
+                                                .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
                                     } else if (!TextUtils.isEmpty(bean2.getThumbnail())) {
                                         Glide.with(CollectionActivity.this).load(bean2.getThumbnail())
-                                                .apply(GlideOptionsUtil.headImageOptions()).into(binding.ivPic);
+                                                .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
                                     }
                                 }
                                 break;
@@ -204,7 +204,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 CollectShippedExpressionMessage bean3 = new Gson().fromJson(collectionInfo.getData(), CollectShippedExpressionMessage.class);
                                 if (bean3 != null) {
                                     if (!TextUtils.isEmpty(bean3.getExpression())) {
-                                        Glide.with(CollectionActivity.this).load(Integer.parseInt(FaceView.map_FaceEmoji.get(bean3.getExpression()).toString())).apply(GlideOptionsUtil.headImageOptions()).into(binding.ivPic);
+                                        Glide.with(CollectionActivity.this).load(Integer.parseInt(FaceView.map_FaceEmoji.get(bean3.getExpression()).toString())).apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
                                     }
                                 }
                                 break;
@@ -219,7 +219,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 if (bean4 != null) {
                                     if (!TextUtils.isEmpty(bean4.getVideoBgURL())) {
                                         Glide.with(CollectionActivity.this).load(bean4.getVideoBgURL())
-                                                .apply(GlideOptionsUtil.headImageOptions()).into(binding.ivPic);
+                                                .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
                                     }
                                 }
                                 break;
