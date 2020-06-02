@@ -1093,16 +1093,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         }
         switch (msg.getMsgType()) {
             case DESTROY_GROUP:
-                refreshUI();
+//                refreshUI();
                 break;
             case REMOVE_GROUP_MEMBER://退出群
-                refreshUI();
+//                refreshUI();
                 break;
             case ACCEPT_BE_GROUP://邀请进群刷新
-                refreshUI();
+//                refreshUI();
                 break;
             case CHANGE_GROUP_META:// 修改群信息
-                refreshUI();
+//                refreshUI();
                 break;
         }
 
@@ -3032,7 +3032,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (event.isNeedLoad()) {
             taskGroupInfo();
         } else {
-            refreshUI();
+//            refreshUI();
         }
     }
 
@@ -3065,7 +3065,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventSwitchDisturb(EventSwitchDisturb event) {
-        refreshUI();
+//        refreshUI();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -4694,7 +4694,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (mViewModel.groupInfo == null)
                     mViewModel.loadData(groupInfoChangeListener, userInfoChangeListener);
-                refreshUI();
             }
 
             @Override
@@ -4724,7 +4723,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             UserInfo userInfo = userInfoList.get(0);
                             userInfo.setuType(ChatEnum.EUserType.FRIEND);//TODO 记得设置类型为好友
                             userDao.updateUserinfo(userInfo);//本地更新对方数据
-                            refreshUI();
                         }
                     }
                 }
