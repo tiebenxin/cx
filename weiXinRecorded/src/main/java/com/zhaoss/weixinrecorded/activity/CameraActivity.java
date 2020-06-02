@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.text.TextUtils;
 import android.view.Surface;
-import android.view.SurfaceHolder;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,6 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.lansosdk.videoeditor.LanSongFileUtil;
-import com.libyuv.LibyuvUtil;
 import com.listener.IRecordListener;
 import com.widgt.RecordButtonView;
 import com.zhaoss.weixinrecorded.CanStampEventWX;
@@ -54,32 +52,22 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
     public static final String INTENT_PATH_HEIGHT = "intent_height";
     public static final String INTENT_PATH_TIME = "intent_time";
     public static final String INTENT_DATA_TYPE = "result_data_type";
-
-    public static String DEFAULT_DIR = LanSongFileUtil.PATH_BASE + "video/";
-
     public static final int RESULT_TYPE_VIDEO = 1;
     public static final int RESULT_TYPE_PHOTO = 2;
     public static final int REQUEST_CODE_KEY = 100;
     public static final int REQUEST_CODE_PREVIEW = 200;
-    public static final float MAX_VIDEO_TIME = 18f * 1000;  //最大录制时间
-    public static final float MIN_VIDEO_TIME = 1f * 1000;  //最小录制时间
-    public static final float MIN_VIDEO_TIME_MEIZU = 3f * 1000;  //最小录制时间
+    private final static int VIDEO_WIDTH = 1920;
+    private final static int VIDEO_HEIGHT = 1080;
+    private final static int MAX_VIDEO_LENGTH = 18 * 1000;
 
-    private final int TYPE_EDIT = 2;// 编辑
-    private final int TYPE_PREVIEW = 3;// 预览
 
     private TextureView surfaceView;
     private RecordButtonView recordView;
     private RelativeLayout viewSwitchCamera, viewFlash;
-
-
     private CameraHelp mCameraHelp = new CameraHelp();
-    private SurfaceHolder mSurfaceHolder;
-    private boolean mPhotoFlg = false;// 小于1秒进入拍照判断
-
     private String mp4FilePath;
     private MediaRecorder mMediaRecorder;
-    private int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+    private int mCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
 
 
     //录制出错的回调
@@ -105,9 +93,13 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
     private Camera.PreviewCallback mPreviewCallback = new Camera.PreviewCallback() {
         @Override
         public void onPreviewFrame(byte[] bytes, Camera camera) {
-
+            if (takePhone) {
+                takePhone = false;
+                shotPhoto(bytes);
+            }
         }
     };
+    private boolean takePhone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +110,6 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         mp4FilePath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".mp4";
         initUI();
         initListener();
-//        initMediaRecorder();
         EventBus.getDefault().post(new CanStampEventWX(false));
     }
 
@@ -164,7 +155,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
             @Override
             public String doInBackground() throws Throwable {
 
-                boolean isFrontCamera = mCameraHelp.getCameraId() == Camera.CameraInfo.CAMERA_FACING_FRONT;
+                boolean isFrontCamera = mCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT;
                 int rotation;
                 if (isFrontCamera) {
                     rotation = 270;
@@ -174,18 +165,16 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
 
                 byte[] yuvI420 = new byte[nv21.length];
                 byte[] tempYuvI420 = new byte[nv21.length];
-
-                int videoWidth = mCameraHelp.getHeight();
-                int videoHeight = mCameraHelp.getWidth();
-
-                LibyuvUtil.convertNV21ToI420(nv21, yuvI420, mCameraHelp.getWidth(), mCameraHelp.getHeight());
-                LibyuvUtil.compressI420(yuvI420, mCameraHelp.getWidth(), mCameraHelp.getHeight(), tempYuvI420,
-                        mCameraHelp.getWidth(), mCameraHelp.getHeight(), rotation, isFrontCamera);
-
+                int videoWidth;
+                int videoHeight;
+                if (rotation == 90) {
+                    videoWidth = Math.min(VIDEO_WIDTH, VIDEO_HEIGHT);
+                    videoHeight = Math.max(VIDEO_WIDTH, VIDEO_HEIGHT);
+                } else {
+                    videoWidth = Math.max(VIDEO_WIDTH, VIDEO_HEIGHT);
+                    videoHeight = Math.min(VIDEO_WIDTH, VIDEO_HEIGHT);
+                }
                 Bitmap bitmap = Bitmap.createBitmap(videoWidth, videoHeight, Bitmap.Config.ARGB_8888);
-
-                LibyuvUtil.convertI420ToBitmap(tempYuvI420, bitmap, videoWidth, videoHeight);
-
                 String photoPath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".jpeg";
                 FileOutputStream fos = new FileOutputStream(photoPath);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
@@ -216,7 +205,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         recordView.setListener(new IRecordListener() {
             @Override
             public void takePictures() {
-
+                takePhone = true;
             }
 
             @Override
@@ -263,7 +252,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
                         recordView.resetUI(true);
                     }
                 }, 100);
-                initCamera();
+                initCamera(mCameraId);
             }
 
             @Override
@@ -279,7 +268,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-                mCameraHelp.changeFlash();
+                mCameraHelp.changeFlash(mCamera);
             }
         });
 
@@ -289,13 +278,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-                if (mCameraHelp != null) {
-                    if (mCameraHelp.getCameraId() == Camera.CameraInfo.CAMERA_FACING_BACK) {
-                        mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_FRONT, mSurfaceHolder);
-                    } else {
-                        mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_BACK, mSurfaceHolder);
-                    }
-                }
+                switchCamera();
             }
         });
     }
@@ -352,14 +335,17 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         if (TextUtils.isEmpty(mp4FilePath)) {
             return;
         }
-        long duration = getVideoLength(mp4FilePath);
+        InitVideoAttribute initVideoAttribute = new InitVideoAttribute(mp4FilePath).invoke();
+        long duration = initVideoAttribute.getDuration();
+        int width = (int) initVideoAttribute.getWidth();
+        int height = (int) initVideoAttribute.getHeight();
         if (duration <= 0) {
             return;
         }
         Intent intentMas = new Intent();
         intentMas.putExtra(CameraActivity.INTENT_PATH, mp4FilePath);
-        intentMas.putExtra(INTENT_VIDEO_WIDTH, mCameraHelp.getHeight());
-        intentMas.putExtra(INTENT_PATH_HEIGHT, mCameraHelp.getWidth());
+        intentMas.putExtra(INTENT_VIDEO_WIDTH, width);
+        intentMas.putExtra(INTENT_PATH_HEIGHT, height);
         intentMas.putExtra(INTENT_PATH_TIME, duration);
         intentMas.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
         setResult(RESULT_OK, intentMas);
@@ -369,7 +355,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int i, int i1) {
         mSurfaceTexture = surfaceTexture;
-        initCamera();
+        initCamera(mCameraId);
     }
 
     @Override
@@ -391,13 +377,14 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
     /**
      * 初始化相机
      */
-    private void initCamera() {
+    private void initCamera(int cameraId) {
+        System.out.println(TAG + "--initCamera");
         if (mSurfaceTexture == null) return;
         if (mCamera != null) {
             releaseCamera();
         }
 
-        mCamera = Camera.open(mCameraId);
+        mCamera = Camera.open(cameraId);
         if (mCamera == null) {
             Toast.makeText(this, "没有可用相机", Toast.LENGTH_SHORT).show();
             return;
@@ -411,7 +398,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
                     mPreviewCallback.onPreviewFrame(bytes, camera);
                 }
             });
-            mRotationDegree = CameraUtil.getCameraDisplayOrientation(this, mCameraId);
+            mRotationDegree = CameraUtil.getCameraDisplayOrientation(this, cameraId);
             mCamera.setDisplayOrientation(mRotationDegree);
             setCameraParameter(mCamera);
             mCamera.startPreview();
@@ -424,6 +411,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
      * 释放相机
      */
     private void releaseCamera() {
+        System.out.println(TAG + "--releaseCamera");
         if (mCamera != null) {
             mCamera.setPreviewCallback(null);
             mCamera.stopPreview();
@@ -438,6 +426,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
      * @param camera
      */
     private void setCameraParameter(Camera camera) {
+        System.out.println(TAG + "--setCameraParameter");
         if (camera == null) return;
         Camera.Parameters parameters = camera.getParameters();
         //获取相机支持的>=20fps的帧率，用于设置给MediaRecorder
@@ -466,6 +455,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         parameters.setPreviewSize(supportedPreviewSizes.get(0).width, supportedPreviewSizes.get(0).height);
         //缩短Recording启动时间
         parameters.setRecordingHint(true);
+//        parameters.setRotation(mRotationDegree);
         //是否支持影像稳定能力，支持则开启
         if (parameters.isVideoStabilizationSupported())
             parameters.setVideoStabilization(true);
@@ -476,6 +466,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
      * 初始化MediaRecorder
      */
     private void initMediaRecorder() {
+        System.out.println(TAG + "--initMediaRecorder");
         //如果是处于release状态，那么只有重新new一个进入initial状态
         //否则其他状态都可以通过reset()方法回到initial状态
         if (mStatus == RecorderStatus.RELEASED) {
@@ -485,7 +476,12 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         }
         //设置选择角度，顺时针方向，因为默认是逆向90度的，这样图像就是正常显示了,这里设置的是观看保存后的视频的角度
         mMediaRecorder.setCamera(mCamera);
-        mMediaRecorder.setOrientationHint(mRotationDegree);
+//        mMediaRecorder.setOrientationHint(mRotationDegree);
+        if (isCameraFrontFacing()) {
+            mMediaRecorder.setOrientationHint(270);
+        } else {
+            mMediaRecorder.setOrientationHint(90);
+        }
         mMediaRecorder.setOnErrorListener(onErrorListener);
         //采集声音来源、mic是麦克风
         mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -505,6 +501,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
      * 释放MediaRecorder
      */
     private void releaseMediaRecorder() {
+        System.out.println(TAG + "--releaseMediaRecorder");
         if (mMediaRecorder != null) {
             if (mStatus == RecorderStatus.RELEASED) return;
             mMediaRecorder.setOnErrorListener(null);
@@ -522,6 +519,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
      * 自定义MediaRecorder的录制参数
      */
     private void setConfig() {
+        System.out.println(TAG + "--MediaRecorder--setConfig");
         //设置封装格式 默认是MP4
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
         //音频编码
@@ -531,7 +529,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         //声道
         mMediaRecorder.setAudioChannels(1);
         //设置最大录像时间 单位：毫秒
-        mMediaRecorder.setMaxDuration(18 * 1000);
+        mMediaRecorder.setMaxDuration(MAX_VIDEO_LENGTH);
         //设置最大录制的大小50M 单位，字节
         mMediaRecorder.setMaxFileSize(50 * 1024 * 1024);
         //再用44.1Hz采样率
@@ -541,7 +539,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         //设置码率
         mMediaRecorder.setVideoEncodingBitRate(500 * 1024 * 8);
         //设置视频尺寸，通常搭配码率一起使用，可调整视频清晰度
-        mMediaRecorder.setVideoSize(1280, 720);
+        mMediaRecorder.setVideoSize(VIDEO_WIDTH, VIDEO_HEIGHT);
         mMediaRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
             @Override
             public void onInfo(MediaRecorder mediaRecorder, int what, int extra) {
@@ -574,8 +572,9 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
      * 开始录制
      */
     private void startRecord() {
+        System.out.println(TAG + "--startRecord");
         if (mCamera == null) {
-            initCamera();
+            initCamera(mCameraId);
         }
         mCamera.unlock();
         initMediaRecorder();
@@ -585,9 +584,6 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-//        chronometer.setBase(SystemClock.elapsedRealtime());
-//        chronometer.start();
         mStatus = RecorderStatus.RECORDING;
     }
 
@@ -599,22 +595,72 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         releaseCamera();
     }
 
-    //获取视频参数信息
-    public long getVideoLength(String file) {
-        long length = 0;
-        try {
-            android.media.MediaMetadataRetriever retriever = new android.media.MediaMetadataRetriever();
-            retriever.setDataSource(file);
-            String duration = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
-            if (!TextUtils.isEmpty(duration)) {
-                length = Long.parseLong(duration);
-            }
-        } catch (Exception e) {
+    public void switchCamera() {
+        System.out.println(TAG + "--switchCamera");
+        if (Camera.getNumberOfCameras() < 2) {
+            Toast.makeText(CameraActivity.this, "无前置摄像头", Toast.LENGTH_SHORT).show();
+            return;
         }
-
-        return length;
+        if (mCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
+            mCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
+            initCamera(mCameraId);
+        } else {
+            mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+            initCamera(mCameraId);
+        }
+        initMediaRecorder();
     }
 
+    private static class InitVideoAttribute {
+        private long duration;
+        private long width;
+        private long height;
+        private final String videoPath;
 
+        public InitVideoAttribute(String video) {
+            videoPath = video;
+        }
+
+        public InitVideoAttribute invoke() {
+            try {
+                android.media.MediaMetadataRetriever retriever = new android.media.MediaMetadataRetriever();
+                retriever.setDataSource(videoPath);
+                String time = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
+                if (!TextUtils.isEmpty(time)) {
+                    duration = Long.parseLong(time);
+                }
+                int orientation = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+                long w = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+                long h = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+                if (orientation == 90) {
+                    width = Math.min(w, h);
+                    height = Math.max(w, h);
+                } else {
+                    width = Math.max(w, h);
+                    height = Math.min(w, h);
+                }
+            } catch (Exception e) {
+            }
+
+
+            return this;
+        }
+
+        public long getDuration() {
+            return duration;
+        }
+
+        public long getWidth() {
+            return width;
+        }
+
+        public long getHeight() {
+            return height;
+        }
+    }
+
+    private boolean isCameraFrontFacing() {
+        return mCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT;
+    }
 }
 
