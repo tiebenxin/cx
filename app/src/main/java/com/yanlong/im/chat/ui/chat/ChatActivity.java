@@ -1734,6 +1734,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onClick() {
                 //取消回复
                 mViewModel.isReplying.setValue(false);
+                clearReply();
                 isReplying = false;
                 replayMsg = null;
             }
