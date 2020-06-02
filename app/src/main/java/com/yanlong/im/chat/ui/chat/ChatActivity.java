@@ -4010,13 +4010,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     //收藏
     private void onCollect(MsgAllBean msgbean) {
-        //1 有网收藏
-        if (checkNetConnectStatus(1)) {
-
-            //2 无网收藏
-        }else {
-
-        }
         String fromUsername = "";//用户名称
         String fromGid = "";//群组id
         String fromGroupName = "";//群组名称
@@ -4057,7 +4050,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             CollectSendFileMessage msg = (CollectSendFileMessage) convertCollectBean(ChatEnum.EMessageType.FILE, msgbean);
             collectionInfo.setData(new Gson().toJson(msg));
             //暂时只对文件进行本地化存储，列表里没有本地路径不方便判断是否下载，避免每次进详情都要下一次
-            msgDao.saveCollectFileMsg(msg);
+//            msgDao.saveCollectFileMsg(msg);
         }
         collectionInfo.setFromUid(msgbean.getFrom_uid());
         collectionInfo.setFromUsername(fromUsername);
@@ -4066,7 +4059,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         collectionInfo.setFromGroupName(fromGroupName);
         collectionInfo.setMsgId(msgbean.getMsg_id());//不同表，id相同
         collectionInfo.setCreateTime(System.currentTimeMillis() + "");//收藏时间是现在系统时间
-        httpCollect(collectionInfo);
+        //1 有网收藏
+        if (checkNetConnectStatus(1)) {
+            httpCollect(collectionInfo);
+            //2 无网收藏
+        }else {
+            //2-1 如果本地收藏列表存在这条数据
+            if(msgDao.findLocalCollection(msgbean.getMsg_id())!=null){
+
+            }else {
+                //2-2 如果本地收藏列表不存在这条数据
+            }
+        }
     }
 
 

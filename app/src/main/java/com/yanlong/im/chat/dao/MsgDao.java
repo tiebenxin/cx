@@ -3808,11 +3808,11 @@ public class MsgDao {
     }
 
     /**
-     * 删除收藏记录
+     * 删除收藏消息->本地收藏列表(离线)
      *
      * @param msgId
      */
-    public void deleteCollectionInfo(String msgId) {
+    public void deleteLocalCollection(String msgId) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -3826,10 +3826,10 @@ public class MsgDao {
     }
 
     /***
-     * 保存收藏信息
+     * 保存收藏消息->本地收藏列表(离线)
      * @param
      */
-    public void saveCollection(CollectionInfo collectionInfo) {
+    public void saveLocalCollection(CollectionInfo collectionInfo) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -3844,51 +3844,22 @@ public class MsgDao {
     }
 
     /**
-     * 查询收藏数据
+     * 查询收藏消息->本地收藏列表(离线)
      *
-     * @param value
+     * @param msgId
      * @return
      */
-    public List<CollectionInfo> findCollectionInfo(String value) {
+    public CollectionInfo findLocalCollection(String msgId) {
         Realm realm = DaoUtil.open();
-        List<CollectionInfo> ret = null;
-        try {
-            ret = new ArrayList<>();
-            RealmResults<CollectionInfo> collectList = null;
-//            if(StringUtil.isNotNull(value)){
-//                users = realm.where(CollectionInfo.class).contains("collectionContent",value).or().contains("name",value)
-//                        .sort("createTime", Sort.DESCENDING).findAll();
-//            }else{
-            collectList = realm.where(CollectionInfo.class).sort("createTime", Sort.DESCENDING).findAll();
-//            }
-            if (collectList != null)
-                ret = realm.copyFromRealm(collectList);
-        } catch (Exception e) {
-            DaoUtil.reportException(e);
-        } finally {
-            realm.close();
+        CollectionInfo bean = new CollectionInfo();
+        CollectionInfo info = realm.where(CollectionInfo.class).equalTo("msgId", msgId).findFirst();
+        if (info != null) {
+            bean = realm.copyFromRealm(info);
+        }else {
+            bean = null;
         }
-        return ret;
+        realm.close();
+        return bean;
     }
-
-    /**
-     * 保存收藏的文件消息
-     *
-     * @param fileMessage
-     */
-    public void saveCollectFileMsg(CollectSendFileMessage fileMessage) {
-        Realm realm = DaoUtil.open();
-        try {
-            realm.beginTransaction();
-            realm.insertOrUpdate(fileMessage);
-            realm.commitTransaction();
-            realm.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            DaoUtil.close(realm);
-            DaoUtil.reportException(e);
-        }
-    }
-
 
 }
