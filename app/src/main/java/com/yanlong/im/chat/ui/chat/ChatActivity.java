@@ -1211,7 +1211,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             taskGroupInfo();
         } else {
             //id不为0且不为客服则获取最新用户信息
-            if (!UserUtil.isSystemUser(mViewModel.toUId) && (mViewModel.userInfo == null && mViewModel.userInfo.getuType() != ChatEnum.EUserType.ASSISTANT)) {
+            if (!UserUtil.isSystemUser(mViewModel.toUId) && (mViewModel.userInfo != null && mViewModel.userInfo.getuType() != ChatEnum.EUserType.ASSISTANT)) {
                 httpGetUserInfo();
             }
         }
