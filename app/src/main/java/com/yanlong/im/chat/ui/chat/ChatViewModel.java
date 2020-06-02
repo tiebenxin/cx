@@ -114,7 +114,6 @@ public class ChatViewModel extends ViewModel {
         recoveryValue(data, isOpenEmoj);
         recoveryValue(data, isOpenFuction);
         recoveryValue(data, isOpenSpeak);
-        recoveryValue(data, isReplying);
     }
 
     private void recoveryValue(MutableLiveData<Boolean> data, MutableLiveData<Boolean> orignalData) {
@@ -130,7 +129,7 @@ public class ChatViewModel extends ViewModel {
      */
     public boolean isOpenValue() {
         return isInputText.getValue() || isOpenEmoj.getValue() ||
-                isOpenFuction.getValue() || isOpenSpeak.getValue() || isReplying.getValue();
+                isOpenFuction.getValue() || isOpenSpeak.getValue();
 
     }
 

@@ -3994,7 +3994,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void onAnswer(MsgAllBean bean) {
         isReplying = true;
         replayMsg = bean;
-        if (isGroup()) {
+        if (isGroup() && !MessageManager.getInstance().isFromSelf(bean.getFrom_uid())) {
             doAtInput(bean);
         }
         //弹出软键盘
