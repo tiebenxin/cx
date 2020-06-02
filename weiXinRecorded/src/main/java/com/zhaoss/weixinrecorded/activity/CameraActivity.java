@@ -2,6 +2,8 @@ package com.zhaoss.weixinrecorded.activity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.media.MediaMetadataRetriever;
@@ -32,11 +34,14 @@ import com.zhaoss.weixinrecorded.util.ViewUtils;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
+
+import static android.graphics.Bitmap.createBitmap;
 
 /**
  * @version V1.0
@@ -211,7 +216,7 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         recordView.setListener(new IRecordListener() {
             @Override
             public void takePictures() {
-                takePhone = true;
+                takePhone();
             }
 
             @Override
@@ -400,12 +405,6 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
 
         try {
             mCamera.setPreviewTexture(mSurfaceTexture);
-            mCamera.setPreviewCallback(new Camera.PreviewCallback() {
-                @Override
-                public void onPreviewFrame(byte[] bytes, Camera camera) {
-                    mPreviewCallback.onPreviewFrame(bytes, camera);
-                }
-            });
             mRotationDegree = CameraUtil.getCameraDisplayOrientation(this, cameraId);
             mCamera.setDisplayOrientation(mRotationDegree);
             setCameraParameter(mCamera);
@@ -695,6 +694,39 @@ public class CameraActivity extends BaseActivity implements TextureView.SurfaceT
         File file = new File(path);
         if (file.exists()) {
             file.delete();
+        }
+    }
+
+    private void takePhone(){
+        if (mCamera != null){
+            mCamera.takePicture(null, null, new Camera.PictureCallback() {
+                @Override
+                public void onPictureTaken(byte[] data, Camera camera) {
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    Matrix matrix = new Matrix();
+                    if (!isCameraFrontFacing()) {
+                        matrix.setRotate(mRotationDegree);
+                    } else  {
+                        matrix.setRotate(360 - mRotationDegree);
+                        matrix.postScale(-1, 1);
+                    }
+
+                    bitmap = createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                    String photoPath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".jpeg";
+                    FileOutputStream fos = null;
+                    try {
+                        fos = new FileOutputStream(photoPath);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                    try {
+                        fos.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         }
     }
 }
