@@ -782,7 +782,9 @@ public class MessageManager {
 
             }
         }
-        checkNotifyVoice(wrapMessage, isList, canNotify);
+        if (!isFromSelf) {
+            checkNotifyVoice(wrapMessage, isList, canNotify);
+        }
         return result;
     }
 
