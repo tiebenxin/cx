@@ -1,6 +1,5 @@
 package com.yanlong.im.chat.ui.search;
 
-import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
@@ -71,14 +70,14 @@ public class MsgSearchViewModel extends ViewModel {
         return searchSessions == null ? 0 : searchSessions.size();
     }
 
-    public void onDestory(LifecycleOwner owner) {
-        key.removeObservers(owner);
+    @Override
+    protected void onCleared() {
+        super.onCleared();
         clear();
         repository.onDestory();
 
         repository = null;
         sessionSearch = null;
-
     }
 
     public class SessionSearch {

@@ -68,11 +68,9 @@ public class ControllerReplyMessage {
         }
         tvName.setText(message.getFrom_nickname());
         tvContent.setText(getText(message, type));
-        if (ivImage.isShown()) {
+//        if (ivImage.isShown()) {
             setImage(message, type);
-        }
-
-
+//        }
     }
 
     //是否是显示文本消息类型

@@ -1,23 +1,19 @@
 package com.yanlong.im.chat.ui.search;
 
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
-import com.yanlong.im.chat.bean.Session;
-import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @类名：消息搜索界面
@@ -32,18 +28,15 @@ public class MsgSearchActivity extends AppActivity {
     private ActionbarView actionbar;
     private net.cb.cb.library.view.ClearEditText edtSearch;
     private net.cb.cb.library.view.MultiListView mtListView;
-    private List<Session> listData;//保存全部会话列表，但是后续会被搜索结果改变其值
-    private List<Session> totalData;//保存默认全部会话列表数据不变
-    private MsgDao msgDao;
-    private UserDao userDao;
-    private boolean onlineState = true;//判断网络状态 true在线 false离线
-    private final String TYPE_FACE = "[动画表情]";
-    private MsgSearchViewModel viewModel = new MsgSearchViewModel();
+    private MsgSearchViewModel viewModel ;
     private MsgSearchAdapter adapter;
+    //第一次进入页面
+    private boolean isInit=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(getViewModelStore(),ViewModelProvider.AndroidViewModelFactory.getInstance(MyAppLication.getInstance())).get(MsgSearchViewModel.class);
         setContentView(R.layout.activity_search_frd_grp);
         findViews();
         initEvent();
@@ -63,6 +56,10 @@ public class MsgSearchActivity extends AppActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if(isInit){//第一次进入页面，弹出软键盘
+            showSoftKeyword(edtSearch);
+            isInit = false;
+        }
     }
 
     private void findViews() {
@@ -70,10 +67,6 @@ public class MsgSearchActivity extends AppActivity {
         actionbar = headView.getActionbar();
         edtSearch = findViewById(R.id.edt_search);
         mtListView = findViewById(R.id.mtListView);
-        listData = new ArrayList<>();
-        totalData = new ArrayList<>();
-        msgDao = new MsgDao();
-        userDao = new UserDao();
     }
 
     private void initEvent() {
@@ -108,10 +101,6 @@ public class MsgSearchActivity extends AppActivity {
                 return false;
             }
         });
-    }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        viewModel.onDestory(this);
+
     }
 }
