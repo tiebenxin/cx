@@ -93,7 +93,7 @@ public class SearchMsgActivity extends AppActivity {
             }
         });
         String searchKey = getIntent().getStringExtra(AGM_SEARCH_KEY);
-        if(!TextUtils.isEmpty(searchKey)){//直接搜索
+        if (!TextUtils.isEmpty(searchKey)) {//直接搜索
             edtSearch.setText(searchKey);
             edtSearch.setSelection(searchKey.length());
             taskSearch();
@@ -132,83 +132,97 @@ public class SearchMsgActivity extends AppActivity {
             String url = "";
             String name = "";
             String msg = "";
+            try {
 
-
-            if (StringUtil.isNotNull(msgbean.getGid())) {
+                if (StringUtil.isNotNull(msgbean.getGid())) {
 //                Group g = msgbean.getGroup();
 //                url = g.getFrom_avatar();
 //                name = g.getName();
-                url = msgbean.getFrom_avatar();
-                name = msgbean.getFrom_nickname();
-            } else {
-                url = msgbean.getFrom_avatar(); //u.getHead();
-                if (msgbean.isMe()) {
+                    url = msgbean.getFrom_avatar();
                     name = msgbean.getFrom_nickname();
                 } else {
-                    UserInfo u = msgbean.getShow_user();
-                    name = u.getName4Show();
-                }
-            }
-            msg = SocketData.getMsg(msgbean);
-
-
-            holder.txtName.setText(name);
-
-            holder.txtTimer.setText(TimeToString.YYYY_MM_DD_HH_MM_SS(msgbean.getTimestamp()));
-
-            final int index = msg.indexOf(key);
-            SpannableString style = new SpannableString(msg);
-            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.green_500));
-            style.setSpan(protocolColorSpan, index, index + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            showMessage(holder.txtContext, msg, style);
-
-            if(holder.txtContext.getLayout()==null){
-                final String msg1=msg;
-                //getLayout() 开始会为null,post显示后会重新加载
-                holder.txtContext.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(holder.txtContext.getLayout() == null) return;
-                        //被隐藏的字数
-                        int ellipsisCount = holder.txtContext.getLayout().getEllipsisCount(0);
-                        //显示的字数
-                        int showCount = msg1.length()-ellipsisCount;
-                        if(showCount>0&&showCount<index){//超出文本了
-                            //原则上让搜索关键字显示在中间，已经到字尾了，就以字尾显示
-                            String subMsg=msg1.substring(Math.min(index-showCount/2,msg1.length()-showCount+1));
-                            //下标数+三个点...的位置，不直接拼字符串，防止key中包含...
-                            int mindex = subMsg.indexOf(key)+3;
-                            SpannableString style = new SpannableString("..."+subMsg);
-                            style.setSpan(protocolColorSpan, mindex, mindex + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            showMessage(holder.txtContext, subMsg, style);
-                        }
+                    url = msgbean.getFrom_avatar(); //u.getHead();
+                    if (msgbean.isMe()) {
+                        name = msgbean.getFrom_nickname();
+                    } else {
+                        UserInfo u = msgbean.getShow_user();
+                        name = u.getName4Show();
                     }
-                });
-            }
+                }
 
-            Glide.with(context).load(url)
-                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                msg = SocketData.getMsg(msgbean,key);
 
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    holder.itemView.postDelayed(new Runnable() {
+
+                holder.txtName.setText(name);
+
+                holder.txtTimer.setText(TimeToString.YYYY_MM_DD_HH_MM_SS(msgbean.getTimestamp()));
+
+
+                final int index = msg.indexOf(key);
+                if(index>=0) {
+                    SpannableString style = new SpannableString(msg);
+                    ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.green_500));
+                    style.setSpan(protocolColorSpan, index, index + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    showMessage(holder.txtContext, msg, style);
+                }else{
+                    showMessage(holder.txtContext, msg, new SpannableString(msg));
+                }
+
+                if (holder.txtContext.getLayout() == null) {
+                    final String msg1 = msg;
+                    //getLayout() 开始会为null,post显示后会重新加载
+                    holder.txtContext.post(new Runnable() {
                         @Override
                         public void run() {
-                            InputUtil.hideKeyboard(edtSearch);
+                            try {
+                                if (holder.txtContext.getLayout() == null) return;
+                                //被隐藏的字数
+                                int ellipsisCount = holder.txtContext.getLayout().getEllipsisCount(0);
+                                //显示的字数
+                                int showCount = msg1.length() - ellipsisCount;
+                                if (showCount > 0 && showCount < index) {//超出文本了
+                                    //原则上让搜索关键字显示在中间，已经到字尾了，就以字尾显示
+                                    String subMsg = msg1.substring(Math.min(index - showCount / 2, msg1.length() - showCount + 1));
+                                    //下标数+三个点...的位置，不直接拼字符串，防止key中包含...
+                                    int mindex = subMsg.indexOf(key) + 3;
+                                    SpannableString style = new SpannableString("..." + subMsg);
+                                    ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.green_500));
+                                    style.setSpan(protocolColorSpan, mindex, mindex + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    showMessage(holder.txtContext, subMsg, style);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }, 10);
+                    });
+                }
+
+                Glide.with(context).load(url)
+                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        holder.itemView.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                InputUtil.hideKeyboard(edtSearch);
+                            }
+                        }, 10);
 //                    EventFindHistory eventFindHistory = new EventFindHistory();
 //                    eventFindHistory.setStime(msgbean.getTimestamp());
 //                    EventBus.getDefault().post(eventFindHistory);
-                    startActivity(new Intent(getContext(), ChatActivity.class)
-                            .putExtra(ChatActivity.AGM_TOGID, gid)
-                            .putExtra(ChatActivity.AGM_TOUID, fuid)
-                            .putExtra(ChatActivity.SEARCH_TIME, msgbean.getTimestamp())
-                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    );
-                }
-            });
+                        startActivity(new Intent(getContext(), ChatActivity.class)
+                                .putExtra(ChatActivity.AGM_TOGID, gid)
+                                .putExtra(ChatActivity.AGM_TOUID, fuid)
+                                .putExtra(ChatActivity.SEARCH_TIME, msgbean.getTimestamp())
+                                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        );
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
 
@@ -267,7 +281,7 @@ public class SearchMsgActivity extends AppActivity {
         }
 
         listData = msgAction.searchMsg4key(key, gid, fuid);
-        mtListView.notifyDataSetChange();
+        mtListView.getListView().getAdapter().notifyDataSetChanged();
     }
 
 }

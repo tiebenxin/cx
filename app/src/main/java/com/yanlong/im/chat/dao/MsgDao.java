@@ -1000,6 +1000,7 @@ public class MsgDao {
                         .like("chat.msg", searchKey).or()//文本聊天
                         .like("atMessage.msg", searchKey).or()//@消息
                         .like("assistantMessage.msg", searchKey).or()//小助手消息
+                        .like("locationMessage.address", searchKey).or()//位置消息
                         .like("locationMessage.addressDescribe", searchKey).or()//位置消息
                         .like("transferNoticeMessage.content", searchKey).or()//转账消息
                         .like("sendFileMessage.file_name", searchKey).or()//文件消息
@@ -1019,6 +1020,7 @@ public class MsgDao {
                         .like("chat.msg", searchKey).or()//文本聊天
                         .like("atMessage.msg", searchKey).or()//@消息
                         .like("assistantMessage.msg", searchKey).or()//小助手消息
+                        .like("locationMessage.address", searchKey).or()//位置消息
                         .like("locationMessage.addressDescribe", searchKey).or()//位置消息
                         .like("transferNoticeMessage.content", searchKey).or()//转账消息
                         .like("sendFileMessage.file_name", searchKey).or()//文件消息
