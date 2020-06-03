@@ -248,6 +248,8 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
 //                }
             }
             clearPendingList();
+            //更正离线已读消息
+            MessageManager.getInstance().updateOfflineReadMsg();
             MessageManager.getInstance().removeMsgTask(requestId);
             return true;
         } catch (Exception e) {
@@ -255,6 +257,8 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
         }
         return false;
     }
+
+
 
     //获取私聊未读map
     public Map<Long, Integer> getPendingUserUnreadMap() {
