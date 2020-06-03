@@ -164,14 +164,19 @@ public class SearchMsgActivity extends AppActivity {
 
             if(holder.txtContext.getLayout()==null){
                 final String msg1=msg;
+                //getLayout() 开始会为null,post显示后会重新加载
                 holder.txtContext.post(new Runnable() {
                     @Override
                     public void run() {
                         if(holder.txtContext.getLayout() == null) return;
+                        //被隐藏的字数
                         int ellipsisCount = holder.txtContext.getLayout().getEllipsisCount(0);
+                        //显示的字数
                         int showCount = msg1.length()-ellipsisCount;
                         if(showCount>0&&showCount<index){//超出文本了
+                            //原则上让搜索关键字显示在中间，已经到字尾了，就以字尾显示
                             String subMsg=msg1.substring(Math.min(index-showCount/2,msg1.length()-showCount+1));
+                            //下标数+三个点...的位置，不直接拼字符串，防止key中包含...
                             int mindex = subMsg.indexOf(key)+3;
                             SpannableString style = new SpannableString("..."+subMsg);
                             style.setSpan(protocolColorSpan, mindex, mindex + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

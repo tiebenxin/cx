@@ -8,16 +8,10 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
-import com.yanlong.im.chat.bean.Session;
-import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @类名：消息搜索界面
@@ -32,12 +26,6 @@ public class MsgSearchActivity extends AppActivity {
     private ActionbarView actionbar;
     private net.cb.cb.library.view.ClearEditText edtSearch;
     private net.cb.cb.library.view.MultiListView mtListView;
-    private List<Session> listData;//保存全部会话列表，但是后续会被搜索结果改变其值
-    private List<Session> totalData;//保存默认全部会话列表数据不变
-    private MsgDao msgDao;
-    private UserDao userDao;
-    private boolean onlineState = true;//判断网络状态 true在线 false离线
-    private final String TYPE_FACE = "[动画表情]";
     private MsgSearchViewModel viewModel = new MsgSearchViewModel();
     private MsgSearchAdapter adapter;
 
@@ -70,10 +58,6 @@ public class MsgSearchActivity extends AppActivity {
         actionbar = headView.getActionbar();
         edtSearch = findViewById(R.id.edt_search);
         mtListView = findViewById(R.id.mtListView);
-        listData = new ArrayList<>();
-        totalData = new ArrayList<>();
-        msgDao = new MsgDao();
-        userDao = new UserDao();
     }
 
     private void initEvent() {
