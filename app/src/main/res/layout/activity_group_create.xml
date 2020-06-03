@@ -16,6 +16,7 @@
             android:id="@+id/view_search"
             style="@style/app_layout_list1_item">
 
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/topListView"
                 android:layout_width="match_parent"
