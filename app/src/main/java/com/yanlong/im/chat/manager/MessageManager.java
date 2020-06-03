@@ -475,7 +475,7 @@ public class MessageManager {
                 } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.LOCKED) {//被冻结
                     eventLoginOut4Conflict.setMsg("你已被限制登录");
                 } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.PASSWORD_CHANGED) {//修改密码
-                    eventLoginOut4Conflict.setMsg("你修改了密码，请使用新密码登录");
+                    eventLoginOut4Conflict.setMsg("您已成功重置密码，请使用新密码重新登录");
                 }
                 EventBus.getDefault().post(eventLoginOut4Conflict);
                 break;
