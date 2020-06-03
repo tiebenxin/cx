@@ -1,12 +1,14 @@
 package com.yanlong.im.chat.ui.search;
 
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
 
 import net.cb.cb.library.utils.InputUtil;
@@ -26,12 +28,15 @@ public class MsgSearchActivity extends AppActivity {
     private ActionbarView actionbar;
     private net.cb.cb.library.view.ClearEditText edtSearch;
     private net.cb.cb.library.view.MultiListView mtListView;
-    private MsgSearchViewModel viewModel = new MsgSearchViewModel();
+    private MsgSearchViewModel viewModel ;
     private MsgSearchAdapter adapter;
+    //第一次进入页面
+    private boolean isInit=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(getViewModelStore(),ViewModelProvider.AndroidViewModelFactory.getInstance(MyAppLication.getInstance())).get(MsgSearchViewModel.class);
         setContentView(R.layout.activity_search_frd_grp);
         findViews();
         initEvent();
@@ -51,6 +56,10 @@ public class MsgSearchActivity extends AppActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if(isInit){//第一次进入页面，弹出软键盘
+            showSoftKeyword(edtSearch);
+            isInit = false;
+        }
     }
 
     private void findViews() {
@@ -92,10 +101,6 @@ public class MsgSearchActivity extends AppActivity {
                 return false;
             }
         });
-    }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        viewModel.onDestory(this);
+
     }
 }
