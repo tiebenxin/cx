@@ -743,6 +743,9 @@
         <activity
             android:name=".user.ui.freeze.UnFreezeAccountIdentifyActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".user.ui.freeze.AppealAccountActivity"
+            android:screenOrientation="portrait" />
 
     </application>
 
