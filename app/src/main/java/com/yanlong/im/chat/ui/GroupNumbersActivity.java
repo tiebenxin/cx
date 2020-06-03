@@ -46,6 +46,8 @@ import retrofit2.Response;
 
 /***
  * 群成员操作
+ * 1.邀请进群
+ * 2.删除群成员
  */
 public class GroupNumbersActivity extends AppActivity {
     public static final String AGM_GID = "gid";
@@ -60,7 +62,7 @@ public class GroupNumbersActivity extends AppActivity {
     private String gid;
     private List<UserInfo> listData;
     private List<UserInfo> tempData = new ArrayList<>();
-    private Integer type;
+    private Integer type;//TYPE_ADD 邀请进群  否则为移除群成员
 
     private Gson gson = new Gson();
 
@@ -127,7 +129,7 @@ public class GroupNumbersActivity extends AppActivity {
         });
         actionbar.setTxtRight("确定");
 
-        actionbar.setTitle(type == TYPE_ADD ? "加入群" : "移出群");
+        actionbar.setTitle(type == TYPE_ADD ? "选择联系人" : "删除成员");
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLoadView().setStateNormal();
         //联动
