@@ -972,7 +972,7 @@ public class MessageManager {
         Long uid = msgAllBean.getFrom_uid();
         if (isFromSelf){
             uid = msgAllBean.getTo_uid();
-            if(!TextUtils.isEmpty(msgAllBean.getGid())){//自己PC端发送的群聊消息，阅后即焚消息，立即加入
+            if(!TextUtils.isEmpty(msgAllBean.getGid())&&msgAllBean.getSurvival_time()>0){//自己PC端发送的群聊消息，阅后即焚消息，立即加入
                 msgAllBean.setStartTime(msgAllBean.getTimestamp());
                 msgAllBean.setEndTime(msgAllBean.getTimestamp() + (msgAllBean.getSurvival_time() * 1000));
             }
