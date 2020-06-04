@@ -111,6 +111,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
+import com.yanlong.im.chat.bean.OfflineCollect;
 import com.yanlong.im.chat.bean.QuotedMessage;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.ReadMessage;
@@ -4062,14 +4063,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         //1 有网收藏
         if (checkNetConnectStatus(1)) {
             httpCollect(collectionInfo);
-            //2 无网收藏
         }else {
-            //2-1 如果本地收藏列表存在这条数据
-            if(msgDao.findLocalCollection(msgbean.getMsg_id())!=null){
-
-            }else {
-                //2-2 如果本地收藏列表不存在这条数据
+            //2 无网收藏
+            //2-1 如果本地收藏列表不存在这条数据，收藏到列表，并保存收藏操作记录
+            if(msgDao.findLocalCollection(msgbean.getMsg_id())==null){
+                msgDao.saveLocalCollection(collectionInfo);//保存到本地收藏列表
+                OfflineCollect offlineCollect = new OfflineCollect();
+                offlineCollect.setMsgId(msgbean.getMsg_id());
+                offlineCollect.setCollectionInfo(collectionInfo);
+                msgDao.saveOfflineCollect(offlineCollect);//保存到离线收藏记录表
             }
+            //2-2 如果本地收藏列表存在这条数据，无需再重复收藏，不做任何操作
+            ToastUtil.show("已收藏");//离线提示
         }
     }
 
@@ -6101,6 +6106,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             collectImageMessage.setWidth(msgAllBean.getImage().getWidth());
             collectImageMessage.setHeight(msgAllBean.getImage().getHeight());
             collectImageMessage.setSize(msgAllBean.getImage().getSize());
+            collectImageMessage.setLocalimg(msgAllBean.getImage().getLocalimg());
             return collectImageMessage;
         }
         if (type == ChatEnum.EMessageType.SHIPPED_EXPRESSION) {

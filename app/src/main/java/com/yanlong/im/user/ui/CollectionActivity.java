@@ -23,6 +23,8 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.cx.sharelib.message.CxMediaMessage;
@@ -46,6 +48,7 @@ import com.yanlong.im.chat.bean.CollectVoiceMessage;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.LocationMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.OfflineDelete;
 import com.yanlong.im.chat.bean.SendFileMessage;
 import com.yanlong.im.chat.bean.ShippedExpressionMessage;
 import com.yanlong.im.chat.bean.VideoMessage;
@@ -60,6 +63,7 @@ import com.yanlong.im.databinding.ItemCollectionViewBinding;
 import com.yanlong.im.location.LocationUtils;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.CollectionInfo;
+import com.yanlong.im.utils.ChatBitmapCache;
 import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
@@ -108,7 +112,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     private List<CollectionInfo> mList = new ArrayList<>();
     private List<CollectionInfo> allCollectList = new ArrayList<>();//默认所有收藏数据
     private List<CollectionInfo> searchCollectList = new ArrayList<>();//搜索出来的数据
-    private MsgDao mMsgDao = new MsgDao();
+    private MsgDao msgDao = new MsgDao();
     private MsgAction msgAction = new MsgAction();
     private String key = "";//搜索关键字
     public static final int CANCEL_COLLECT = 0;//取消收藏
@@ -125,6 +129,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     private long userId = -1L;
     private String userName = "";
     private boolean isGroup = false;//是单聊还是群聊
+    private List<CollectionInfo> LocalList;//本地离线收藏列表数据
 
     //加载布局
     @Override
@@ -185,12 +190,27 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 binding.ivPlay.setVisibility(GONE);
                                 CollectImageMessage bean2 = new Gson().fromJson(collectionInfo.getData(), CollectImageMessage.class);
                                 if (bean2 != null) { //显示预览图或者缩略图
-                                    if (!TextUtils.isEmpty(bean2.getPreview())) {
-                                        Glide.with(CollectionActivity.this).load(bean2.getPreview())
-                                                .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
-                                    } else if (!TextUtils.isEmpty(bean2.getThumbnail())) {
-                                        Glide.with(CollectionActivity.this).load(bean2.getThumbnail())
-                                                .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
+                                    String thumbnail = bean2.getThumbnailShow();
+                                    //有网情况走网络请求，无网情况拿缓存
+                                    if(NetUtil.isNetworkConnected()){
+                                        if (!TextUtils.isEmpty(bean2.getPreview())) {
+                                            Glide.with(CollectionActivity.this).load(bean2.getPreview())
+                                                    .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
+                                        } else if (!TextUtils.isEmpty(bean2.getThumbnail())) {
+                                            Glide.with(CollectionActivity.this).load(bean2.getThumbnail())
+                                                    .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
+                                        }
+                                    }else {
+                                        Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(thumbnail);
+                                        if (localBitmap == null) {
+                                            Glide.with(CollectionActivity.this)
+                                                    .asBitmap()
+                                                    .load(thumbnail)
+                                                    .apply(GlideOptionsUtil.defaultImageOptions())
+                                                    .into(binding.ivPic);
+                                        } else {
+                                            binding.ivPic.setImageBitmap(localBitmap);
+                                        }
                                     }
                                 }
                                 break;
@@ -217,9 +237,24 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                 binding.ivPlay.setVisibility(VISIBLE);
                                 CollectVideoMessage bean4 = new Gson().fromJson(collectionInfo.getData(), CollectVideoMessage.class);
                                 if (bean4 != null) {
-                                    if (!TextUtils.isEmpty(bean4.getVideoBgURL())) {
-                                        Glide.with(CollectionActivity.this).load(bean4.getVideoBgURL())
-                                                .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
+                                    String bgUrl = bean4.getVideoBgURL();
+                                    //有网情况走网络请求，无网情况拿缓存
+                                    if(NetUtil.isNetworkConnected()){
+                                        if (!TextUtils.isEmpty(bgUrl)) {
+                                            Glide.with(CollectionActivity.this).load(bgUrl)
+                                                    .apply(GlideOptionsUtil.defaultImageOptions()).into(binding.ivPic);
+                                        }
+                                    }else {
+                                        Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(bgUrl);
+                                        if (localBitmap == null) {
+                                            Glide.with(CollectionActivity.this)
+                                                    .asBitmap()
+                                                    .load(bgUrl)
+                                                    .apply(GlideOptionsUtil.defaultImageOptions())
+                                                    .into(binding.ivPic);
+                                        } else {
+                                            binding.ivPic.setImageBitmap(localBitmap);
+                                        }
                                     }
                                 }
                                 break;
@@ -253,16 +288,35 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                     if (!TextUtils.isEmpty(bean6.getAddressDesc())) {
                                         binding.tvLocationDesc.setText(bean6.getAddressDesc());
                                     }
-                                    if (!TextUtils.isEmpty(bean6.getImg())) {
-                                        Glide.with(CollectionActivity.this)
-                                                .asBitmap()
-                                                .load(bean6.getImg())
-                                                .into(new SimpleTarget<Bitmap>() {
-                                                    @Override
-                                                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                                        binding.ivLocation.setImageBitmap(resource);
-                                                    }
-                                                });
+                                    String locationImg = bean6.getImg();
+                                    if (!TextUtils.isEmpty(locationImg)) {
+                                        //有网情况走网络请求，无网情况拿缓存
+                                        if(NetUtil.isNetworkConnected()){
+                                            Glide.with(CollectionActivity.this)
+                                                    .asBitmap()
+                                                    .load(locationImg)
+                                                    .into(new SimpleTarget<Bitmap>() {
+                                                        @Override
+                                                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                                            binding.ivLocation.setImageBitmap(resource);
+                                                        }
+                                                    });
+                                        }else {
+                                            Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(bean6.getImg());
+                                            if(localBitmap==null){
+                                                Glide.with(CollectionActivity.this)
+                                                        .asBitmap()
+                                                        .load(locationImg)
+                                                        .into(new SimpleTarget<Bitmap>() {
+                                                            @Override
+                                                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                                                binding.ivLocation.setImageBitmap(resource);
+                                                            }
+                                                        });
+                                            }else {
+                                                binding.ivLocation.setImageBitmap(localBitmap);
+                                            }
+                                        }
                                     } else {
                                         String baiduImageUrl = LocationUtils.getLocationUrl(bean6.getLat(), bean6.getLon());
                                         Glide.with(CollectionActivity.this)
@@ -275,7 +329,6 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                                                     }
                                                 });
                                     }
-
                                 }
                                 break;
                             case ChatEnum.EMessageType.AT: //艾特@消息
@@ -468,19 +521,21 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     //加载数据
     @Override
     protected void loadData() {
-        //暂时只处理有网的情况
-        if (!checkNetConnectStatus()) {
-            return;
+        //1 有网获取收藏列表
+        if (checkNetConnectStatus()) {
+            httpGetCollectList();
+        }else {
+            //2 无网加载本地收藏列表
+            LocalList = msgDao.getAllCollection();
+            if(LocalList!=null && LocalList.size()>0){
+                timeSortList(LocalList);
+                mList.clear();
+                mList.addAll(LocalList);
+                mViewAdapter.setData(mList);
+                allCollectList.addAll(LocalList);
+            }
+            checkData();
         }
-        httpGetCollectList();
-//        if (NetUtil.isNetworkConnected()) {
-//            httpGetCollectList();
-//        } else {
-//            //没有网络则拿本地缓存数据
-//            mList = mMsgDao.findCollectionInfo("");
-//            mViewAdapter.setData(mList);
-//            checkData();
-//        }
         initPopupWindow();
     }
 
@@ -588,18 +643,13 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 }
             }
         });
-        //删除 (暂时只处理有网的情况)
+        //删除
         mTxtView2.setOnClickListener(o -> {
-            if (!checkNetConnectStatus()) {
-                return;
-            }
             if (mPopupWindow != null) {
                 mPopupWindow.dismiss();
             }
             if (mList.get(postion) != null) {
-                if (mList.get(postion).getId() != 0L) {
-                    httpCancelCollect(mList.get(postion).getId(), postion);
-                }
+                httpCancelCollect(mList.get(postion).getId(), postion,mList.get(postion).getMsgId());
             }
 
 //            else {
@@ -656,13 +706,16 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 }
                 if (response.body().isOk()) {
                     List<CollectionInfo> list = response.body().getData();
-                    timeSortList(list);
-                    mList.clear();
-                    mList.addAll(list);
-                    mViewAdapter.setData(mList);
-                    allCollectList.addAll(list);
+                    if(list!=null && list.size()>0){
+                        timeSortList(list);
+                        mList.clear();
+                        mList.addAll(list);
+                        mViewAdapter.setData(mList);
+                        allCollectList.addAll(list);
+                        //同步到本地收藏列表，保持前后端数据一致性
+                        msgDao.updateLocalCollection(list);
+                    }
                     checkData();
-                    //本地保存收藏列表数据
                 }
             }
 
@@ -679,30 +732,55 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
      *
      * @param id
      */
-    private void httpCancelCollect(Long id, int postion) {
-        msgAction.cancelCollectMsg(id, new CallBack<ReturnBean>() {
-            @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                super.onResponse(call, response);
-                if (response.body() == null) {
-                    return;
-                }
-                if (response.body().isOk()) {
-                    ToastUtil.showToast(CollectionActivity.this, "删除成功",1);
-                    //同时将本地删除
-//                    mMsgDao.deleteCollectionInfo(msgId);
-                    mList.remove(postion);
-                    checkData();
-                    mViewAdapter.notifyDataSetChanged();
-                }
-            }
+    private void httpCancelCollect(Long id, int postion, String msgId) {
+        //1 有网删除
+        if(NetUtil.isNetworkConnected()){
+            if(mList.get(postion).getId() != 0L){
+                msgAction.cancelCollectMsg(id, new CallBack<ReturnBean>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                        super.onResponse(call, response);
+                        if (response.body() == null) {
+                            return;
+                        }
+                        if (response.body().isOk()) {
+                            ToastUtil.showToast(CollectionActivity.this, "删除成功",1);
+                            mList.remove(postion);
+                            checkData();
+                            mViewAdapter.notifyDataSetChanged();
+                        }
+                    }
 
-            @Override
-            public void onFailure(Call<ReturnBean> call, Throwable t) {
-                super.onFailure(call, t);
-                ToastUtil.showToast(CollectionActivity.this, "删除失败",1);
+                    @Override
+                    public void onFailure(Call<ReturnBean> call, Throwable t) {
+                        super.onFailure(call, t);
+                        ToastUtil.showToast(CollectionActivity.this, "删除失败",1);
+                    }
+                });
             }
-        });
+        }else {
+            //2 无网删除
+            //2-1 如果本地收藏列表存在这条数据
+            if(msgDao.findLocalCollection(msgId)!=null){
+                msgDao.deleteLocalCollection(msgId);//就从本地收藏列表删除
+                //2-1-1 如果有这条数据的收藏操作记录，则直接抵消掉此条记录，即收藏表和删除表都不再记录此操作
+                if(msgDao.findOfflineCollect(msgId)!=null){
+                    msgDao.deleteOfflineCollect(msgId);
+                }else {
+                    //2-1-2 如果没有这条数据的收藏操作记录，代表一种场景，即卸载或换手机以后，通过接口获取了最新收藏列表，但本地无收藏操作记录
+                    //此时如果进行离线删除，则需要记录删除操作，一旦联网通知后台，确保数据同步一致
+                    OfflineDelete offlineDelete = new OfflineDelete();
+                    offlineDelete.setMsgId(msgId);
+                    msgDao.saveOfflineDelete(offlineDelete);//保存到离线收藏删除记录表
+                }
+                mList.remove(postion);
+                checkData();
+                mViewAdapter.notifyDataSetChanged();
+            }
+            //2-2 如果本地收藏列表不存在这条数据，无需再重复删除，不做任何操作
+            ToastUtil.showToast(CollectionActivity.this, "删除成功",1);//离线提示
+        }
+
     }
 
     /*
@@ -712,13 +790,9 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
     public boolean checkNetConnectStatus() {
         boolean isOk;
         if (!NetUtil.isNetworkConnected()) {
-            ToastUtil.show(this, "网络连接不可用，请稍后重试");
             isOk = false;
         } else {
             isOk = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.CONN_STATUS).get4Json(Boolean.class);
-            if (!isOk) {
-                ToastUtil.show(this, "连接已断开，请稍后再试");
-            }
         }
         return isOk;
     }
@@ -803,9 +877,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                 if (data.getIntExtra("cancel_collect_position", -1) != (-1)) {
                     int cancelPosition = data.getIntExtra("cancel_collect_position", -1);
                     if (mList.get(cancelPosition) != null) {
-                        if (mList.get(cancelPosition).getId() != 0L) {
-                            httpCancelCollect(mList.get(cancelPosition).getId(), cancelPosition);
-                        }
+                        httpCancelCollect(mList.get(cancelPosition).getId(), cancelPosition,mList.get(cancelPosition).getMsgId());
                     }
                 }
             }
