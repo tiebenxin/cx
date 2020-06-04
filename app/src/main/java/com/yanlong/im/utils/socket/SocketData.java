@@ -2034,7 +2034,17 @@ public class SocketData {
         message.setTimestamp(msgAllBean.getTimestamp());
         message.setMsgType(msgType);
         message.setFromUid(msgAllBean.getFrom_uid().longValue());
-        message.setNickName(msgAllBean.getFrom_nickname());
+        String nick = "";
+        if (TextUtils.isEmpty(msgAllBean.getGid())) {
+            nick = msgAllBean.getFrom_nickname();
+        } else {
+            if (TextUtils.isEmpty(msgAllBean.getFrom_group_nickname())) {
+                nick = msgAllBean.getFrom_nickname();
+            } else {
+                nick = msgAllBean.getFrom_group_nickname();
+            }
+        }
+        message.setNickName(nick);
         message.setAvatar(msgAllBean.getFrom_avatar());
         InitMsgAndUrl initMsgAndUrl = new InitMsgAndUrl(msgAllBean, msgType).invoke();
         String msg = initMsgAndUrl.getMsg();

@@ -8,6 +8,7 @@ import android.view.View;
 import com.yanlong.im.R;
 import com.yanlong.im.databinding.ActivitySafetyCenterBinding;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.ui.freeze.AppealAccountActivity;
 import com.yanlong.im.user.ui.freeze.FreezeAccountActivity;
 import com.yanlong.im.user.ui.logout.LogoutAccountActivity;
 
@@ -89,7 +90,7 @@ public class SafetyCenterActivity extends AppActivity {
         ui.viewAppealAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                go(AppealAccountActivity.class);
             }
         });
 

@@ -722,7 +722,6 @@ public class MainActivity extends AppActivity {
         startActivity(new Intent(getContext(), MainActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         );
-
         AlertYesNo alertYesNo = new AlertYesNo();
         alertYesNo.init(this, "提示", event.getMsg(), "确定", null, new AlertYesNo.Event() {
             @Override

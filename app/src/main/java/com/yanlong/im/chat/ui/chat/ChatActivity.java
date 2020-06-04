@@ -3997,6 +3997,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void onAnswer(MsgAllBean bean) {
         isReplying = true;
         replayMsg = bean;
+        if (MessageManager.getInstance().isFromSelf(bean.getFrom_uid())){
+
+        }else {
+            if (mViewModel.userInfo != null){
+                replayMsg.setFrom_nickname(mViewModel.userInfo.getName());
+            }
+        }
         if (isGroup() && !MessageManager.getInstance().isFromSelf(bean.getFrom_uid())) {
             doAtInput(bean);
         }
