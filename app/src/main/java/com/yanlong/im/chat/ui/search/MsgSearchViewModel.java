@@ -4,6 +4,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.repository.MsgSearchRepository;
@@ -49,8 +50,12 @@ public class MsgSearchViewModel extends ViewModel {
         for (Session session : sessions) {
             long count = repository.searchMessagesCount(key, session.getGid(), session.getFrom_uid());
             if (count > 0) {
+                SessionSearch result = new SessionSearch(count,session.getGid(), session.getFrom_uid());
+                if(count==1){//1个消息
+                    result.setMsgAllBean(repository.searchMessages(key,session.getGid(), session.getFrom_uid()));
+                }
                 sids.add(session.getSid());
-                sessionSearch.put(session.getSid(), new SessionSearch(count,session.getGid(), session.getFrom_uid()));
+                sessionSearch.put(session.getSid(),result);
             }
         }
         searchSessions = repository.getSessionDetails(sids.toArray(new String[sids.size()]));
@@ -89,6 +94,16 @@ public class MsgSearchViewModel extends ViewModel {
         private long count = 0;
         private String gid;
         private long uid;
+        private MsgAllBean msgAllBean = null;
+
+
+        public MsgAllBean getMsgAllBean() {
+            return msgAllBean;
+        }
+
+        public void setMsgAllBean(MsgAllBean msgAllBean) {
+            this.msgAllBean = msgAllBean;
+        }
 
         public long getCount() {
             return count;

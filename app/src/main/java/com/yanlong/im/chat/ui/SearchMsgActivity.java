@@ -53,6 +53,8 @@ public class SearchMsgActivity extends AppActivity {
     private net.cb.cb.library.view.MultiListView mtListView;
     private List<UserInfo> listDataUser = new ArrayList<>();
     private List<Group> listDataGroup = new ArrayList<>();
+    //第一次进入页面,用于弹出软键盘
+    private boolean isInit = true;
 
 
     //自动寻找控件
@@ -113,7 +115,13 @@ public class SearchMsgActivity extends AppActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        showSoftKeyword(edtSearch);
+        if (isInit) {//第一次进入页面，弹出软键盘
+            isInit = false;
+            //没有搜索内容才弹出
+            if (edtSearch.getText().length() == 0)
+                showSoftKeyword(edtSearch);
+
+        }
     }
 
 
@@ -150,52 +158,13 @@ public class SearchMsgActivity extends AppActivity {
                     }
                 }
 
-                msg = SocketData.getMsg(msgbean,key);
-
-
+                msg = SocketData.getMsg(msgbean, key);
+                //高亮显示关键字
+                hightKey(holder.txtContext, msg);
                 holder.txtName.setText(name);
 
                 holder.txtTimer.setText(TimeToString.YYYY_MM_DD_HH_MM_SS(msgbean.getTimestamp()));
 
-
-                final int index = msg.indexOf(key);
-                if(index>=0) {
-                    SpannableString style = new SpannableString(msg);
-                    ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.green_500));
-                    style.setSpan(protocolColorSpan, index, index + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    showMessage(holder.txtContext, msg, style);
-                }else{
-                    showMessage(holder.txtContext, msg, new SpannableString(msg));
-                }
-
-                if (holder.txtContext.getLayout() == null) {
-                    final String msg1 = msg;
-                    //getLayout() 开始会为null,post显示后会重新加载
-                    holder.txtContext.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                if (holder.txtContext.getLayout() == null) return;
-                                //被隐藏的字数
-                                int ellipsisCount = holder.txtContext.getLayout().getEllipsisCount(0);
-                                //显示的字数
-                                int showCount = msg1.length() - ellipsisCount;
-                                if (showCount > 0 && showCount < index) {//超出文本了
-                                    //原则上让搜索关键字显示在中间，已经到字尾了，就以字尾显示
-                                    String subMsg = msg1.substring(Math.min(index - showCount / 2, msg1.length() - showCount + 1));
-                                    //下标数+三个点...的位置，不直接拼字符串，防止key中包含...
-                                    int mindex = subMsg.indexOf(key) + 3;
-                                    SpannableString style = new SpannableString("..." + subMsg);
-                                    ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.green_500));
-                                    style.setSpan(protocolColorSpan, mindex, mindex + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                    showMessage(holder.txtContext, subMsg, style);
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                }
 
                 Glide.with(context).load(url)
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
@@ -225,6 +194,65 @@ public class SearchMsgActivity extends AppActivity {
             }
         }
 
+        /**
+         * 高亮显示搜索关键字
+         * 超出一行，原则上让搜索关键字显示在中间，已经到字尾了，就以字尾显示
+         *
+         * @param tvContent
+         * @param msg
+         */
+        private void hightKey(TextView tvContent, String msg) {
+            final int index = msg.indexOf(key);
+            if (index >= 0) {
+                SpannableString style = new SpannableString(msg);
+                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.green_500));
+                style.setSpan(protocolColorSpan, index, index + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                showMessage(tvContent, msg, style);
+            } else {
+                showMessage(tvContent, msg, new SpannableString(msg));
+            }
+            if (tvContent.getLayout() == null) {
+                //getLayout() 开始会为null,post显示后会重新加载
+                tvContent.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        showEllipsis(tvContent, msg, key, index);
+                    }
+                });
+            } else {
+                showEllipsis(tvContent, msg, key, index);
+            }
+        }
+
+        /**
+         * 多于一行被隐藏处理
+         *
+         * @param tvContent
+         * @param msg
+         * @param key
+         * @param index
+         */
+        private void showEllipsis(TextView tvContent, String msg, String key, int index) {
+            try {
+                if (tvContent.getLayout() == null) return;
+                //被隐藏的字数
+                int ellipsisCount = tvContent.getLayout().getEllipsisCount(0);
+                //显示的字数
+                int showCount = msg.length() - ellipsisCount;
+                if (showCount > 0 && showCount < index) {//超出文本了
+                    //原则上让搜索关键字显示在中间，已经到字尾了，就以字尾显示
+                    String subMsg = msg.substring(Math.min(index - showCount / 2, msg.length() - showCount + 1));
+                    //下标数+三个点...的位置，不直接拼字符串，防止key中包含...
+                    int mindex = subMsg.indexOf(key) + 3;
+                    SpannableString style = new SpannableString("..." + subMsg);
+                    ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.green_500));
+                    style.setSpan(protocolColorSpan, mindex, mindex + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    showMessage(tvContent, subMsg, style);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         //自动寻找ViewHold
         @Override
@@ -255,7 +283,7 @@ public class SearchMsgActivity extends AppActivity {
         }
 
         /**
-         * 显示草稿内容
+         * 显示Emjo内容
          *
          * @param message
          */
