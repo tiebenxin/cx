@@ -1137,7 +1137,7 @@ public class UserAction {
     }
 
     /**
-     * 获取通讯录好友在线状态
+     * 删除登录设备
      */
     public void deleteDevice(String device, final CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.deleteDevice(device), new CallBack<ReturnBean>() {
@@ -1151,6 +1151,14 @@ public class UserAction {
                 super.onFailure(call, t);
             }
         });
+    }
+
+
+    /**
+     * 注销账号
+     */
+    public void logoutAccount(String code, String phone, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.logoutAccount(code, phone), callback);
     }
 
 

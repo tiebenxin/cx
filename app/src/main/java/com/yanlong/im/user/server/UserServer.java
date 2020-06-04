@@ -231,4 +231,8 @@ public interface UserServer {
     @POST("/user/device-del")
     @FormUrlEncoded
     Call<ReturnBean> deleteDevice(@Field("device") String device);
+
+    @POST("/user/deactivate-user")
+    @FormUrlEncoded
+    Call<ReturnBean> logoutAccount(@Field("captcha") String code,@Field("phone") String phone);
 }
