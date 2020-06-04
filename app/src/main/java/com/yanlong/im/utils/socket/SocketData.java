@@ -2034,7 +2034,17 @@ public class SocketData {
         message.setTimestamp(msgAllBean.getTimestamp());
         message.setMsgType(msgType);
         message.setFromUid(msgAllBean.getFrom_uid().longValue());
-        message.setNickName(msgAllBean.getFrom_nickname());
+        String nick = "";
+        if (TextUtils.isEmpty(msgAllBean.getGid())) {
+            nick = msgAllBean.getFrom_nickname();
+        } else {
+            if (TextUtils.isEmpty(msgAllBean.getFrom_group_nickname())) {
+                nick = msgAllBean.getFrom_nickname();
+            } else {
+                nick = msgAllBean.getFrom_group_nickname();
+            }
+        }
+        message.setNickName(nick);
         message.setAvatar(msgAllBean.getFrom_avatar());
         InitMsgAndUrl initMsgAndUrl = new InitMsgAndUrl(msgAllBean, msgType).invoke();
         String msg = initMsgAndUrl.getMsg();
@@ -2268,11 +2278,12 @@ public class SocketData {
         return messageType;
     }
 
-    public static String getMsg(MsgAllBean bean) {
+    public static String getMsg(MsgAllBean bean,String searchKey) {
         String msg = "";
         if (bean == null) {
             return msg;
         }
+
         int msgType = bean.getMsg_type();
         switch (msgType) {
             case ChatEnum.EMessageType.TEXT://文本
@@ -2295,9 +2306,30 @@ public class SocketData {
                 ReplyMessage replyMessage = bean.getReplyMessage();
                 if (replyMessage.getChatMessage() != null) {
                     msg = replyMessage.getChatMessage().getMsg();
+                    if(!msg.contains(searchKey)&&replyMessage.getAtMessage() != null){
+                        msg = replyMessage.getAtMessage().getMsg();
+                    }
                 } else if (replyMessage.getAtMessage() != null) {
                     msg = replyMessage.getAtMessage().getMsg();
                 }
+                break;
+            case ChatEnum.EMessageType.ASSISTANT:
+                msg = bean.getAssistantMessage().getMsg();
+                break;
+            case ChatEnum.EMessageType.LOCATION:
+                msg = bean.getLocationMessage().getAddress();
+                if(!msg.contains(msg)){
+                    msg = bean.getLocationMessage().getAddressDescribe();
+                }
+                break;
+            case ChatEnum.EMessageType.TRANSFER_NOTICE:
+                msg = bean.getTransferNoticeMessage().getContent();
+                break;
+            case ChatEnum.EMessageType.FILE:
+                msg = bean.getSendFileMessage().getFile_name();
+                break;
+            case ChatEnum.EMessageType.WEB:
+                msg = bean.getWebMessage().getTitle();
                 break;
         }
         return msg;

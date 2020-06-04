@@ -431,8 +431,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     }
 
 
-
-
     private Runnable mPanelRecoverySoftInputModeRunnable = new Runnable() {
         @Override
         public void run() {
@@ -658,7 +656,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             setDisturb();
             initSurvivaltimeState();
             viewExtendFunction.bindDate(getItemModels());
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
     }
 
     private String originalText = "";
@@ -882,8 +881,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             public void onLayoutChange(View view, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
                 //如果bottom小于oldBottom,说明键盘是弹起。
                 if (bottom < oldBottom) {
+//                    mViewModel.isInputText.setValue(true);
                     //滑动到底部
 //                    mtListView.scrollToEnd();
+                } else if (bottom > oldBottom) {
+                    mViewModel.isInputText.setValue(false);
                 }
             }
         });
@@ -2220,9 +2222,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     private void initSurvivaltimeState() {
         if (isGroup()) {
-            if(mViewModel.groupInfo!=null)survivaltime = mViewModel.groupInfo.getSurvivaltime();
+            if (mViewModel.groupInfo != null) survivaltime = mViewModel.groupInfo.getSurvivaltime();
         } else {
-            if(mViewModel.userInfo!=null) survivaltime = mViewModel.userInfo.getDestroy();
+            if (mViewModel.userInfo != null) survivaltime = mViewModel.userInfo.getDestroy();
         }
         util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
     }
@@ -3998,6 +4000,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void onAnswer(MsgAllBean bean) {
         isReplying = true;
         replayMsg = bean;
+        if (MessageManager.getInstance().isFromSelf(bean.getFrom_uid())){
+
+        }else {
+            if (mViewModel.userInfo != null){
+                replayMsg.setFrom_nickname(mViewModel.userInfo.getName());
+            }
+        }
         if (isGroup() && !MessageManager.getInstance().isFromSelf(bean.getFrom_uid())) {
             doAtInput(bean);
         }

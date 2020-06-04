@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.MyAppLication;
@@ -66,6 +65,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -111,6 +111,19 @@ public class MessageManager {
      * 用于丢弃在此时间戳之前的消息
      */
     private Map<Long, Long> historyCleanMsg = new HashMap<>();
+
+    /**
+     * 处理群聊 接收离线消息 自己PC端发送的已读消息
+     * 保存已读消息 gid-消息时间戳
+     * 用于处理自己已读和阅后即焚消息状态
+     */
+    private Map<String, Long> offlineGroupReadMsg = new HashMap<>();
+    /**
+     * 处理单聊 接收离线消息 自己PC端发送的已读消息
+     * 保存已读消息 from_uid-消息时间戳
+     * 用于处理自己已读和阅后即焚消息状态
+     */
+    private Map<Long, Long> offlineFriendReadMsg = new HashMap<>();
 
     /**
      * 保存单聊发送已读消息时间戳
@@ -475,7 +488,7 @@ public class MessageManager {
                 } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.LOCKED) {//被冻结
                     eventLoginOut4Conflict.setMsg("你已被限制登录");
                 } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.PASSWORD_CHANGED) {//修改密码
-                    eventLoginOut4Conflict.setMsg("你修改了密码，请使用新密码登录");
+                    eventLoginOut4Conflict.setMsg("您已成功重置密码，请使用新密码重新登录");
                 }
                 EventBus.getDefault().post(eventLoginOut4Conflict);
                 break;
@@ -570,11 +583,24 @@ public class MessageManager {
                 if (!isFromSelf) {
                     msgDao.setUpdateRead(uids, wrapMessage.getTimestamp());
                 }
+
                 LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getTimestamp());
                 if (isFromSelf) {//自己PC端已读，则清除未读消息
                     String gid = wrapMessage.getGid();
                     gid = gid == null ? "" : gid;
-                    msgDao.sessionReadClean(gid, uids);
+                    msgDao.sessionReadCleanAndToBurn(gid, uids, wrapMessage.getTimestamp());
+                    //有离线消息，则保存先,离线消息处理完之后，进行再次更新
+                    TaskDealWithMsgList task = getMsgTask(bean.getRequest_id());
+                    if (task!=null&&(task.getPendingMessagesMap().size() > 0
+                            || task.getPendingGroupUnreadMap().size() > 0 || task.getPendingUserUnreadMap().size() > 0)) {
+                        //清除队列未读数量
+                        clearPendingSessionUnreadCount(gid, uids, bean.getRequest_id());
+                        //保存消息信息
+                        if (TextUtils.isEmpty(gid))
+                            offlineFriendReadMsg.put(uids, wrapMessage.getTimestamp());
+                        else
+                            offlineGroupReadMsg.put(gid, wrapMessage.getTimestamp());
+                    }
                 }
                 notifyRefreshChat(wrapMessage.getGid(), uids);
                 break;
@@ -782,7 +808,9 @@ public class MessageManager {
 
             }
         }
-        checkNotifyVoice(wrapMessage, isList, canNotify);
+        if (!isFromSelf) {
+            checkNotifyVoice(wrapMessage, isList, canNotify);
+        }
         return result;
     }
 
@@ -794,6 +822,69 @@ public class MessageManager {
             for (Long key : historyCleanMsg.keySet()) {
                 msgDao.msgDel(key, historyCleanMsg.get(key));
             }
+        }
+    }
+
+    /**
+     * 更新离线接收自己PC端发送的已读消息
+     */
+    public void updateOfflineReadMsg() {
+        Realm realm = DaoUtil.open();
+        try {
+            for (String gid : offlineGroupReadMsg.keySet()) {
+                long timestamp = offlineGroupReadMsg.get(gid);
+                //查出已读前的消息，设置为已读
+                RealmResults<MsgAllBean> msgAllBeans = realm.where(MsgAllBean.class).equalTo("gid", gid)
+                        .lessThanOrEqualTo("timestamp", timestamp)
+                        .equalTo("isRead", false)
+                        .findAll();
+                realm.beginTransaction();
+                for (MsgAllBean msgAllBean : msgAllBeans) {
+                    long endTime = timestamp + msgAllBean.getSurvival_time() * 1000;
+                    if (msgAllBean.getSurvival_time() > 0 && msgAllBean.getEndTime() <= 0) {//有设置阅后即焚
+                        msgAllBean.setRead(true);
+                        msgAllBean.setReadTime(timestamp);
+                        /**处理需要阅后即焚的消息***********************************/
+                        msgAllBean.setStartTime(timestamp);
+                        msgAllBean.setEndTime(endTime);
+                    } else {//普通消息，记录已读状态和时间
+                        msgAllBean.setRead(true);
+                        msgAllBean.setReadTime(timestamp);
+                    }
+                }
+                realm.commitTransaction();
+            }
+
+            for (Long uid : offlineFriendReadMsg.keySet()) {
+                long timestamp = offlineFriendReadMsg.get(uid);
+                //查出已读前的消息，设置为已读
+                RealmResults<MsgAllBean> msgAllBeans = realm.where(MsgAllBean.class)
+                        .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
+                        .equalTo("from_uid", uid)
+                        .lessThanOrEqualTo("timestamp", timestamp)
+                        .equalTo("isRead", false)
+                        .findAll();
+                realm.beginTransaction();
+                for (MsgAllBean msgAllBean : msgAllBeans) {
+                    long endTime = timestamp + msgAllBean.getSurvival_time() * 1000;
+                    if (msgAllBean.getSurvival_time() > 0 && msgAllBean.getEndTime() <= 0) {//有设置阅后即焚
+                        msgAllBean.setRead(true);//自己已读
+                        msgAllBean.setReadTime(timestamp);
+                        /**处理需要阅后即焚的消息***********************************/
+                        msgAllBean.setStartTime(timestamp);
+                        msgAllBean.setEndTime(endTime);
+                    } else {//普通消息，记录已读状态和时间
+                        msgAllBean.setRead(true);//自己已读
+                        msgAllBean.setReadTime(timestamp);
+                    }
+                }
+                realm.commitTransaction();
+            }
+            offlineGroupReadMsg.clear();
+            offlineFriendReadMsg.clear();
+        } catch (Exception e) {
+        } finally {
+            DaoUtil.close(realm);
         }
     }
 
@@ -879,8 +970,13 @@ public class MessageManager {
         }
 
         Long uid = msgAllBean.getFrom_uid();
-        if (isFromSelf) uid = msgAllBean.getTo_uid();
-
+        if (isFromSelf){
+            uid = msgAllBean.getTo_uid();
+            if(!TextUtils.isEmpty(msgAllBean.getGid())&&msgAllBean.getSurvival_time()>0){//自己PC端发送的群聊消息，阅后即焚消息，立即加入
+                msgAllBean.setStartTime(msgAllBean.getTimestamp());
+                msgAllBean.setEndTime(msgAllBean.getTimestamp() + (msgAllBean.getSurvival_time() * 1000));
+            }
+        }
 
         try {
             msgAllBean.setTo_uid(msgAllBean.getTo_uid());
@@ -1098,6 +1194,27 @@ public class MessageManager {
     public synchronized void updateSessionUnread(String gid, Long from_uid, int count) {
 //        LogUtil.getLog().d("a=", TAG + "--更新Session--updateSessionUnread--gid=" + gid + "--uid=" + from_uid + "--count=" + count);
         msgDao.sessionReadUpdate(gid, from_uid, count);
+    }
+
+    /*接收自己PC端离线消息已读消息
+     * 清除session未读数
+     */
+    public synchronized void clearPendingSessionUnreadCount(String gid, Long uid, String requestId) {
+        if (TextUtils.isEmpty(requestId)) {
+            return;
+        }
+        TaskDealWithMsgList task = getMsgTask(requestId);
+        if (task == null) {
+            return;
+        }
+        if (TextUtils.isEmpty(gid)) {//单聊
+            Map<Long, Integer> pendingUserUnread = task.getPendingUserUnreadMap();
+            pendingUserUnread.put(uid, 0);
+        } else {
+            Map<String, Integer> pendingGroupUnread = task.getPendingGroupUnreadMap();
+            pendingGroupUnread.put(gid, 0);
+        }
+
     }
 
     /*
