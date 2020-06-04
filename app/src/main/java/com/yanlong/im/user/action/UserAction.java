@@ -685,7 +685,6 @@ public class UserAction {
      * 根据key搜索所有的好友
      */
     public List<UserInfo> searchUser4key(String key) {
-
         return dao.searchUser4key(key);
     }
 
@@ -1159,6 +1158,22 @@ public class UserAction {
      */
     public void logoutAccount(String code, String phone, final CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.logoutAccount(code, phone), callback);
+    }
+
+    /**
+     * 登录成功后，获取短信验证码
+     *
+     * @param businessType 注销deactivate
+     */
+    public void getSms(String phone, String businessType, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.getSms(phone, businessType), callback);
+    }
+
+    /**
+     * 取消注销账号
+     */
+    public void cancelDeactivate(CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.cancelDeactivate(), callback);
     }
 
 

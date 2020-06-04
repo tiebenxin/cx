@@ -14,6 +14,7 @@ import com.yanlong.im.user.action.UserAction;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.CountDownUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -30,13 +31,14 @@ public class LogoutAccountStepActivity extends AppActivity {
 
     private ActivityLogoutStepBinding ui;
     private UserAction userAction = new UserAction();
+    private String phone;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
-        String phone = intent.getStringExtra("phone");
+        phone = intent.getStringExtra("phone");
         ui = DataBindingUtil.setContentView(this, R.layout.activity_logout_step);
         ui.tvPhone.setText(phone);
         ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
@@ -51,11 +53,23 @@ public class LogoutAccountStepActivity extends AppActivity {
             }
         });
 
+        ui.tvGetVerificationCode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CountDownUtil.getTimer(60, ui.tvGetVerificationCode, "发送短信验证码", LogoutAccountStepActivity.this, new CountDownUtil.CallTask() {
+                    @Override
+                    public void task() {
+                        taskGetSms(phone);
+                    }
+                });
+            }
+        });
+
         ui.btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String code = ui.etIdentifyingCodeContent.getText().toString().trim();
-                if (!TextUtils.isEmpty(code)) {
+                if (TextUtils.isEmpty(code)) {
                     ToastUtil.show("验证码不能为空");
                     return;
                 }
@@ -103,7 +117,7 @@ public class LogoutAccountStepActivity extends AppActivity {
     }
 
     private void taskGetSms(String phone) {
-        userAction.smsCaptchaGet(phone, "deactivate", new CallBack<ReturnBean>() {
+        userAction.getSms(phone, "deactivate", new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
