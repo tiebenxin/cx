@@ -489,6 +489,8 @@ public class MessageManager {
                     eventLoginOut4Conflict.setMsg("你已被限制登录");
                 } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.PASSWORD_CHANGED) {//修改密码
                     eventLoginOut4Conflict.setMsg("您已成功重置密码，请使用新密码重新登录");
+                }else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.USER_DEACTIVATING) {//修改密码
+                    eventLoginOut4Conflict.setMsg("工作人员将在30天内处理您的申请并删除账号下所有数据。在此期间，请不要登录常信。");
                 }
                 EventBus.getDefault().post(eventLoginOut4Conflict);
                 break;

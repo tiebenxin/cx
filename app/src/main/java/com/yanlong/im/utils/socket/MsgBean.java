@@ -980,6 +980,14 @@ public final class MsgBean {
      * <code>PASSWORD_CHANGED = 2;</code>
      */
     PASSWORD_CHANGED(2),
+    /**
+     * <pre>
+     * 帐号注销中
+     * </pre>
+     *
+     * <code>USER_DEACTIVATING = 3;</code>
+     */
+    USER_DEACTIVATING(3),
     UNRECOGNIZED(-1),
     ;
 
@@ -1007,6 +1015,14 @@ public final class MsgBean {
      * <code>PASSWORD_CHANGED = 2;</code>
      */
     public static final int PASSWORD_CHANGED_VALUE = 2;
+    /**
+     * <pre>
+     * 帐号注销中
+     * </pre>
+     *
+     * <code>USER_DEACTIVATING = 3;</code>
+     */
+    public static final int USER_DEACTIVATING_VALUE = 3;
 
 
     public final int getNumber() {
@@ -1030,6 +1046,7 @@ public final class MsgBean {
         case 0: return CONFLICT;
         case 1: return LOCKED;
         case 2: return PASSWORD_CHANGED;
+        case 3: return USER_DEACTIVATING;
         default: return null;
       }
     }
@@ -58527,21 +58544,21 @@ public final class MsgBean {
       "CK\020\312\001\022\022\n\rSWITCH_CHANGE\020\313\001\022\030\n\023MULTI_TERMI" +
       "NAL_SYNC\020\314\001\022\017\n\nPAY_RESULT\020\264\002\022\026\n\021BALANCE_" +
       "ASSISTANT\020\265\002\022\021\n\014TRANS_NOTIFY\020\266\002*&\n\014Onlin" +
-      "eStatus\022\n\n\006ONLINE\020\000\022\n\n\006HIDDEN\020\001*D\n\022Force" +
+      "eStatus\022\n\n\006ONLINE\020\000\022\n\n\006HIDDEN\020\001*[\n\022Force" +
       "OfflineReason\022\014\n\010CONFLICT\020\000\022\n\n\006LOCKED\020\001\022" +
-      "\024\n\020PASSWORD_CHANGED\020\002*\240\001\n\nRejectType\022\014\n\010" +
-      "ACCEPTED\020\000\022\037\n\033NOT_FRIENDS_OR_GROUP_MEMBE" +
-      "R\020\001\022\020\n\014IN_BLACKLIST\020\002\022\025\n\021WORDS_NOT_ALLOW" +
-      "ED\020\003\022\021\n\rFRIEND_FROZEN\020\004\022\016\n\nRATE_LIMIT\020c\022" +
-      "\027\n\023SERVICE_UNAVAILABLE\020d*(\n\rJoinGroupTyp" +
-      "e\022\n\n\006QRCODE\020\000\022\013\n\007PASSIVE\020\001*\203\001\n\025MultiTerm" +
-      "inalSyncType\022\023\n\017MY_SELF_CHANGED\020\000\022\025\n\021MY_" +
-      "FRIEND_CHANGED\020\001\022\024\n\020MY_GROUP_CHANGED\020\002\022\025" +
-      "\n\021MY_FRIEND_DELETED\020\003\022\021\n\rMY_GROUP_QUIT\020\004" +
-      "*(\n\017RedEnvelopeType\022\t\n\005MFPAY\020\000\022\n\n\006SYSTEM" +
-      "\020\001*#\n\013AuVideoType\022\t\n\005Audio\020\000\022\t\n\005Vedio\020\001B" +
-      "&\n\033com.yanlong.im.utils.socketB\007MsgBeanb" +
-      "\006proto3"
+      "\024\n\020PASSWORD_CHANGED\020\002\022\025\n\021USER_DEACTIVATI" +
+      "NG\020\003*\240\001\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT" +
+      "_FRIENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_BLACKLI" +
+      "ST\020\002\022\025\n\021WORDS_NOT_ALLOWED\020\003\022\021\n\rFRIEND_FR" +
+      "OZEN\020\004\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_UNAVAI" +
+      "LABLE\020d*(\n\rJoinGroupType\022\n\n\006QRCODE\020\000\022\013\n\007" +
+      "PASSIVE\020\001*\203\001\n\025MultiTerminalSyncType\022\023\n\017M" +
+      "Y_SELF_CHANGED\020\000\022\025\n\021MY_FRIEND_CHANGED\020\001\022" +
+      "\024\n\020MY_GROUP_CHANGED\020\002\022\025\n\021MY_FRIEND_DELET" +
+      "ED\020\003\022\021\n\rMY_GROUP_QUIT\020\004*(\n\017RedEnvelopeTy" +
+      "pe\022\t\n\005MFPAY\020\000\022\n\n\006SYSTEM\020\001*#\n\013AuVideoType" +
+      "\022\t\n\005Audio\020\000\022\t\n\005Vedio\020\001B&\n\033com.yanlong.im" +
+      ".utils.socketB\007MsgBeanb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
