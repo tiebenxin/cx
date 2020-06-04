@@ -680,7 +680,9 @@ public class PictureFileUtils {
         }
         String name = url.substring(url.lastIndexOf("."));
         if (!TextUtils.isEmpty(name) && name.contains("/")) {
-            name = name.substring(0, name.lastIndexOf("/"));
+            int index = name.lastIndexOf("/");
+            index = index < 0 ? name.length() : index;
+            name = name.substring(0, index);
         }
         return name;
     }
