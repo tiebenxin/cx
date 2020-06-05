@@ -847,7 +847,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 return true;
             }
         } else {
-            if (mViewModel.userInfo == null) {
+            if (mViewModel.userInfo != null) {
                 return mViewModel.userInfo.getScreenshotNotification() == 1;
             }
         }
