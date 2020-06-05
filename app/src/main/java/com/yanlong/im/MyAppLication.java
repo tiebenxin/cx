@@ -3,6 +3,7 @@ package com.yanlong.im;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.text.TextUtils;
 
@@ -23,6 +24,7 @@ import com.umeng.commonsdk.UMConfigure;
 import com.umeng.socialize.PlatformConfig;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.server.MessageIntentService;
 import com.yanlong.im.controll.AVChatKit;
 import com.yanlong.im.location.LocationService;
 import com.yanlong.im.repository.ApplicationRepository;
@@ -70,6 +72,7 @@ public class MyAppLication extends MainApplication {
     public ApplicationRepository repository;
     public Handler handler = new Handler();
 
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -105,9 +108,15 @@ public class MyAppLication extends MainApplication {
         initARouter();//初始化路由
         initVolley();
     }
-
+    private Intent messageIntentService = null;
+    public void startMessageIntentService(){
+        if(messageIntentService == null){
+            messageIntentService = new Intent(this, MessageIntentService.class);
+        }
+        startService(messageIntentService);
+    }
     /**
-     * 初始化数据仓库--已登录的用户
+     * 初始化数据仓库--已登录的户
      * 1.已登录的用户-在application onCreate中创建
      * 2.刚登录用户-在MainActivity onCreate中创建
      * 3.退出登录时，销毁数据仓库

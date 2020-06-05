@@ -81,7 +81,7 @@ import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
 /**
  * @author Liszt
  * @date 2019/9/24
- * Description 消息管理类
+ * Description 消息管理类  MessageRepository
  */
 public class MessageManager {
     private final String TAG = MessageManager.class.getSimpleName();
@@ -130,6 +130,21 @@ public class MessageManager {
      */
     private Map<Long, Long> readTimeMap = new HashMap<>();
 
+    private List<MsgBean.UniversalMessage> toDoMsg = new ArrayList<>();
+    public void put(MsgBean.UniversalMessage receviceMsg){
+        toDoMsg.add(receviceMsg);
+    }
+    //是否正在处理消息
+    private boolean isDealingMsg = false;
+    //取第一个添加的消息
+    public MsgBean.UniversalMessage  poll(){
+        if(toDoMsg.size()>0){
+            return toDoMsg.get(toDoMsg.size()-1);
+        }else{
+            isDealingMsg = false;
+            return null;
+        }
+    }
 
     public static MessageManager getInstance() {
         if (INSTANCE == null) {
@@ -142,6 +157,12 @@ public class MessageManager {
      * 消息接收流程
      * */
     public synchronized void onReceive(MsgBean.UniversalMessage bean) {
+        put(bean);
+        if(!isDealingMsg){
+            isDealingMsg = true;
+            MyAppLication.INSTANCE().startMessageIntentService();
+        }
+
         List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
         if (msgList != null) {
             int length = msgList.size();
@@ -264,6 +285,7 @@ public class MessageManager {
                 bean.setFrom_uid(-wrapMessage.getFromUid());
             }
         }
+        MyAppLication.INSTANCE().startMessageIntentService();
         switch (wrapMessage.getMsgType()) {
             case CHAT://文本
             case IMAGE://图片
