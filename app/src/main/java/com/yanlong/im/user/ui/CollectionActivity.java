@@ -526,7 +526,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             httpGetCollectList();
         }else {
             //2 无网加载本地收藏列表
-            LocalList = msgDao.getAllCollection();
+            LocalList = msgDao.getAllCollections();
             if(LocalList!=null && LocalList.size()>0){
                 timeSortList(LocalList);
                 mList.clear();
@@ -764,14 +764,14 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             if(msgDao.findLocalCollection(msgId)!=null){
                 msgDao.deleteLocalCollection(msgId);//就从本地收藏列表删除
                 //2-1-1 如果有这条数据的收藏操作记录，则直接抵消掉此条记录，即收藏表和删除表都不再记录此操作
-                if(msgDao.findOfflineCollect(msgId)!=null){
-                    msgDao.deleteOfflineCollect(msgId);
+                if(msgDao.findOfflineCollectRecord(msgId)!=null){
+                    msgDao.deleteOfflineCollectRecord(msgId);
                 }else {
                     //2-1-2 如果没有这条数据的收藏操作记录，代表一种场景，即卸载或换手机以后，通过接口获取了最新收藏列表，但本地无收藏操作记录
                     //此时如果进行离线删除，则需要记录删除操作，一旦联网通知后台，确保数据同步一致
                     OfflineDelete offlineDelete = new OfflineDelete();
                     offlineDelete.setMsgId(msgId);
-                    msgDao.saveOfflineDelete(offlineDelete);//保存到离线收藏删除记录表
+                    msgDao.addOfflineDeleteRecord(offlineDelete);//保存到离线收藏删除记录表
                 }
                 mList.remove(postion);
                 checkData();

@@ -37,7 +37,8 @@ public class AppHostUtil {
                         connectHostApi = BuildConfig.API_HOST;
                         break;
                 }
-                connectHostApi = BuildConfig.HOST_RELEASE;
+//                connectHostApi = BuildConfig.HOST_RELEASE;
+                connectHostApi = "e7.inner.zhixun6.com";//暂时连的李佳本地，后续恢复
             } else {
                 if (type == 1) {
                     connectHostApi = BuildConfig.HOST_DEV;

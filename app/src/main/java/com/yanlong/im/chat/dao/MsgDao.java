@@ -3809,8 +3809,27 @@ public class MsgDao {
         return ret;
     }
 
+
+    /***
+     * 添加一条收藏消息->本地收藏列表
+     * @param
+     */
+    public void addLocalCollection(CollectionInfo collectionInfo) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            realm.insertOrUpdate(collectionInfo);
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
     /**
-     * 删除单条收藏消息->本地收藏列表
+     * 删除一条收藏消息->本地收藏列表
      * @param msgId
      */
     public void deleteLocalCollection(String msgId) {
@@ -3827,26 +3846,8 @@ public class MsgDao {
         }
     }
 
-    /***
-     * 保存单条收藏消息->本地收藏列表
-     * @param
-     */
-    public void saveLocalCollection(CollectionInfo collectionInfo) {
-        Realm realm = DaoUtil.open();
-        try {
-            realm.beginTransaction();
-            realm.insertOrUpdate(collectionInfo);
-            realm.commitTransaction();
-            realm.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            DaoUtil.close(realm);
-            DaoUtil.reportException(e);
-        }
-    }
-
     /**
-     * 查询单条收藏消息->本地收藏列表
+     * 查询某一条收藏消息->本地收藏列表
      * @param msgId
      * @return
      */
@@ -3864,10 +3865,10 @@ public class MsgDao {
     }
 
     /**
-     * 获取所有收藏消息->本地收藏列表
+     * 查询所有收藏消息->本地收藏列表
      * @return
      */
-    public List<CollectionInfo> getAllCollection() {
+    public List<CollectionInfo> getAllCollections() {
         List<CollectionInfo> list = null;
         Realm realm = DaoUtil.open();
         try {
@@ -3875,7 +3876,6 @@ public class MsgDao {
             if (realmList != null) {
                 list = realm.copyFromRealm(realmList);
             }
-
             realm.close();
         } catch (Exception e) {
             DaoUtil.close(realm);
@@ -3885,27 +3885,28 @@ public class MsgDao {
     }
 
     /**
-     * 更新/同步服务端最新收藏列表->本地收藏列表
+     * 获取服务端的收藏列表，替换掉本地收藏列表(同步到本地/保持一致性)
      * @param list
      */
     public void updateLocalCollection(List<CollectionInfo> list) {
-//        Realm realm = DaoUtil.open();
-//        try {
-//            realm.beginTransaction();
-//            realm.where(CollectionInfo.class).equalTo("msgId", msgId).findAll().deleteFirstFromRealm();
-//            realm.commitTransaction();
-//        } catch (Exception e) {
-//            DaoUtil.reportException(e);
-//        } finally {
-//            realm.close();
-//        }
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            realm.where(CollectionInfo.class).findAll().deleteAllFromRealm();
+            realm.insertOrUpdate(list);
+            realm.commitTransaction();
+        } catch (Exception e) {
+            DaoUtil.reportException(e);
+        } finally {
+            realm.close();
+        }
     }
 
     /***
-     * 记录收藏操作->离线收藏记录表
+     * 添加一条收藏操作记录->离线收藏记录表
      * @param collectionInfo
      */
-    public void saveOfflineCollect(OfflineCollect collectionInfo) {
+    public void addOfflineCollectRecord(OfflineCollect collectionInfo) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -3920,10 +3921,10 @@ public class MsgDao {
     }
 
     /**
-     * 删除收藏操作->离线收藏记录表
+     * 删除一条收藏操作记录->离线收藏记录表
      * @param msgId
      */
-    public void deleteOfflineCollect(String msgId) {
+    public void deleteOfflineCollectRecord(String msgId) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -3937,10 +3938,26 @@ public class MsgDao {
     }
 
     /**
-     * 查询某一条数据->离线收藏记录表
+     * 清空全部收藏操作记录->离线收藏记录表
+     */
+    public void deleteAllOfflineCollectRecords() {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            realm.where(OfflineCollect.class).findAll().deleteAllFromRealm();
+            realm.commitTransaction();
+        } catch (Exception e) {
+            DaoUtil.reportException(e);
+        } finally {
+            realm.close();
+        }
+    }
+
+    /**
+     * 查询一条收藏操作记录->离线收藏记录表
      * @param msgId
      */
-    public OfflineCollect findOfflineCollect(String msgId) {
+    public OfflineCollect findOfflineCollectRecord(String msgId) {
         Realm realm = DaoUtil.open();
         OfflineCollect bean;
         OfflineCollect info = realm.where(OfflineCollect.class).equalTo("msgId", msgId).findFirst();
@@ -3954,10 +3971,29 @@ public class MsgDao {
     }
 
     /**
-     * 记录删除操作->离线删除记录表
+     * 查询全部收藏操作记录->离线收藏记录表
+     */
+    public List<OfflineCollect> getAllOfflineCollectRecords() {
+        List<OfflineCollect> list = null;
+        Realm realm = DaoUtil.open();
+        try {
+            RealmResults<OfflineCollect> realmList = realm.where(OfflineCollect.class).findAll();
+            if (realmList != null) {
+                list = realm.copyFromRealm(realmList);
+            }
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return list;
+    }
+
+    /**
+     * 添加一条删除操作记录->离线删除记录表
      * @param bean
      */
-    public void saveOfflineDelete(OfflineDelete bean) {
+    public void addOfflineDeleteRecord(OfflineDelete bean) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -3972,13 +4008,12 @@ public class MsgDao {
     }
 
     /**
-     * 清空所有离线收藏操作记录->离线收藏记录表/离线删除记录表
+     * 清空全部删除操作记录->离线删除记录表
      */
-    public void cleanAllCollect() {
+    public void deleteAllOfflineDeleteRecords() {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
-            realm.where(OfflineCollect.class).findAll().deleteAllFromRealm();
             realm.where(OfflineDelete.class).findAll().deleteAllFromRealm();
             realm.commitTransaction();
         } catch (Exception e) {
@@ -3987,6 +4022,44 @@ public class MsgDao {
             realm.close();
         }
     }
+
+    /**
+     * 查询全部删除操作记录->离线删除记录表
+     */
+    public List<OfflineDelete> getAllOfflineDeleteRecords() {
+        List<OfflineDelete> list = null;
+        Realm realm = DaoUtil.open();
+        try {
+            RealmResults<OfflineDelete> realmList = realm.where(OfflineDelete.class).findAll();
+            if (realmList != null) {
+                list = realm.copyFromRealm(realmList);
+            }
+            realm.close();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return list;
+    }
+
+
+
+    /**
+     * 清空所有离线收藏操作记录->离线收藏记录表/离线删除记录表
+     */
+//    public void cleanAllCollect() {
+//        Realm realm = DaoUtil.open();
+//        try {
+//            realm.beginTransaction();
+//            realm.where(OfflineCollect.class).findAll().deleteAllFromRealm();
+//            realm.where(OfflineDelete.class).findAll().deleteAllFromRealm();
+//            realm.commitTransaction();
+//        } catch (Exception e) {
+//            DaoUtil.reportException(e);
+//        } finally {
+//            realm.close();
+//        }
+//    }
 
 
 
