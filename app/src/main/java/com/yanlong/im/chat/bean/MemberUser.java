@@ -51,6 +51,8 @@ public class MemberUser extends RealmObject implements Comparable<MemberUser> {
     private String tag;
     @Ignore
     private boolean isChecked = false;
+    @Ignore
+    private String markerName;//好友备注
 
     /*
      * 初始化gid,memberId,和tag
@@ -247,5 +249,13 @@ public class MemberUser extends RealmObject implements Comparable<MemberUser> {
             }
         }
         return false;
+    }
+
+    public String getMarkerName() {
+        return markerName;
+    }
+
+    public void setMarkerName(String markerName) {
+        this.markerName = markerName;
     }
 }

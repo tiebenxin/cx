@@ -38,7 +38,8 @@ public class ChatLocalDataSource {
      * @return
      */
     public Group getGroup(String gid) {
-        return realm.where(Group.class).equalTo("gid", gid).findFirst();
+        if(TextUtils.isEmpty(gid)) return null;
+        else return realm.where(Group.class).equalTo("gid", gid).findFirst();
     }
 
     /**
@@ -48,7 +49,8 @@ public class ChatLocalDataSource {
      * @return
      */
     public UserInfo getFriend(Long uid) {
-        return realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+        if(uid == null) return null;
+        else return realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
     }
 
     /*

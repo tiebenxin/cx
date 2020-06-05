@@ -489,6 +489,8 @@ public class MessageManager {
                     eventLoginOut4Conflict.setMsg("你已被限制登录");
                 } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.PASSWORD_CHANGED) {//修改密码
                     eventLoginOut4Conflict.setMsg("您已成功重置密码，请使用新密码重新登录");
+                }else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.USER_DEACTIVATING) {//修改密码
+                    eventLoginOut4Conflict.setMsg("工作人员将在30天内处理您的申请并删除账号下所有数据。在此期间，请不要登录常信。");
                 }
                 EventBus.getDefault().post(eventLoginOut4Conflict);
                 break;
@@ -581,7 +583,15 @@ public class MessageManager {
             case READ://已读消息
                 long uids = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
                 if (!isFromSelf) {
-                    msgDao.setUpdateRead(uids, wrapMessage.getTimestamp());
+                    if (TextUtils.isEmpty(wrapMessage.getGid())) {//单聊
+                        msgDao.setUpdateRead(uids, wrapMessage.getTimestamp());
+                        //自己PC端发送给好友的消息，有离线消息，则保存先,离线消息处理完之后，进行再次更新
+                        TaskDealWithMsgList task = getMsgTask(bean.getRequest_id());
+                        if (task != null && (task.getPendingMessagesMap().size() > 0)) {
+                            //保存消息信息
+                            offlineFriendReadMsg.put(uids, wrapMessage.getTimestamp());
+                        }
+                    }
                 }
 
                 LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getTimestamp());
@@ -591,7 +601,7 @@ public class MessageManager {
                     msgDao.sessionReadCleanAndToBurn(gid, uids, wrapMessage.getTimestamp());
                     //有离线消息，则保存先,离线消息处理完之后，进行再次更新
                     TaskDealWithMsgList task = getMsgTask(bean.getRequest_id());
-                    if (task!=null&&(task.getPendingMessagesMap().size() > 0
+                    if (task != null && (task.getPendingMessagesMap().size() > 0
                             || task.getPendingGroupUnreadMap().size() > 0 || task.getPendingUserUnreadMap().size() > 0)) {
                         //清除队列未读数量
                         clearPendingSessionUnreadCount(gid, uids, bean.getRequest_id());
@@ -857,7 +867,7 @@ public class MessageManager {
 
             for (Long uid : offlineFriendReadMsg.keySet()) {
                 long timestamp = offlineFriendReadMsg.get(uid);
-                //查出已读前的消息，设置为已读
+                //查出已读前的消息，设置为已读,好友发送的消息
                 RealmResults<MsgAllBean> msgAllBeans = realm.where(MsgAllBean.class)
                         .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
                         .equalTo("from_uid", uid)
@@ -970,9 +980,9 @@ public class MessageManager {
         }
 
         Long uid = msgAllBean.getFrom_uid();
-        if (isFromSelf){
+        if (isFromSelf) {
             uid = msgAllBean.getTo_uid();
-            if(!TextUtils.isEmpty(msgAllBean.getGid())&&msgAllBean.getSurvival_time()>0){//自己PC端发送的群聊消息，阅后即焚消息，立即加入
+            if (!TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getSurvival_time() > 0) {//自己PC端发送的群聊消息，阅后即焚消息，立即加入
                 msgAllBean.setStartTime(msgAllBean.getTimestamp());
                 msgAllBean.setEndTime(msgAllBean.getTimestamp() + (msgAllBean.getSurvival_time() * 1000));
             }

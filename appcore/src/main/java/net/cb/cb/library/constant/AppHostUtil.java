@@ -48,6 +48,7 @@ public class AppHostUtil {
                 }
             }
         }
+//        connectHostApi = "e7.inner.zhixun6.com";
         if (isEmpty()) {
             throw new NullPointerException("请检查config.gradle#host配置");
         }
@@ -58,6 +59,7 @@ public class AppHostUtil {
     //切换服务器
     public static void setHostUrl(String url) {
         connectHostApi = url;
+//        connectHostApi = "e7.inner.zhixun6.com";
         NetUtil.getNet().resetHost();
     }
 
@@ -65,6 +67,7 @@ public class AppHostUtil {
         if (isEmpty()) {
             getConnectHostApi();
         }
+        LogUtil.getLog().i("AppHostUtil", "getTcpHost：" + connectHostApi);
         return HTTPS + connectHostApi + ":" + HTTP_PORT;
     }
 
@@ -72,6 +75,7 @@ public class AppHostUtil {
         if (isEmpty()) {
             getConnectHostApi();
         }
+        LogUtil.getLog().i("AppHostUtil", "getTcpHost：" + connectHostApi);
         return connectHostApi;
     }
 

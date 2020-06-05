@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IUser;
 import com.yanlong.im.user.bean.UserBean;
@@ -15,7 +16,9 @@ import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.manager.Constants;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -685,4 +688,25 @@ public class UserDao {
         }
     }
 
+    public void getMemberUserName(List<MemberUser> users) {
+        if (users == null || users.size() < 1) {
+            return;
+        }
+        Realm realm = DaoUtil.open();
+        try {
+            int len = users.size();
+            for (int i = 0; i < len; i++) {
+                MemberUser member = users.get(i);
+                UserInfo user = realm.where(UserInfo.class).equalTo("uid", member.getUid()).findFirst();
+                if (user != null && !TextUtils.isEmpty(user.getMkName())) {
+                    member.setMarkerName(user.getMkName());
+                }
+            }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
 }

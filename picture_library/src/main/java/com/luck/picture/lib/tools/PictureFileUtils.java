@@ -2,7 +2,6 @@ package com.luck.picture.lib.tools;
 
 import android.annotation.SuppressLint;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -669,6 +668,8 @@ public class PictureFileUtils {
         }
         int start = url.lastIndexOf("/");
         int end = url.lastIndexOf(".");
+        start = start < 0 ? 0 : start;
+        end = end < 0 ? url.length() : end;
         return url.substring(start + 1, end);
     }
 
@@ -677,9 +678,11 @@ public class PictureFileUtils {
         if (TextUtils.isEmpty(url)) {
             return "";
         }
-        String name = url.substring(url.lastIndexOf("." ));
-        if (!TextUtils.isEmpty(name) &&name.contains("/")){
-            name = name.substring(0,name.lastIndexOf("/"));
+        String name = url.substring(url.lastIndexOf("."));
+        if (!TextUtils.isEmpty(name) && name.contains("/")) {
+            int index = name.lastIndexOf("/");
+            index = index < 0 ? name.length() : index;
+            name = name.substring(0, index);
         }
         return name;
     }

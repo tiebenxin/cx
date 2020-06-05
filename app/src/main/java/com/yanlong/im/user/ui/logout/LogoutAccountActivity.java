@@ -1,15 +1,18 @@
 package com.yanlong.im.user.ui.logout;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 
-import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.R;
 import com.yanlong.im.databinding.ActivityLogoutBinding;
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.IUser;
 
-import net.cb.cb.library.dialog.DialogCommon;
-import net.cb.cb.library.dialog.DialogCommon2;
+import net.cb.cb.library.utils.CountDownUtil;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
@@ -39,51 +42,33 @@ public class LogoutAccountActivity extends AppActivity {
         ui.tvConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showConfirmDialog();
+                IUser user = UserAction.getMyInfo();
+                if (user != null && !TextUtils.isEmpty(user.getPhone())) {
+                    toNextActivity(user.getPhone());
+                } else {
+                    ToastUtil.show("该账号无手机号，不能注销");
+                }
             }
         });
     }
 
-    private void showConfirmDialog() {
-        ThreadUtil.getInstance().runMainThread(new Runnable() {
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CountDownUtil.getLogoutTimer(10, ui.tvConfirm, "申请注销", this, new CountDownUtil.CallTask() {
             @Override
-            public void run() {
-                DialogCommon dialogConfirm = new DialogCommon(LogoutAccountActivity.this);
-                dialogConfirm.setTitleAndSure(false, true)
-                        .setLeft("取消")
-                        .setRight("确定")
-                        .setContent("确定要注销账号吗？", true)
-                        .setListener(new DialogCommon.IDialogListener() {
-                            @Override
-                            public void onSure() {
+            public void task() {
 
-                            }
-
-                            @Override
-                            public void onCancel() {
-
-                            }
-                        }).show();
-            }
-        });
-
-    }
-
-    private void showCommitedDialog() {
-        ThreadUtil.getInstance().runMainThread(new Runnable() {
-            @Override
-            public void run() {
-                DialogCommon2 dialogCommited = new DialogCommon2(LogoutAccountActivity.this);
-                dialogCommited.setButtonTxt("确定")
-                        .setTitle("已经提交注册申请")
-                        .setContent("工作人员将在30天内处理您的申请并删除账号下所有数据。在此期间，请不要登录常信。", false)
-                        .setListener(new DialogCommon2.IDialogListener() {
-                            @Override
-                            public void onClick() {
-
-                            }
-                        }).show();
             }
         });
     }
+
+
+    private void toNextActivity(String phone) {
+        Intent intent = new Intent(LogoutAccountActivity.this, LogoutAccountStepActivity.class);
+        intent.putExtra("phone", phone);
+        startActivity(intent);
+        finish();
+    }
+
 }

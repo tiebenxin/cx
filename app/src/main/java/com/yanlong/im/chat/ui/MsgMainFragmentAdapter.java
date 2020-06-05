@@ -104,68 +104,69 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     //自动生成控件事件
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, int position) {
-        if (viewHolder instanceof RCViewHolder) {
-            RCViewHolder holder = (RCViewHolder) viewHolder;
-            if (viewModel.isNeedCloseSwipe.getValue()) {
-                holder.swipeLayout.quickClose();
-            }
-            final Session bean = viewModel.getSession().get(position - 1);
-            String sid = bean.getSid();
-            String icon = "";
-            String title = "";
-            MsgAllBean msginfo = null;
-            String name = "";
-            List<String> avatarList = null;
-            String info = "";
-            if (viewModel.sessionMoresPositions.containsKey(bean.getSid())) {
-                Integer index = viewModel.sessionMoresPositions.get(bean.getSid());
-                if (index != null && index >= 0) {
-                    //从session详情对象中获取
-                    icon = viewModel.sessionMores.get(index).getAvatar();
-                    title = viewModel.sessionMores.get(index).getName();
-                    msginfo = viewModel.sessionMores.get(index).getMessage();
-                    name = viewModel.sessionMores.get(index).getSenderName();
-                    String avatarListString = viewModel.sessionMores.get(index).getAvatarList();
-                    if (avatarListString != null) {
-                        avatarList = Arrays.asList(avatarListString.split(","));
-                    }
-                    if (name == null) name = "";
-                    info = viewModel.sessionMores.get(index).getMessageContent();
+        try {
+            if (viewHolder instanceof RCViewHolder) {
+                RCViewHolder holder = (RCViewHolder) viewHolder;
+                if (viewModel.isNeedCloseSwipe.getValue()) {
+                    holder.swipeLayout.quickClose();
                 }
-            }
+                final Session bean = viewModel.getSession().get(position - 1);
+                String sid = bean.getSid();
+                String icon = "";
+                String title = "";
+                MsgAllBean msginfo = null;
+                String name = "";
+                List<String> avatarList = null;
+                String info = "";
+                if (viewModel.sessionMoresPositions.containsKey(bean.getSid())) {
+                    Integer index = viewModel.sessionMoresPositions.get(bean.getSid());
+                    if (index != null && index >= 0) {
+                        //从session详情对象中获取
+                        icon = viewModel.sessionMores.get(index).getAvatar();
+                        title = viewModel.sessionMores.get(index).getName();
+                        msginfo = viewModel.sessionMores.get(index).getMessage();
+                        name = viewModel.sessionMores.get(index).getSenderName();
+                        String avatarListString = viewModel.sessionMores.get(index).getAvatarList();
+                        if (avatarListString != null) {
+                            avatarList = Arrays.asList(avatarListString.split(","));
+                        }
+                        if (name == null) name = "";
+                        info = viewModel.sessionMores.get(index).getMessageContent();
+                    }
+                }
 
-            // 头像集合
-            List<String> headList = new ArrayList<>();
+                // 头像集合
+                List<String> headList = new ArrayList<>();
 
 
-            int type = bean.getMessageType();
-            if (bean.getType() == 0) {//单人
-                if (type == ChatEnum.ESessionType.ENVELOPE_FAIL) {
-                    SpannableString style = new SpannableString("[红包发送失败]" + info);
-                    ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
-                    style.setSpan(protocolColorSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    showMessage(holder.txtInfo, info, style);
-                } else {
-                    if (StringUtil.isNotNull(bean.getDraft())) {
-                        SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
+                int type = bean.getMessageType();
+                if (bean.getType() == 0) {//单人
+                    if (type == ChatEnum.ESessionType.ENVELOPE_FAIL) {
+                        SpannableString style = new SpannableString("[红包发送失败]" + info);
                         ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
-                        style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        showMessage(holder.txtInfo, bean.getDraft(), style);
+                        style.setSpan(protocolColorSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        showMessage(holder.txtInfo, info, style);
                     } else {
-                        showMessage(holder.txtInfo, info, null);
+                        if (StringUtil.isNotNull(bean.getDraft())) {
+                            SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
+                            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
+                            style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            showMessage(holder.txtInfo, bean.getDraft(), style);
+                        } else {
+                            showMessage(holder.txtInfo, info, null);
+                        }
                     }
-                }
-                headList.add(icon);
-                holder.imgHead.setList(headList);
+                    headList.add(icon);
+                    holder.imgHead.setList(headList);
 
-            } else if (bean.getType() == 1) {//群
-                if (type == 0) {
+                } else if (bean.getType() == 1) {//群
+                    if (type == 0) {
 //                    if (!TextUtils.isEmpty(bean.getAtMessage()) && !TextUtils.isEmpty(name)) {
 //                        info = name + bean.getAtMessage();
 //                    } else {
-                    info = name + info;
+                        info = name + info;
 //                    }
-                } else if (type == 1) {
+                    } else if (type == 1) {
 //                    if (!TextUtils.isEmpty(bean.getAtMessage()) && !TextUtils.isEmpty(name)) {
 ////                        if (TextUtils.isEmpty(info)) {
 ////                            info = bean.getAtMessage();
@@ -175,118 +176,119 @@ public class MsgMainFragmentAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 ////                        }
 //                        info = name + info;
 //                    } else {
-                    info = name + info;
+                        info = name + info;
 //                    }
-                } else if (msginfo != null && (ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME + "").equals(msginfo.getMsg_type() + "")) {
-                    //阅后即焚不通知 不显示谁发的 肯定是群主修改的
-                    // info=info;
-                } else if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {//草稿除外
+                    } else if (msginfo != null && (ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME + "").equals(msginfo.getMsg_type() + "")) {
+                        //阅后即焚不通知 不显示谁发的 肯定是群主修改的
+                        // info=info;
+                    } else if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {//草稿除外
 //                    if (msginfo != null && (ChatEnum.EMessageType.AT + "").equals(msginfo.getMsg_type() + "")
 //                            && StringUtil.isNotNull(info) && info.startsWith("@所有人")) {
 //                        info = info.replace("@所有人", "");
 //                    }
-                    info = name + info;
-                }
-                // 处理公告...问题
-                info = info.replace("\r\n", "  ");
+                        info = name + info;
+                    }
+                    // 处理公告...问题
+                    info = info.replace("\r\n", "  ");
 
-                switch (type) {
-                    case 0:
-                    case 1: {
-                        if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            SpannableString style = new SpannableString("[有人@我]" + info);
+                    switch (type) {
+                        case 0:
+                        case 1: {
+                            if (StringUtil.isNotNull(bean.getAtMessage())) {
+                                SpannableString style = new SpannableString("[有人@我]" + info);
+                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
+                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                showMessage(holder.txtInfo, info, style);
+                            } else {
+                                showMessage(holder.txtInfo, info, null);
+                            }
+                        }
+                        break;
+                        case 2:
+                            if (StringUtil.isNotNull(bean.getDraft())) {
+                                SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
+                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
+                                style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                showMessage(holder.txtInfo, bean.getDraft(), style);
+                            } else {
+                                showMessage(holder.txtInfo, info, null);
+
+                            }
+                            break;
+                        case 3:
+                            SpannableString style = new SpannableString("[红包发送失败]" + info);
                             ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
-                            style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            style.setSpan(protocolColorSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             showMessage(holder.txtInfo, info, style);
-                        } else {
+                            break;
+                        default:
                             showMessage(holder.txtInfo, info, null);
-                        }
+                            break;
+
                     }
-                    break;
-                    case 2:
-                        if (StringUtil.isNotNull(bean.getDraft())) {
-                            SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
-                            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
-                            style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            showMessage(holder.txtInfo, bean.getDraft(), style);
-                        } else {
-                            showMessage(holder.txtInfo, info, null);
 
+                    if (StringUtil.isNotNull(icon)) {
+                        headList.add(icon);
+                        holder.imgHead.setList(headList);
+                    } else {
+                        if (avatarList == null || avatarList.size() == 0) {//没有头像，设个默认的，否则会出现头像为全灰色
+                            avatarList = new ArrayList<>();
+                            avatarList.add("");
                         }
-                        break;
-                    case 3:
-                        SpannableString style = new SpannableString("[红包发送失败]" + info);
-                        ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red_all_notify));
-                        style.setSpan(protocolColorSpan, 0, 8, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        showMessage(holder.txtInfo, info, style);
-                        break;
-                    default:
-                        showMessage(holder.txtInfo, info, null);
-                        break;
-
+                        holder.imgHead.setList(avatarList);
+                    }
                 }
 
-                if (StringUtil.isNotNull(icon)) {
-                    headList.add(icon);
-                    holder.imgHead.setList(headList);
+                holder.txtName.setText(title);
+                if (bean.isSystemUser()) {
+                    //系统会话
+                    holder.txtName.setTextColor(context.getResources().getColor(R.color.blue_title));
+                    holder.usertype_tv.setVisibility(View.VISIBLE);
                 } else {
-                    if (avatarList == null || avatarList.size() == 0) {//没有头像，设个默认的，否则会出现头像为全灰色
-                        avatarList = new ArrayList<>();
-                        avatarList.add("");
+                    holder.txtName.setTextColor(context.getResources().getColor(R.color.black));
+                    holder.usertype_tv.setVisibility(View.GONE);
+                }
+                setUnreadCountOrDisturb(holder, bean, msginfo);
+
+                holder.txtTime.setText(TimeToString.getTimeWx(bean.getUp_time()));
+
+
+                holder.viewIt.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (ViewUtils.isFastDoubleClick()) {
+                            return;
+                        }
+                        context.startActivity(new Intent(context, ChatActivity.class)
+                                .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
+                                .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
+                                .putExtra(ChatActivity.ONLINE_STATE, viewModel.onlineState.getValue())
+                        );
                     }
-                    holder.imgHead.setList(avatarList);
-                }
-            }
-
-            holder.txtName.setText(title);
-            if (bean.isSystemUser()) {
-                //系统会话
-                holder.txtName.setTextColor(context.getResources().getColor(R.color.blue_title));
-                holder.usertype_tv.setVisibility(View.VISIBLE);
-            } else {
-                holder.txtName.setTextColor(context.getResources().getColor(R.color.black));
-                holder.usertype_tv.setVisibility(View.GONE);
-            }
-            setUnreadCountOrDisturb(holder, bean, msginfo);
-
-            holder.txtTime.setText(TimeToString.getTimeWx(bean.getUp_time()));
-
-
-            holder.viewIt.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (ViewUtils.isFastDoubleClick()) {
-                        return;
+                });
+                holder.btnDel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        holder.swipeLayout.quickClose();
+                        //删除数据
+                        viewModel.currentDeleteSid.setValue(sid);
                     }
-                    context.startActivity(new Intent(context, ChatActivity.class)
-                            .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
-                            .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
-                            .putExtra(ChatActivity.ONLINE_STATE, viewModel.onlineState.getValue())
-                    );
-                }
-            });
-            holder.btnDel.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    holder.swipeLayout.quickClose();
-                    //删除数据
-                    viewModel.currentDeleteSid.setValue(sid);
-                }
-            });
-            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#F2F2F2"));
-            holder.iv_disturb.setVisibility(bean.getIsMute() == 0 ? View.INVISIBLE : View.VISIBLE);
-        } else if (viewHolder instanceof HeadViewHolder) {
-            HeadViewHolder headHolder = (HeadViewHolder) viewHolder;
-            headHolder.edtSearch.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(context, MsgSearchActivity.class);
-                    intent.putExtra("online_state", viewModel.onlineState.getValue());
-                    context.startActivity(intent);
-                }
-            });
-            viewNetwork = headHolder.viewNetwork;
-        }
+                });
+                holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#F2F2F2"));
+                holder.iv_disturb.setVisibility(bean.getIsMute() == 0 ? View.INVISIBLE : View.VISIBLE);
+            } else if (viewHolder instanceof HeadViewHolder) {
+                HeadViewHolder headHolder = (HeadViewHolder) viewHolder;
+                headHolder.edtSearch.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(context, MsgSearchActivity.class);
+                        intent.putExtra("online_state", viewModel.onlineState.getValue());
+                        context.startActivity(intent);
+                    }
+                });
+                viewNetwork = headHolder.viewNetwork;
+            }
+        }catch (Exception e){ }
 
     }
 

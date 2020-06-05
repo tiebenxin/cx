@@ -30,7 +30,7 @@ public class MsgSearchActivity extends AppActivity {
     private net.cb.cb.library.view.MultiListView mtListView;
     private MsgSearchViewModel viewModel ;
     private MsgSearchAdapter adapter;
-    //第一次进入页面
+    //第一次进入页面,用于弹出软键盘
     private boolean isInit=true;
 
     @Override
