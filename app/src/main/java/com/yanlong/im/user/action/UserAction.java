@@ -163,7 +163,6 @@ public class UserAction {
      * 账号密码登录
      */
     public void login(final String phone, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
-
         cleanInfo();
         NetUtil.getNet().exec(server.login(MD5.md5(pwd), phone, devid, "android", DeviceUtils.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext()), DeviceUtils.getIMEI(AppConfig.getContext()), DeviceUtils.getDeviceName()), new CallBack<ReturnBean<TokenBean>>() {
             @Override
