@@ -6031,7 +6031,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         }
                         if (response.body().isOk()) {
                             ToastUtil.showToast(ChatActivity.this, "已收藏", 1);
-//                    msgDao.saveCollection(collectionInfo);
+                            msgDao.addLocalCollection(collectionInfo);//添加到本地收藏列表
                         }
                     }
 

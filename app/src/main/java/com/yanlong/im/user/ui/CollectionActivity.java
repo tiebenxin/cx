@@ -748,6 +748,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
                             mList.remove(postion);
                             checkData();
                             mViewAdapter.notifyDataSetChanged();
+                            msgDao.deleteLocalCollection(msgId);//从本地收藏列表删除
                         }
                     }
 
@@ -762,7 +763,7 @@ public class CollectionActivity extends BaseBindActivity<ActivityCollectionBindi
             //2 无网删除
             //2-1 如果本地收藏列表存在这条数据
             if(msgDao.findLocalCollection(msgId)!=null){
-                msgDao.deleteLocalCollection(msgId);//就从本地收藏列表删除
+                msgDao.deleteLocalCollection(msgId);//从本地收藏列表删除
                 //2-1-1 如果有这条数据的收藏操作记录，则直接抵消掉此条记录，即收藏表和删除表都不再记录此操作
                 if(msgDao.findOfflineCollectRecord(msgId)!=null){
                     msgDao.deleteOfflineCollectRecord(msgId);
