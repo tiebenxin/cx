@@ -90,14 +90,14 @@ public class ChatViewModel extends ViewModel {
                 userInfo.removeAllChangeListeners();
                 userInfo = null;
             }
-            userInfo = repository.getFriend(this.toUId);
+            userInfo = repository.getFriend(toUId);
             if (userInfo != null) userInfo.addChangeListener(userInfoChangeListener);
         } else {
             if (groupInfo != null) {
                 groupInfo.removeAllChangeListeners();
-                userInfo = null;
+                groupInfo = null;
             }
-            groupInfo = repository.getGroup(this.toGid);
+            groupInfo = repository.getGroup(toGid);
             if (groupInfo != null) groupInfo.addChangeListener(groupInfoChangeListener);
         }
     }
@@ -143,22 +143,18 @@ public class ChatViewModel extends ViewModel {
     public void onDestory() {
         if (toAddBurnForDBMsgs != null){
             toAddBurnForDBMsgs.removeAllChangeListeners();
-            toAddBurnForDBMsgs = null;
         }
 
         if (userInfo != null){
             userInfo.removeAllChangeListeners();
-            userInfo = null;
         }
 
         if (groupInfo != null){
             groupInfo.removeAllChangeListeners();
-            groupInfo = null;
         }
 
         if (repository != null){
             repository.onDestory();
-            repository = null;
         }
 
     }

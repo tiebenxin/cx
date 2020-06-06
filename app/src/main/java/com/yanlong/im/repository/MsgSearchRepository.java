@@ -1,6 +1,7 @@
 package com.yanlong.im.repository;
 
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.data.local.MsgSearchLocalDataSource;
@@ -59,6 +60,15 @@ public class MsgSearchRepository {
      */
     public long searchMessagesCount(String searchKey,String gid,long uid) {
         return localDataSource.searchMessagesCount(searchKey,gid,uid);
+    }
+    /**
+     * 搜索聊天记录匹配数量为1时的消息
+     *
+     * @param key
+     * @return
+     */
+    public MsgAllBean searchMessages(String key, String gid, long uid) {
+        return localDataSource.searchMessages(key, gid, uid);
     }
     public void onDestory() {
         localDataSource.onDestory();

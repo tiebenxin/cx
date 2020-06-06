@@ -638,24 +638,29 @@ public class MsgMainFragment extends Fragment {
 
     //滑动到未读消息项
     public void moveToUnread() {
-        List<Integer> positionList = new ArrayList<>();//保存有未读消息的位置
-        if (viewModel.getSessionSize() > 0) {
-            RealmResults<Session> sessions = viewModel.getSession();
-            for (int i = 0; i < viewModel.getSessionSize(); i++) {
-                Session bean = sessions.get(i);
-                if (bean.getUnread_count() > 0) {
-                    positionList.add(i);
+        try {
+            List<Integer> positionList = new ArrayList<>();//保存有未读消息的位置
+            if (viewModel.getSessionSize() > 0) {
+                RealmResults<Session> sessions = viewModel.getSession();
+                for (int i = 0; i < viewModel.getSessionSize(); i++) {
+                    Session bean = sessions.get(i);
+                    if (bean.getUnread_count() > 0) {
+                        positionList.add(i);
+                    }
                 }
             }
-        }
-        //从首位置开始，多次双击，按未读消息会话的顺序滑动，依次滑动至最后一项，然后重置位置
-        if (positionList.size() > 0) {
-            mtListView.getLayoutManager().scrollToPositionWithOffset(positionList.get(showPosition) + 1, 0);
-            if (showPosition < positionList.size() - 1) {
-                showPosition++;
-            } else {
-                showPosition = 0;
+            //从首位置开始，多次双击，按未读消息会话的顺序滑动，依次滑动至最后一项，然后重置位置
+            if (positionList.size() > 0) {
+                if (showPosition >= positionList.size()) {
+                    showPosition = 0;
+                }
+                mtListView.getLayoutManager().scrollToPositionWithOffset(positionList.get(showPosition) + 1, 0);
+                if (showPosition < positionList.size() - 1) {
+                    showPosition++;
+                } else {
+                    showPosition = 0;
+                }
             }
-        }
+        }catch (Exception e){}
     }
 }

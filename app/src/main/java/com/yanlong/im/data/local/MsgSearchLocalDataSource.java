@@ -11,6 +11,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
 import io.realm.Realm;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 /**
@@ -25,8 +26,8 @@ public class MsgSearchLocalDataSource {
         realm = DaoUtil.open();
     }
 
-    private String getKey(String searchKey){
-        return String.format("*%s*",searchKey);
+    private String getKey(String searchKey) {
+        return String.format("*%s*", searchKey);
 
     }
 
@@ -54,6 +55,7 @@ public class MsgSearchLocalDataSource {
                 .like("members.membername", searchKey).or().like("members.name", searchKey)
                 .findAll();
     }
+
     /**
      * 搜索所有session
      *
@@ -62,57 +64,71 @@ public class MsgSearchLocalDataSource {
     public RealmResults<Session> searchSessions() {
         return realm.where(Session.class).findAll();
     }
+
     /**
      * 获取满足条件的sessionDetail
      *
      * @return
      */
     public RealmResults<SessionDetail> getSessionDetails(String[] sids) {
-        return realm.where(SessionDetail.class).in("sid",sids).findAll();
+        return realm.where(SessionDetail.class).in("sid", sids).findAll();
     }
 
-    /**
-     * 搜索聊天记录
-     *
-     * @param key
-     * @return
-     */
-    public long searchMessagesCount(String key,String gid,long uid) {
+    private RealmQuery<MsgAllBean> searchMessagesQuery(String key, String gid, long uid) {
         String searchKey = getKey(key);
-        if(TextUtils.isEmpty(gid)){
+        if (TextUtils.isEmpty(gid)) {
             return realm.where(MsgAllBean.class)
                     .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
                     .and()
-                    .beginGroup().equalTo("from_uid",uid).or().equalTo("to_uid",uid).endGroup()
+                    .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
                     .and()
                     .beginGroup()
                     .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
                     .like("chat.msg", searchKey).or()//文本聊天
                     .like("atMessage.msg", searchKey).or()//@消息
                     .like("assistantMessage.msg", searchKey).or()//小助手消息
+                    .like("locationMessage.address", searchKey).or()//位置消息
                     .like("locationMessage.addressDescribe", searchKey).or()//位置消息
                     .like("transferNoticeMessage.content", searchKey).or()//转账消息
                     .like("sendFileMessage.file_name", searchKey).or()//文件消息
                     .like("webMessage.title", searchKey).or()//链接消息
                     .like("replyMessage.chatMessage.msg", searchKey).or()//回复消息
                     .like("replyMessage.atMessage.msg", searchKey)//回复@消息
-                    .endGroup()
-                    .count();
-        }else{
+                    .endGroup();
+        } else {
             return realm.where(MsgAllBean.class)
-                    .equalTo("gid",gid)
+                    .equalTo("gid", gid)
                     .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
                     .like("chat.msg", searchKey).or()//文本聊天
                     .like("atMessage.msg", searchKey).or()//@消息
                     .like("assistantMessage.msg", searchKey).or()//小助手消息
+                    .like("locationMessage.address", searchKey).or()//位置消息
                     .like("locationMessage.addressDescribe", searchKey).or()//位置消息
                     .like("transferNoticeMessage.content", searchKey).or()//转账消息
                     .like("sendFileMessage.file_name", searchKey).or()//文件消息
                     .like("webMessage.title", searchKey).or()//链接消息
                     .like("replyMessage.chatMessage.msg", searchKey).or()//回复消息
-                    .like("replyMessage.atMessage.msg", searchKey)//回复@消息
-                    .count();
+                    .like("replyMessage.atMessage.msg", searchKey);//回复@消息
         }
+    }
+
+    /**
+     * 搜索聊天记录 数量
+     *
+     * @param key
+     * @return
+     */
+    public long searchMessagesCount(String key, String gid, long uid) {
+        return searchMessagesQuery(key, gid, uid).count();
+    }
+    /**
+     * 搜索聊天记录匹配数量为1时的消息
+     *
+     * @param key
+     * @return
+     */
+    public MsgAllBean searchMessages(String key, String gid, long uid) {
+        return searchMessagesQuery(key, gid, uid).findFirst();
     }
 
     /**

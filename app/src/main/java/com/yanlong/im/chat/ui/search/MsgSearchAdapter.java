@@ -20,6 +20,8 @@ import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.chat.ui.SearchMsgActivity;
 import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.ExpressionUtil;
+import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.wight.avatar.MultiImageView;
 
 import net.cb.cb.library.utils.StringUtil;
@@ -48,17 +50,6 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
     public int getItemCount() {
         return viewModel.getSearchFriendsSize() + viewModel.getSearchGroupsSize() + viewModel.getSearchSessionsSize();
     }
-
-//    @Override
-//    public int getItemViewType(int position) {
-//        if (position < viewModel.searchFriends.size()) {//单人
-//            return 0;
-//        } else if (position < (viewModel.searchFriends.size() + viewModel.getSearchGroupsSize())) {//群
-//            return 1;
-//        } else {//聊天记录
-//            return 2;
-//        }
-//    }
 
     /**
      * 搜索关键字标绿色
@@ -206,21 +197,40 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
             }
             holder.imgHead.setList(headList);
             holder.txtName.setText(sessionDetail.getName());
+
+
             if (viewModel.sessionSearch.containsKey(sessionDetail.getSid())) {
                 MsgSearchViewModel.SessionSearch sessionSearch = viewModel.sessionSearch.get(sessionDetail.getSid());
-                holder.txtInfo.setText(sessionSearch.getCount() + "条相关的聊天记录");
-                holder.viewIt.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        context.startActivity(new Intent(context, SearchMsgActivity.class)
-                                .putExtra(SearchMsgActivity.AGM_GID, sessionSearch.getGid())
-                                .putExtra(SearchMsgActivity.AGM_FUID, sessionSearch.getUid())
-                                .putExtra(SearchMsgActivity.AGM_SEARCH_KEY, viewModel.key.getValue())
-                        );
-                    }
-                });
+                if (sessionSearch.getCount() == 1) {//1条记录，直接进入聊天界面
+                    String msg = SocketData.getMsg(sessionSearch.getMsgAllBean(), viewModel.key.getValue());
+                    hightKey(holder.txtInfo,msg);
+                    holder.viewIt.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            context.startActivity(new Intent(context, ChatActivity.class)
+                                    .putExtra(ChatActivity.AGM_TOGID, sessionSearch.getGid())
+                                    .putExtra(ChatActivity.AGM_TOUID, sessionSearch.getUid())
+                                    .putExtra(ChatActivity.SEARCH_TIME, sessionSearch.getMsgAllBean().getTimestamp())
+                                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            );
+                        }
+                    });
+
+                } else {//多于1条聊天记录，进入搜索详情
+                    holder.txtInfo.setText(sessionSearch.getCount() + "条相关的聊天记录");
+                    holder.viewIt.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            context.startActivity(new Intent(context, SearchMsgActivity.class)
+                                    .putExtra(SearchMsgActivity.AGM_GID, sessionSearch.getGid())
+                                    .putExtra(SearchMsgActivity.AGM_FUID, sessionSearch.getUid())
+                                    .putExtra(SearchMsgActivity.AGM_SEARCH_KEY, viewModel.key.getValue())
+                            );
+                        }
+                    });
+                }
             } else {
-                holder.txtInfo.setText("0条相关的聊天记录");
+                holder.txtInfo.setText("");
                 holder.viewIt.setOnClickListener(null);
             }
         }
@@ -230,6 +240,83 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
         holder.vTitleLine.setVisibility(position == firstPosition ? View.VISIBLE : View.GONE);
         //最后一项，显示底部灰色条
         holder.vBottomLine.setVisibility(position == lastPostion ? View.VISIBLE : View.GONE);
+
+    }
+
+    /**
+     * 高亮显示搜索关键字
+     * 超出一行，原则上让搜索关键字显示在中间，已经到字尾了，就以字尾显示
+     *
+     * @param tvContent
+     * @param msg
+     */
+    private void hightKey(TextView tvContent, String msg) {
+        String key = viewModel.key.getValue();
+        final int index = msg.indexOf(key);
+        if (index >= 0) {
+            SpannableString style = new SpannableString(msg);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.green_500));
+            style.setSpan(protocolColorSpan, index, index + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            showMessage(tvContent, msg, style);
+        } else {
+            showMessage(tvContent, msg, new SpannableString(msg));
+        }
+
+        if (tvContent.getLayout() == null) {
+            //getLayout() 开始会为null,post显示后会重新加载
+            tvContent.post(new Runnable() {
+                @Override
+                public void run() {
+                    showEllipsis(tvContent,msg,key,index);
+                }
+            });
+        }else{
+            showEllipsis(tvContent,msg,key,index);
+        }
+    }
+
+    /**
+     * 多于一行被隐藏处理
+     * @param tvContent
+     * @param msg
+     * @param key
+     * @param index
+     */
+    private void showEllipsis(TextView tvContent, String msg,String key,int index){
+        try {
+            if (tvContent.getLayout() == null) return;
+            //被隐藏的字数
+            int ellipsisCount = tvContent.getLayout().getEllipsisCount(0);
+            //显示的字数
+            int showCount = msg.length() - ellipsisCount;
+            if (showCount > 0 && showCount < index) {//超出文本了
+                //原则上让搜索关键字显示在中间，已经到字尾了，就以字尾显示
+                String subMsg = msg.substring(Math.min(index - showCount / 2, msg.length() - showCount + 1));
+                //下标数+三个点...的位置，不直接拼字符串，防止key中包含...
+                int mindex = subMsg.indexOf(key) + 3;
+                SpannableString style = new SpannableString("..." + subMsg);
+                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.green_500));
+                style.setSpan(protocolColorSpan, mindex, mindex + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                showMessage(tvContent, subMsg, style);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * 显示表情内容
+     *
+     * @param message
+     */
+    protected void showMessage(TextView txtInfo, String message, SpannableString spannableString) {
+        if (spannableString == null) {
+            spannableString = ExpressionUtil.getExpressionString(context, ExpressionUtil.DEFAULT_SMALL_SIZE, message);
+        } else {
+            spannableString = ExpressionUtil.getExpressionString(context, ExpressionUtil.DEFAULT_SMALL_SIZE, spannableString);
+        }
+        txtInfo.setText(spannableString, TextView.BufferType.SPANNABLE);
 
     }
 

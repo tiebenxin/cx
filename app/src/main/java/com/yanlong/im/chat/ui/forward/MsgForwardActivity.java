@@ -171,7 +171,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
-        viewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(MyAppLication.getInstance())).get(ForwardViewModel.class);
+        viewModel = new ViewModelProvider(getViewModelStore(), ViewModelProvider.AndroidViewModelFactory.getInstance(MyAppLication.getInstance())).get(ForwardViewModel.class);
         initIntent();
         findViews();
         initEvent();

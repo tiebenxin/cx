@@ -2,6 +2,7 @@ package com.yanlong.im.chat.ui.chat;
 
 
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -66,13 +67,19 @@ public class ControllerReplyMessage {
         } else {
             ivImage.setVisibility(View.VISIBLE);
         }
-        tvName.setText(message.getFrom_nickname());
-        tvContent.setText(getText(message, type));
-        if (ivImage.isShown()) {
-            setImage(message, type);
+        String nick = "";
+        if (TextUtils.isEmpty(message.getGid())) {
+            nick = message.getFrom_nickname();
+        } else {
+            if (TextUtils.isEmpty(message.getFrom_group_nickname())) {
+                nick = message.getFrom_nickname();
+            } else {
+                nick = message.getFrom_group_nickname();
+            }
         }
-
-
+        tvName.setText(nick);
+        tvContent.setText(getText(message, type));
+        setImage(message, type);
     }
 
     //是否是显示文本消息类型

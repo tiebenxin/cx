@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -67,6 +68,11 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import io.realm.RealmList;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -118,6 +124,7 @@ public class GroupInfoActivity extends AppActivity {
     private LinearLayout viewDestroyTime;
     private TextView tvDestroyTime;
     private ReadDestroyUtil readDestroyUtil;
+    private RecyclerViewTopAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -403,7 +410,8 @@ public class GroupInfoActivity extends AppActivity {
         ckGroupVerif.setOnCheckedChangeListener(null);
 
         topListView.setLayoutManager(gridLayoutManager);
-        topListView.setAdapter(new RecyclerViewTopAdapter());
+        adapter = new RecyclerViewTopAdapter();
+        topListView.setAdapter(adapter);
         viewGroupVerif.setVisibility(View.GONE);
         txtGroupName.setText(TextUtils.isEmpty(ginfo.getName()) ? "未设置" : ginfo.getName());
         if (StringUtil.isNotNull(ginfo.getMygroupName())) {
@@ -413,13 +421,13 @@ public class GroupInfoActivity extends AppActivity {
                 txtGroupNick.setText(UserAction.getMyInfo().getName());
             }
         }
-        if(isAdmin()){
+        if (isAdmin()) {
             if (isPercentage) {
                 viewGroupAdd.setVisibility(View.VISIBLE);
-            }else {
+            } else {
                 viewGroupAdd.setVisibility(View.GONE);
             }
-        }else {
+        } else {
             viewGroupAdd.setVisibility(View.GONE);
         }
         ckDisturb.setChecked(ginfo.getNotNotify() == 1);
@@ -525,8 +533,11 @@ public class GroupInfoActivity extends AppActivity {
                 //holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
                 Glide.with(context).load(number.getHead())
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-
-                holder.txtName.setText("" + number.getShowName());
+                if (!TextUtils.isEmpty(number.getMarkerName())) {
+                    holder.txtName.setText("" + number.getMarkerName());
+                } else {
+                    holder.txtName.setText("" + number.getShowName());
+                }
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -710,7 +721,7 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body().isOk()) {
-                    EventBus.getDefault().post(new EventExitChat(gid,null));
+                    EventBus.getDefault().post(new EventExitChat(gid, null));
 //                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.DELETE, null);
                     finish();
                 } else {
@@ -779,6 +790,7 @@ public class GroupInfoActivity extends AppActivity {
                     if (list.size() < 400) {
                         isPercentage = false;
                     }
+                    taskSetName(ginfo.getUsers());
                     initData();
                 }
             }
@@ -806,11 +818,12 @@ public class GroupInfoActivity extends AppActivity {
                     ginfo = response.body().getData();
                     if (isMemberChange) {
                         List<String> gids = new ArrayList<>();
-                        if(!TextUtils.isEmpty(ginfo.getGid())){
+                        if (!TextUtils.isEmpty(ginfo.getGid())) {
                             gids.add(ginfo.getGid());
                         }
                         //回主线程调用更新sessionDetial
-                        if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids,null);
+                        if (MyAppLication.INSTANCE().repository != null)
+                            MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
                     }
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
                     setGroupNote(ginfo.getAnnouncement());
@@ -819,6 +832,7 @@ public class GroupInfoActivity extends AppActivity {
                     // 保证管理员在前面
                     listSort();
                     filterData();
+                    taskSetName(ginfo.getUsers());
                     initData();
                 }
             }
@@ -1161,11 +1175,12 @@ public class GroupInfoActivity extends AppActivity {
             /********通知更新sessionDetail************************************/
             //因为msg对象 uid有两个，都得添加
             List<String> gids = new ArrayList<>();
-            if(!TextUtils.isEmpty(gid)){
+            if (!TextUtils.isEmpty(gid)) {
                 gids.add(gid);
             }
             //回主线程调用更新session详情
-            if(MyAppLication.INSTANCE().repository!=null)MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
+            if (MyAppLication.INSTANCE().repository != null)
+                MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
             /********通知更新sessionDetail end************************************/
         }
     }
@@ -1188,5 +1203,30 @@ public class GroupInfoActivity extends AppActivity {
     //更新配置
     private void taskSaveInfo() {
         DaoUtil.update(ginfo);
+    }
+
+    @SuppressLint("CheckResult")
+    private void taskSetName(List<MemberUser> list) {
+        Observable.just(0)
+                .map(new Function<Integer, List<MemberUser>>() {
+                    @Override
+                    public List<MemberUser> apply(Integer integer) throws Exception {
+                        userDao.getMemberUserName(list);
+                        return list;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<MemberUser>>empty())
+                .subscribe(new Consumer<List<MemberUser>>() {
+                    @Override
+                    public void accept(List<MemberUser> list) throws Exception {
+                        listDataTop.clear();
+                        listDataTop.addAll(ginfo.getUsers());
+                        // 保证管理员在前面
+                        listSort();
+                        filterData();
+                        adapter.notifyDataSetChanged();
+                    }
+                });
     }
 }

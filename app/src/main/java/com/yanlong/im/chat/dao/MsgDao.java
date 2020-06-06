@@ -989,7 +989,7 @@ public class MsgDao {
      * 备注：新增不区分大小写模糊查询
      */
     public List<MsgAllBean> searchMsg4key(String key, String gid, Long uid) {
-        String searchKey = String.format("*%s*",key);
+        String searchKey = String.format("*%s*", key);
         Realm realm = DaoUtil.open();
         List<MsgAllBean> ret = null;
         try {
@@ -997,11 +997,12 @@ public class MsgDao {
             RealmResults<MsgAllBean> msg;
             if (StringUtil.isNotNull(gid)) {//群
                 msg = realm.where(MsgAllBean.class)
-                        .equalTo("gid",gid)
+                        .equalTo("gid", gid)
                         .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
                         .like("chat.msg", searchKey).or()//文本聊天
                         .like("atMessage.msg", searchKey).or()//@消息
                         .like("assistantMessage.msg", searchKey).or()//小助手消息
+                        .like("locationMessage.address", searchKey).or()//位置消息
                         .like("locationMessage.addressDescribe", searchKey).or()//位置消息
                         .like("transferNoticeMessage.content", searchKey).or()//转账消息
                         .like("sendFileMessage.file_name", searchKey).or()//文件消息
@@ -1014,13 +1015,14 @@ public class MsgDao {
                 msg = realm.where(MsgAllBean.class)
                         .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
                         .and()
-                        .beginGroup().equalTo("from_uid",uid).or().equalTo("to_uid",uid).endGroup()
+                        .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
                         .and()
                         .beginGroup()
                         .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
                         .like("chat.msg", searchKey).or()//文本聊天
                         .like("atMessage.msg", searchKey).or()//@消息
                         .like("assistantMessage.msg", searchKey).or()//小助手消息
+                        .like("locationMessage.address", searchKey).or()//位置消息
                         .like("locationMessage.addressDescribe", searchKey).or()//位置消息
                         .like("transferNoticeMessage.content", searchKey).or()//转账消息
                         .like("sendFileMessage.file_name", searchKey).or()//文件消息
@@ -1272,7 +1274,7 @@ public class MsgDao {
         if (StringUtil.isNotNull(cancelId)) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
             if (StringUtil.isNotNull(gid)) {//群聊
 //                if (!checkUnReadAtMsg(session, cancelId)) {//检查是否还有未读的@我的消息
-                    session.setMessageType(1000);
+                session.setMessageType(1000);
 //                }
             } else {
                 session.setMessageType(1000);
@@ -1507,16 +1509,55 @@ public class MsgDao {
      * @param gid
      * @param from_uid
      */
-    public void sessionReadClean(String gid, Long from_uid) {
-        Session session = StringUtil.isNotNull(gid) ? DaoUtil.findOne(Session.class, "gid", gid) :
-                DaoUtil.findOne(Session.class, "from_uid", from_uid);
-        if (session != null) {
-            session.setUnread_count(0);
-            session.setAtMessage(null);
-            //  session.setUp_time(System.currentTimeMillis());
-            DaoUtil.update(session);
-        }
+    public void sessionReadCleanAndToBurn(String gid, Long from_uid,long timeStamp) {
+        Realm realm = DaoUtil.open();
+        try {
+            Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() :
+                    realm.where(Session.class).equalTo("from_uid", from_uid).findFirst();
+            if (session != null) {
+                realm.beginTransaction();
+                session.setUnread_count(0);
+                session.setAtMessage(null);
+                realm.commitTransaction();
+            }
+            RealmResults<MsgAllBean> msgs;
+            if (!TextUtils.isEmpty(gid)) {//群聊-好友发送的，自己未读消息
+                msgs = realm.where(MsgAllBean.class)
+                        .equalTo("gid", gid)
+                        .equalTo("isRead", false)
+                        .findAll();
+            } else {//单聊-好友发送的消息，未加入到阅后即焚队列的消息
+                msgs = realm.where(MsgAllBean.class)
+                        .beginGroup()
+                        .isEmpty("gid").or().isNull("gid")
+                        .endGroup()
+                        .and()
+                        .beginGroup()
+                        .equalTo("from_uid", from_uid)
+                        .equalTo("isRead", false)
+                        .endGroup().findAll();
+            }
 
+            if (msgs != null && msgs.size() > 0) {
+                realm.beginTransaction();
+                //对方发的消息，当前时间为起点
+                for (MsgAllBean msg : msgs) {
+                    if (msg.getSurvival_time() > 0 && msg.getEndTime() <= 0) {
+                        msg.setRead(true);//自己已读
+                        msg.setReadTime(timeStamp);
+                        msg.setStartTime(timeStamp);
+                        msg.setEndTime(timeStamp + (msg.getSurvival_time() * 1000));
+                    } else {
+                        msg.setRead(true);//自己已读
+                        msg.setReadTime(timeStamp);
+                    }
+                }
+                realm.commitTransaction();
+            }
+        }catch (Exception e){
+        } finally {
+            DaoUtil.close(realm);
+        }
     }
 
     /***
@@ -1921,11 +1962,11 @@ public class MsgDao {
                 while (friendChatMessages.size() != 0) {
                     MsgAllBean msgAllBean = friendChatMessages.get(0);
                     //防止手机上的时间与PC时间不一致情况，只处理手机比PC时间早的情况，即手机时间调慢了
-                    long startTime = Math.min(timestamp , DateUtils.getSystemTime());
+                    long startTime = Math.min(timestamp, DateUtils.getSystemTime());
                     long endTime = startTime + msgAllBean.getSurvival_time() * 1000;
 
                     realm.beginTransaction();
-                    if (msgAllBean.getSurvival_time() > 0 ) {//有设置阅后即焚
+                    if (msgAllBean.getSurvival_time() > 0) {//有设置阅后即焚
 //                        if (endTime > DateUtils.getSystemTime()) {//还未到阅后即焚时间点，记录已读
                         msgAllBean.setRead(1);
                         msgAllBean.setReadTime(timestamp);
