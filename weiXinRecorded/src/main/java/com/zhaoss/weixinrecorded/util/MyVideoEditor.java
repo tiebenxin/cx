@@ -8,7 +8,7 @@ import java.util.List;
 
 public class MyVideoEditor extends VideoEditor {
 
-    public boolean h264ToTs(String src, String des){
+    public boolean h264ToTs(String src, String des) {
 
         ArrayList<String> list = new ArrayList<>();
         list.add("-i");
@@ -23,7 +23,7 @@ public class MyVideoEditor extends VideoEditor {
         return i == 0;
     }
 
-    public boolean h264ToMp4(String src, String des){
+    public boolean h264ToMp4(String src, String des) {
 
         ArrayList<String> list = new ArrayList<>();
         list.add("-i");
@@ -92,5 +92,26 @@ public class MyVideoEditor extends VideoEditor {
         cmdList.add("10");
 
         return executeAutoSwitch(cmdList);
+    }
+
+    //旋转MP4角度，纠正前置摄像头角度问题
+    public boolean rotateMp4(String src, String des) {
+        ArrayList<String> list = new ArrayList<>();
+        list.add("-i");
+        list.add(src);
+        list.add("-metadata:s:v");
+        list.add("rotate=270");
+        list.add("-codec");
+        list.add("copy");
+        list.add(des);
+
+//        ArrayList<String> list = new ArrayList<>();
+//        list.add("-i");
+//        list.add(src);
+//        list.add("-vf");
+//        list.add("rotate=180");
+//        list.add(des);
+        int i = executeVideoEditor(list.toArray(new String[]{}));
+        return i == 0;
     }
 }

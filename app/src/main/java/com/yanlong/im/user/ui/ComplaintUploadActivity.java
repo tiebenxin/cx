@@ -66,7 +66,7 @@ public class ComplaintUploadActivity extends AppActivity {
     private int complaintType;
     private String gid;
     private String uid;
-    private String[] strings = {"拍照", "相册", "取消"};
+    private String[] strings = {"手机相册", "拍照", "取消"};
     private PopupSelectView popupSelectView;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
     private List<ImageBean> list = new ArrayList<>();
@@ -181,7 +181,7 @@ public class ComplaintUploadActivity extends AppActivity {
             @Override
             public void onItem(String string, int postsion) {
                 switch (postsion) {
-                    case 0:
+                    case 1:
                         permission2Util.requestPermissions(ComplaintUploadActivity.this, new CheckPermission2Util.Event() {
                             @Override
                             public void onSuccess() {
@@ -199,7 +199,7 @@ public class ComplaintUploadActivity extends AppActivity {
                             }
                         }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
                         break;
-                    case 1:
+                    case 0:
                         PictureSelector.create(ComplaintUploadActivity.this)
                                 .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                                 .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE

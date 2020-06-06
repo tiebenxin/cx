@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.gl.CameraGLView
+        android:id="@+id/cameraView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true" />
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="39dp"
+        android:paddingLeft="@dimen/basic_activity_margin2"
+        android:paddingRight="@dimen/basic_activity_margin2">
+
+        <RelativeLayout
+            android:id="@+id/layout_flash_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="55dp"
+            android:padding="10dp">
+
+            <ImageView
+                android:layout_width="17dp"
+                android:layout_height="29dp"
+                android:background="@mipmap/img_video_shine" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/layout_camera_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="45dp"
+            android:padding="10dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="24dp"
+                android:background="@mipmap/img_video_swich" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+
+    <com.widgt.RecordButtonView
+        android:id="@+id/record_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="40dp" />
+
+</RelativeLayout>
