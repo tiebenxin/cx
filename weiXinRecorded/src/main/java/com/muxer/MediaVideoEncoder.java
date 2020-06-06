@@ -30,13 +30,14 @@ import android.opengl.EGLContext;
 import android.util.Log;
 import android.view.Surface;
 
+
 import com.gl.RenderHandler;
 
 import java.io.IOException;
 
 public class MediaVideoEncoder extends MediaEncoder {
     private static final boolean DEBUG = true;    // TODO set false on release
-    private static final String TAG = "MediaVideoEncoder" + "--视频录制";
+    private static final String TAG = "MediaVideoEncoder" + "--视频";
 
     private static final String MIME_TYPE = "video/avc";
     // parameters for recording
@@ -57,13 +58,16 @@ public class MediaVideoEncoder extends MediaEncoder {
     }
 
     public boolean frameAvailableSoon(final float[] tex_matrix) {
-        boolean result = false;
+//        if (DEBUG) Log.i(TAG, "frameAvailableSoon: ");
+
+        boolean result;
         if (result = super.frameAvailableSoon())
             mRenderHandler.draw(tex_matrix);
         return result;
     }
 
     public boolean frameAvailableSoon(final float[] tex_matrix, final float[] mvp_matrix) {
+        if (DEBUG) Log.i(TAG, "frameAvailableSoon: tex_matrix --mvp_matrix");
         boolean result;
         if (result = super.frameAvailableSoon())
             mRenderHandler.draw(tex_matrix, mvp_matrix);
@@ -115,7 +119,7 @@ public class MediaVideoEncoder extends MediaEncoder {
     }
 
     public void setEglContext(final EGLContext shared_context, final int tex_id) {
-//		mRenderHandler.setEglContext(shared_context, tex_id, mSurface, true);
+        mRenderHandler.setEglContext(shared_context, tex_id, mSurface, true);
     }
 
     @Override
@@ -125,10 +129,10 @@ public class MediaVideoEncoder extends MediaEncoder {
             mSurface.release();
             mSurface = null;
         }
-//		if (mRenderHandler != null) {
-//			mRenderHandler.release();
-//			mRenderHandler = null;
-//		}
+        if (mRenderHandler != null) {
+            mRenderHandler.release();
+            mRenderHandler = null;
+        }
         super.release();
     }
 

@@ -37,7 +37,7 @@ import java.util.Locale;
 
 public class MediaMuxerWrapper {
     private static final boolean DEBUG = true;    // TODO set false on release
-    private static final String TAG = "MediaMuxerWrapper" + "--视频录制";
+    private static final String TAG = "MediaMuxerWrapper" + "--视频";
 
     private static final String DIR_NAME = "AVRecSample";
     private static final SimpleDateFormat mDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.US);
@@ -54,13 +54,14 @@ public class MediaMuxerWrapper {
      * @param ext extension of output file
      * @throws IOException
      */
-    public MediaMuxerWrapper(String file) throws IOException {
-//		if (TextUtils.isEmpty(ext)) ext = ".mp4";
-        try {
-            mOutputPath = file;
-        } catch (final NullPointerException e) {
-            throw new RuntimeException("This app has no permission of writing external storage");
-        }
+    public MediaMuxerWrapper(String ext) throws IOException {
+//        if (TextUtils.isEmpty(ext)) ext = ".mp4";
+//        try {
+//            mOutputPath = getCaptureFile(Environment.DIRECTORY_MOVIES, ext).toString();
+//        } catch (final NullPointerException e) {
+//            throw new RuntimeException("This app has no permission of writing external storage");
+//        }
+        mOutputPath = ext;
         mMediaMuxer = new MediaMuxer(mOutputPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         mEncoderCount = mStatredCount = 0;
         mIsStarted = false;
@@ -71,7 +72,8 @@ public class MediaMuxerWrapper {
     }
 
     public void prepare() throws IOException {
-        if (DEBUG) Log.v(TAG, "prepare");
+        if (DEBUG) Log.i(TAG, "prepare: ");
+
         if (mVideoEncoder != null)
             mVideoEncoder.prepare();
         if (mAudioEncoder != null)
@@ -79,7 +81,8 @@ public class MediaMuxerWrapper {
     }
 
     public void startRecording() {
-        if (DEBUG) Log.v(TAG, "startRecording");
+        if (DEBUG) Log.i(TAG, "startRecording: ");
+
         if (mVideoEncoder != null)
             mVideoEncoder.startRecording();
         if (mAudioEncoder != null)
@@ -87,7 +90,6 @@ public class MediaMuxerWrapper {
     }
 
     public void stopRecording() {
-        if (DEBUG) Log.v(TAG, "stopRecording");
         if (mVideoEncoder != null)
             mVideoEncoder.stopRecording();
         mVideoEncoder = null;
@@ -109,7 +111,8 @@ public class MediaMuxerWrapper {
      * @param encoder instance of MediaVideoEncoder or MediaAudioEncoder
      */
     /*package*/ void addEncoder(final MediaEncoder encoder) {
-        if (DEBUG) Log.d(TAG, "addEncoder");
+        if (DEBUG) Log.i(TAG, "addEncoder: ");
+
         if (encoder instanceof MediaVideoEncoder) {
             if (mVideoEncoder != null)
                 throw new IllegalArgumentException("Video encoder already added.");
@@ -164,7 +167,7 @@ public class MediaMuxerWrapper {
      */
     /*package*/
     synchronized int addTrack(final MediaFormat format) {
-        if (DEBUG) Log.v(TAG, "addTrack");
+        if (DEBUG) Log.i(TAG, "addTrack: ");
         if (mIsStarted)
             throw new IllegalStateException("muxer already started");
         final int trackIx = mMediaMuxer.addTrack(format);
@@ -182,7 +185,7 @@ public class MediaMuxerWrapper {
      */
     /*package*/
     synchronized void writeSampleData(final int trackIndex, final ByteBuffer byteBuf, final MediaCodec.BufferInfo bufferInfo) {
-//        if (DEBUG) Log.v(TAG, "writeSampleData");
+//        if (DEBUG) Log.i(TAG, "writeSampleData: ");
         if (mStatredCount > 0)
             mMediaMuxer.writeSampleData(trackIndex, byteBuf, bufferInfo);
     }

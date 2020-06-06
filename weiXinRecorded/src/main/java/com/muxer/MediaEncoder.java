@@ -32,7 +32,7 @@ import java.nio.ByteBuffer;
 
 public abstract class MediaEncoder implements Runnable {
     private static final boolean DEBUG = true;    // TODO set false on release
-    private static final String TAG = "MediaEncoder" + "--视频录制";
+    private static final String TAG = "MediaEncoder" + "--视频";
 
     protected static final int TIMEOUT_USEC = 10000;    // 10[msec]
     protected static final int MSG_FRAME_AVAILABLE = 1;
@@ -113,6 +113,7 @@ public abstract class MediaEncoder implements Runnable {
      * @return return true if encoder is ready to encod.
      */
     public boolean frameAvailableSoon() {
+//    	if (DEBUG) Log.v(TAG, "frameAvailableSoon");
         synchronized (mSync) {
             if (!mIsCapturing || mRequestStop) {
                 return false;

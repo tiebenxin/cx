@@ -252,6 +252,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -2798,7 +2799,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     private String getVideoAttBitmap(String mUri) {
-        File file = null;
+        String path = "";
         android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
         try {
             if (mUri != null) {
@@ -2806,13 +2807,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 mmr.setDataSource(inputStream.getFD());
             } else {
             }
-            file = GroupHeadImageUtil.save2File(mmr.getFrameAtTime());
+            File file = GroupHeadImageUtil.save2File(mmr.getFrameAtTime());
+            if (file != null) {
+                path = file.getAbsolutePath();
+            }
         } catch (Exception ex) {
             LogUtil.getLog().e("TAG", "MediaMetadataRetriever exception " + ex);
         } finally {
             mmr.release();
         }
-        return file.getAbsolutePath();
+        return path;
     }
 
     @Override
@@ -4000,10 +4004,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void onAnswer(MsgAllBean bean) {
         isReplying = true;
         replayMsg = bean;
-        if (MessageManager.getInstance().isFromSelf(bean.getFrom_uid())){
+        if (MessageManager.getInstance().isFromSelf(bean.getFrom_uid())) {
 
-        }else {
-            if (mViewModel.userInfo != null){
+        } else {
+            if (mViewModel.userInfo != null) {
                 replayMsg.setFrom_nickname(mViewModel.userInfo.getName());
             }
         }
