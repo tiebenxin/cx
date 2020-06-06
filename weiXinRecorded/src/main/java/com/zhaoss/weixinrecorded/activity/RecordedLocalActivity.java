@@ -278,12 +278,7 @@ public class RecordedLocalActivity extends BaseActivity  {
         iv_flash_video.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mCameraHelp.changeFlash();
-                if (mCameraHelp.isFlashOpen()) {
-//                    iv_flash_video.setImageResource(R.mipmap.video_flash_open);
-                } else {
-//                    iv_flash_video.setImageResource(R.mipmap.video_flash_close);
-                }
+                mCameraHelp.changeFlash(null);
             }
         });
 

@@ -192,6 +192,7 @@ import com.yanlong.im.view.face.ShowBigFaceActivity;
 import com.yanlong.im.view.face.bean.FaceBean;
 import com.yanlong.im.view.function.ChatExtendMenuView;
 import com.yanlong.im.view.function.FunctionItemModel;
+import com.zhaoss.weixinrecorded.activity.CameraActivity;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 
@@ -251,6 +252,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1955,7 +1957,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (ViewUtils.isFastDoubleClick()) {
                         return;
                     }
-                    Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+//                    Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+//                    startActivityForResult(intent, VIDEO_RP);
+                    Intent intent = new Intent(ChatActivity.this, CameraActivity.class);
                     startActivityForResult(intent, VIDEO_RP);
                 }
             }
@@ -2795,7 +2799,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     private String getVideoAttBitmap(String mUri) {
-        File file = null;
+        String path = "";
         android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
         try {
             if (mUri != null) {
@@ -2803,13 +2807,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 mmr.setDataSource(inputStream.getFD());
             } else {
             }
-            file = GroupHeadImageUtil.save2File(mmr.getFrameAtTime());
+            File file = GroupHeadImageUtil.save2File(mmr.getFrameAtTime());
+            if (file != null) {
+                path = file.getAbsolutePath();
+            }
         } catch (Exception ex) {
             LogUtil.getLog().e("TAG", "MediaMetadataRetriever exception " + ex);
         } finally {
             mmr.release();
         }
-        return file.getAbsolutePath();
+        return path;
     }
 
     @Override
@@ -2829,7 +2836,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         LogUtil.getLog().i(TAG, "--视频Chat--" + file);
                         int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
                         int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
-                        int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME, 0);
+                        long time = data.getLongExtra(RecordedActivity.INTENT_PATH_TIME, 0L);
                         //app内拍摄的视频经检查已经实现了自动压缩
                         VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + file, getVideoAttBitmap(file), false, time, width, height, file);
                         videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
@@ -3994,10 +4001,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void onAnswer(MsgAllBean bean) {
         isReplying = true;
         replayMsg = bean;
-        if (MessageManager.getInstance().isFromSelf(bean.getFrom_uid())){
+        if (MessageManager.getInstance().isFromSelf(bean.getFrom_uid())) {
 
-        }else {
-            if (mViewModel.userInfo != null){
+        } else {
+            if (mViewModel.userInfo != null) {
                 replayMsg.setFrom_nickname(mViewModel.userInfo.getName());
             }
         }
