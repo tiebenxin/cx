@@ -19,6 +19,7 @@ import com.muxer.MediaAudioEncoder;
 import com.muxer.MediaEncoder;
 import com.muxer.MediaMuxerWrapper;
 import com.muxer.MediaVideoEncoder;
+import com.widgt.CameraCallBack;
 import com.widgt.RecordButtonView;
 import com.zhaoss.weixinrecorded.CanStampEventWX;
 import com.zhaoss.weixinrecorded.R;
@@ -37,7 +38,7 @@ import java.io.IOException;
  * @description 小视频、拍照
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
-public class CameraActivity extends BaseActivity {
+public class CameraActivity extends BaseActivity implements CameraCallBack {
 
     private final String TAG = getClass().getSimpleName();
     public static final String INTENT_PATH = "intent_path";
@@ -101,7 +102,7 @@ public class CameraActivity extends BaseActivity {
             public void takePictures() {
                 if (mCameraView != null) {
                     photoPath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".jpeg";
-                    mCameraView.takePhone(photoPath);
+                    mCameraView.takePhone(photoPath, CameraActivity.this);
                 }
             }
 
@@ -332,6 +333,16 @@ public class CameraActivity extends BaseActivity {
                 mCameraView.setVideoEncoder(null);
         }
     };
+
+    @Override
+    public void takePhoneSuccess(String imagePath) {
+        if (!TextUtils.isEmpty(photoPath)) {
+            Intent intent = new Intent(CameraActivity.this, ImageShowActivity.class);
+            intent.putExtra("imgpath", imagePath);
+            intent.putExtra("from", 1);
+            startActivityForResult(intent, 90);
+        }
+    }
 
 
     private static class InitVideoAttribute {
