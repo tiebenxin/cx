@@ -187,7 +187,7 @@ public class CameraActivity extends BaseActivity {
         orientationEventListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
             @Override
             public void onOrientationChanged(int orientation) {
-                System.out.println(TAG + "--onOrientationChanged--" + orientation);
+//                System.out.println(TAG + "--onOrientationChanged--" + orientation);
 
             }
         };

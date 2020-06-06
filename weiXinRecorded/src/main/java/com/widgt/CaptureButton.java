@@ -214,7 +214,7 @@ public class CaptureButton extends View {
 
     //重制状态
     private void resetRecordAnim() {
-        state = STATE_BAN;
+        state = STATE_IDLE;
         progress = 0;       //重制进度
         invalidate();
         //还原按钮初始状态动画
