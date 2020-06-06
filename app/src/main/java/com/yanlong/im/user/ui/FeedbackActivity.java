@@ -7,7 +7,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +17,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.luck.picture.lib.PictureSelector;
@@ -56,8 +59,9 @@ public class FeedbackActivity extends AppActivity {
     private HeadView headView;
     private EditText edContent;
     private Button btnCommit;
+    private TextView tvWords;
     private RecyclerView recyclerView;
-    private String[] strings = {"拍照", "相册", "取消"};
+    private String[] strings = {"手机相册", "拍照", "取消"};
     private PopupSelectView popupSelectView;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
     private List<ImageBean> list = new ArrayList<>();
@@ -77,6 +81,7 @@ public class FeedbackActivity extends AppActivity {
         edContent = findViewById(R.id.ed_content);
         btnCommit = findViewById(R.id.btn_commit);
         recyclerView = findViewById(R.id.recyclerView);
+        tvWords = findViewById(R.id.tv_words);
         recyclerView.addItemDecoration(new GridSpacingItemDecoration(3,
                 ScreenUtils.dip2px(this, 10), false));
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
@@ -102,6 +107,21 @@ public class FeedbackActivity extends AppActivity {
                 commit();
             }
         });
+        edContent.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                tvWords.setText(s.toString().length()+"/300");
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
     }
 
 
@@ -115,11 +135,11 @@ public class FeedbackActivity extends AppActivity {
     private void commit() {
         String content = edContent.getText().toString();
         if (TextUtils.isEmpty(content)) {
-            ToastUtil.show(FeedbackActivity.this, "请填写问题描叙");
+            ToastUtil.show(FeedbackActivity.this, "请填写问题描述");
             return;
         }
         if (content.length() < 6) {
-            ToastUtil.show(FeedbackActivity.this, "描叙内容不能少于6个字");
+            ToastUtil.show(FeedbackActivity.this, "描述内容不能少于6个字");
             return;
         }
         String imageUrl = "";
@@ -155,7 +175,7 @@ public class FeedbackActivity extends AppActivity {
             @Override
             public void onItem(String string, int postsion) {
                 switch (postsion) {
-                    case 0:
+                    case 1:
                         permission2Util.requestPermissions(FeedbackActivity.this, new CheckPermission2Util.Event() {
                             @Override
                             public void onSuccess() {
@@ -173,7 +193,7 @@ public class FeedbackActivity extends AppActivity {
                             }
                         }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
                         break;
-                    case 1:
+                    case 0:
 
 
                         PictureSelector.create(FeedbackActivity.this)

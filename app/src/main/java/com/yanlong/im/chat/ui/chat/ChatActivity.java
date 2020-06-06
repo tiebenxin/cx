@@ -3808,14 +3808,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
             menus.add(new OptionMenu("转发"));
         }
-
         switch (type) {
             case ChatEnum.EMessageType.TEXT:
             case ChatEnum.EMessageType.AT:
                 menus.add(0, new OptionMenu("复制"));
                 //发送状态正常，且未开启阅后即焚，则允许收藏
                 if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
-                    menus.add(3, new OptionMenu("收藏"));
+                    menus.add(new OptionMenu("收藏"));
                 }
                 break;
             case ChatEnum.EMessageType.VOICE:
@@ -3824,21 +3823,19 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 } else {
                     menus.add(0, new OptionMenu("扬声器播放"));
                 }
+                //发送状态正常，且未开启阅后即焚，则允许收藏
                 if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
-                    menus.add(2, new OptionMenu("收藏"));
+                    menus.add(new OptionMenu("收藏"));
                 }
                 break;
             case ChatEnum.EMessageType.LOCATION:
-            case ChatEnum.EMessageType.SHIPPED_EXPRESSION:
-                if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
-                    menus.add(1, new OptionMenu("收藏"));
-                }
-                break;
             case ChatEnum.EMessageType.IMAGE:
             case ChatEnum.EMessageType.MSG_VIDEO:
+            case ChatEnum.EMessageType.SHIPPED_EXPRESSION:
             case ChatEnum.EMessageType.FILE:
+                //发送状态正常，且未开启阅后即焚，则允许收藏
                 if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
-                    menus.add(2, new OptionMenu("收藏"));
+                    menus.add(new OptionMenu("收藏"));
                 }
                 break;
         }

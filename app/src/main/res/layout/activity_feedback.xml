@@ -13,42 +13,61 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="10dp">
+        android:orientation="vertical">
 
         <TextView
-            style="@style/app_txt_title_4"
+            style="@style/app_txt_title_353535"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
             android:text="问题描述:" />
 
         <EditText
             android:id="@+id/ed_content"
             android:layout_width="match_parent"
-            android:minHeight="100dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:background="@drawable/bg_edt1"
+            android:background="@color/white"
+            android:minHeight="100dp"
+            android:layout_marginTop="10dp"
             android:gravity="top"
             android:hint="请描述您需要反馈的问题或者意见"
             android:maxLength="300"
-            android:padding="5dp"
+            android:padding="10dp"
             android:textSize="16sp" />
+        <TextView
+            android:id="@+id/tv_words"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:gravity="right"
+            android:paddingRight="20dp"
+            android:paddingBottom="10dp"
+            android:textColor="@color/gray_300"
+            android:text="0/300"/>
 
 
         <TextView
-            style="@style/app_txt_title_4"
+            style="@style/app_txt_title_353535"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
             android:layout_marginTop="20dp"
             android:text="截图:" />
 
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_marginTop="15dp"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@color/white">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp" />
+        </LinearLayout>
 
 
         <Button

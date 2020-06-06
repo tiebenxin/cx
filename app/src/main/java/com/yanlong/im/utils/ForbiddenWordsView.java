@@ -31,7 +31,7 @@ public class ForbiddenWordsView implements View.OnClickListener {
     PickValueView pickString;
     private DestroyTimeView.OnClickItem onClickItem;
     private Dialog dialog;
-    private String[] valueStr = new String[]{"无", "5分钟", "15分钟", "1小时", "12小时", "1天", "3天"};
+    private String[] valueStr = new String[]{"关闭", "5分钟", "15分钟", "1小时", "12小时", "1天", "3天"};
     private int survivaltime;
     private String content;
 
@@ -126,7 +126,7 @@ public class ForbiddenWordsView implements View.OnClickListener {
         if (TextUtils.isEmpty(content)) {
             return 0;
         }
-        if (content.equals("无")) {
+        if (content.equals("关闭")) {
             return 0;
         } else if (content.equals("5分钟")) {
             return 300;
