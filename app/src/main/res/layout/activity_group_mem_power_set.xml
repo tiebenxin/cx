@@ -46,7 +46,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/gray_300"
-                        android:text="无"
+                        android:text="关闭"
                         android:layout_marginRight="15dp"
                         android:textSize="@dimen/dimen_16" />
                     <ImageView

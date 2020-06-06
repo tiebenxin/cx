@@ -216,10 +216,10 @@ public class GroupMemPowerSetActivity extends BaseBindActivity<ActivityGroupMemP
     }
 
     public static String getSurvivaltime(int time) {
-        String value = "无";
+        String value = "关闭";
         switch (time) {
             case 0:
-                value = "无";
+                value = "关闭";
                 break;
             case 300:
                 value = "5分钟";

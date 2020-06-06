@@ -882,14 +882,17 @@ public class UserInfoActivity extends AppActivity {
         if (value) {
             stringBuffer.append("禁领红包");
         }
-        if (!time.equals("无")) {
+        if (time.equals("关闭")) {
+            txtPower.setText("关闭");
+        }else {
             if (TextUtils.isEmpty(stringBuffer)) {
                 stringBuffer.append("禁言" + time);
             } else {
                 stringBuffer.append(",禁言" + time);
             }
+            txtPower.setText(stringBuffer.toString());
         }
-        txtPower.setText(stringBuffer.toString());
+
     }
 
 
