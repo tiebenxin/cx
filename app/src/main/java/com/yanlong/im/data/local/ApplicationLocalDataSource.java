@@ -83,12 +83,14 @@ public class ApplicationLocalDataSource {
         updateSessionDetail.update(gids, uids);
     }
 
-    /** 因个人信息更改
+    /**
+     * 因个人信息更改
      * 更新我自己的session会话的所有群聊
      */
-    public void updateSelfGroup(){
+    public void updateSelfGroup() {
         updateSessionDetail.updateSelfGroup();
     }
+
     /**
      * 清除会话详情的内容
      *
@@ -148,7 +150,7 @@ public class ApplicationLocalDataSource {
         Sort[] sorts = {Sort.ASCENDING, Sort.ASCENDING};
         return realm.where(UserInfo.class)
                 .beginGroup().equalTo("uType", 2).or().equalTo("uType", 4).endGroup()
-                .sort(orderFiled,sorts).limit(limit).findAllAsync();
+                .sort(orderFiled, sorts).limit(limit).findAllAsync();
     }
 
     /**
@@ -211,7 +213,8 @@ public class ApplicationLocalDataSource {
             public void execute(Realm realm) {
                 try {
                     //删除某个session detial
-                    realm.where(SessionDetail.class).equalTo("sid", sid).findFirst().deleteFromRealm();
+                    SessionDetail sessionDetail = realm.where(SessionDetail.class).equalTo("sid", sid).findFirst();
+                    if (sessionDetail != null) sessionDetail.deleteFromRealm();
                     //删除某个session所有消息
                     RealmResults<MsgAllBean> list;
                     if (StringUtil.isNotNull(gid)) {

@@ -5669,7 +5669,7 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
 //                if (response.body() == null)
 //                    return;
 
-//                groupInfo = response.body().getData();
+//                getGroupInfo = response.body().getData();
                 groupInfo = msgDao.getGroup4Id(toGid);
                 if (groupInfo != null) {
                     contactIntimately = groupInfo.getContactIntimately();

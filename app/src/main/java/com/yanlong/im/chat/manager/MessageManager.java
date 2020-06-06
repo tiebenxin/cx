@@ -157,36 +157,36 @@ public class MessageManager {
      * 消息接收流程
      * */
     public synchronized void onReceive(MsgBean.UniversalMessage bean) {
-        put(bean);
-        if(!isDealingMsg){
-            isDealingMsg = true;
-            MyAppLication.INSTANCE().startMessageIntentService();
-        }
+          toDoMsg.add(bean);
+          if(!isDealingMsg){//上一个处理完成，再启动处理消息sevice
+              isDealingMsg = true;
+              MyAppLication.INSTANCE().startMessageIntentService();
+          }
 
-        List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
-        if (msgList != null) {
-            int length = msgList.size();
-            if (length > 0) {
-                if (length == 1) {//收到单条消息
-                    MsgBean.UniversalMessage.WrapMessage wrapMessage = msgList.get(0);
-                    dealWithMsg(wrapMessage, false, true, bean.getRequestId());
-                    checkServerTimeInit(wrapMessage);
-
-                } else {//收到多条消息（如离线）
-                    LogUtil.getLog().d("a=", "--总任务数=" + length + "--from=" + bean.getMsgFrom());
-                    TaskDealWithMsgList taskMsgList = getMsgTask(bean.getRequestId());
-                    if (taskMsgList == null) {
-                        taskMsgList = new TaskDealWithMsgList(msgList, bean.getRequestId(), bean.getMsgFrom(), length);
-//                        System.out.println(TAG + "--MsgTask--add--requestId=" + bean.getRequestId());
-                        taskMaps.put(bean.getRequestId(), taskMsgList);
-                    } else {
-                        taskMsgList.clearPendingList();
-                    }
-                    taskMsgList.execute();
-//                    LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--总任务数="  + "--当前时间-4=" + System.currentTimeMillis());
-                }
-            }
-        }
+//        List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
+//        if (msgList != null) {
+//            int length = msgList.size();
+//            if (length > 0) {
+//                if (length == 1) {//收到单条消息
+//                    MsgBean.UniversalMessage.WrapMessage wrapMessage = msgList.get(0);
+//                    dealWithMsg(wrapMessage, false, true, bean.getRequestId());
+//                    checkServerTimeInit(wrapMessage);
+//
+//                } else {//收到多条消息（如离线）
+//                    LogUtil.getLog().d("a=", "--总任务数=" + length + "--from=" + bean.getMsgFrom());
+//                    TaskDealWithMsgList taskMsgList = getMsgTask(bean.getRequestId());
+//                    if (taskMsgList == null) {
+//                        taskMsgList = new TaskDealWithMsgList(msgList, bean.getRequestId(), bean.getMsgFrom(), length);
+////                        System.out.println(TAG + "--MsgTask--add--requestId=" + bean.getRequestId());
+//                        taskMaps.put(bean.getRequestId(), taskMsgList);
+//                    } else {
+//                        taskMsgList.clearPendingList();
+//                    }
+//                    taskMsgList.execute();
+////                    LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--总任务数="  + "--当前时间-4=" + System.currentTimeMillis());
+//                }
+//            }
+//        }
     }
 
     public synchronized void testReceiveMsg() {
@@ -210,7 +210,7 @@ public class MessageManager {
     }
 
     //接收到的单条消息作为服务器时间
-    private void checkServerTimeInit(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public void checkServerTimeInit(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
 //        if (SocketData.getPreServerAckTime() <= 0) {
         SocketData.setPreServerAckTime(wrapMessage.getTimestamp());
 //        }
@@ -285,7 +285,6 @@ public class MessageManager {
                 bean.setFrom_uid(-wrapMessage.getFromUid());
             }
         }
-        MyAppLication.INSTANCE().startMessageIntentService();
         switch (wrapMessage.getMsgType()) {
             case CHAT://文本
             case IMAGE://图片
@@ -1626,7 +1625,7 @@ public class MessageManager {
         return isAt;
     }
 
-    private void playDingDong() {
+    public void playDingDong() {
         if (System.currentTimeMillis() - playTimeOld < 500) {
             return;
         }
@@ -1742,7 +1741,7 @@ public class MessageManager {
      * @param isList 是否是批量消息
      * @param canNotify 是否能发出通知声音后震动，批量消息只要通知一声
      * */
-    private void checkNotifyVoice(MsgBean.UniversalMessage.WrapMessage msg, boolean isList, boolean canNotify) {
+    public void checkNotifyVoice(MsgBean.UniversalMessage.WrapMessage msg, boolean isList, boolean canNotify) {
         if (msg.getMsgType() != null && msg.getMsgType().getNumber() > 100) {
             return;
         }
