@@ -88,6 +88,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.adapter.AdapterPopMenu;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.AdMessage;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BalanceAssistantMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
@@ -167,6 +168,7 @@ import com.yanlong.im.user.ui.CollectionActivity;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.ApkUtils;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.GroupHeadImageUtil;
@@ -252,7 +254,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -5672,6 +5673,21 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     Intent intent = new Intent(ChatActivity.this, WebPageActivity.class);
                     intent.putExtra(WebPageActivity.AGM_URL, webMessage.getWebUrl());
                     startActivity(intent);
+                }
+                break;
+            case ChatEnum.ECellEventType.AD_CLICK:
+                if (args[0] != null && args[0] instanceof AdMessage) {
+                    AdMessage adMessage = (AdMessage) args[0];
+                    if (!TextUtils.isEmpty(adMessage.getAppId())) {
+                        ApkUtils.startSchemeApp(ChatActivity.this, adMessage.getAppId(), adMessage.getSchemeUrl());
+                    } else if (!TextUtils.isEmpty(adMessage.getWebUrl())) {
+                        Intent intent = new Intent();
+                        intent.setAction("android.intent.action.VIEW");
+                        Uri content_url = Uri.parse(adMessage.getWebUrl());
+                        intent.setData(content_url);
+                        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                        startActivity(intent);
+                    }
                 }
                 break;
             case ChatEnum.ECellEventType.MULTI_CLICK:

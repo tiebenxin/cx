@@ -746,7 +746,10 @@
         <activity
             android:name=".user.ui.freeze.AppealAccountActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".user.ui.logout.LogoutAccountStepActivity" />
+        <activity android:name=".user.ui.logout.LogoutAccountStepActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".user.ui.baned.BanedAccountActivity"
+            android:screenOrientation="portrait"/>
 
     </application>
 

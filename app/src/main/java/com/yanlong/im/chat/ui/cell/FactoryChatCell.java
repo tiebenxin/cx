@@ -108,6 +108,9 @@ public class FactoryChatCell {
             case REPLY_IMAGE_SEND:
                 cell = new ChatCellReplyImage(mContext, view, mListener, mAdapter);
                 break;
+            case ADVERTISEMENT:
+                cell = new ChatCellAd(mContext, view, mListener, mAdapter);
+                break;
             default:
                 cell = new ChatCellUnrecognized(mContext, view, mListener, mAdapter);
                 break;

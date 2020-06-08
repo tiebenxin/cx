@@ -882,6 +882,20 @@ public class MsgConversionBean {
                     msgAllBean.setReplyMessage(replyMessage);
                 }
                 break;
+            case ASSISTANT_PROMOTION://小助手推广消息
+                AdMessage adMessage = new AdMessage();
+                MsgBean.AssistantPromotionMessage promotionMessage = bean.getAssistantPromotion();
+                adMessage.setMsgId(bean.getMsgId());
+                adMessage.setTitle(promotionMessage.getTitle());
+                adMessage.setSummary(promotionMessage.getSummary());
+                adMessage.setAppId(promotionMessage.getAppCall().getAndroidAppId());
+                adMessage.setSchemeUrl(promotionMessage.getAppCall().getAndroidUrlSchemes());
+                adMessage.setWebUrl(promotionMessage.getH5Url());
+                adMessage.setButtonTxt(promotionMessage.getButtonTxt());
+                adMessage.setThumbnail(promotionMessage.getCoverImg());
+                msgAllBean.setAdMessage(adMessage);
+                msgAllBean.setMsg_type(EMessageType.ASSISTANT_PROMOTION);
+                break;
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;
         }
