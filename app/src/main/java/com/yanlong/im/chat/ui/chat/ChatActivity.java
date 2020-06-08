@@ -224,6 +224,7 @@ import net.cb.cb.library.utils.DeviceUtils;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.FileConfig;
+import net.cb.cb.library.utils.GetImgUtils;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.InputUtil;
@@ -279,6 +280,7 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static net.cb.cb.library.utils.FileUtils.SIZETYPE_B;
+import static net.cb.cb.library.utils.GetImgUtils.getLatestPhoto;
 
 public class ChatActivity extends AppActivity implements IActionTagClickListener, ICellEventListener {
     private static String TAG = "ChatActivity";
@@ -408,6 +410,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private boolean isReplying;
     private ControllerReplyMessage viewReplyMessage;
     private long searchTime;
+    private List<GetImgUtils.ImgBean> latestImgList;//猜你想要->最新加入的图片
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -804,6 +807,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         initUnreadCount();
         initPopupWindow();
         initReplyMsg();
+        if(latestImgList==null){
+            latestImgList = GetImgUtils.getLatestPhoto(ChatActivity.this);
+        }
     }
 
     private void initReplyMsg() {
