@@ -348,7 +348,7 @@ public class MessageRepository {
             @NullableDecl
             @Override
             public Boolean apply(@NullableDecl Group group) {
-//                saveGoupToDB(group);
+                saveGoupToDB(group);
                 //通知更新UI
                 MessageManager.getInstance().notifyGroupChange(gid);
                 /********通知更新sessionDetail************************************/

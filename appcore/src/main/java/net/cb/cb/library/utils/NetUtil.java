@@ -132,7 +132,30 @@ public class NetUtil {
         return create(null, service);
     }
 
-
+    /***
+     * 同步请求
+     *
+     * @param call
+     * @param <T>
+     */
+    public <T> Response<T> execute(Call<T> call) {
+        //开启了代理，直接返回失败
+        if (isWifiProxy(AppConfig.getContext())) {
+            LogUtil.getLog().e("NetUtil", "网络代理异常，请求失败");
+            try {
+                LogUtil.writeLog("NetUtil" + "--网络代理--token=" + NetIntrtceptor.headers.get("X-Access-Token") + "--time=" + System.currentTimeMillis());
+            } catch (Exception e) {
+            }
+            return null;
+        }else{
+            try {
+               return call.execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return  null;
+            }
+        }
+    }
     /***
      * 2.执行
      *
