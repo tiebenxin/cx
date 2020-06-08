@@ -40,6 +40,24 @@ import io.realm.RealmResults;
  * @description
  */
 public class DB {
+    /**
+     * 更新好友截屏通知开关
+     *
+     * @param type 0:未开启,1:开启
+     */
+    public static void updateFriendSnapshot(Realm realm,long uid, int type) {
+        try {
+            UserInfo user = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+            if (user != null) {
+                realm.beginTransaction();
+                user.setScreenshotNotification(type);
+                realm.commitTransaction();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.reportException(e);
+        }
+    }
 
     /***
      * 更新阅后即焚状态
@@ -451,16 +469,17 @@ public class DB {
     //移出群成员
     public static void removeGroupMember(@NonNull Realm realm, String gid, long uid) {
         try {
-            realm.beginTransaction();
+
             Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
             if (group != null) {
                 RealmList<MemberUser> list = group.getUsers();
                 MemberUser memberUser = list.where().equalTo("uid", uid).findFirst();
                 if (memberUser != null) {
+                    realm.beginTransaction();
                     list.remove(memberUser);
+                    realm.commitTransaction();
                 }
             }
-            realm.commitTransaction();
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.reportException(e);

@@ -131,19 +131,37 @@ public class MessageManager {
     private Map<Long, Long> readTimeMap = new HashMap<>();
 
     private List<MsgBean.UniversalMessage> toDoMsg = new ArrayList<>();
-    public void put(MsgBean.UniversalMessage receviceMsg){
-        toDoMsg.add(receviceMsg);
-    }
+
+
     //是否正在处理消息
     private boolean isDealingMsg = false;
+
+
     //取第一个添加的消息
-    public MsgBean.UniversalMessage  poll(){
-        if(toDoMsg.size()>0){
-            return toDoMsg.get(toDoMsg.size()-1);
-        }else{
+    public MsgBean.UniversalMessage poll() {
+        if (toDoMsg.size() > 0) {
+            return toDoMsg.get(toDoMsg.size() - 1);
+        } else {
             isDealingMsg = false;
             return null;
         }
+    }
+
+    /**
+     * 移除
+     */
+    public void pop() {
+        if (toDoMsg.size() > 0)
+            toDoMsg.remove(toDoMsg.size() - 1);
+    }
+
+    /**
+     * 添加
+     *
+     * @param receviceMsg
+     */
+    public void push(MsgBean.UniversalMessage receviceMsg) {
+        toDoMsg.add(receviceMsg);
     }
 
     public static MessageManager getInstance() {
@@ -157,11 +175,11 @@ public class MessageManager {
      * 消息接收流程
      * */
     public synchronized void onReceive(MsgBean.UniversalMessage bean) {
-          toDoMsg.add(bean);
-          if(!isDealingMsg){//上一个处理完成，再启动处理消息sevice
-              isDealingMsg = true;
-              MyAppLication.INSTANCE().startMessageIntentService();
-          }
+        push(bean);
+        if (!isDealingMsg) {//上一个处理完成，再启动处理消息sevice
+            isDealingMsg = true;
+            MyAppLication.INSTANCE().startMessageIntentService();
+        }
 
 //        List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
 //        if (msgList != null) {
@@ -178,7 +196,7 @@ public class MessageManager {
 //                    if (taskMsgList == null) {
 //                        taskMsgList = new TaskDealWithMsgList(msgList, bean.getRequestId(), bean.getMsgFrom(), length);
 ////                        System.out.println(TAG + "--MsgTask--add--requestId=" + bean.getRequestId());
-//                        taskMaps.put(bean.getRequestId(), taskMsgList);
+//                        taskMaps.push(bean.getRequestId(), taskMsgList);
 //                    } else {
 //                        taskMsgList.clearPendingList();
 //                    }
@@ -510,7 +528,7 @@ public class MessageManager {
                     eventLoginOut4Conflict.setMsg("你已被限制登录");
                 } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.PASSWORD_CHANGED) {//修改密码
                     eventLoginOut4Conflict.setMsg("您已成功重置密码，请使用新密码重新登录");
-                }else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.USER_DEACTIVATING) {//修改密码
+                } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.USER_DEACTIVATING) {//修改密码
                     eventLoginOut4Conflict.setMsg("工作人员将在30天内处理您的申请并删除账号下所有数据。在此期间，请不要登录常信。");
                 }
                 EventBus.getDefault().post(eventLoginOut4Conflict);
@@ -1017,7 +1035,7 @@ public class MessageManager {
                 if (task != null) {
                     task.getPendingMessagesMap().put(msgAllBean.getMsg_id(), msgAllBean);
                 }
-//                pendingMessages.put(msgAllBean.getMsg_id(), msgAllBean);//批量消息先保存到map中，后面再批量存到数据库
+//                pendingMessages.push(msgAllBean.getMsg_id(), msgAllBean);//批量消息先保存到map中，后面再批量存到数据库
 
             } else {
                 DaoUtil.update(msgAllBean);
@@ -1472,7 +1490,7 @@ public class MessageManager {
 //            if (info == null) {
 //                info = userDao.findUserInfo(uid);
 //                if (info != null) {
-//                    cacheUsers.put(uid, info);
+//                    cacheUsers.push(uid, info);
 //                }
 //            }
 //        }
@@ -1489,7 +1507,7 @@ public class MessageManager {
 //            if (group == null) {
 //                group = msgDao.getGroup4Id(gid);
 //                if (group != null) {
-//                    cacheGroups.put(gid, group);
+//                    cacheGroups.push(gid, group);
 //                }
 //            }
 //        }
@@ -1517,7 +1535,7 @@ public class MessageManager {
 //                info.setHead(avatar);
 //                info.setName(nickName);
 //                cacheUsers.remove(info);
-//                cacheUsers.put(uid, info);
+//                cacheUsers.push(uid, info);
 //            }
 //        }
     }
@@ -1532,7 +1550,7 @@ public class MessageManager {
 //                info.setLastonline(time);
 //                info.setActiveType(onlineType);
 //                cacheUsers.remove(info);
-//                cacheUsers.put(uid, info);
+//                cacheUsers.push(uid, info);
 //            }
 //        }
     }
@@ -1807,7 +1825,7 @@ public class MessageManager {
 //            if (group != null) {
 //                group.setAvatar(url);
 //                cacheGroups.remove(gid);
-//                cacheGroups.put(gid, group);
+//                cacheGroups.push(gid, group);
 //            }
 //        }
     }
@@ -1820,7 +1838,7 @@ public class MessageManager {
 //            Group group = getCacheGroup(gid);
 //            if (group != null) {
 //                cacheGroups.remove(gid);
-//                cacheGroups.put(gid, group);
+//                cacheGroups.push(gid, group);
 //            }
 //        }
     }
@@ -1830,7 +1848,7 @@ public class MessageManager {
 //            if (cacheGroups.containsValue(group)) {
 //                cacheGroups.remove(group.getGid());
 //            }
-//            cacheGroups.put(group.getGid(), group);
+//            cacheGroups.push(group.getGid(), group);
 //        }
     }
 
@@ -1839,7 +1857,7 @@ public class MessageManager {
 //            if (cacheUsers.containsValue(user)) {
 //                cacheUsers.remove(user.getUid());
 //            }
-//            cacheUsers.put(user.getUid(), user);
+//            cacheUsers.push(user.getUid(), user);
 //
 //        }
     }

@@ -3,7 +3,6 @@ package com.yanlong.im.chat.server;
 import android.app.IntentService;
 import android.content.Intent;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -12,6 +11,8 @@ import com.yanlong.im.repository.MessageRepository;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
+import com.yanlong.im.utils.socket.SocketData;
+import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.LogUtil;
@@ -23,12 +24,16 @@ import io.realm.Realm;
 import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
 
 /**
+ * 消息处理sevice
+ *
  * @createAuthor Raleigh.Luo
  * @createDate 2020/6/5 0005
  * @description
  */
 public class MessageIntentService extends IntentService {
     private final String TAG = MessageIntentService.class.getSimpleName();
+    public static String START_SERVICE_ACTION = "start_service_action";
+    public static String STOP_SERVICE_ACTION = "stop_service_action";
     private MessageRepository repository;
 
     public MessageIntentService() {
@@ -37,31 +42,56 @@ public class MessageIntentService extends IntentService {
     }
 
     @Override
+    public void onDestroy() {
+        if (repository != null) repository.onDestory();
+        super.onDestroy();
+    }
+
+    @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         Realm realm = DaoUtil.open();
-        try {
+        if (intent.getAction().equals(STOP_SERVICE_ACTION)) {
+            /**停止服务，关闭数据库，onHandleIntent每次都是同一个线程
+             * 适用场景
+             *1.退出登录/挤下线
+             * 2.application终止
+             */
+            DaoUtil.close(realm);
+            stopSelf();
+        } else {
             //初始化数据库对象
             repository.initRealm(realm);
             MsgBean.UniversalMessage bean = MessageManager.getInstance().poll();
             //子线程
             while (bean != null) {
-                List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
-                if (msgList != null) {
-                    for (MsgBean.UniversalMessage.WrapMessage msg : msgList) {
-                        MsgBean.UniversalMessage.WrapMessage wrapMessage = msg;
-                        dealWithMsg(wrapMessage, false, true, bean.getRequestId());
-                        MessageManager.getInstance().checkServerTimeInit(wrapMessage);
+                try {
+                    List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
+                    if (msgList != null) {
+                        for (MsgBean.UniversalMessage.WrapMessage msg : msgList) {
+                            MsgBean.UniversalMessage.WrapMessage wrapMessage = msg;
+                            dealWithMsg(wrapMessage, bean.getRequestId(), msgList.size());
+                            MessageManager.getInstance().checkServerTimeInit(wrapMessage);
+                        }
                     }
-                }
+                    //本次消息是否接收完成
+                    boolean isReceivedOfflineCompleted = SocketData.isEnough(msgList.size());
+                    if (isReceivedOfflineCompleted) {//离线消息接收完了
+                        //清空双向清除数据
+                        if (repository.historyCleanMsg.size() > 0) {
+                            repository.historyCleanMsg.clear();
+                        }
+                        //更正离线已读消息-已读状态、未读数量、阅后即焚
+                        repository.updateOfflineReadMsg();
+                    }
+                    //消息回执
+                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
+                } catch (Exception e) {}
+                //移除处理过的当前消息
+                MessageManager.getInstance().pop();
                 //取下一个待处理的消息对象
                 bean = MessageManager.getInstance().poll();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            DaoUtil.close(realm);
         }
-
     }
 
     /**
@@ -75,9 +105,7 @@ public class MessageIntentService extends IntentService {
         if (repository.historyCleanMsg.containsKey(uid) && repository.historyCleanMsg.get(uid) >= timestamp) {
             if (repository.historyCleanMsg.get(uid) >= timestamp) {
                 result = true;
-            } else if (timestamp - repository.historyCleanMsg.get(uid) > 10 * 60 * 1000)
-                //historyCleanMsg的消息时间，比当前接收消息时间超过10分钟的消息，从historyCleanMsg移除
-                repository.historyCleanMsg.remove(uid);
+            }
         }
         return result;
     }
@@ -90,25 +118,37 @@ public class MessageIntentService extends IntentService {
      * @param isList 是否是批量消息
      * @return 返回结果，不需要处理逻辑的消息，默认处理成功
      * */
-    public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify, String requestId) {
+
+    /**
+     * 处理接收到的消息
+     * 分两类处理，一类是需要产生本地消息记录的，一类是相关指令，无需产生消息记录
+     *
+     * @param wrapMessage       接收到的消息
+     * @param requestId
+     * @param batchMessageTotal 本批消息数量
+     * @return
+     */
+    public void dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, String requestId,
+                            int batchMessageTotal) {
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
-            return true;
+            return;
         }
+        //本次离线消息是否接收完成
+        boolean isReceivedOfflineCompleted = SocketData.isEnough(batchMessageTotal);
         /******丢弃消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
         if (TextUtils.isEmpty(wrapMessage.getGid()) && repository.historyCleanMsg.size() > 0) {//单聊
             if (discardHistoryCleanMessage(wrapMessage.getFromUid(), wrapMessage.getTimestamp()) ||
                     discardHistoryCleanMessage(wrapMessage.getToUid(), wrapMessage.getTimestamp())) {
-                return true;
+                return;
             }
         }
+
         /******end 丢弃消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
         LogUtil.getLog().e(TAG, "接收到消息: " + wrapMessage.getMsgId() + "--type=" + wrapMessage.getMsgType());
-        boolean result = true;
-        boolean hasNotified = false;//已经通知刷新了
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
             if (oldMsgId.contains(wrapMessage.getMsgId())) {
                 LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
-                return true;
+                return;
             } else {
                 if (oldMsgId.size() >= 500) {
                     oldMsgId.remove(0);
@@ -143,7 +183,7 @@ public class MessageIntentService extends IntentService {
                 repository.toDoChat(wrapMessage, requestId);
                 break;
             case HISTORY_CLEAN://双向清除
-                repository.toDoHistoryCleanMsg(wrapMessage);
+                repository.toDoHistoryCleanMsg(wrapMessage, isReceivedOfflineCompleted);
                 break;
             case P2P_AU_VIDEO:// 音视频消息
                 repository.toDoP2PAUVideo(wrapMessage);
@@ -201,7 +241,7 @@ public class MessageIntentService extends IntentService {
                 repository.toDoChangeSurvivalTime(wrapMessage);
                 break;
             case READ://已读消息
-                repository.toDoRead(wrapMessage);
+                repository.toDoRead(wrapMessage, batchMessageTotal>1);
                 break;
             case SWITCH_CHANGE: //开关变更
                 repository.toDoSwitchChange(wrapMessage);
@@ -223,14 +263,9 @@ public class MessageIntentService extends IntentService {
         }
 
         if (!isFromSelf) {
-            MessageManager.getInstance().checkNotifyVoice(wrapMessage, isList, canNotify);
+            //本次消息数量大于1条，为批量消息
+            MessageManager.getInstance().checkNotifyVoice(wrapMessage, batchMessageTotal > 1, true);
         }
-        return result;
     }
 
-    @Override
-    public void onDestroy() {
-        Log.e("raleigh_test", "MessageIntentService onDestroy");
-        super.onDestroy();
-    }
 }

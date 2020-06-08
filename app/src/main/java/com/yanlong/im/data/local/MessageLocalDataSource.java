@@ -2,6 +2,7 @@ package com.yanlong.im.data.local;
 
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.hm.cxpay.global.PayEnum;
 import com.luck.picture.lib.tools.DateUtils;
@@ -9,6 +10,7 @@ import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Remind;
 import com.yanlong.im.chat.bean.Session;
@@ -37,13 +39,17 @@ import io.realm.RealmResults;
  */
 public class MessageLocalDataSource {
     private Realm realm;
-    private Handler handler = new Handler();
+
     //重试时间
     private long RETRY_DELAY = 100;
+    private Handler handler = null;
 
     public void initRealm(Realm realm) {
         this.realm = realm;
+        if (handler != null) handler = null;
+        handler = new Handler();
     }
+
 
     /**
      * 数据库开始事务处理
@@ -60,18 +66,6 @@ public class MessageLocalDataSource {
     }
 
 
-    /**
-     * 检查realm状态,避免系统奔溃后，主页重新启动realm对象已被关闭，需重新连接
-     */
-    public boolean checkRealmStatus() {
-        boolean result = true;
-        if (realm == null || realm.isClosed()) {
-            result = false;
-            realm = DaoUtil.open();
-        }
-        return result;
-    }
-
     public Realm getRealm() {
         return realm;
     }
@@ -84,8 +78,15 @@ public class MessageLocalDataSource {
      */
     private boolean checkInTranction(Runnable runnable) {
         if (realm.isInTransaction()) {
+            Log.e("raleigh_test", "checkInTranction start");
+            try {
+                Thread.currentThread().wait(RETRY_DELAY);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            runnable.run();
             //正在事务，100毫秒后重试
-            handler.postDelayed(runnable, RETRY_DELAY);
+            Log.e("raleigh_test", "checkInTranction");
             return true;
         } else {
             return false;
@@ -256,10 +257,14 @@ public class MessageLocalDataSource {
     /**
      * 更新群信息
      */
-    public void updateGroupName(Group group) {
-        if (checkInTranction(() -> updateGroupName(group)))
-            return;
-        DB.updateGroup(realm, group);
+    public void updateGroup(Group group) {
+        try {
+            if (checkInTranction(() -> updateGroup(group)))
+                return;
+            DB.updateGroup(realm, group);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -280,6 +285,8 @@ public class MessageLocalDataSource {
      * @param gid
      * @param uids
      */
+
+
     public void removeGroupMember(String gid, List<Long> uids) {
         if (checkInTranction(() -> removeGroupMember(gid, uids)))
             return;
@@ -365,6 +372,23 @@ public class MessageLocalDataSource {
     }
 
     /**
+     * 自己是否群中成员
+     *
+     * @param group
+     * @return
+     */
+    public boolean isMemberInGroup(Group group) {
+        if (group == null || group.getUsers() == null) return false;
+        List<MemberUser> users = group.getUsers();
+        MemberUser member = new MemberUser();
+        Long myUid = UserAction.getMyId();
+        member.setUid(myUid == null ? 0 : myUid);
+        if (users.contains(member)) {
+            return true;
+        } else return false;
+    }
+
+    /**
      * 同意添加为好友
      *
      * @param aid
@@ -394,7 +418,7 @@ public class MessageLocalDataSource {
 
     public void updateGroup(String gid, String name, Boolean intimately, Integer screenshotNotification,
                             Integer stat) {
-        if (checkInTranction(() -> updateGroup(gid, name,intimately,screenshotNotification,stat)))
+        if (checkInTranction(() -> updateGroup(gid, name, intimately, screenshotNotification, stat)))
             return;
         Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
         if (group != null) {
@@ -414,20 +438,29 @@ public class MessageLocalDataSource {
      * @param msgid       消息ID
      * @param msgCancelId
      */
-    public  void deleteMsg4Cancel(String msgid, String msgCancelId){
-        if (checkInTranction(() -> deleteMsg4Cancel(msgid,msgCancelId)))
+    public void deleteMsg4Cancel(String msgid, String msgCancelId) {
+        if (checkInTranction(() -> deleteMsg4Cancel(msgid, msgCancelId)))
             return;
-        DB.deleteMsg4Cancel(realm,msgid,msgCancelId);
+        DB.deleteMsg4Cancel(realm, msgid, msgCancelId);
     }
+
     /***
      * 更新阅后即焚状态
      */
-    public  void updateSurvivalTime(String gid, Long uid, int type) {
-        if (checkInTranction(() -> updateSurvivalTime(gid,uid,type)))
+    public void updateSurvivalTime(String gid, Long uid, int type) {
+        if (checkInTranction(() -> updateSurvivalTime(gid, uid, type)))
             return;
-        DB.updateSurvivalTime(realm,gid,uid,type);
+        DB.updateSurvivalTime(realm, gid, uid, type);
     }
 
+    /***
+     * 更新好友截屏通知开关
+     */
+    public void updateFriendSnapshot(Long uid, int type) {
+        if (checkInTranction(() -> updateFriendSnapshot(uid, type)))
+            return;
+        DB.updateFriendSnapshot(realm, uid, type);
+    }
 
 
     /**
@@ -439,69 +472,16 @@ public class MessageLocalDataSource {
      */
     public boolean isGroupMasterOrManager(String gid, long uid) {
         return DB.isGroupMasterOrManager(realm, gid, uid);
-
     }
-    /***
-     * 清理单个会话阅读数量
-     * @param gid
-     * @param from_uid
-     */
-    public void sessionReadCleanAndToBurn(String gid, Long from_uid,long timeStamp) {
-        if (checkInTranction(() -> updateFriendReadAndSurvivalTime(uid,timestamp)))
-        try {
-            Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() :
-                    realm.where(Session.class).equalTo("from_uid", from_uid).findFirst();
-            if (session != null) {
-                realm.beginTransaction();
-                session.setUnread_count(0);
-                session.setAtMessage(null);
-                realm.commitTransaction();
-            }
-            RealmResults<MsgAllBean> msgs;
-            if (!TextUtils.isEmpty(gid)) {//群聊-好友发送的，自己未读消息
-                msgs = realm.where(MsgAllBean.class)
-                        .equalTo("gid", gid)
-                        .equalTo("isRead", false)
-                        .findAll();
-            } else {//单聊-好友发送的消息，未加入到阅后即焚队列的消息
-                msgs = realm.where(MsgAllBean.class)
-                        .beginGroup()
-                        .isEmpty("gid").or().isNull("gid")
-                        .endGroup()
-                        .and()
-                        .beginGroup()
-                        .equalTo("from_uid", from_uid)
-                        .equalTo("isRead", false)
-                        .endGroup().findAll();
-            }
 
-            if (msgs != null && msgs.size() > 0) {
-                realm.beginTransaction();
-                //对方发的消息，当前时间为起点
-                for (MsgAllBean msg : msgs) {
-                    if (msg.getSurvival_time() > 0 && msg.getEndTime() <= 0) {
-                        msg.setRead(true);//自己已读
-                        msg.setReadTime(timeStamp);
-                        msg.setStartTime(timeStamp);
-                        msg.setEndTime(timeStamp + (msg.getSurvival_time() * 1000));
-                    } else {
-                        msg.setRead(true);//自己已读
-                        msg.setReadTime(timeStamp);
-                    }
-                }
-                realm.commitTransaction();
-            }
-        }catch (Exception e){
-        }
-    }
     /**
      * 更新已读状态和阅后即焚
      * 单聊发送：自己发送成功且对方已读，立即加入阅后即焚
      */
-    public void updateFriendReadAndSurvivalTime(long uid, long timestamp) {
+    public void updateFriendMsgReadAndSurvivalTime(long uid, long timestamp) {
         try {
-            if (checkInTranction(() -> updateFriendReadAndSurvivalTime(uid,timestamp)))
-                return ;
+            if (checkInTranction(() -> updateFriendMsgReadAndSurvivalTime(uid, timestamp)))
+                return;
             //查询出单聊和未读状态的消息
             RealmResults<MsgAllBean> friendChatMessages = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
@@ -543,8 +523,8 @@ public class MessageLocalDataSource {
     //更新转账状态
     public void updateTransferStatus(String tradeId, int opType) {
         try {
-            if (checkInTranction(() -> updateTransferStatus(tradeId,opType)))
-                return ;
+            if (checkInTranction(() -> updateTransferStatus(tradeId, opType)))
+                return;
             realm.beginTransaction();
             TransferMessage transfer = realm.where(TransferMessage.class)
                     .beginGroup().equalTo("id", tradeId).endGroup()
@@ -566,7 +546,7 @@ public class MessageLocalDataSource {
      */
     public void updateSessionAtMessage(String gid, String atMessage, int type) {
         if (checkInTranction(() -> updateSessionAtMessage(gid, atMessage, type)))
-            return ;
+            return;
         try {
             realm.beginTransaction();
             Session session = realm.where(Session.class).equalTo("gid", gid).findFirst();
@@ -582,6 +562,82 @@ public class MessageLocalDataSource {
             DaoUtil.reportException(e);
         }
     }
+
+    /**同步自己PC端好友发送消息的已读状态和阅后即焚
+     * 对方发送的消息-自己接收的消息，更新为已读
+     * 更新消息已读
+     */
+    public void updateRecivedMsgReadForPC(String gid, Long uid, long timestamp) {
+        if (checkInTranction(() -> updateRecivedMsgReadForPC(gid, uid, timestamp)))
+            return;
+        //查出已读前的消息，设置为已读
+        RealmResults<MsgAllBean> msgAllBeans = TextUtils.isEmpty(gid) ?
+                realm.where(MsgAllBean.class).equalTo("gid", gid)
+                        .lessThanOrEqualTo("timestamp", timestamp)
+                        .equalTo("isRead", false)
+                        .findAll()
+                :
+                //查出已读前的消息，设置为已读,好友发送的消息
+                realm.where(MsgAllBean.class)
+                        .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
+                        .equalTo("from_uid", uid)
+                        .lessThanOrEqualTo("timestamp", timestamp)
+                        .equalTo("isRead", false)
+                        .findAll();
+
+        realm.beginTransaction();
+        for (MsgAllBean msgAllBean : msgAllBeans) {
+            long endTime = timestamp + msgAllBean.getSurvival_time() * 1000;
+            if (msgAllBean.getSurvival_time() > 0 && msgAllBean.getEndTime() <= 0) {//有设置阅后即焚
+                msgAllBean.setRead(true);//自己已读
+                msgAllBean.setReadTime(timestamp);
+                /**处理需要阅后即焚的消息***********************************/
+                msgAllBean.setStartTime(timestamp);
+                msgAllBean.setEndTime(endTime);
+            } else {//普通消息，记录已读状态和时间
+                msgAllBean.setRead(true);//自己已读
+                msgAllBean.setReadTime(timestamp);
+            }
+        }
+        realm.commitTransaction();
+        //校正session未读数
+        correctSessionCount(gid, uid, timestamp);
+    }
+
+    /**
+     * 校正session未读数
+     * 前提条件：已知最后一条已读消息时间
+     * @param gid
+     * @param uid
+     * @param timestamp
+     */
+    private void correctSessionCount(String gid, Long uid, long timestamp){
+        if (checkInTranction(() -> correctSessionCount(gid, uid, timestamp)))
+            return;
+        Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() :
+                realm.where(Session.class).equalTo("from_uid", uid).findFirst();
+        if (session != null) {
+            //好友之后发送的未读消息数量
+            long unReadCount = TextUtils.isEmpty(gid) ?
+                    realm.where(MsgAllBean.class).equalTo("gid", gid)
+                            .greaterThan("timestamp", timestamp)
+                            .equalTo("isRead", false)
+                            .count()
+                    :
+                    realm.where(MsgAllBean.class)
+                            .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
+                            .equalTo("from_uid", uid)
+                            .greaterThan("timestamp", timestamp)
+                            .equalTo("isRead", false)
+                            .count();
+            realm.beginTransaction();
+            //取最小值  剩余消息数量和当前未读数
+            session.setUnread_count((int) Math.min(unReadCount,session.getUnread_count()));
+            session.setAtMessage(null);
+            realm.commitTransaction();
+        }
+    }
+
     /*
      * 更新或者创建session
      *

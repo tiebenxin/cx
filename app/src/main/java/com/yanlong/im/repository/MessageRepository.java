@@ -14,7 +14,6 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.task.TaskDealWithMsgList;
 import com.yanlong.im.data.local.MessageLocalDataSource;
 import com.yanlong.im.data.remote.MessageRemoteDataSource;
 import com.yanlong.im.user.action.UserAction;
@@ -63,10 +62,6 @@ public class MessageRepository {
     private MessageLocalDataSource localDataSource;
     private MessageRemoteDataSource remoteDataSource;
 
-    //正在请求获取群数据的群id
-    private List<String> loadGids = new ArrayList<>();
-    //正在请求获取的用户数据的用户id
-    private List<Long> loadUids = new ArrayList<>();
     /**
      * 保存接收了双向清除指令的from_uid-待最后一条消息时间戳
      * 用于丢弃在此时间戳之前的消息
@@ -78,17 +73,27 @@ public class MessageRepository {
      * 保存已读消息 gid-消息时间戳
      * 用于处理自己已读和阅后即焚消息状态
      */
-    public Map<String, Long> offlineGroupReadMsg = new HashMap<>();
+    public Map<String, Long> offlineMySelfPCGroupReadMsg = new HashMap<>();
     /**
      * 处理单聊 接收离线消息 自己PC端发送的已读消息
      * 保存已读消息 from_uid-消息时间戳
      * 用于处理自己已读和阅后即焚消息状态
+     */
+    public Map<Long, Long> offlineMySelfPCFriendReadMsg = new HashMap<>();
+    /**
+     * 处理单聊 接收离线消息 对方发送的已读消息
+     * 保存已读消息 to_uid-消息时间戳
+     * 用于自己发送的消息对方已读 和阅后即焚消息状态
      */
     public Map<Long, Long> offlineFriendReadMsg = new HashMap<>();
 
     public MessageRepository() {
         localDataSource = new MessageLocalDataSource();
         remoteDataSource = new MessageRemoteDataSource();
+    }
+
+    public void onDestory() {
+        historyCleanMsg.clear();
     }
 
     public void initRealm(Realm realm) {
@@ -130,12 +135,14 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoHistoryCleanMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public void toDoHistoryCleanMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isReceivedOfflineCompleted) {
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         //最后一条需要清除的聊天记录时间戳
         long lastNeedCleanTimestamp = wrapMessage.getTimestamp();
-        //保存双向清除指令发送方和时间戳，用于丢弃在此时间戳之前的消息
-        historyCleanMsg.put(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), lastNeedCleanTimestamp);
+        //接收离线消息时，保存双向清除指令发送方和时间戳，离线消息接收完成前，丢弃在此时间戳之前的消息
+        if (!isReceivedOfflineCompleted) {
+            historyCleanMsg.put(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), lastNeedCleanTimestamp);
+        }
         //清除好友历史记录
         localDataSource.messageHistoryClean(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), lastNeedCleanTimestamp);
         //通知UI刷新
@@ -222,41 +229,36 @@ public class MessageRepository {
      * 处理消息已读
      *
      * @param wrapMessage
+     * @param batchMessage 是否是批量消息 ，消息数>1
      */
-    public void toDoRead(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public void toDoRead(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean batchMessage) {
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         long uids = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
         if (!isFromSelf) {
             if (TextUtils.isEmpty(wrapMessage.getGid())) {//单聊
-                localDataSource.updateFriendReadAndSurvivalTime(uids, wrapMessage.getTimestamp());
-                //TODO
-//                //自己PC端发送给好友的消息，有离线消息，则保存先,离线消息处理完之后，进行再次更新
-//                TaskDealWithMsgList task = getMsgTask(bean.getRequest_id());
-//                if (task != null && (task.getPendingMessagesMap().size() > 0)) {
-//                    //保存消息信息
-//                    offlineFriendReadMsg.put(uids, wrapMessage.getTimestamp());
-//                }
+                //自己PC端发送给好友的消息，有离线消息，则保存先,离线消息处理完之后，进行再次更新
+                if (!batchMessage) {//批量消息 消息数>1
+                    //对方已读我发的消息
+                    offlineFriendReadMsg.put(uids, wrapMessage.getTimestamp());
+                } else {
+                    localDataSource.updateFriendMsgReadAndSurvivalTime(uids, wrapMessage.getTimestamp());
+                }
             }
         }
-
         LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getTimestamp());
         if (isFromSelf) {//自己PC端已读，则清除未读消息
             String gid = wrapMessage.getGid();
             gid = gid == null ? "" : gid;
-            msgDao.sessionReadCleanAndToBurn(gid, uids, wrapMessage.getTimestamp());
-            //TODO
-//            //有离线消息，则保存先,离线消息处理完之后，进行再次更新
-//            TaskDealWithMsgList task = getMsgTask(bean.getRequest_id());
-//            if (task != null && (task.getPendingMessagesMap().size() > 0
-//                    || task.getPendingGroupUnreadMap().size() > 0 || task.getPendingUserUnreadMap().size() > 0)) {
-//                //清除队列未读数量
-//                clearPendingSessionUnreadCount(gid, uids, bean.getRequest_id());
-//                //保存消息信息
-//                if (TextUtils.isEmpty(gid))
-//                    offlineFriendReadMsg.put(uids, wrapMessage.getTimestamp());
-//                else
-//                    offlineGroupReadMsg.put(gid, wrapMessage.getTimestamp());
-//            }
+            //有离线消息(批量消息)，则保存先,离线消息处理完之后，进行再次更新
+            if (!batchMessage) {
+                //保存消息信息
+                if (TextUtils.isEmpty(gid))
+                    offlineMySelfPCFriendReadMsg.put(uids, wrapMessage.getTimestamp());
+                else
+                    offlineMySelfPCGroupReadMsg.put(gid, wrapMessage.getTimestamp());
+            } else { //同步自己PC端好友发送消息的已读状态和阅后即焚
+                localDataSource.updateRecivedMsgReadForPC(gid, uids, wrapMessage.getTimestamp());
+            }
         }
         MessageManager.getInstance().notifyRefreshChat(wrapMessage.getGid(), uids);
     }
@@ -346,7 +348,7 @@ public class MessageRepository {
             @NullableDecl
             @Override
             public Boolean apply(@NullableDecl Group group) {
-                saveGoupToDB(group);
+//                saveGoupToDB(group);
                 //通知更新UI
                 MessageManager.getInstance().notifyGroupChange(gid);
                 /********通知更新sessionDetail************************************/
@@ -369,20 +371,10 @@ public class MessageRepository {
      * @param group
      */
     private void saveGoupToDB(@NonNull Group group) {
-        if (group != null && group.getUsers() != null) {
-            if (MessageManager.getInstance().isGroupValid2(group)) {//在群中，才更新
-                if (MessageManager.getInstance().isGroupValid2(group)) {
-                    localDataSource.updateGroupName(group);
-                } else {
-                    localDataSource.removeGroupMember(group.getGid(), UserAction.getMyId());
-                }
-            } else {
-                if (MessageManager.getInstance().isGroupValid2(group)) {//重新被拉进群，更新
-                    localDataSource.updateGroupName(group);
-                }
-            }
-        } else {
-            localDataSource.updateGroupName(group);
+        if (localDataSource.isMemberInGroup(group)) {//在群中，更新群信息
+            localDataSource.updateGroup(group);
+        } else {//不在群中，不更新了，直接把自己移除
+            localDataSource.removeGroupMember(group.getGid(), UserAction.getMyId());
         }
         //更新session免打扰和置顶状态
         localDataSource.updateSessionTopAndDisturb(group.getGid(), null, group.getIsTop(), group.getNotNotify());
@@ -400,7 +392,7 @@ public class MessageRepository {
             if (!TextUtils.isEmpty(bean.getGid()) && bean.getReplyMessage() != null && bean.getReplyMessage().getAtMessage() != null) {
                 AtMessage atMessage = bean.getReplyMessage().getAtMessage();
                 String gid = wrapMessage.getGid();
-                dealAtMessage(gid,atMessage.getAt_type(),atMessage.getMsg(),atMessage.getUid());
+                dealAtMessage(gid, atMessage.getAt_type(), atMessage.getMsg(), atMessage.getUid());
             }
         }
     }
@@ -461,29 +453,31 @@ public class MessageRepository {
      * @param wrapMessage
      */
     public void toDoSwitchChange(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
 // TODO　处理老版本不兼容问题
         if (wrapMessage.getSwitchChange().getSwitchType() == MsgBean.SwitchChangeMessage.SwitchType.UNRECOGNIZED) {
-            return true;
+            return;
         }
         LogUtil.getLog().d(TAG, "开关变更:" + wrapMessage.getSwitchChange().getSwitchType());
 
         int switchType = wrapMessage.getSwitchChange().getSwitchType().getNumber();
         int switchValue = wrapMessage.getSwitchChange().getSwitchValue();
         long uid = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
-        UserInfo userInfo = userDao.findUserInfo(uid);
+        UserInfo userInfo = localDataSource.getFriend(uid);
         if (userInfo == null) {
-            break;
+            return;
         }
         switch (switchType) {
             case 0: // 单聊已读
                 userInfo.setFriendRead(switchValue);
-                userDao.updateUserinfo(userInfo);
+                localDataSource.updateUserInfo(userInfo);
                 EventBus.getDefault().post(new EventIsShowRead(uid, EventIsShowRead.EReadSwitchType.SWITCH_FRIEND, switchValue));
                 break;
             case 1: //vip
+                UserBean userBean = (UserBean) UserAction.getMyInfo();
                 if (userBean != null) {
                     userBean.setVip(wrapMessage.getSwitchChange().getSwitchValue() + "");
-                    userDao.updateUserBean(userBean);
+                    localDataSource.updateUserBean(userBean);
                 }
                 // 刷新用户信息
                 EventFactory.FreshUserStateEvent event = new EventFactory.FreshUserStateEvent();
@@ -492,21 +486,19 @@ public class MessageRepository {
                 break;
             case 2:  //已读总开关
                 userInfo.setMasterRead(switchValue);
-                userDao.updateUserinfo(userInfo);
+                localDataSource.updateUserInfo(userInfo);
                 EventBus.getDefault().post(new EventIsShowRead(uid, EventIsShowRead.EReadSwitchType.SWITCH_MASTER, switchValue));
                 break;
             case 3: // 单人禁言
             case 4: // 领取群红包
-                if (bean != null) {
-                    result = saveMessageNew(bean, isList);
-                }
+                MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
+                saveMessageNew(bean);
                 break;
             case 5: // 截屏通知开关
-                if (bean != null) {
-                    result = saveMessageNew(bean, isList);
-                }
-                userDao.updateUserSnapshot(wrapMessage.getFromUid(), switchValue);
-                notifySwitchSnapshot("", wrapMessage.getFromUid(), switchValue);
+                bean = MsgConversionBean.ToBean(wrapMessage);
+                saveMessageNew(bean);
+                localDataSource.updateFriendSnapshot(wrapMessage.getFromUid(), switchValue);
+                MessageManager.getInstance().notifySwitchSnapshot("", wrapMessage.getFromUid(), switchValue);
                 break;
         }
     }
@@ -522,7 +514,7 @@ public class MessageRepository {
 
         saveMessageNew(bean);
         int survivalTime = wrapMessage.getChangeSurvivalTime().getSurvivalTime();
-        localDataSource.updateSurvivalTime(wrapMessage.getGid(), isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), survivalTime)
+        localDataSource.updateSurvivalTime(wrapMessage.getGid(), isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), survivalTime);
         EventBus.getDefault().post(new ReadDestroyBean(survivalTime, wrapMessage.getGid(), wrapMessage.getFromUid()));
     }
 
@@ -573,7 +565,7 @@ public class MessageRepository {
         int atType = wrapMessage.getAt().getAtType().getNumber();
         String message = wrapMessage.getAt().getMsg();
         saveMessageNew(bean);
-        dealAtMessage(gid,atType,message,null);
+        dealAtMessage(gid, atType, message, null);
     }
 
     /**
@@ -840,10 +832,7 @@ public class MessageRepository {
             boolean isCancel = msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL;
             //群
             if (!TextUtils.isEmpty(msgAllBean.getGid()) && localDataSource.getGroup(msgAllBean.getGid()) == null) {
-                if (!loadGids.contains(msgAllBean.getGid())) {
-                    loadGids.add(msgAllBean.getGid());
-                    requestGroupInfo(msgAllBean.getGid());
-                }
+                requestGroupInfo(msgAllBean.getGid());
             } else if (TextUtils.isEmpty(msgAllBean.getGid()) && uid != null && uid > 0 && localDataSource.getFriend(uid) == null) {//单聊
                 long chatterId = -1;//对方的Id
                 if (isFromSelf) {
@@ -851,19 +840,16 @@ public class MessageRepository {
                 } else {
                     chatterId = msgAllBean.getFrom_uid();
                 }
-                if (!loadUids.contains(chatterId)) {
-                    loadUids.add(chatterId);
-                    remoteDataSource.getFriend(chatterId, new Function<UserInfo, Boolean>() {
-                        @NullableDecl
-                        @Override
-                        public Boolean apply(@NullableDecl UserInfo user) {
-                            localDataSource.updateUserInfo(user);
-                            localDataSource.updateSessionTopAndDisturb(null, user.getUid(), user.getIstop(), user.getDisturb());
-                            return true;
-                        }
-                    });
-                    LogUtil.getLog().d("a=", TAG + "--需要加载用户信息");
-                }
+                remoteDataSource.getFriend(chatterId, new Function<UserInfo, Boolean>() {
+                    @NullableDecl
+                    @Override
+                    public Boolean apply(@NullableDecl UserInfo user) {
+                        localDataSource.updateUserInfo(user);
+                        localDataSource.updateSessionTopAndDisturb(null, user.getUid(), user.getIstop(), user.getDisturb());
+                        return true;
+                    }
+                });
+                LogUtil.getLog().d("a=", TAG + "--需要加载用户信息");
             }
             long chatterId = isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid();
             //非自己发过来的消息，才存储为未读状态
@@ -882,5 +868,42 @@ public class MessageRepository {
             LogUtil.getLog().d("a=", TAG + "--消息存储失败--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
         }
         return result;
+    }
+
+    /**
+     * 更新离线同步自己PC端发送的已读消息
+     * 将好友发送的消息已读、阅后即焚状态更改
+     */
+    public void updateOfflineReadMsg() {
+        try {
+            if (offlineMySelfPCGroupReadMsg.size() > 0) {//自己PC已读对方-群
+                for (String gid : offlineMySelfPCGroupReadMsg.keySet()) {
+                    long timestamp = offlineMySelfPCGroupReadMsg.get(gid);
+                    if (gid != null)
+                        localDataSource.updateRecivedMsgReadForPC(gid, null, timestamp);
+                }
+            }
+
+            if (offlineMySelfPCFriendReadMsg.size() > 0) {//自己PC已读对方-好友
+                for (Long uid : offlineMySelfPCFriendReadMsg.keySet()) {
+                    long timestamp = offlineMySelfPCFriendReadMsg.get(uid);
+                    if (uid != null)
+                        localDataSource.updateRecivedMsgReadForPC(null, uid, timestamp);
+                }
+            }
+
+            if (offlineFriendReadMsg.size() > 0) {//对方已读自己发送的消息
+                for (Long uid : offlineFriendReadMsg.keySet()) {
+                    long timestamp = offlineFriendReadMsg.get(uid);
+                    if (uid != null)
+                        localDataSource.updateFriendMsgReadAndSurvivalTime(uid, timestamp);
+                }
+            }
+            offlineFriendReadMsg.clear();
+            offlineMySelfPCGroupReadMsg.clear();
+            offlineMySelfPCFriendReadMsg.clear();
+        } catch (Exception e) {
+        }
+
     }
 }

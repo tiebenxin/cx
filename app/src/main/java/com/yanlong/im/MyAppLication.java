@@ -108,13 +108,17 @@ public class MyAppLication extends MainApplication {
         initARouter();//初始化路由
         initVolley();
     }
+
     private Intent messageIntentService = null;
-    public void startMessageIntentService(){
-        if(messageIntentService == null){
+
+    public void startMessageIntentService() {
+        if (messageIntentService == null) {
             messageIntentService = new Intent(this, MessageIntentService.class);
+            messageIntentService.setAction(MessageIntentService.START_SERVICE_ACTION);
         }
         startService(messageIntentService);
     }
+
     /**
      * 初始化数据仓库--已登录的户
      * 1.已登录的用户-在application onCreate中创建
@@ -140,6 +144,11 @@ public class MyAppLication extends MainApplication {
         if (repository != null) {
             repository.onDestory();
             repository = null;
+        }
+        //停止消息处理service,不再接受消息
+        if (messageIntentService != null) {
+            messageIntentService.setAction(MessageIntentService.STOP_SERVICE_ACTION);
+            startService(messageIntentService);
         }
     }
 
@@ -186,6 +195,7 @@ public class MyAppLication extends MainApplication {
     public void removeSessionChangeListener(ApplicationRepository.SessionChangeListener sessionChangeListener) {
         if (repository != null) repository.removeSessionChangeListener(sessionChangeListener);
     }
+
     public void addFriendChangeListener(ApplicationRepository.FriendChangeListener friendChangeListener) {
         if (repository != null) repository.addFriendChangeListener(friendChangeListener);
     }
@@ -193,6 +203,7 @@ public class MyAppLication extends MainApplication {
     public void removeFriendChangeListener(ApplicationRepository.FriendChangeListener friendChangeListener) {
         if (repository != null) repository.removeFriendChangeListener(friendChangeListener);
     }
+
     private void initBuildType() {
         switch (BuildConfig.BUILD_TYPE) {
             case "debug":
@@ -410,6 +421,7 @@ public class MyAppLication extends MainApplication {
         //清除表情缓存
         EmojBitmapCache.getInstance().clear();
         ChatBitmapCache.getInstance().clear();
+
         //清除仓库对象
         destoryRepository();
         handler = null;
