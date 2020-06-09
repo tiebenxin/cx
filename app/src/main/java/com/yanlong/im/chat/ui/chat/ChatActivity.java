@@ -3888,7 +3888,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //是否禁止转发
     public boolean isBanForward(@ChatEnum.EMessageType int type) {
         if (type == ChatEnum.EMessageType.VOICE || type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
-                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO || type == ChatEnum.EMessageType.BUSINESS_CARD /*|| type == ChatEnum.EMessageType.REPLY*/) {
+                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO || type == ChatEnum.EMessageType.BUSINESS_CARD || type == ChatEnum.EMessageType.ASSISTANT_PROMOTION /*|| type == ChatEnum.EMessageType.REPLY*/) {
             return true;
         }
         return false;
@@ -3898,7 +3898,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     public boolean isBanReply(@ChatEnum.EMessageType int type) {
         if (/*type == ChatEnum.EMessageType.VOICE ||*/ type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
                 || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION
-                || type == ChatEnum.EMessageType.SHIPPED_EXPRESSION || type == ChatEnum.EMessageType.WEB || type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {
+                || type == ChatEnum.EMessageType.SHIPPED_EXPRESSION || type == ChatEnum.EMessageType.WEB || type == ChatEnum.EMessageType.BALANCE_ASSISTANT ||
+                type == ChatEnum.EMessageType.ASSISTANT_PROMOTION) {
             return true;
         }
         return false;
