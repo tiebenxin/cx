@@ -6334,7 +6334,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     return false;
                 }
             });
-            popGuessUWant.setBackgroundDrawable(new ColorDrawable());
+//            popGuessUWant.setBackgroundDrawable(getDrawable(R.drawable.bg_chat_guess_u_like));
             //测量显示在上方
             contentView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
             int popupWidth = contentView.getMeasuredWidth();
