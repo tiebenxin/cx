@@ -295,7 +295,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     public final static int MIN_UNREAD_COUNT = 15;
     private int MAX_UNREAD_COUNT = 80 * 4;//默认加载最大数据
     private List<String> uidList;
-
+    private LinearLayout layoutInput;//输入框布局->这里需要拿到其高度
+    private int layoutInputHeight = 0;//输入框布局高度
 
     //返回需要刷新的 8.19 取消自动刷新
     // public static final int REQ_REFRESH = 7779;
@@ -824,6 +825,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             latestImgList = GetImgUtils.getLatestPhoto(ChatActivity.this);
             if(latestImgList!=null && latestImgList.size()>0){
                 latestUrl = latestImgList.get(0).imgUrl;
+                //不为空的时候再拿底部布局的输入框的高度
+                layoutInput.post(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        layoutInputHeight = layoutInput.getHeight(); // 获取高度
+                    }
+                });
             }
         }
     }
@@ -900,6 +909,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         llMore = findViewById(R.id.ll_more);
         ivDelete = findViewById(R.id.iv_delete);
         ivForward = findViewById(R.id.iv_forward);
+        layoutInput = findViewById(R.id.layout_input);
         mtListView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View view, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
@@ -6363,7 +6373,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             view.getLocationOnScreen(location);
 //
             popGuessUWant.showAtLocation(view, Gravity.NO_GRAVITY, (location[0]+view.getWidth()/2)-popupWidth/2,
-                    location[1]-popupHeight-DensityUtil.dip2px(getContext(),240));//由于+号被顶上去了，需要减去扩展面板的高度(固定值)
+                    location[1]-layoutInputHeight-DensityUtil.dip2px(getContext(),240));//由于+号被顶上去了，需要减去扩展面板的高度(固定值)
         }
     }
 }
