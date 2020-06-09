@@ -563,7 +563,8 @@ public class MessageLocalDataSource {
         }
     }
 
-    /**同步自己PC端好友发送消息的已读状态和阅后即焚
+    /**
+     * 同步自己PC端好友发送消息的已读状态和阅后即焚
      * 对方发送的消息-自己接收的消息，更新为已读
      * 更新消息已读
      */
@@ -572,15 +573,15 @@ public class MessageLocalDataSource {
             return;
         //查出已读前的消息，设置为已读
         RealmResults<MsgAllBean> msgAllBeans = TextUtils.isEmpty(gid) ?
-                realm.where(MsgAllBean.class).equalTo("gid", gid)
-                        .lessThanOrEqualTo("timestamp", timestamp)
-                        .equalTo("isRead", false)
-                        .findAll()
-                :
                 //查出已读前的消息，设置为已读,好友发送的消息
                 realm.where(MsgAllBean.class)
                         .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
                         .equalTo("from_uid", uid)
+                        .lessThanOrEqualTo("timestamp", timestamp)
+                        .equalTo("isRead", false)
+                        .findAll()
+                :
+                realm.where(MsgAllBean.class).equalTo("gid", gid)
                         .lessThanOrEqualTo("timestamp", timestamp)
                         .equalTo("isRead", false)
                         .findAll();
@@ -607,32 +608,32 @@ public class MessageLocalDataSource {
     /**
      * 校正session未读数
      * 前提条件：已知最后一条已读消息时间
+     *
      * @param gid
      * @param uid
      * @param timestamp
      */
-    private void correctSessionCount(String gid, Long uid, long timestamp){
+    private void correctSessionCount(String gid, Long uid, long timestamp) {
         if (checkInTranction(() -> correctSessionCount(gid, uid, timestamp)))
             return;
         Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() :
                 realm.where(Session.class).equalTo("from_uid", uid).findFirst();
         if (session != null) {
             //好友之后发送的未读消息数量
-            long unReadCount = TextUtils.isEmpty(gid) ?
+            long unReadCount = TextUtils.isEmpty(gid) ? realm.where(MsgAllBean.class)
+                    .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
+                    .equalTo("from_uid", uid)
+                    .greaterThan("timestamp", timestamp)
+                    .equalTo("isRead", false)
+                    .count() :
                     realm.where(MsgAllBean.class).equalTo("gid", gid)
                             .greaterThan("timestamp", timestamp)
                             .equalTo("isRead", false)
-                            .count()
-                    :
-                    realm.where(MsgAllBean.class)
-                            .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
-                            .equalTo("from_uid", uid)
-                            .greaterThan("timestamp", timestamp)
-                            .equalTo("isRead", false)
                             .count();
+
             realm.beginTransaction();
             //取最小值  剩余消息数量和当前未读数
-            session.setUnread_count((int) Math.min(unReadCount,session.getUnread_count()));
+            session.setUnread_count((int) Math.min(unReadCount, session.getUnread_count()));
             session.setAtMessage(null);
             realm.commitTransaction();
         }
