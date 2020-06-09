@@ -164,6 +164,11 @@ public class MessageManager {
         toDoMsg.add(receviceMsg);
     }
 
+    public void clear(){
+        this.toDoMsg.clear();
+        this.isDealingMsg = false;
+    }
+
     public static MessageManager getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new MessageManager();

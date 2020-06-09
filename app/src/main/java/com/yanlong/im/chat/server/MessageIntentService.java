@@ -44,6 +44,7 @@ public class MessageIntentService extends IntentService {
     @Override
     public void onDestroy() {
         if (repository != null) repository.onDestory();
+        MessageManager.getInstance().clear();
         super.onDestroy();
     }
 

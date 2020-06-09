@@ -114,8 +114,8 @@ public class MyAppLication extends MainApplication {
     public void startMessageIntentService() {
         if (messageIntentService == null) {
             messageIntentService = new Intent(this, MessageIntentService.class);
-            messageIntentService.setAction(MessageIntentService.START_SERVICE_ACTION);
         }
+        messageIntentService.setAction(MessageIntentService.START_SERVICE_ACTION);
         startService(messageIntentService);
     }
 
