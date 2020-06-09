@@ -31,14 +31,6 @@ public class GetImgUtils {
             this.mTime = mTime;
             this.imgUrl = imgUrl;
         }
-
-        @Override
-        public String toString() {
-            return "ImgBean{" +
-                    "mTime=" + mTime +
-                    ", imgUrl='" + imgUrl + '\'' +
-                    '}';
-        }
     }
 
     public static List<ImgBean> getLatestPhoto(Context context, int limit) {

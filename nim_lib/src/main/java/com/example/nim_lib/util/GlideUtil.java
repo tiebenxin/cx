@@ -53,7 +53,7 @@ public class GlideUtil {
         return mRequestOptions;
     }
 
-    //普通图片 不带圆角有默认图
+    //普通图片 不带圆角、有默认图、居中裁剪
     public static RequestOptions defImageOptions1() {
         RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
                 .error(R.mipmap.ic_img_def)
@@ -65,7 +65,7 @@ public class GlideUtil {
     }
 
 
-    //普通图片不带圆角默认图
+    //普通图片 不带圆角、有默认图、居中默认
     public static RequestOptions notDefImageOptions() {
         RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)

@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,9 +45,11 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
+import com.bumptech.glide.Glide;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
+import com.example.nim_lib.util.GlideUtil;
 import com.google.gson.Gson;
 import com.hm.cxpay.bean.CxEnvelopeBean;
 import com.hm.cxpay.bean.CxTransferBean;
@@ -280,7 +284,6 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static net.cb.cb.library.utils.FileUtils.SIZETYPE_B;
-import static net.cb.cb.library.utils.GetImgUtils.getLatestPhoto;
 
 public class ChatActivity extends AppActivity implements IActionTagClickListener, ICellEventListener {
     private static String TAG = "ChatActivity";
@@ -410,7 +413,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private boolean isReplying;
     private ControllerReplyMessage viewReplyMessage;
     private long searchTime;
-    private List<GetImgUtils.ImgBean> latestImgList;//猜你想要->最新加入的图片
+
+    //猜你想要发送的图片
+    private PopupWindow popGuessUWant;//点击+号后展示的弹框
+    private List<GetImgUtils.ImgBean> latestImgList;//获取最新拍摄/截屏加入的图片
+    private String latestUrl = "";//最新加入的图片url
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -773,6 +780,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
         super.onDestroy();
+        //释放空间
+        if (popGuessUWant != null) {
+            popGuessUWant.dismiss();
+            popGuessUWant = null;
+        }
     }
 
 
@@ -809,6 +821,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         initReplyMsg();
         if(latestImgList==null){
             latestImgList = GetImgUtils.getLatestPhoto(ChatActivity.this);
+            if(latestImgList!=null && latestImgList.size()>0){
+                latestUrl = latestImgList.get(0).imgUrl;
+            }
         }
     }
 
@@ -1427,6 +1442,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     mViewModel.isInputText.setValue(true);
                 } else {//未打开面板->打开功能面板
                     mViewModel.isOpenFuction.setValue(true);
+                    showPopupWindow(v);
                 }
             }
         });
@@ -6293,6 +6309,41 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if (msgAllBean != null) {
                 onCollect(msgAllBean);
             }
+        }
+    }
+
+    /**
+     * 猜你要发送的图片
+     * @param view
+     */
+    private void showPopupWindow(View view) {
+        //布局、view初始化、点击事件
+        if(popGuessUWant!=null && popGuessUWant.isShowing()){
+            popGuessUWant.dismiss();
+        }else {
+            View contentView = LayoutInflater.from(ChatActivity.this).inflate(
+                    R.layout.layout_pop_guess_u_want_send, null);
+            ImageView ivPic = contentView.findViewById(R.id.iv_want_send_pic);
+            Glide.with(ChatActivity.this).load(latestUrl).apply(GlideUtil.defImageOptions1()).into(ivPic);
+            popGuessUWant = new PopupWindow(contentView,
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+            popGuessUWant.setTouchable(true);
+            popGuessUWant.setTouchInterceptor(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return false;
+                }
+            });
+            popGuessUWant.setBackgroundDrawable(new ColorDrawable());
+            //测量显示在上方
+            contentView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            int popupWidth = contentView.getMeasuredWidth();
+            int popupHeight =  contentView.getMeasuredHeight();
+            int[] location = new int[2];
+            view.getLocationOnScreen(location);
+//
+            popGuessUWant.showAtLocation(view, Gravity.NO_GRAVITY, (location[0]+view.getWidth()/2)-popupWidth/2,
+                    location[1]-popupHeight-DensityUtil.dip2px(getContext(),240));//由于+号被顶上去了，需要减去扩展面板的高度(固定值)
         }
     }
 }
