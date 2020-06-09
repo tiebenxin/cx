@@ -2,7 +2,6 @@ package com.yanlong.im.data.local;
 
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.hm.cxpay.global.PayEnum;
 import com.luck.picture.lib.tools.DateUtils;
@@ -78,15 +77,15 @@ public class MessageLocalDataSource {
      */
     private boolean checkInTranction(Runnable runnable) {
         if (realm.isInTransaction()) {
-            Log.e("raleigh_test", "checkInTranction start");
             try {
-                Thread.currentThread().wait(RETRY_DELAY);
+                synchronized (Thread.currentThread()){
+                    Thread.currentThread().wait(RETRY_DELAY);
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             runnable.run();
             //正在事务，100毫秒后重试
-            Log.e("raleigh_test", "checkInTranction");
             return true;
         } else {
             return false;
@@ -515,8 +514,11 @@ public class MessageLocalDataSource {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -537,7 +539,11 @@ public class MessageLocalDataSource {
             transfer.setOpType(opType);
             realm.commitTransaction();
         } catch (Exception e) {
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -558,8 +564,11 @@ public class MessageLocalDataSource {
             }
             realm.commitTransaction();
         } catch (Exception e) {
-            e.printStackTrace();
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -571,38 +580,46 @@ public class MessageLocalDataSource {
     public void updateRecivedMsgReadForPC(String gid, Long uid, long timestamp) {
         if (checkInTranction(() -> updateRecivedMsgReadForPC(gid, uid, timestamp)))
             return;
-        //查出已读前的消息，设置为已读
-        RealmResults<MsgAllBean> msgAllBeans = TextUtils.isEmpty(gid) ?
-                //查出已读前的消息，设置为已读,好友发送的消息
-                realm.where(MsgAllBean.class)
-                        .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
-                        .equalTo("from_uid", uid)
-                        .lessThanOrEqualTo("timestamp", timestamp)
-                        .equalTo("isRead", false)
-                        .findAll()
-                :
-                realm.where(MsgAllBean.class).equalTo("gid", gid)
-                        .lessThanOrEqualTo("timestamp", timestamp)
-                        .equalTo("isRead", false)
-                        .findAll();
+        try {
+            //查出已读前的消息，设置为已读
+            RealmResults<MsgAllBean> msgAllBeans = TextUtils.isEmpty(gid) ?
+                    //查出已读前的消息，设置为已读,好友发送的消息
+                    realm.where(MsgAllBean.class)
+                            .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
+                            .equalTo("from_uid", uid)
+                            .lessThanOrEqualTo("timestamp", timestamp)
+                            .equalTo("isRead", false)
+                            .findAll()
+                    :
+                    realm.where(MsgAllBean.class).equalTo("gid", gid)
+                            .lessThanOrEqualTo("timestamp", timestamp)
+                            .equalTo("isRead", false)
+                            .findAll();
 
-        realm.beginTransaction();
-        for (MsgAllBean msgAllBean : msgAllBeans) {
-            long endTime = timestamp + msgAllBean.getSurvival_time() * 1000;
-            if (msgAllBean.getSurvival_time() > 0 && msgAllBean.getEndTime() <= 0) {//有设置阅后即焚
-                msgAllBean.setRead(true);//自己已读
-                msgAllBean.setReadTime(timestamp);
-                /**处理需要阅后即焚的消息***********************************/
-                msgAllBean.setStartTime(timestamp);
-                msgAllBean.setEndTime(endTime);
-            } else {//普通消息，记录已读状态和时间
-                msgAllBean.setRead(true);//自己已读
-                msgAllBean.setReadTime(timestamp);
+            realm.beginTransaction();
+            for (MsgAllBean msgAllBean : msgAllBeans) {
+                long endTime = timestamp + msgAllBean.getSurvival_time() * 1000;
+                if (msgAllBean.getSurvival_time() > 0 && msgAllBean.getEndTime() <= 0) {//有设置阅后即焚
+                    msgAllBean.setRead(true);//自己已读
+                    msgAllBean.setReadTime(timestamp);
+                    /**处理需要阅后即焚的消息***********************************/
+                    msgAllBean.setStartTime(timestamp);
+                    msgAllBean.setEndTime(endTime);
+                } else {//普通消息，记录已读状态和时间
+                    msgAllBean.setRead(true);//自己已读
+                    msgAllBean.setReadTime(timestamp);
+                }
             }
+            realm.commitTransaction();
+            //校正session未读数
+            correctSessionCount(gid, uid, timestamp);
+        }catch (Exception e){
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
-        realm.commitTransaction();
-        //校正session未读数
-        correctSessionCount(gid, uid, timestamp);
     }
 
     /**
@@ -616,26 +633,34 @@ public class MessageLocalDataSource {
     private void correctSessionCount(String gid, Long uid, long timestamp) {
         if (checkInTranction(() -> correctSessionCount(gid, uid, timestamp)))
             return;
-        Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() :
-                realm.where(Session.class).equalTo("from_uid", uid).findFirst();
-        if (session != null) {
-            //好友之后发送的未读消息数量
-            long unReadCount = TextUtils.isEmpty(gid) ? realm.where(MsgAllBean.class)
-                    .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
-                    .equalTo("from_uid", uid)
-                    .greaterThan("timestamp", timestamp)
-                    .equalTo("isRead", false)
-                    .count() :
-                    realm.where(MsgAllBean.class).equalTo("gid", gid)
-                            .greaterThan("timestamp", timestamp)
-                            .equalTo("isRead", false)
-                            .count();
+        try {
+            Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() :
+                    realm.where(Session.class).equalTo("from_uid", uid).findFirst();
+            if (session != null) {
+                //好友之后发送的未读消息数量
+                long unReadCount = TextUtils.isEmpty(gid) ? realm.where(MsgAllBean.class)
+                        .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
+                        .equalTo("from_uid", uid)
+                        .greaterThan("timestamp", timestamp)
+                        .equalTo("isRead", false)
+                        .count() :
+                        realm.where(MsgAllBean.class).equalTo("gid", gid)
+                                .greaterThan("timestamp", timestamp)
+                                .equalTo("isRead", false)
+                                .count();
 
-            realm.beginTransaction();
-            //取最小值  剩余消息数量和当前未读数
-            session.setUnread_count((int) Math.min(unReadCount, session.getUnread_count()));
-            session.setAtMessage(null);
-            realm.commitTransaction();
+                realm.beginTransaction();
+                //取最小值  剩余消息数量和当前未读数
+                session.setUnread_count((int) Math.min(unReadCount, session.getUnread_count()));
+                session.setAtMessage(null);
+                realm.commitTransaction();
+            }
+        }catch (Exception e){
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -646,87 +671,95 @@ public class MessageLocalDataSource {
     public boolean updateSessionRead(String gid, Long from_uid, boolean canChangeUnread, MsgAllBean bean, String firstFlag) {
         if (checkInTranction(() -> updateSessionRead(gid, from_uid, canChangeUnread, bean, firstFlag)))
             return false;
-        //是否是 撤回
-        String cancelId = null;
-        if (bean != null) {
-            boolean isCancel = bean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL;
-            if (isCancel && bean.getMsgCancel() != null) {
-                cancelId = bean.getMsgCancel().getMsgidCancel();
-            }
-        }
-        boolean isGroup = !TextUtils.isEmpty(gid);
-        //isCancel 是否是撤回消息  ，  canChangeUnread 不在聊天页面 注意true表示不在聊天页面
-        realm.beginTransaction();
-        Session session = isGroup ? realm.where(Session.class).equalTo("gid", gid).findFirst()
-                : realm.where(Session.class).equalTo("from_uid", from_uid).findFirst();
-        if (session == null) {//session不存在，创建新会话
-            session = new Session();
-            session.setSid(UUID.randomUUID().toString());
-            if (isGroup) {
-                session.setGid(gid);
-                session.setType(1);
-                Group group = getGroup(gid);
-                if (group != null) {
-                    session.setIsTop(group.getIsTop());
-                    session.setIsMute(group.getNotNotify());
-                }
-            } else {
-                session.setFrom_uid(from_uid);
-                session.setType(0);
-                UserInfo user = realm.where(UserInfo.class).equalTo("uid", from_uid).findFirst();
-                if (user != null) {
-                    session.setIsTop(user.getIstop());
-                    session.setIsMute(user.getDisturb());
+        try {
+            //是否是 撤回
+            String cancelId = null;
+            if (bean != null) {
+                boolean isCancel = bean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL;
+                if (isCancel && bean.getMsgCancel() != null) {
+                    cancelId = bean.getMsgCancel().getMsgidCancel();
                 }
             }
-
-            if (canChangeUnread) {//增加一条记录
-                if (session.getIsMute() == 1) {//免打扰
-                    session.setUnread_count(0);
+            boolean isGroup = !TextUtils.isEmpty(gid);
+            //isCancel 是否是撤回消息  ，  canChangeUnread 不在聊天页面 注意true表示不在聊天页面
+            realm.beginTransaction();
+            Session session = isGroup ? realm.where(Session.class).equalTo("gid", gid).findFirst()
+                    : realm.where(Session.class).equalTo("from_uid", from_uid).findFirst();
+            if (session == null) {//session不存在，创建新会话
+                session = new Session();
+                session.setSid(UUID.randomUUID().toString());
+                if (isGroup) {
+                    session.setGid(gid);
+                    session.setType(1);
+                    Group group = getGroup(gid);
+                    if (group != null) {
+                        session.setIsTop(group.getIsTop());
+                        session.setIsMute(group.getNotNotify());
+                    }
                 } else {
-                    if (StringUtil.isNotNull(cancelId)) {
+                    session.setFrom_uid(from_uid);
+                    session.setType(0);
+                    UserInfo user = realm.where(UserInfo.class).equalTo("uid", from_uid).findFirst();
+                    if (user != null) {
+                        session.setIsTop(user.getIstop());
+                        session.setIsMute(user.getDisturb());
+                    }
+                }
+
+                if (canChangeUnread) {//增加一条记录
+                    if (session.getIsMute() == 1) {//免打扰
                         session.setUnread_count(0);
                     } else {
-                        session.setUnread_count(1);
-                    }
-                }
-            }
-        } else {//已存在的session
-            if (canChangeUnread) {
-                if (session.getIsMute() != 1) {//非免打扰
-                    int num = 0;
-                    if (StringUtil.isNotNull(cancelId)) {//撤销消息
-                        MsgAllBean cancel = realm.where(MsgAllBean.class).equalTo("msg_id", cancelId).findFirst();
-//                            LogUtil.getLog().e("群==isRead===="+cancel.isRead()+"==getRead="+cancel.getRead());
-                        if (cancel != null && !cancel.isRead()) {//撤回的是未读消息 红点-1
-                            num = session.getUnread_count() - 1;
+                        if (StringUtil.isNotNull(cancelId)) {
+                            session.setUnread_count(0);
                         } else {
-                            num = session.getUnread_count();
+                            session.setUnread_count(1);
                         }
-
-                    } else {
-                        num = session.getUnread_count() + 1;
                     }
-                    num = num < 0 ? 0 : num;
-                    session.setUnread_count(num);
-                } else {
-                    session.setUnread_count(0);
+                }
+            } else {//已存在的session
+                if (canChangeUnread) {
+                    if (session.getIsMute() != 1) {//非免打扰
+                        int num = 0;
+                        if (StringUtil.isNotNull(cancelId)) {//撤销消息
+                            MsgAllBean cancel = realm.where(MsgAllBean.class).equalTo("msg_id", cancelId).findFirst();
+//                            LogUtil.getLog().e("群==isRead===="+cancel.isRead()+"==getRead="+cancel.getRead());
+                            if (cancel != null && !cancel.isRead()) {//撤回的是未读消息 红点-1
+                                num = session.getUnread_count() - 1;
+                            } else {
+                                num = session.getUnread_count();
+                            }
+
+                        } else {
+                            num = session.getUnread_count() + 1;
+                        }
+                        num = num < 0 ? 0 : num;
+                        session.setUnread_count(num);
+                    } else {
+                        session.setUnread_count(0);
+                    }
                 }
             }
+            session.setUp_time(System.currentTimeMillis());
+            if (StringUtil.isNotNull(cancelId)) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
+                session.setMessageType(1000);
+            } else if ("first".equals(firstFlag) && bean != null && bean.getAtMessage() != null && bean.getAtMessage().getAt_type() != 1000) {
+                //对at消息处理 而且不是撤回消息
+                int messageType = bean.getAtMessage().getAt_type();
+                String atMessage = bean.getAtMessage().getMsg();
+                session.setMessageType(messageType);
+                session.setAtMessage(atMessage);
+            }
+            realm.insertOrUpdate(session);
+            realm.commitTransaction();
+            LogUtil.getLog().e("更新session未读数", "msgDao");
+        }catch (Exception e){
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
-        session.setUp_time(System.currentTimeMillis());
-        if (StringUtil.isNotNull(cancelId)) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
-            session.setMessageType(1000);
-        } else if ("first".equals(firstFlag) && bean != null && bean.getAtMessage() != null && bean.getAtMessage().getAt_type() != 1000) {
-            //对at消息处理 而且不是撤回消息
-            int messageType = bean.getAtMessage().getAt_type();
-            String atMessage = bean.getAtMessage().getMsg();
-            session.setMessageType(messageType);
-            session.setAtMessage(atMessage);
-        }
-        realm.insertOrUpdate(session);
-        realm.commitTransaction();
-        LogUtil.getLog().e("更新session未读数", "msgDao");
         return true;
     }
 

@@ -20,6 +20,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import java.util.ArrayList;
@@ -54,8 +55,11 @@ public class DB {
                 realm.commitTransaction();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -80,7 +84,11 @@ public class DB {
 
             realm.commitTransaction();
         } catch (Exception e) {
-            e.printStackTrace();
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
 
     }
@@ -138,8 +146,11 @@ public class DB {
             }
             realm.commitTransaction();
         } catch (Exception e) {
-            e.printStackTrace();
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
         if (msgAllBean != null) {
             /********通知更新sessionDetail************************************/
@@ -182,7 +193,11 @@ public class DB {
             }
             realm.commitTransaction();
         } catch (Exception e) {
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -216,8 +231,11 @@ public class DB {
             }
             realm.commitTransaction();
         } catch (Exception e) {
-            e.printStackTrace();
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -246,7 +264,11 @@ public class DB {
                 }
             }
         } catch (Exception e) {
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
         return result;
     }
@@ -293,7 +315,11 @@ public class DB {
             realm.commitTransaction();
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
         return false;
     }
@@ -346,7 +372,11 @@ public class DB {
                 realm.commitTransaction();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -373,8 +403,11 @@ public class DB {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
         return hasChange;
     }
@@ -419,8 +452,11 @@ public class DB {
             }
             realm.commitTransaction();
         } catch (Exception e) {
-            e.printStackTrace();
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -461,8 +497,11 @@ public class DB {
             }
             realm.commitTransaction();
         } catch (Exception e) {
-            e.printStackTrace();
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -481,8 +520,11 @@ public class DB {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -502,8 +544,11 @@ public class DB {
             realm.insertOrUpdate(ginfo);
             realm.commitTransaction();
         } catch (Exception e) {
-            e.printStackTrace();
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -511,28 +556,36 @@ public class DB {
      * 更新群，或用户信息更新，更新session置顶免打扰字段
      * */
     public static void updateSessionTopAndDisturb(@NonNull Realm realm, String gid, Long from_uid, int top, int disturb) {
-        if (StringUtil.isNotNull(gid)) {//群消息
-            Session session = realm.where(Session.class).equalTo("gid", gid).findFirst();
-            if (session != null) {
-                realm.beginTransaction();
-                session.setIsMute(disturb);
-                session.setIsTop(top);
-                if (disturb == 1) {
-                    session.setUnread_count(0);
+        try {
+            if (StringUtil.isNotNull(gid)) {//群消息
+                Session session = realm.where(Session.class).equalTo("gid", gid).findFirst();
+                if (session != null) {
+                    realm.beginTransaction();
+                    session.setIsMute(disturb);
+                    session.setIsTop(top);
+                    if (disturb == 1) {
+                        session.setUnread_count(0);
+                    }
+                    realm.commitTransaction();
                 }
-                realm.commitTransaction();
-            }
-        } else {//个人消息
-            Session session = realm.where(Session.class).equalTo("from_uid", from_uid).findFirst();
-            if (session != null) {
-                realm.beginTransaction();
-                session.setIsMute(disturb);
-                session.setIsTop(top);
-                if (disturb == 1) {
-                    session.setUnread_count(0);
+            } else {//个人消息
+                Session session = realm.where(Session.class).equalTo("from_uid", from_uid).findFirst();
+                if (session != null) {
+                    realm.beginTransaction();
+                    session.setIsMute(disturb);
+                    session.setIsTop(top);
+                    if (disturb == 1) {
+                        session.setUnread_count(0);
+                    }
+                    realm.commitTransaction();
                 }
-                realm.commitTransaction();
             }
+        }catch (Exception e){
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -552,8 +605,11 @@ public class DB {
             realm.copyToRealmOrUpdate(userInfo);
             realm.commitTransaction();
         } catch (Exception e) {
-            e.printStackTrace();
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -573,8 +629,11 @@ public class DB {
             realm.copyToRealmOrUpdate(userInfo);
             realm.commitTransaction();
         } catch (Exception e) {
-            e.printStackTrace();
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -599,8 +658,11 @@ public class DB {
             }
             realm.commitTransaction();
         } catch (Exception e) {
-            e.printStackTrace();
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -647,26 +709,34 @@ public class DB {
      * @param isExit
      */
     public static void groupExit(@NonNull Realm realm, final String gid, final String gname, final String gicon, final int isExit) {
-        realm.beginTransaction();
-        GroupConfig groupConfig = realm.where(GroupConfig.class).equalTo("gid", gid).findFirst();
-        if (groupConfig == null) {
-            groupConfig = new GroupConfig();
-            groupConfig.setGid(gid);
-        }
-        groupConfig.setIsExit(isExit);
-        realm.insertOrUpdate(groupConfig);
+        try {
+            realm.beginTransaction();
+            GroupConfig groupConfig = realm.where(GroupConfig.class).equalTo("gid", gid).findFirst();
+            if (groupConfig == null) {
+                groupConfig = new GroupConfig();
+                groupConfig.setGid(gid);
+            }
+            groupConfig.setIsExit(isExit);
+            realm.insertOrUpdate(groupConfig);
 
-        Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
-        if (group == null) {
-            group = new Group();
-            group.setGid(gid);
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group == null) {
+                group = new Group();
+                group.setGid(gid);
+            }
+            if (gname != null)
+                group.setName(gname);
+            if (gicon != null)
+                group.setAvatar(gicon);
+            realm.insertOrUpdate(group);
+            realm.commitTransaction();
+        }catch (Exception e){
+            if(realm.isInTransaction()){
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
-        if (gname != null)
-            group.setName(gname);
-        if (gicon != null)
-            group.setAvatar(gicon);
-        realm.insertOrUpdate(group);
-        realm.commitTransaction();
     }
 
     public static void deleteRealmMsg(@NonNull MsgAllBean msg) {

@@ -401,18 +401,17 @@ public class MessageRepository {
     private boolean dealAtMessage(String gid, int atType, String message, List<Long> list) {
         boolean isAt = false;
         if (atType == 0) {
-            if (list == null)
-                isAt = false;
-
-            Long uid = UserAction.getMyId();
-            for (int i = 0; i < list.size(); i++) {
-                if (uid.equals(list.get(i))) {
-                    LogUtil.getLog().e(TAG, "有人@我" + uid);
-                    if (!MessageManager.getInstance().isMsgFromCurrentChat(gid, null)) {
-                        localDataSource.updateSessionAtMessage(gid, message, atType);
-                        MessageManager.getInstance().playDingDong();
+            if (list != null) {
+                Long uid = UserAction.getMyId();
+                for (int i = 0; i < list.size(); i++) {
+                    if (uid.equals(list.get(i))) {
+                        LogUtil.getLog().e(TAG, "有人@我" + uid);
+                        if (!MessageManager.getInstance().isMsgFromCurrentChat(gid, null)) {
+                            localDataSource.updateSessionAtMessage(gid, message, atType);
+                            MessageManager.getInstance().playDingDong();
+                        }
+                        isAt = true;
                     }
-                    isAt = true;
                 }
             }
         } else {
