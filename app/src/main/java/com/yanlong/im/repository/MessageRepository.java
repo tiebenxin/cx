@@ -134,13 +134,14 @@ public class MessageRepository {
      * 处理双向清除消息
      *
      * @param wrapMessage
+     * @param isOfflineMsg 是否是离线消息
      */
-    public void toDoHistoryCleanMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isReceivedOfflineCompleted) {
+    public void toDoHistoryCleanMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isOfflineMsg) {
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         //最后一条需要清除的聊天记录时间戳
         long lastNeedCleanTimestamp = wrapMessage.getTimestamp();
         //接收离线消息时，保存双向清除指令发送方和时间戳，离线消息接收完成前，丢弃在此时间戳之前的消息
-        if (!isReceivedOfflineCompleted) {
+        if (isOfflineMsg) {
             historyCleanMsg.put(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), lastNeedCleanTimestamp);
         }
         //清除好友历史记录
@@ -229,15 +230,15 @@ public class MessageRepository {
      * 处理消息已读
      *
      * @param wrapMessage
-     * @param batchMessage 是否是批量消息 ，消息数>1
+     * @param isOfflineMsg 是否为离线消息
      */
-    public void toDoRead(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean batchMessage) {
+    public void toDoRead(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isOfflineMsg) {
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         long uids = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
         if (!isFromSelf) {
             if (TextUtils.isEmpty(wrapMessage.getGid())) {//单聊
                 //自己PC端发送给好友的消息，有离线消息，则保存先,离线消息处理完之后，进行再次更新
-                if (!batchMessage) {//批量消息 消息数>1
+                if (isOfflineMsg) {//离线消息
                     //对方已读我发的消息
                     offlineFriendReadMsg.put(uids, wrapMessage.getTimestamp());
                 } else {
@@ -250,7 +251,7 @@ public class MessageRepository {
             String gid = wrapMessage.getGid();
             gid = gid == null ? "" : gid;
             //有离线消息(批量消息)，则保存先,离线消息处理完之后，进行再次更新
-            if (!batchMessage) {
+            if (isOfflineMsg) {
                 //保存消息信息
                 if (TextUtils.isEmpty(gid))
                     offlineMySelfPCFriendReadMsg.put(uids, wrapMessage.getTimestamp());

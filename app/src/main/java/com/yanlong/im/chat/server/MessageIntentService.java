@@ -63,13 +63,22 @@ public class MessageIntentService extends IntentService {
                     if (msgList != null) {
                         for (MsgBean.UniversalMessage.WrapMessage msg : msgList) {
                             MsgBean.UniversalMessage.WrapMessage wrapMessage = msg;
-                            dealWithMsg(wrapMessage, bean.getRequestId(), msgList.size());
+                            boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
+                            dealWithMsg(wrapMessage, bean.getRequestId(), bean.getMsgFrom() == 1);
                             MessageManager.getInstance().checkServerTimeInit(wrapMessage);
+                            //消息震动
+                            if (!isFromSelf) {
+                                //本次消息数量大于1条，为批量消息
+                                MessageManager.getInstance().checkNotifyVoice(wrapMessage, msgList.size() > 0, true);
+                            }
                         }
+
                     }
-                    //本次消息是否接收完成
+                    //消息回执
+                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
+                    //本次离线消息是否接收完成
                     boolean isReceivedOfflineCompleted = SocketData.isEnough(msgList.size());
-                    if (isReceivedOfflineCompleted) {//离线消息接收完了
+                    if (bean.getMsgFrom() == 1 && isReceivedOfflineCompleted) {//离线消息接收完了
                         //清空双向清除数据
                         if (repository.historyCleanMsg.size() > 0) {
                             repository.historyCleanMsg.clear();
@@ -77,17 +86,14 @@ public class MessageIntentService extends IntentService {
                         //更正离线已读消息-已读状态、未读数量、阅后即焚
                         repository.updateOfflineReadMsg();
                     }
-                    //消息回执
-                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
                 } catch (Exception e) {
+                    LogUtil.writeError(e);
                 }
                 //移除处理过的当前消息
                 MessageManager.getInstance().pop();
                 //取下一个待处理的消息对象
                 bean = MessageManager.getInstance().poll();
             }
-        } catch (Exception e) {
-            LogUtil.writeError(e);
         } finally {
             DaoUtil.close(realm);
         }
@@ -124,26 +130,24 @@ public class MessageIntentService extends IntentService {
      * 处理接收到的消息
      * 分两类处理，一类是需要产生本地消息记录的，一类是相关指令，无需产生消息记录
      *
-     * @param wrapMessage       接收到的消息
+     * @param wrapMessage  接收到的消息
      * @param requestId
-     * @param batchMessageTotal 本批消息数量
+     * @param isOfflineMsg 是否是离线消息
      * @return
      */
-    public void dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, String requestId,
-                            int batchMessageTotal) {
+    public void dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, String requestId, boolean isOfflineMsg) {
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
             return;
         }
-        //本次离线消息是否接收完成
-        boolean isReceivedOfflineCompleted = SocketData.isEnough(batchMessageTotal);
-        /******丢弃消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
-        if (TextUtils.isEmpty(wrapMessage.getGid()) && repository.historyCleanMsg.size() > 0) {//单聊
-            if (discardHistoryCleanMessage(wrapMessage.getFromUid(), wrapMessage.getTimestamp()) ||
-                    discardHistoryCleanMessage(wrapMessage.getToUid(), wrapMessage.getTimestamp())) {
-                return;
+        /******丢弃离线消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
+        if (isOfflineMsg) {
+            if (TextUtils.isEmpty(wrapMessage.getGid()) && repository.historyCleanMsg.size() > 0) {//单聊
+                if (discardHistoryCleanMessage(wrapMessage.getFromUid(), wrapMessage.getTimestamp()) ||
+                        discardHistoryCleanMessage(wrapMessage.getToUid(), wrapMessage.getTimestamp())) {
+                    return;
+                }
             }
         }
-
         /******end 丢弃消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
         LogUtil.getLog().e(TAG, "接收到消息: " + wrapMessage.getMsgId() + "--type=" + wrapMessage.getMsgType());
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
@@ -184,7 +188,7 @@ public class MessageIntentService extends IntentService {
                 repository.toDoChat(wrapMessage, requestId);
                 break;
             case HISTORY_CLEAN://双向清除
-                repository.toDoHistoryCleanMsg(wrapMessage, isReceivedOfflineCompleted);
+                repository.toDoHistoryCleanMsg(wrapMessage, isOfflineMsg);
                 break;
             case P2P_AU_VIDEO:// 音视频消息
                 repository.toDoP2PAUVideo(wrapMessage);
@@ -242,7 +246,7 @@ public class MessageIntentService extends IntentService {
                 repository.toDoChangeSurvivalTime(wrapMessage);
                 break;
             case READ://已读消息
-                repository.toDoRead(wrapMessage, batchMessageTotal > 1);
+                repository.toDoRead(wrapMessage, isOfflineMsg);
                 break;
             case SWITCH_CHANGE: //开关变更
                 repository.toDoSwitchChange(wrapMessage);
@@ -263,10 +267,6 @@ public class MessageIntentService extends IntentService {
                 break;
         }
 
-        if (!isFromSelf) {
-            //本次消息数量大于1条，为批量消息
-            MessageManager.getInstance().checkNotifyVoice(wrapMessage, batchMessageTotal > 1, true);
-        }
     }
 
 }
