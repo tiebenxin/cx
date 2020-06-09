@@ -107,6 +107,9 @@ public class ChatEnum {
         //端到端加密消息
         LOCK(R.layout.cell_lock),
 
+        //广告消息
+        ADVERTISEMENT(R.layout.cell_ad_received),
+
         //回复文本消息
         REPLY_TEXT_RECEIVED(R.layout.cell_reply_txt_received),
         REPLY_TEXT_SEND(R.layout.cell_reply_txt_send),
@@ -165,7 +168,7 @@ public class ChatEnum {
     @IntDef({ECellEventType.TXT_CLICK, ECellEventType.IMAGE_CLICK, ECellEventType.CARD_CLICK, ECellEventType.RED_ENVELOPE_CLICK, ECellEventType.LONG_CLICK, ECellEventType.TRANSFER_CLICK,
             ECellEventType.AVATAR_CLICK, ECellEventType.RESEND_CLICK, ECellEventType.AVATAR_LONG_CLICK, ECellEventType.VOICE_CLICK, ECellEventType.VIDEO_CLICK, ECellEventType.FILE_CLICK,
             ECellEventType.BALANCE_ASSISTANT_CLICK, ECellEventType.WEB_CLICK, ECellEventType.MULTI_CLICK, ECellEventType.MAP_CLICK, ECellEventType.VOICE_VIDEO_CALL, ECellEventType.EXPRESS_CLICK,
-            ECellEventType.REPLY_CLICK})
+            ECellEventType.REPLY_CLICK, ECellEventType.AD_CLICK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ECellEventType {
         int TXT_CLICK = 0; //点击文本消息
@@ -187,6 +190,7 @@ public class ChatEnum {
         int VOICE_VIDEO_CALL = 16;//点击音视频电话消息
         int EXPRESS_CLICK = 17;//点击表情
         int REPLY_CLICK = 18;//点击回复
+        int AD_CLICK = 19;//点击小助手推广消息
     }
 
 
@@ -196,7 +200,7 @@ public class ChatEnum {
     @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CANCEL,
             UNRECOGNIZED, EMessageType.MSG_VIDEO, EMessageType.MSG_VOICE_VIDEO, EMessageType.LOCK, EMessageType.CHANGE_SURVIVAL_TIME,
             EMessageType.READ, EMessageType.MSG_VOICE_VIDEO_NOTICE, EMessageType.LOCATION, EMessageType.BALANCE_ASSISTANT, EMessageType.SHIPPED_EXPRESSION,
-            EMessageType.FILE, EMessageType.WEB, EMessageType.TRANSFER_NOTICE, EMessageType.REPLY, EMessageType.GROUP_ANNOUNCEMENT})
+            EMessageType.FILE, EMessageType.WEB, EMessageType.TRANSFER_NOTICE, EMessageType.REPLY, EMessageType.GROUP_ANNOUNCEMENT, EMessageType.ASSISTANT_PROMOTION})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMessageType {
         int UNRECOGNIZED = -1; //未识别
@@ -221,9 +225,9 @@ public class ChatEnum {
         int WEB = 18;//web消息
         int TRANSFER_NOTICE = 19; //转账提醒
         int REPLY = 20; //回复消息
+        int ASSISTANT_PROMOTION = 21; //小助手广告消息
 
         int LOCK = 100; //端到端加密提示消息,本地自定义消息
-
         int CHANGE_SURVIVAL_TIME = 113;//阅后即焚
         int READ = 120;//已读消息
         int GROUP_ANNOUNCEMENT = 123;//群公告
@@ -310,7 +314,7 @@ public class ChatEnum {
         int NO_FRI_ERROR = 11;//被删好友，消息发送错误
         int LOCK = 12;//端对端加密
         int CHANGE_VICE_ADMINS_ADD = 13;// 群管理变更通知 新增
-        int CHANGE_VICE_ADMINS_CANCEL = 14;// 群管理变更通知 取消
+        int CHANGE_VICE_ADMINS_CANCEL = 14;// 群管理变更通知 自己被取消
         int FORBIDDEN_WORDS_OPEN = 15;// 接收到群禁言 开
         int FORBIDDEN_WORDS_CLOSE = 16;// 接收到群禁言 关
         int RED_ENVELOPE_RECEIVED_SELF = 17;//自己领取自己的零钱红包
@@ -324,6 +328,7 @@ public class ChatEnum {
         int GROUP_BAN_WORDS = 25;//自己开启或者关闭群禁言
         int CANCEL_CAN_EDIT = 26;//能重新编辑的撤销消息
         int FREEZE_ACCOUNT = 27;//冻结账号
+        int CHANGE_VICE_ADMINS_CANCEL_OTHER = 28;// 群管理变更通知 自己取消其他人
     }
 
     /*

@@ -2,7 +2,6 @@ package com.yanlong.im.chat.bean;
 
 
 import android.text.TextUtils;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
@@ -86,6 +85,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     @Ignore
     private ReadMessage readMessage;//备注已读消息，不存，不显示
     private ReplyMessage replyMessage;//回复消息
+    private AdMessage adMessage;//小助手广告消息
 
     public ReplyMessage getReplyMessage() {
         return replyMessage;
@@ -615,6 +615,14 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         this.readMessage = readMessage;
     }
 
+    public AdMessage getAdMessage() {
+        return adMessage;
+    }
+
+    public void setAdMessage(AdMessage adMessage) {
+        this.adMessage = adMessage;
+    }
+
     /***
      * 是否为自己
      * @return
@@ -759,6 +767,13 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     layout = ChatEnum.EChatCellLayout.WEB_SEND;
                 } else {
                     layout = ChatEnum.EChatCellLayout.WEB_RECEIVED;
+                }
+                break;
+                case ChatEnum.EMessageType.ASSISTANT_PROMOTION://广告消息
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.ADVERTISEMENT;
                 }
                 break;
             case ChatEnum.EMessageType.UNRECOGNIZED://未识别

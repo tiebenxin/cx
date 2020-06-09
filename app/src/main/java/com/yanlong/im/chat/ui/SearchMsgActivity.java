@@ -185,7 +185,7 @@ public class SearchMsgActivity extends AppActivity {
                                 .putExtra(ChatActivity.AGM_TOGID, gid)
                                 .putExtra(ChatActivity.AGM_TOUID, fuid)
                                 .putExtra(ChatActivity.SEARCH_TIME, msgbean.getTimestamp())
-                                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+//                                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                         );
                     }
                 });

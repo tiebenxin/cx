@@ -217,4 +217,8 @@ public class RecordButtonView extends FrameLayout implements CaptureListener {
             listener.recordError();
         }
     }
+
+    public void onResume() {
+        btCapture.resetState();
+    }
 }

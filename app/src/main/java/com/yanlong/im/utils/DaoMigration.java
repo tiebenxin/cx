@@ -658,6 +658,22 @@ public class DaoMigration implements RealmMigration {
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY);
     }
 
+    //新增小助手广告消息
+    private final void updateV34(RealmSchema schema) {
+        schema.create("AdMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("title", String.class)
+                .addField("summary", String.class)
+                .addField("thumbnail", String.class)
+                .addField("buttonTxt", String.class)
+                .addField("appId", String.class)
+                .addField("webUrl", String.class)
+                .addField("schemeUrl", String.class);
+
+        schema.get("MsgAllBean")
+                .addRealmObjectField("adMessage", schema.get("AdMessage"));
+    }
+
     @Override
     public boolean equals(@Nullable Object obj) {
         return obj instanceof DaoMigration;

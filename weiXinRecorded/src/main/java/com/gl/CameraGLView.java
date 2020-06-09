@@ -43,6 +43,7 @@ import android.view.WindowManager;
 
 
 import com.muxer.MediaVideoEncoder;
+import com.widgt.CameraCallBack;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -397,9 +398,9 @@ public final class CameraGLView extends GLSurfaceView {
         }
     }
 
-    public void takePhone(String imagePath) {
+    public void takePhone(String imagePath, CameraCallBack cameraCallBack) {
         if (mCameraHandler != null && mCameraHandler.mThread != null) {
-            mCameraHandler.mThread.takePhone(imagePath);
+            mCameraHandler.mThread.takePhone(imagePath, cameraCallBack);
         }
     }
 
@@ -716,7 +717,7 @@ public final class CameraGLView extends GLSurfaceView {
             }
         }
 
-        private void takePhone(String photoPath) {
+        private void takePhone(String photoPath, CameraCallBack callBack) {
             if (mCamera != null) {
                 mCamera.takePicture(null, null, new Camera.PictureCallback() {
                     @Override
@@ -740,6 +741,7 @@ public final class CameraGLView extends GLSurfaceView {
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                         try {
                             fos.close();
+                            callBack.takePhoneSuccess(photoPath);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

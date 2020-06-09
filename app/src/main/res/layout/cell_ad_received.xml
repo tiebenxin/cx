@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/app_margin_main"
+    android:paddingTop="5dp"
+    android:paddingRight="@dimen/app_margin_main"
+    android:paddingBottom="5dp">
+
+    <TextView
+        android:id="@+id/tv_time"
+        style="@style/app_txt_content_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
+        android:text="2019" />
+
+    <RelativeLayout
+        android:id="@+id/view_root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.yanlong.im.wight.avatar.RoundImageView
+            android:id="@+id/iv_avatar"
+            style="@style/app_img_head"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginRight="10dp"
+            app:radius="3dp" />
+
+        <LinearLayout
+            android:id="@+id/ll_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/iv_avatar"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_name"
+                style="@style/app_txt_content_1"
+                android:layout_width="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:gravity="left"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:text="name" />
+
+            <FrameLayout
+                android:id="@+id/view_bubble_root"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/view_bubble"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="4dp"
+                    android:layout_marginBottom="4dp"
+                    android:background="@drawable/selector_chat_other_touch"
+                    android:gravity="left"
+                    android:orientation="vertical"
+                    android:visibility="visible">
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/tv_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="normal"
+                        android:maxWidth="210dp"
+                        android:maxLines="1"
+                        android:selectAllOnFocus="true"
+                        android:text="标题：title"
+                        android:textColor="@color/black"
+                        android:textIsSelectable="false"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/iv_img"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/default_image" />
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/tv_description"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="normal"
+                        android:maxWidth="210dp"
+                        android:maxLines="1"
+                        android:selectAllOnFocus="true"
+                        android:text="描述:description"
+                        android:textColor="@color/black"
+                        android:textIsSelectable="false"
+                        android:textSize="13sp" />
+
+                    <Button
+                        android:id="@+id/bt_go"
+                        android:layout_width="match_parent"
+                        android:layout_height="38dp"
+                        android:layout_marginTop="3dp"
+                        android:background="@drawable/bg_btn_green"
+                        android:text="登录"
+                        android:textSize="20sp" />
+
+
+                </LinearLayout>
+
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/iv_bell"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right|bottom"
+                    android:src="@mipmap/icon_st_1"
+                    android:visibility="visible" />
+            </FrameLayout>
+
+
+        </LinearLayout>
+
+        <CheckBox
+            android:id="@+id/ck_select"
+            style="@style/app_check_green"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="5dp"
+            android:gravity="center"
+            android:padding="5dp"
+            android:visibility="visible" />
+
+    </RelativeLayout>
+</LinearLayout>

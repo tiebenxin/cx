@@ -9,10 +9,10 @@
         android:id="@+id/tv_content"
         style="@style/app_txt_title_2"
         android:layout_width="match_parent"
-        android:layout_height="62dp"
+        android:layout_height="52dp"
         android:gravity="center"
         android:text="保存图片"
-        android:textSize="17sp" />
+        android:textSize="13sp" />
 
     <View
         android:id="@+id/view_line"

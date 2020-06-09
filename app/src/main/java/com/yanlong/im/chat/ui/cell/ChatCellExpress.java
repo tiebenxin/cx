@@ -108,7 +108,6 @@ public class ChatCellExpress extends ChatCellFileBase {
 
     @Override
     public void onBubbleClick() {
-        super.onBubbleClick();
         if (mCellListener != null && model != null && !TextUtils.isEmpty(uri)) {
             mCellListener.onEvent(ChatEnum.ECellEventType.EXPRESS_CLICK, model, uri);
         }

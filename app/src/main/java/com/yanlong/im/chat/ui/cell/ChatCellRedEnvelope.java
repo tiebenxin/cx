@@ -59,7 +59,6 @@ public class ChatCellRedEnvelope extends ChatCellBase {
 
     @Override
     public void onBubbleClick() {
-        super.onBubbleClick();
         if (mCellListener != null) {
             if (messageType == ChatEnum.EMessageType.RED_ENVELOPE) {
                 mCellListener.onEvent(ChatEnum.ECellEventType.RED_ENVELOPE_CLICK, model, redEnvelopeMessage);

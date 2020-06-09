@@ -160,7 +160,6 @@ public class ChatCellVideo extends ChatCellImage {
 
     @Override
     public void onBubbleClick() {
-        super.onBubbleClick();
         if (mCellListener != null && model != null) {
             mCellListener.onEvent(ChatEnum.ECellEventType.VIDEO_CLICK, model);
         }

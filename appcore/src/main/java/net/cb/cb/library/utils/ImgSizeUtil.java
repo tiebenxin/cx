@@ -1,5 +1,6 @@
 package net.cb.cb.library.utils;
 
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.text.TextUtils;
@@ -176,19 +177,30 @@ public class ImgSizeUtil {
             size.setSize(length);
             String duration = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
             size.setDuration(Long.parseLong(duration));
-            int orientation = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+
             long width = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
             long height = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-            if (orientation == 90) {
+            //TODO:不准确？？？？
+            //            String rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
+//            int orientation = Integer.parseInt(rotation);
+//            if (orientation == 90) {
+//                size.setWidth(Math.min(width, height));
+//                size.setHeight(Math.max(width, height));
+//            } else {
+//                size.setWidth(Math.max(width, height));
+//                size.setHeight(Math.min(width, height));
+//            }
+            File imageFile = new File(FileManager.getInstance().createImagePath());
+            boolean isPortrait = getVideoAttBitmap(file, imageFile);
+            if (imageFile != null && imageFile.exists()) {
+                size.setBgUrl(imageFile.getAbsolutePath());
+            }
+            if (isPortrait) {
                 size.setWidth(Math.min(width, height));
                 size.setHeight(Math.max(width, height));
             } else {
                 size.setWidth(Math.max(width, height));
                 size.setHeight(Math.min(width, height));
-            }
-            String bgUrl = getVideoAttBitmap(file);
-            if (!TextUtils.isEmpty(bgUrl)) {
-                size.setBgUrl(bgUrl);
             }
         } catch (Exception e) {
         }
@@ -196,23 +208,29 @@ public class ImgSizeUtil {
         return size;
     }
 
-    private static String getVideoAttBitmap(String mUri) {
-        File file = null;
+    /*
+     * return true 竖屏，false 横屏
+     * */
+    private static boolean getVideoAttBitmap(String videoUrl, File imageFile) {
+        boolean isPortrait = true;
         android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
         try {
-            if (mUri != null) {
-                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
+            if (videoUrl != null) {
+                FileInputStream inputStream = new FileInputStream(new File(videoUrl).getAbsolutePath());
                 mmr.setDataSource(inputStream.getFD());
-            } else {
+                Bitmap bitmap = mmr.getFrameAtTime();
+                //是否横屏
+                if (bitmap.getWidth() >= bitmap.getHeight()) {
+                    isPortrait = false;
+                }
+                PictureFileUtils.saveBitmapFile(bitmap, imageFile);
             }
-            file = new File(FileManager.getInstance().createImagePath());
-            PictureFileUtils.saveBitmapFile(mmr.getFrameAtTime(), file);
         } catch (Exception ex) {
             LogUtil.getLog().e("TAG", "MediaMetadataRetriever exception " + ex);
         } finally {
             mmr.release();
         }
-        return file.getAbsolutePath();
+        return isPortrait;
     }
 
 }
