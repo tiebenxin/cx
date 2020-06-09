@@ -156,6 +156,10 @@ public class DaoMigration implements RealmMigration {
                 updateV34(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 34) {
+                updateV35(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -659,7 +663,7 @@ public class DaoMigration implements RealmMigration {
     }
 
     //新增小助手广告消息
-    private final void updateV34(RealmSchema schema) {
+    private final void updateV35(RealmSchema schema) {
         schema.create("AdMessage")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
                 .addField("title", String.class)
