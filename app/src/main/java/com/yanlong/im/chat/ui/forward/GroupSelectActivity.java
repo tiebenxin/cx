@@ -157,7 +157,12 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                         //1 先统计全员禁言的群，过滤掉不显示
                         for (int i = 0; i < groupInfoBeans.size(); i++) {
                             if (groupInfoBeans.get(i).getWordsNotAllowed() == 1) {
-                                ListOne.add(groupInfoBeans.get(i));
+                                //如果我是群主不过滤
+                                if (StringUtil.isNotNull(groupInfoBeans.get(i).getMaster())) {
+                                    if (!groupInfoBeans.get(i).getMaster().equals("" + UserAction.getMyId())) {
+                                        ListOne.add(groupInfoBeans.get(i));
+                                    }
+                                }
                             }
                         }
                         if (ListOne.size() > 0) {
