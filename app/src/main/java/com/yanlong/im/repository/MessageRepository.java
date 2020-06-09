@@ -386,16 +386,18 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoReplySpecific(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public boolean toDoReplySpecific(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
+        boolean result = true;
         if (bean != null) {
-            saveMessageNew(bean);
+            result = saveMessageNew(bean);
             if (!TextUtils.isEmpty(bean.getGid()) && bean.getReplyMessage() != null && bean.getReplyMessage().getAtMessage() != null) {
                 AtMessage atMessage = bean.getReplyMessage().getAtMessage();
                 String gid = wrapMessage.getGid();
                 dealAtMessage(gid, atMessage.getAt_type(), atMessage.getMsg(), atMessage.getUid());
             }
         }
+        return result;
     }
 
     private boolean dealAtMessage(String gid, int atType, String message, List<Long> list) {
@@ -433,8 +435,9 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoTransfer(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public boolean toDoTransfer(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
+        boolean result = true;
         if (bean != null) {
             MsgBean.TransferMessage transferMessage = wrapMessage.getTransfer();
             if (transferMessage != null) {
@@ -443,8 +446,9 @@ public class MessageRepository {
                     localDataSource.updateTransferStatus(transferMessage.getId(), transferMessage.getOpTypeValue());
                 }
             }
-            saveMessageNew(bean);
+            result = saveMessageNew(bean);
         }
+        return result;
     }
 
     /**
@@ -452,11 +456,12 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoSwitchChange(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public boolean toDoSwitchChange(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        boolean result = true;
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
 // TODO　处理老版本不兼容问题
         if (wrapMessage.getSwitchChange().getSwitchType() == MsgBean.SwitchChangeMessage.SwitchType.UNRECOGNIZED) {
-            return;
+            return result;
         }
         LogUtil.getLog().d(TAG, "开关变更:" + wrapMessage.getSwitchChange().getSwitchType());
 
@@ -465,7 +470,7 @@ public class MessageRepository {
         long uid = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
         UserInfo userInfo = localDataSource.getFriend(uid);
         if (userInfo == null) {
-            return;
+            return result;
         }
         switch (switchType) {
             case 0: // 单聊已读
@@ -492,15 +497,16 @@ public class MessageRepository {
             case 3: // 单人禁言
             case 4: // 领取群红包
                 MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
-                saveMessageNew(bean);
+                result = saveMessageNew(bean);
                 break;
             case 5: // 截屏通知开关
                 bean = MsgConversionBean.ToBean(wrapMessage);
-                saveMessageNew(bean);
+                result = saveMessageNew(bean);
                 localDataSource.updateFriendSnapshot(wrapMessage.getFromUid(), switchValue);
                 MessageManager.getInstance().notifySwitchSnapshot("", wrapMessage.getFromUid(), switchValue);
                 break;
         }
+        return  result;
     }
 
     /**
@@ -508,14 +514,16 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoChangeSurvivalTime(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public boolean toDoChangeSurvivalTime(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        boolean result = true;
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
 
-        saveMessageNew(bean);
+        result = saveMessageNew(bean);
         int survivalTime = wrapMessage.getChangeSurvivalTime().getSurvivalTime();
         localDataSource.updateSurvivalTime(wrapMessage.getGid(), isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), survivalTime);
         EventBus.getDefault().post(new ReadDestroyBean(survivalTime, wrapMessage.getGid(), wrapMessage.getFromUid()));
+        return result;
     }
 
     /**
@@ -523,7 +531,8 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoCancel(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public boolean toDoCancel(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        boolean result= true;
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         if (bean != null) {
@@ -532,7 +541,7 @@ public class MessageRepository {
             // 判断消息是否存在，不存在则不保存
             MsgAllBean msgAllBean = localDataSource.getRealm().where(MsgAllBean.class).equalTo("msg_id", cancelMsgId).findFirst();
             if (msgAllBean != null) {
-                saveMessageNew(bean);
+                result = saveMessageNew(bean);
                 localDataSource.deleteMsg4Cancel(wrapMessage.getMsgId(), cancelMsgId);
             }
             MessageManager.getInstance().notifyRefreshChat(bean.getGid(), isFromSelf ? bean.getTo_uid() : bean.getFrom_uid());
@@ -552,6 +561,7 @@ public class MessageRepository {
             EventBus.getDefault().post(eventVideo);
             MessageManager.getInstance().setMessageChange(true);
         }
+        return result;
     }
 
     /**
@@ -559,13 +569,15 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoGroupAnnouncement(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public boolean toDoGroupAnnouncement(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        boolean result= true;
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
         String gid = wrapMessage.getGid();
         int atType = wrapMessage.getAt().getAtType().getNumber();
         String message = wrapMessage.getAt().getMsg();
-        saveMessageNew(bean);
+        result = saveMessageNew(bean);
         dealAtMessage(gid, atType, message, null);
+        return result;
     }
 
     /**
@@ -593,12 +605,13 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoChangeGroupMeta(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public boolean toDoChangeGroupMeta(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        boolean result= true;
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
         MsgBean.ChangeGroupMetaMessage.RealMsgCase realMsgCase = wrapMessage.getChangeGroupMeta().getRealMsgCase();
         switch (realMsgCase) {
             case NAME://群名
-                saveMessageNew(bean);
+                result = saveMessageNew(bean);
                 localDataSource.updateGroup(wrapMessage.getGid(), wrapMessage.getChangeGroupMeta().getName()
                         , null, null, null);
                 break;
@@ -609,17 +622,17 @@ public class MessageRepository {
             case AVATAR://群头像
                 break;
             case SHUT_UP:// 是否开启全群禁言
-                saveMessageNew(bean);
+                result = saveMessageNew(bean);
                 break;
             case SCREENSHOT_NOTIFICATION:
                 // 更新群截屏状态
-                saveMessageNew(bean);
+                result = saveMessageNew(bean);
                 localDataSource.updateGroup(wrapMessage.getGid(), null
                         , null, wrapMessage.getChangeGroupMeta().getScreenshotNotification() ? 1 : 0, null);
                 MessageManager.getInstance().notifySwitchSnapshot(wrapMessage.getGid(), 0, wrapMessage.getChangeGroupMeta().getScreenshotNotification() ? 1 : 0);
                 break;
             case FORBBIDEN://封群
-                saveMessageNew(bean);
+                result = saveMessageNew(bean);
                 LogUtil.getLog().d(TAG, ">>>群状态改变---uid=" + wrapMessage.getFromUid() + "--isForbid=" + wrapMessage.getChangeGroupMeta().getForbbiden());
                 localDataSource.updateGroup(wrapMessage.getGid(), null
                         , null, null, wrapMessage.getChangeGroupMeta().getForbbiden() ? ChatEnum.EGroupStatus.BANED : ChatEnum.EGroupStatus.NORMAL);
@@ -631,6 +644,7 @@ public class MessageRepository {
                 }
                 break;
         }
+        return  result;
     }
 
     /**
@@ -638,9 +652,10 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoAcceptBeGroup(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public boolean toDoAcceptBeGroup(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        boolean result = true;
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
-        saveMessageNew(bean);
+        result = saveMessageNew(bean);
         //被邀请进群，表示已经同意了
         if (wrapMessage.getAcceptBeGroup() != null) {
             List<MsgBean.GroupNoticeMessage> noticeMessageList = wrapMessage.getAcceptBeGroup().getNoticeMessageList();
@@ -655,6 +670,7 @@ public class MessageRepository {
         //获取群信息
         requestGroupInfo(wrapMessage.getGid());
         MessageManager.getInstance().notifyGroupChange(true);
+        return  result;
     }
 
     /**
@@ -674,11 +690,12 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoRemoveGroupMember(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public boolean toDoRemoveGroupMember(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
+        boolean result = true;
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         if (bean != null && !isFromSelf) {//除去自己PC端移除
-            saveMessageNew(bean);
+            result = saveMessageNew(bean);
             localDataSource.removeGroupMember(bean.getGid(), UserAction.getMyId());
             //重新生成群头像
             List<String> gids = new ArrayList<>();
@@ -690,6 +707,7 @@ public class MessageRepository {
             //通知UI更新
             MessageManager.getInstance().notifyGroupChange(false);
         }
+        return result;
     }
 
     /**
@@ -697,11 +715,12 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoOutGroup(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public boolean toDoOutGroup(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
+        boolean result =true;
         if (wrapMessage.getFromUid() != UserAction.getMyId()) {//不是自己退群，才更新（自己退群，session信息已经被删除）
             if (localDataSource.isGroupMasterOrManager(wrapMessage.getGid(), UserAction.getMyId())) {
-                saveMessageNew(bean);
+                result = saveMessageNew(bean);
             }
             //请求获取群信息
             requestGroupInfo(wrapMessage.getGid());
@@ -709,6 +728,7 @@ public class MessageRepository {
             localDataSource.deleteGroup(bean.getGid());
             MessageManager.getInstance().notifyGroupChange(false);
         }
+        return result;
     }
 
     /**
@@ -716,11 +736,13 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoChangeGroupMaster(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public boolean toDoChangeGroupMaster(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        boolean result=true;
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
-        saveMessageNew(bean);
+        result = saveMessageNew(bean);
         //请求获取群信息
         requestGroupInfo(wrapMessage.getGid());
+        return result;
     }
 
     /**
@@ -728,7 +750,8 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoAcceptBeFriends(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public boolean toDoAcceptBeFriends(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        boolean result = true;
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
         //检测双重消息
@@ -740,11 +763,12 @@ public class MessageRepository {
                 DaoUtil.save(message);
             }
         }
-        saveMessageNew(bean);
+        result = saveMessageNew(bean);
         MessageManager.getInstance().notifyRefreshFriend(false, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS);
         // TODO 双方互添加好友的情况
         EventBus.getDefault().post(new RefreshApplyEvent(wrapMessage.getFromUid(), CoreEnum.EChatType.PRIVATE, 1));
         localDataSource.acceptFriendRequest(wrapMessage.getFromUid() + "");
+        return result;
     }
 
     /**
@@ -752,8 +776,9 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoP2PAUVideo(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public boolean toDoP2PAUVideo(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
+        boolean result =true;
         if (bean != null) {
             if (bean.getP2PAuVideoMessage() != null && "cancel".equals(bean.getP2PAuVideoMessage().getOperation())) {
                 bean.getP2PAuVideoMessage().setDesc("对方" + bean.getP2PAuVideoMessage().getDesc());
@@ -764,14 +789,16 @@ public class MessageRepository {
             } else if (bean.getP2PAuVideoMessage() != null && "interrupt".equals(bean.getP2PAuVideoMessage().getOperation())) {
                 bean.getP2PAuVideoMessage().setDesc("通话中断");
             }
-            saveMessageNew(bean);
+            result = saveMessageNew(bean);
         }
+        return result;
     }
 
     /**
      * @param wrapMessage
      */
-    public void toDoChat(MsgBean.UniversalMessage.WrapMessage wrapMessage, String requestId) {
+    public boolean toDoChat(MsgBean.UniversalMessage.WrapMessage wrapMessage, String requestId) {
+        boolean result = true;
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
         if (bean != null) {
@@ -783,7 +810,8 @@ public class MessageRepository {
                 bean.setFrom_uid(-wrapMessage.getFromUid());
             }
         }
-        saveMessageNew(bean);
+        result = saveMessageNew(bean);
+        return result;
     }
 
     /***

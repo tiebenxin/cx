@@ -6,6 +6,8 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
+import com.tencent.bugly.crashreport.CrashReport;
+import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.repository.MessageRepository;
 import com.yanlong.im.user.action.UserAction;
@@ -15,6 +17,7 @@ import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.constant.BuglyTag;
 import net.cb.cb.library.utils.LogUtil;
 
 import java.util.List;
@@ -33,6 +36,8 @@ import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
 public class MessageIntentService extends IntentService {
     private final String TAG = MessageIntentService.class.getSimpleName();
     private MessageRepository repository;
+    // Bugly数据保存异常标签
+    private final int BUGLY_TAG_SAVE_DATA = 139066;
 
     public MessageIntentService() {
         super("MessageIntentService");
@@ -58,11 +63,21 @@ public class MessageIntentService extends IntentService {
             while (bean != null) {
                 try {
                     List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
+                    boolean result = true;
                     if (msgList != null) {
                         for (MsgBean.UniversalMessage.WrapMessage msg : msgList) {
                             MsgBean.UniversalMessage.WrapMessage wrapMessage = msg;
                             boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
-                            dealWithMsg(wrapMessage, bean.getRequestId(), bean.getMsgFrom() == 1);
+                            boolean dealResult = dealWithMsg(wrapMessage, bean.getRequestId(), bean.getMsgFrom() == 1);
+                            //有一个没有保存成功，则整体接收失败
+                            if (!dealResult) {
+                                result = false;
+                                // 上报后的Crash会显示该标签
+                                CrashReport.setUserSceneTag(MyAppLication.getInstance().getApplicationContext(), BUGLY_TAG_SAVE_DATA);
+                                // 上传异常数据
+                                CrashReport.putUserData(MyAppLication.getInstance().getApplicationContext(), BuglyTag.BUGLY_TAG_1,
+                                        "requestId:" + bean.getRequestId() + ";MsgType:" + wrapMessage.getMsgType());
+                            }
                             MessageManager.getInstance().checkServerTimeInit(wrapMessage);
                             //消息震动
                             if (!isFromSelf) {
@@ -73,7 +88,8 @@ public class MessageIntentService extends IntentService {
 
                     }
                     //消息回执
-                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
+                    if (result)
+                        SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
                     //本次离线消息是否接收完成
                     boolean isReceivedOfflineCompleted = SocketData.isEnough(msgList.size());
                     if (bean.getMsgFrom() == 1 && isReceivedOfflineCompleted) {//离线消息接收完了
@@ -133,16 +149,16 @@ public class MessageIntentService extends IntentService {
      * @param isOfflineMsg 是否是离线消息
      * @return
      */
-    public void dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, String requestId, boolean isOfflineMsg) {
+    public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, String requestId, boolean isOfflineMsg) {
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
-            return;
+            return true;
         }
         /******丢弃离线消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
         if (isOfflineMsg) {
             if (TextUtils.isEmpty(wrapMessage.getGid()) && repository.historyCleanMsg.size() > 0) {//单聊
                 if (discardHistoryCleanMessage(wrapMessage.getFromUid(), wrapMessage.getTimestamp()) ||
                         discardHistoryCleanMessage(wrapMessage.getToUid(), wrapMessage.getTimestamp())) {
-                    return;
+                    return true;
                 }
             }
         }
@@ -151,7 +167,7 @@ public class MessageIntentService extends IntentService {
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
             if (oldMsgId.contains(wrapMessage.getMsgId())) {
                 LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
-                return;
+                return true;
             } else {
                 if (oldMsgId.size() >= 500) {
                     oldMsgId.remove(0);
@@ -165,6 +181,7 @@ public class MessageIntentService extends IntentService {
         if (UserAction.getMyId() != null) {
             isFromSelf = wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         }
+        boolean result = true;
         switch (wrapMessage.getMsgType()) {
             case CHAT://文本
             case IMAGE://图片
@@ -183,16 +200,16 @@ public class MessageIntentService extends IntentService {
             case TAKE_SCREENSHOT:// 截屏通知
             case SEND_FILE:// 文件消息
             case TRANS_NOTIFY:// 转账提醒通知
-                repository.toDoChat(wrapMessage, requestId);
+                result = repository.toDoChat(wrapMessage, requestId);
                 break;
             case HISTORY_CLEAN://双向清除
                 repository.toDoHistoryCleanMsg(wrapMessage, isOfflineMsg);
                 break;
             case P2P_AU_VIDEO:// 音视频消息
-                repository.toDoP2PAUVideo(wrapMessage);
+                result = repository.toDoP2PAUVideo(wrapMessage);
                 break;
             case ACCEPT_BE_FRIENDS://接受成为好友,需要产生消息后面在处理
-                repository.toDoAcceptBeFriends(wrapMessage);
+                result = repository.toDoAcceptBeFriends(wrapMessage);
                 break;
             case REQUEST_FRIEND://请求添加为好友
                 repository.toDoRequestFriendMsg(wrapMessage);
@@ -201,25 +218,25 @@ public class MessageIntentService extends IntentService {
                 MessageManager.getInstance().notifyRefreshFriend(true, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.REMOVE_FRIEND);
                 break;
             case CHANGE_GROUP_MASTER://转让群主
-                repository.toDoChangeGroupMaster(wrapMessage);
+                result = repository.toDoChangeGroupMaster(wrapMessage);
                 break;
             case OUT_GROUP://退出群聊，如果该群是已保存群聊，需要改为未保存
-                repository.toDoOutGroup(wrapMessage);
+                result = repository.toDoOutGroup(wrapMessage);
                 break;
             case REMOVE_GROUP_MEMBER://自己被移除群聊，如果该群是已保存群聊，需要改为未保存
-                repository.toDoRemoveGroupMember(wrapMessage);
+                result = repository.toDoRemoveGroupMember(wrapMessage);
                 break;
             case REMOVE_GROUP_MEMBER2://其他群成员被移除群聊，可能会有群主退群，涉及群主迭代,所以需要从服务器重新拉取数据
                 repository.toDoRemoveGroupMember2(wrapMessage);
                 break;
             case ACCEPT_BE_GROUP://接受入群，
-                repository.toDoAcceptBeGroup(wrapMessage);
+                result = repository.toDoAcceptBeGroup(wrapMessage);
                 break;
             case REQUEST_GROUP://群主会收到成员进群的请求的通知
                 repository.toDoRequestGroup(wrapMessage);
                 break;
             case CHANGE_GROUP_META://修改群属性
-                repository.toDoChangeGroupMeta(wrapMessage);
+                result = repository.toDoChangeGroupMeta(wrapMessage);
                 break;
             case DESTROY_GROUP://销毁群
                 repository.toDoDestroyGroup(wrapMessage);
@@ -229,25 +246,25 @@ public class MessageIntentService extends IntentService {
                 break;
             case AT://@消息
             case GROUP_ANNOUNCEMENT://群公告
-                repository.toDoGroupAnnouncement(wrapMessage);
+                result = repository.toDoGroupAnnouncement(wrapMessage);
                 break;
             case ACTIVE_STAT_CHANGE://在线状态改变
                 repository.todoActiveStatChange(wrapMessage);
                 break;
             case CANCEL://撤销消息
-                repository.toDoCancel(wrapMessage);
+                result = repository.toDoCancel(wrapMessage);
                 break;
             case RESOURCE_LOCK://资源锁定
                 repository.toDoResourceLock(wrapMessage);
                 break;
             case CHANGE_SURVIVAL_TIME: //阅后即焚
-                repository.toDoChangeSurvivalTime(wrapMessage);
+                result = repository.toDoChangeSurvivalTime(wrapMessage);
                 break;
             case READ://已读消息
                 repository.toDoRead(wrapMessage, isOfflineMsg);
                 break;
             case SWITCH_CHANGE: //开关变更
-                repository.toDoSwitchChange(wrapMessage);
+                result = repository.toDoSwitchChange(wrapMessage);
                 break;
             case P2P_AU_VIDEO_DIAL:// 音视频通知
                 break;
@@ -255,16 +272,16 @@ public class MessageIntentService extends IntentService {
                 repository.toDoPayResult(wrapMessage);
                 break;
             case TRANSFER://转账消息
-                repository.toDoTransfer(wrapMessage);
+                result = repository.toDoTransfer(wrapMessage);
                 break;
             case REPLY_SPECIFIC:// 回复消息
-                repository.toDoReplySpecific(wrapMessage);
+                result = repository.toDoReplySpecific(wrapMessage);
                 break;
             case MULTI_TERMINAL_SYNC:// PC端同步 更改信息，只同步自己的操作
                 repository.toDoMultiTerminalSync(wrapMessage);
                 break;
         }
-
+        return result;
     }
 
 }
