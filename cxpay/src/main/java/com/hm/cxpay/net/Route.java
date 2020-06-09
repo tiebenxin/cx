@@ -47,10 +47,10 @@ public class Route {
     public static final String CHECK_PAYWORD = BANK+"/user/check_pay_pwd";
 
     //解绑银行卡
-    public static final String UNBIND_BANK_CARD = BANK+"/user/unbind_bank_card";
+//    public static final String UNBIND_BANK_CARD = BANK+"/user/unbind_bank_card";
 
     //充值
-    public static final String TO_RECHARGE = BANK+"/order/deposit";
+    public static final String TO_RECHARGE = BANK+"/order/to_deposit";
 
     //提现
     public static final String TO_WITHDRAW = BANK+"/order/withdraw_apply";

@@ -236,4 +236,10 @@ public class AppActivity extends AppCompatActivity {
         }
         return true;
     }
+
+    public void goWebActivity(Context context, String webUrl) {
+        Intent intent = new Intent(context, WebPageActivity.class);
+        intent.putExtra(WebPageActivity.AGM_URL, webUrl);
+        startActivity(intent);
+    }
 }

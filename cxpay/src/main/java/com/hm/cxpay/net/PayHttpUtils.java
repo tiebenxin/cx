@@ -16,6 +16,7 @@ import com.hm.cxpay.bean.RedDetailsBean;
 import com.hm.cxpay.bean.SendResultBean;
 import com.hm.cxpay.bean.TransferDetailBean;
 import com.hm.cxpay.bean.TransferResultBean;
+import com.hm.cxpay.bean.UrlBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.rx.data.BaseResponse;
@@ -205,28 +206,28 @@ public class PayHttpUtils {
     }
 
     //解绑银行卡
-    public Observable<BaseResponse> deleteBankcard(String bankCardId) {
-        Map<String, String> map = new HashMap<>();
-        map.put("bankCardId", bankCardId);
-        return HttpChannel.getInstance().getPayService().deleteBankcard(getRequestBody(map), getAuthMap());
-    }
+//    public Observable<BaseResponse> deleteBankcard(String bankCardId) {
+//        Map<String, String> map = new HashMap<>();
+//        map.put("bankCardId", bankCardId);
+//        return HttpChannel.getInstance().getPayService().deleteBankcard(getRequestBody(map), getAuthMap());
+//    }
 
-    //充值
-    public Observable<BaseResponse<CommonBean>> toRecharge(int amt, long bankCardId, String payPwd) {
+    //跳转充值
+    public Observable<BaseResponse<UrlBean>> toRecharge(int amt/*, long bankCardId, String payPwd*/) {
         Map<String, String> map = new HashMap<>();
         map.put("amt", UIUtils.getFen(amt + "") + "");
-        map.put("bankCardId", bankCardId + "");
-        map.put("payPwd", MD5.md5(payPwd));
+//        map.put("bankCardId", bankCardId + "");
+//        map.put("payPwd", MD5.md5(payPwd));
         map.put("actionId", UIUtils.getUUID());
         return HttpChannel.getInstance().getPayService().toRecharge(getRequestBody(map), getAuthMap());
     }
 
-    //提现
-    public Observable<BaseResponse<CommonBean>> toWithdraw(String amt, long bankCardId, String payPwd) {
+    //跳转提现
+    public Observable<BaseResponse<UrlBean>> toWithdraw(String amt/*, long bankCardId, String payPwd*/) {
         Map<String, String> map = new HashMap<>();
         map.put("amt", UIUtils.getFen(amt) + "");
-        map.put("bankCardId", bankCardId + "");
-        map.put("payPwd", MD5.md5(payPwd));
+//        map.put("bankCardId", bankCardId + "");
+//        map.put("payPwd", MD5.md5(payPwd));
         map.put("actionId", UIUtils.getUUID());
         return HttpChannel.getInstance().getPayService().toWithdraw(getRequestBody(map), getAuthMap());
     }
@@ -468,11 +469,11 @@ public class PayHttpUtils {
 
 
     //商城->校验支付密码
-    public Observable<BaseResponse<CommonBean>> checkShopPayword(String pwd,String amt) {
+    public Observable<BaseResponse<CommonBean>> checkShopPayword(String pwd, String amt) {
         Map<String, String> map = new HashMap<>();
         map.put("pwd", MD5.md5(pwd));
         map.put("amt", amt);
-        return HttpChannel.getInstance().getPayService().checkShopPayword(getRequestBody(map),getAuthMap());
+        return HttpChannel.getInstance().getPayService().checkShopPayword(getRequestBody(map), getAuthMap());
     }
 
 }

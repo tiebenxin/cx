@@ -4,6 +4,7 @@ import com.hm.cxpay.bean.BillBean;
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.bean.TransferDetailBean;
 import com.hm.cxpay.bean.TransferResultBean;
+import com.hm.cxpay.bean.UrlBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.bean.BankBean;
@@ -76,16 +77,16 @@ public interface PayService {
     Observable<BaseResponse> checkPayword(@Body RequestBody body, @QueryMap Map<String, String> map);
 
     //解绑银行卡
-    @POST(Route.UNBIND_BANK_CARD)
-    Observable<BaseResponse> deleteBankcard(@Body RequestBody body, @QueryMap Map<String, String> map);
+//    @POST(Route.UNBIND_BANK_CARD)
+//    Observable<BaseResponse> deleteBankcard(@Body RequestBody body, @QueryMap Map<String, String> map);
 
     //充值
     @POST(Route.TO_RECHARGE)
-    Observable<BaseResponse<CommonBean>> toRecharge(@Body RequestBody body, @QueryMap Map<String, String> map);
+    Observable<BaseResponse<UrlBean>> toRecharge(@Body RequestBody body, @QueryMap Map<String, String> map);
 
     //提现
     @POST(Route.TO_WITHDRAW)
-    Observable<BaseResponse<CommonBean>> toWithdraw(@Body RequestBody body, @QueryMap Map<String, String> map);
+    Observable<BaseResponse<UrlBean>> toWithdraw(@Body RequestBody body, @QueryMap Map<String, String> map);
 
     //获取系统费率
     @POST(Route.GET_RATE)
