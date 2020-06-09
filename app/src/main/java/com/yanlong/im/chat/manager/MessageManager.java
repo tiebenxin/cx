@@ -187,7 +187,6 @@ public class MessageManager {
         push(bean);
         if (!isDealingMsg) {//上一个处理完成，再启动处理消息sevice
             isDealingMsg = true;
-            Log.e("raleigh_test","MessageIntentService start");
             MyAppLication.INSTANCE().startMessageIntentService();
         }
 

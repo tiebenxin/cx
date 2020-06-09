@@ -3,7 +3,6 @@ package com.yanlong.im.chat.server;
 import android.app.IntentService;
 import android.content.Intent;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -37,7 +36,6 @@ public class MessageIntentService extends IntentService {
 
     public MessageIntentService() {
         super("MessageIntentService");
-        Log.e("raleigh_test", "MessageIntentService");
         repository = new MessageRepository();
     }
 
