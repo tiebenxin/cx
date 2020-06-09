@@ -314,7 +314,7 @@ public class ChatEnum {
         int NO_FRI_ERROR = 11;//被删好友，消息发送错误
         int LOCK = 12;//端对端加密
         int CHANGE_VICE_ADMINS_ADD = 13;// 群管理变更通知 新增
-        int CHANGE_VICE_ADMINS_CANCEL = 14;// 群管理变更通知 取消
+        int CHANGE_VICE_ADMINS_CANCEL = 14;// 群管理变更通知 自己被取消
         int FORBIDDEN_WORDS_OPEN = 15;// 接收到群禁言 开
         int FORBIDDEN_WORDS_CLOSE = 16;// 接收到群禁言 关
         int RED_ENVELOPE_RECEIVED_SELF = 17;//自己领取自己的零钱红包
@@ -328,6 +328,7 @@ public class ChatEnum {
         int GROUP_BAN_WORDS = 25;//自己开启或者关闭群禁言
         int CANCEL_CAN_EDIT = 26;//能重新编辑的撤销消息
         int FREEZE_ACCOUNT = 27;//冻结账号
+        int CHANGE_VICE_ADMINS_CANCEL_OTHER = 28;// 群管理变更通知 自己取消其他人
     }
 
     /*

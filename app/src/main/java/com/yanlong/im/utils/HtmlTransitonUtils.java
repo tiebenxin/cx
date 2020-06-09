@@ -87,6 +87,9 @@ public class HtmlTransitonUtils {
                 case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL:
                     setType14(context, style, bean);
                     break;
+                    case ChatEnum.ENoticeType.CHANGE_VICE_ADMINS_CANCEL_OTHER:
+                    setChangeAdmins(context, style, bean);
+                    break;
                 case ChatEnum.ENoticeType.FORBIDDEN_WORDS_OPEN:// 群禁言
                 case ChatEnum.ENoticeType.FORBIDDEN_WORDS_CLOSE:// 群禁言
                     setType15(context, style, bean, type);
@@ -111,6 +114,34 @@ public class HtmlTransitonUtils {
             }
         }
         return style;
+    }
+
+    private void setChangeAdmins(Context context, SpannableStringBuilder builder, HtmlBean htmlBean) {
+        List<HtmlBeanList> list = htmlBean.getList();
+        for (int i = 0; i < list.size(); i++) {
+            HtmlBeanList bean = list.get(i);
+            final String content = "你已取消\"" + bean.getName() + "\"";
+            builder.append(content);
+            int state = builder.toString().length() - content.length() + 4;
+            int end = builder.toString().length() - 1;
+
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid(), true);
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+
+            };
+            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        builder.append("管理员身份");
     }
 
     public SpannableStringBuilder getSpannableString(Context context, String html, int type, IActionTagClickListener listener) {
