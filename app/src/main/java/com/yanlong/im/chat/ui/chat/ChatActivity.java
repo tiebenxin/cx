@@ -5517,6 +5517,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     public void onEvent(int type, MsgAllBean message, Object... args) {
+        if (ViewUtils.isFastDoubleClick()) {
+            return;
+        }
         if (mViewModel.isInputText.getValue()) {
             mViewModel.isInputText.setValue(false);
         }
