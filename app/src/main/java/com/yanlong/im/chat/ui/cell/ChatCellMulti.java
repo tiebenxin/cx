@@ -72,7 +72,6 @@ public class ChatCellMulti extends ChatCellBase {
 
     @Override
     public void onBubbleClick() {
-        super.onBubbleClick();
         if (mCellListener != null && model != null) {
             mCellListener.onEvent(ChatEnum.ECellEventType.CARD_CLICK, model, cardMessage);
         }

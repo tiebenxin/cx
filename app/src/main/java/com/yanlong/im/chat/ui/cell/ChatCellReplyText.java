@@ -81,7 +81,6 @@ public class ChatCellReplyText extends ChatCellBase {
 
     @Override
     public void onBubbleClick() {
-        super.onBubbleClick();
         if (mCellListener != null && model != null) {
             mCellListener.onEvent(ChatEnum.ECellEventType.REPLY_CLICK, model, contentMessage.getQuotedMessage());
         }

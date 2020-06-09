@@ -55,7 +55,6 @@ public class ChatCellTransfer extends ChatCellBase {
 
     @Override
     public void onBubbleClick() {
-        super.onBubbleClick();
         if (mCellListener != null) {
             mCellListener.onEvent(ChatEnum.ECellEventType.TRANSFER_CLICK, model, transfer);
         }

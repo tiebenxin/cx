@@ -64,7 +64,6 @@ public class ChatCellCall extends ChatCellBase {
 
     @Override
     public void onBubbleClick() {
-        super.onBubbleClick();
         if (mCellListener != null && model != null) {
             mCellListener.onEvent(ChatEnum.ECellEventType.VOICE_VIDEO_CALL, model, contentMessage);
         }
