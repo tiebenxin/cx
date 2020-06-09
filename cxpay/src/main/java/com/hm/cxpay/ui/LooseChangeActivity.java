@@ -285,26 +285,26 @@ public class LooseChangeActivity extends BasePayActivity {
      * 备注：主要用于零钱首页更新"我的银行卡" 张数，暂时仅"充值、提现、我的银行卡"返回此界面后需要刷新
      */
     private void getBankList() {
-        PayHttpUtils.getInstance().getBankList()
-                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>compose())
-                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>handleResult())
-                .subscribe(new FGObserver<BaseResponse<List<BankBean>>>() {
-                    @Override
-                    public void onHandleSuccess(BaseResponse<List<BankBean>> baseResponse) {
-                        List<BankBean> info = baseResponse.getData();
-                        if (info != null) {
-                            myCardListSize = info.size();
-                        } else {
-                            myCardListSize = 0;
-                        }
-                        viewMyCard.getRightTitle().setText(myCardListSize + "张");
-                    }
-
-                    @Override
-                    public void onHandleError(BaseResponse baseResponse) {
-                        ToastUtil.show(activity, baseResponse.getMessage());
-                    }
-                });
+//        PayHttpUtils.getInstance().getBankList()
+//                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>compose())
+//                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>handleResult())
+//                .subscribe(new FGObserver<BaseResponse<List<BankBean>>>() {
+//                    @Override
+//                    public void onHandleSuccess(BaseResponse<List<BankBean>> baseResponse) {
+//                        List<BankBean> info = baseResponse.getData();
+//                        if (info != null) {
+//                            myCardListSize = info.size();
+//                        } else {
+//                            myCardListSize = 0;
+//                        }
+//                        viewMyCard.getRightTitle().setText(myCardListSize + "张");
+//                    }
+//
+//                    @Override
+//                    public void onHandleError(BaseResponse baseResponse) {
+//                        ToastUtil.show(activity, baseResponse.getMessage());
+//                    }
+//                });
     }
 
 

@@ -141,9 +141,9 @@ public class PayHttpUtils {
 
 
     //获取已经绑定银行卡列表
-    public Observable<BaseResponse<List<BankBean>>> getBankList() {
-        return HttpChannel.getInstance().getPayService().getBindBankCardList(getAuthMap());
-    }
+//    public Observable<BaseResponse<List<BankBean>>> getBankList() {
+//        return HttpChannel.getInstance().getPayService().getBindBankCardList(getAuthMap());
+//    }
 
 
     //绑定银行卡

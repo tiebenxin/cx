@@ -285,50 +285,50 @@ public class WithdrawActivity extends AppActivity {
      * 请求->绑定的银行卡列表
      */
     private void getBankList() {
-        PayHttpUtils.getInstance().getBankList()
-                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>compose())
-                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>handleResult())
-                .subscribe(new FGObserver<BaseResponse<List<BankBean>>>() {
-                    @Override
-                    public void onHandleSuccess(BaseResponse<List<BankBean>> baseResponse) {
-                        if (baseResponse.isSuccess()) {
-                            bankList.clear();
-                            if (baseResponse.getData() != null) {
-                                bankList.addAll(baseResponse.getData());
-                            }
-                            ifAddBankcard = bankList.size() != 0 ? true : false;
-                            //若存在银行卡
-                            if (ifAddBankcard) {
-                                builder = new StringBuilder();
-                                //默认取第一张银行卡信息展示: 银行卡名 银行卡id 银行卡图标
-                                selectBankcard = bankList.get(0);
-                                if (!TextUtils.isEmpty(selectBankcard.getBankName())) {
-                                    builder.append(selectBankcard.getBankName());
-                                    if (!TextUtils.isEmpty(selectBankcard.getCardNo())) {
-                                        int length = selectBankcard.getCardNo().length();
-                                        builder.append("(");
-                                        builder.append(selectBankcard.getCardNo().substring(length - 4, length));
-                                        builder.append(")");
-                                    }
-                                    tvBankName.setText(builder);//银行卡名称尾号
-                                    if (!TextUtils.isEmpty(selectBankcard.getLogo())) {
-                                        Glide.with(activity).load(selectBankcard.getLogo())
-                                                .apply(options).into(ivBankIcon);
-                                    } else {
-                                        ivBankIcon.setImageResource(R.mipmap.ic_bank_zs);
-                                    }
-                                }
-                            }
-                        } else {
-                            ToastUtil.show(activity, baseResponse.getMessage());
-                        }
-                    }
-
-                    @Override
-                    public void onHandleError(BaseResponse baseResponse) {
-                        ToastUtil.show(activity, baseResponse.getMessage());
-                    }
-                });
+//        PayHttpUtils.getInstance().getBankList()
+//                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>compose())
+//                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>handleResult())
+//                .subscribe(new FGObserver<BaseResponse<List<BankBean>>>() {
+//                    @Override
+//                    public void onHandleSuccess(BaseResponse<List<BankBean>> baseResponse) {
+//                        if (baseResponse.isSuccess()) {
+//                            bankList.clear();
+//                            if (baseResponse.getData() != null) {
+//                                bankList.addAll(baseResponse.getData());
+//                            }
+//                            ifAddBankcard = bankList.size() != 0 ? true : false;
+//                            //若存在银行卡
+//                            if (ifAddBankcard) {
+//                                builder = new StringBuilder();
+//                                //默认取第一张银行卡信息展示: 银行卡名 银行卡id 银行卡图标
+//                                selectBankcard = bankList.get(0);
+//                                if (!TextUtils.isEmpty(selectBankcard.getBankName())) {
+//                                    builder.append(selectBankcard.getBankName());
+//                                    if (!TextUtils.isEmpty(selectBankcard.getCardNo())) {
+//                                        int length = selectBankcard.getCardNo().length();
+//                                        builder.append("(");
+//                                        builder.append(selectBankcard.getCardNo().substring(length - 4, length));
+//                                        builder.append(")");
+//                                    }
+//                                    tvBankName.setText(builder);//银行卡名称尾号
+//                                    if (!TextUtils.isEmpty(selectBankcard.getLogo())) {
+//                                        Glide.with(activity).load(selectBankcard.getLogo())
+//                                                .apply(options).into(ivBankIcon);
+//                                    } else {
+//                                        ivBankIcon.setImageResource(R.mipmap.ic_bank_zs);
+//                                    }
+//                                }
+//                            }
+//                        } else {
+//                            ToastUtil.show(activity, baseResponse.getMessage());
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onHandleError(BaseResponse baseResponse) {
+//                        ToastUtil.show(activity, baseResponse.getMessage());
+//                    }
+//                });
     }
 
     /**

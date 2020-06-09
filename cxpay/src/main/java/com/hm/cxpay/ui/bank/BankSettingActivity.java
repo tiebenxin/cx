@@ -125,29 +125,29 @@ public class BankSettingActivity extends BasePayActivity {
     }
 
     private void getBankList() {
-        PayHttpUtils.getInstance().getBankList()
-                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>compose())
-                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>handleResult())
-                .subscribe(new FGObserver<BaseResponse<List<BankBean>>>() {
-                    @Override
-                    public void onHandleSuccess(BaseResponse<List<BankBean>> baseResponse) {
-                        if (baseResponse.isSuccess()) {
-                            List<BankBean> info = baseResponse.getData();
-                            if (info != null) {
-                                adapter.bindData(info);
-                                cardNum = info.size();
-                            }
-
-                        } else {
-
-                            ToastUtil.show(BankSettingActivity.this, baseResponse.getMessage());
-                        }
-                    }
-
-                    @Override
-                    public void onHandleError(BaseResponse baseResponse) {
-                    }
-                });
+//        PayHttpUtils.getInstance().getBankList()
+//                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>compose())
+//                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>handleResult())
+//                .subscribe(new FGObserver<BaseResponse<List<BankBean>>>() {
+//                    @Override
+//                    public void onHandleSuccess(BaseResponse<List<BankBean>> baseResponse) {
+//                        if (baseResponse.isSuccess()) {
+//                            List<BankBean> info = baseResponse.getData();
+//                            if (info != null) {
+//                                adapter.bindData(info);
+//                                cardNum = info.size();
+//                            }
+//
+//                        } else {
+//
+//                            ToastUtil.show(BankSettingActivity.this, baseResponse.getMessage());
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onHandleError(BaseResponse baseResponse) {
+//                    }
+//                });
     }
 
     @Override

@@ -476,28 +476,28 @@ public class RechargeActivity extends AppActivity {
      * 请求->绑定的银行卡列表
      */
     private void getBankList() {
-        PayHttpUtils.getInstance().getBankList()
-                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>compose())
-                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>handleResult())
-                .subscribe(new FGObserver<BaseResponse<List<BankBean>>>() {
-                    @Override
-                    public void onHandleSuccess(BaseResponse<List<BankBean>> baseResponse) {
-                        if (baseResponse.isSuccess()) {
-                            bankList.clear();
-                            if (baseResponse.getData() != null) {
-                                bankList.addAll(baseResponse.getData());
-                            }
-                            ifAddBankcard = bankList.size() != 0 ? true : false;
-                        } else {
-                            ToastUtil.show(activity, baseResponse.getMessage());
-                        }
-                    }
-
-                    @Override
-                    public void onHandleError(BaseResponse baseResponse) {
-                        ToastUtil.show(activity, baseResponse.getMessage());
-                    }
-                });
+//        PayHttpUtils.getInstance().getBankList()
+//                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>compose())
+//                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>handleResult())
+//                .subscribe(new FGObserver<BaseResponse<List<BankBean>>>() {
+//                    @Override
+//                    public void onHandleSuccess(BaseResponse<List<BankBean>> baseResponse) {
+//                        if (baseResponse.isSuccess()) {
+//                            bankList.clear();
+//                            if (baseResponse.getData() != null) {
+//                                bankList.addAll(baseResponse.getData());
+//                            }
+//                            ifAddBankcard = bankList.size() != 0 ? true : false;
+//                        } else {
+//                            ToastUtil.show(activity, baseResponse.getMessage());
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onHandleError(BaseResponse baseResponse) {
+//                        ToastUtil.show(activity, baseResponse.getMessage());
+//                    }
+//                });
     }
 
     /**

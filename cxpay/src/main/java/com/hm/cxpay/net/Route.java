@@ -7,7 +7,7 @@ package com.hm.cxpay.net;
  */
 public class Route {
 
-    public static final String BANK = "/bank";
+    public static final String BANK = "/v2";
 
     //查看支持银行url
     public static final String SUPPORT_BANK_URL = "https://changxin.zhixun6.com/bank.html";
