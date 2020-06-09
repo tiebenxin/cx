@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.MyAppLication;
@@ -146,6 +147,9 @@ public class MessageManager {
             return null;
         }
     }
+    public int getToDoMsgCount(){
+        return toDoMsg.size();
+    }
 
     /**
      * 移除
@@ -183,6 +187,7 @@ public class MessageManager {
         push(bean);
         if (!isDealingMsg) {//上一个处理完成，再启动处理消息sevice
             isDealingMsg = true;
+            Log.e("raleigh_test","MessageIntentService start");
             MyAppLication.INSTANCE().startMessageIntentService();
         }
 

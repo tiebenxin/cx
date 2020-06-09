@@ -3,6 +3,7 @@ package com.yanlong.im.chat.server;
 import android.app.IntentService;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -24,7 +25,7 @@ import io.realm.Realm;
 import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
 
 /**
- * 消息处理sevice
+ * 消息处理IntentService 处理完成，会自动stopservice
  *
  * @createAuthor Raleigh.Luo
  * @createDate 2020/6/5 0005
@@ -32,12 +33,11 @@ import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
  */
 public class MessageIntentService extends IntentService {
     private final String TAG = MessageIntentService.class.getSimpleName();
-    public static String START_SERVICE_ACTION = "start_service_action";
-    public static String STOP_SERVICE_ACTION = "stop_service_action";
     private MessageRepository repository;
 
     public MessageIntentService() {
         super("MessageIntentService");
+        Log.e("raleigh_test", "MessageIntentService");
         repository = new MessageRepository();
     }
 
@@ -50,16 +50,9 @@ public class MessageIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
+        if (MessageManager.getInstance().getToDoMsgCount() == 0) return;
         Realm realm = DaoUtil.open();
-        if (intent.getAction().equals(STOP_SERVICE_ACTION)) {
-            /**停止服务，关闭数据库，onHandleIntent每次都是同一个线程
-             * 适用场景
-             *1.退出登录/挤下线
-             * 2.application终止
-             */
-            DaoUtil.close(realm);
-            stopSelf();
-        } else {
+        try {
             //初始化数据库对象
             repository.initRealm(realm);
             MsgBean.UniversalMessage bean = MessageManager.getInstance().poll();
@@ -86,13 +79,20 @@ public class MessageIntentService extends IntentService {
                     }
                     //消息回执
                     SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
                 //移除处理过的当前消息
                 MessageManager.getInstance().pop();
                 //取下一个待处理的消息对象
                 bean = MessageManager.getInstance().poll();
             }
+        } catch (Exception e) {
+            LogUtil.writeError(e);
+        } finally {
+            DaoUtil.close(realm);
         }
+
+
     }
 
     /**
@@ -242,7 +242,7 @@ public class MessageIntentService extends IntentService {
                 repository.toDoChangeSurvivalTime(wrapMessage);
                 break;
             case READ://已读消息
-                repository.toDoRead(wrapMessage, batchMessageTotal>1);
+                repository.toDoRead(wrapMessage, batchMessageTotal > 1);
                 break;
             case SWITCH_CHANGE: //开关变更
                 repository.toDoSwitchChange(wrapMessage);

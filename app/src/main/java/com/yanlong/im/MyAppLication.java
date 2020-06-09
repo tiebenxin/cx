@@ -115,8 +115,7 @@ public class MyAppLication extends MainApplication {
         if (messageIntentService == null) {
             messageIntentService = new Intent(this, MessageIntentService.class);
         }
-        messageIntentService.setAction(MessageIntentService.START_SERVICE_ACTION);
-        startService(messageIntentService);
+       startService(messageIntentService);
     }
 
     /**
@@ -147,8 +146,7 @@ public class MyAppLication extends MainApplication {
         }
         //停止消息处理service,不再接受消息
         if (messageIntentService != null) {
-            messageIntentService.setAction(MessageIntentService.STOP_SERVICE_ACTION);
-            startService(messageIntentService);
+            stopService(messageIntentService);
         }
     }
 
