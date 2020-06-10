@@ -1175,5 +1175,12 @@ public class UserAction {
         NetUtil.getNet().exec(server.cancelDeactivate(), callback);
     }
 
+    /**
+     * 更换手机号
+     */
+    public void changePhoneNum(String password, String phone, String code, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.changePhoneNum(password,phone,code), callback);
+    }
+
 
 }

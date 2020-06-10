@@ -159,8 +159,9 @@ public class SearchMsgActivity extends AppActivity {
                 }
 
                 msg = SocketData.getMsg(msgbean, key);
+                String title=msgbean.getMsg_typeTitle();
                 //高亮显示关键字
-                hightKey(holder.txtContext, msg);
+                hightKey(holder.txtContext, msg,title);
                 holder.txtName.setText(name);
 
                 holder.txtTimer.setText(TimeToString.YYYY_MM_DD_HH_MM_SS(msgbean.getTimestamp()));
@@ -201,26 +202,27 @@ public class SearchMsgActivity extends AppActivity {
          * @param tvContent
          * @param msg
          */
-        private void hightKey(TextView tvContent, String msg) {
-            final int index = msg.indexOf(key);
+        private void hightKey(TextView tvContent, String msg,String title) {
+            final int index = msg.toLowerCase().indexOf(key.toLowerCase());
             if (index >= 0) {
-                SpannableString style = new SpannableString(msg);
+                int mindex=title.length()+index;
+                SpannableString style = new SpannableString(title+msg);
                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.green_500));
-                style.setSpan(protocolColorSpan, index, index + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                style.setSpan(protocolColorSpan, mindex, mindex + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 showMessage(tvContent, msg, style);
             } else {
-                showMessage(tvContent, msg, new SpannableString(msg));
+                showMessage(tvContent, msg, new SpannableString(title+msg));
             }
             if (tvContent.getLayout() == null) {
                 //getLayout() 开始会为null,post显示后会重新加载
                 tvContent.post(new Runnable() {
                     @Override
                     public void run() {
-                        showEllipsis(tvContent, msg, key, index);
+                        showEllipsis(tvContent, msg, key, index,title);
                     }
                 });
             } else {
-                showEllipsis(tvContent, msg, key, index);
+                showEllipsis(tvContent, msg, key, index,title);
             }
         }
 
@@ -232,7 +234,7 @@ public class SearchMsgActivity extends AppActivity {
          * @param key
          * @param index
          */
-        private void showEllipsis(TextView tvContent, String msg, String key, int index) {
+        private void showEllipsis(TextView tvContent, String msg, String key, int index,String title) {
             try {
                 if (tvContent.getLayout() == null) return;
                 //被隐藏的字数
@@ -240,11 +242,13 @@ public class SearchMsgActivity extends AppActivity {
                 //显示的字数
                 int showCount = msg.length() - ellipsisCount;
                 if (showCount > 0 && showCount < index) {//超出文本了
+                    title = title+"...";
                     //原则上让搜索关键字显示在中间，已经到字尾了，就以字尾显示
                     String subMsg = msg.substring(Math.min(index - showCount / 2, msg.length() - showCount + 1));
                     //下标数+三个点...的位置，不直接拼字符串，防止key中包含...
-                    int mindex = subMsg.indexOf(key) + 3;
-                    SpannableString style = new SpannableString("..." + subMsg);
+                    int mindex = title.length()+subMsg.toLowerCase().indexOf(key.toLowerCase());
+
+                    SpannableString style = new SpannableString(title + subMsg);
                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.green_500));
                     style.setSpan(protocolColorSpan, mindex, mindex + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     showMessage(tvContent, subMsg, style);

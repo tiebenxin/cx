@@ -47,7 +47,7 @@
         <View style="@style/app_line" />
 
         <LinearLayout
-            android:id="@+id/view_blacklist"
+            android:id="@+id/layout_change_phone_num"
             style="@style/app_layout_list2_item">
 
 
@@ -60,7 +60,11 @@
             <TextView
                 android:id="@+id/tv_phone"
                 style="@style/app_txt_title_4" />
-
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="14dp"
+                android:src="@mipmap/ic_btn_goto" />
 
         </LinearLayout>
 

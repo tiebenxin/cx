@@ -55,8 +55,8 @@ public class ChatCellAd extends ChatCellBase {
         if (message == null) {
             return;
         }
-        setText(tvTitle, message.getTitle());
-        setText(tvDesc, message.getSummary());
+        setText(tvTitle, message.getSummary());
+        setText(tvDesc, "");
         if (StringUtil.isNotNull(message.getThumbnail())) {//url链接
             ivImage.setVisibility(View.VISIBLE);
             ivImage.setImageResource(R.mipmap.ic_image_bg);
@@ -80,6 +80,12 @@ public class ChatCellAd extends ChatCellBase {
         if (!TextUtils.isEmpty(message.getButtonTxt())) {
             btGo.setVisibility(View.VISIBLE);
             btGo.setText(message.getButtonTxt());
+            btGo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onBubbleClick();
+                }
+            });
         } else {
             btGo.setVisibility(View.GONE);
         }
