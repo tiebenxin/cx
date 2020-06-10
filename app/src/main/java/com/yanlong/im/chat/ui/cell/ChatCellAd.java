@@ -55,8 +55,8 @@ public class ChatCellAd extends ChatCellBase {
         if (message == null) {
             return;
         }
-        setText(tvTitle, message.getTitle());
-        setText(tvDesc, message.getSummary());
+        setText(tvTitle, message.getSummary());
+        setText(tvDesc, "");
         if (StringUtil.isNotNull(message.getThumbnail())) {//url链接
             ivImage.setVisibility(View.VISIBLE);
             ivImage.setImageResource(R.mipmap.ic_image_bg);
