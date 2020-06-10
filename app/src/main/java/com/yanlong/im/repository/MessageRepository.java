@@ -156,7 +156,9 @@ public class MessageRepository {
         //增加好友申请红点数
         localDataSource.addRemindCount(realm, "friend_apply");
         remoteDataSource.getRequestFriends(wrapMessage.getRequestFriend().getContactName(), applyBean -> {
-            localDataSource.saveApplyBean(realm, applyBean);
+            //网络请求后，都在主线程回调，不需要关闭Realm,Applicaiton中会自动关闭
+            Realm realm1 = DaoUtil.open();
+            localDataSource.saveApplyBean(realm1, applyBean);
             return true;
         });
         //通知UI刷新
@@ -284,10 +286,12 @@ public class MessageRepository {
                     @NullableDecl
                     @Override
                     public Boolean apply(@NullableDecl UserBean user) {
+                        //网络请求后，都在主线程回调，不需要关闭Realm,Applicaiton中会自动关闭
+                        Realm realm1 = DaoUtil.open();
                         //uType=自己
                         user.setuType(1);
                         //更新数据库信息
-                        localDataSource.updateUserBean(realm, user);
+                        localDataSource.updateUserBean(realm1, user);
                         //更新内存对象信息
                         UserAction.refreshMyInfo();
                         //通知UI更新用户信息
@@ -301,8 +305,10 @@ public class MessageRepository {
                     @NullableDecl
                     @Override
                     public Boolean apply(@NullableDecl UserInfo user) {
-                        localDataSource.updateUserInfo(realm, user);
-                        localDataSource.updateSessionTopAndDisturb(realm, null, user.getUid(), user.getIstop(), user.getDisturb());
+                        //网络请求后，都在主线程回调，不需要关闭Realm,Applicaiton中会自动关闭
+                        Realm realm1 = DaoUtil.open();
+                        localDataSource.updateUserInfo(realm1, user);
+                        localDataSource.updateSessionTopAndDisturb(realm1, null, user.getUid(), user.getIstop(), user.getDisturb());
                         /********通知更新sessionDetail************************************/
                         List<Long> fUids = new ArrayList<>();
                         fUids.add(wrapMessage.getMultiTerminalSync().getUid());
@@ -341,11 +347,14 @@ public class MessageRepository {
     }
 
     private void requestGroupInfo(String gid, Realm realm) {
+
         remoteDataSource.getGroupInfo(gid, new Function<Group, Boolean>() {
             @NullableDecl
             @Override
             public Boolean apply(@NullableDecl Group group) {
-                saveGoupToDB(group, realm);
+                //网络请求后，都在主线程回调，不需要关闭Realm,Applicaiton中会自动关闭
+                Realm realm1 = DaoUtil.open();
+                saveGoupToDB(group, realm1);
                 //通知更新UI
                 MessageManager.getInstance().notifyGroupChange(gid);
                 /********通知更新sessionDetail************************************/
@@ -868,8 +877,10 @@ public class MessageRepository {
                     @NullableDecl
                     @Override
                     public Boolean apply(@NullableDecl UserInfo user) {
-                        localDataSource.updateUserInfo(realm, user);
-                        localDataSource.updateSessionTopAndDisturb(realm, null, user.getUid(), user.getIstop(), user.getDisturb());
+                        //网络请求后，都在主线程回调，不需要关闭Realm,Applicaiton中会自动关闭
+                        Realm realm1 = DaoUtil.open();
+                        localDataSource.updateUserInfo(realm1, user);
+                        localDataSource.updateSessionTopAndDisturb(realm1, null, user.getUid(), user.getIstop(), user.getDisturb());
                         return true;
                     }
                 });

@@ -335,10 +335,9 @@ public class DB {
             } else { //单聊-touid才是对方id
                 session = realm.where(Session.class).equalTo("from_uid", bean.getTo_uid()).findFirst();
             }
+            realm.beginTransaction();
             if (session != null) {//已存在的session，只更新时间
-                realm.beginTransaction();
                 session.setUp_time(System.currentTimeMillis());
-                realm.commitTransaction();
             } else {//新session
                 if (StringUtil.isNotNull(bean.getGid())) {//群消息
                     session = new Session();
@@ -346,7 +345,6 @@ public class DB {
                     session.setGid(bean.getGid());
                     session.setType(1);
                     Group group = realm.where(Group.class).equalTo("gid", bean.getGid()).findFirst();
-                    realm.beginTransaction();
                     if (group != null) {
                         //因getIsTop有写入操作，beginTransaction得写在前面
                         session.setIsTop(group.getIsTop());
@@ -358,7 +356,6 @@ public class DB {
                     session.setFrom_uid(bean.getTo_uid());
                     session.setType(0);
                     UserInfo user = realm.where(UserInfo.class).equalTo("uid", bean.getTo_uid()).findFirst();
-                    realm.beginTransaction();
                     if (user != null) {
                         //因getIsTop有写入操作，beginTransaction得写在前面
                         session.setIsTop(user.getIstop());
@@ -367,10 +364,10 @@ public class DB {
                 }
                 session.setUnread_count(0);
                 session.setUp_time(System.currentTimeMillis());
-
                 realm.insertOrUpdate(session);
-                realm.commitTransaction();
+
             }
+            realm.commitTransaction();
         } catch (Exception e) {
             if(realm.isInTransaction()){
                 realm.cancelTransaction();

@@ -63,6 +63,7 @@ public class MessageIntentService extends IntentService {
 
     @SuppressLint("CheckResult")
     protected void onHandleIntent(@Nullable Intent intent) {
+        //异步处理方法
 
         if (MessageManager.getInstance().getToDoMsgCount() == 0) return;
 //            //初始化数据库对象

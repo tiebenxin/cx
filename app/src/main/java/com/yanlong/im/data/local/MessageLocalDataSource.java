@@ -47,14 +47,20 @@ public class MessageLocalDataSource {
      * @return
      */
     private void checkInTransaction(Realm realm) {
+        int i=0;
         while (realm.isInTransaction()) {
             try {//正在事务，100毫秒后重试
-                synchronized (Thread.currentThread()) {
-                    Thread.currentThread().wait(RETRY_DELAY);
+                if(i<10){
+                    synchronized (Thread.currentThread()) {
+                        Thread.currentThread().wait(RETRY_DELAY);
+                    }
+                }else{//超过1秒，则关闭上一个事务
+                    realm.cancelTransaction();
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            i++;
         }
     }
 
@@ -148,14 +154,13 @@ public class MessageLocalDataSource {
                     int unreadCount = session.getUnread_count() - deleteUnReadCount;
                     session.setUnread_count(unreadCount > 0 ? unreadCount : 0);
                 }
-
-                realm.commitTransaction();
                 //更新session
                 if (uids.size() > 0 && deleteUnReadCount == 0) {//没有更新session,则需手动更新sessiondetail
                     /********通知更新sessionDetail************************************/
                     MyAppLication.INSTANCE().repository.updateSessionDetail(null, uids);
                 }
             }
+            realm.commitTransaction();
         } catch (Exception e) {
             if (realm.isInTransaction()) {
                 realm.cancelTransaction();
@@ -496,7 +501,7 @@ public class MessageLocalDataSource {
     public void updateTransferStatus(@NonNull Realm realm, String tradeId, int opType) {
         try {
             checkInTransaction(realm);
-            realm.beginTransaction();
+
             TransferMessage transfer = realm.where(TransferMessage.class)
                     .beginGroup().equalTo("id", tradeId).endGroup()
                     .and()
@@ -505,6 +510,7 @@ public class MessageLocalDataSource {
             if (transfer == null) {
                 return;
             }
+            realm.beginTransaction();
             transfer.setOpType(opType);
             realm.commitTransaction();
         } catch (Exception e) {
@@ -525,15 +531,14 @@ public class MessageLocalDataSource {
     public void updateSessionAtMessage(@NonNull Realm realm, String gid, String atMessage, int type) {
         checkInTransaction(realm);
         try {
-            realm.beginTransaction();
             Session session = realm.where(Session.class).equalTo("gid", gid).findFirst();
-
             if (session != null) {
+                realm.beginTransaction();
                 session.setAtMessage(atMessage);
                 session.setMessageType(type);
                 realm.insertOrUpdate(session);
+                realm.commitTransaction();
             }
-            realm.commitTransaction();
         } catch (Exception e) {
             if (realm.isInTransaction()) {
                 realm.cancelTransaction();

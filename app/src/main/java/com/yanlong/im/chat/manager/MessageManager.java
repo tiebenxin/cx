@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.hm.cxpay.eventbus.PayResultEvent;
 import com.yanlong.im.MyAppLication;
@@ -184,11 +183,17 @@ public class MessageManager {
      * 消息接收流程
      * */
     public synchronized void onReceive(MsgBean.UniversalMessage bean) {
-        push(bean);
-        if (!isDealingMsg) {//上一个处理完成，再启动处理消息sevice
-            isDealingMsg = true;
-            MyAppLication.INSTANCE().startMessageIntentService();
+        boolean isOfflineMsg = bean.getMsgFrom() == 1;
+        if(!isOfflineMsg){//在线消息
+            push(bean);
+            if (!isDealingMsg) {//上一个处理完成，再启动处理消息sevice
+                isDealingMsg = true;
+                MyAppLication.INSTANCE().startMessageIntentService();
+            }
+        }else{
+
         }
+
 
 //        List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
 //        if (msgList != null) {
