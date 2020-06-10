@@ -40,7 +40,8 @@ public class MsgSearchLocalDataSource {
      */
     public RealmResults<UserInfo> searchFriends(String key) {
         String searchKey = getKey(key);
-        return realm.where(UserInfo.class).like("name", searchKey).or().like("mkName", searchKey)
+        return realm.where(UserInfo.class).like("name", searchKey, Case.INSENSITIVE)
+                .or().like("mkName", searchKey, Case.INSENSITIVE)
                 .findAll();
     }
 
@@ -53,7 +54,8 @@ public class MsgSearchLocalDataSource {
     public RealmResults<Group> searchGroups(String key) {
         String searchKey = getKey(key);
         return realm.where(Group.class).like("name", searchKey).or()
-                .like("members.membername", searchKey).or().like("members.name", searchKey)
+                .like("members.membername", searchKey, Case.INSENSITIVE)
+                .or().like("members.name", searchKey, Case.INSENSITIVE)
                 .findAll();
     }
 
@@ -94,7 +96,8 @@ public class MsgSearchLocalDataSource {
                     .like("sendFileMessage.file_name", searchKey, Case.INSENSITIVE).or()//文件消息
                     .like("webMessage.title", searchKey, Case.INSENSITIVE).or()//链接消息
                     .like("replyMessage.chatMessage.msg", searchKey, Case.INSENSITIVE).or()//回复消息
-                    .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE)//回复@消息
+                    .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE).or()//回复@消息
+                    .like("replyMessage.quotedMessage.msg", searchKey, Case.INSENSITIVE)//回复@消息
                     .endGroup();
         } else {
             return realm.where(MsgAllBean.class)
@@ -109,7 +112,10 @@ public class MsgSearchLocalDataSource {
                     .like("sendFileMessage.file_name", searchKey, Case.INSENSITIVE).or()//文件消息
                     .like("webMessage.title", searchKey, Case.INSENSITIVE).or()//链接消息
                     .like("replyMessage.chatMessage.msg", searchKey, Case.INSENSITIVE).or()//回复消息
-                    .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE);//回复@消息
+                    .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE).or()
+                    .like("replyMessage.quotedMessage.msg", searchKey, Case.INSENSITIVE)//回复@消息
+                    ;//回复@消息
+
         }
     }
 

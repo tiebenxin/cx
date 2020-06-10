@@ -58,7 +58,7 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
      * @return
      */
     private SpannableString getSpannableString(String title, String text) {
-        int index = text.indexOf(viewModel.key.getValue());
+        int index = text.toLowerCase().indexOf(viewModel.key.getValue().toLowerCase());
         SpannableString sp = null;
         if (TextUtils.isEmpty(title)) {
             sp = new SpannableString(text);
@@ -92,12 +92,12 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
             holder.imgHead.setList(head);
             holder.txtName.setText(getSpannableString(null, userInfo.getName4Show()));
             /*****好友 昵称/微信号包含****************************************************************************/
-            if (userInfo.getName4Show().contains(viewModel.key.getValue())) {
+            if (userInfo.getName4Show().toLowerCase().contains(viewModel.key.getValue().toLowerCase())) {
                 //1.名称包含关键字，则只显示名称，隐藏描述
                 holder.vInfoPanel.setVisibility(View.GONE);
             } else {//2.名称不包含关键字，则说明昵称/微信号包含，显示第二行
                 holder.vInfoPanel.setVisibility(View.VISIBLE);
-                if (userInfo.getName().contains(viewModel.key.getValue())) {
+                if (userInfo.getName().toLowerCase().contains(viewModel.key.getValue().toLowerCase())) {
                     holder.txtInfo.setText(getSpannableString("昵称：", userInfo.getName()));
                 } else {
                     holder.txtInfo.setText(getSpannableString("常信号：", userInfo.getImid()));
@@ -144,17 +144,17 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
             }
             holder.imgHead.setList(headList);
             holder.txtName.setText(getSpannableString(null, groupName));
-            if (groupName.contains(viewModel.key.getValue())) {
+            if (groupName.toLowerCase().contains(viewModel.key.getValue().toLowerCase())) {
                 //3.群名称包含关键字，则只显示名称，隐藏描述
                 holder.vInfoPanel.setVisibility(View.GONE);
             } else {//4.群名称不包含关键字，则说明群成员包含，显示第二行
                 holder.vInfoPanel.setVisibility(View.VISIBLE);
                 String memeberName = null;
                 for (MemberUser user : group.getUsers()) {
-                    if (user.getMembername().contains(viewModel.key.getValue())) {
+                    if (user.getMembername().toLowerCase().contains(viewModel.key.getValue().toLowerCase())) {
                         memeberName = user.getMembername();
                         break;
-                    } else if (user.getName().contains(viewModel.key.getValue())) {
+                    } else if (user.getName().toLowerCase().contains(viewModel.key.getValue().toLowerCase())) {
                         memeberName = user.getName();
                         break;
                     }
@@ -252,7 +252,7 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
      */
     private void hightKey(TextView tvContent, String msg) {
         String key = viewModel.key.getValue();
-        final int index = msg.indexOf(key);
+        final int index = msg.toLowerCase().indexOf(key.toLowerCase());
         if (index >= 0) {
             SpannableString style = new SpannableString(msg);
             ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.green_500));
@@ -293,7 +293,7 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
                 //原则上让搜索关键字显示在中间，已经到字尾了，就以字尾显示
                 String subMsg = msg.substring(Math.min(index - showCount / 2, msg.length() - showCount + 1));
                 //下标数+三个点...的位置，不直接拼字符串，防止key中包含...
-                int mindex = subMsg.indexOf(key) + 3;
+                int mindex = subMsg.toLowerCase().indexOf(key.toLowerCase()) + 3;
                 SpannableString style = new SpannableString("..." + subMsg);
                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.green_500));
                 style.setSpan(protocolColorSpan, mindex, mindex + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

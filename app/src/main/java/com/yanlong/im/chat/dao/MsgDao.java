@@ -1007,7 +1007,8 @@ public class MsgDao {
                         .like("sendFileMessage.file_name", searchKey, Case.INSENSITIVE).or()//文件消息
                         .like("webMessage.title", searchKey, Case.INSENSITIVE).or()//链接消息
                         .like("replyMessage.chatMessage.msg", searchKey, Case.INSENSITIVE).or()//回复消息
-                        .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE)//回复@消息
+                        .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE).or()//回复@消息
+                        .like("replyMessage.quotedMessage.msg", searchKey, Case.INSENSITIVE)//回复@消息
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
             } else {//单人
@@ -1027,7 +1028,8 @@ public class MsgDao {
                         .like("sendFileMessage.file_name", searchKey, Case.INSENSITIVE).or()//文件消息
                         .like("webMessage.title", searchKey, Case.INSENSITIVE).or()//链接消息
                         .like("replyMessage.chatMessage.msg", searchKey, Case.INSENSITIVE).or()//回复消息
-                        .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE)//回复@消息
+                        .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE).or()//回复@消息
+                        .like("replyMessage.quotedMessage.msg", searchKey, Case.INSENSITIVE)//回复@消息
                         .endGroup()
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
@@ -1508,7 +1510,7 @@ public class MsgDao {
      * @param gid
      * @param from_uid
      */
-    public void sessionReadCleanAndToBurn(String gid, Long from_uid,long timeStamp) {
+    public void sessionReadCleanAndToBurn(String gid, Long from_uid, long timeStamp) {
         Realm realm = DaoUtil.open();
         try {
             Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() :
@@ -1553,7 +1555,7 @@ public class MsgDao {
                 }
                 realm.commitTransaction();
             }
-        }catch (Exception e){
+        } catch (Exception e) {
         } finally {
             DaoUtil.close(realm);
         }
@@ -3698,6 +3700,15 @@ public class MsgDao {
             msg.getSendFileMessage().deleteFromRealm();
         if (msg.getWebMessage() != null)
             msg.getWebMessage().deleteFromRealm();
+        if (msg.getReplyMessage() != null) {
+            if (msg.getReplyMessage().getAtMessage() != null)
+                msg.getReplyMessage().getAtMessage().deleteFromRealm();
+            if (msg.getReplyMessage().getChatMessage() != null)
+                msg.getReplyMessage().getChatMessage().deleteFromRealm();
+            if (msg.getReplyMessage().getQuotedMessage() != null)
+                msg.getReplyMessage().getQuotedMessage().deleteFromRealm();
+            msg.getReplyMessage().deleteFromRealm();
+        }
     }
 
     //判断当前用户是否群主或者群管理员

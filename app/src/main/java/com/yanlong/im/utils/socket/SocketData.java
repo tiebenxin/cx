@@ -2278,7 +2278,7 @@ public class SocketData {
         return messageType;
     }
 
-    public static String getMsg(MsgAllBean bean,String searchKey) {
+    public static String getMsg(MsgAllBean bean, String searchKey) {
         String msg = "";
         if (bean == null) {
             return msg;
@@ -2304,21 +2304,24 @@ public class SocketData {
                 break;
             case ChatEnum.EMessageType.REPLY:
                 ReplyMessage replyMessage = bean.getReplyMessage();
-                if (replyMessage.getChatMessage() != null) {
+                if (replyMessage.getChatMessage() != null &&
+                        replyMessage.getChatMessage().getMsg().toLowerCase().contains(searchKey.toLowerCase())) {
                     msg = replyMessage.getChatMessage().getMsg();
-                    if(!msg.contains(searchKey)&&replyMessage.getAtMessage() != null){
-                        msg = replyMessage.getAtMessage().getMsg();
-                    }
-                } else if (replyMessage.getAtMessage() != null) {
+                } else if (replyMessage.getAtMessage() != null &&
+                        replyMessage.getAtMessage().getMsg().toLowerCase().contains(searchKey.toLowerCase())) {
                     msg = replyMessage.getAtMessage().getMsg();
+                } else {
+                    msg = replyMessage.getQuotedMessage().getMsg();
                 }
                 break;
             case ChatEnum.EMessageType.ASSISTANT:
                 msg = bean.getAssistantMessage().getMsg();
                 break;
             case ChatEnum.EMessageType.LOCATION:
-                msg = bean.getLocationMessage().getAddress();
-                if(!msg.contains(msg)){
+                if (bean.getLocationMessage() != null &&
+                        bean.getLocationMessage().getAddress().toLowerCase().contains(searchKey.toLowerCase())) {
+                    msg = bean.getLocationMessage().getAddress();
+                } else {
                     msg = bean.getLocationMessage().getAddressDescribe();
                 }
                 break;

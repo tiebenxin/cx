@@ -202,7 +202,7 @@ public class SearchMsgActivity extends AppActivity {
          * @param msg
          */
         private void hightKey(TextView tvContent, String msg) {
-            final int index = msg.indexOf(key);
+            final int index = msg.toLowerCase().indexOf(key.toLowerCase());
             if (index >= 0) {
                 SpannableString style = new SpannableString(msg);
                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.green_500));
@@ -243,7 +243,7 @@ public class SearchMsgActivity extends AppActivity {
                     //原则上让搜索关键字显示在中间，已经到字尾了，就以字尾显示
                     String subMsg = msg.substring(Math.min(index - showCount / 2, msg.length() - showCount + 1));
                     //下标数+三个点...的位置，不直接拼字符串，防止key中包含...
-                    int mindex = subMsg.indexOf(key) + 3;
+                    int mindex = subMsg.toLowerCase().indexOf(key.toLowerCase()) + 3;
                     SpannableString style = new SpannableString("..." + subMsg);
                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.green_500));
                     style.setSpan(protocolColorSpan, mindex, mindex + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
