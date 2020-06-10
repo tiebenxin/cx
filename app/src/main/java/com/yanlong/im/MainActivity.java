@@ -654,9 +654,9 @@ public class MainActivity extends AppActivity {
             }
         }
         PayEnvironment.getInstance().setContext(AppConfig.getContext());
-        if (PayEnvironment.getInstance().getBanks() == null) {//初始化银行
-            getBankList();
-        }
+//        if (PayEnvironment.getInstance().getBanks() == null) {//初始化银行
+//            getBankList();
+//        }
     }
 
     private void checkPayToken() {

@@ -56,7 +56,7 @@ public class LogoutAccountStepActivity extends AppActivity {
         ui.tvGetVerificationCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                CountDownUtil.getTimer(60, ui.tvGetVerificationCode, "发送短信验证码", LogoutAccountStepActivity.this, new CountDownUtil.CallTask() {
+                CountDownUtil.getTimer(60, ui.tvGetVerificationCode, "获取验证码", LogoutAccountStepActivity.this, new CountDownUtil.CallTask() {
                     @Override
                     public void task() {
                         taskGetSms(phone);
@@ -124,7 +124,9 @@ public class LogoutAccountStepActivity extends AppActivity {
                     ToastUtil.show(context, "获取短信验证码失败");
                     return;
                 }
-
+                if (!response.body().isOk()) {
+                    CountDownUtil.cancelTimer();
+                }
                 ToastUtil.show(LogoutAccountStepActivity.this, response.body().getMsg());
             }
         });
