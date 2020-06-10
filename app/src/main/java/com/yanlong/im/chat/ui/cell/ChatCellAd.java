@@ -80,6 +80,12 @@ public class ChatCellAd extends ChatCellBase {
         if (!TextUtils.isEmpty(message.getButtonTxt())) {
             btGo.setVisibility(View.VISIBLE);
             btGo.setText(message.getButtonTxt());
+            btGo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onBubbleClick();
+                }
+            });
         } else {
             btGo.setVisibility(View.GONE);
         }
