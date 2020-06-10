@@ -5685,6 +5685,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (!TextUtils.isEmpty(adMessage.getAppId())) {
                         if (!TextUtils.isEmpty(adMessage.getWebUrl()) && !ApkUtils.isApkInstalled(ChatActivity.this, adMessage.getAppId())) {
                             showDownloadAppDialog(adMessage.getWebUrl());
+                        } else if (ApkUtils.isApkInstalled(ChatActivity.this, adMessage.getAppId())) {
+                            ApkUtils.startSchemeApp(ChatActivity.this, adMessage.getAppId(), "");
                         } else {
                             if (!TextUtils.isEmpty(adMessage.getSchemeUrl())) {
                                 ApkUtils.startSchemeApp(ChatActivity.this, adMessage.getAppId(), adMessage.getSchemeUrl());
