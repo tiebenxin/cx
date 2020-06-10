@@ -468,7 +468,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 if (adMessage != null && !TextUtils.isEmpty(adMessage.getTitle())) {
                     content = adMessage.getTitle();
                 }
-                str = "[广告消息]" + content;
+                str = "[必看]" + content;
             }
         } catch (Exception e) {
         }
