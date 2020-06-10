@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<net.cb.cb.library.view.HeadView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/headView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_100"
+    app:headview_title="更换手机号">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@+id/line_one"
+            android:layout_marginTop="8dp"
+            android:background="@color/white"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:text="请输入登录密码"
+                android:textColor="@color/c_151515"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/et_user_psw"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@null"
+                android:ellipsize="end"
+                android:hint="请输入登录密码"
+                android:textColorHint="@color/c_868686"
+                android:maxLines="1"
+                android:maxLength="18"
+                android:layout_marginRight="17dp"
+                android:textColor="@color/color_333333"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/c_868686"
+            android:textSize="12sp"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginBottom="10dp"
+            android:text="更换手机号以后，需要使用新手机号重新登录"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@+id/line_one"
+            android:background="@color/white"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:text="请输入新手机号"
+                android:textColor="@color/c_151515"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/et_new_phone_num"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@null"
+                android:ellipsize="end"
+                android:hint="请输入新手机号"
+                android:textColorHint="@color/c_868686"
+                android:inputType="number"
+                android:maxLength="11"
+                android:layout_marginRight="17dp"
+                android:textColor="@color/color_333333"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@+id/line_one"
+            android:background="@color/white"
+            android:layout_marginTop="0.5dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:text="验证码　　　　"
+                android:textColor="@color/c_151515"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/et_code"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@null"
+                android:ellipsize="end"
+                android:textColorHint="@color/c_868686"
+                android:hint="请输入验证码"
+                android:layout_marginRight="10dp"
+                android:inputType="number"
+                android:maxLines="1"
+                android:text=""
+                android:textColor="@color/color_333333"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_get_code"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="获取验证码"
+                android:paddingRight="20dp"
+                android:textColor="@color/c_31a156"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_submit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="50dp"
+            android:background="@drawable/shape_5radius_solid_32b053"
+            android:gravity="center"
+            android:paddingLeft="27dp"
+            android:paddingRight="27dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:text="确认更换手机号"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+</net.cb.cb.library.view.HeadView>

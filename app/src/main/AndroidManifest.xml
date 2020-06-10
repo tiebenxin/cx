@@ -504,6 +504,10 @@
             android:name=".chat.ui.GroupNoteDetailEditActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".user.ui.ChangePhoneNumActivity"
+            android:screenOrientation="portrait" />
+
         <!--        <receiver-->
         <!--            android:name=".notify.MyReceiver"-->
         <!--            android:enabled="true"-->
