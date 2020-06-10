@@ -24,6 +24,7 @@ import com.yanlong.im.chat.eventbus.EventRefreshGroup;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
 import com.yanlong.im.chat.eventbus.EventSwitchSnapshot;
+import com.yanlong.im.chat.task.DispatchMessage;
 import com.yanlong.im.chat.task.TaskDealWithMsgList;
 import com.yanlong.im.chat.ui.ChatActionActivity;
 import com.yanlong.im.user.action.UserAction;
@@ -35,6 +36,7 @@ import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.MediaBackUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
+import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
@@ -63,6 +65,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -94,8 +98,9 @@ public class MessageManager {
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();
     private boolean isMessageChange;//是否有聊天消息变化
-
+    @Deprecated
     private List<String> loadGids = new ArrayList<>();//需要异步加载群数据的群id
+    @Deprecated
     private List<Long> loadUids = new ArrayList<>();//需要异步记载用户数据的用户id
 
     //缓存
@@ -110,19 +115,22 @@ public class MessageManager {
      * 保存接收了双向清除指令的from_uid-待最后一条消息时间戳
      * 用于丢弃在此时间戳之前的消息
      */
-    private Map<Long, Long> historyCleanMsg = new HashMap<>();
+    @Deprecated
+    public Map<Long, Long> historyCleanMsg = new HashMap<>();
 
     /**
      * 处理群聊 接收离线消息 自己PC端发送的已读消息
      * 保存已读消息 gid-消息时间戳
      * 用于处理自己已读和阅后即焚消息状态
      */
+    @Deprecated
     private Map<String, Long> offlineGroupReadMsg = new HashMap<>();
     /**
      * 处理单聊 接收离线消息 自己PC端发送的已读消息
      * 保存已读消息 from_uid-消息时间戳
      * 用于处理自己已读和阅后即焚消息状态
      */
+    @Deprecated
     private Map<Long, Long> offlineFriendReadMsg = new HashMap<>();
 
     /**
@@ -146,7 +154,8 @@ public class MessageManager {
             return null;
         }
     }
-    public int getToDoMsgCount(){
+
+    public int getToDoMsgCount() {
         return toDoMsg.size();
     }
 
@@ -167,7 +176,7 @@ public class MessageManager {
         toDoMsg.add(receviceMsg);
     }
 
-    public void clear(){
+    public void clear() {
         this.toDoMsg.clear();
         this.isDealingMsg = false;
     }
@@ -179,21 +188,35 @@ public class MessageManager {
         return INSTANCE;
     }
 
+    //处理离线消息
+    /**
+     * newFixedThreadPool与cacheThreadPool差不多，也是能reuse就用，但不能随时建新的线程
+     * 任意时间点，最多只能有固定数目的活动线程存在，此时如果有新的线程要建立，只能放在另外的队列中等待，直到当前的线程中某个线程终止直接被移出池子
+     */
+    private Executor offlineMsgExecutor = Executors.newFixedThreadPool(3);
+
+    private DispatchMessage offlineDispatchMessage = new DispatchMessage();
+
     /*
      * 消息接收流程
      * */
     public synchronized void onReceive(MsgBean.UniversalMessage bean) {
         boolean isOfflineMsg = bean.getMsgFrom() == 1;
-        if(!isOfflineMsg){//在线消息
+        if (!isOfflineMsg) {//在线消息
             push(bean);
             if (!isDealingMsg) {//上一个处理完成，再启动处理消息sevice
                 isDealingMsg = true;
                 MyAppLication.INSTANCE().startMessageIntentService();
             }
-        }else{
-
+        } else {
+            offlineMsgExecutor.execute(() -> {
+                Realm realm = DaoUtil.open();
+                if (offlineDispatchMessage.dispatchMsg(bean, realm)) {
+                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
+                }
+                DaoUtil.close(realm);
+            });
         }
-
 
 //        List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
 //        if (msgList != null) {
