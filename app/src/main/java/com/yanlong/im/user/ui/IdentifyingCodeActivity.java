@@ -124,7 +124,7 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
             ToastUtil.show(this, "手机号格式不正确");
             return;
         }
-        CountDownUtil.getTimer(60, mTvGetVerificationCode, "发送验证码", this, new CountDownUtil.CallTask() {
+        CountDownUtil.getTimer(60, mTvGetVerificationCode, "获取验证码", this, new CountDownUtil.CallTask() {
             @Override
             public void task() {
                 taskGetSms(phone);
@@ -204,8 +204,8 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
                     ToastUtil.show(context, "登录异常");
                     return;
                 }
-                if (response.body() == null) {
-                    return;
+                if (!response.body().isOk()) {
+                    CountDownUtil.cancelTimer();
                 }
                 ToastUtil.show(IdentifyingCodeActivity.this, response.body().getMsg());
             }

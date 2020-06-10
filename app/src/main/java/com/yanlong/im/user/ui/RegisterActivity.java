@@ -160,7 +160,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
             return;
         }
 
-        CountDownUtil.getTimer(60, mTvGetVerificationCode, "发送验证码", this, new CountDownUtil.CallTask() {
+        CountDownUtil.getTimer(60, mTvGetVerificationCode, "获取验证码", this, new CountDownUtil.CallTask() {
             @Override
             public void task() {
                 taskGetSms(phone);
