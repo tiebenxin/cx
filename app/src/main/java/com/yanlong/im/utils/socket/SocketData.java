@@ -2325,8 +2325,8 @@ public class SocketData {
                     msg = bean.getLocationMessage().getAddressDescribe();
                 }
                 break;
-            case ChatEnum.EMessageType.TRANSFER_NOTICE:
-                msg = bean.getTransferNoticeMessage().getContent();
+            case ChatEnum.EMessageType.BUSINESS_CARD:
+                msg = bean.getBusiness_card().getNickname();
                 break;
             case ChatEnum.EMessageType.FILE:
                 msg = bean.getSendFileMessage().getFile_name();

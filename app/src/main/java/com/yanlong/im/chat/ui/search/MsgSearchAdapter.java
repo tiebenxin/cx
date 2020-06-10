@@ -203,7 +203,7 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
                 MsgSearchViewModel.SessionSearch sessionSearch = viewModel.sessionSearch.get(sessionDetail.getSid());
                 if (sessionSearch.getCount() == 1) {//1条记录，直接进入聊天界面
                     String msg = SocketData.getMsg(sessionSearch.getMsgAllBean(), viewModel.key.getValue());
-                    hightKey(holder.txtInfo,msg);
+                    hightKey(holder.txtInfo,msg,sessionSearch.getMsgAllBean().getMsg_typeTitle());
                     holder.viewIt.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -250,13 +250,14 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
      * @param tvContent
      * @param msg
      */
-    private void hightKey(TextView tvContent, String msg) {
+    private void hightKey(TextView tvContent, String msg,String title) {
         String key = viewModel.key.getValue();
         final int index = msg.toLowerCase().indexOf(key.toLowerCase());
         if (index >= 0) {
-            SpannableString style = new SpannableString(msg);
+            int mindex=title.length()+index;
+            SpannableString style = new SpannableString(title+msg);
             ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.green_500));
-            style.setSpan(protocolColorSpan, index, index + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            style.setSpan(protocolColorSpan, mindex, mindex + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             showMessage(tvContent, msg, style);
         } else {
             showMessage(tvContent, msg, new SpannableString(msg));
@@ -267,11 +268,11 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
             tvContent.post(new Runnable() {
                 @Override
                 public void run() {
-                    showEllipsis(tvContent,msg,key,index);
+                    showEllipsis(tvContent,msg,key,index,title);
                 }
             });
         }else{
-            showEllipsis(tvContent,msg,key,index);
+            showEllipsis(tvContent,msg,key,index,title);
         }
     }
 
@@ -282,7 +283,7 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
      * @param key
      * @param index
      */
-    private void showEllipsis(TextView tvContent, String msg,String key,int index){
+    private void showEllipsis(TextView tvContent, String msg,String key,int index,String title){
         try {
             if (tvContent.getLayout() == null) return;
             //被隐藏的字数
@@ -292,9 +293,11 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
             if (showCount > 0 && showCount < index) {//超出文本了
                 //原则上让搜索关键字显示在中间，已经到字尾了，就以字尾显示
                 String subMsg = msg.substring(Math.min(index - showCount / 2, msg.length() - showCount + 1));
+                title = title+"...";
                 //下标数+三个点...的位置，不直接拼字符串，防止key中包含...
-                int mindex = subMsg.toLowerCase().indexOf(key.toLowerCase()) + 3;
-                SpannableString style = new SpannableString("..." + subMsg);
+                int mindex = title.length()+ subMsg.toLowerCase().indexOf(key.toLowerCase());
+
+                SpannableString style = new SpannableString(title + subMsg);
                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(context, R.color.green_500));
                 style.setSpan(protocolColorSpan, mindex, mindex + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 showMessage(tvContent, subMsg, style);

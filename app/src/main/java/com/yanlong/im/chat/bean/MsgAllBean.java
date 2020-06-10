@@ -475,7 +475,29 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
         return str;
     }
+    /***
+     * 根据类型获取标题
+     * @return
+     */
+    public String getMsg_typeTitle() {
+        String str = "";
+        try {
+           if (msg_type == ChatEnum.EMessageType.BUSINESS_CARD) {
+                str = "[名片]";// + getBusiness_card().getNickname();
+            } else if (msg_type == ChatEnum.EMessageType.LOCATION) {//位置
+                str = "[位置]";
+            } else if (msg_type == ChatEnum.EMessageType.FILE) {//文件
+                if (getSendFileMessage() != null) {
+                        str = "[文件]";
+                }
+            } else if (msg_type == ChatEnum.EMessageType.WEB) {
+                str = "[链接]";
+            }
+        } catch (Exception e) {
+        }
 
+        return str;
+    }
 
     public void setMsg_type(@ChatEnum.EMessageType Integer msg_type) {
         if (msg_type == null) {

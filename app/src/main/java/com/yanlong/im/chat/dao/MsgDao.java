@@ -1003,12 +1003,11 @@ public class MsgDao {
                         .like("assistantMessage.msg", searchKey, Case.INSENSITIVE).or()//小助手消息
                         .like("locationMessage.address", searchKey, Case.INSENSITIVE).or()//位置消息
                         .like("locationMessage.addressDescribe", searchKey, Case.INSENSITIVE).or()//位置消息
-                        .like("transferNoticeMessage.content", searchKey, Case.INSENSITIVE).or()//转账消息
+                        .like("business_card.nickname", searchKey, Case.INSENSITIVE).or()//名片消息
                         .like("sendFileMessage.file_name", searchKey, Case.INSENSITIVE).or()//文件消息
                         .like("webMessage.title", searchKey, Case.INSENSITIVE).or()//链接消息
                         .like("replyMessage.chatMessage.msg", searchKey, Case.INSENSITIVE).or()//回复消息
                         .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE).or()//回复@消息
-                        .like("replyMessage.quotedMessage.msg", searchKey, Case.INSENSITIVE)//回复@消息
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
             } else {//单人
@@ -1024,12 +1023,11 @@ public class MsgDao {
                         .like("assistantMessage.msg", searchKey, Case.INSENSITIVE).or()//小助手消息
                         .like("locationMessage.address", searchKey, Case.INSENSITIVE).or()//位置消息
                         .like("locationMessage.addressDescribe", searchKey, Case.INSENSITIVE).or()//位置消息
-                        .like("transferNoticeMessage.content", searchKey, Case.INSENSITIVE).or()//转账消息
+                        .like("business_card.nickname", searchKey, Case.INSENSITIVE).or()//名片消息
                         .like("sendFileMessage.file_name", searchKey, Case.INSENSITIVE).or()//文件消息
                         .like("webMessage.title", searchKey, Case.INSENSITIVE).or()//链接消息
                         .like("replyMessage.chatMessage.msg", searchKey, Case.INSENSITIVE).or()//回复消息
                         .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE).or()//回复@消息
-                        .like("replyMessage.quotedMessage.msg", searchKey, Case.INSENSITIVE)//回复@消息
                         .endGroup()
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
