@@ -109,6 +109,8 @@ public class ApkUtils {
                 intent.setData(Uri.parse(schemeUrl));
                 context.startActivity(intent);
             }
+        } else {
+            ToastUtil.show(context, "未安装应用，快去商店下载吧");
         }
     }
 }

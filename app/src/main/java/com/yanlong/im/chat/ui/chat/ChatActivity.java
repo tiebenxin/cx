@@ -5683,14 +5683,15 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 if (args[0] != null && args[0] instanceof AdMessage) {
                     AdMessage adMessage = (AdMessage) args[0];
                     if (!TextUtils.isEmpty(adMessage.getAppId())) {
-                        ApkUtils.startSchemeApp(ChatActivity.this, adMessage.getAppId(), adMessage.getSchemeUrl());
+                        if (!TextUtils.isEmpty(adMessage.getWebUrl()) && !ApkUtils.isApkInstalled(ChatActivity.this, adMessage.getAppId())) {
+                            showDownloadAppDialog(adMessage.getWebUrl());
+                        } else {
+                            if (!TextUtils.isEmpty(adMessage.getSchemeUrl())) {
+                                ApkUtils.startSchemeApp(ChatActivity.this, adMessage.getAppId(), adMessage.getSchemeUrl());
+                            }
+                        }
                     } else if (!TextUtils.isEmpty(adMessage.getWebUrl())) {
-                        Intent intent = new Intent();
-                        intent.setAction("android.intent.action.VIEW");
-                        Uri content_url = Uri.parse(adMessage.getWebUrl());
-                        intent.setData(content_url);
-                        intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                        startActivity(intent);
+                        goBrowsable(adMessage.getWebUrl());
                     }
                 }
                 break;
@@ -6289,5 +6290,38 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 onCollect(msgAllBean);
             }
         }
+    }
+
+
+    /**
+     * 下载app dialog
+     */
+    private void showDownloadAppDialog(String downloadUrl) {
+        DialogDefault dialogDownload = new DialogDefault(this, R.style.MyDialogTheme);
+        dialogDownload.setTitleAndSure(false, true)
+                .setContent("您尚未下载此应用，点击确定下载应用并安装。", true)
+                .setLeft("取消")
+                .setRight("确定")
+                .setListener(new DialogDefault.IDialogListener() {
+                    @Override
+                    public void onSure() {
+                        goBrowsable(downloadUrl);
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+                });
+        dialogDownload.show();
+    }
+
+    private void goBrowsable(String downloadUrl) {
+        Intent intent = new Intent();
+        intent.setAction("android.intent.action.VIEW");
+        Uri content_url = Uri.parse(downloadUrl);
+        intent.setData(content_url);
+        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+        startActivity(intent);
     }
 }
