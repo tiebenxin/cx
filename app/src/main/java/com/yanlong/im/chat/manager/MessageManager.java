@@ -493,7 +493,7 @@ public class MessageManager {
                 } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.USER_DEACTIVATING) {//注销账号
                     eventLoginOut4Conflict.setMsg("工作人员将在30天内处理您的申请并删除账号下所有数据。在此期间，请不要登录常信。");
                 }else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.BOUND_PHONE_CHANGED) {//修改手机
-                    eventLoginOut4Conflict.setMsg("您已成功重新绑定手机号，请重新登录");
+                    eventLoginOut4Conflict.setMsg("更换绑定手机号成功，请新手机号重新登录");
                 }
                 EventBus.getDefault().post(eventLoginOut4Conflict);
                 break;
