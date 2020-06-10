@@ -454,12 +454,13 @@ public class MyFragment extends Fragment {
         //1 已实名认证
         if (userBean.getRealNameStat() == 1) {
             //1-1 已完成绑定手机号
-            if (userBean.getPhoneBindStat() == 1) {
-                startActivity(new Intent(getActivity(), LooseChangeActivity.class));
-            } else {
-                //1-2 未完成绑定手机号
-                showBindPhoneNumDialog();
-            }
+            startActivity(new Intent(getActivity(), LooseChangeActivity.class));
+//            if (userBean.getPhoneBindStat() == 1) {
+//                startActivity(new Intent(getActivity(), LooseChangeActivity.class));
+//            } else {
+//                //1-2 未完成绑定手机号
+//                showBindPhoneNumDialog();
+//            }
         } else {
             //2 未实名认证->分三步走流程(1 同意->2 实名认证->3 绑定手机号)
             showIdentifyDialog();

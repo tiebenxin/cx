@@ -25,8 +25,8 @@ public class Route {
     //申请绑定银行卡
     public static final String APPLY_BIND_BANK_CARD = BANK+"/user/apply_bind_bank_card";
 
-    //获取绑定银行卡
-    public static final String GET_BIND_BANK_CARD = BANK+"/user/get_my_bank_cards";
+    //获取银行卡管理页面url
+    public static final String GET_BIND_BANK_CARD = BANK+"/user/to-bank-cards-mgr";
 
     //绑定银行卡
     public static final String BIND_BANK = BANK+"/user/bind_bank_card";

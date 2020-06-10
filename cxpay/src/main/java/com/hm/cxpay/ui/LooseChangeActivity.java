@@ -215,12 +215,12 @@ public class LooseChangeActivity extends BasePayActivity {
             public void onClick() {
                 viewMyCard.setEnabled(false);
                 //已设置支付密码 -> 允许跳转
-                if (userBean != null && userBean.getPayPwdStat() == 1) {
-                    startActivity(new Intent(activity, BankSettingActivity.class));
-                } else {
-                    //未设置支付密码 -> 需要先设置
-                    showSetPaywordDialog();
-                }
+//                if (userBean != null && userBean.getPayPwdStat() == 1) {
+//                    startActivity(new Intent(activity, BankSettingActivity.class));
+//                } else {
+//                    //未设置支付密码 -> 需要先设置
+//                    showSetPaywordDialog();
+//                }
             }
         });
         //支付密码管理
@@ -386,6 +386,10 @@ public class LooseChangeActivity extends BasePayActivity {
                 })
                 .build();
         dialogTwo.show();
+    }
+
+    private void getBank(){
+        
     }
 
 }
