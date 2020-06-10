@@ -34,6 +34,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -825,14 +826,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             latestImgList = GetImgUtils.getLatestPhoto(ChatActivity.this);
             if(latestImgList!=null && latestImgList.size()>0){
                 latestUrl = latestImgList.get(0).imgUrl;
-                //不为空的时候再拿底部布局的输入框的高度
-                layoutInput.post(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        layoutInputHeight = layoutInput.getHeight(); // 获取高度
-                    }
-                });
             }
         }
     }
@@ -1777,8 +1770,6 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 replayMsg = null;
             }
         });
-
-
     }
 
     private void initIntent() {
@@ -6364,16 +6355,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     return false;
                 }
             });
-//            popGuessUWant.setBackgroundDrawable(getDrawable(R.drawable.bg_chat_guess_u_like));
-            //测量显示在上方
-            contentView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-            int popupWidth = contentView.getMeasuredWidth();
-            int popupHeight =  contentView.getMeasuredHeight();
-            int[] location = new int[2];
-            view.getLocationOnScreen(location);
-//
-            popGuessUWant.showAtLocation(view, Gravity.NO_GRAVITY, (location[0]+view.getWidth()/2)-popupWidth/2,
-                    location[1]-layoutInputHeight-DensityUtil.dip2px(getContext(),240));//由于+号被顶上去了，需要减去扩展面板的高度(固定值)
+            popGuessUWant.setBackgroundDrawable(new ColorDrawable());
+            //输入框高度
+            int width = View.MeasureSpec.makeMeasureSpec(0,
+                    View.MeasureSpec.UNSPECIFIED);
+            int height = View.MeasureSpec.makeMeasureSpec(0,
+                    View.MeasureSpec.UNSPECIFIED);
+            layoutInput.measure(width, height);
+            layoutInputHeight = layoutInput.getMeasuredHeight();
+
+            //右下角为原点，向上偏移距离，由于+号被顶上去了，需要包括扩展面板的高度(固定值240)+测量出的输入框的高度
+            popGuessUWant.showAtLocation(view, Gravity.RIGHT|Gravity.BOTTOM, DensityUtil.dip2px(getContext(),5),//偏移调整右侧5dp
+                    DensityUtil.dip2px(getContext(),240)+layoutInputHeight+DensityUtil.dip2px(getContext(),3));//偏移调整居下3sdp
         }
     }
 }
