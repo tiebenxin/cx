@@ -217,6 +217,7 @@ public class MessageManager {
                 DaoUtil.close(realm);
             });
         }
+    }
 
 //        List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
 //        if (msgList != null) {
@@ -242,7 +243,6 @@ public class MessageManager {
 //                }
 //            }
 //        }
-    }
 
     public synchronized void testReceiveMsg() {
         MsgBean.UniversalMessage.Builder builder = MsgBean.UniversalMessage.newBuilder();
