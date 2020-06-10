@@ -10,6 +10,7 @@ import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
+import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
@@ -39,7 +40,8 @@ public class MsgSearchLocalDataSource {
      */
     public RealmResults<UserInfo> searchFriends(String key) {
         String searchKey = getKey(key);
-        return realm.where(UserInfo.class).like("name", searchKey).or().like("mkName", searchKey)
+        return realm.where(UserInfo.class).like("name", searchKey, Case.INSENSITIVE)
+                .or().like("mkName", searchKey, Case.INSENSITIVE)
                 .findAll();
     }
 
@@ -52,7 +54,8 @@ public class MsgSearchLocalDataSource {
     public RealmResults<Group> searchGroups(String key) {
         String searchKey = getKey(key);
         return realm.where(Group.class).like("name", searchKey).or()
-                .like("members.membername", searchKey).or().like("members.name", searchKey)
+                .like("members.membername", searchKey, Case.INSENSITIVE)
+                .or().like("members.name", searchKey, Case.INSENSITIVE)
                 .findAll();
     }
 
@@ -84,31 +87,33 @@ public class MsgSearchLocalDataSource {
                     .and()
                     .beginGroup()
                     .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
-                    .like("chat.msg", searchKey).or()//文本聊天
-                    .like("atMessage.msg", searchKey).or()//@消息
-                    .like("assistantMessage.msg", searchKey).or()//小助手消息
-                    .like("locationMessage.address", searchKey).or()//位置消息
-                    .like("locationMessage.addressDescribe", searchKey).or()//位置消息
-                    .like("transferNoticeMessage.content", searchKey).or()//转账消息
-                    .like("sendFileMessage.file_name", searchKey).or()//文件消息
-                    .like("webMessage.title", searchKey).or()//链接消息
-                    .like("replyMessage.chatMessage.msg", searchKey).or()//回复消息
-                    .like("replyMessage.atMessage.msg", searchKey)//回复@消息
+                    .like("chat.msg", searchKey, Case.INSENSITIVE).or()//文本聊天
+                    .like("atMessage.msg", searchKey, Case.INSENSITIVE).or()//@消息
+                    .like("assistantMessage.msg", searchKey, Case.INSENSITIVE).or()//小助手消息
+                    .like("locationMessage.address", searchKey, Case.INSENSITIVE).or()//位置消息
+                    .like("locationMessage.addressDescribe", searchKey, Case.INSENSITIVE).or()//位置消息
+                    .like("business_card.nickname", searchKey, Case.INSENSITIVE).or()//名片消息
+                    .like("sendFileMessage.file_name", searchKey, Case.INSENSITIVE).or()//文件消息
+                    .like("webMessage.title", searchKey, Case.INSENSITIVE).or()//链接消息
+                    .like("replyMessage.chatMessage.msg", searchKey, Case.INSENSITIVE).or()//回复消息
+                    .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE).or()//回复@消息
                     .endGroup();
         } else {
             return realm.where(MsgAllBean.class)
                     .equalTo("gid", gid)
                     .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
-                    .like("chat.msg", searchKey).or()//文本聊天
-                    .like("atMessage.msg", searchKey).or()//@消息
-                    .like("assistantMessage.msg", searchKey).or()//小助手消息
-                    .like("locationMessage.address", searchKey).or()//位置消息
-                    .like("locationMessage.addressDescribe", searchKey).or()//位置消息
-                    .like("transferNoticeMessage.content", searchKey).or()//转账消息
-                    .like("sendFileMessage.file_name", searchKey).or()//文件消息
-                    .like("webMessage.title", searchKey).or()//链接消息
-                    .like("replyMessage.chatMessage.msg", searchKey).or()//回复消息
-                    .like("replyMessage.atMessage.msg", searchKey);//回复@消息
+                    .like("chat.msg", searchKey, Case.INSENSITIVE).or()//文本聊天
+                    .like("atMessage.msg", searchKey, Case.INSENSITIVE).or()//@消息
+                    .like("assistantMessage.msg", searchKey, Case.INSENSITIVE).or()//小助手消息
+                    .like("locationMessage.address", searchKey, Case.INSENSITIVE).or()//位置消息
+                    .like("locationMessage.addressDescribe", searchKey, Case.INSENSITIVE).or()//位置消息
+                    .like("business_card.nickname", searchKey, Case.INSENSITIVE).or()//名片消息
+                    .like("sendFileMessage.file_name", searchKey, Case.INSENSITIVE).or()//文件消息
+                    .like("webMessage.title", searchKey, Case.INSENSITIVE).or()//链接消息
+                    .like("replyMessage.chatMessage.msg", searchKey, Case.INSENSITIVE).or()//回复消息
+                    .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE).or()
+                    ;//回复@消息
+
         }
     }
 

@@ -412,7 +412,7 @@ public class SocketData {
         if (toId != null && toId.longValue() == -userInfo.getUid()) {
             toId = userInfo.getUid().longValue();
         }
-        initWrapMessage(msgId, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), toId, toGid, time, type, value, wrap);
+        initWrapMessage(msgId, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), toId, toGid, time, 0, type, value, wrap);
         if (wrap == null) {
             return null;
         }
@@ -421,7 +421,7 @@ public class SocketData {
         return msg;
     }
 
-    private static void initWrapMessage(String msgId, Long fromId, String avatar, String nickName, Long toId, String toGid, long time, MsgBean.MessageType type, Object value, MsgBean.UniversalMessage.WrapMessage.Builder wrap) {
+    private static void initWrapMessage(String msgId, Long fromId, String avatar, String nickName, Long toId, String toGid, long time, long readTime, MsgBean.MessageType type, Object value, MsgBean.UniversalMessage.WrapMessage.Builder wrap) {
         wrap.setFromUid(fromId);
         wrap.setAvatar(avatar);
         wrap.setNickname(nickName);
@@ -439,6 +439,9 @@ public class SocketData {
                 wrap.setToUid(toId);
             }
 
+        }
+        if (readTime > 0) {
+            wrap.setReadTs(readTime);
         }
         if (toGid != null && toGid.length() > 0) {//给群发
             wrap.setGid(toGid);
@@ -1738,7 +1741,7 @@ public class SocketData {
             MsgBean.MessageType type = initMsgContentAndType.getType();
             if (value != null && type != null) {
                 MsgBean.UniversalMessage.WrapMessage.Builder wrapBuild = MsgBean.UniversalMessage.WrapMessage.newBuilder();
-                initWrapMessage(bean.getMsg_id(), bean.getFrom_uid(), bean.getFrom_avatar(), bean.getFrom_nickname(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value, wrapBuild);
+                initWrapMessage(bean.getMsg_id(), bean.getFrom_uid(), bean.getFrom_avatar(), bean.getFrom_nickname(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), bean.getReadTime(), type, value, wrapBuild);
                 msg.addWrapMsg(wrapBuild);
             }
         }
@@ -2278,7 +2281,7 @@ public class SocketData {
         return messageType;
     }
 
-    public static String getMsg(MsgAllBean bean,String searchKey) {
+    public static String getMsg(MsgAllBean bean, String searchKey) {
         String msg = "";
         if (bean == null) {
             return msg;
@@ -2304,26 +2307,29 @@ public class SocketData {
                 break;
             case ChatEnum.EMessageType.REPLY:
                 ReplyMessage replyMessage = bean.getReplyMessage();
-                if (replyMessage.getChatMessage() != null) {
+                if (replyMessage.getChatMessage() != null &&
+                        replyMessage.getChatMessage().getMsg().toLowerCase().contains(searchKey.toLowerCase())) {
                     msg = replyMessage.getChatMessage().getMsg();
-                    if(!msg.contains(searchKey)&&replyMessage.getAtMessage() != null){
-                        msg = replyMessage.getAtMessage().getMsg();
-                    }
-                } else if (replyMessage.getAtMessage() != null) {
+                } else if (replyMessage.getAtMessage() != null &&
+                        replyMessage.getAtMessage().getMsg().toLowerCase().contains(searchKey.toLowerCase())) {
                     msg = replyMessage.getAtMessage().getMsg();
+                } else {
+                    msg = replyMessage.getQuotedMessage().getMsg();
                 }
                 break;
             case ChatEnum.EMessageType.ASSISTANT:
                 msg = bean.getAssistantMessage().getMsg();
                 break;
             case ChatEnum.EMessageType.LOCATION:
-                msg = bean.getLocationMessage().getAddress();
-                if(!msg.contains(msg)){
+                if (bean.getLocationMessage() != null &&
+                        bean.getLocationMessage().getAddress().toLowerCase().contains(searchKey.toLowerCase())) {
+                    msg = bean.getLocationMessage().getAddress();
+                } else {
                     msg = bean.getLocationMessage().getAddressDescribe();
                 }
                 break;
-            case ChatEnum.EMessageType.TRANSFER_NOTICE:
-                msg = bean.getTransferNoticeMessage().getContent();
+            case ChatEnum.EMessageType.BUSINESS_CARD:
+                msg = bean.getBusiness_card().getNickname();
                 break;
             case ChatEnum.EMessageType.FILE:
                 msg = bean.getSendFileMessage().getFile_name();
