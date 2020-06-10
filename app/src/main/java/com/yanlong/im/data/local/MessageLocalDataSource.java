@@ -1,6 +1,6 @@
 package com.yanlong.im.data.local;
 
-import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.hm.cxpay.global.PayEnum;
@@ -37,89 +37,56 @@ import io.realm.RealmResults;
  * @description
  */
 public class MessageLocalDataSource {
-    private Realm realm;
 
     //重试时间
     private long RETRY_DELAY = 100;
-    private Handler handler = null;
-
-    public void initRealm(Realm realm) {
-        this.realm = realm;
-        if (handler != null) handler = null;
-        handler = new Handler();
-    }
-
-
-    /**
-     * 数据库开始事务处理
-     */
-    public void beginTransaction() {
-        realm.beginTransaction();
-    }
-
-    /**
-     * 数据库提交事务处理
-     */
-    public void commitTransaction() {
-        realm.commitTransaction();
-    }
-
-
-    public Realm getRealm() {
-        return realm;
-    }
 
     /**
      * 检查是否在写入
      *
-     * @param runnable
      * @return
      */
-    private boolean checkInTranction(Runnable runnable) {
-        if (realm.isInTransaction()) {
-            try {
-                synchronized (Thread.currentThread()){
+    private void checkInTransaction(Realm realm) {
+        while (realm.isInTransaction()) {
+            try {//正在事务，100毫秒后重试
+                synchronized (Thread.currentThread()) {
                     Thread.currentThread().wait(RETRY_DELAY);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            runnable.run();
-            //正在事务，100毫秒后重试
-            return true;
-        } else {
-            return false;
         }
     }
-
 
     /**
      * 保存申请消息 添加好友、申请入群
      *
      * @param bean
      */
-    public void saveApplyBean(ApplyBean bean) {
+    public void saveApplyBean(@NonNull Realm realm, ApplyBean bean) {
         try {
-            if (checkInTranction(() -> saveApplyBean(bean)))
-                return;
+            checkInTransaction(realm);
             realm.beginTransaction();
             bean.setTime(System.currentTimeMillis());
             realm.insertOrUpdate(bean);
             realm.commitTransaction();
         } catch (Exception e) {
-            e.printStackTrace();
+            if (realm.isInTransaction()) {
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
+
 
     /***
      * 红点数量加一
      * @param type
      */
-    public void addRemindCount(String type) {
+    public void addRemindCount(@NonNull Realm realm, String type) {
         try {
-            if (checkInTranction(() -> addRemindCount(type)))
-                return;
+            checkInTransaction(realm);
             realm.beginTransaction();
             Remind remind = realm.where(Remind.class).equalTo("remid_type", type).findFirst();
             int readnum = remind == null ? 1 : remind.getNumber() + 1;
@@ -129,7 +96,11 @@ public class MessageLocalDataSource {
             realm.insertOrUpdate(newreamid);
             realm.commitTransaction();
         } catch (Exception e) {
+            if (realm.isInTransaction()) {
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -139,10 +110,9 @@ public class MessageLocalDataSource {
      * @param fromUid 发的指令对方
      * @param beforeTimestamp 最后时间戳
      */
-    public void messageHistoryClean(Long fromUid, long beforeTimestamp) {
+    public void messageHistoryClean(@NonNull Realm realm, Long fromUid, long beforeTimestamp) {
         try {
-            if (checkInTranction(() -> messageHistoryClean(fromUid, beforeTimestamp)))
-                return;
+            checkInTransaction(realm);
             realm.beginTransaction();
             RealmResults<MsgAllBean> list = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
@@ -187,8 +157,11 @@ public class MessageLocalDataSource {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            if (realm.isInTransaction()) {
+                realm.cancelTransaction();
+            }
             DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -198,9 +171,8 @@ public class MessageLocalDataSource {
      * @param gid
      * @param isExit
      */
-    public void groupExit(String gid, String gname, String gicon, int isExit) {
-        if (checkInTranction(() -> groupExit(gid, gname, gicon, isExit)))
-            return;
+    public void groupExit(@NonNull Realm realm, String gid, String gname, String gicon, int isExit) {
+        checkInTransaction(realm);
         DB.groupExit(realm, gid, gname, gicon, isExit);
     }
 
@@ -211,9 +183,8 @@ public class MessageLocalDataSource {
      * @param type
      * @param time
      */
-    public void updateUserOnlineStatus(Long uid, int type, long time) {
-        if (checkInTranction(() -> updateUserOnlineStatus(uid, type, time)))
-            return;
+    public void updateUserOnlineStatus(@NonNull Realm realm, Long uid, int type, long time) {
+        checkInTransaction(realm);
         DB.updateUserOnlineStatus(realm, uid, type, time);
     }
 
@@ -222,9 +193,8 @@ public class MessageLocalDataSource {
      *
      * @param userBean
      */
-    public void updateUserBean(UserBean userBean) {
-        if (checkInTranction(() -> updateUserBean(userBean)))
-            return;
+    public void updateUserBean(@NonNull Realm realm, UserBean userBean) {
+        checkInTransaction(realm);
         DB.updateUserBean(realm, userBean);
     }
 
@@ -233,9 +203,8 @@ public class MessageLocalDataSource {
      *
      * @param userInfo
      */
-    public void updateUserInfo(UserInfo userInfo) {
-        if (checkInTranction(() -> updateUserInfo(userInfo)))
-            return;
+    public void updateUserInfo(@NonNull Realm realm, UserInfo userInfo) {
+        checkInTransaction(realm);
         DB.updateUserInfo(realm, userInfo);
     }
 
@@ -247,19 +216,17 @@ public class MessageLocalDataSource {
      * @param top
      * @param disturb
      */
-    public void updateSessionTopAndDisturb(String gid, Long from_uid, int top, int disturb) {
-        if (checkInTranction(() -> updateSessionTopAndDisturb(gid, from_uid, top, disturb)))
-            return;
+    public void updateSessionTopAndDisturb(@NonNull Realm realm, String gid, Long from_uid, int top, int disturb) {
+        checkInTransaction(realm);
         DB.updateSessionTopAndDisturb(realm, gid, from_uid, top, disturb);
     }
 
     /**
      * 更新群信息
      */
-    public void updateGroup(Group group) {
+    public void updateGroup(@NonNull Realm realm, Group group) {
         try {
-            if (checkInTranction(() -> updateGroup(group)))
-                return;
+            checkInTransaction(realm);
             DB.updateGroup(realm, group);
         } catch (Exception e) {
             e.printStackTrace();
@@ -272,9 +239,8 @@ public class MessageLocalDataSource {
      * @param gid
      * @param uid
      */
-    public void removeGroupMember(String gid, long uid) {
-        if (checkInTranction(() -> removeGroupMember(gid, uid)))
-            return;
+    public void removeGroupMember(@NonNull Realm realm, String gid, long uid) {
+        checkInTransaction(realm);
         DB.removeGroupMember(realm, gid, uid);
     }
 
@@ -286,9 +252,8 @@ public class MessageLocalDataSource {
      */
 
 
-    public void removeGroupMember(String gid, List<Long> uids) {
-        if (checkInTranction(() -> removeGroupMember(gid, uids)))
-            return;
+    public void removeGroupMember(@NonNull Realm realm, String gid, List<Long> uids) {
+        checkInTransaction(realm);
         DB.removeGroupMember(realm, gid, uids);
     }
 
@@ -297,9 +262,8 @@ public class MessageLocalDataSource {
      *
      * @param gid
      */
-    public void deleteGroup(String gid) {
-        if (checkInTranction(() -> deleteGroup(gid)))
-            return;
+    public void deleteGroup(@NonNull Realm realm, String gid) {
+        checkInTransaction(realm);
         DB.deleteGroup(realm, gid);
     }
 
@@ -308,9 +272,8 @@ public class MessageLocalDataSource {
      *
      * @param uid
      */
-    public void deleteFriend(long uid) {
-        if (checkInTranction(() -> deleteFriend(uid)))
-            return;
+    public void deleteFriend(@NonNull Realm realm, long uid) {
+        checkInTransaction(realm);
         DB.deleteFriend(realm, uid);
     }
 
@@ -320,9 +283,8 @@ public class MessageLocalDataSource {
      * @param portrait 头像
      * @param name 昵称
      */
-    public boolean updateFriendPortraitAndName(Long uid, String portrait, String name) {
-        if (checkInTranction(() -> updateFriendPortraitAndName(uid, portrait, name)))
-            return false;
+    public boolean updateFriendPortraitAndName(@NonNull Realm realm, Long uid, String portrait, String name) {
+        checkInTransaction(realm);
         return DB.updateFriendPortraitAndName(realm, uid, portrait, name);
     }
 
@@ -332,9 +294,8 @@ public class MessageLocalDataSource {
      * @param obj
      * @return
      */
-    public boolean updateObject(RealmModel obj) {
-        if (checkInTranction(() -> updateObject(obj)))
-            return false;
+    public boolean updateObject(@NonNull Realm realm, RealmModel obj) {
+        checkInTransaction(realm);
         return DB.updateObject(realm, obj);
     }
 
@@ -344,9 +305,8 @@ public class MessageLocalDataSource {
      * @param bean
      * @return
      */
-    public void updateFromSelfPCSession(MsgAllBean bean) {
-        if (checkInTranction(() -> updateFromSelfPCSession(bean)))
-            return;
+    public void updateFromSelfPCSession(@NonNull Realm realm, MsgAllBean bean) {
+        checkInTransaction(realm);
         DB.updateFromSelfPCSession(realm, bean);
     }
 
@@ -356,7 +316,7 @@ public class MessageLocalDataSource {
      * @param uid
      * @return
      */
-    public UserInfo getFriend(long uid) {
+    public UserInfo getFriend(@NonNull Realm realm, long uid) {
         return DB.getFriend(realm, uid);
     }
 
@@ -366,7 +326,7 @@ public class MessageLocalDataSource {
      * @param gid
      * @return
      */
-    public Group getGroup(String gid) {
+    public Group getGroup(@NonNull Realm realm, String gid) {
         return DB.getGroup(realm, gid);
     }
 
@@ -392,14 +352,21 @@ public class MessageLocalDataSource {
      *
      * @param aid
      */
-    public void acceptFriendRequest(String aid) {
-        if (checkInTranction(() -> acceptFriendRequest(aid)))
-            return;
-        realm.executeTransaction(realm -> {
+    public void acceptFriendRequest(@NonNull Realm realm, String aid) {
+        checkInTransaction(realm);
+        try {
             ApplyBean applyBean1 = realm.where(ApplyBean.class).equalTo("aid", aid).findFirst();
+            realm.beginTransaction();
             applyBean1.setStat(2);
             applyBean1.setTime(System.currentTimeMillis());
-        });
+            realm.commitTransaction();
+        } catch (Exception e) {
+            if (realm.isInTransaction()) {
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
+        }
     }
 
     /**
@@ -409,25 +376,32 @@ public class MessageLocalDataSource {
      * @param inviter
      * @param status
      */
-    public void updateGroupApply(String gid, long inviter, int status) {
-        if (checkInTranction(() -> updateGroupApply(gid, inviter, status)))
-            return;
+    public void updateGroupApply(@NonNull Realm realm, String gid, long inviter, int status) {
+        checkInTransaction(realm);
         DB.updateGroupApply(realm, gid, inviter, status);
     }
 
-    public void updateGroup(String gid, String name, Boolean intimately, Integer screenshotNotification,
+    public void updateGroup(@NonNull Realm realm, String gid, String name, Boolean intimately, Integer screenshotNotification,
                             Integer stat) {
-        if (checkInTranction(() -> updateGroup(gid, name, intimately, screenshotNotification, stat)))
-            return;
-        Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
-        if (group != null) {
-            realm.beginTransaction();
-            if (name != null) group.setName(name);
-            if (intimately != null) group.setContactIntimately(intimately ? 1 : 0);
-            if (screenshotNotification != null)
-                group.setScreenshotNotification(screenshotNotification);
-            if (stat != null) group.setStat(stat);
-            realm.commitTransaction();
+        checkInTransaction(realm);
+        try {
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
+                realm.beginTransaction();
+                if (name != null) group.setName(name);
+                if (intimately != null) group.setContactIntimately(intimately ? 1 : 0);
+                if (screenshotNotification != null)
+                    group.setScreenshotNotification(screenshotNotification);
+                if (stat != null) group.setStat(stat);
+                realm.commitTransaction();
+            }
+        } catch (Exception e) {
+
+            if (realm.isInTransaction()) {
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
         }
     }
 
@@ -437,27 +411,24 @@ public class MessageLocalDataSource {
      * @param msgid       消息ID
      * @param msgCancelId
      */
-    public void deleteMsg4Cancel(String msgid, String msgCancelId) {
-        if (checkInTranction(() -> deleteMsg4Cancel(msgid, msgCancelId)))
-            return;
+    public void deleteMsg4Cancel(@NonNull Realm realm, String msgid, String msgCancelId) {
+        checkInTransaction(realm);
         DB.deleteMsg4Cancel(realm, msgid, msgCancelId);
     }
 
     /***
      * 更新阅后即焚状态
      */
-    public void updateSurvivalTime(String gid, Long uid, int type) {
-        if (checkInTranction(() -> updateSurvivalTime(gid, uid, type)))
-            return;
+    public void updateSurvivalTime(@NonNull Realm realm, String gid, Long uid, int type) {
+        checkInTransaction(realm);
         DB.updateSurvivalTime(realm, gid, uid, type);
     }
 
     /***
      * 更新好友截屏通知开关
      */
-    public void updateFriendSnapshot(Long uid, int type) {
-        if (checkInTranction(() -> updateFriendSnapshot(uid, type)))
-            return;
+    public void updateFriendSnapshot(@NonNull Realm realm, Long uid, int type) {
+        checkInTransaction(realm);
         DB.updateFriendSnapshot(realm, uid, type);
     }
 
@@ -469,7 +440,7 @@ public class MessageLocalDataSource {
      * @param uid
      * @return
      */
-    public boolean isGroupMasterOrManager(String gid, long uid) {
+    public boolean isGroupMasterOrManager(@NonNull Realm realm, String gid, long uid) {
         return DB.isGroupMasterOrManager(realm, gid, uid);
     }
 
@@ -477,10 +448,9 @@ public class MessageLocalDataSource {
      * 更新已读状态和阅后即焚
      * 单聊发送：自己发送成功且对方已读，立即加入阅后即焚
      */
-    public void updateFriendMsgReadAndSurvivalTime(long uid, long timestamp) {
+    public void updateFriendMsgReadAndSurvivalTime(@NonNull Realm realm, long uid, long timestamp) {
         try {
-            if (checkInTranction(() -> updateFriendMsgReadAndSurvivalTime(uid, timestamp)))
-                return;
+            checkInTransaction(realm);
             //查询出单聊和未读状态的消息
             RealmResults<MsgAllBean> friendChatMessages = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
@@ -514,7 +484,7 @@ public class MessageLocalDataSource {
                 }
             }
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -523,10 +493,9 @@ public class MessageLocalDataSource {
     }
 
     //更新转账状态
-    public void updateTransferStatus(String tradeId, int opType) {
+    public void updateTransferStatus(@NonNull Realm realm, String tradeId, int opType) {
         try {
-            if (checkInTranction(() -> updateTransferStatus(tradeId, opType)))
-                return;
+            checkInTransaction(realm);
             realm.beginTransaction();
             TransferMessage transfer = realm.where(TransferMessage.class)
                     .beginGroup().equalTo("id", tradeId).endGroup()
@@ -539,20 +508,22 @@ public class MessageLocalDataSource {
             transfer.setOpType(opType);
             realm.commitTransaction();
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
             LogUtil.writeError(e);
         }
     }
+    public String getGroupName(Realm realm,String gid){
+        return DB.getGroupName(realm, gid, null);
+    }
 
     /**
      * 存session at消息
      */
-    public void updateSessionAtMessage(String gid, String atMessage, int type) {
-        if (checkInTranction(() -> updateSessionAtMessage(gid, atMessage, type)))
-            return;
+    public void updateSessionAtMessage(@NonNull Realm realm, String gid, String atMessage, int type) {
+        checkInTransaction(realm);
         try {
             realm.beginTransaction();
             Session session = realm.where(Session.class).equalTo("gid", gid).findFirst();
@@ -564,7 +535,7 @@ public class MessageLocalDataSource {
             }
             realm.commitTransaction();
         } catch (Exception e) {
-            if(realm.isInTransaction()){
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -577,9 +548,8 @@ public class MessageLocalDataSource {
      * 对方发送的消息-自己接收的消息，更新为已读
      * 更新消息已读
      */
-    public void updateRecivedMsgReadForPC(String gid, Long uid, long timestamp) {
-        if (checkInTranction(() -> updateRecivedMsgReadForPC(gid, uid, timestamp)))
-            return;
+    public void updateRecivedMsgReadForPC(@NonNull Realm realm, String gid, Long uid, long timestamp) {
+        checkInTransaction(realm);
         try {
             //查出已读前的消息，设置为已读
             RealmResults<MsgAllBean> msgAllBeans = TextUtils.isEmpty(gid) ?
@@ -612,9 +582,9 @@ public class MessageLocalDataSource {
             }
             realm.commitTransaction();
             //校正session未读数
-            correctSessionCount(gid, uid, timestamp);
-        }catch (Exception e){
-            if(realm.isInTransaction()){
+            correctSessionCount(realm, gid, uid, timestamp);
+        } catch (Exception e) {
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -630,9 +600,8 @@ public class MessageLocalDataSource {
      * @param uid
      * @param timestamp
      */
-    private void correctSessionCount(String gid, Long uid, long timestamp) {
-        if (checkInTranction(() -> correctSessionCount(gid, uid, timestamp)))
-            return;
+    private void correctSessionCount(@NonNull Realm realm, String gid, Long uid, long timestamp) {
+        checkInTransaction(realm);
         try {
             Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() :
                     realm.where(Session.class).equalTo("from_uid", uid).findFirst();
@@ -655,8 +624,8 @@ public class MessageLocalDataSource {
                 session.setAtMessage(null);
                 realm.commitTransaction();
             }
-        }catch (Exception e){
-            if(realm.isInTransaction()){
+        } catch (Exception e) {
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
@@ -668,9 +637,8 @@ public class MessageLocalDataSource {
      * 更新或者创建session
      *
      * */
-    public boolean updateSessionRead(String gid, Long from_uid, boolean canChangeUnread, MsgAllBean bean, String firstFlag) {
-        if (checkInTranction(() -> updateSessionRead(gid, from_uid, canChangeUnread, bean, firstFlag)))
-            return false;
+    public boolean updateSessionRead(@NonNull Realm realm, String gid, Long from_uid, boolean canChangeUnread, MsgAllBean bean, String firstFlag) {
+        checkInTransaction(realm);
         try {
             //是否是 撤回
             String cancelId = null;
@@ -691,7 +659,7 @@ public class MessageLocalDataSource {
                 if (isGroup) {
                     session.setGid(gid);
                     session.setType(1);
-                    Group group = getGroup(gid);
+                    Group group = getGroup(realm,gid);
                     if (group != null) {
                         session.setIsTop(group.getIsTop());
                         session.setIsMute(group.getNotNotify());
@@ -753,8 +721,8 @@ public class MessageLocalDataSource {
             realm.insertOrUpdate(session);
             realm.commitTransaction();
             LogUtil.getLog().e("更新session未读数", "msgDao");
-        }catch (Exception e){
-            if(realm.isInTransaction()){
+        } catch (Exception e) {
+            if (realm.isInTransaction()) {
                 realm.cancelTransaction();
             }
             DaoUtil.reportException(e);
