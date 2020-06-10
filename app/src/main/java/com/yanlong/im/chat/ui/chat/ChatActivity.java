@@ -6356,7 +6356,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 }
             });
             popGuessUWant.setBackgroundDrawable(new ColorDrawable());
-            //输入框高度
+            //测量输入框高度
             int width = View.MeasureSpec.makeMeasureSpec(0,
                     View.MeasureSpec.UNSPECIFIED);
             int height = View.MeasureSpec.makeMeasureSpec(0,
@@ -6366,7 +6366,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
             //右下角为原点，向上偏移距离，由于+号被顶上去了，需要包括扩展面板的高度(固定值240)+测量出的输入框的高度
             popGuessUWant.showAtLocation(view, Gravity.RIGHT|Gravity.BOTTOM, DensityUtil.dip2px(getContext(),5),//偏移调整右侧5dp
-                    DensityUtil.dip2px(getContext(),240)+layoutInputHeight+DensityUtil.dip2px(getContext(),3));//偏移调整居下3sdp
+                    DensityUtil.dip2px(getContext(),240)+layoutInputHeight+DensityUtil.dip2px(getContext(),3));//偏移调整居下3dp
         }
     }
 }
