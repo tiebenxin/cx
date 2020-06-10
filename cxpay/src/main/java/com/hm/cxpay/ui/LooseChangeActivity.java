@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
-import com.hm.cxpay.bean.BankBean;
+import com.hm.cxpay.bean.UrlBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.controller.ControllerPaySetting;
 import com.hm.cxpay.dailog.ChangeSelectDialog;
@@ -19,7 +19,6 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.ui.bank.BankSettingActivity;
 import com.hm.cxpay.ui.bank.BindBankActivity;
 import com.hm.cxpay.ui.bill.BillDetailListActivity;
 import com.hm.cxpay.ui.change.ChangeDetailListActivity;
@@ -34,8 +33,6 @@ import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.HeadView;
-
-import java.util.List;
 
 /**
  * 零钱首页
@@ -75,7 +72,6 @@ public class LooseChangeActivity extends BasePayActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getBankList();
         httpGetUserInfo();
     }
 
@@ -156,11 +152,12 @@ public class LooseChangeActivity extends BasePayActivity {
                 //1 已设置支付密码 -> 允许跳转
                 if (userBean != null && userBean.getPayPwdStat() == 1) {
                     //2 是否添加过银行卡
-                    if (myCardListSize > 0) {
-                        startActivity(new Intent(activity, WithdrawActivity.class));
-                    } else {
-                        showAddBankCardDialog();
-                    }
+                    startActivity(new Intent(activity, WithdrawActivity.class));
+//                    if (myCardListSize > 0) {
+//                        startActivity(new Intent(activity, WithdrawActivity.class));
+//                    } else {
+//                        showAddBankCardDialog();
+//                    }
                 } else {
                     //未设置支付密码 -> 需要先设置
                     showSetPaywordDialog();
@@ -208,19 +205,13 @@ public class LooseChangeActivity extends BasePayActivity {
         });
         //我的银行卡
         viewMyCard = new ControllerPaySetting(findViewById(R.id.viewBankSetting));
-        int count = 0;
-        viewMyCard.init(R.mipmap.ic_bank_card, R.string.settings_of_bank, count + "张");
+        viewMyCard.init(R.mipmap.ic_bank_card, R.string.settings_of_bank, ""/*count + "张"*/);
         viewMyCard.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
                 viewMyCard.setEnabled(false);
                 //已设置支付密码 -> 允许跳转
-//                if (userBean != null && userBean.getPayPwdStat() == 1) {
-//                    startActivity(new Intent(activity, BankSettingActivity.class));
-//                } else {
-//                    //未设置支付密码 -> 需要先设置
-//                    showSetPaywordDialog();
-//                }
+                getBankUrl();
             }
         });
         //支付密码管理
@@ -284,27 +275,28 @@ public class LooseChangeActivity extends BasePayActivity {
      * <p>
      * 备注：主要用于零钱首页更新"我的银行卡" 张数，暂时仅"充值、提现、我的银行卡"返回此界面后需要刷新
      */
-    private void getBankList() {
-//        PayHttpUtils.getInstance().getBankList()
-//                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>compose())
-//                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>handleResult())
-//                .subscribe(new FGObserver<BaseResponse<List<BankBean>>>() {
-//                    @Override
-//                    public void onHandleSuccess(BaseResponse<List<BankBean>> baseResponse) {
-//                        List<BankBean> info = baseResponse.getData();
-//                        if (info != null) {
-//                            myCardListSize = info.size();
-//                        } else {
-//                            myCardListSize = 0;
-//                        }
-//                        viewMyCard.getRightTitle().setText(myCardListSize + "张");
-//                    }
-//
-//                    @Override
-//                    public void onHandleError(BaseResponse baseResponse) {
-//                        ToastUtil.show(activity, baseResponse.getMessage());
-//                    }
-//                });
+    private void getBankUrl() {
+        PayHttpUtils.getInstance().getBankUrl()
+                .compose(RxSchedulers.<BaseResponse<UrlBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<UrlBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<UrlBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<UrlBean> baseResponse) {
+                        viewMyCard.setEnabled(true);
+                        if (baseResponse.getData() != null) {
+                            UrlBean urlBean = baseResponse.getData();
+                            goWebActivity(LooseChangeActivity.this, urlBean.getUrl());
+                        } else {
+                            ToastUtil.show(activity, "获取数据失败");
+                        }
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        viewMyCard.setEnabled(true);
+                        ToastUtil.show(activity, baseResponse.getMessage());
+                    }
+                });
     }
 
 
@@ -388,8 +380,8 @@ public class LooseChangeActivity extends BasePayActivity {
         dialogTwo.show();
     }
 
-    private void getBank(){
-        
+    private void getBank() {
+
     }
 
 }

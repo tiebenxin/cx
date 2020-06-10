@@ -54,7 +54,7 @@ public interface PayService {
 
     //获取绑定银行卡列表
     @POST(Route.GET_BIND_BANK_CARD)
-    Observable<BaseResponse<List<BankBean>>> getBankUrl(@QueryMap Map<String, String> map);
+    Observable<BaseResponse<UrlBean>> getBankUrl(@QueryMap Map<String, String> map);
 
     //绑定银行卡
     @POST(Route.BIND_BANK)
