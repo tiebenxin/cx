@@ -440,10 +440,10 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             } else if (msg_type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {//阅后即焚
                 str = "[零钱小助手消息]";
             } else if (msg_type == ChatEnum.EMessageType.FILE) {//文件
-                if(getSendFileMessage()!=null){
-                    if(!TextUtils.isEmpty(getSendFileMessage().getFile_name())){
-                        str = "[文件]"+getSendFileMessage().getFile_name();
-                    }else {
+                if (getSendFileMessage() != null) {
+                    if (!TextUtils.isEmpty(getSendFileMessage().getFile_name())) {
+                        str = "[文件]" + getSendFileMessage().getFile_name();
+                    } else {
                         str = "[文件]";
                     }
                 }
@@ -462,8 +462,16 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     content = reply.getChatMessage().getMsg();
                 }
                 str = content;
+            } else if (msg_type == ChatEnum.EMessageType.ASSISTANT_PROMOTION) {
+                AdMessage adMessage = getAdMessage();
+                String content = "";
+                if (adMessage != null && !TextUtils.isEmpty(adMessage.getTitle())) {
+                    content = adMessage.getTitle();
+                }
+                str = "[广告消息]" + content;
             }
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
 
         return str;
     }
@@ -769,7 +777,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     layout = ChatEnum.EChatCellLayout.WEB_RECEIVED;
                 }
                 break;
-                case ChatEnum.EMessageType.ASSISTANT_PROMOTION://广告消息
+            case ChatEnum.EMessageType.ASSISTANT_PROMOTION://广告消息
                 if (isMe) {
                     layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_SEND;
                 } else {

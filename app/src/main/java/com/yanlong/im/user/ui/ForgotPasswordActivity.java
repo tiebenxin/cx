@@ -101,7 +101,7 @@ public class ForgotPasswordActivity extends AppActivity implements View.OnClickL
             return;
         }
 
-        CountDownUtil.getTimer(60, mTvGetVerificationCode, "发送验证码", this, new CountDownUtil.CallTask() {
+        CountDownUtil.getTimer(60, mTvGetVerificationCode, "获取验证码", this, new CountDownUtil.CallTask() {
             @Override
             public void task() {
                 taskGetSms(phone);

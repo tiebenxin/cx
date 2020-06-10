@@ -96,7 +96,7 @@ public class BindBankFinishActivity extends BasePayActivity {
             return;
         }
 
-        CountDownUtil.getTimer(60, ui.tvGetVerificationCode, "发送验证码", this, new CountDownUtil.CallTask() {
+        CountDownUtil.getTimer(60, ui.tvGetVerificationCode, "获取验证码", this, new CountDownUtil.CallTask() {
             @Override
             public void task() {
                 if (isNeedApply) {

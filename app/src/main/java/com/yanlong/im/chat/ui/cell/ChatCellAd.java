@@ -25,8 +25,6 @@ import net.cb.cb.library.utils.StringUtil;
  * 小助手推广（广告）消息
  */
 public class ChatCellAd extends ChatCellBase {
-    final int DEFAULT_W = DensityUtil.dip2px(getContext(), 180);
-    final int DEFAULT_H = DensityUtil.dip2px(getContext(), 120);
     private TextView tvTitle;
     private ImageView ivImage;
     private TextView tvDesc;
