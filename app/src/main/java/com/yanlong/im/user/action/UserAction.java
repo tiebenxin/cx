@@ -455,7 +455,7 @@ public class UserAction {
     public void cleanInfo() {
         myInfo = null;
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
-//        LogUtil.writeLog("清除token");
+        LogUtil.getLog().i("Token", "清除token");
     }
 
 
@@ -1179,7 +1179,7 @@ public class UserAction {
      * 更换手机号
      */
     public void changePhoneNum(String password, String phone, String code, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.changePhoneNum(password,phone,code), callback);
+        NetUtil.getNet().exec(server.changePhoneNum(password, phone, code), callback);
     }
 
 
