@@ -151,6 +151,7 @@ public class RecordButtonView extends FrameLayout implements CaptureListener {
                 llResult.setVisibility(GONE);
             }
             btCapture.setCaptureListener(this);
+            btCapture.resetRecordAnim();
         } else {
             tvNotice.setVisibility(GONE);
             btReturn.setVisibility(GONE);
