@@ -80,11 +80,15 @@ import com.jrmf360.rplib.bean.EnvelopeBean;
 import com.jrmf360.rplib.bean.GrabRpBean;
 import com.jrmf360.rplib.utils.callback.GrabRpCallBack;
 import com.jrmf360.tools.utils.ThreadUtil;
+import com.luck.picture.lib.PicturePreviewActivity;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.tools.DoubleUtils;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
+import com.yalantis.ucrop.UCrop;
+import com.yalantis.ucrop.UCropMulti;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.BuildConfig;
 import com.yanlong.im.MainActivity;
@@ -261,6 +265,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1446,7 +1451,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     mViewModel.isInputText.setValue(true);
                 } else {//未打开面板->打开功能面板
                     mViewModel.isOpenFuction.setValue(true);
-                    showPopupWindow(v);
+                    if(!TextUtils.isEmpty(latestUrl)){
+                        showPopupWindow(v);
+                    }
                 }
             }
         });
@@ -6348,6 +6355,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             View contentView = LayoutInflater.from(ChatActivity.this).inflate(
                     R.layout.layout_pop_guess_u_want_send, null);
             ImageView ivPic = contentView.findViewById(R.id.iv_want_send_pic);
+            LinearLayout layoutPop = contentView.findViewById(R.id.layout_pop);
             Glide.with(ChatActivity.this).load(latestUrl).apply(GlideUtil.defImageOptions1()).into(ivPic);
             popGuessUWant = new PopupWindow(contentView,
                     ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
@@ -6370,6 +6378,20 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             //右下角为原点，向上偏移距离，由于+号被顶上去了，需要包括扩展面板的高度(固定值240)+测量出的输入框的高度
             popGuessUWant.showAtLocation(view, Gravity.RIGHT|Gravity.BOTTOM, DensityUtil.dip2px(getContext(),5),//偏移调整右侧5dp
                     DensityUtil.dip2px(getContext(),240)+layoutInputHeight+DensityUtil.dip2px(getContext(),3));//偏移调整居下3dp
+            //点击跳到预览界面
+            layoutPop.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    List<LocalMedia> previewList=new ArrayList<>();
+                    LocalMedia localMedia = new LocalMedia();
+                    localMedia.setPath(latestUrl);
+                    previewList.add(localMedia);
+                    PictureSelector.create(ChatActivity.this)
+                            .openGallery(PictureMimeType.ofAll());//复用，直接跳图片选择器的预览界面会崩溃，需要先初始化
+                    previewImage(previewList,previewList, 0);
+                    overridePendingTransition(com.luck.picture.lib.R.anim.a5, 0);
+                }
+            });
         }
     }
 
@@ -6404,5 +6426,24 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         intent.setData(content_url);
         intent.addCategory(Intent.CATEGORY_BROWSABLE);
         startActivity(intent);
+    }
+
+    //跳图片预览
+    private void previewImage(List<LocalMedia> previewImages,List<LocalMedia> selectedImages, int position) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(PictureConfig.EXTRA_PREVIEW_SELECT_LIST, (Serializable) previewImages);
+        bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
+        bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
+        bundle.putInt(PictureConfig.EXTRA_POSITION,position);
+        startActivity(PicturePreviewActivity.class, bundle,UCrop.REQUEST_CROP);
+    }
+
+    protected void startActivity(Class clz, Bundle bundle, int requestCode) {
+        if (!DoubleUtils.isFastDoubleClick()) {
+            Intent intent = new Intent();
+            intent.setClass(ChatActivity.this, clz);
+            intent.putExtras(bundle);
+            startActivityForResult(intent, requestCode);
+        }
     }
 }
