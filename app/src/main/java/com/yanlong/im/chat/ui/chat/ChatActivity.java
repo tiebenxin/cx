@@ -2956,6 +2956,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (!TextUtils.isEmpty(uid) && !TextUtils.isEmpty(name)) {
                         editChat.addAtSpan(null, name, Long.valueOf(uid));
                     }
+                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                     showSoftKeyword(editChat);
                     break;
                 case FilePickerManager.REQUEST_CODE:
