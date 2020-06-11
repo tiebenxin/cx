@@ -7,17 +7,11 @@ import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.repository.MessageRepository;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
-import com.yanlong.im.utils.socket.SocketData;
-import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.constant.BuglyTag;
 import net.cb.cb.library.utils.LogUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import io.realm.Realm;
 
@@ -28,120 +22,22 @@ import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
  * @createDate 2020/6/10 0010
  * @description
  */
-public class DispatchMessage {
+public abstract class DispatchMessage {
     private final String TAG = DispatchMessage.class.getSimpleName();
     // Bugly数据保存异常标签
-    private final int BUGLY_TAG_SAVE_DATA = 139066;
+    protected final int BUGLY_TAG_SAVE_DATA = 139066;
 
-    private MessageRepository repository = new MessageRepository();
+    protected MessageRepository repository = new MessageRepository();
 
-
-    public void dispatchMsg(MsgBean.UniversalMessage bean, Realm realm) {
-        boolean result = true;
-        try {
-            List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
-            if (msgList != null && msgList.size() > 0) {
-                for (int i = 0; i < msgList.size(); i++) {
-                    MsgBean.UniversalMessage.WrapMessage msg = msgList.get(i);
-                    MsgBean.UniversalMessage.WrapMessage wrapMessage = msg;
-                    //开始处理消息
-                    boolean toDOResult = toDoMsg(realm, wrapMessage, bean.getRequestId(), bean.getMsgFrom() == 1, msgList.size(),
-                            i == msgList.size() - 1);
-                    //有一个失败，表示接收全部失败
-                    if (!toDOResult) result = false;
-                }
-                //接收完离线消息的处理
-                recieveOfflineFinished(realm, bean.getMsgFrom() == 1, msgList.size());
-            }
-
-        } catch (Exception e) {
-            DaoUtil.reportException(e);
-        }
-        if (result)
-            SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
-    }
+    public abstract void clear();
 
     /**
-     * 处理离线消息
-     *
+     * 消息分发处理
      * @param bean
+     * @param realm
      */
-    public void dispatchOfflineMsg(MsgBean.UniversalMessage bean) {
-        LogUtil.writeLog("dispatchMsg start" + bean.getRequestId());
-        try {
-            List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
-            if (msgList != null && msgList.size() > 0) {
-                MessageManager.getInstance().saveOfflineMessageSuccessCount.put(bean.getRequestId(), new ArrayList<>());
-                int index = 0;
-                int page = 100;//每次处理消息的数量，可自己调整，以提高接收离线消息的速度,太小也会过慢，启动任务需要时间
-                int max = Math.min(msgList.size(), page);
-                while (index < msgList.size()) {
-                    LogUtil.writeLog("dispatchMsg" + index + "-" + max);
-                    /**开启并发任务******************************************/
-                    startConcurrentTask(msgList, index, max, bean.getRequestId(), bean.getMsgFrom());
-                    index = max;
-                    max = Math.min(msgList.size(), index + page);
-                }
-            } else {//空消息 回执
-                SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
-            }
-        } catch (Exception e) {
-            DaoUtil.reportException(e);
-        }
-    }
+    public abstract void dispatch(MsgBean.UniversalMessage bean, Realm realm);
 
-    /**
-     * 开启接收离线消息的并发任务
-     * 一个任务最多20个消息处理
-     *
-     * @param msgList
-     * @param mIndex
-     * @param max
-     * @param requestId
-     * @param msgFrom
-     */
-    private void startConcurrentTask(List<MsgBean.UniversalMessage.WrapMessage> msgList, int mIndex, int max,
-                                     String requestId, int msgFrom) {
-
-        MessageManager.getInstance().getOfflineMsgExecutor().execute(() -> {
-            Realm realm = DaoUtil.open();
-            try {
-                for (int i = mIndex; i < max; i++) {
-                    LogUtil.writeLog("dispatchMsg start=" + i);
-                    MsgBean.UniversalMessage.WrapMessage wrapMessage = msgList.get(i);
-                    //是否为本批消息的最后一条消息
-                    boolean isLastMessage = MessageManager.getInstance().saveOfflineMessageSuccessCount.get(requestId).size() == msgList.size() - 1;
-                    //开始处理消息
-                    boolean toDOResult = toDoMsg(realm, wrapMessage, requestId, msgFrom == 1, msgList.size(),
-                            isLastMessage);
-                    if (toDOResult) {//成功，保存记录
-                        if (MessageManager.getInstance().saveOfflineMessageSuccessCount.containsKey(requestId))
-                            MessageManager.getInstance().saveOfflineMessageSuccessCount.get(requestId).add(wrapMessage.getMsgId());
-                    } else { //有一个失败，表示接收全部失败
-                        MessageManager.getInstance().saveOfflineMessageSuccessCount.remove(requestId);
-                    }
-                    LogUtil.writeLog("dispatchMsg result=" + i + "，count=" + MessageManager.getInstance().saveOfflineMessageSuccessCount.get(requestId).size());
-                }
-                if ((!MessageManager.getInstance().saveOfflineMessageSuccessCount.containsKey(requestId)) ||
-                        MessageManager.getInstance().saveOfflineMessageSuccessCount.get(requestId).size() == msgList.size()) {
-                    LogUtil.writeLog("dispatchMsg end");
-                    //接收完离线消息的处理
-                    recieveOfflineFinished(realm, msgFrom == 1, msgList.size());
-                    if (MessageManager.getInstance().saveOfflineMessageSuccessCount.get(requestId).size() == msgList.size()) {
-                        //全部保存成功，消息回执
-//                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, true), null, requestId);
-                    }
-                    MessageManager.getInstance().saveOfflineMessageSuccessCount.remove(requestId);
-                }
-            } catch (Exception e) {
-                LogUtil.writeLog("e" + e.getMessage());
-                LogUtil.writeError(e);
-            } finally {
-                DaoUtil.close(realm);
-            }
-
-        });
-    }
 
     /**
      * @param realm
@@ -152,7 +48,7 @@ public class DispatchMessage {
      * @param isLastMessage 是否为本批消息的最后一条消息
      * @return
      */
-    private boolean toDoMsg(Realm realm, MsgBean.UniversalMessage.WrapMessage wrapMessage, String requestId, boolean isOfflineMsg, int batchMsgCount
+    public boolean toDoMsg(Realm realm, MsgBean.UniversalMessage.WrapMessage wrapMessage, String requestId, boolean isOfflineMsg, int batchMsgCount
             , boolean isLastMessage) {
         boolean result = true;
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
@@ -175,41 +71,8 @@ public class DispatchMessage {
         return result;
     }
 
-    /**
-     * 接收完离线消息
-     *
-     * @param realm
-     * @param isOfflineMsg  是否是离线消息
-     * @param batchMsgCount 本次批量消息数量
-     */
-    private void recieveOfflineFinished(Realm realm, boolean isOfflineMsg, int batchMsgCount) {
-        //本次离线消息是否接收完成
-        boolean isReceivedOfflineCompleted = SocketData.isEnough(batchMsgCount);
-        if (isOfflineMsg && isReceivedOfflineCompleted) {//离线消息接收完了
-            //清空双向清除数据
-            if (repository.historyCleanMsg.size() > 0) {
-                repository.historyCleanMsg.clear();
-            }
-            //更正离线已读消息-已读状态、未读数量、阅后即焚
-            repository.updateOfflineReadMsg(realm);
-        }
-    }
 
-    /**
-     * 丢弃双向清除消息
-     *
-     * @param uid
-     * @param timestamp
-     */
-    private boolean discardHistoryCleanMessage(Long uid, Long timestamp) {
-        boolean result = false;
-        if (repository.historyCleanMsg.containsKey(uid) && repository.historyCleanMsg.get(uid) >= timestamp) {
-            if (repository.historyCleanMsg.get(uid) >= timestamp) {
-                result = true;
-            }
-        }
-        return result;
-    }
+
 
     /**
      * 处理接收到的消息
@@ -226,13 +89,8 @@ public class DispatchMessage {
             return true;
         }
         /******丢弃离线消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
-        if (isOfflineMsg) {
-            if (TextUtils.isEmpty(wrapMessage.getGid()) && repository.historyCleanMsg.size() > 0) {//单聊
-                if (discardHistoryCleanMessage(wrapMessage.getFromUid(), wrapMessage.getTimestamp()) ||
-                        discardHistoryCleanMessage(wrapMessage.getToUid(), wrapMessage.getTimestamp())) {
-                    return true;
-                }
-            }
+        if (isOfflineMsg && isHistoryCleanBeforeMessage(wrapMessage)) {
+            return true;
         }
         LogUtil.getLog().e(TAG, "接收到消息: " + wrapMessage.getMsgId() + "--type=" + wrapMessage.getMsgType());
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
@@ -354,6 +212,32 @@ public class DispatchMessage {
                 oldMsgId.remove(0);
             }
             oldMsgId.add(wrapMessage.getMsgId());
+        }
+        return result;
+    }
+
+
+    /**
+     * 丢弃双向清除消息
+     *
+     * @param wrapMessage
+     */
+    private boolean isHistoryCleanBeforeMessage(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        boolean result = false;
+        if (TextUtils.isEmpty(wrapMessage.getGid()) && repository.historyCleanMsg.size() > 0) {//单聊
+            long timestamp = wrapMessage.getTimestamp();
+            long fromUid = wrapMessage.getFromUid();
+            long toUid = wrapMessage.getToUid();
+            if (repository.historyCleanMsg.containsKey(fromUid) && repository.historyCleanMsg.get(fromUid) >= timestamp) {
+                if (repository.historyCleanMsg.get(fromUid) >= timestamp) {
+                    result = true;
+                }
+            }
+            if (repository.historyCleanMsg.containsKey(toUid) && repository.historyCleanMsg.get(toUid) >= timestamp) {
+                if (repository.historyCleanMsg.get(toUid) >= timestamp) {
+                    result = true;
+                }
+            }
         }
         return result;
     }

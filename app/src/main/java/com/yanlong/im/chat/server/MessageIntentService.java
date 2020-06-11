@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.task.DispatchMessage;
+import com.yanlong.im.chat.task.OnlineMessage;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
@@ -26,9 +27,10 @@ import io.realm.Realm;
 public class MessageIntentService extends IntentService {
 
 
-
-
-    private DispatchMessage dispatchMessage = new DispatchMessage();
+    /**
+     * 消息分发处理器
+     */
+    private DispatchMessage dispatch = new OnlineMessage();
 
     public MessageIntentService() {
         super("MessageIntentService");
@@ -51,12 +53,11 @@ public class MessageIntentService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {//异步处理方法
         Realm realm = DaoUtil.open();
         if (MessageManager.getInstance().getToDoMsgCount() == 0) return;
-//            //初始化数据库对象
-        //子线程
+        //初始化数据库对象 子线程
         while (MessageManager.getInstance().getToDoMsgCount() > 0) {
             try {
                 MsgBean.UniversalMessage bean = MessageManager.getInstance().poll();
-                dispatchMessage.dispatchMsg(bean, realm);
+                dispatch.dispatch(bean, realm);
                 //移除处理过的当前消息
                 MessageManager.getInstance().pop();
             } catch (Exception e) {
