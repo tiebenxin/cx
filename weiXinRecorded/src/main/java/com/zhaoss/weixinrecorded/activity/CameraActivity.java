@@ -93,6 +93,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
     @Override
     protected void onPause() {
         mCameraView.onPause();
+        stopRecording();
         recordView.resetUI(true);
         super.onPause();
     }
