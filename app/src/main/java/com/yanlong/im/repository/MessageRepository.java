@@ -91,10 +91,6 @@ public class MessageRepository {
         remoteDataSource = new MessageRemoteDataSource();
     }
 
-    public void onDestory() {
-        historyCleanMsg.clear();
-    }
-
 
     /**
      * 群主会收到成员进群的请求的通知

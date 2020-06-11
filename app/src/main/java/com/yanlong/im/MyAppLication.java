@@ -24,6 +24,7 @@ import com.umeng.commonsdk.UMConfigure;
 import com.umeng.socialize.PlatformConfig;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.MessageIntentService;
 import com.yanlong.im.controll.AVChatKit;
 import com.yanlong.im.location.LocationService;
@@ -148,6 +149,7 @@ public class MyAppLication extends MainApplication {
         if (messageIntentService != null) {
             stopService(messageIntentService);
         }
+        MessageManager.getInstance().stopOfflineTask();
     }
 
 

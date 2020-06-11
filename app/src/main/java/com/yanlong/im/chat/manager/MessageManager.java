@@ -36,7 +36,6 @@ import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.MediaBackUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
-import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
@@ -65,8 +64,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -188,15 +185,14 @@ public class MessageManager {
         return INSTANCE;
     }
 
-    //处理离线消息
-    /**
-     * newFixedThreadPool与cacheThreadPool差不多，也是能reuse就用，但不能随时建新的线程
-     * 任意时间点，最多只能有固定数目的活动线程存在，此时如果有新的线程要建立，只能放在另外的队列中等待，直到当前的线程中某个线程终止直接被移出池子
-     */
-    private Executor offlineMsgExecutor = Executors.newFixedThreadPool(3);
-
     private DispatchMessage offlineDispatchMessage = new DispatchMessage();
 
+    /**
+     * 停止离线消息处理
+     */
+    public void stopOfflineTask(){
+        offlineDispatchMessage.stopOfflineTask();
+    }
     /*
      * 消息接收流程
      * */
@@ -209,13 +205,7 @@ public class MessageManager {
                 MyAppLication.INSTANCE().startMessageIntentService();
             }
         } else {
-            offlineMsgExecutor.execute(() -> {
-                Realm realm = DaoUtil.open();
-                if (offlineDispatchMessage.dispatchMsg(bean, realm)) {
-                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
-                }
-                DaoUtil.close(realm);
-            });
+            offlineDispatchMessage.dispatchOfflineMsg(bean);
         }
     }
 

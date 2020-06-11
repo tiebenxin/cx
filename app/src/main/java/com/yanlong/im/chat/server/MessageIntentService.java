@@ -11,8 +11,6 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.task.DispatchMessage;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
-import com.yanlong.im.utils.socket.SocketData;
-import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.utils.LogUtil;
 
@@ -39,7 +37,6 @@ public class MessageIntentService extends IntentService {
 
     @Override
     public void onDestroy() {
-        if (dispatchMessage != null) dispatchMessage.onDestory();
         MessageManager.getInstance().clear();
     }
 
@@ -59,9 +56,7 @@ public class MessageIntentService extends IntentService {
         while (MessageManager.getInstance().getToDoMsgCount() > 0) {
             try {
                 MsgBean.UniversalMessage bean = MessageManager.getInstance().poll();
-                if (dispatchMessage.dispatchMsg(bean, realm)) {
-                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
-                }
+                dispatchMessage.dispatchMsg(bean, realm);
                 //移除处理过的当前消息
                 MessageManager.getInstance().pop();
             } catch (Exception e) {
