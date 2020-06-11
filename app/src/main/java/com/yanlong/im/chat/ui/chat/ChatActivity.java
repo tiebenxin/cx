@@ -461,7 +461,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         public void run() {
                             mtListView.scrollToEnd();
                         }
-                    }, 100);
+                    }, delayMillis);
                 } else {//关闭
                     //清除焦点
                     editChat.clearFocus();
