@@ -64,6 +64,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -185,14 +189,48 @@ public class MessageManager {
         return INSTANCE;
     }
 
-    private DispatchMessage offlineDispatchMessage = new DispatchMessage();
+
+    public DispatchMessage offlineDispatchMessage = new DispatchMessage();
+    //记录离线消息保存成功的requestId msg_ids，离线消息是任务并发的
+    public Map<String, List<String>> saveOfflineMessageSuccessCount = new HashMap<>();
+    /**
+     * newFixedThreadPool与cacheThreadPool差不多，也是能reuse就用，但不能随时建新的线程
+     * 任意时间点，最多只能有固定数目的活动线程存在，此时如果有新的线程要建立，只能放在另外的队列中等待，直到当前的线程中某个线程终止直接被移出池子
+     */
+    private ThreadPoolExecutor offlineMsgExecutor = null;
+
+    /**
+     * 获取离线任务对象
+     *
+     * @return
+     */
+    public Executor getOfflineMsgExecutor() {
+        if (offlineMsgExecutor == null)
+            offlineMsgExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(5);
+        return offlineMsgExecutor;
+    }
 
     /**
      * 停止离线消息处理
      */
-    public void stopOfflineTask(){
-        offlineDispatchMessage.stopOfflineTask();
+    public void stopOfflineTask() {
+        saveOfflineMessageSuccessCount.clear();
+        //停止离线任务，
+        if (offlineMsgExecutor != null && offlineMsgExecutor.getActiveCount() > 0) {
+            offlineMsgExecutor.shutdown();
+            try {   // (所有的任务都结束的时候，返回TRUE)
+                if (!offlineMsgExecutor.awaitTermination(5 * 1000, TimeUnit.MILLISECONDS)) {
+                    // 超时的时候向线程池中所有的线程发出中断(interrupted)。
+                    offlineMsgExecutor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                // awaitTermination方法被中断的时候也中止线程池中全部的线程的执行。
+                offlineMsgExecutor.shutdownNow();
+            }
+            offlineMsgExecutor = null;
+        }
     }
+
     /*
      * 消息接收流程
      * */

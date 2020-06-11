@@ -51,11 +51,13 @@ public class MessageLocalDataSource {
         while (realm.isInTransaction()) {
             try {//正在事务，100毫秒后重试
                 if(i<10){
+                    LogUtil.writeLog("checkInTransaction i="+i);
                     synchronized (Thread.currentThread()) {
                         Thread.currentThread().wait(RETRY_DELAY);
                     }
                 }else{//超过1秒，则关闭上一个事务
                     realm.cancelTransaction();
+                    LogUtil.writeLog("checkInTransaction  cancel");
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
