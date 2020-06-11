@@ -2956,6 +2956,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (!TextUtils.isEmpty(uid) && !TextUtils.isEmpty(name)) {
                         editChat.addAtSpan(null, name, Long.valueOf(uid));
                     }
+                    showSoftKeyword(editChat);
                     break;
                 case FilePickerManager.REQUEST_CODE:
                     //断网提示
@@ -5527,9 +5528,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (ViewUtils.isFastDoubleClick()) {
             return;
         }
-        if (mViewModel.isInputText.getValue()) {
-            mViewModel.isInputText.setValue(false);
-        }
+//        if (mViewModel.isInputText.getValue()) {
+//            mViewModel.isInputText.setValue(false);
+//        }
         switch (type) {
             case ChatEnum.ECellEventType.TXT_CLICK:
                 break;
