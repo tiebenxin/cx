@@ -1342,7 +1342,6 @@ public class MainActivity extends AppActivity {
                         System.out.println("PC同步--1--" + bytes.length);
                         File file = FileManager.getInstance().saveMsgFile(bytes);
                         if (file != null) {
-//                            parseFile(file);
                             uploadMsgFile(file, code);
                         }
                     }
@@ -1410,25 +1409,6 @@ public class MainActivity extends AppActivity {
         return true;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public final void parseFile(File file) {
-        System.out.println("PC同步--2--文件" + file.length());
-        byte[] bytes = FileManager.getInstance().readFileBytes(file);
-        if (bytes != null) {
-            System.out.println("PC同步--3--" + bytes.length);
-            if (bytes != null) {
-                try {
-                    MsgBean.UniversalMessage message = MsgBean.UniversalMessage.parseFrom(bytes);
-                    if (message != null) {
-
-
-                    }
-                } catch (InvalidProtocolBufferException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
 
     public final void updateMsgUnread(int num) {
         LogUtil.getLog().i("MainActivity", "更新消息未读数据：" + num);

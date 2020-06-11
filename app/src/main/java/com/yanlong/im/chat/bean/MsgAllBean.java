@@ -465,8 +465,12 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             } else if (msg_type == ChatEnum.EMessageType.ASSISTANT_PROMOTION) {
                 AdMessage adMessage = getAdMessage();
                 String content = "";
-                if (adMessage != null && !TextUtils.isEmpty(adMessage.getTitle())) {
-                    content = adMessage.getTitle();
+                if (adMessage != null) {
+                    if (!TextUtils.isEmpty(adMessage.getSummary())) {
+                        content = adMessage.getSummary();
+                    } else if (!TextUtils.isEmpty(adMessage.getTitle())) {
+                        content = adMessage.getTitle();
+                    }
                 }
                 str = "[必看]" + content;
             }
@@ -475,6 +479,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
         return str;
     }
+
     /***
      * 根据类型获取标题
      * @return
@@ -482,13 +487,13 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     public String getMsg_typeTitle() {
         String str = "";
         try {
-           if (msg_type == ChatEnum.EMessageType.BUSINESS_CARD) {
+            if (msg_type == ChatEnum.EMessageType.BUSINESS_CARD) {
                 str = "[名片]";// + getBusiness_card().getNickname();
             } else if (msg_type == ChatEnum.EMessageType.LOCATION) {//位置
                 str = "[位置]";
             } else if (msg_type == ChatEnum.EMessageType.FILE) {//文件
                 if (getSendFileMessage() != null) {
-                        str = "[文件]";
+                    str = "[文件]";
                 }
             } else if (msg_type == ChatEnum.EMessageType.WEB) {
                 str = "[链接]";

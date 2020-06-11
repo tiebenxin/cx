@@ -41,7 +41,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     private static final int IDENTITY = 5000;
 
     private ImageView mImgHead;
-    private LinearLayout mViewBlacklist;
+    private LinearLayout layoutChangePhoneNum;//更换手机号
     private TextView mTvPhone;
     private LinearLayout mViewNickname;
     private TextView mTvNickname;
@@ -89,7 +89,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
 
     private void initView() {
         mImgHead = findViewById(R.id.img_head);
-        mViewBlacklist = findViewById(R.id.view_blacklist);
+        layoutChangePhoneNum = findViewById(R.id.layout_change_phone_num);
         mViewHead = findViewById(R.id.view_head);
         mTvPhone = findViewById(R.id.tv_phone);
         mViewNickname = findViewById(R.id.view_nickname);
@@ -111,6 +111,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
         mViewSex.setOnClickListener(this);
         mViewIdentity.setOnClickListener(this);
         mViewHead.setOnClickListener(this);
+        layoutChangePhoneNum.setOnClickListener(this);
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -221,6 +222,9 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 Intent headIntent = new Intent(MyselfInfoActivity.this, ImageHeadActivity.class);
                 headIntent.putExtra(ImageHeadActivity.IMAGE_HEAD, imageHead);
                 startActivityForResult(headIntent, IMAGE_HEAD);
+                break;
+            case R.id.layout_change_phone_num:
+//                startActivity(new Intent(MyselfInfoActivity.this,ChangePhoneNumActivity.class));
                 break;
         }
     }

@@ -108,6 +108,12 @@ public class ApkUtils {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(schemeUrl));
                 context.startActivity(intent);
+            } else {
+                PackageManager packageManager = context.getPackageManager();
+                Intent intent = packageManager.getLaunchIntentForPackage(appId);
+                if (intent != null) {
+                    context.startActivity(intent);
+                }
             }
         } else {
             ToastUtil.show(context, "未安装应用，快去商店下载吧");

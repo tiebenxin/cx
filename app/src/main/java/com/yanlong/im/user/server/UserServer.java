@@ -242,4 +242,8 @@ public interface UserServer {
 
     @POST("user/cancel-deactivate")
     Call<ReturnBean> cancelDeactivate();
+
+    @POST("/user/update-phone")
+    @FormUrlEncoded
+    Call<ReturnBean> changePhoneNum(@Field("password") String password, @Field("phone") String phone, @Field("captcha") String captcha);
 }
