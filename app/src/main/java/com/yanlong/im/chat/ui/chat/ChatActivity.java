@@ -886,7 +886,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 //                    mViewModel.isInputText.setValue(true);
                     //滑动到底部
 //                    mtListView.scrollToEnd();
-                } else if (bottom > oldBottom) {
+                } else if (bottom > oldBottom && bottom-oldBottom == mKeyboardHeight) {//软键盘关闭，键盘右上角
                     mViewModel.isInputText.setValue(false);
                 }
             }
@@ -1375,6 +1375,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                 if (!mViewModel.isInputText.getValue())
                     mViewModel.isInputText.setValue(true);
+                return false;
+            }
+        });
+        editChat.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 return false;
             }
         });
