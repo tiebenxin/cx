@@ -4,8 +4,6 @@ import androidx.annotation.Nullable;
 
 import net.cb.cb.library.manager.Constants;
 
-import java.util.List;
-
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
@@ -35,18 +33,6 @@ public class Session extends RealmObject implements Comparable<Session> {
 
     @Ignore
     private Boolean isSelect = false;//本地字段
-
-      @Ignore
-    private String name; //session名字，群聊即群名，私聊即好友备注或昵称
-    @Ignore
-    private String avatar;//头像
-    @Ignore
-    private List<String> avatarList;//群头像
-    @Ignore
-    private MsgAllBean message;//最后消息
-
-    @Ignore
-    private String senderName; //发送者名字，群聊
 
     public int getMessageType() {
         return messageType;
@@ -137,20 +123,15 @@ public class Session extends RealmObject implements Comparable<Session> {
         this.unread_count = unread_count;
     }
 
-    public String getName() {
-        return name;
-    }
 
     public void setName(String name) {
-        this.name = name;
+
     }
 
-    public MsgAllBean getMessage() {
-        return message;
-    }
+
 
     public void setMessage(MsgAllBean message) {
-        this.message = message;
+
     }
 
 
@@ -158,20 +139,12 @@ public class Session extends RealmObject implements Comparable<Session> {
 //        this.hasInitDisturb = hasInitDisturb;
 //    }
 
-    public String getAvatar() {
-        return avatar;
-    }
 
     public void setAvatar(String avatar) {
-        this.avatar = avatar;
     }
 
-    public String getSenderName() {
-        return senderName;
-    }
 
     public void setSenderName(String senderName) {
-        this.senderName = senderName;
     }
 
     public Boolean getSelect() {
@@ -182,13 +155,6 @@ public class Session extends RealmObject implements Comparable<Session> {
         isSelect = select;
     }
 
-    public List<String> getAvatarList() {
-        return avatarList;
-    }
-
-    public void setAvatarList(List<String> avatarList) {
-        this.avatarList = avatarList;
-    }
 
     @Override
     public boolean equals(@Nullable Object obj) {

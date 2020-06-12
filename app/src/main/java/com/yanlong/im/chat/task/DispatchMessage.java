@@ -23,7 +23,10 @@ public abstract class DispatchMessage {
     // Bugly数据保存异常标签
     protected final int BUGLY_TAG_SAVE_DATA = 139066;
 
-    protected MessageRepository repository = new MessageRepository();
+    protected MessageRepository repository;
+    public DispatchMessage(boolean isOffline){
+        repository = new MessageRepository(isOffline);
+    }
 
     public abstract void clear();
 

@@ -21,6 +21,10 @@ import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
  * @description
  */
 public class OnlineMessage extends DispatchMessage {
+    public OnlineMessage() {
+        super(false);
+    }
+
     @Override
     public void clear() {
     }

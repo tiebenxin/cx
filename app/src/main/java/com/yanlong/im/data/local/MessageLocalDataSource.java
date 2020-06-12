@@ -644,7 +644,7 @@ public class MessageLocalDataSource {
      * 更新或者创建session
      *
      * */
-    public boolean updateSessionRead(@NonNull Realm realm, String gid, Long from_uid, boolean canChangeUnread, MsgAllBean bean, String firstFlag) {
+    public boolean updateSessionRead(@NonNull Realm realm, String gid, Long from_uid, boolean canChangeUnread, MsgAllBean bean) {
         checkInTransaction(realm);
         try {
             //是否是 撤回
@@ -718,7 +718,7 @@ public class MessageLocalDataSource {
             session.setUp_time(System.currentTimeMillis());
             if (StringUtil.isNotNull(cancelId)) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
                 session.setMessageType(1000);
-            } else if ("first".equals(firstFlag) && bean != null && bean.getAtMessage() != null && bean.getAtMessage().getAt_type() != 1000) {
+            } else if (bean != null && bean.getAtMessage() != null && bean.getAtMessage().getAt_type() != 1000) {
                 //对at消息处理 而且不是撤回消息
                 int messageType = bean.getAtMessage().getAt_type();
                 String atMessage = bean.getAtMessage().getMsg();

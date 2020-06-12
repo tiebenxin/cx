@@ -2,6 +2,7 @@ package com.yanlong.im.chat.task;
 
 import android.text.TextUtils;
 
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
@@ -10,12 +11,12 @@ import com.yanlong.im.utils.socket.SocketUtil;
 import net.cb.cb.library.utils.LogUtil;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.realm.Realm;
 
@@ -36,18 +37,31 @@ public class OfflineMessage extends DispatchMessage {
      * ConcurrentHashMap
      * 记录离线消息保存成功的requestId msg_ids，离线消息是任务并发的
      * 并发中，线程不安全的对象会出现数据丢失
+     * AtomicInteger 线程安全
      */
-    private Map<String, Integer> mSuccessMessageCount = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, AtomicInteger> mSuccessMessageCount = new ConcurrentHashMap<>();
     //用于保存成功数据
     /**
-     * 只考虑同一批接收完成的消息，接收完成后释放
+     * 所有离线消息接收完成后释放
      */
-    private CopyOnWriteArrayList<String> mSuccessMsgIds = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArraySet<String> mSuccessMsgIds = new CopyOnWriteArraySet<>();
+    /**
+     * 等待更新sessionGid,离线批量更新session
+     */
+    private CopyOnWriteArraySet<String> mToUpdateSessionGids = new CopyOnWriteArraySet<>();
+    /**
+     * 等待更新session uid好友,离线批量更新session
+     */
+    private CopyOnWriteArraySet<Long> mToUpdateSessionUids = new CopyOnWriteArraySet<>();
     /**
      * newFixedThreadPool与cacheThreadPool差不多，也是能reuse就用，但不能随时建新的线程
      * 任意时间点，最多只能有固定数目的活动线程存在，此时如果有新的线程要建立，只能放在另外的队列中等待，直到当前的线程中某个线程终止直接被移出池子
      */
     private ThreadPoolExecutor executor = null;
+
+    public OfflineMessage() {
+        super(true);
+    }
 
 
     @Override
@@ -80,7 +94,7 @@ public class OfflineMessage extends DispatchMessage {
         try {
             List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
             if (msgList != null && msgList.size() > 0) {
-                mSuccessMessageCount.put(bean.getRequestId(), 0);
+                mSuccessMessageCount.put(bean.getRequestId(), new AtomicInteger());
                 int index = 0;
                 int page = OFFLINE_BATCH_COUNT;//每次处理消息的数量，可自己调整，以提高接收离线消息的速度,太小也会过慢，启动任务需要时间
                 int max = Math.min(msgList.size(), page);
@@ -98,6 +112,7 @@ public class OfflineMessage extends DispatchMessage {
         }
     }
 
+
     @Override
     public boolean filter(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
@@ -109,6 +124,9 @@ public class OfflineMessage extends DispatchMessage {
         }
         if (mSuccessMsgIds.contains(wrapMessage.getMsgId())) {//已经保存过了
             return true;
+        } else {
+            //收集gid和uid,用于最后更新session
+            toCollectUpdateSesionIds(wrapMessage.getGid(), wrapMessage.getFromUid(), wrapMessage.getToUid());
         }
         return false;
     }
@@ -133,7 +151,7 @@ public class OfflineMessage extends DispatchMessage {
                 for (int i = mIndex; i < max; i++) {
                     MsgBean.UniversalMessage.WrapMessage wrapMessage = msgList.get(i);
                     //是否为本批消息的最后一条消息,并发的只能取数量
-                    boolean isLastMessage = mSuccessMessageCount.get(requestId) == msgList.size();
+                    boolean isLastMessage = mSuccessMessageCount.get(requestId).get() == msgList.size();
                     boolean toDOResult = false;
                     //开始处理消息
                     toDOResult = toDoMsg(realm, wrapMessage, requestId, msgFrom == 1, msgList.size(),
@@ -147,9 +165,12 @@ public class OfflineMessage extends DispatchMessage {
                         //清除数量
                         clearSuccessCount(requestId);
                     }
+
                 }
+
                 if (mSuccessMessageCount.containsKey(requestId)) {
-                    if (mSuccessMessageCount.get(requestId) == msgList.size()) {
+                    if (mSuccessMessageCount.get(requestId).get() == msgList.size()) {
+                        //刷新session
                         LogUtil.writeLog("dispatchMsg end success");
 
                         //全部保存成功，消息回执
@@ -178,6 +199,46 @@ public class OfflineMessage extends DispatchMessage {
     }
 
     /**
+     * 收集本批消息的gid和UId用于更新session，更新session后移除
+     *
+     * @param gid
+     * @param fromUid
+     */
+    private void toCollectUpdateSesionIds(String gid, Long fromUid, Long toUid) {
+        if (TextUtils.isEmpty(gid)) {
+            long friendUid = fromUid;
+            boolean isFromSelf = UserAction.getMyId() != null && fromUid == UserAction.getMyId().intValue();
+            if (fromUid == -1 || isFromSelf) {//-1表示系统消息
+                friendUid = toUid;
+            }
+            if (UserAction.getMyId() != null && friendUid != UserAction.getMyId().intValue()) {
+                mToUpdateSessionUids.add(isFromSelf ? toUid : fromUid);
+            }
+        } else {
+            mToUpdateSessionGids.add(gid);
+        }
+    }
+
+    /**
+     * 本批消息接收完成后，更新相关的session
+     *
+     * @param realm
+     */
+    private void updateSessions(Realm realm) {
+        while (mToUpdateSessionUids.iterator().hasNext()) {
+            Long uid = mToUpdateSessionUids.iterator().next();
+            mToUpdateSessionUids.remove(uid);
+            repository.offlineUpdateSession(realm, null, uid);
+        }
+
+        while (mToUpdateSessionGids.iterator().hasNext()) {
+            String gid = mToUpdateSessionGids.iterator().next();
+            mToUpdateSessionGids.remove(gid);
+            repository.offlineUpdateSession(realm, gid, null);
+        }
+    }
+
+    /**
      * 接收完离线消息
      *
      * @param realm
@@ -200,19 +261,21 @@ public class OfflineMessage extends DispatchMessage {
                 //本次离线消息是否接收完成
                 mSuccessMsgIds.clear();
             }
-
         }
+        //更新所有的session
+        updateSessions(realm);
     }
 
-    private void clearSuccessCount(String requestId) {
+    private synchronized void clearSuccessCount(String requestId) {
         if (mSuccessMessageCount.containsKey(requestId)) {
             mSuccessMessageCount.remove(requestId);
         }
     }
 
-    private void pushSuccessCount(String requestId) {
+    private synchronized void pushSuccessCount(String requestId) {
         if (mSuccessMessageCount.containsKey(requestId)) {
-            mSuccessMessageCount.put(requestId, mSuccessMessageCount.get(requestId) + 1);
+            mSuccessMessageCount.get(requestId).getAndIncrement();
+            LogUtil.writeLog("dispatchMsg suces=" + mSuccessMessageCount.get(requestId).get() + "  ");
         }
     }
 

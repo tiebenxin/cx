@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.realm.Realm;
+import io.realm.Sort;
 
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACCEPT_BE_FRIENDS;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACTIVE_STAT_CHANGE;
@@ -85,10 +86,13 @@ public class MessageRepository {
      * 用于自己发送的消息对方已读 和阅后即焚消息状态
      */
     public Map<Long, Long> offlineFriendReadMsg = new ConcurrentHashMap<>();
+    private boolean isOffline;
 
-    public MessageRepository() {
+    public MessageRepository(boolean isOffline) {
         localDataSource = new MessageLocalDataSource();
         remoteDataSource = new MessageRemoteDataSource();
+        this.isOffline = isOffline;
+
     }
 
 
@@ -837,7 +841,7 @@ public class MessageRepository {
     /*
      * 保存消息
      * @param msgAllBean 消息
-     * @isList 是否是批量消息
+     *
      * */
     private boolean saveMessageNew(MsgAllBean msgAllBean, Realm realm) {
         if (msgAllBean == null) return false;
@@ -882,15 +886,19 @@ public class MessageRepository {
                 LogUtil.getLog().d("a=", TAG + "--需要加载用户信息");
             }
             long chatterId = isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid();
-            //非自己发过来的消息，才存储为未读状态
-            if (!isFromSelf) {
-                boolean canChangeUnread = !MessageManager.getInstance().isMsgFromCurrentChat(msgAllBean.getGid(), null);
-                localDataSource.updateSessionRead(realm, msgAllBean.getGid(), chatterId, canChangeUnread, msgAllBean, null);
-            } else {
-                //自己PC 端发的消息刷新session
-                /********通知更新或创建session ************************************/
-                localDataSource.updateFromSelfPCSession(realm, msgAllBean);
-                /********通知更新或创建session end************************************/
+            //是否是对方 @所有人或@自己的消息
+            boolean isAtMyself = msgAllBean != null && msgAllBean.getAtMessage() != null && msgAllBean.getAtMessage().getAt_type() != 1000;
+            if (!isOffline || (!isFromSelf && isAtMyself)) {//在线消息 或@自己的消息，及时更新session，离线消息等批量结束后更新
+                //非自己发过来的消息，才存储为未读状态
+                if (!isFromSelf) {
+                    boolean canChangeUnread = !MessageManager.getInstance().isMsgFromCurrentChat(msgAllBean.getGid(), null);
+                    localDataSource.updateSessionRead(realm, msgAllBean.getGid(), chatterId, canChangeUnread, msgAllBean);
+                } else {
+                    //自己PC 端发的消息刷新session
+                    /********通知更新或创建session ************************************/
+                    localDataSource.updateFromSelfPCSession(realm, msgAllBean);
+                    /********通知更新或创建session end************************************/
+                }
             }
             result = true;
         } catch (Exception e) {
@@ -935,5 +943,42 @@ public class MessageRepository {
         } catch (Exception e) {
         }
 
+    }
+
+    /**
+     * 接收离线消息后 更新session
+     *
+     * @param realm
+     * @param gid
+     * @param uid
+     */
+    public void offlineUpdateSession(Realm realm, String gid, Long uid) {
+        //最新消息
+        MsgAllBean lastMessage = null;
+        if (TextUtils.isEmpty(gid)) {
+            lastMessage = realm.where(MsgAllBean.class)
+                    .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup()
+                    .equalTo("from_uid", uid).or().equalTo("to_uid", uid)
+                    .endGroup()
+                    .sort("timestamp", Sort.DESCENDING).findFirst();
+        } else {
+            lastMessage = realm.where(MsgAllBean.class).equalTo("gid", gid).sort("timestamp", Sort.DESCENDING).findFirst();
+        }
+        if (lastMessage != null) {
+            boolean isFromSelf = UserAction.getMyId() != null && lastMessage.getFrom_uid() == UserAction.getMyId().intValue();
+            long chatterId = isFromSelf ? lastMessage.getTo_uid() : lastMessage.getFrom_uid();
+            //非自己发过来的消息，才存储为未读状态
+            if (!isFromSelf) {
+                boolean canChangeUnread = !MessageManager.getInstance().isMsgFromCurrentChat(lastMessage.getGid(), null);
+                localDataSource.updateSessionRead(realm, lastMessage.getGid(), chatterId, canChangeUnread, lastMessage);
+            } else {
+                //自己PC 端发的消息刷新session
+                /********通知更新或创建session ************************************/
+                localDataSource.updateFromSelfPCSession(realm, lastMessage);
+                /********通知更新或创建session end************************************/
+            }
+        }
     }
 }
