@@ -154,7 +154,7 @@ public class BindPhoneNumActivity extends AppActivity {
                 return;
             }
         }
-        CountDownUtil.getTimer(60, tvGetCode, "发送验证码", this, new CountDownUtil.CallTask() {
+        CountDownUtil.getTimer(60, tvGetCode, "获取验证码", this, new CountDownUtil.CallTask() {
             @Override
             public void task() {
                 if(hadPhoneNum){

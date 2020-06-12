@@ -19,9 +19,9 @@ public class CameraHelp {
 
     //默认录制大小
     private int[] previewSize = new int[2];
-//    private final static int defaultSize = 1280*720;
-    private final static int defaultSize = 1920*1080;
-    private final static float defaultRatio = 9f/16f;
+    //    private final static int defaultSize = 1280*720;
+    private final static int defaultSize = 1920 * 1080;
+    private final static float defaultRatio = 9f / 16f;
 
     private Camera mCamera;
     private Camera.PreviewCallback previewCallback;
@@ -29,10 +29,10 @@ public class CameraHelp {
     private int cameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
     private boolean isFlashOpen;
 
-    public void openCamera(Activity activity, int cameraId, SurfaceHolder surfaceHolder){
+    public void openCamera(Activity activity, int cameraId, SurfaceHolder surfaceHolder) {
 
         try {
-            if(mCamera != null){
+            if (mCamera != null) {
                 release();
             }
             this.cameraId = cameraId;
@@ -58,7 +58,7 @@ public class CameraHelp {
     }
 
     //自动对焦
-    private String  getAutoFocus(){
+    private String getAutoFocus() {
 
         Camera.Parameters parameters = mCamera.getParameters();
         List<String> focusModes = parameters.getSupportedFocusModes();
@@ -73,14 +73,14 @@ public class CameraHelp {
     }
 
     //摄像大小
-    private int[] getPreviewSize(){
+    private int[] getPreviewSize() {
 
         int[] previewSize = new int[2];
         Camera.Parameters parameters = mCamera.getParameters();
         List<Camera.Size> supportedPreviewSizes = parameters.getSupportedPreviewSizes();
 
         for (Camera.Size size : supportedPreviewSizes) {
-            if ((size.width*size.height==defaultSize) && (size.width*1f/size.height==defaultRatio)) {
+            if ((size.width * size.height == defaultSize) && (size.width * 1f / size.height == defaultRatio)) {
                 previewSize[0] = size.width;
                 previewSize[1] = size.height;
                 return previewSize;
@@ -104,113 +104,112 @@ public class CameraHelp {
         return previewSize;
     }
 
-    public int getCameraId(){
+    public int getCameraId() {
         return cameraId;
     }
 
-    public void changeFlash(){
-        if(mCamera != null){
-            Camera.Parameters parameters = mCamera.getParameters();
-            String flashMode = parameters.getFlashMode();
-            List<String> flashModeList = parameters.getSupportedFlashModes();
-            if(!isFlashOpen){
-                if (flashModeList!=null && flashModeList.contains("torch") && !"torch".equals(flashMode)) {
-                    try{
-                        parameters.setFlashMode("torch");
-                        mCamera.setParameters(parameters);
-                        isFlashOpen = true;
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
+    public void changeFlash(Camera camera) {
+        if (camera == null) {
+            camera = mCamera;
+        }
+        Camera.Parameters parameters = camera.getParameters();
+        String flashMode = parameters.getFlashMode();
+        List<String> flashModeList = parameters.getSupportedFlashModes();
+        if (!isFlashOpen) {
+            if (flashModeList != null && flashModeList.contains("torch") && !"torch".equals(flashMode)) {
+                try {
+                    parameters.setFlashMode("torch");
+                    camera.setParameters(parameters);
+                    isFlashOpen = true;
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            }else{
-                if (flashModeList != null && flashModeList.contains("off") && !"off".equals(flashMode)) {
-                    try{
-                        parameters.setFlashMode("off");
-                        mCamera.setParameters(parameters);
-                        isFlashOpen = false;
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
+            }
+        } else {
+            if (flashModeList != null && flashModeList.contains("off") && !"off".equals(flashMode)) {
+                try {
+                    parameters.setFlashMode("off");
+                    camera.setParameters(parameters);
+                    isFlashOpen = false;
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }
     }
 
-    public boolean isFlashOpen(){
+    public boolean isFlashOpen() {
         return isFlashOpen;
     }
 
-    public String getFlashMode(){
-        if(mCamera != null){
+    public String getFlashMode() {
+        if (mCamera != null) {
             Camera.Parameters parameters = mCamera.getParameters();
             return parameters.getFlashMode();
         }
         return "";
     }
 
-    public void release(){
-        if(mCamera != null){
+    public void release() {
+        if (mCamera != null) {
             try {
                 isFlashOpen = false;
                 mCamera.setPreviewCallback(null);
                 mCamera.stopPreview();
                 mCamera.release();
                 mCamera = null;
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public int getDisplayOrientation(){
+    public int getDisplayOrientation() {
         return displayOrientation;
     }
 
-    public int getWidth(){
+    public int getWidth() {
         return previewSize[0];
     }
 
-    public int getHeight(){
+    public int getHeight() {
         return previewSize[1];
     }
 
-    public void setPreviewCallback(Camera.PreviewCallback previewCallback){
+    public void setPreviewCallback(Camera.PreviewCallback previewCallback) {
         this.previewCallback = previewCallback;
     }
 
-    public void callFocusMode(){
+    public void callFocusMode() {
 
         try {
             List<String> focusModes = mCamera.getParameters().getSupportedFocusModes();
             if (focusModes != null && focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
-                focusOnTouch(previewSize[0]/2, previewSize[1]/2);
+                focusOnTouch(previewSize[0] / 2, previewSize[1] / 2);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private void focusOnTouch(int x, int y) {
-
         Rect rect = new Rect(x - 100, y - 100, x + 100, y + 100);
-
         int left = rect.left * 2000 / previewSize[0] - 1000;
         int top = rect.top * 2000 / previewSize[1] - 1000;
         int right = rect.right * 2000 / previewSize[0] - 1000;
         int bottom = rect.bottom * 2000 / previewSize[1] - 1000;
 
         // 如果超出了(-1000,1000)到(1000, 1000)的范围，则会导致相机崩溃
-        if(left < -1000){
+        if (left < -1000) {
             left = 1000;
         }
-        if(top < -1000){
+        if (top < -1000) {
             top = -1000;
         }
-        if(right > 1000){
+        if (right > 1000) {
             right = 1000;
         }
-        if(bottom > 1000){
+        if (bottom > 1000) {
             bottom = 1000;
         }
 
@@ -241,7 +240,7 @@ public class CameraHelp {
     }
 
     //得到摄像旋转角度
-    private int getCameraDisplayOrientation(Activity activity, int cameraId) {
+    public int getCameraDisplayOrientation(Activity activity, int cameraId) {
 
         Camera.CameraInfo info = new Camera.CameraInfo();
         Camera.getCameraInfo(cameraId, info);

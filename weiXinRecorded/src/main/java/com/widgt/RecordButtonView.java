@@ -26,7 +26,7 @@ import com.zhaoss.weixinrecorded.R;
  * @date 2020/5/29
  * Description 录制视频按钮
  */
-public class RecordButtonView extends FrameLayout {
+public class RecordButtonView extends FrameLayout implements CaptureListener {
     private Context mContext;
     private CaptureButton btCapture;
     private TextView tvNotice;
@@ -71,54 +71,6 @@ public class RecordButtonView extends FrameLayout {
         btSure = view.findViewById(R.id.bt_sure);
         llResult = view.findViewById(R.id.ll_result);
         resetUI(true);
-
-        btCapture.setCaptureListener(new CaptureListener() {
-            @Override
-            public void takePictures() {
-                if (listener != null) {
-                    listener.takePictures();
-                }
-            }
-
-            @Override
-            public void recordShort(long time) {
-                if (listener != null) {
-                    listener.recordShort(time);
-                }
-            }
-
-            @Override
-            public void recordStart() {
-                if (listener != null) {
-                    listener.recordStart();
-                }
-                resetUI(false);
-            }
-
-            @Override
-            public void recordEnd(long time) {
-                if (listener != null) {
-                    listener.recordEnd(time);
-                }
-                startAlphaAnimation();
-                startTypeBtnAnimator();
-            }
-
-            @Override
-            public void recordZoom(float zoom) {
-                if (listener != null) {
-                    listener.recordZoom(zoom);
-                }
-            }
-
-            @Override
-            public void recordError() {
-                if (listener != null) {
-                    listener.recordError();
-                }
-            }
-        });
-
         btCancel.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -170,7 +122,7 @@ public class RecordButtonView extends FrameLayout {
         btCancel.setVisibility(VISIBLE);
         btSure.setVisibility(VISIBLE);
         btCancel.setClickable(false);
-        btCancel.setClickable(false);
+        btSure.setClickable(false);
 //        ObjectAnimator animator_cancel = ObjectAnimator.ofFloat(btCancel, "translationX", layout_width / 4, 0);
 //        ObjectAnimator animator_confirm = ObjectAnimator.ofFloat(btSure, "translationX", -layout_width / 4, 0);
         ObjectAnimator animator_cancel = ObjectAnimator.ofFloat(btCancel, "translationX", 0, -layout_width / 4);
@@ -194,10 +146,80 @@ public class RecordButtonView extends FrameLayout {
         if (flag) {
             tvNotice.setVisibility(VISIBLE);
             btReturn.setVisibility(VISIBLE);
+            btCapture.setVisibility(VISIBLE);
+            if (llResult.isShown()) {
+                llResult.setVisibility(GONE);
+            }
+            btCapture.setCaptureListener(this);
+            btCapture.resetRecordAnim();
+        } else {
+            tvNotice.setVisibility(GONE);
+            btReturn.setVisibility(GONE);
+            btCapture.setVisibility(GONE);
+        }
+    }
+
+    public void resetNotice(boolean flag) {
+        if (flag) {
+            tvNotice.setVisibility(VISIBLE);
+            btReturn.setVisibility(VISIBLE);
+
         } else {
             tvNotice.setVisibility(GONE);
             btReturn.setVisibility(GONE);
         }
     }
 
+    public void recordEnd() {
+        btCapture.recordEnd();
+    }
+
+    @Override
+    public void takePictures() {
+        if (listener != null) {
+            listener.takePictures();
+        }
+    }
+
+    @Override
+    public void recordShort(long time) {
+        if (listener != null) {
+            listener.recordShort(time);
+        }
+    }
+
+    @Override
+    public void recordStart() {
+        if (listener != null) {
+            listener.recordStart();
+        }
+        resetNotice(false);
+    }
+
+    @Override
+    public void recordEnd(long time) {
+        if (listener != null) {
+            listener.recordEnd(time);
+        }
+        startAlphaAnimation();
+        startTypeBtnAnimator();
+    }
+
+    @Override
+    public void recordZoom(float zoom) {
+        if (listener != null) {
+            listener.recordZoom(zoom);
+        }
+    }
+
+    @Override
+    public void recordError() {
+        if (listener != null) {
+            listener.recordError();
+        }
+    }
+
+    public void onResume() {
+        btCapture.resetState();
+    }
 }

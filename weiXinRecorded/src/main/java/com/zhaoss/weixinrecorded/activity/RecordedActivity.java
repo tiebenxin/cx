@@ -345,12 +345,7 @@ public class RecordedActivity extends BaseActivity {
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-                mCameraHelp.changeFlash();
-                if (mCameraHelp.isFlashOpen()) {
-//                    layout_flash_video.setImageResource(R.mipmap.video_flash_open);
-                } else {
-//                    layout_flash_video.setImageResource(R.mipmap.video_flash_close);
-                }
+                mCameraHelp.changeFlash(null);
             }
         });
 

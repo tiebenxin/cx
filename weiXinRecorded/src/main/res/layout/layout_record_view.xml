@@ -33,7 +33,7 @@
             android:layout_marginBottom="10dp"
             app:button_size="80dp" />
 
-        <com.yanlong.videodemo.widgt.ReturnButton
+        <com.widgt.ReturnButton
             android:id="@+id/bt_return"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

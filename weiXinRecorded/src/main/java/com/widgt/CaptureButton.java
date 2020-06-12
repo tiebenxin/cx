@@ -105,11 +105,10 @@ public class CaptureButton extends View {
 
         progress = 0;
         longPressRunnable = new LongPressRunnable();
-
-        state = STATE_IDLE;                //初始化为空闲状态
+        setState(STATE_IDLE);//初始化为空闲状态
         button_state = BUTTON_STATE_BOTH;  //初始化按钮为可录制可拍照
-        duration = 10 * 1000;              //默认最长录制时间为10s
-        min_duration = 1500;              //默认最短录制时间为1.5s
+        duration = 18 * 1000 + 400;              //默认最长录制时间为18s + 延时时间400ms
+        min_duration = 1000;              //默认最短录制时间为1s
 
         center_X = (button_size + outside_add_size * 2) / 2;
         center_Y = (button_size + outside_add_size * 2) / 2;
@@ -157,11 +156,11 @@ public class CaptureButton extends View {
                 if (event.getPointerCount() > 1 || state != STATE_IDLE)
                     break;
                 event_Y = event.getY();     //记录Y值
-                state = STATE_PRESS;        //修改当前状态为点击按下
-
+                //修改当前状态为点击按下
+                setState(STATE_PRESS);
                 //判断按钮状态是否为可录制状态
                 if ((button_state == BUTTON_STATE_ONLY_RECORDER || button_state == BUTTON_STATE_BOTH))
-                    postDelayed(longPressRunnable, 500);    //同时延长500启动长按后处理的逻辑Runnable
+                    postDelayed(longPressRunnable, 300);    //同时延长300启动长按后处理的逻辑Runnable
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (captureListener != null
@@ -190,7 +189,7 @@ public class CaptureButton extends View {
                         BUTTON_STATE_BOTH)) {
                     startCaptureAnimation(button_inside_radius);
                 } else {
-                    state = STATE_IDLE;
+                    setState(STATE_IDLE);
                 }
                 break;
             //当前是长按状态
@@ -202,7 +201,7 @@ public class CaptureButton extends View {
     }
 
     //录制结束
-    private void recordEnd() {
+    public void recordEnd() {
         if (captureListener != null) {
             if (recorded_time < min_duration)
                 captureListener.recordShort(recorded_time);//回调录制时间过短
@@ -213,8 +212,8 @@ public class CaptureButton extends View {
     }
 
     //重制状态
-    private void resetRecordAnim() {
-        state = STATE_BAN;
+    public void resetRecordAnim() {
+        setState(STATE_IDLE);
         progress = 0;       //重制进度
         invalidate();
         //还原按钮初始状态动画
@@ -242,7 +241,7 @@ public class CaptureButton extends View {
                 super.onAnimationEnd(animation);
                 //回调拍照接口
                 captureListener.takePictures();
-                state = STATE_BAN;
+                setState(STATE_IDLE);
             }
         });
         inside_anim.setDuration(100);
@@ -279,7 +278,7 @@ public class CaptureButton extends View {
                 if (state == STATE_LONG_PRESS) {
                     if (captureListener != null)
                         captureListener.recordStart();
-                    state = STATE_RECORDERING;
+                    setState(STATE_RECORDERING);
                     timer.start();
                 }
             }
@@ -319,10 +318,10 @@ public class CaptureButton extends View {
     private class LongPressRunnable implements Runnable {
         @Override
         public void run() {
-            state = STATE_LONG_PRESS;   //如果按下后经过500毫秒则会修改当前状态为长按状态
+            setState(STATE_LONG_PRESS);//如果按下后经过300毫秒则会修改当前状态为长按状态
             //没有录制权限
             if (CheckPermission.getRecordState() != CheckPermission.STATE_SUCCESS) {
-                state = STATE_IDLE;
+                setState(STATE_IDLE);
                 if (captureListener != null) {
                     captureListener.recordError();
                     return;
@@ -375,6 +374,10 @@ public class CaptureButton extends View {
 
     //设置状态
     public void resetState() {
-        state = STATE_IDLE;
+        setState(STATE_IDLE);
+    }
+
+    public void setState(int state) {
+        this.state = state;
     }
 }

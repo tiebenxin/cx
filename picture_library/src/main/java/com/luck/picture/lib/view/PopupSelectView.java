@@ -50,7 +50,7 @@ public class PopupSelectView extends PopupWindow {
         setAnimationStyle(R.style.popup_anim);
 
         WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
-        lp.alpha = 0.3f;
+        lp.alpha = 0.6f;
         activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         activity.getWindow().setAttributes(lp);
         /**
