@@ -1,7 +1,5 @@
 package com.yanlong.im.chat.task;
 
-import android.text.TextUtils;
-
 import com.tencent.bugly.crashreport.CrashReport;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -15,15 +13,13 @@ import net.cb.cb.library.utils.LogUtil;
 
 import io.realm.Realm;
 
-import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
-
 /**
  * @createAuthor Raleigh.Luo
  * @createDate 2020/6/10 0010
  * @description
  */
 public abstract class DispatchMessage {
-    private final String TAG = DispatchMessage.class.getSimpleName();
+    protected final String TAG = DispatchMessage.class.getSimpleName();
     // Bugly数据保存异常标签
     protected final int BUGLY_TAG_SAVE_DATA = 139066;
 
@@ -37,6 +33,12 @@ public abstract class DispatchMessage {
      * @param realm
      */
     public abstract void dispatch(MsgBean.UniversalMessage bean, Realm realm);
+
+    /**
+     * 过滤消息
+     * @param wrapMessage
+     */
+    public abstract boolean filter(MsgBean.UniversalMessage.WrapMessage wrapMessage);
 
 
     /**
@@ -85,23 +87,10 @@ public abstract class DispatchMessage {
      */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, String requestId, boolean isOfflineMsg
             , Realm realm) {
-        if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
-            return true;
-        }
-        /******丢弃离线消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
-        if (isOfflineMsg && isHistoryCleanBeforeMessage(wrapMessage)) {
-            return true;
-        }
+        //过滤消息
+        if(filter(wrapMessage))return true;
         LogUtil.getLog().e(TAG, "接收到消息: " + wrapMessage.getMsgId() + "--type=" + wrapMessage.getMsgType());
-        if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
-            //有已保存成功的消息，则不再处理
-            if (oldMsgId.contains(wrapMessage.getMsgId())) {
-                LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
-                return true;
-            }
-        }
         repository.updateUserAvatarAndNick(wrapMessage, realm);
-
         boolean isFromSelf = false;
         if (UserAction.getMyId() != null) {
             isFromSelf = wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
@@ -206,39 +195,10 @@ public abstract class DispatchMessage {
                 repository.toDoMultiTerminalSync(wrapMessage, realm);
                 break;
         }
-        //记录已保存成功的消息
-        if (result && !TextUtils.isEmpty(wrapMessage.getMsgId())) {
-            if (oldMsgId.size() >= 500) {
-                oldMsgId.remove(0);
-            }
-            oldMsgId.add(wrapMessage.getMsgId());
-        }
+
         return result;
     }
 
 
-    /**
-     * 丢弃双向清除消息
-     *
-     * @param wrapMessage
-     */
-    private boolean isHistoryCleanBeforeMessage(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
-        boolean result = false;
-        if (TextUtils.isEmpty(wrapMessage.getGid()) && repository.historyCleanMsg.size() > 0) {//单聊
-            long timestamp = wrapMessage.getTimestamp();
-            long fromUid = wrapMessage.getFromUid();
-            long toUid = wrapMessage.getToUid();
-            if (repository.historyCleanMsg.containsKey(fromUid) && repository.historyCleanMsg.get(fromUid) >= timestamp) {
-                if (repository.historyCleanMsg.get(fromUid) >= timestamp) {
-                    result = true;
-                }
-            }
-            if (repository.historyCleanMsg.containsKey(toUid) && repository.historyCleanMsg.get(toUid) >= timestamp) {
-                if (repository.historyCleanMsg.get(toUid) >= timestamp) {
-                    result = true;
-                }
-            }
-        }
-        return result;
-    }
+
 }

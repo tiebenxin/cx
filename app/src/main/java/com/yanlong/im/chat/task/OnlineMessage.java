@@ -1,13 +1,19 @@
 package com.yanlong.im.chat.task;
 
+import android.text.TextUtils;
+
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
 
+import net.cb.cb.library.utils.LogUtil;
+
 import java.util.List;
 
 import io.realm.Realm;
+
+import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
 
 /**
  * @createAuthor Raleigh.Luo
@@ -36,8 +42,18 @@ public class OnlineMessage extends DispatchMessage {
                     //开始处理消息
                     boolean toDOResult = toDoMsg(realm, wrapMessage, bean.getRequestId(), bean.getMsgFrom() == 1, msgList.size(),
                             i == msgList.size() - 1);
-                    //有一个失败，表示接收全部失败
-                    if (!toDOResult) result = false;
+                    if (toDOResult) {
+                        //记录已保存成功的消息,用于剔除重复消息
+                        if (result && !TextUtils.isEmpty(wrapMessage.getMsgId())) {
+                            if (oldMsgId.size() >= 500) {
+                                oldMsgId.remove(0);
+                            }
+                            oldMsgId.add(wrapMessage.getMsgId());
+                        }
+                    } else {
+                        //有一个失败，表示接收全部失败
+                        result = false;
+                    }
                 }
             }
         } catch (Exception e) {
@@ -45,5 +61,18 @@ public class OnlineMessage extends DispatchMessage {
         }
         if (result)
             SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
+    }
+
+    @Override
+    public boolean filter(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
+            return true;
+        } else if (!TextUtils.isEmpty(wrapMessage.getMsgId()) && oldMsgId.contains(wrapMessage.getMsgId())) {
+            //有已保存成功的消息，则不再处理
+            LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
+            return true;
+        } else {
+            return false;
+        }
     }
 }

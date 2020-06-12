@@ -38,9 +38,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.realm.Realm;
 
@@ -65,26 +65,26 @@ public class MessageRepository {
      * 保存接收了双向清除指令的from_uid-待最后一条消息时间戳
      * 用于丢弃在此时间戳之前的消息
      */
-    public Map<Long, Long> historyCleanMsg = new HashMap<>();
+    public Map<Long, Long> historyCleanMsg = new ConcurrentHashMap<>();
 
     /**
      * 处理群聊 接收离线消息 自己PC端发送的已读消息
      * 保存已读消息 gid-消息时间戳
      * 用于处理自己已读和阅后即焚消息状态
      */
-    public Map<String, Long> offlineMySelfPCGroupReadMsg = new HashMap<>();
+    public Map<String, Long> offlineMySelfPCGroupReadMsg = new ConcurrentHashMap<>();
     /**
      * 处理单聊 接收离线消息 自己PC端发送的已读消息
      * 保存已读消息 from_uid-消息时间戳
      * 用于处理自己已读和阅后即焚消息状态
      */
-    public Map<Long, Long> offlineMySelfPCFriendReadMsg = new HashMap<>();
+    public Map<Long, Long> offlineMySelfPCFriendReadMsg = new ConcurrentHashMap<>();
     /**
      * 处理单聊 接收离线消息 对方发送的已读消息
      * 保存已读消息 to_uid-消息时间戳
      * 用于自己发送的消息对方已读 和阅后即焚消息状态
      */
-    public Map<Long, Long> offlineFriendReadMsg = new HashMap<>();
+    public Map<Long, Long> offlineFriendReadMsg = new ConcurrentHashMap<>();
 
     public MessageRepository() {
         localDataSource = new MessageLocalDataSource();
