@@ -165,23 +165,18 @@ public class OfflineMessage extends DispatchMessage {
                         //清除数量
                         clearSuccessCount(requestId);
                     }
-
                 }
-
                 if (mSuccessMessageCount.containsKey(requestId)) {
                     if (mSuccessMessageCount.get(requestId).get() == msgList.size()) {
                         //刷新session
-                        LogUtil.writeLog("dispatchMsg end success");
-
                         //全部保存成功，消息回执
-//                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, true), null, requestId);
+                        SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, true), null, requestId);
                         //接收完离线消息的处理
                         recieveFinished(realm, msgList.size(), true);
                         //清除数量
                         clearSuccessCount(requestId);
                     }
                 } else {//被移除了，说明至少有一个消息接收失败
-                    LogUtil.writeLog("dispatchMsg end error");
                     //接收完离线消息的处理
                     recieveFinished(realm, msgList.size(), false);
                 }
@@ -275,7 +270,6 @@ public class OfflineMessage extends DispatchMessage {
     private synchronized void pushSuccessCount(String requestId) {
         if (mSuccessMessageCount.containsKey(requestId)) {
             mSuccessMessageCount.get(requestId).getAndIncrement();
-            LogUtil.writeLog("dispatchMsg suces=" + mSuccessMessageCount.get(requestId).get() + "  ");
         }
     }
 
