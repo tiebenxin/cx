@@ -461,7 +461,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         public void run() {
                             mtListView.scrollToEnd();
                         }
-                    }, 500);
+                    }, delayMillis);
                 } else {//关闭
                     //清除焦点
                     editChat.clearFocus();
@@ -886,7 +886,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 //                    mViewModel.isInputText.setValue(true);
                     //滑动到底部
 //                    mtListView.scrollToEnd();
-                } else if (bottom > oldBottom && bottom-oldBottom == mKeyboardHeight) {//软键盘关闭，键盘右上角
+                } else if (bottom > oldBottom && bottom - oldBottom == mKeyboardHeight) {//软键盘关闭，键盘右上角
                     mViewModel.isInputText.setValue(false);
                 }
             }
@@ -2956,6 +2956,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (!TextUtils.isEmpty(uid) && !TextUtils.isEmpty(name)) {
                         editChat.addAtSpan(null, name, Long.valueOf(uid));
                     }
+                    editChat.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            editChat.requestFocus();
+                            InputUtil.showKeyboard(editChat);
+                            if (!mViewModel.isInputText.getValue()) mViewModel.isInputText.setValue(true);
+                        }
+                    }, 100);
                     break;
                 case FilePickerManager.REQUEST_CODE:
                     //断网提示
@@ -5527,9 +5535,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (ViewUtils.isFastDoubleClick()) {
             return;
         }
-        if (mViewModel.isInputText.getValue()) {
-            mViewModel.isInputText.setValue(false);
-        }
+//        if (mViewModel.isInputText.getValue()) {
+//            mViewModel.isInputText.setValue(false);
+//        }
         switch (type) {
             case ChatEnum.ECellEventType.TXT_CLICK:
                 break;

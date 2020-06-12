@@ -41,7 +41,6 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.WindowManager;
 
-
 import com.muxer.MediaVideoEncoder;
 import com.widgt.CameraCallBack;
 
@@ -722,27 +721,36 @@ public final class CameraGLView extends GLSurfaceView {
                 mCamera.takePicture(null, null, new Camera.PictureCallback() {
                     @Override
                     public void onPictureTaken(byte[] data, Camera camera) {
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                        android.graphics.Matrix matrix = new android.graphics.Matrix();
-                        if (!isCameraFrontFacing()) {
-                            matrix.setRotate(oriention);
-                        } else {
-                            matrix.setRotate(360 - oriention);
-                            matrix.postScale(-1, 1);
-                        }
+                        try {
+                            if (data == null) {
+                                return;
+                            }
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                            if (bitmap == null) {
+                                return;
+                            }
+                            android.graphics.Matrix matrix = new android.graphics.Matrix();
+                            if (!isCameraFrontFacing()) {
+                                matrix.setRotate(oriention);
+                            } else {
+                                matrix.setRotate(360 - oriention);
+                                matrix.postScale(-1, 1);
+                            }
 
-                        bitmap = createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-                        FileOutputStream fos = null;
-                        try {
-                            fos = new FileOutputStream(photoPath);
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                        try {
+                            bitmap = createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                            FileOutputStream fos = null;
+                            try {
+                                fos = new FileOutputStream(photoPath);
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+
                             fos.close();
-                            callBack.takePhoneSuccess(photoPath);
-                        } catch (IOException e) {
+                            if (callBack != null) {
+                                callBack.takePhoneSuccess(photoPath);
+                            }
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }

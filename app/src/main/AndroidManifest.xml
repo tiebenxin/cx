@@ -674,6 +674,12 @@
         <activity
             android:name=".user.ui.baned.BanedAccountActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".user.ui.baned.WithdrawBalanceActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".user.ui.baned.WithDrawFailActivity"
+            android:screenOrientation="portrait" />
 
     </application>
 
