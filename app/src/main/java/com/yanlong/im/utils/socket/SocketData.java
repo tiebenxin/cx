@@ -823,6 +823,7 @@ public class SocketData {
         note.setMsgid(mid);
         note.setMsgType(8);
         String name = msgDao.getUsername4Show(toGid, toId);
+
         String rname = "<font color='#276baa' id='" + toId + "'>" + name + "</font>";
         if (toId.longValue() == UserAction.getMyId().longValue()) {
             rname = "自己";

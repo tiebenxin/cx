@@ -860,28 +860,7 @@ public class MessageRepository {
             boolean isCancel = msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CANCEL;
             //群
             if (!TextUtils.isEmpty(msgAllBean.getGid()) && localDataSource.getGroup(realm, msgAllBean.getGid()) == null) {
-                String gid = msgAllBean.getGid();
-                remoteDataSource.getGroupInfo(msgAllBean.getGid(), new Function<Group, Boolean>() {
-                    @NullableDecl
-                    @Override
-                    public Boolean apply(@NullableDecl Group group) {
-                        //网络请求后，都在主线程回调，不需要关闭Realm,Applicaiton中会自动关闭
-                        Realm realm1 = DaoUtil.open();
-                        saveGoupToDB(group, realm1);
-                        //通知更新UI
-                        MessageManager.getInstance().notifyGroupChange(gid);
-                        /********通知更新sessionDetail************************************/
-                        List<String> gids = new ArrayList<>();
-                        if (!TextUtils.isEmpty(gid)) {
-                            gids.add(gid);
-                        }
-                        //回主线程调用更新session详情
-                        if (MyAppLication.INSTANCE().repository != null)
-                            MyAppLication.INSTANCE().repository.updateSessionDetail(gids, null);
-                        /********通知更新sessionDetail end************************************/
-                        return true;
-                    }
-                });
+                requestGroupInfo(msgAllBean.getGid());
             } else if (TextUtils.isEmpty(msgAllBean.getGid()) && uid != null && uid > 0 && localDataSource.getFriend(realm, uid) == null) {//单聊
                 long chatterId = -1;//对方的Id
                 if (isFromSelf) {
