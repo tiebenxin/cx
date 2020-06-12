@@ -596,11 +596,19 @@ public class MsgConversionBean {
                 if (TextUtils.isEmpty(bean.getGid())) {
                     formName = "\"" + bean.getNickname() + "\"";
                 } else {
-                    formName = msgDao.getGroupMemberName(bean.getGid(), bean.getFromUid(), null, null);//能查到群备注
+                    formName = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
                     formName = "\"" + formName + "\"";
                 }
                 if (bean.getFromUid() == UserAction.getMyId().intValue()) {//自己PC 端发送的消息
                     formName = "你";
+                }
+
+                if(TextUtils.isEmpty(formName)){
+                    if(!TextUtils.isEmpty(bean.getGid())&&!TextUtils.isEmpty(bean.getMembername())){
+                        formName = bean.getMembername();
+                    }else{
+                        formName = bean.getNickname();
+                    }
                 }
 
                 if (bean.getChangeSurvivalTime().getSurvivalTime() == -1) {
