@@ -137,12 +137,13 @@ public class LooseChangeActivity extends BasePayActivity {
             public void onClick(View view) {
                 layoutRecharge.setEnabled(false);
                 // 1 已设置支付密码 -> 允许跳转
-                if (userBean != null && userBean.getPayPwdStat() == 1) {
-                    startActivity(new Intent(activity, RechargeActivity.class));
-                } else {
-                    //2 未设置支付密码 -> 需要先设置
-                    showSetPaywordDialog();
-                }
+                startActivity(new Intent(activity, RechargeActivity.class));
+//                if (userBean != null && userBean.getPayPwdStat() == 1) {
+//                    startActivity(new Intent(activity, RechargeActivity.class));
+//                } else {
+//                    //2 未设置支付密码 -> 需要先设置
+//                    showSetPaywordDialog();
+//                }
             }
         });
         //提现
@@ -150,18 +151,19 @@ public class LooseChangeActivity extends BasePayActivity {
             @Override
             public void onClick(View view) {
                 //1 已设置支付密码 -> 允许跳转
-                if (userBean != null && userBean.getPayPwdStat() == 1) {
-                    //2 是否添加过银行卡
-                    startActivity(new Intent(activity, WithdrawActivity.class));
+                startActivity(new Intent(activity, WithdrawActivity.class));
+//                if (userBean != null && userBean.getPayPwdStat() == 1) {
+                //2 是否添加过银行卡
+                startActivity(new Intent(activity, WithdrawActivity.class));
 //                    if (myCardListSize > 0) {
 //                        startActivity(new Intent(activity, WithdrawActivity.class));
 //                    } else {
 //                        showAddBankCardDialog();
 //                    }
-                } else {
-                    //未设置支付密码 -> 需要先设置
-                    showSetPaywordDialog();
-                }
+//                } else {
+//                    //未设置支付密码 -> 需要先设置
+//                    showSetPaywordDialog();
+//                }
             }
         });
         //零钱明细

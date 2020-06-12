@@ -60,7 +60,7 @@ public class AppHostUtil {
     public static void setHostUrl(String url) {
         connectHostApi = url;
 //        connectHostApi = "e7.inner.zhixun6.com";
-        NetUtil.getNet().resetHost();
+        NetUtil.getNet().reset();
     }
 
     public final static String getHttpHost() {

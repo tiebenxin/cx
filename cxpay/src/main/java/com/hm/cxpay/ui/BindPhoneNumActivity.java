@@ -74,7 +74,7 @@ public class BindPhoneNumActivity extends AppActivity {
         setContentView(R.layout.activity_bind_phone);
         initView();
         initData();
-        httpGetMyPhone();
+//        httpGetMyPhone();
     }
 
     private void initView() {
@@ -194,34 +194,34 @@ public class BindPhoneNumActivity extends AppActivity {
      * <p>
      * 备注：优先获取用户IM手机号，没有则自行输入，若有则直接取手机号
      */
-    private void httpGetMyPhone() {
-        PayHttpUtils.getInstance().getMyPhone()
-                .compose(RxSchedulers.<BaseResponse<CommonBean>>compose())
-                .compose(RxSchedulers.<BaseResponse<CommonBean>>handleResult())
-                .subscribe(new FGObserver<BaseResponse<CommonBean>>() {
-                    @Override
-                    public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
-                        if (baseResponse.getData() != null) {
-                            if (!TextUtils.isEmpty(baseResponse.getData().getPhone())) {
-                                hadPhoneNum = true;
-                                tvPhoneNum.setVisibility(View.VISIBLE);
-                                etPhoneNum.setVisibility(View.GONE);
-                                tvPhoneNum.setText(baseResponse.getData().getPhone() + "");
-                            } else {
-                                hadPhoneNum = false;
-                                tvPhoneNum.setVisibility(View.GONE);
-                                etPhoneNum.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onHandleError(BaseResponse<CommonBean> baseResponse) {
-                        ToastUtil.show(activity, baseResponse.getMessage());
-                    }
-                });
-
-    }
+//    private void httpGetMyPhone() {
+//        PayHttpUtils.getInstance().getMyPhone()
+//                .compose(RxSchedulers.<BaseResponse<CommonBean>>compose())
+//                .compose(RxSchedulers.<BaseResponse<CommonBean>>handleResult())
+//                .subscribe(new FGObserver<BaseResponse<CommonBean>>() {
+//                    @Override
+//                    public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
+//                        if (baseResponse.getData() != null) {
+//                            if (!TextUtils.isEmpty(baseResponse.getData().getPhone())) {
+//                                hadPhoneNum = true;
+//                                tvPhoneNum.setVisibility(View.VISIBLE);
+//                                etPhoneNum.setVisibility(View.GONE);
+//                                tvPhoneNum.setText(baseResponse.getData().getPhone() + "");
+//                            } else {
+//                                hadPhoneNum = false;
+//                                tvPhoneNum.setVisibility(View.GONE);
+//                                etPhoneNum.setVisibility(View.VISIBLE);
+//                            }
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onHandleError(BaseResponse<CommonBean> baseResponse) {
+//                        ToastUtil.show(activity, baseResponse.getMessage());
+//                    }
+//                });
+//
+//    }
 
     /**
      * 请求->绑定手机号码

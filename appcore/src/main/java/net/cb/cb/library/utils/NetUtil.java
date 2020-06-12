@@ -70,11 +70,8 @@ public class NetUtil {
         }
         //加证书
         // builder.sslSocketFactory(Ssl.getCertificates(),Ssl.getTrustManager());
-
-
         httpClient = builder.build();
-
-
+        LogUtil.getLog().i("NetUtil", "--init-" + AppHostUtil.getHttpHost());
         retrofit = retrofit == null ? new Retrofit.Builder()
 //                .baseUrl(AppConfig.getUrlHost())
                 .baseUrl(AppHostUtil.getHttpHost())
@@ -93,7 +90,6 @@ public class NetUtil {
                 .baseUrl(AppHostUtil.getHttpHost())
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(httpClient)
-
                 .build();
 
     }
@@ -189,6 +185,10 @@ public class NetUtil {
         if (net == null)
             init();
         return net;
+    }
+
+    public void reset() {
+        init();
     }
 
     private NetUtil() {
