@@ -117,6 +117,7 @@ public abstract class DispatchMessage {
             case TAKE_SCREENSHOT:// 截屏通知
             case SEND_FILE:// 文件消息
             case TRANS_NOTIFY:// 转账提醒通知
+            case ASSISTANT_PROMOTION:// 小助手推广消息
                 result = repository.toDoChat(wrapMessage, requestId, realm);
                 break;
             case HISTORY_CLEAN://双向清除

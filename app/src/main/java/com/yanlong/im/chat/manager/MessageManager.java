@@ -295,6 +295,7 @@ public class MessageManager {
      * @param isList 是否是批量消息
      * @return 返回结果，不需要处理逻辑的消息，默认处理成功
      * */
+    @Deprecated
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify, String requestId) {
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
             return true;
