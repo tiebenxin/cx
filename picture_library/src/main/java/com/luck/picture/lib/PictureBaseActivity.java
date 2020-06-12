@@ -376,6 +376,55 @@ public class PictureBaseActivity extends FragmentActivity {
         }
     }
 
+    /**
+     * 压缩并发送->猜你想要发送的图片特殊处理 ChatActivity
+     * @param result
+     */
+    protected void compressImageAndSendMsg(final List<LocalMedia> result) {
+        showCompressDialog();
+        if (config.synOrAsy) {
+            Flowable.just(result)
+                    .observeOn(Schedulers.io())
+                    .map(new Function<List<LocalMedia>, List<File>>() {
+                        @Override
+                        public List<File> apply(@NonNull List<LocalMedia> list) throws Exception {
+                            try {
+                                List<File> files = Luban.with(mContext)
+                                        .setTargetDir(config.compressSavePath)
+                                        .ignoreBy(config.minimumCompressSize)
+                                        .loadLocalMedia(list).get();
+                                if (files == null) {
+                                    files = new ArrayList<>();
+                                }
+                                return files;
+                            } catch (Exception e) {
+                                return new ArrayList<>();
+                            }
+                        }
+                    })
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Consumer<List<File>>() {
+                        @Override
+                        public void accept(@NonNull List<File> files) throws Exception {
+                            if (files.size() == result.size()) {
+                                for (int i = 0, j = result.size(); i < j; i++) {
+                                    // 压缩成功后的地址
+                                    String path = files.get(i).getPath();
+                                    LocalMedia image = result.get(i);
+                                    // 如果是网络图片则不压缩
+                                    boolean http = PictureMimeType.isHttp(path);
+                                    boolean eqTrue = !TextUtils.isEmpty(path) && http;
+                                    image.setCompressed(eqTrue ? false : true);
+                                    image.setCompressPath(eqTrue ? "" : path);
+                                }
+                            }
+                            RxBus.getDefault().post(new EventEntity(PictureConfig.GUESS_YOU_LIKE,result));
+                        }
+                    });
+        }
+    }
+
+
 
     /**
      * 重新构造已压缩的图片返回集合

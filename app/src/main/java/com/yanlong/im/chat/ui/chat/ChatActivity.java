@@ -2906,6 +2906,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     break;
                 case PictureConfig.REQUEST_CAMERA:
                 case PictureConfig.CHOOSE_REQUEST:
+                case PictureConfig.PREVIEW_FROM_CHAT:
                     if (!checkNetConnectStatus(0)) {
                         return;
                     }
@@ -6387,7 +6388,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     localMedia.setPath(latestUrl);
                     previewList.add(localMedia);
                     PictureSelector.create(ChatActivity.this)
-                            .openGallery(PictureMimeType.ofAll());//复用，直接跳图片选择器的预览界面会崩溃，需要先初始化
+                            .openGallery(PictureMimeType.ofAll())
+                            .compress(true);//复用，直接跳图片选择器的预览界面会崩溃，需要先初始化
                     previewImage(previewList,previewList, 0);
                     overridePendingTransition(com.luck.picture.lib.R.anim.a5, 0);
                 }
@@ -6435,15 +6437,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
         bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
         bundle.putInt(PictureConfig.EXTRA_POSITION,position);
-        startActivity(PicturePreviewActivity.class, bundle,UCrop.REQUEST_CROP);
+        bundle.putInt(PictureConfig.FROM_WHERE,1);//跳转来源 0 默认 1 猜你想要
+        Intent intent = new Intent(ChatActivity.this,PicturePreviewActivity.class);
+        intent.putExtras(bundle);
+        startActivityForResult(intent, PictureConfig.PREVIEW_FROM_CHAT);
     }
 
-    protected void startActivity(Class clz, Bundle bundle, int requestCode) {
-        if (!DoubleUtils.isFastDoubleClick()) {
-            Intent intent = new Intent();
-            intent.setClass(ChatActivity.this, clz);
-            intent.putExtras(bundle);
-            startActivityForResult(intent, requestCode);
-        }
-    }
 }

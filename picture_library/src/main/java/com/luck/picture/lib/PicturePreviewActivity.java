@@ -37,6 +37,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.luck.picture.lib.config.PictureConfig.IS_ARTWORK_MASTER;
+
 /**
  * author：luck
  * project：PictureSelector
@@ -64,6 +66,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     private int screenWidth;
     private Handler mHandler;
     public final int EDIT_FROM_ALBUM = 1;//相册预览编辑
+    private int fromWhere = 0;//跳转来源 0 默认 1 猜你想要
 
     /**
      * EventBus 3.0 回调
@@ -74,6 +77,19 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     public void eventBus(EventEntity obj) {
         switch (obj.what) {
             case PictureConfig.CLOSE_PREVIEW_FLAG:
+                // 压缩完后关闭预览界面
+                dismissDialog();
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        onBackPressed();
+                    }
+                }, 150);
+                break;
+            case PictureConfig.GUESS_YOU_LIKE:
+                Intent intent = PictureSelector.putIntentResult(obj.medias);
+                intent.putExtra(IS_ARTWORK_MASTER, true);
+                setResult(RESULT_OK, intent);
                 // 压缩完后关闭预览界面
                 dismissDialog();
                 mHandler.postDelayed(new Runnable() {
@@ -111,6 +127,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         tv_title = (TextView) findViewById(R.id.picture_title);
         tvEdit = findViewById(R.id.tv_edit);
         position = getIntent().getIntExtra(PictureConfig.EXTRA_POSITION, 0);
+        fromWhere = getIntent().getIntExtra(PictureConfig.FROM_WHERE, 0);
         tv_ok.setText(numComplete ? getString(R.string.picture_done_front_num,
                 0, config.selectionMode == PictureConfig.SINGLE ? 1 : config.maxSelectNum)
                 : getString(R.string.picture_please_select));
@@ -469,7 +486,13 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
 
     @Override
     public void onResult(List<LocalMedia> images) {
-        RxBus.getDefault().post(new EventEntity(PictureConfig.PREVIEW_DATA_FLAG, images));
+        if(fromWhere==0){//默认情况，不影响原有逻辑
+            RxBus.getDefault().post(new EventEntity(PictureConfig.PREVIEW_DATA_FLAG, images));
+        }else {
+            if (images.size() > 0) {
+                compressImageAndSendMsg(images);
+            }
+        }
         // 如果开启了压缩，先不关闭此页面，PictureImageGridActivity压缩完在通知关闭
         if (!config.isCompress) {
             onBackPressed();
