@@ -607,7 +607,7 @@ public class MessageLocalDataSource {
      * @param uid
      * @param timestamp
      */
-    private void correctSessionCount(@NonNull Realm realm, String gid, Long uid, long timestamp) {
+    public void correctSessionCount(@NonNull Realm realm, String gid, Long uid, long timestamp) {
         checkInTransaction(realm);
         try {
             Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() :
@@ -628,7 +628,6 @@ public class MessageLocalDataSource {
                 realm.beginTransaction();
                 //取最小值  剩余消息数量和当前未读数
                 session.setUnread_count((int) Math.min(unReadCount, session.getUnread_count()));
-                session.setAtMessage(null);
                 realm.commitTransaction();
             }
         } catch (Exception e) {
@@ -639,7 +638,42 @@ public class MessageLocalDataSource {
             LogUtil.writeError(e);
         }
     }
+    /**
+     * 校正session未读数
+     * 前提条件：已知最后一条已读消息时间
+     *
+     * @param gid
+     * @param uid
+     */
+    public void correctSessionCount(@NonNull Realm realm, String gid, Long uid) {
+        checkInTransaction(realm);
+        try {
+            Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() :
+                    realm.where(Session.class).equalTo("from_uid", uid).findFirst();
+            if (session != null) {
+                //好友之后发送的未读消息数量
+                long unReadCount = TextUtils.isEmpty(gid) ? realm.where(MsgAllBean.class)
+                        .beginGroup().isEmpty("gid").or().isNull("gid").endGroup()
+                        .equalTo("from_uid", uid)
+                        .equalTo("isRead", false)
+                        .count() :
+                        realm.where(MsgAllBean.class).equalTo("gid", gid)
+                                .equalTo("isRead", false)
+                                .count();
 
+                realm.beginTransaction();
+                //取最小值  剩余消息数量和当前未读数
+                session.setUnread_count((int)unReadCount);
+                realm.commitTransaction();
+            }
+        } catch (Exception e) {
+            if (realm.isInTransaction()) {
+                realm.cancelTransaction();
+            }
+            DaoUtil.reportException(e);
+            LogUtil.writeError(e);
+        }
+    }
     /*
      * 更新或者创建session
      *

@@ -973,6 +973,8 @@ public class MessageRepository {
             if (!isFromSelf) {
                 boolean canChangeUnread = !MessageManager.getInstance().isMsgFromCurrentChat(lastMessage.getGid(), null);
                 localDataSource.updateSessionRead(realm, lastMessage.getGid(), chatterId, canChangeUnread, lastMessage);
+                //矫正未读数
+                localDataSource.correctSessionCount(realm,lastMessage.getGid(), chatterId);
             } else {
                 //自己PC 端发的消息刷新session
                 /********通知更新或创建session ************************************/
