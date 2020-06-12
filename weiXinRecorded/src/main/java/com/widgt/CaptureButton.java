@@ -212,7 +212,7 @@ public class CaptureButton extends View {
     }
 
     //重制状态
-    private void resetRecordAnim() {
+    public void resetRecordAnim() {
         setState(STATE_IDLE);
         progress = 0;       //重制进度
         invalidate();

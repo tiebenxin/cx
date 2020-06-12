@@ -127,6 +127,9 @@ public class ChangePhoneNumActivity extends AppActivity {
                         if (response.body() == null) {
                             return;
                         }
+                        if (!response.body().isOk()) {
+                            CountDownUtil.cancelTimer();
+                        }
                         ToastUtil.show(activity, response.body().getMsg());
                     }
                 });

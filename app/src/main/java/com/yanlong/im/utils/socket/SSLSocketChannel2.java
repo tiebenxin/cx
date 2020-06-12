@@ -2,6 +2,8 @@ package com.yanlong.im.utils.socket;
 
 import android.accounts.NetworkErrorException;
 
+import com.yanlong.im.chat.tcp.SocketEndException;
+
 import net.cb.cb.library.utils.LogUtil;
 
 import java.net.*;
@@ -225,12 +227,9 @@ public class SSLSocketChannel2 {
 
             if (sc.read(sTOc) == -1) {
                 LogUtil.getLog().i(TAG, "close from SSLSocketChannel2" + "\n");
-
                 sTOc.clear();
                 sTOc.flip();
-
-                throw new NetworkErrorException();
-                //return -1;
+                throw new SocketEndException();
             }
             sTOc.flip();
             unwrap(sTOc);
