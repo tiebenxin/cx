@@ -88,6 +88,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.adapter.AdapterPopMenu;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.AdMessage;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BalanceAssistantMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
@@ -167,6 +168,7 @@ import com.yanlong.im.user.ui.CollectionActivity;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.ApkUtils;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.GroupHeadImageUtil;
@@ -192,6 +194,7 @@ import com.yanlong.im.view.face.ShowBigFaceActivity;
 import com.yanlong.im.view.face.bean.FaceBean;
 import com.yanlong.im.view.function.ChatExtendMenuView;
 import com.yanlong.im.view.function.FunctionItemModel;
+import com.zhaoss.weixinrecorded.activity.CameraActivity;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 
@@ -458,7 +461,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         public void run() {
                             mtListView.scrollToEnd();
                         }
-                    }, 100);
+                    }, delayMillis);
                 } else {//关闭
                     //清除焦点
                     editChat.clearFocus();
@@ -847,7 +850,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 return true;
             }
         } else {
-            if (mViewModel.userInfo == null) {
+            if (mViewModel.userInfo != null) {
                 return mViewModel.userInfo.getScreenshotNotification() == 1;
             }
         }
@@ -883,7 +886,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 //                    mViewModel.isInputText.setValue(true);
                     //滑动到底部
 //                    mtListView.scrollToEnd();
-                } else if (bottom > oldBottom) {
+                } else if (bottom > oldBottom && bottom - oldBottom == mKeyboardHeight) {//软键盘关闭，键盘右上角
                     mViewModel.isInputText.setValue(false);
                 }
             }
@@ -1372,6 +1375,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                 if (!mViewModel.isInputText.getValue())
                     mViewModel.isInputText.setValue(true);
+                return false;
+            }
+        });
+        editChat.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 return false;
             }
         });
@@ -1955,7 +1964,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (ViewUtils.isFastDoubleClick()) {
                         return;
                     }
-                    Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+//                    Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+//                    startActivityForResult(intent, VIDEO_RP);
+                    Intent intent = new Intent(ChatActivity.this, CameraActivity.class);
                     startActivityForResult(intent, VIDEO_RP);
                 }
             }
@@ -2795,7 +2806,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
 
     private String getVideoAttBitmap(String mUri) {
-        File file = null;
+        String path = "";
         android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
         try {
             if (mUri != null) {
@@ -2803,13 +2814,16 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 mmr.setDataSource(inputStream.getFD());
             } else {
             }
-            file = GroupHeadImageUtil.save2File(mmr.getFrameAtTime());
+            File file = GroupHeadImageUtil.save2File(mmr.getFrameAtTime());
+            if (file != null) {
+                path = file.getAbsolutePath();
+            }
         } catch (Exception ex) {
             LogUtil.getLog().e("TAG", "MediaMetadataRetriever exception " + ex);
         } finally {
             mmr.release();
         }
-        return file.getAbsolutePath();
+        return path;
     }
 
     @Override
@@ -2829,7 +2843,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         LogUtil.getLog().i(TAG, "--视频Chat--" + file);
                         int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
                         int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
-                        int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME, 0);
+                        long time = data.getLongExtra(RecordedActivity.INTENT_PATH_TIME, 0L);
                         //app内拍摄的视频经检查已经实现了自动压缩
                         VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + file, getVideoAttBitmap(file), false, time, width, height, file);
                         videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
@@ -2942,6 +2956,14 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     if (!TextUtils.isEmpty(uid) && !TextUtils.isEmpty(name)) {
                         editChat.addAtSpan(null, name, Long.valueOf(uid));
                     }
+                    editChat.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            editChat.requestFocus();
+                            InputUtil.showKeyboard(editChat);
+                            if (!mViewModel.isInputText.getValue()) mViewModel.isInputText.setValue(true);
+                        }
+                    }, 100);
                     break;
                 case FilePickerManager.REQUEST_CODE:
                     //断网提示
@@ -3801,14 +3823,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (sendStatus == ChatEnum.ESendStatus.NORMAL && !isBanForward(type)) {
             menus.add(new OptionMenu("转发"));
         }
-
         switch (type) {
             case ChatEnum.EMessageType.TEXT:
             case ChatEnum.EMessageType.AT:
                 menus.add(0, new OptionMenu("复制"));
                 //发送状态正常，且未开启阅后即焚，则允许收藏
                 if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
-                    menus.add(3, new OptionMenu("收藏"));
+                    menus.add(new OptionMenu("收藏"));
                 }
                 break;
             case ChatEnum.EMessageType.VOICE:
@@ -3817,21 +3838,19 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 } else {
                     menus.add(0, new OptionMenu("扬声器播放"));
                 }
+                //发送状态正常，且未开启阅后即焚，则允许收藏
                 if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
-                    menus.add(2, new OptionMenu("收藏"));
+                    menus.add(new OptionMenu("收藏"));
                 }
                 break;
             case ChatEnum.EMessageType.LOCATION:
-            case ChatEnum.EMessageType.SHIPPED_EXPRESSION:
-                if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
-                    menus.add(1, new OptionMenu("收藏"));
-                }
-                break;
             case ChatEnum.EMessageType.IMAGE:
             case ChatEnum.EMessageType.MSG_VIDEO:
+            case ChatEnum.EMessageType.SHIPPED_EXPRESSION:
             case ChatEnum.EMessageType.FILE:
+                //发送状态正常，且未开启阅后即焚，则允许收藏
                 if (sendStatus != ChatEnum.ESendStatus.ERROR && msgAllBean.getSurvival_time() == 0) {
-                    menus.add(2, new OptionMenu("收藏"));
+                    menus.add(new OptionMenu("收藏"));
                 }
                 break;
         }
@@ -3860,7 +3879,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     //是否禁止转发
     public boolean isBanForward(@ChatEnum.EMessageType int type) {
         if (type == ChatEnum.EMessageType.VOICE || type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
-                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO || type == ChatEnum.EMessageType.BUSINESS_CARD /*|| type == ChatEnum.EMessageType.REPLY*/) {
+                || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO || type == ChatEnum.EMessageType.BUSINESS_CARD || type == ChatEnum.EMessageType.ASSISTANT_PROMOTION /*|| type == ChatEnum.EMessageType.REPLY*/) {
             return true;
         }
         return false;
@@ -3870,7 +3889,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     public boolean isBanReply(@ChatEnum.EMessageType int type) {
         if (/*type == ChatEnum.EMessageType.VOICE ||*/ type == ChatEnum.EMessageType.STAMP || type == ChatEnum.EMessageType.RED_ENVELOPE
                 || type == ChatEnum.EMessageType.MSG_VOICE_VIDEO /*|| type == ChatEnum.EMessageType.BUSINESS_CARD*/ || type == ChatEnum.EMessageType.LOCATION
-                || type == ChatEnum.EMessageType.SHIPPED_EXPRESSION || type == ChatEnum.EMessageType.WEB || type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {
+                || type == ChatEnum.EMessageType.SHIPPED_EXPRESSION || type == ChatEnum.EMessageType.WEB || type == ChatEnum.EMessageType.BALANCE_ASSISTANT ||
+                type == ChatEnum.EMessageType.ASSISTANT_PROMOTION) {
             return true;
         }
         return false;
@@ -3997,10 +4017,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
     private void onAnswer(MsgAllBean bean) {
         isReplying = true;
         replayMsg = bean;
-        if (MessageManager.getInstance().isFromSelf(bean.getFrom_uid())){
+        if (MessageManager.getInstance().isFromSelf(bean.getFrom_uid())) {
 
-        }else {
-            if (mViewModel.userInfo != null){
+        } else {
+            if (mViewModel.userInfo != null) {
                 replayMsg.setFrom_nickname(mViewModel.userInfo.getName());
             }
         }
@@ -5512,9 +5532,12 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
 
     @Override
     public void onEvent(int type, MsgAllBean message, Object... args) {
-        if (mViewModel.isInputText.getValue()) {
-            mViewModel.isInputText.setValue(false);
+        if (ViewUtils.isFastDoubleClick()) {
+            return;
         }
+//        if (mViewModel.isInputText.getValue()) {
+//            mViewModel.isInputText.setValue(false);
+//        }
         switch (type) {
             case ChatEnum.ECellEventType.TXT_CLICK:
                 break;
@@ -5668,6 +5691,24 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     Intent intent = new Intent(ChatActivity.this, WebPageActivity.class);
                     intent.putExtra(WebPageActivity.AGM_URL, webMessage.getWebUrl());
                     startActivity(intent);
+                }
+                break;
+            case ChatEnum.ECellEventType.AD_CLICK:
+                if (args[0] != null && args[0] instanceof AdMessage) {
+                    AdMessage adMessage = (AdMessage) args[0];
+                    if (!TextUtils.isEmpty(adMessage.getAppId())) {
+                        if (!TextUtils.isEmpty(adMessage.getWebUrl()) && !ApkUtils.isApkInstalled(ChatActivity.this, adMessage.getAppId())) {
+                            showDownloadAppDialog(adMessage.getWebUrl());
+                        } else if (ApkUtils.isApkInstalled(ChatActivity.this, adMessage.getAppId())) {
+                            ApkUtils.startSchemeApp(ChatActivity.this, adMessage.getAppId(), "");
+                        } else {
+                            if (!TextUtils.isEmpty(adMessage.getSchemeUrl())) {
+                                ApkUtils.startSchemeApp(ChatActivity.this, adMessage.getAppId(), adMessage.getSchemeUrl());
+                            }
+                        }
+                    } else if (!TextUtils.isEmpty(adMessage.getWebUrl())) {
+                        goBrowsable(adMessage.getWebUrl());
+                    }
                 }
                 break;
             case ChatEnum.ECellEventType.MULTI_CLICK:
@@ -6265,5 +6306,38 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 onCollect(msgAllBean);
             }
         }
+    }
+
+
+    /**
+     * 下载app dialog
+     */
+    private void showDownloadAppDialog(String downloadUrl) {
+        DialogDefault dialogDownload = new DialogDefault(this, R.style.MyDialogTheme);
+        dialogDownload.setTitleAndSure(false, true)
+                .setContent("您尚未下载此应用，点击确定下载应用并安装。", true)
+                .setLeft("取消")
+                .setRight("确定")
+                .setListener(new DialogDefault.IDialogListener() {
+                    @Override
+                    public void onSure() {
+                        goBrowsable(downloadUrl);
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+                });
+        dialogDownload.show();
+    }
+
+    private void goBrowsable(String downloadUrl) {
+        Intent intent = new Intent();
+        intent.setAction("android.intent.action.VIEW");
+        Uri content_url = Uri.parse(downloadUrl);
+        intent.setData(content_url);
+        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+        startActivity(intent);
     }
 }

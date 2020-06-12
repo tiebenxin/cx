@@ -68,7 +68,6 @@ public class ChatCellWeb extends ChatCellBase {
 
     @Override
     public void onBubbleClick() {
-        super.onBubbleClick();
         if (mCellListener != null && model != null) {
             mCellListener.onEvent(ChatEnum.ECellEventType.WEB_CLICK, model, contentMessage);
         }

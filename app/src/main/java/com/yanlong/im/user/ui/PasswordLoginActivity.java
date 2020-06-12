@@ -16,10 +16,11 @@ import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.utils.PasswordTextWather;
-import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.dialog.DialogCommon;
 import net.cb.cb.library.dialog.DialogCommon2;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ClickFilter;
@@ -192,14 +193,15 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
                                 return;
                             }
                             if (response.body().isOk()) {
-
                                 SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FIRST_TIME);
                                 preferencesUtil.save2Json(true);
-
-                                Intent intent = new Intent(getContext(), MainActivity.class);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                intent.putExtra(MainActivity.IS_LOGIN, true);
-                                startActivity(intent);
+                                TokenBean tokenBean = response.body().getData();
+                                if (tokenBean.isDeactivating()) {
+                                    showLogoutAccountDialog();
+                                    return;
+                                } else {
+                                    toMain();
+                                }
                             }
                             if (response.body().getCode().longValue() == 10002) {
                                 if (count == 0) {
@@ -224,9 +226,7 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
                     });
 
                 } else {
-
                     userAction.login(phone, password, devId, new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
-
                         @Override
                         public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                             LogUtil.getLog().i("youmeng", "PasswordLoginActivity------->login---->onResp");
@@ -238,11 +238,13 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
 
                                 SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FIRST_TIME);
                                 preferencesUtil.save2Json(true);
-
-                                Intent intent = new Intent(getContext(), MainActivity.class);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                intent.putExtra(MainActivity.IS_LOGIN, true);
-                                startActivity(intent);
+                                TokenBean tokenBean = response.body().getData();
+                                if (tokenBean.isDeactivating()) {
+                                    showLogoutAccountDialog();
+                                    return;
+                                } else {
+                                    toMain();
+                                }
                             }
                             if (response.body().getCode().longValue() == 10002) {
                                 if (count == 0) {
@@ -302,6 +304,55 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
             isOk = false;
         }
         return isOk;
+    }
+
+
+    //账号注销提示
+    private void showLogoutAccountDialog() {
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                DialogCommon dialogConfirm = new DialogCommon(PasswordLoginActivity.this);
+                dialogConfirm.setTitleAndSure(false, false)
+                        .setLeft("取消注销并登录")
+                        .setRight("取消")
+                        .setContent("您的账号在申请注销过程中，如果您想取消注销申请，点击'取消注销并登录'", true)
+                        .setListener(new DialogCommon.IDialogListener() {
+                            @Override
+                            public void onSure() {
+                                cancelDeactivate();
+                            }
+
+                            @Override
+                            public void onCancel() {
+
+                            }
+                        }).show();
+            }
+        });
+    }
+
+    //取消注销账号
+    private void cancelDeactivate() {
+        userAction.cancelDeactivate(new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                toMain();
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+            }
+        });
+    }
+
+    private void toMain() {
+        Intent intent = new Intent(getContext(), MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra(MainActivity.IS_LOGIN, true);
+        startActivity(intent);
     }
 
 

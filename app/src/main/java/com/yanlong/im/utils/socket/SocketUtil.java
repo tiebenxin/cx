@@ -9,6 +9,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.eventbus.AckEvent;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.chat.tcp.SocketEndException;
 import com.yanlong.im.chat.tcp.TcpConnection;
 import com.yanlong.im.utils.DaoUtil;
 
@@ -102,7 +103,7 @@ public class SocketUtil {
                         toastEvent.value = bean.getDesc();
                         EventBus.getDefault().post(toastEvent);
                     }
-                }else if (bean.getRejectType() == MsgBean.RejectType.FRIEND_FROZEN) {//账号被冻结
+                } else if (bean.getRejectType() == MsgBean.RejectType.FRIEND_FROZEN) {//账号被冻结
                     MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, msgAllBean, ChatEnum.ENoticeType.FREEZE_ACCOUNT);
                     //收到直接存表
                     if (msg != null) {
@@ -497,6 +498,7 @@ public class SocketUtil {
             @Override
             public void run() {
                 stop2();
+                clearThread();
             }
         });
 //        new Thread(new Runnable() {
@@ -741,20 +743,18 @@ public class SocketUtil {
                         Thread.sleep(50);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    LogUtil.getLog().e(TAG, "==getClass==" + e.getClass() + "===>>>接收异常run:===" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
-                    LogUtil.writeLog("接收数据异常" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
-                    //java.io.EOFException: Read error
-//                    if (e != null && e.getMessage() != null && e.getMessage().contains("EOFException")) {
-//                        EventLoginOut4Conflict eventLoginOut4Conflict = new EventLoginOut4Conflict();
-//                        // 登录冲突
-//                        String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
-//                        eventLoginOut4Conflict.setMsg("您的账号" + phone + "已经在另一台设备上登录。如果不是您本人操作,请尽快修改密码");
-//                        EventBus.getDefault().post(eventLoginOut4Conflict);
-//                        return;
-//                    }
-                    stop(true);
-                    startSocket();
+                    if (e instanceof SocketEndException) {
+                        LogUtil.getLog().e(TAG, "SocketEndException==连接已中断");
+                        stop(true);
+                    } else {
+                        e.printStackTrace();
+                        LogUtil.getLog().e(TAG, "==getClass==" + e.getClass() + "===>>>接收异常run:===" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
+                        LogUtil.writeLog("接收数据异常" + e.getMessage() + "===getLocalizedMessage=" + e.getLocalizedMessage());
+                        stop(true);
+                        if (isStart) {
+                            startSocket();
+                        }
+                    }
                 }
                 setRunState(0);
                 LogUtil.getLog().d(TAG, ">>>接收结束");
@@ -887,5 +887,15 @@ public class SocketUtil {
 
     public void setMainLive(boolean mainLive) {
         isMainLive = mainLive;
+    }
+
+    //终止socket相关线程任务
+    public void clearThread() {
+        LogUtil.getLog().i(TAG, "clearThread--终止SocketThread");
+        //取消心跳线程
+        heardSchedule.cancel(true);
+        ExecutorManager.INSTANCE.getWriteThread().shutdown();
+        ExecutorManager.INSTANCE.getReadThread().shutdown();
+        ExecutorManager.INSTANCE.getSocketThread().shutdown();
     }
 }

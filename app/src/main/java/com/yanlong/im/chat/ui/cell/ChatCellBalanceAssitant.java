@@ -36,7 +36,6 @@ public class ChatCellBalanceAssitant extends ChatCellBase {
 
     @Override
     public void onBubbleClick() {
-        super.onBubbleClick();
         if (mCellListener != null && model != null) {
             mCellListener.onEvent(ChatEnum.ECellEventType.BALANCE_ASSISTANT_CLICK, model, contentMessage);
         }

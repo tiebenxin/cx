@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <net.cb.cb.library.view.HeadView
+        android:id="@+id/headView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:headview_title="账号封禁"
+        tools:ignore="MissingDefaultResource">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp">
+
+            <ImageView
+                android:id="@+id/iv_avatar"
+                android:layout_width="@dimen/dimen_80"
+                android:layout_height="@dimen/dimen_80"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="40dp"
+                android:src="@mipmap/ic_info_head" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="65dp"
+                android:text="你已被永久限制登录"
+                android:textColor="@color/black"
+                android:textSize="17sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="15dp"
+                android:gravity="center_horizontal"
+                android:paddingLeft="40dp"
+                android:paddingRight="40dp"
+                android:text="被封原因：被投诉并确有违规行为"
+                android:textColor="@color/c_868686"
+                android:textSize="13sp" />
+
+
+            <TextView
+                android:id="@+id/tv_confirm"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp"
+                android:background="#32B053"
+                android:gravity="center"
+                android:paddingLeft="40dp"
+                android:paddingRight="40dp"
+                android:text="提取账号内财产"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+    </net.cb.cb.library.view.HeadView>
+</layout>

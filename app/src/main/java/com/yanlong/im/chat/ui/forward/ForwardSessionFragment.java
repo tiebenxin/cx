@@ -123,8 +123,13 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
         for(int i=0; i<sessionsList.size();i++){
             if(!TextUtils.isEmpty(sessionsList.get(i).getGid())){
                 Group group = msgDao.groupNumberGet(sessionsList.get(i).getGid());
-                if(group.getWordsNotAllowed()==1){
-                    ListOne.add(sessionsList.get(i));
+                if (group.getWordsNotAllowed() == 1) {
+                    //如果我是群主不过滤
+                    if (StringUtil.isNotNull(group.getMaster())) {
+                        if (!group.getMaster().equals("" + UserAction.getMyId())) {
+                            ListOne.add(sessionsList.get(i));
+                        }
+                    }
                 }
             }
             if(sessionsList.get(i).getFrom_uid()!=(-1)){

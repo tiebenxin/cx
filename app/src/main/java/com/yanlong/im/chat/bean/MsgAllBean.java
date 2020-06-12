@@ -85,6 +85,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     @Ignore
     private ReadMessage readMessage;//备注已读消息，不存，不显示
     private ReplyMessage replyMessage;//回复消息
+    private AdMessage adMessage;//小助手广告消息
 
     public ReplyMessage getReplyMessage() {
         return replyMessage;
@@ -439,10 +440,10 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             } else if (msg_type == ChatEnum.EMessageType.BALANCE_ASSISTANT) {//阅后即焚
                 str = "[零钱小助手消息]";
             } else if (msg_type == ChatEnum.EMessageType.FILE) {//文件
-                if(getSendFileMessage()!=null){
-                    if(!TextUtils.isEmpty(getSendFileMessage().getFile_name())){
-                        str = "[文件]"+getSendFileMessage().getFile_name();
-                    }else {
+                if (getSendFileMessage() != null) {
+                    if (!TextUtils.isEmpty(getSendFileMessage().getFile_name())) {
+                        str = "[文件]" + getSendFileMessage().getFile_name();
+                    } else {
                         str = "[文件]";
                     }
                 }
@@ -461,12 +462,47 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     content = reply.getChatMessage().getMsg();
                 }
                 str = content;
+            } else if (msg_type == ChatEnum.EMessageType.ASSISTANT_PROMOTION) {
+                AdMessage adMessage = getAdMessage();
+                String content = "";
+                if (adMessage != null) {
+                    if (!TextUtils.isEmpty(adMessage.getSummary())) {
+                        content = adMessage.getSummary();
+                    } else if (!TextUtils.isEmpty(adMessage.getTitle())) {
+                        content = adMessage.getTitle();
+                    }
+                }
+                str = "[必看]" + content;
             }
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
 
         return str;
     }
 
+    /***
+     * 根据类型获取标题
+     * @return
+     */
+    public String getMsg_typeTitle() {
+        String str = "";
+        try {
+            if (msg_type == ChatEnum.EMessageType.BUSINESS_CARD) {
+                str = "[名片]";// + getBusiness_card().getNickname();
+            } else if (msg_type == ChatEnum.EMessageType.LOCATION) {//位置
+                str = "[位置]";
+            } else if (msg_type == ChatEnum.EMessageType.FILE) {//文件
+                if (getSendFileMessage() != null) {
+                    str = "[文件]";
+                }
+            } else if (msg_type == ChatEnum.EMessageType.WEB) {
+                str = "[链接]";
+            }
+        } catch (Exception e) {
+        }
+
+        return str;
+    }
 
     public void setMsg_type(@ChatEnum.EMessageType Integer msg_type) {
         if (msg_type == null) {
@@ -614,6 +650,14 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         this.readMessage = readMessage;
     }
 
+    public AdMessage getAdMessage() {
+        return adMessage;
+    }
+
+    public void setAdMessage(AdMessage adMessage) {
+        this.adMessage = adMessage;
+    }
+
     /***
      * 是否为自己
      * @return
@@ -740,9 +784,22 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 break;
             case ChatEnum.EMessageType.REPLY:
                 if (replyMessage == null) {
-                    return null;
+                    if (isMe) {
+                        layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_SEND;
+                    } else {
+                        layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_RECEIVED;
+                    }
+                    return layout;
                 }
                 QuotedMessage quotedMessage = replyMessage.getQuotedMessage();
+                if (quotedMessage == null) {
+                    if (isMe) {
+                        layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_SEND;
+                    } else {
+                        layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_RECEIVED;
+                    }
+                    return layout;
+                }
                 layout = getReplyLayout(quotedMessage.getMsgType(), isMe);
                 if (layout == null) {
                     LogUtil.writeLog("MsgAllBean--" + "--不能识别回复消息--UNRECOGNIZED--" + quotedMessage.getMsgType());
@@ -758,6 +815,13 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     layout = ChatEnum.EChatCellLayout.WEB_SEND;
                 } else {
                     layout = ChatEnum.EChatCellLayout.WEB_RECEIVED;
+                }
+                break;
+            case ChatEnum.EMessageType.ASSISTANT_PROMOTION://广告消息
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.UNRECOGNIZED_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.ADVERTISEMENT;
                 }
                 break;
             case ChatEnum.EMessageType.UNRECOGNIZED://未识别

@@ -78,7 +78,6 @@ public class ChatCellMap extends ChatCellBase {
 
     @Override
     public void onBubbleClick() {
-        super.onBubbleClick();
         if (mCellListener != null && model != null) {
             mCellListener.onEvent(ChatEnum.ECellEventType.MAP_CLICK, model, contentMessage);
         }

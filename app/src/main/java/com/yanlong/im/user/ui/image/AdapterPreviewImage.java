@@ -98,8 +98,8 @@ public class AdapterPreviewImage extends PagerAdapter {
     private MsgDao msgDao = new MsgDao();
     private Call download;
     //    private IPreviewImageListener listener;
-    private String[] strings = {"发送给朋友", "保存图片", "识别二维码", "编辑", "取消"};
-    private String[] newStrings = {"发送给朋友", "收藏","保存图片", "识别二维码","编辑",  "取消"};
+    private String[] strings = {"发送给朋友", "保存图片", "识别图中二维码", "编辑", "取消"};
+    private String[] newStrings = {"发送给朋友","保存图片","收藏", "识别图中二维码","编辑",  "取消"};
     private View parentView;
     private int preProgress;
 
@@ -839,12 +839,12 @@ public class AdapterPreviewImage extends PagerAdapter {
                             //TODO:无消息id，要不要自己新建一条消息记录，然后发出去？
 
                         }
-                    } else if (postsion == 1) {//收藏
+                    } else if (postsion == 1) {//保存
+                        saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook);
+                    } else if (postsion == 2) {//收藏
                         EventCollectImgOrVideo eventCollectImgOrVideo = new EventCollectImgOrVideo();
                         eventCollectImgOrVideo.setMsgId(msgId);
                         EventBus.getDefault().post(eventCollectImgOrVideo);
-                    } else if (postsion == 2) {//保存
-                        saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal, llLook);
                     } else if (postsion == 3) {//识别二维码
                         // scanningImage(media.getPath());
                         scanningQrImage(media.getCompressPath(), ivZoom);

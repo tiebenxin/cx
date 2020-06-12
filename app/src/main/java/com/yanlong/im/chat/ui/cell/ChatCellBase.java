@@ -470,7 +470,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     }
 
     public void setBellId(int rid) {
-        LogUtil.getLog().i("SurvivalTime", "--setBellId--rid=" + rid);
+//        LogUtil.getLog().i("SurvivalTime", "--setBellId--rid=" + rid);
         if (ivBell != null) {
             ivBell.setImageResource(rid);
         }

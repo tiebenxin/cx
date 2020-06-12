@@ -71,7 +71,6 @@ public class ChatCellFile extends ChatCellFileBase {
 
     @Override
     public void onBubbleClick() {
-        super.onBubbleClick();
         if (mCellListener != null && model != null && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
             mCellListener.onEvent(ChatEnum.ECellEventType.FILE_CLICK, model, contentMessage);
         }

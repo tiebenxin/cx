@@ -27,6 +27,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.VersionBean;
+import com.yanlong.im.user.ui.baned.BanedAccountActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PasswordTextWather;
 import com.yanlong.im.utils.update.UpdateManage;
@@ -586,6 +587,32 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.putExtra(MainActivity.IS_LOGIN, true);
         startActivity(intent);
+    }
+
+
+    //账号封禁提示
+    private void showBanedAccountDialog() {
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                DialogCommon dialogConfirm = new DialogCommon(LoginActivity.this);
+                dialogConfirm.setTitleAndSure(false, true)
+                        .setLeft("取消")
+                        .setRight("确定")
+                        .setContent("因该账号被投诉并确有违规行为，已被永久限制登录。点击确定提取账号内财产。", true)
+                        .setListener(new DialogCommon.IDialogListener() {
+                            @Override
+                            public void onSure() {
+                                go(BanedAccountActivity.class);
+                            }
+
+                            @Override
+                            public void onCancel() {
+
+                            }
+                        }).show();
+            }
+        });
     }
 }
 
