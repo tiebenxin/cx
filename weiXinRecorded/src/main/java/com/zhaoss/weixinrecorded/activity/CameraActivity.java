@@ -1,6 +1,7 @@
 package com.zhaoss.weixinrecorded.activity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.hardware.SensorManager;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
@@ -23,10 +24,12 @@ import com.widgt.CameraCallBack;
 import com.widgt.RecordButtonView;
 import com.zhaoss.weixinrecorded.CanStampEventWX;
 import com.zhaoss.weixinrecorded.R;
+import com.zhaoss.weixinrecorded.util.BitmapUtil;
 import com.zhaoss.weixinrecorded.util.ViewUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -46,6 +49,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
     public static final String INTENT_PATH_HEIGHT = "intent_height";
     public static final String INTENT_PATH_TIME = "intent_time";
     public static final String INTENT_DATA_TYPE = "result_data_type";
+    public static final String INTENT_PATH_BG = "intent_bg";
     public static final int RESULT_TYPE_VIDEO = 1;
     public static final int RESULT_TYPE_PHOTO = 2;
     public static final int REQUEST_CODE_KEY = 100;
@@ -126,9 +130,6 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
             @Override
             public void recordEnd(long time) {
                 stopRecording();
-//                Intent intentPre = new Intent(mContext, VideoPreviewActivity.class);
-//                intentPre.putExtra(INTENT_PATH, mp4FilePath);
-//                startActivityForResult(intentPre, REQUEST_CODE_PREVIEW);
             }
 
             @Override
@@ -251,24 +252,17 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
         if (TextUtils.isEmpty(mp4FilePath)) {
             return;
         }
-//        int rotate = mCameraView.getRotate();
+//        String firstPreviewUrl = saveFirstFrame(mCameraView.getFirstFrame());
+//        if (TextUtils.isEmpty(firstPreviewUrl)) {
+//            Toast.makeText(this, "视频编辑出错", Toast.LENGTH_SHORT);
+//            return;
+//        }
         int width = mCameraView.getVideoWidth();
         int height = mCameraView.getVideoHeight();
-//        int width,height;
-//        if (rotate == 90) {
-//            width = Math.min(w, h);
-//            height = Math.max(w, h);
-//        } else {
-//            width = Math.max(w, h);
-//            height = Math.min(w, h);
-//        }
-
         if (initVideoAttribute == null) {
             initVideoAttribute = new InitVideoAttribute(mp4FilePath).invoke();
         }
         long duration = initVideoAttribute.getDuration();
-//        int width = (int) initVideoAttribute.getWidth();
-//        int height = (int) initVideoAttribute.getHeight();
         if (duration < 0) {
             return;
         }
@@ -277,6 +271,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
         intentMas.putExtra(INTENT_VIDEO_WIDTH, width);
         intentMas.putExtra(INTENT_PATH_HEIGHT, height);
         intentMas.putExtra(INTENT_PATH_TIME, duration);
+//        intentMas.putExtra(INTENT_PATH_BG, firstPreviewUrl);
         intentMas.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
         setResult(RESULT_OK, intentMas);
         finish();
@@ -398,6 +393,15 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
         public int getRotate() {
             return rotate;
         }
+    }
+
+    private String saveFirstFrame(Bitmap bitmap) {
+        File file = BitmapUtil.save2File(bitmap);
+        String path = "";
+        if (file != null) {
+            path = file.getAbsolutePath();
+        }
+        return path;
     }
 
 }

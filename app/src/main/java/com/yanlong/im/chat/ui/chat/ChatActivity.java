@@ -195,7 +195,6 @@ import com.yanlong.im.view.face.bean.FaceBean;
 import com.yanlong.im.view.function.ChatExtendMenuView;
 import com.yanlong.im.view.function.FunctionItemModel;
 import com.zhaoss.weixinrecorded.activity.CameraActivity;
-import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 
 import net.cb.cb.library.AppConfig;
@@ -2836,17 +2835,18 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case VIDEO_RP:
-                    int dataType = data.getIntExtra(RecordedActivity.INTENT_DATA_TYPE, RecordedActivity.RESULT_TYPE_VIDEO);
+                    int dataType = data.getIntExtra(CameraActivity.INTENT_DATA_TYPE, CameraActivity.RESULT_TYPE_VIDEO);
                     MsgAllBean videoMsgBean = null;
-                    if (dataType == RecordedActivity.RESULT_TYPE_VIDEO) {
+                    if (dataType == CameraActivity.RESULT_TYPE_VIDEO) {
 //                        if (!checkNetConnectStatus()) {
 //                            return;
 //                        }
-                        String file = data.getStringExtra(RecordedActivity.INTENT_PATH);
+                        String file = data.getStringExtra(CameraActivity.INTENT_PATH);
                         LogUtil.getLog().i(TAG, "--视频Chat--" + file);
-                        int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
-                        int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
-                        long time = data.getLongExtra(RecordedActivity.INTENT_PATH_TIME, 0L);
+                        int height = data.getIntExtra(CameraActivity.INTENT_PATH_HEIGHT, 0);
+                        int width = data.getIntExtra(CameraActivity.INTENT_VIDEO_WIDTH, 0);
+                        long time = data.getLongExtra(CameraActivity.INTENT_PATH_TIME, 0L);
+//                        String videoBg = data.getStringExtra(CameraActivity.INTENT_PATH_BG);
                         //app内拍摄的视频经检查已经实现了自动压缩
                         VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), "file://" + file, getVideoAttBitmap(file), false, time, width, height, file);
                         videoMsgBean = sendMessage(videoMessage, ChatEnum.EMessageType.MSG_VIDEO, false);
@@ -2855,11 +2855,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             UpLoadService.onAddVideo(this.context, videoMsgBean, false);
                             startService(new Intent(getContext(), UpLoadService.class));
                         }
-                    } else if (dataType == RecordedActivity.RESULT_TYPE_PHOTO) {
+                    } else if (dataType == CameraActivity.RESULT_TYPE_PHOTO) {
                         if (!checkNetConnectStatus()) {
                             return;
                         }
-                        String photoPath = data.getStringExtra(RecordedActivity.INTENT_PATH);
+                        String photoPath = data.getStringExtra(CameraActivity.INTENT_PATH);
                         String file = photoPath;
 
                         final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
@@ -2964,7 +2964,8 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                         public void run() {
                             editChat.requestFocus();
                             InputUtil.showKeyboard(editChat);
-                            if (!mViewModel.isInputText.getValue()) mViewModel.isInputText.setValue(true);
+                            if (!mViewModel.isInputText.getValue())
+                                mViewModel.isInputText.setValue(true);
                         }
                     }, 100);
                     break;
