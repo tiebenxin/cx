@@ -1027,7 +1027,7 @@ public class MsgDao {
                         .like("sendFileMessage.file_name", searchKey, Case.INSENSITIVE).or()//文件消息
                         .like("webMessage.title", searchKey, Case.INSENSITIVE).or()//链接消息
                         .like("replyMessage.chatMessage.msg", searchKey, Case.INSENSITIVE).or()//回复消息
-                        .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE).or()//回复@消息
+                        .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE)//回复@消息
                         .endGroup()
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
