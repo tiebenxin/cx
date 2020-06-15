@@ -53,7 +53,7 @@ public class Route {
     public static final String TO_RECHARGE = BANK+"/order/to_deposit";
 
     //提现
-    public static final String TO_WITHDRAW = BANK+"/order/withdraw_apply";
+    public static final String TO_WITHDRAW = BANK+"/order/to_withdraw_apply";
 
     //提现
     public static final String GET_RATE = BANK+"/user/get_rate";

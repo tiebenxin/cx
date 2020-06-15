@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.bumptech.glide.Glide;
@@ -38,6 +39,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.SelectBankCardActivity;
 import com.hm.cxpay.ui.payword.CheckPaywordActivity;
 import com.hm.cxpay.ui.recharege.RechargeActivity;
+import com.hm.cxpay.ui.recharege.RechargeSuccessActivity;
 import com.hm.cxpay.utils.UIUtils;
 
 import net.cb.cb.library.utils.BigDecimalUtils;
@@ -45,10 +47,13 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+import net.cb.cb.library.view.WebPageActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.hm.cxpay.global.PayConstants.REQUEST_PAY;
+import static com.hm.cxpay.global.PayConstants.RESULT;
 import static com.hm.cxpay.ui.recharege.RechargeActivity.SELECT_BANKCARD;
 
 /**
@@ -162,11 +167,11 @@ public class WithdrawActivity extends AppActivity {
                     if (Double.valueOf(money) >= minMoney) {
                         //3 不能超过余额
                         httpWithdraw(money);
-                        if (Double.valueOf(etWithdraw.getText().toString()) <= balanceValue) {
-                            startActivityForResult(new Intent(activity, CheckPaywordActivity.class), WITHDRAW);
-                        } else {
-                            ToastUtil.show(context, "您的可提现余额不足");
-                        }
+//                        if (Double.valueOf(etWithdraw.getText().toString()) <= balanceValue) {
+//                            startActivityForResult(new Intent(activity, CheckPaywordActivity.class), WITHDRAW);
+//                        } else {
+//                            ToastUtil.show(context, "您的可提现余额不足");
+//                        }
                     } else {
                         ToastUtil.show(context, "最小提现金额不低于" + minMoney + "元");
                     }
@@ -255,7 +260,10 @@ public class WithdrawActivity extends AppActivity {
                             if (baseResponse.getData() != null) {
                                 //1 成功 99 处理中
                                 UrlBean urlBean = baseResponse.getData();
-                                goWebActivity(WithdrawActivity.this, urlBean.getUrl());
+//                                goWebActivity(WithdrawActivity.this, urlBean.getUrl());
+                                Intent intent = new Intent(WithdrawActivity.this, WebPageActivity.class);
+                                intent.putExtra(WebPageActivity.AGM_URL, urlBean.getUrl());
+                                startActivityForResult(intent, REQUEST_PAY);
                             }
                         } else {
                             ToastUtil.show(context, baseResponse.getMessage());
@@ -354,8 +362,26 @@ public class WithdrawActivity extends AppActivity {
                 });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_PAY) {
+            int result = data.getIntExtra(RESULT, 0);
+            if (result == 99) {
+                Intent intent = new Intent(activity, WithdrawSuccessActivity.class);
+                intent.putExtra("bank_name", tvBankName.getText().toString());
+                intent.putExtra("withdraw_money", etWithdraw.getText().toString());
+                intent.putExtra("service_fee", serviceMoney + "");
+                intent.putExtra("get_money", realMoney + "");
+                startActivity(intent);
+            } else {
+                Toast.makeText(context, "提现失败!如有疑问，请联系客服", Toast.LENGTH_LONG).show();
+            }
 
-//    @Override
+        }
+    }
+
+    //    @Override
 //    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 //        super.onActivityResult(requestCode, resultCode, data);
 //        switch (requestCode) {

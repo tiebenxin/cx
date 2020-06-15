@@ -14,6 +14,8 @@ import com.hm.cxpay.bean.UrlBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.controller.ControllerPaySetting;
 import com.hm.cxpay.dailog.ChangeSelectDialog;
+import com.hm.cxpay.eventbus.PayResultEvent;
+import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
@@ -23,21 +25,26 @@ import com.hm.cxpay.ui.bank.BindBankActivity;
 import com.hm.cxpay.ui.bill.BillDetailListActivity;
 import com.hm.cxpay.ui.change.ChangeDetailListActivity;
 import com.hm.cxpay.ui.identification.IdentificationInfoActivity;
-import com.hm.cxpay.ui.payword.ManagePaywordActivity;
 import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.ui.recharege.RechargeActivity;
 import com.hm.cxpay.ui.withdraw.WithdrawActivity;
 import com.hm.cxpay.utils.UIUtils;
 
 import net.cb.cb.library.utils.IntentUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.HeadView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * 零钱首页
  */
 public class LooseChangeActivity extends BasePayActivity {
+    private final String TAG = getClass().getSimpleName();
 
     private ControllerPaySetting viewSettingOfPsw;
     private ControllerPaySetting viewMyCard;
@@ -63,16 +70,21 @@ public class LooseChangeActivity extends BasePayActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        LogUtil.getLog().i(TAG, "onCreate");
         setContentView(R.layout.activity_loose_change);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         activity = this;
         initView();
         initEvent();
+        httpGetUserInfo();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-//        httpGetUserInfo();
+        LogUtil.getLog().i(TAG, "onResume");
     }
 
 
@@ -80,6 +92,8 @@ public class LooseChangeActivity extends BasePayActivity {
     protected void onPause() {
         super.onPause();
         resumeEnabled();
+        LogUtil.getLog().i(TAG, "onPause");
+
     }
 
     private void resumeEnabled() {
@@ -96,8 +110,16 @@ public class LooseChangeActivity extends BasePayActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        LogUtil.getLog().i(TAG, "onPause");
+        EventBus.getDefault().unregister(this);
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        LogUtil.getLog().i(TAG, "onNewIntent");
+
+    }
 
     private void initView() {
         mHeadView = findViewById(R.id.headView);
@@ -126,10 +148,7 @@ public class LooseChangeActivity extends BasePayActivity {
         builder = new ChangeSelectDialog.Builder(activity);
         //显示余额
         userBean = PayEnvironment.getInstance().getUser();
-        if (userBean != null) {
-            //显示余额
-            tvBalance.setText("¥ " + UIUtils.getYuan(Long.valueOf(userBean.getBalance())));
-        }
+        setBalance();
 
         //充值
         layoutRecharge.setOnClickListener(new View.OnClickListener() {
@@ -236,6 +255,13 @@ public class LooseChangeActivity extends BasePayActivity {
         });
     }
 
+    private void setBalance() {
+        if (userBean != null) {
+            //显示余额
+            tvBalance.setText("¥ " + UIUtils.getYuan(Long.valueOf(userBean.getBalance())));
+        }
+    }
+
     /**
      * 请求->获取用户信息
      */
@@ -256,6 +282,7 @@ public class LooseChangeActivity extends BasePayActivity {
                             } else {
                                 userBean = new UserBean();
                             }
+                            setBalance();
                             PayEnvironment.getInstance().setUser(userBean);
                             //刷新最新余额
                             tvBalance.setText("¥ " + UIUtils.getYuan(Long.valueOf(userBean.getBalance())));
@@ -382,8 +409,13 @@ public class LooseChangeActivity extends BasePayActivity {
         dialogTwo.show();
     }
 
-    private void getBank() {
-
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventPayResult(PayResultEvent event) {
+        if (event.getResult() == PayEnum.EPayResult.SUCCESS) {
+            httpGetUserInfo();
+        } else {
+            ToastUtil.show(this, R.string.send_fail_note);
+        }
     }
 
 }

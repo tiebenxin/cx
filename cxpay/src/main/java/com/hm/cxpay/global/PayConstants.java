@@ -12,5 +12,8 @@ public class PayConstants {
     public static final long TOTAL_TRANSFER_MAX_AMOUNT = 1000 * 100;//单次转账最大金额
     public static final int WAIT_TIME = 30 * 1000;//支付等待时间，30s
 
+    public static final int REQUEST_PAY = 0x01;
+    public static final String RESULT = "result";
+
 
 }

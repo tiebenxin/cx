@@ -14,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.alibaba.android.arouter.launcher.ARouter;
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.hm.cxpay.R;
@@ -26,7 +25,6 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.ui.payword.ForgetPswStepOneActivity;
 import com.hm.cxpay.utils.UIUtils;
 import com.hm.cxpay.widget.PswView;
 
@@ -38,6 +36,9 @@ import net.cb.cb.library.view.WebPageActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.hm.cxpay.global.PayConstants.REQUEST_PAY;
+import static com.hm.cxpay.global.PayConstants.RESULT;
 
 
 /**
@@ -496,7 +497,10 @@ public class RechargeActivity extends AppActivity {
                         if (baseResponse.getData() != null) {
                             //1 成功 99 处理中
                             UrlBean urlBean = baseResponse.getData();
-                            goWebActivity(RechargeActivity.this, urlBean.getUrl());
+                            Intent intent = new Intent(RechargeActivity.this, WebPageActivity.class);
+                            intent.putExtra(WebPageActivity.AGM_URL, urlBean.getUrl());
+                            startActivityForResult(intent, REQUEST_PAY);
+//                            goWebActivity(RechargeActivity.this, urlBean.getUrl());
                         }
                         dismissLoadingDialog();
                     }
@@ -510,9 +514,18 @@ public class RechargeActivity extends AppActivity {
     }
 
 
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_PAY) {
+            int result = data.getIntExtra(RESULT, 0);
+            if (result == 99) {
+                startActivity(new Intent(activity, RechargeSuccessActivity.class).putExtra("money", etRecharge.getText().toString()));
+            } else {
+                ToastUtil.show("充值失败");
+            }
+
+        }
 //        if (requestCode == SELECT_BANKCARD) {
 //            if (resultCode == RESULT_OK) {
 //                selectBankcard = data.getParcelableExtra("bank_card");
@@ -533,7 +546,7 @@ public class RechargeActivity extends AppActivity {
 //                }
 //            }
 //        }
-//    }
+    }
 
     //显示密码错误弹窗
 //    private void showPswErrorDialog(boolean canRetry, String msg) {
