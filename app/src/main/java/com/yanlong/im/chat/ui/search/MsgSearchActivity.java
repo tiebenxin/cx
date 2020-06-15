@@ -28,26 +28,32 @@ public class MsgSearchActivity extends AppActivity {
     private ActionbarView actionbar;
     private net.cb.cb.library.view.ClearEditText edtSearch;
     private net.cb.cb.library.view.MultiListView mtListView;
-    private MsgSearchViewModel viewModel ;
+    private MsgSearchViewModel viewModel;
     private MsgSearchAdapter adapter;
     //第一次进入页面,用于弹出软键盘
-    private boolean isInit=true;
+    private boolean isInit = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewModel = new ViewModelProvider(getViewModelStore(),ViewModelProvider.AndroidViewModelFactory.getInstance(MyAppLication.getInstance())).get(MsgSearchViewModel.class);
+        viewModel = new ViewModelProvider(getViewModelStore(), ViewModelProvider.AndroidViewModelFactory.getInstance(MyAppLication.getInstance())).get(MsgSearchViewModel.class);
         setContentView(R.layout.activity_search_frd_grp);
         findViews();
         initEvent();
         initObserver();
     }
-    private void initObserver(){
+
+    private void initObserver() {
         viewModel.key.observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 viewModel.clear();
                 viewModel.search(s);
+            }
+        });
+        viewModel.isLoadNewRecord.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean aBoolean) {
                 mtListView.getListView().getAdapter().notifyDataSetChanged();
             }
         });
@@ -56,7 +62,7 @@ public class MsgSearchActivity extends AppActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(isInit){//第一次进入页面，弹出软键盘
+        if (isInit) {//第一次进入页面，弹出软键盘
             showSoftKeyword(edtSearch);
             isInit = false;
         }
@@ -83,7 +89,7 @@ public class MsgSearchActivity extends AppActivity {
 
             }
         });
-        adapter = new MsgSearchAdapter(this,viewModel);
+        adapter = new MsgSearchAdapter(this, viewModel);
         mtListView.init(adapter);
         mtListView.getLoadView().setStateNormal();
         edtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
