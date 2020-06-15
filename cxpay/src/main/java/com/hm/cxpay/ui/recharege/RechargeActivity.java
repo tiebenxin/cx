@@ -148,7 +148,8 @@ public class RechargeActivity extends AppActivity {
                 if (!TextUtils.isEmpty(etRecharge.getText().toString())) {
                     //2 最低充值10元
                     int yuan = Integer.valueOf(etRecharge.getText().toString());
-                    if (yuan >= 10) {
+                    //TODO:备注最低充值金额为10元, 开发时改为1元
+                    if (yuan >= 1) {
                         httpRecharge(yuan);
                     } else {
                         ToastUtil.show(context, "最低充值金额10元");

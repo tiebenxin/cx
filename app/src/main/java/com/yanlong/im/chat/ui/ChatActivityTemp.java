@@ -1661,13 +1661,13 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
             if (user.getRealNameStat() != 1) {//未认证
                 showIdentifyDialog();
                 return;
-            } else if (user.getPhoneBindStat() != 1) {//未绑定手机
+            } /*else if (user.getPhoneBindStat() != 1) {//未绑定手机
                 showBindPhoneDialog();
                 return;
             } else if (user.getPayPwdStat() != 1) {//未设置支付密码
                 showSettingPswDialog();
                 return;
-            }
+            }*/
         }
         if (userInfo == null) {
             userInfo = userDao.findUserInfo(toUId);
@@ -1689,13 +1689,13 @@ public class ChatActivityTemp extends AppActivity implements IActionTagClickList
             if (user.getRealNameStat() != 1) {//未认证
                 showIdentifyDialog();
                 return;
-            } else if (user.getPhoneBindStat() != 1) {//未绑定手机
+            } /*else if (user.getPhoneBindStat() != 1) {//未绑定手机
                 showBindPhoneDialog();
                 return;
             } else if (user.getPayPwdStat() != 1) {//未设置支付密码
                 showSettingPswDialog();
                 return;
-            }
+            }*/
         }
         if (isGroup()) {
             Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivityTemp.this, toGid, groupInfo.getUsers().size());

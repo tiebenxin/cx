@@ -1890,13 +1890,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if (user.getRealNameStat() != 1) {//未认证
                 showIdentifyDialog();
                 return;
-            } else if (user.getPhoneBindStat() != 1) {//未绑定手机
+            } /*else if (user.getPhoneBindStat() != 1) {//未绑定手机
                 showBindPhoneDialog();
                 return;
             } else if (user.getPayPwdStat() != 1) {//未设置支付密码
                 showSettingPswDialog();
                 return;
-            }
+            }*/
         }
         String name = "";
         String avatar = "";
@@ -1915,13 +1915,13 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
             if (user.getRealNameStat() != 1) {//未认证
                 showIdentifyDialog();
                 return;
-            } else if (user.getPhoneBindStat() != 1) {//未绑定手机
+            } /*else if (user.getPhoneBindStat() != 1) {//未绑定手机
                 showBindPhoneDialog();
                 return;
             } else if (user.getPayPwdStat() != 1) {//未设置支付密码
                 showSettingPswDialog();
                 return;
-            }
+            }*/
         }
         if (isGroup()) {
             Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivity.this, toGid, mViewModel.groupInfo.getUsers().size());

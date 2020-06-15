@@ -72,7 +72,7 @@ public class LooseChangeActivity extends BasePayActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        httpGetUserInfo();
+//        httpGetUserInfo();
     }
 
 
@@ -193,16 +193,17 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutAuthRealName.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
-                layoutAuthRealName.setEnabled(false);
+//                layoutAuthRealName.setEnabled(false);
+                IntentUtil.gotoActivity(activity, IdentificationInfoActivity.class);
                 //1 已经绑定手机
-                if (userBean != null && userBean.getPhoneBindStat() == 1) {
-                    if (PayEnvironment.getInstance().getUser().getPhoneBindStat() == 1) {
-                        IntentUtil.gotoActivity(activity, IdentificationInfoActivity.class);
-                    } else {
-                        //2 没有绑定手机
-                        showBindPhoneNumDialog();
-                    }
-                }
+//                if (userBean != null && userBean.getPhoneBindStat() == 1) {
+//                    if (PayEnvironment.getInstance().getUser().getPhoneBindStat() == 1) {
+//                        IntentUtil.gotoActivity(activity, IdentificationInfoActivity.class);
+//                    } else {
+//                        //2 没有绑定手机
+//                        showBindPhoneNumDialog();
+//                    }
+//                }
             }
         });
         //我的银行卡
@@ -217,21 +218,20 @@ public class LooseChangeActivity extends BasePayActivity {
             }
         });
         //支付密码管理
-        viewSettingOfPsw = new
-
-                ControllerPaySetting(findViewById(R.id.viewSettingOfPsw));
+        viewSettingOfPsw = new ControllerPaySetting(findViewById(R.id.viewSettingOfPsw));
         viewSettingOfPsw.init(R.mipmap.ic_paypsw_manage, R.string.settings_of_psw, "");
+        viewSettingOfPsw.setVisible(false);
         viewSettingOfPsw.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
                 // 1 已设置支付密码 -> 允许跳转
                 viewSettingOfPsw.setEnabled(false);
-                if (userBean != null && userBean.getPayPwdStat() == 1) {
-                    IntentUtil.gotoActivity(activity, ManagePaywordActivity.class);
-                } else {
-                    //2 未设置支付密码 -> 需要先设置
-                    showSetPaywordDialog();
-                }
+//                if (userBean != null && userBean.getPayPwdStat() == 1) {
+//                    IntentUtil.gotoActivity(activity, ManagePaywordActivity.class);
+//                } else {
+//                    //2 未设置支付密码 -> 需要先设置
+//                    showSetPaywordDialog();
+//                }
             }
         });
     }

@@ -368,7 +368,7 @@ public class ShopFragemnt extends Fragment {
         //1 已实名认证
         if (userBean.getRealNameStat() == 1) {
             //2 已完成绑定手机号
-            if (userBean.getPhoneBindStat() == 1) {
+            /*if (userBean.getPhoneBindStat() == 1) {
                 //3 已设置支付密码
                 if (userBean.getPayPwdStat() == 1) {
                     showCheckPaywordDialog();
@@ -379,7 +379,7 @@ public class ShopFragemnt extends Fragment {
             } else {
                 //未绑定手机号
                 showBindPhoneNumDialog();
-            }
+            }*/
         } else {
             //未实名认证->分三步走流程(1 同意->2 实名认证->3 绑定手机号->4 新增一个步骤设置支付密码)
             showIdentifyDialog();
