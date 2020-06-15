@@ -2814,6 +2814,9 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 mmr.setDataSource(inputStream.getFD());
             } else {
             }
+            while (mmr.getFrameAtTime()==null){
+                Thread.sleep(1000);
+            }
             File file = GroupHeadImageUtil.save2File(mmr.getFrameAtTime());
             if (file != null) {
                 path = file.getAbsolutePath();

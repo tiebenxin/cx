@@ -906,6 +906,7 @@ public class MessageManager {
     /**
      * 清除双向删除消息
      */
+    @Deprecated
     public void clearHistoryMsg() {
         if (historyCleanMsg.size() > 0) {
             for (Long key : historyCleanMsg.keySet()) {
@@ -917,6 +918,7 @@ public class MessageManager {
     /**
      * 更新离线接收自己PC端发送的已读消息
      */
+    @Deprecated
     public void updateOfflineReadMsg() {
         Realm realm = DaoUtil.open();
         try {

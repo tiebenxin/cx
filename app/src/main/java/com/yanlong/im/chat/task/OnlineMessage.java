@@ -28,7 +28,23 @@ public class OnlineMessage extends DispatchMessage {
     @Override
     public void clear() {
     }
-
+    /**
+     * 过滤消息 -不接收或不接收重复消息
+     * @param wrapMessage
+     * @return
+     */
+    @Override
+    public boolean filter(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
+            return true;
+        } else if (!TextUtils.isEmpty(wrapMessage.getMsgId()) && oldMsgId.contains(wrapMessage.getMsgId())) {
+            //有已保存成功的消息，则不再处理
+            LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
+            return true;
+        } else {
+            return false;
+        }
+    }
     /**
      * 处理在线消息
      *
@@ -44,7 +60,7 @@ public class OnlineMessage extends DispatchMessage {
                     MsgBean.UniversalMessage.WrapMessage msg = msgList.get(i);
                     MsgBean.UniversalMessage.WrapMessage wrapMessage = msg;
                     //开始处理消息
-                    boolean toDOResult = toDoMsg(realm, wrapMessage, bean.getRequestId(), bean.getMsgFrom() == 1, msgList.size(),
+                    boolean toDOResult = handlerMessage(realm, wrapMessage, bean.getRequestId(), bean.getMsgFrom() == 1, msgList.size(),
                             i == msgList.size() - 1);
                     if (toDOResult) {
                         //记录已保存成功的消息,用于剔除重复消息
@@ -67,16 +83,5 @@ public class OnlineMessage extends DispatchMessage {
             SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null, bean.getMsgFrom(), false, true), null, bean.getRequestId());
     }
 
-    @Override
-    public boolean filter(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
-        if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
-            return true;
-        } else if (!TextUtils.isEmpty(wrapMessage.getMsgId()) && oldMsgId.contains(wrapMessage.getMsgId())) {
-            //有已保存成功的消息，则不再处理
-            LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
-            return true;
-        } else {
-            return false;
-        }
-    }
+
 }

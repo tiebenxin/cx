@@ -24,7 +24,8 @@ public abstract class DispatchMessage {
     protected final int BUGLY_TAG_SAVE_DATA = 139066;
 
     protected MessageRepository repository;
-    public DispatchMessage(boolean isOffline){
+
+    public DispatchMessage(boolean isOffline) {
         repository = new MessageRepository(isOffline);
     }
 
@@ -32,6 +33,7 @@ public abstract class DispatchMessage {
 
     /**
      * 消息分发处理
+     *
      * @param bean
      * @param realm
      */
@@ -39,12 +41,15 @@ public abstract class DispatchMessage {
 
     /**
      * 过滤消息
+     *
      * @param wrapMessage
      */
     public abstract boolean filter(MsgBean.UniversalMessage.WrapMessage wrapMessage);
 
 
     /**
+     * 消息处理
+     *
      * @param realm
      * @param wrapMessage
      * @param requestId
@@ -53,14 +58,15 @@ public abstract class DispatchMessage {
      * @param isLastMessage 是否为本批消息的最后一条消息
      * @return
      */
-    public boolean toDoMsg(Realm realm, MsgBean.UniversalMessage.WrapMessage wrapMessage, String requestId, boolean isOfflineMsg, int batchMsgCount
+    public boolean handlerMessage(Realm realm, MsgBean.UniversalMessage.WrapMessage wrapMessage, String requestId, boolean isOfflineMsg, int batchMsgCount
             , boolean isLastMessage) {
         boolean result = true;
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
-        boolean dealResult = dealWithMsg(wrapMessage, requestId, isOfflineMsg,
+        /***开始保存处理消息 保存到数据库*********************************************/
+        boolean saveDBResult = dealWithMsg(wrapMessage, requestId, isOfflineMsg,
                 realm);
-        //有一个没有保存成功，则整体接收失败
-        if (!dealResult) {
+        /***saveDBResult 保存结果*********************************************/
+        if (!saveDBResult) {//有一个没有保存成功，则整体接收失败
             result = false;
             // 上报后的Crash会显示该标签
             CrashReport.setUserSceneTag(MyAppLication.getInstance().getApplicationContext(), BUGLY_TAG_SAVE_DATA);
@@ -77,8 +83,6 @@ public abstract class DispatchMessage {
     }
 
 
-
-
     /**
      * 处理接收到的消息
      * 分两类处理，一类是需要产生本地消息记录的，一类是相关指令，无需产生消息记录
@@ -91,7 +95,7 @@ public abstract class DispatchMessage {
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, String requestId, boolean isOfflineMsg
             , Realm realm) {
         //过滤消息
-        if(filter(wrapMessage))return true;
+        if (filter(wrapMessage)) return true;
         LogUtil.getLog().e(TAG, "接收到消息: " + wrapMessage.getMsgId() + "--type=" + wrapMessage.getMsgType());
         repository.updateUserAvatarAndNick(wrapMessage, realm);
         boolean isFromSelf = false;
@@ -121,7 +125,7 @@ public abstract class DispatchMessage {
                 result = repository.toDoChat(wrapMessage, requestId, realm);
                 break;
             case HISTORY_CLEAN://双向清除
-                repository.toDoHistoryCleanMsg(wrapMessage, isOfflineMsg, realm);
+                repository.handlerHistoryCleanMsg(wrapMessage, isOfflineMsg, realm);
                 break;
             case P2P_AU_VIDEO:// 音视频消息
                 result = repository.toDoP2PAUVideo(wrapMessage, realm);
@@ -130,7 +134,7 @@ public abstract class DispatchMessage {
                 result = repository.toDoAcceptBeFriends(wrapMessage, realm);
                 break;
             case REQUEST_FRIEND://请求添加为好友
-                repository.toDoRequestFriendMsg(wrapMessage, realm);
+                repository.handlerRequestFriendMsg(wrapMessage, realm);
                 break;
             case REMOVE_FRIEND:
                 MessageManager.getInstance().notifyRefreshFriend(true, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.REMOVE_FRIEND);
@@ -151,13 +155,13 @@ public abstract class DispatchMessage {
                 result = repository.toDoAcceptBeGroup(wrapMessage, realm);
                 break;
             case REQUEST_GROUP://群主会收到成员进群的请求的通知
-                repository.toDoRequestGroup(wrapMessage, realm);
+                repository.handlerRequestGroup(wrapMessage, realm);
                 break;
             case CHANGE_GROUP_META://修改群属性
                 result = repository.toDoChangeGroupMeta(wrapMessage, realm);
                 break;
             case DESTROY_GROUP://销毁群
-                repository.toDoDestroyGroup(wrapMessage, realm);
+                repository.handlerDestroyGroup(wrapMessage, realm);
                 break;
             case FORCE_OFFLINE://强制退出，登录冲突
                 repository.toDoForceOffline(wrapMessage);
@@ -167,19 +171,19 @@ public abstract class DispatchMessage {
                 result = repository.toDoGroupAnnouncement(wrapMessage, realm);
                 break;
             case ACTIVE_STAT_CHANGE://在线状态改变
-                repository.todoActiveStatChange(wrapMessage, realm);
+                repository.handlerActiveStatChange(wrapMessage, realm);
                 break;
             case CANCEL://撤销消息
                 result = repository.toDoCancel(wrapMessage, realm);
                 break;
             case RESOURCE_LOCK://资源锁定
-                repository.toDoResourceLock(wrapMessage, realm);
+                repository.handlerResourceLock(wrapMessage, realm);
                 break;
             case CHANGE_SURVIVAL_TIME: //阅后即焚
                 result = repository.toDoChangeSurvivalTime(wrapMessage, realm);
                 break;
             case READ://已读消息
-                repository.toDoRead(wrapMessage, isOfflineMsg, realm);
+                repository.handlerRead(wrapMessage, isOfflineMsg, realm);
                 break;
             case SWITCH_CHANGE: //开关变更
                 result = repository.toDoSwitchChange(wrapMessage, realm);
@@ -187,7 +191,7 @@ public abstract class DispatchMessage {
             case P2P_AU_VIDEO_DIAL:// 音视频通知
                 break;
             case PAY_RESULT://支付结果
-                repository.toDoPayResult(wrapMessage);
+                repository.handlerPayResult(wrapMessage);
                 break;
             case TRANSFER://转账消息
                 result = repository.toDoTransfer(wrapMessage, realm);
@@ -196,13 +200,12 @@ public abstract class DispatchMessage {
                 result = repository.toDoReplySpecific(wrapMessage, realm);
                 break;
             case MULTI_TERMINAL_SYNC:// PC端同步 更改信息，只同步自己的操作
-                repository.toDoMultiTerminalSync(wrapMessage, realm);
+                repository.handlerMultiTerminalSync(wrapMessage, realm);
                 break;
         }
 
         return result;
     }
-
 
 
 }

@@ -85,6 +85,28 @@ public class OfflineMessage extends DispatchMessage {
     }
 
     /**
+     * 过滤消息-不接收或不重复接收
+     * @param wrapMessage
+     * @return
+     */
+    @Override
+    public boolean filter(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
+            return true;
+        }
+        /******丢弃离线消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
+        if (isBeforeHistoryCleanMessage(wrapMessage)) {
+            return true;
+        }
+        if (mSuccessMsgIds.contains(wrapMessage.getMsgId())) {//已经保存过了
+            return true;
+        } else {
+            //收集gid和uid,用于最后更新session
+            collectBatchMessageGidAndUids(wrapMessage.getGid(), wrapMessage.getFromUid(), wrapMessage.getToUid());
+        }
+        return false;
+    }
+    /**
      * 处理离线消息
      *
      * @param bean
@@ -113,23 +135,6 @@ public class OfflineMessage extends DispatchMessage {
     }
 
 
-    @Override
-    public boolean filter(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
-        if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
-            return true;
-        }
-        /******丢弃离线消息-执行过双向删除，在指令之前的消息 2020/4/28****************************************/
-        if (isHistoryCleanBeforeMessage(wrapMessage)) {
-            return true;
-        }
-        if (mSuccessMsgIds.contains(wrapMessage.getMsgId())) {//已经保存过了
-            return true;
-        } else {
-            //收集gid和uid,用于最后更新session
-            toCollectUpdateSesionIds(wrapMessage.getGid(), wrapMessage.getFromUid(), wrapMessage.getToUid());
-        }
-        return false;
-    }
 
     /**
      * 开启接收离线消息的并发任务
@@ -154,7 +159,7 @@ public class OfflineMessage extends DispatchMessage {
                     boolean isLastMessage = mSuccessMessageCount.get(requestId).get() == msgList.size();
                     boolean toDOResult = false;
                     //开始处理消息
-                    toDOResult = toDoMsg(realm, wrapMessage, requestId, msgFrom == 1, msgList.size(),
+                    toDOResult = handlerMessage(realm, wrapMessage, requestId, msgFrom == 1, msgList.size(),
                             isLastMessage);
                     if (toDOResult) {
                         //成功，递增成功数量
@@ -166,23 +171,11 @@ public class OfflineMessage extends DispatchMessage {
                         clearSuccessCount(requestId);
                     }
                 }
-                if (mSuccessMessageCount.containsKey(requestId)) {
-                    if (mSuccessMessageCount.get(requestId).get() == msgList.size()) {
-                        //刷新session
-                        //全部保存成功，消息回执
-                        SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, true), null, requestId);
-                        //接收完离线消息的处理
-                        recieveFinished(realm, msgList.size(), true);
-                        //清除数量
-                        clearSuccessCount(requestId);
-                    }
-                } else {//被移除了，说明至少有一个消息接收失败
-                    //接收完离线消息的处理
-                    recieveFinished(realm, msgList.size(), false);
-                }
+                //检测本批的所有消息是否已经接收完成
+                checkBatchMessageCompleted(realm,requestId,msgList.size(),msgFrom);
             } catch (Exception e) {
-                //接收完离线消息的处理
-                recieveFinished(realm, msgList.size(), false);
+                //检测所有离线消息是否接收完成
+                checkReceivedAllOfflineCompleted(realm, msgList.size(), false);
                 //清除数量
                 clearSuccessCount(requestId);
                 LogUtil.writeError(e);
@@ -194,53 +187,35 @@ public class OfflineMessage extends DispatchMessage {
     }
 
     /**
-     * 收集本批消息的gid和UId用于更新session，更新session后移除
-     *
-     * @param gid
-     * @param fromUid
+     * 检测本批消息是否已经接收完成
+     * @param requestId
+     * @param batchTotalCount 本批消息的总数量
+     * @param msgFrom 离线或在线消息
      */
-    private void toCollectUpdateSesionIds(String gid, Long fromUid, Long toUid) {
-        if (TextUtils.isEmpty(gid)) {
-            long friendUid = fromUid;
-            boolean isFromSelf = UserAction.getMyId() != null && fromUid == UserAction.getMyId().intValue();
-            if (fromUid == -1 || isFromSelf) {//-1表示系统消息
-                friendUid = toUid;
+    private void checkBatchMessageCompleted(Realm realm, String requestId, int batchTotalCount, int msgFrom){
+        if (mSuccessMessageCount.containsKey(requestId)) {
+            if (mSuccessMessageCount.get(requestId).get() == batchTotalCount) {
+                //刷新session
+                //全部保存成功，消息回执
+                SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, true), null, requestId);
+                //检测所有离线消息是否接收完成
+                checkReceivedAllOfflineCompleted(realm,batchTotalCount, true);
+                //清除数量
+                clearSuccessCount(requestId);
             }
-            if (UserAction.getMyId() != null && friendUid != UserAction.getMyId().intValue()) {
-                mToUpdateSessionUids.add(isFromSelf ? toUid : fromUid);
-            }
-        } else {
-            mToUpdateSessionGids.add(gid);
+        } else {//被移除了，说明至少有一个消息接收失败
+            //检测所有离线消息是否接收完成
+            checkReceivedAllOfflineCompleted(realm, batchTotalCount, false);
         }
     }
-
     /**
-     * 本批消息接收完成后，更新相关的session
-     *
-     * @param realm
-     */
-    private void updateSessions(Realm realm) {
-        while (mToUpdateSessionUids.iterator().hasNext()) {
-            Long uid = mToUpdateSessionUids.iterator().next();
-            mToUpdateSessionUids.remove(uid);
-            repository.offlineUpdateSession(realm, null, uid);
-        }
-
-        while (mToUpdateSessionGids.iterator().hasNext()) {
-            String gid = mToUpdateSessionGids.iterator().next();
-            mToUpdateSessionGids.remove(gid);
-            repository.offlineUpdateSession(realm, gid, null);
-        }
-    }
-
-    /**
-     * 接收完离线消息
+     * 检测接收完所有离线消息
      *
      * @param realm
      * @param batchMsgCount 本次批量消息数量
      * @param isSuccess     保存成功
      */
-    public void recieveFinished(Realm realm, int batchMsgCount, boolean isSuccess) {
+    public void checkReceivedAllOfflineCompleted(Realm realm, int batchMsgCount, boolean isSuccess) {
         //本次离线消息是否接收完成
         boolean isReceivedOfflineCompleted = SocketData.isEnough(batchMsgCount);
         if (isReceivedOfflineCompleted) {//离线消息接收完了
@@ -258,32 +233,81 @@ public class OfflineMessage extends DispatchMessage {
             }
         }
         //更新所有的session
-        updateSessions(realm);
+        updateSessionsWhenBatchCompleted(realm);
+    }
+    /**
+     * 收集本批消息的gid和UId用于更新session，更新session后移除
+     *
+     * @param gid
+     * @param fromUid
+     */
+    private void collectBatchMessageGidAndUids(String gid, Long fromUid, Long toUid) {
+        if (TextUtils.isEmpty(gid)) {
+            long friendUid = fromUid;
+            boolean isFromSelf = UserAction.getMyId() != null && fromUid == UserAction.getMyId().intValue();
+            if (fromUid == -1 || isFromSelf) {//-1表示系统消息
+                friendUid = toUid;
+            }
+            if (UserAction.getMyId() != null && friendUid != UserAction.getMyId().intValue()) {
+                mToUpdateSessionUids.add(isFromSelf ? toUid : fromUid);
+            }
+        } else {
+            mToUpdateSessionGids.add(gid);
+        }
     }
 
+    /**
+     * 本批消息接收完成后，更新本批消息中相关的session
+     *
+     * @param realm
+     */
+    private void updateSessionsWhenBatchCompleted(Realm realm) {
+        while (mToUpdateSessionUids.iterator().hasNext()) {
+            Long uid = mToUpdateSessionUids.iterator().next();
+            mToUpdateSessionUids.remove(uid);
+            repository.offlineUpdateSession(realm, null, uid);
+        }
+
+        while (mToUpdateSessionGids.iterator().hasNext()) {
+            String gid = mToUpdateSessionGids.iterator().next();
+            mToUpdateSessionGids.remove(gid);
+            repository.offlineUpdateSession(realm, gid, null);
+        }
+    }
+
+
+    /**
+     * 清除成功数-接收完一批后
+     * @param requestId
+     */
     private synchronized void clearSuccessCount(String requestId) {
         if (mSuccessMessageCount.containsKey(requestId)) {
             mSuccessMessageCount.remove(requestId);
         }
     }
 
+    /**
+     * 递增记录成功数据 -每个消息成功时记录
+     * @param requestId
+     */
     private synchronized void pushSuccessCount(String requestId) {
         if (mSuccessMessageCount.containsKey(requestId)) {
             mSuccessMessageCount.get(requestId).getAndIncrement();
         }
     }
 
-    /**
-     * 丢弃双向清除消息
+    /**是否是双向清除之前的消息
+     * 是则丢弃该消息
      *
      * @param wrapMessage
      */
-    private boolean isHistoryCleanBeforeMessage(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    private boolean isBeforeHistoryCleanMessage(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
         boolean result = false;
         if (TextUtils.isEmpty(wrapMessage.getGid()) && repository.historyCleanMsg.size() > 0) {//单聊
             long timestamp = wrapMessage.getTimestamp();
             long fromUid = wrapMessage.getFromUid();
             long toUid = wrapMessage.getToUid();
+            //接收到的消息是否在双向清除之前-对方发的或我发的
             if (repository.historyCleanMsg.containsKey(fromUid) && repository.historyCleanMsg.get(fromUid) >= timestamp) {
                 if (repository.historyCleanMsg.get(fromUid) >= timestamp) {
                     result = true;

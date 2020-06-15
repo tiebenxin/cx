@@ -101,7 +101,7 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoRequestGroup(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
+    public void handlerRequestGroup(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
         //自己邀请的，不需要显示
         if (UserAction.getMyId() != null && wrapMessage.getRequestGroup().getInviter() > 0 && wrapMessage.getRequestGroup().getInviter() == UserAction.getMyId().longValue()) {
             return;
@@ -132,7 +132,7 @@ public class MessageRepository {
      * @param wrapMessage
      * @param isOfflineMsg 是否是离线消息
      */
-    public void toDoHistoryCleanMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isOfflineMsg, Realm realm) {
+    public void handlerHistoryCleanMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isOfflineMsg, Realm realm) {
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         //最后一条需要清除的聊天记录时间戳
         long lastNeedCleanTimestamp = wrapMessage.getTimestamp();
@@ -151,7 +151,7 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoRequestFriendMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
+    public void handlerRequestFriendMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         //增加好友申请红点数
         localDataSource.addRemindCount(realm, "friend_apply");
@@ -170,7 +170,7 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoDestroyGroup(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
+    public void handlerDestroyGroup(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
         String groupName = wrapMessage.getDestroyGroup().getName();
         String icon = wrapMessage.getDestroyGroup().getAvatar();
         localDataSource.groupExit(realm, wrapMessage.getGid(), groupName, icon, 1);
@@ -189,7 +189,7 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void todoActiveStatChange(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
+    public void handlerActiveStatChange(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
         long fromUid = wrapMessage.getFromUid();
         MsgBean.ActiveStatChangeMessage message = wrapMessage.getActiveStatChange();
         if (message != null) {
@@ -208,7 +208,7 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoResourceLock(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
+    public void handlerResourceLock(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
         MsgBean.ResourceLockMessage lock = wrapMessage.getResourceLock();
         if (lock != null) {
             MsgBean.ResourceLockMessage.ResourceLockType type = lock.getResourceLockType();
@@ -230,7 +230,7 @@ public class MessageRepository {
      * @param wrapMessage
      * @param isOfflineMsg 是否为离线消息
      */
-    public void toDoRead(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isOfflineMsg, Realm realm) {
+    public void handlerRead(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isOfflineMsg, Realm realm) {
         boolean isFromSelf = UserAction.getMyId() != null && wrapMessage.getFromUid() == UserAction.getMyId().intValue() && wrapMessage.getFromUid() != wrapMessage.getToUid();
         long uids = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
         if (!isFromSelf) {
@@ -267,7 +267,7 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoPayResult(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+    public void handlerPayResult(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
         MsgBean.PayResultMessage payResult = wrapMessage.getPayResult();
         System.out.println(TAG + "--支付结果=" + payResult.getResult());
         //通知UI更新
@@ -279,7 +279,7 @@ public class MessageRepository {
      *
      * @param wrapMessage
      */
-    public void toDoMultiTerminalSync(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
+    public void handlerMultiTerminalSync(MsgBean.UniversalMessage.WrapMessage wrapMessage, Realm realm) {
         switch (wrapMessage.getMultiTerminalSync().getSyncType()) {
             case MY_SELF_CHANGED://自己的个人信息变更
                 remoteDataSource.getMyInfo(UserAction.getMyId(), null, new Function<UserBean, Boolean>() {
