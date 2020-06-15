@@ -10,6 +10,8 @@ import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
+import java.util.List;
+
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmQuery;
@@ -73,8 +75,9 @@ public class MsgSearchLocalDataSource {
      *
      * @return
      */
-    public RealmResults<SessionDetail> getSessionDetails(String[] sids) {
-        return realm.where(SessionDetail.class).in("sid", sids).findAll();
+    public List<SessionDetail> getSessionDetails(String[] sids) {
+        RealmResults<SessionDetail> results = realm.where(SessionDetail.class).in("sid", sids).findAll();
+        return results == null ? null : realm.copyFromRealm(results);
     }
 
     private RealmQuery<MsgAllBean> searchMessagesQuery(String key, String gid, long uid) {

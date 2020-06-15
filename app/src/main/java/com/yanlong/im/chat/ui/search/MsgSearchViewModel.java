@@ -44,6 +44,7 @@ public class MsgSearchViewModel extends ViewModel {
     public void search(String key) {
         searchFriends = repository.searchFriends(key);
         searchGroups = repository.searchGroups(key);
+        isLoadNewRecord.setValue(true);
         RealmResults<Session> sessions = repository.searchSessions();
         //单独用 list,保证顺序
         List<String> sids = new ArrayList<>();
@@ -57,9 +58,9 @@ public class MsgSearchViewModel extends ViewModel {
                 sids.add(session.getSid());
                 sessionSearch.put(session.getSid(), result);
                 if (sids.size() > 20) {
-                    sids.clear();
                     searchSessions.addAll(repository.getSessionDetails(sids.toArray(new String[sids.size()])));
                     isLoadNewRecord.setValue(true);
+                    sids.clear();
                 }
             }
         }
