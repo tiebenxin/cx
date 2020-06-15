@@ -133,7 +133,7 @@ public class MsgSearchLocalDataSource {
      * @return
      */
     public MsgAllBean searchMessages(String key, String gid, long uid) {
-        return searchMessagesQuery(key, gid, uid).findFirst();
+        return searchMessagesQuery(key, gid, uid).findFirstAsync();
     }
 
     /**
