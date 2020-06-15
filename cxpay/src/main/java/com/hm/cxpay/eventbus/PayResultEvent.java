@@ -15,6 +15,7 @@ public class PayResultEvent extends BaseEvent {
     long tradeId;//交易id
     String actionId;
     String errMsg;
+    String sign;
 
     public int getResult() {
         return result;
@@ -46,5 +47,13 @@ public class PayResultEvent extends BaseEvent {
 
     public void setErrMsg(String errMsg) {
         this.errMsg = errMsg;
+    }
+
+    public String getSign() {
+        return sign;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign;
     }
 }

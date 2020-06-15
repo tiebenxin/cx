@@ -131,7 +131,7 @@ public interface PayService {
 
     //发红包
     @POST(Route.SEND_RED_ENVELOPE)
-    Observable<BaseResponse<SendResultBean>> sendRedEnvelope(@Body RequestBody body, @QueryMap Map<String, String> map);
+    Observable<BaseResponse<UrlBean>> sendRedEnvelope(@Body RequestBody body, @QueryMap Map<String, String> map);
 
     //抢红包
     @POST(Route.SNATCH_RED_ENVELOPE)

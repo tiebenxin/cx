@@ -325,15 +325,11 @@ public class PayHttpUtils {
      * amt——发送金额，单位：分；count——发送个数；payPwd——支付密码；type——红包类型，拼手气 1或者普通红包 0，
      * bankCardId——当发送金额大于零钱余额，必填；note——恭喜发财，大吉大利，uid-红包发送给谁
      */
-    public Observable<BaseResponse<SendResultBean>> sendRedEnvelopeToUser(String actionId, long amt, int count, String payPwd, int type, long bankCardId, String note, long uid) {
+    public Observable<BaseResponse<UrlBean>> sendRedEnvelopeToUser(String actionId, long amt, int count, int type, String note, long uid) {
         Map<String, String> map = new HashMap<>();
         map.put("actionId", actionId);
         map.put("amt", amt + "");
         map.put("cnt", count + "");
-        map.put("payPwd", MD5.md5(payPwd));
-        if (bankCardId > 0) {
-            map.put("bankCardId", bankCardId + "");
-        }
         map.put("note", note);
         map.put("type", type + "");
         map.put("toUid", uid + "");
@@ -345,15 +341,11 @@ public class PayHttpUtils {
      * amt——发送金额，单位：分；count——发送个数；payPwd——支付密码；type——红包类型，拼手气1或者普通红包0，
      * bankCardId——当发送金额大于零钱余额，必填；note——恭喜发财，大吉大利，uid-红包发送给谁
      */
-    public Observable<BaseResponse<SendResultBean>> sendRedEnvelopeToGroup(String actionId, long amt, int count, String payPwd, int type, long bankCardId, String note, String gid) {
+    public Observable<BaseResponse<UrlBean>> sendRedEnvelopeToGroup(String actionId, long amt, int count,  int type,  String note, String gid) {
         Map<String, String> map = new HashMap<>();
         map.put("actionId", actionId);
         map.put("amt", amt + "");
         map.put("cnt", count + "");
-        map.put("payPwd", MD5.md5(payPwd));
-        if (bankCardId > 0) {
-            map.put("bankCardId", bankCardId + "");
-        }
         map.put("note", note);
         map.put("type", type + "");
         map.put("toGid", gid);
