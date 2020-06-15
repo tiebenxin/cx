@@ -85,8 +85,9 @@ public class MsgSearchLocalDataSource {
                     .and()
                     .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
                     .and()
-                    .beginGroup()
                     .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
+                    .and()
+                    .beginGroup()
                     .like("chat.msg", searchKey, Case.INSENSITIVE).or()//文本聊天
                     .like("atMessage.msg", searchKey, Case.INSENSITIVE).or()//@消息
                     .like("assistantMessage.msg", searchKey, Case.INSENSITIVE).or()//小助手消息
