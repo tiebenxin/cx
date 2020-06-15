@@ -19,6 +19,7 @@ import com.yanlong.im.user.bean.UserBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DB;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.socket.MsgBean;
 
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -47,15 +48,15 @@ public class MessageLocalDataSource {
      * @return
      */
     private void checkInTransaction(Realm realm) {
-        int i=0;
+        int i = 0;
         while (realm.isInTransaction()) {
             try {//正在事务，100毫秒后重试
-                if(i<10){
-                    LogUtil.writeLog("checkInTransaction i="+i);
+                if (i < 10) {
+                    LogUtil.writeLog("checkInTransaction i=" + i);
                     synchronized (Thread.currentThread()) {
                         Thread.currentThread().wait(RETRY_DELAY);
                     }
-                }else{//超过1秒，则关闭上一个事务
+                } else {//超过1秒，则关闭上一个事务
                     realm.cancelTransaction();
                     LogUtil.writeLog("checkInTransaction  cancel");
                 }
@@ -523,7 +524,8 @@ public class MessageLocalDataSource {
             LogUtil.writeError(e);
         }
     }
-    public String getGroupName(Realm realm,String gid){
+
+    public String getGroupName(Realm realm, String gid) {
         return DB.getGroupName(realm, gid, null);
     }
 
@@ -638,6 +640,7 @@ public class MessageLocalDataSource {
             LogUtil.writeError(e);
         }
     }
+
     /**
      * 校正session未读数
      * 前提条件：已知最后一条已读消息时间
@@ -663,7 +666,7 @@ public class MessageLocalDataSource {
 
                 realm.beginTransaction();
                 //取最小值  剩余消息数量和当前未读数
-                session.setUnread_count((int)unReadCount);
+                session.setUnread_count((int) unReadCount);
                 realm.commitTransaction();
             }
         } catch (Exception e) {
@@ -674,6 +677,7 @@ public class MessageLocalDataSource {
             LogUtil.writeError(e);
         }
     }
+
     /*
      * 更新或者创建session
      *
@@ -700,7 +704,7 @@ public class MessageLocalDataSource {
                 if (isGroup) {
                     session.setGid(gid);
                     session.setType(1);
-                    Group group = getGroup(realm,gid);
+                    Group group = getGroup(realm, gid);
                     if (group != null) {
                         session.setIsTop(group.getIsTop());
                         session.setIsMute(group.getNotNotify());
@@ -752,7 +756,7 @@ public class MessageLocalDataSource {
             session.setUp_time(System.currentTimeMillis());
             if (StringUtil.isNotNull(cancelId)) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
                 session.setMessageType(1000);
-            } else if (bean != null && bean.getAtMessage() != null && bean.getAtMessage().getAt_type() != 1000) {
+            } else if (isAtMe(bean)) {
                 //对at消息处理 而且不是撤回消息
                 int messageType = bean.getAtMessage().getAt_type();
                 String atMessage = bean.getAtMessage().getMsg();
@@ -770,6 +774,27 @@ public class MessageLocalDataSource {
             LogUtil.writeError(e);
         }
         return true;
+    }
+
+    /**
+     * 是否有@我
+     * 且不是我自己发的@消息
+     * @param bean
+     * @return
+     */
+    public boolean isAtMe(MsgAllBean bean) {
+        boolean result = false;
+        boolean isFromSelf = UserAction.getMyId() != null && bean.getFrom_uid() == UserAction.getMyId().intValue();
+        if (!isFromSelf && bean != null && bean.getAtMessage() != null && bean.getAtMessage().getAt_type() != 1000) {
+            if (bean.getAtMessage().getAt_type() == MsgBean.AtMessage.AtType.ALL_VALUE) {//@所有人
+                result = true;
+            } else if (bean.getAtMessage().getAt_type() == MsgBean.AtMessage.AtType.MULTIPLE_VALUE) {//@单人 中有我
+                if (UserAction.getMyId() != null && bean.getAtMessage().getUid().contains(UserAction.getMyId())) {
+                    result = true;
+                }
+            }
+        }
+        return result;
     }
 
 

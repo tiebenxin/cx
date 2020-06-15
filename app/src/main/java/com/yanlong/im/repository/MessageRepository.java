@@ -887,8 +887,7 @@ public class MessageRepository {
             }
             long chatterId = isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid();
             //是否是对方 @所有人或@自己的消息
-            boolean isAtMyself = msgAllBean != null && msgAllBean.getAtMessage() != null && msgAllBean.getAtMessage().getAt_type() != 1000;
-            if (!isOffline || (!isFromSelf && isAtMyself)) {//在线消息 或@自己的消息，及时更新session，离线消息等批量结束后更新
+            if (!isOffline ||  localDataSource.isAtMe(msgAllBean)) {//在线消息 或@自己的消息，及时更新session，离线消息等批量结束后更新
                 //非自己发过来的消息，才存储为未读状态
                 if (!isFromSelf) {
                     boolean canChangeUnread = !MessageManager.getInstance().isMsgFromCurrentChat(msgAllBean.getGid(), null);
