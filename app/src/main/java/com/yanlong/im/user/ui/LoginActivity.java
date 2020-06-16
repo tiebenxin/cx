@@ -181,6 +181,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                 break;
         }
         AppHostUtil.setHostUrl(host);
+        userAction = new UserAction();
     }
 
     private void showIPUI() {
