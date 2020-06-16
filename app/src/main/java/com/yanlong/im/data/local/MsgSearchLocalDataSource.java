@@ -10,6 +10,8 @@ import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
+import java.util.List;
+
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmQuery;
@@ -73,8 +75,9 @@ public class MsgSearchLocalDataSource {
      *
      * @return
      */
-    public RealmResults<SessionDetail> getSessionDetails(String[] sids) {
-        return realm.where(SessionDetail.class).in("sid", sids).findAll();
+    public List<SessionDetail> getSessionDetails(String[] sids) {
+        RealmResults<SessionDetail> results = realm.where(SessionDetail.class).in("sid", sids).findAll();
+        return results == null ? null : realm.copyFromRealm(results);
     }
 
     private RealmQuery<MsgAllBean> searchMessagesQuery(String key, String gid, long uid) {
@@ -85,8 +88,9 @@ public class MsgSearchLocalDataSource {
                     .and()
                     .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
                     .and()
-                    .beginGroup()
                     .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
+                    .and()
+                    .beginGroup()
                     .like("chat.msg", searchKey, Case.INSENSITIVE).or()//文本聊天
                     .like("atMessage.msg", searchKey, Case.INSENSITIVE).or()//@消息
                     .like("assistantMessage.msg", searchKey, Case.INSENSITIVE).or()//小助手消息
@@ -96,12 +100,13 @@ public class MsgSearchLocalDataSource {
                     .like("sendFileMessage.file_name", searchKey, Case.INSENSITIVE).or()//文件消息
                     .like("webMessage.title", searchKey, Case.INSENSITIVE).or()//链接消息
                     .like("replyMessage.chatMessage.msg", searchKey, Case.INSENSITIVE).or()//回复消息
-                    .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE).or()//回复@消息
+                    .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE)//回复@消息
                     .endGroup();
         } else {
             return realm.where(MsgAllBean.class)
                     .equalTo("gid", gid)
                     .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
+                    .beginGroup()
                     .like("chat.msg", searchKey, Case.INSENSITIVE).or()//文本聊天
                     .like("atMessage.msg", searchKey, Case.INSENSITIVE).or()//@消息
                     .like("assistantMessage.msg", searchKey, Case.INSENSITIVE).or()//小助手消息
@@ -111,7 +116,8 @@ public class MsgSearchLocalDataSource {
                     .like("sendFileMessage.file_name", searchKey, Case.INSENSITIVE).or()//文件消息
                     .like("webMessage.title", searchKey, Case.INSENSITIVE).or()//链接消息
                     .like("replyMessage.chatMessage.msg", searchKey, Case.INSENSITIVE).or()//回复消息
-                    .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE).or()
+                    .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE)
+                    .endGroup()
                     ;//回复@消息
 
         }
@@ -126,6 +132,7 @@ public class MsgSearchLocalDataSource {
     public long searchMessagesCount(String key, String gid, long uid) {
         return searchMessagesQuery(key, gid, uid).count();
     }
+
     /**
      * 搜索聊天记录匹配数量为1时的消息
      *
@@ -133,7 +140,7 @@ public class MsgSearchLocalDataSource {
      * @return
      */
     public MsgAllBean searchMessages(String key, String gid, long uid) {
-        return searchMessagesQuery(key, gid, uid).findFirst();
+        return searchMessagesQuery(key, gid, uid).findFirstAsync();
     }
 
     /**

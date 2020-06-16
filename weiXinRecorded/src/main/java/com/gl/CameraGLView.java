@@ -25,7 +25,10 @@ package com.gl;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
+import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.opengl.EGL14;
 import android.opengl.GLES20;
@@ -41,10 +44,10 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.WindowManager;
 
-
 import com.muxer.MediaVideoEncoder;
 import com.widgt.CameraCallBack;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -165,6 +168,10 @@ public final class CameraGLView extends GLSurfaceView {
 
     public int getRotate() {
         return mCameraHandler.mThread.oriention;
+    }
+
+    public Bitmap getFirstFrame() {
+        return mCameraHandler.mThread.videoFirstFrame;
     }
 
     public SurfaceTexture getSurfaceTexture() {
@@ -464,7 +471,7 @@ public final class CameraGLView extends GLSurfaceView {
     /**
      * Thread for asynchronous operation of camera preview
      */
-    private static final class CameraThread extends Thread {
+    private static final class CameraThread extends Thread implements Camera.PreviewCallback {
         private final Object mReadyFence = new Object();
         private final WeakReference<CameraGLView> mWeakParent;
         private CameraHandler mHandler;
@@ -473,6 +480,8 @@ public final class CameraGLView extends GLSurfaceView {
         private boolean mIsFrontFace;
         private boolean isFlashOpen;
         private int oriention;
+        private byte[] firstPreviewByte;
+        private Bitmap videoFirstFrame;
 
         public CameraThread(final CameraGLView parent) {
             super("Camera thread");
@@ -544,8 +553,11 @@ public final class CameraGLView extends GLSurfaceView {
                             params.getSupportedPreviewSizes(), width, height);
                     params.setPreviewSize(closestSize.width, closestSize.height);
                     // request closest picture size for an aspect ratio issue on Nexus7
-                    final Camera.Size pictureSize = getClosestSupportedSize(
-                            params.getSupportedPictureSizes(), width, height);
+                    final Camera.Size pictureSize = getClosestSupportedSize(params.getSupportedPictureSizes(), width, height);
+                    if (isSupportedPictureFormats(params.getSupportedPictureFormats(), ImageFormat.JPEG)) {
+                        params.setPictureFormat(ImageFormat.JPEG);
+                        params.setJpegQuality(100);
+                    }
                     params.setPictureSize(pictureSize.width, pictureSize.height);
                     // rotate camera preview according to the device orientation
                     setRotation(params);
@@ -579,6 +591,7 @@ public final class CameraGLView extends GLSurfaceView {
                 }
                 if (mCamera != null) {
                     // start camera preview display
+                    mCamera.setPreviewCallback(this);
                     mCamera.startPreview();
                 }
             }
@@ -599,12 +612,35 @@ public final class CameraGLView extends GLSurfaceView {
 
         }
 
+        private boolean isSupportedFocusMode(List<String> focusList, String focusMode) {
+            for (int i = 0; i < focusList.size(); i++) {
+                if (focusMode.equals(focusList.get(i))) {
+                    Log.i(TAG, "FocusMode supported " + focusMode);
+                    return true;
+                }
+            }
+            Log.i(TAG, "FocusMode not supported " + focusMode);
+            return false;
+        }
+
+        public boolean isSupportedPictureFormats(List<Integer> supportedPictureFormats, int jpeg) {
+            for (int i = 0; i < supportedPictureFormats.size(); i++) {
+                if (jpeg == supportedPictureFormats.get(i)) {
+                    Log.i(TAG, "Formats supported " + jpeg);
+                    return true;
+                }
+            }
+            Log.i(TAG, "Formats not supported " + jpeg);
+            return false;
+        }
+
         /**
          * stop camera preview
          */
         private void stopPreview() {
             if (DEBUG) Log.v(TAG, "stopPreview:");
             if (mCamera != null) {
+                mCamera.setPreviewCallback(null);
                 mCamera.stopPreview();
                 mCamera.release();
                 mCamera = null;
@@ -722,27 +758,36 @@ public final class CameraGLView extends GLSurfaceView {
                 mCamera.takePicture(null, null, new Camera.PictureCallback() {
                     @Override
                     public void onPictureTaken(byte[] data, Camera camera) {
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                        android.graphics.Matrix matrix = new android.graphics.Matrix();
-                        if (!isCameraFrontFacing()) {
-                            matrix.setRotate(oriention);
-                        } else {
-                            matrix.setRotate(360 - oriention);
-                            matrix.postScale(-1, 1);
-                        }
+                        try {
+                            if (data == null) {
+                                return;
+                            }
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                            if (bitmap == null) {
+                                return;
+                            }
+                            android.graphics.Matrix matrix = new android.graphics.Matrix();
+                            if (!isCameraFrontFacing()) {
+                                matrix.setRotate(oriention);
+                            } else {
+                                matrix.setRotate(360 - oriention);
+                                matrix.postScale(-1, 1);
+                            }
 
-                        bitmap = createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-                        FileOutputStream fos = null;
-                        try {
-                            fos = new FileOutputStream(photoPath);
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                        try {
+                            bitmap = createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                            FileOutputStream fos = null;
+                            try {
+                                fos = new FileOutputStream(photoPath);
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+
                             fos.close();
-                            callBack.takePhoneSuccess(photoPath);
-                        } catch (IOException e) {
+                            if (callBack != null) {
+                                callBack.takePhoneSuccess(photoPath);
+                            }
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
@@ -752,6 +797,36 @@ public final class CameraGLView extends GLSurfaceView {
 
         private boolean isCameraFrontFacing() {
             return CAMERA_ID == Camera.CameraInfo.CAMERA_FACING_FRONT;
+        }
+
+        @Override
+        public void onPreviewFrame(byte[] data, Camera camera) {
+            if (data != null && firstPreviewByte == null) {
+                firstPreviewByte = data;
+            }
+        }
+
+        private void getPreviewBitmap() {
+            if (firstPreviewByte == null) {
+                return;
+            }
+            Camera.Parameters parameters = mCamera.getParameters();
+            int width = parameters.getPreviewSize().width;
+            int height = parameters.getPreviewSize().height;
+            YuvImage yuv = new YuvImage(firstPreviewByte, parameters.getPreviewFormat(), width, height, null);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            yuv.compressToJpeg(new Rect(0, 0, width, height), 50, out);
+            byte[] bytes = out.toByteArray();
+            videoFirstFrame = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            android.graphics.Matrix matrix = new android.graphics.Matrix();
+            if (!isCameraFrontFacing()) {
+                matrix.setRotate(oriention);
+            } else {
+                matrix.setRotate(360 - oriention);
+                matrix.postScale(-1, 1);
+            }
+            videoFirstFrame = createBitmap(videoFirstFrame, 0, 0, videoFirstFrame.getWidth(), videoFirstFrame
+                    .getHeight(), matrix, true);
         }
     }
 }

@@ -1000,6 +1000,8 @@ public class MsgDao {
                 msg = realm.where(MsgAllBean.class)
                         .equalTo("gid", gid)
                         .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
+                        .and()
+                        .beginGroup()
                         .like("chat.msg", searchKey, Case.INSENSITIVE).or()//文本聊天
                         .like("atMessage.msg", searchKey, Case.INSENSITIVE).or()//@消息
                         .like("assistantMessage.msg", searchKey, Case.INSENSITIVE).or()//小助手消息
@@ -1009,7 +1011,8 @@ public class MsgDao {
                         .like("sendFileMessage.file_name", searchKey, Case.INSENSITIVE).or()//文件消息
                         .like("webMessage.title", searchKey, Case.INSENSITIVE).or()//链接消息
                         .like("replyMessage.chatMessage.msg", searchKey, Case.INSENSITIVE).or()//回复消息
-                        .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE).or()//回复@消息
+                        .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE)//回复@消息
+                        .endGroup()
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
             } else {//单人
@@ -1018,8 +1021,9 @@ public class MsgDao {
                         .and()
                         .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
                         .and()
-                        .beginGroup()
                         .notEqualTo("msg_type", ChatEnum.EMessageType.LOCK)
+                        .and()
+                        .beginGroup()
                         .like("chat.msg", searchKey, Case.INSENSITIVE).or()//文本聊天
                         .like("atMessage.msg", searchKey, Case.INSENSITIVE).or()//@消息
                         .like("assistantMessage.msg", searchKey, Case.INSENSITIVE).or()//小助手消息
@@ -1029,7 +1033,7 @@ public class MsgDao {
                         .like("sendFileMessage.file_name", searchKey, Case.INSENSITIVE).or()//文件消息
                         .like("webMessage.title", searchKey, Case.INSENSITIVE).or()//链接消息
                         .like("replyMessage.chatMessage.msg", searchKey, Case.INSENSITIVE).or()//回复消息
-                        .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE).or()//回复@消息
+                        .like("replyMessage.atMessage.msg", searchKey, Case.INSENSITIVE)//回复@消息
                         .endGroup()
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();

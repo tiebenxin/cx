@@ -204,6 +204,9 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true; // 先获取原大小
         scanBitmap = BitmapFactory.decodeFile(path, options);
+        if (scanBitmap == null) {
+            return null;
+        }
         options.inJustDecodeBounds = false; // 获取新的大小
         int sampleSize = (int) (options.outHeight / (float) 400);
 //        LogUtil.getLog().i("二维码", options.outWidth + "--" + options.outHeight + "--sampleSize=" + sampleSize);

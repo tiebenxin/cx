@@ -554,7 +554,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                         .setListener(new DialogCommon.IDialogListener() {
                             @Override
                             public void onSure() {
-                                go(BanedAccountActivity.class);
+                                cancelDeactivate();
                             }
 
                             @Override
@@ -603,7 +603,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                         .setListener(new DialogCommon.IDialogListener() {
                             @Override
                             public void onSure() {
-                                cancelDeactivate();
+                                go(BanedAccountActivity.class);
                             }
 
                             @Override

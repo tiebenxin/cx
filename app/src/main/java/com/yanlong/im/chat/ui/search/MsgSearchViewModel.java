@@ -27,38 +27,47 @@ public class MsgSearchViewModel extends ViewModel {
     public MutableLiveData<String> key = new MutableLiveData<String>();
     public RealmResults<UserInfo> searchFriends = null;
     public RealmResults<Group> searchGroups = null;
-    public RealmResults<SessionDetail> searchSessions = null;
+    public List<SessionDetail> searchSessions = new ArrayList<>();
     public Map<String, SessionSearch> sessionSearch = new HashMap<>();
+    public MutableLiveData<Boolean> isLoadNewRecord = new MutableLiveData<>();
 
     public void clear() {
         if (searchFriends != null) searchFriends.removeAllChangeListeners();
         if (searchGroups != null) searchGroups.removeAllChangeListeners();
-        if (searchSessions != null) searchSessions.removeAllChangeListeners();
         sessionSearch.clear();
 
         searchFriends = null;
         searchGroups = null;
-        searchSessions = null;
+        searchSessions.clear();
     }
 
     public void search(String key) {
         searchFriends = repository.searchFriends(key);
         searchGroups = repository.searchGroups(key);
+        isLoadNewRecord.setValue(true);
         RealmResults<Session> sessions = repository.searchSessions();
         //单独用 list,保证顺序
         List<String> sids = new ArrayList<>();
         for (Session session : sessions) {
             long count = repository.searchMessagesCount(key, session.getGid(), session.getFrom_uid());
             if (count > 0) {
-                SessionSearch result = new SessionSearch(count,session.getGid(), session.getFrom_uid());
-                if(count==1){//1个消息
-                    result.setMsgAllBean(repository.searchMessages(key,session.getGid(), session.getFrom_uid()));
+                SessionSearch result = new SessionSearch(count, session.getGid(), session.getFrom_uid());
+                if (count == 1) {//1个消息
+                    result.setMsgAllBean(repository.searchMessages(key, session.getGid(), session.getFrom_uid()));
                 }
                 sids.add(session.getSid());
-                sessionSearch.put(session.getSid(),result);
+                sessionSearch.put(session.getSid(), result);
+                if (sids.size() > 20) {
+                    searchSessions.addAll(repository.getSessionDetails(sids.toArray(new String[sids.size()])));
+                    isLoadNewRecord.setValue(true);
+                    sids.clear();
+                }
             }
         }
-        searchSessions = repository.getSessionDetails(sids.toArray(new String[sids.size()]));
+        if (sids.size() > 0) {
+            searchSessions.addAll(repository.getSessionDetails(sids.toArray(new String[sids.size()])));
+            isLoadNewRecord.setValue(true);
+        }
         sids.clear();
         sids = null;
     }
@@ -86,11 +95,12 @@ public class MsgSearchViewModel extends ViewModel {
     }
 
     public class SessionSearch {
-        public SessionSearch(long count,String gid,long uid){
+        public SessionSearch(long count, String gid, long uid) {
             this.count = count;
             this.gid = gid;
             this.uid = uid;
         }
+
         private long count = 0;
         private String gid;
         private long uid;
