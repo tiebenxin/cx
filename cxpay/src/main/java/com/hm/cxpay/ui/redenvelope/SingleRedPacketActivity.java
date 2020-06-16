@@ -28,6 +28,7 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.YiBaoWebActivity;
 import com.hm.cxpay.utils.UIUtils;
 
 import net.cb.cb.library.utils.NumRangeInputFilter;
@@ -35,7 +36,6 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.PopupSelectView;
-import net.cb.cb.library.view.WebPageActivity;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -227,8 +227,8 @@ public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
                         if (baseResponse.isSuccess()) {
                             UrlBean urlBean = baseResponse.getData();
                             if (urlBean != null) {
-                                Intent intent = new Intent(SingleRedPacketActivity.this, WebPageActivity.class);
-                                intent.putExtra(WebPageActivity.AGM_URL, urlBean.getUrl());
+                                Intent intent = new Intent(SingleRedPacketActivity.this, YiBaoWebActivity.class);
+                                intent.putExtra(YiBaoWebActivity.AGM_URL, urlBean.getUrl());
                                 startActivityForResult(intent, REQUEST_PAY);
 
                             }

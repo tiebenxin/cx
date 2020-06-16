@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnLongClickListener;
@@ -15,7 +14,6 @@ import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
 import net.cb.cb.library.R;
-import net.cb.cb.library.utils.ToastUtil;
 
 
 /***

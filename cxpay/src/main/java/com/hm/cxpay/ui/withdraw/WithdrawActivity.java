@@ -32,6 +32,7 @@ import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.YiBaoWebActivity;
 import com.hm.cxpay.ui.bank.SelectBankCardActivity;
 import com.hm.cxpay.utils.UIUtils;
 
@@ -40,7 +41,6 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
-import net.cb.cb.library.view.WebPageActivity;
 
 import static com.hm.cxpay.global.PayConstants.REQUEST_PAY;
 import static com.hm.cxpay.global.PayConstants.RESULT;
@@ -230,8 +230,8 @@ public class WithdrawActivity extends AppActivity {
                             if (baseResponse.getData() != null) {
                                 //1 成功 99 处理中
                                 UrlBean urlBean = baseResponse.getData();
-                                Intent intent = new Intent(WithdrawActivity.this, WebPageActivity.class);
-                                intent.putExtra(WebPageActivity.AGM_URL, urlBean.getUrl());
+                                Intent intent = new Intent(WithdrawActivity.this, YiBaoWebActivity.class);
+                                intent.putExtra(YiBaoWebActivity.AGM_URL, urlBean.getUrl());
                                 startActivityForResult(intent, REQUEST_PAY);
                             }
                         } else {

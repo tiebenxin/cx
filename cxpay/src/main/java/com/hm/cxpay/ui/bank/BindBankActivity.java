@@ -18,10 +18,10 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.net.Route;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.YiBaoWebActivity;
 
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
-import net.cb.cb.library.view.WebPageActivity;
 
 
 /**
@@ -66,8 +66,8 @@ public class BindBankActivity extends BasePayActivity {
         ui.tvViewSupport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(BindBankActivity.this, WebPageActivity.class);
-                intent.putExtra(WebPageActivity.AGM_URL, Route.SUPPORT_BANK_URL);
+                Intent intent = new Intent(BindBankActivity.this, YiBaoWebActivity.class);
+                intent.putExtra(YiBaoWebActivity.AGM_URL, Route.SUPPORT_BANK_URL);
                 startActivity(intent);
                 ui.tvViewSupport.setEnabled(false);
             }
