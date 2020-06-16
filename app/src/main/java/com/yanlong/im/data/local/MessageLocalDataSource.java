@@ -667,6 +667,11 @@ public class MessageLocalDataSource {
                 realm.beginTransaction();
                 //取最小值  剩余消息数量和当前未读数
                 session.setUnread_count((int) unReadCount);
+                if (unReadCount == 0) {
+                    //去掉@效果，重复接收消息时，可能会出现@去不掉
+                    session.setAtMessage(null);
+                    session.setMessageType(1000);
+                }
                 realm.commitTransaction();
             }
         } catch (Exception e) {
@@ -779,6 +784,7 @@ public class MessageLocalDataSource {
     /**
      * 是否有@我
      * 且不是我自己发的@消息
+     *
      * @param bean
      * @return
      */
