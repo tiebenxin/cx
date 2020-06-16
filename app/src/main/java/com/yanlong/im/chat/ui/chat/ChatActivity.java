@@ -85,6 +85,7 @@ import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yalantis.ucrop.UCrop;
@@ -827,11 +828,35 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
         initUnreadCount();
         initPopupWindow();
         initReplyMsg();
-        if(latestImgList==null){
-            latestImgList = GetImgUtils.getLatestPhoto(ChatActivity.this);
-            if(latestImgList!=null && latestImgList.size()>0){
-                latestUrl = latestImgList.get(0).imgUrl;
+    }
+
+    private boolean checkCurrentImg() {
+        latestImgList = GetImgUtils.getLatestPhoto(ChatActivity.this);
+        if(latestImgList!=null && latestImgList.size()>0){
+            GetImgUtils.ImgBean bean = latestImgList.get(0);
+            //30秒内展示，超过不显示，url直接置空
+            if(DateUtils.dateDiffer(bean.mTime)<=30){
+                latestUrl = bean.imgUrl;
+                //未展示过需要显示，展示过则不再显示(直接用SharedPreference缓存，不再加入到数据库)
+                SharedPreferencesUtil spGuessYouLike = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.GUESS_YOU_LIKE);
+                String saveUrl = spGuessYouLike.getString("current_img_url");
+                //第二次判断缓存，若存在该url，则代表展示过，不再重复显示
+                if(!TextUtils.isEmpty(saveUrl)){
+                    if(saveUrl.equals(latestUrl)){
+                        latestUrl = "";
+                    }
+                }else {
+                    //第一次判断缓存，url必定为空，则展示
+                }
+            }else {
+                latestUrl = "";
             }
+        }
+        //是否展示图片
+        if(!TextUtils.isEmpty(latestUrl)){
+            return true;
+        }else {
+            return false;
         }
     }
 
@@ -1457,7 +1482,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     mViewModel.isInputText.setValue(true);
                 } else {//未打开面板->打开功能面板
                     mViewModel.isOpenFuction.setValue(true);
-                    if(!TextUtils.isEmpty(latestUrl)){
+                    if(checkCurrentImg()){
                         showPopupWindow(v);
                     }
                 }
@@ -6371,7 +6396,11 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                     R.layout.layout_pop_guess_u_want_send, null);
             ImageView ivPic = contentView.findViewById(R.id.iv_want_send_pic);
             LinearLayout layoutPop = contentView.findViewById(R.id.layout_pop);
+            //显示图片，并缓存地址
             Glide.with(ChatActivity.this).load(latestUrl).apply(GlideUtil.defImageOptions1()).into(ivPic);
+            SharedPreferencesUtil spGuessYouLike = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.GUESS_YOU_LIKE);
+            spGuessYouLike.saveString("current_img_url",latestUrl);
+
             popGuessUWant = new PopupWindow(contentView,
                     ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
             popGuessUWant.setTouchable(true);
