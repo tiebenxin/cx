@@ -205,38 +205,17 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
             if (viewModel.sessionSearch.containsKey(sessionDetail.getSid())) {
                 MsgSearchViewModel.SessionSearch sessionSearch = viewModel.sessionSearch.get(sessionDetail.getSid());
                 if (sessionSearch.getCount() == 1) {//1条记录，直接进入聊天界面
-                    if (sessionSearch.getMsgAllBean().isLoaded()) {
-                        sessionSearch.getMsgAllBean().removeAllChangeListeners();
-                        String msg = SocketData.getMsg(sessionSearch.getMsgAllBean(), viewModel.key.getValue());
-                        hightKey(holder.txtInfo, msg, sessionSearch.getMsgAllBean().getMsg_typeTitle());
-                    } else {
-                        sessionSearch.getMsgAllBean().addChangeListener(new RealmChangeListener<RealmModel>() {
-                            @Override
-                            public void onChange(RealmModel realmModel) {
-                                String msg = SocketData.getMsg(sessionSearch.getMsgAllBean(), viewModel.key.getValue());
-                                hightKey(holder.txtInfo, msg, sessionSearch.getMsgAllBean().getMsg_typeTitle());
-                                sessionSearch.getMsgAllBean().removeAllChangeListeners();
-                            }
-                        });
-                        holder.txtInfo.setText(sessionSearch.getCount() + "条相关的聊天记录");
-                    }
+                    String msg = SocketData.getMsg(sessionSearch.getMsgAllBean(), viewModel.key.getValue());
+                    hightKey(holder.txtInfo, msg, sessionSearch.getMsgAllBean().getMsg_typeTitle());
                     holder.viewIt.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            if (sessionSearch.getMsgAllBean().isLoaded()) {
-                                context.startActivity(new Intent(context, ChatActivity.class)
-                                        .putExtra(ChatActivity.AGM_TOGID, sessionSearch.getGid())
-                                        .putExtra(ChatActivity.AGM_TOUID, sessionSearch.getUid())
-                                        .putExtra(ChatActivity.SEARCH_TIME, sessionSearch.getMsgAllBean().getTimestamp())
-                                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                );
-                            } else {
-                                context.startActivity(new Intent(context, SearchMsgActivity.class)
-                                        .putExtra(SearchMsgActivity.AGM_GID, sessionSearch.getGid())
-                                        .putExtra(SearchMsgActivity.AGM_FUID, sessionSearch.getUid())
-                                        .putExtra(SearchMsgActivity.AGM_SEARCH_KEY, viewModel.key.getValue())
-                                );
-                            }
+                            context.startActivity(new Intent(context, ChatActivity.class)
+                                    .putExtra(ChatActivity.AGM_TOGID, sessionSearch.getGid())
+                                    .putExtra(ChatActivity.AGM_TOUID, sessionSearch.getUid())
+                                    .putExtra(ChatActivity.SEARCH_TIME, sessionSearch.getMsgAllBean().getTimestamp())
+                                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            );
                         }
                     });
 
