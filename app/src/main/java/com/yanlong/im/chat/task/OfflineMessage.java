@@ -1,5 +1,8 @@
 package com.yanlong.im.chat.task;
 
+import android.annotation.TargetApi;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -15,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,8 +31,6 @@ import io.realm.Realm;
  * @description
  */
 public class OfflineMessage extends DispatchMessage {
-    //线程池最大并发数量
-    private final int THREAD_POOL_SIZE = 5;
     //批量处理离线消息，每批消息的容量
     private final int OFFLINE_BATCH_COUNT = 50;
 
@@ -55,8 +57,9 @@ public class OfflineMessage extends DispatchMessage {
      */
     private CopyOnWriteArraySet<Long> mToUpdateSessionUids = new CopyOnWriteArraySet<>();
     /**
-     * newFixedThreadPool与cacheThreadPool差不多，也是能reuse就用，但不能随时建新的线程
-     * 任意时间点，最多只能有固定数目的活动线程存在，此时如果有新的线程要建立，只能放在另外的队列中等待，直到当前的线程中某个线程终止直接被移出池子
+     * 它是一个数量无限多的线程池，它所有的线程都是非核心线程
+     * 当线程空闲一定时间时就会被系统回收，所以理论上该线程池不会有占用系统资源的无用线程。
+     * 适合执行大量耗时小的任务
      */
     private ThreadPoolExecutor executor = null;
 
@@ -152,7 +155,7 @@ public class OfflineMessage extends DispatchMessage {
     private void startConcurrentTask(List<MsgBean.UniversalMessage.WrapMessage> msgList, int mIndex, int max,
                                      String requestId, int msgFrom) {
         if (executor == null)
-            executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+            executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         executor.execute(() -> {
             Realm realm = DaoUtil.open();
             try {
