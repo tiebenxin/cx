@@ -25,6 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import io.realm.Realm;
 
+import static com.yanlong.im.utils.socket.SocketData.getOfflineCount;
+
 /**
  * @createAuthor Raleigh.Luo
  * @createDate 2020/6/11 0011
@@ -32,7 +34,7 @@ import io.realm.Realm;
  */
 public class OfflineMessage extends DispatchMessage {
     //批量处理离线消息，每批消息的容量
-    private final int OFFLINE_BATCH_COUNT = 50;
+    private final int OFFLINE_BATCH_COUNT = getOfflineCount()+1;
 
     /**
      * 保存requestId某批消息，保存成功消息的个数，所有接收完成、某个消息失败 后移除（1个消息失败，表示本批所有消息接收失败）
