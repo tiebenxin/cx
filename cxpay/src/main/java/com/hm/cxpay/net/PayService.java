@@ -147,7 +147,7 @@ public interface PayService {
 
     //发送转账
     @POST(Route.SEND_TRANSFER)
-    Observable<BaseResponse<SendResultBean>> sendTransfer(@Body RequestBody body, @QueryMap Map<String, String> map);
+    Observable<BaseResponse<UrlBean>> sendTransfer(@Body RequestBody body, @QueryMap Map<String, String> map);
 
     //获取转账详情
     @POST(Route.GET_TRANSFER_DETAIL)

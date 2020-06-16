@@ -32,6 +32,7 @@ import java.util.Map;
 import io.reactivex.Observable;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import retrofit2.http.Url;
 
 /**
  * @author Liszt
@@ -341,7 +342,7 @@ public class PayHttpUtils {
      * amt——发送金额，单位：分；count——发送个数；payPwd——支付密码；type——红包类型，拼手气1或者普通红包0，
      * bankCardId——当发送金额大于零钱余额，必填；note——恭喜发财，大吉大利，uid-红包发送给谁
      */
-    public Observable<BaseResponse<UrlBean>> sendRedEnvelopeToGroup(String actionId, long amt, int count,  int type,  String note, String gid) {
+    public Observable<BaseResponse<UrlBean>> sendRedEnvelopeToGroup(String actionId, long amt, int count, int type, String note, String gid) {
         Map<String, String> map = new HashMap<>();
         map.put("actionId", actionId);
         map.put("amt", amt + "");
@@ -401,18 +402,18 @@ public class PayHttpUtils {
      *
      * @param toUid 转账接受者id
      */
-    public Observable<BaseResponse<SendResultBean>> sendTransfer(String actionId, long money, String psw, long toUid, String note, long bankCardId) {
+    public Observable<BaseResponse<UrlBean>> sendTransfer(String actionId, long money, long toUid, String note) {
         Map<String, String> map = new HashMap<>();
         map.put("actionId", actionId);
         map.put("amt", money + "");
-        map.put("payPwd", MD5.md5(psw));
         map.put("toUid", toUid + "");
         if (!TextUtils.isEmpty(note)) {
             map.put("note", note);
         }
-        if (bankCardId > 0) {
-            map.put("bankCardId", bankCardId + "");
-        }
+        //        map.put("payPwd", MD5.md5(psw));
+//        if (bankCardId > 0) {
+//            map.put("bankCardId", bankCardId + "");
+//        }
         return HttpChannel.getInstance().getPayService().sendTransfer(getRequestBody(map), getAuthMap());
     }
 

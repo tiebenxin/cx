@@ -11,6 +11,7 @@ import net.cb.cb.library.base.BaseBean;
  * Description
  */
 public class CxTransferBean extends BaseBean implements Parcelable {
+    String actionId="";
     long tradeId;//交易id
     long amount;//转账金额
     String info = "";//转账说明
@@ -23,6 +24,7 @@ public class CxTransferBean extends BaseBean implements Parcelable {
     }
 
     protected CxTransferBean(Parcel in) {
+        actionId = in.readString();
         tradeId = in.readLong();
         amount = in.readLong();
         info = in.readString();
@@ -43,6 +45,14 @@ public class CxTransferBean extends BaseBean implements Parcelable {
             return new CxTransferBean[size];
         }
     };
+
+    public String getActionId() {
+        return actionId;
+    }
+
+    public void setActionId(String actionId) {
+        this.actionId = actionId;
+    }
 
     public long getTradeId() {
         return tradeId;
@@ -107,6 +117,7 @@ public class CxTransferBean extends BaseBean implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(actionId);
         dest.writeLong(tradeId);
         dest.writeLong(amount);
         dest.writeString(info);
