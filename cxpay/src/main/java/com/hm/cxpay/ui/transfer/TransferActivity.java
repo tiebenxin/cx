@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -50,6 +51,7 @@ import java.util.List;
 
 import static com.hm.cxpay.global.PayConstants.MIN_AMOUNT;
 import static com.hm.cxpay.global.PayConstants.REQUEST_PAY;
+import static com.hm.cxpay.global.PayConstants.RESULT;
 import static com.hm.cxpay.global.PayConstants.TOTAL_TRANSFER_MAX_AMOUNT;
 import static com.hm.cxpay.global.PayConstants.WAIT_TIME;
 
@@ -92,11 +94,20 @@ public class TransferActivity extends BasePayActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_transfer);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         Intent intent = getIntent();
         toUid = intent.getLongExtra("uid", 0);
         name = intent.getStringExtra("name");
         avatar = intent.getStringExtra("avatar");
         initView();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -132,10 +143,12 @@ public class TransferActivity extends BasePayActivity {
             public void onClick(View v) {
                 String moneyTxt = ui.edMoney.getText().toString();
                 money = UIUtils.getFen(moneyTxt);
-                if (money > MIN_AMOUNT) {
+                if (money >= MIN_AMOUNT) {
                     note = ui.etDescription.getText().toString().trim();
                     actionId = UIUtils.getUUID();
                     httpSendTransfer(actionId, money, toUid, note);
+                } else {
+                    ToastUtil.show("转账金额不能低于0.01元");
                 }
             }
         });
@@ -245,5 +258,22 @@ public class TransferActivity extends BasePayActivity {
             EventBus.getDefault().post(new TransferSuccessEvent(cxTransferBean));
         }
         PayEnvironment.getInstance().notifyRefreshBalance();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_PAY) {
+            if (resultCode == RESULT_OK) {
+                int result = data.getIntExtra(RESULT, 0);
+                if (result == 99) {
+                    showLoadingDialog();
+                } else {
+                    dismissLoadingDialog();
+                }
+            } else {
+                dismissLoadingDialog();
+            }
+        }
     }
 }
