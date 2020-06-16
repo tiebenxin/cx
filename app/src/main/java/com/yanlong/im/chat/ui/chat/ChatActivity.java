@@ -6434,6 +6434,10 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                             .compress(true);//复用，直接跳图片选择器的预览界面会崩溃，需要先初始化
                     previewImage(previewList,previewList, 0);
                     overridePendingTransition(com.luck.picture.lib.R.anim.a5, 0);
+                    //跳到预览后关闭弹框
+                    if(popGuessUWant!=null && popGuessUWant.isShowing()){
+                        popGuessUWant.dismiss();
+                    }
                 }
             });
         }
