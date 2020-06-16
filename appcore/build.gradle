@@ -134,9 +134,9 @@ dependencies {
     api 'com.android.support:support-emoji-bundled:28.+'
 
     //友盟
-    api 'com.umeng.umsdk:common:+'
+    api 'com.umeng.umsdk:common:2.2.5'
     api 'com.umeng.umsdk:utdid:+'
-    api 'com.umeng.umsdk:analytics:+'
+    api 'com.umeng.umsdk:analytics:8.1.6'
     api 'com.umeng.sdk:share-wechat:6.9.1'
     api 'org.jsoup:jsoup:1.12.1'
 
