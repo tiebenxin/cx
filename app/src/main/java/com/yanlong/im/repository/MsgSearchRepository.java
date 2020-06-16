@@ -7,6 +7,8 @@ import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.data.local.MsgSearchLocalDataSource;
 import com.yanlong.im.user.bean.UserInfo;
 
+import java.util.List;
+
 import io.realm.RealmResults;
 
 /**
@@ -48,7 +50,7 @@ public class MsgSearchRepository {
      *
      * @return
      */
-    public RealmResults<SessionDetail> getSessionDetails(String[] sids) {
+    public List<SessionDetail> getSessionDetails(String[] sids) {
         return localDataSource.getSessionDetails(sids);
     }
     /**
