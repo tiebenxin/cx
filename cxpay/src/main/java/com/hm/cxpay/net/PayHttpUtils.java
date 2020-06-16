@@ -469,4 +469,13 @@ public class PayHttpUtils {
         return HttpChannel.getInstance().getPayService().checkShopPayword(getRequestBody(map), getAuthMap());
     }
 
+    /**
+     * 发送转账
+     *
+     * @param toUid 转账接受者id
+     */
+    public Observable<BaseResponse<UrlBean>> getPswManager() {
+        return HttpChannel.getInstance().getPayService().getPasswordManager(getAuthMap());
+    }
+
 }

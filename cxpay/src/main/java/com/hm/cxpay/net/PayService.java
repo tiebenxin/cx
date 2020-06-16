@@ -7,26 +7,19 @@ import com.hm.cxpay.bean.TransferResultBean;
 import com.hm.cxpay.bean.UrlBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.bean.BankBean;
 import com.hm.cxpay.bean.BankInfo;
 import com.hm.cxpay.bean.BindBankInfo;
 import com.hm.cxpay.bean.EnvelopeDetailBean;
 import com.hm.cxpay.bean.GrabEnvelopeBean;
 import com.hm.cxpay.bean.OpenEnvelopeBean;
 import com.hm.cxpay.bean.RedDetailsBean;
-import com.hm.cxpay.bean.SendResultBean;
 
-import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
 import okhttp3.RequestBody;
 import retrofit2.http.Body;
-import retrofit2.http.Field;
-import retrofit2.http.FieldMap;
-import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
-import retrofit2.http.Path;
 import retrofit2.http.QueryMap;
 
 /**
@@ -168,5 +161,9 @@ public interface PayService {
     //商城->校验支付密码
     @POST(Route.SHOP_CHECK_PAYWORD)
     Observable<BaseResponse<CommonBean>> checkShopPayword(@Body RequestBody body,@QueryMap Map<String, String> map);
+
+    //获取支付密码管理界面
+    @POST(Route.GET_PSW_MANAGER)
+    Observable<BaseResponse<UrlBean>> getPasswordManager( @QueryMap Map<String, String> map);
 
 }

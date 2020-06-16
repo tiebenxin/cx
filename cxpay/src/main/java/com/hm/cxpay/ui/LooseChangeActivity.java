@@ -202,12 +202,13 @@ public class LooseChangeActivity extends BasePayActivity {
         //支付密码管理
         viewSettingOfPsw = new ControllerPaySetting(findViewById(R.id.viewSettingOfPsw));
         viewSettingOfPsw.init(R.mipmap.ic_paypsw_manage, R.string.settings_of_psw, "");
-        viewSettingOfPsw.setVisible(false);
+//        viewSettingOfPsw.setVisible(false);
         viewSettingOfPsw.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
                 // 1 已设置支付密码 -> 允许跳转
                 viewSettingOfPsw.setEnabled(false);
+                getPswManager();
             }
         });
     }
@@ -290,6 +291,35 @@ public class LooseChangeActivity extends BasePayActivity {
         if (event.getResult() == PayEnum.EPayResult.SUCCESS) {
             httpGetUserInfo();
         }
+    }
+
+    /**
+     * 请求->绑定的银行卡列表
+     * <p>
+     * 备注：主要用于零钱首页更新"我的银行卡" 张数，暂时仅"充值、提现、我的银行卡"返回此界面后需要刷新
+     */
+    private void getPswManager() {
+        PayHttpUtils.getInstance().getPswManager()
+                .compose(RxSchedulers.<BaseResponse<UrlBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<UrlBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<UrlBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<UrlBean> baseResponse) {
+                        viewSettingOfPsw.setEnabled(true);
+                        if (baseResponse.getData() != null) {
+                            UrlBean urlBean = baseResponse.getData();
+                            goWebActivity(LooseChangeActivity.this, urlBean.getUrl());
+                        } else {
+                            ToastUtil.show(activity, "获取数据失败");
+                        }
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        viewSettingOfPsw.setEnabled(true);
+                        ToastUtil.show(activity, baseResponse.getMessage());
+                    }
+                });
     }
 
 }

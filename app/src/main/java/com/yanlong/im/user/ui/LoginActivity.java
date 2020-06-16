@@ -19,6 +19,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.hm.cxpay.net.HttpChannel;
 import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
@@ -181,6 +182,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                 break;
         }
         AppHostUtil.setHostUrl(host);
+        HttpChannel.getInstance().resetHost();
         userAction = new UserAction();
     }
 

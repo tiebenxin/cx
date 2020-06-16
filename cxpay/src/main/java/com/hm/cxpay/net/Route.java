@@ -114,4 +114,7 @@ public class Route {
 
     //商城->校验支付密码
     public static final String SHOP_CHECK_PAYWORD = BANK+"/store/trans_validate";
+
+    //获取支付密码管理URL
+    public static final String GET_PSW_MANAGER = BANK+"/user/to-password-manage";
 }
