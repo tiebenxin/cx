@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -261,5 +262,15 @@ public class StringUtil {
             }
         }
         return result;
+    }
+
+    public static boolean isHttp(String url) {
+        if (!TextUtils.isEmpty(url)) {
+            url = url.toLowerCase(Locale.CHINA);
+            if (url.startsWith("http") || url.startsWith("https") || url.startsWith("ftp") || url.startsWith("file")) {
+                return true;
+            }
+        }
+        return false;
     }
 }
