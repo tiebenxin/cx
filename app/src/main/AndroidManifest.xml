@@ -219,6 +219,24 @@
             android:screenOrientation="portrait">
 
         </activity>
+        <!--消息搜索跳转 好友-->
+        <activity
+            android:name=".chat.ui.search.FriendsSearchActivity"
+            android:screenOrientation="portrait">
+
+        </activity>
+        <!--消息搜索跳转 群-->
+        <activity
+            android:name="com.yanlong.im.chat.ui.search.GroupsSearchActivity"
+            android:screenOrientation="portrait">
+
+        </activity>
+        <!--消息搜索跳转 会话-->
+        <activity
+            android:name=".chat.ui.search.SessionSearchActivity"
+            android:screenOrientation="portrait">
+
+        </activity>
 
 
         <!--聊天戳一下界面-->
@@ -563,17 +581,6 @@
             android:name=".chat.ui.GroupNoteDetailActivity"
             android:screenOrientation="portrait" />
 
-        <activity android:name=".test.TestRecyclerActivity">
-            <intent-filter android:priority="1">
-                <data
-                    android:host="test"
-                    android:path="/test"
-                    android:scheme="scheme" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-        </activity>
 
         <activity
             android:name=".user.ui.FriendVerifyActivity"

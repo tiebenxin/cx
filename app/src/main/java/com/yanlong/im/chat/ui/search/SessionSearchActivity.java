@@ -10,29 +10,24 @@ import android.widget.TextView;
 
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ui.SearchMsgActivity;
 
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
-/**
- * @类名：消息搜索界面
- * @Date：2019/11/19
- * @by zjy
- * @备注：消息->搜索->跳转到此界面
+/**主页搜索-聊天会话搜索
+ * @createAuthor Raleigh.Luo
+ * @createDate 2020/6/17 0017
+ * @description
  */
-
-public class MsgSearchActivity extends AppActivity {
-
+public class SessionSearchActivity extends AppActivity {
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private net.cb.cb.library.view.ClearEditText edtSearch;
     private net.cb.cb.library.view.MultiListView mtListView;
     private MsgSearchViewModel viewModel;
     private MsgSearchAdapter adapter;
-    //第一次进入页面,用于弹出软键盘
-    private boolean isInit = true;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,13 +37,12 @@ public class MsgSearchActivity extends AppActivity {
         initEvent();
         initObserver();
     }
-
     private void initObserver() {
         viewModel.key.observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 viewModel.clear();
-                viewModel.search(s);
+                viewModel.searchSessions(s);
             }
         });
         viewModel.isLoadNewRecord.observe(this, new Observer<Boolean>() {
@@ -57,16 +51,10 @@ public class MsgSearchActivity extends AppActivity {
                 mtListView.getListView().getAdapter().notifyDataSetChanged();
             }
         });
+        viewModel.key.setValue(getIntent().getStringExtra(SearchMsgActivity.AGM_SEARCH_KEY));
+        edtSearch.setText(viewModel.key.getValue());
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (isInit) {//第一次进入页面，弹出软键盘
-            showSoftKeyword(edtSearch);
-            isInit = false;
-        }
-    }
 
     private void findViews() {
         headView = findViewById(R.id.headView);
@@ -89,7 +77,7 @@ public class MsgSearchActivity extends AppActivity {
 
             }
         });
-        adapter = new MsgSearchAdapter(this, viewModel, MsgSearchAdapter.SearchType.ALL);
+        adapter = new MsgSearchAdapter(this, viewModel,MsgSearchAdapter.SearchType.SESSIONS);
         mtListView.init(adapter);
         mtListView.getLoadView().setStateNormal();
         edtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -99,12 +87,12 @@ public class MsgSearchActivity extends AppActivity {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
                     String key = edtSearch.getText().toString();
                     viewModel.key.setValue(key);
-                    InputUtil.hideKeyboard(MsgSearchActivity.this);
+                    InputUtil.hideKeyboard(SessionSearchActivity.this);
                     result = true;
                 } else if (event != null && (KeyEvent.KEYCODE_ENTER == event.getKeyCode() || KeyEvent.ACTION_DOWN == event.getAction())) {
                     String key = edtSearch.getText().toString();
                     viewModel.key.setValue(key);
-                    InputUtil.hideKeyboard(MsgSearchActivity.this);
+                    InputUtil.hideKeyboard(SessionSearchActivity.this);
                     result = true;
                 }
                 return result;
@@ -113,3 +101,4 @@ public class MsgSearchActivity extends AppActivity {
 
     }
 }
+
