@@ -16,6 +16,7 @@ import net.cb.cb.library.R;
 /***
  * @author jyj
  * @date 2016/11/29
+ * @备注 TODO 2020/5/28 zjy 全部改为居中显示,效果统一
  */
 public class ToastUtil {
     private static Toast toast;

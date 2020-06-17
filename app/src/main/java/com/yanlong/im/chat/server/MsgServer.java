@@ -12,9 +12,13 @@ import net.cb.cb.library.bean.ReturnBean;
 
 import java.util.List;
 
+import okhttp3.RequestBody;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.Header;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
 
 public interface MsgServer {
@@ -173,5 +177,15 @@ public interface MsgServer {
 
     @POST("/collect/del")
     @FormUrlEncoded
-    Call<ReturnBean> cancelCollectMsg( @Field("id") long id);
+    Call<ReturnBean> cancelCollectMsg(@Field("id") long id);
+
+    @Headers("Content-Type:application/json")
+    @POST("/collect/add-batch")
+    Call<ReturnBean> offlineAddCollections(@Body RequestBody json);
+
+    @Headers("Content-Type:application/json")
+    @POST("/collect/del-batch")
+    Call<ReturnBean> offlineDeleteCollections(@Body RequestBody json);
+
+
 }

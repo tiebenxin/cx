@@ -18,16 +18,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.google.gson.Gson;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.MainViewModel;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.OfflineCollect;
+import com.yanlong.im.chat.bean.OfflineDelete;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.chat.ui.chat.ChatActivity;
 import com.yanlong.im.repository.ApplicationRepository;
+import com.yanlong.im.user.bean.CollectionInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendAddAcitvity;
 import com.yanlong.im.user.ui.HelpActivity;
@@ -39,9 +45,12 @@ import com.yanlong.im.utils.socket.SocketUtil;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventNetStatus;
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.MultiListView;
 import net.cb.cb.library.view.PopView;
@@ -57,6 +66,8 @@ import java.util.List;
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.RealmResults;
+import retrofit2.Call;
+import retrofit2.Response;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -88,7 +99,7 @@ public class MsgMainFragment extends Fragment {
 
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();
-    //    private MsgAction msgAction = new MsgAction();
+    private MsgAction msgAction = new MsgAction();
 //    private List<Session> listData = new ArrayList<>();
     private MainViewModel viewModel = null;
     Runnable runnable = new Runnable() {
@@ -191,7 +202,67 @@ public class MsgMainFragment extends Fragment {
                         viewModel.onlineState.setValue(state);
                     }
                 });
+                //检测在线状态，一旦联网，调用批量收藏/删除接口，通知后端处理用户离线操作，保持数据一致
+                //1 若网络恢复正常
+                if(state){
+                    //2 判断是否有用户离线收藏操作/收藏删除记录，有则及时调接口
+                    if(msgDao.getAllOfflineCollectRecords()!=null && msgDao.getAllOfflineCollectRecords().size()>0){
+                        List<OfflineCollect> list = msgDao.getAllOfflineCollectRecords();
+                        List<CollectionInfo> dataList = new ArrayList<>();
+                        for(int i=0; i<list.size(); i++){
+                            if(list.get(i).getCollectionInfo()!=null){
+                                dataList.add(list.get(i).getCollectionInfo());
+                            }
+                        }
+                        //批量收藏
+                        msgAction.offlineAddCollections(dataList, new CallBack<ReturnBean>() {
+                            @Override
+                            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                                super.onResponse(call, response);
+                                if (response.body() == null) {
+                                    return;
+                                }
+                                if (response.body().isOk()) {
+                                    LogUtil.getLog().i("TAG","批量收藏成功!");
+                                    msgDao.deleteAllOfflineCollectRecords();//清空本地离线收藏记录
+                                }
+                            }
 
+                            @Override
+                            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                                super.onFailure(call, t);
+                                LogUtil.getLog().i("TAG","批量收藏失败 "+t.getMessage());
+                            }
+                        });
+                    }
+                    //批量删除
+                    if(msgDao.getAllOfflineDeleteRecords()!=null && msgDao.getAllOfflineDeleteRecords().size()>0){
+                        List<String> msgIds = new ArrayList<>();
+                        List<OfflineDelete> list = msgDao.getAllOfflineDeleteRecords();
+                        for(int i=0; i<list.size(); i++){
+                            msgIds.add(list.get(i).getMsgId());
+                        }
+                        msgAction.offlineDeleteCollections(msgIds, new CallBack<ReturnBean>() {
+                            @Override
+                            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                                super.onResponse(call, response);
+                                if (response.body() == null) {
+                                    return;
+                                }
+                                if (response.body().isOk()) {
+                                    LogUtil.getLog().i("TAG","批量删除成功!");
+                                    msgDao.deleteAllOfflineDeleteRecords();//清空本地离线删除记录
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                                super.onFailure(call, t);
+                                LogUtil.getLog().i("TAG","批量删除失败 "+t.getMessage());
+                            }
+                        });
+                    }
+                }
             }
         });
 

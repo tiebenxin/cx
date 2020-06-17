@@ -22,7 +22,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    style="@style/app_txt_title_4"
+                    style="@style/app_txt_title_353535"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
@@ -55,21 +55,25 @@
 
 
                 <TextView
-                    style="@style/app_txt_title_4"
+                    style="@style/app_txt_title_353535"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="20dp"
                     android:text="申诉图片:" />
 
-
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:background="@color/white">
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/recyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="15dp"
                     android:layout_marginRight="10dp" />
+            </LinearLayout>
 
                 <Button
                     android:id="@+id/btn_commit"

@@ -5,6 +5,9 @@ import com.yanlong.im.chat.ChatEnum;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
+/**
+ * 收藏消息结构 + 本地收藏列表
+ */
 public class CollectionInfo extends RealmObject {
     @PrimaryKey
     private String msgId;//消息id

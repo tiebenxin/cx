@@ -3,6 +3,7 @@ package com.yanlong.im.chat.action;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.yanlong.im.MyAppLication;
 import com.yanlong.im.chat.bean.ExitGroupUser;
 import com.yanlong.im.chat.bean.Group;
@@ -31,9 +32,16 @@ import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -784,5 +792,39 @@ public class MsgAction {
      */
     public void cancelCollectMsg(long id , Callback<ReturnBean> callback) {
         NetUtil.getNet().exec(server.cancelCollectMsg(id), callback);
+    }
+
+    /**
+     * 批量收藏
+     */
+    public void offlineAddCollections(List<CollectionInfo> dataList,Callback<ReturnBean> callback){
+        try {
+            JSONObject object = new JSONObject();
+            String array = new Gson().toJson(dataList);
+            object.put("items", new JSONArray(array));
+            NetUtil.getNet().exec(server.offlineAddCollections(getRequestBody(object.toString())), callback);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 批量删除
+     */
+    public void offlineDeleteCollections(List<String> dataList,Callback<ReturnBean> callback){
+        try {
+            JSONObject object = new JSONObject();
+            String array = new Gson().toJson(dataList);
+            object.put("msgIds", new JSONArray(array));
+            NetUtil.getNet().exec(server.offlineDeleteCollections(getRequestBody(object.toString())), callback);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static RequestBody getRequestBody(String json) {
+//        LogUtil.getLog().e("TAG",RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json).toString());
+        return RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
+
     }
 }

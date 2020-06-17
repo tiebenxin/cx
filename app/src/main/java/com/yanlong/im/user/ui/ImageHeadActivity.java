@@ -57,7 +57,7 @@ public class ImageHeadActivity extends AppActivity {
     private ImageView mSdImageHead;
     private PopupSelectView popupSelectView;
     private PopupSelectView saveImagePopup;
-    private String[] strings = {"拍照", "相册", "取消"};
+    private String[] strings = {"拍照", "从手机相册中选择", "取消"};
     private String[] saveImages = {"保存图片", "取消"};
     private String imageHead;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
