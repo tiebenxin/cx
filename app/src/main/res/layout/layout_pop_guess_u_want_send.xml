@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_pop"
+    android:layout_width="65dp"
+    android:layout_height="95dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg_chat_guess_u_like"
+    android:gravity="center_horizontal">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:textSize="11sp"
+        android:textColor="@color/c_666666"
+        android:text="最近拍摄:"/>
+
+    <ImageView
+        android:id="@+id/iv_want_send_pic"
+        android:layout_width="57dp"
+        android:layout_height="57dp"
+        android:layout_marginBottom="10dp"/>
+
+</LinearLayout>

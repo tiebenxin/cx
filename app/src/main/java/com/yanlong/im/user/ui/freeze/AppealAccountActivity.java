@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,6 +77,21 @@ public class AppealAccountActivity extends AppActivity {
         ui.recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         adapter = new ComplaintUploadAdapter();
         ui.recyclerView.setAdapter(adapter);
+        ui.edContent.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                ui.tvWords.setText(s.toString().length()+"/300");
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
 
     }
 
