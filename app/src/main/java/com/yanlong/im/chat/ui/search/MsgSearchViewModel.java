@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
@@ -46,9 +47,8 @@ public class MsgSearchViewModel extends ViewModel {
     private RealmResults<Session> allSessions = null;
 
     public void clear() {
-        if (repository.getRealm().isInTransaction()) {
-            repository.getRealm().cancelTransaction();
-        }
+        //停止并发任务
+        stopConcurrentTask();
         if (searchFriends != null) searchFriends.removeAllChangeListeners();
         if (searchGroups != null) searchGroups.removeAllChangeListeners();
         if (allSessions != null) allSessions.removeAllChangeListeners();
@@ -61,14 +61,36 @@ public class MsgSearchViewModel extends ViewModel {
         isLoadNewRecord.postValue(true);
     }
 
+    /**
+     * 停止并发任务-session聊天记录查询
+     */
+    public void stopConcurrentTask() {
+        //停止离线任务，
+        if (executor != null && executor.getActiveCount() > 0) {
+            executor.shutdown();
+            try {   // (所有的任务都结束的时候，返回TRUE)
+                if (!executor.awaitTermination(5 * 1000, TimeUnit.MILLISECONDS)) {
+                    // 超时的时候向线程池中所有的线程发出中断(interrupted)。
+                    executor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                // awaitTermination方法被中断的时候也中止线程池中全部的线程的执行。
+                executor.shutdownNow();
+            }
+            executor = null;
+        }
+    }
+
     public void search(String key) {
         if (!TextUtils.isEmpty(key)) {
+            /**查询好友*******************************************************************************/
             searchFriends = repository.searchFriends(key, MIN_LIMIT);
             searchFriends.addChangeListener((userInfos, changeSet) -> {
                 if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {//初次加载完成刷新
                     isLoadNewRecord.setValue(true);
                 }
             });
+            /**查询群*******************************************************************************/
             searchGroups = repository.searchGroups(key, MIN_LIMIT);
             searchGroups.addChangeListener((userInfos, changeSet) -> {
                 if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {//初次加载完成刷新
@@ -76,21 +98,26 @@ public class MsgSearchViewModel extends ViewModel {
                 }
             });
 
+            /**查询session*******************************************************************************/
             if (executor == null) {
                 executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
             }
             allSessions = repository.searchSessions();
             if (allSessions != null)
-                allSessions.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<Session>>() {
-                    @Override
-                    public void onChange(RealmResults<Session> sessions, OrderedCollectionChangeSet changeSet) {
-                        if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
-                            for (Session session : sessions) {
+                allSessions.addChangeListener((sessions, changeSet) -> {
+                    if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
+                        for (Session session : sessions) {
+                            if (sessionSearch.size() >= MIN_LIMIT) {//已经查到4个了，直接不启动并发任务了
+                                //搜索全部时，最大数量只要查4个就够了，停止并发任务
+                                stopConcurrentTask();
+                                break;
+                            } else {
                                 String gid = session.getGid();
                                 Long uid = session.getFrom_uid();
                                 String sid = session.getSid();
                                 //开始并发查询
-                                startConcurrentTask(key, gid, uid, sid);
+                                startConcurrentTask(key, gid, uid, sid, MIN_LIMIT);
+
                             }
                         }
                     }
@@ -135,7 +162,7 @@ public class MsgSearchViewModel extends ViewModel {
                                 String gid = session.getGid();
                                 Long uid = session.getFrom_uid();
                                 String sid = session.getSid();
-                                startConcurrentTask(key, gid, uid, sid);
+                                startConcurrentTask(key, gid, uid, sid, null);
                             }
                         }
                     }
@@ -143,16 +170,17 @@ public class MsgSearchViewModel extends ViewModel {
         }
     }
 
+
     /**
-     * 开始并发查询session聊天记录
+     * 开始并发查询-session聊天记录
      *
      * @param key
      * @param gid
      * @param uid
      * @param sid
      */
-    private void startConcurrentTask(String key, String gid, Long uid, String sid) {
-        executor.execute(() -> {
+    private void startConcurrentTask(String key, String gid, Long uid, String sid, Integer maxCount) {
+        if(executor!=null)executor.execute(() -> {
             Realm realm = DaoUtil.open();
             try {
                 long count = repository.searchMessagesCount(realm, key, gid, uid);
@@ -161,10 +189,17 @@ public class MsgSearchViewModel extends ViewModel {
                     if (count == 1) {//1个消息
                         result.setMsgAllBean(repository.searchMessages(realm, key, gid, uid));
                     }
+
                     sessionSearch.put(sid, result);
                     searchSessions.add(repository.getSessionDetail(realm, sid));
                     isLoadNewRecord.postValue(true);
+                    if (maxCount != null && sessionSearch.size() >= maxCount) {
+                        //搜索全部时，最大数量只要查4个就够了，停止并发任务
+                        stopConcurrentTask();
+                    }
                 }
+            }catch (Exception e){
+                e.printStackTrace();
             } finally {
                 DaoUtil.close(realm);
             }
