@@ -2,6 +2,7 @@ package com.yanlong.im.chat.ui.search;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
+import android.text.TextUtils;
 
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -9,12 +10,16 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.SessionDetail;
 import com.yanlong.im.repository.MsgSearchRepository;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.DaoUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.realm.OrderedCollectionChangeSet;
+import io.realm.OrderedRealmCollectionChangeListener;
+import io.realm.Realm;
 import io.realm.RealmResults;
 
 /**
@@ -39,37 +44,72 @@ public class MsgSearchViewModel extends ViewModel {
         searchFriends = null;
         searchGroups = null;
         searchSessions.clear();
+        isLoadNewRecord.postValue(true);
     }
 
     public void search(String key) {
-        searchFriends = repository.searchFriends(key);
-        searchGroups = repository.searchGroups(key);
-        isLoadNewRecord.setValue(true);
-        RealmResults<Session> sessions = repository.searchSessions();
-        //单独用 list,保证顺序
-        List<String> sids = new ArrayList<>();
-        for (Session session : sessions) {
-            long count = repository.searchMessagesCount(key, session.getGid(), session.getFrom_uid());
-            if (count > 0) {
-                SessionSearch result = new SessionSearch(count, session.getGid(), session.getFrom_uid());
-                if (count == 1) {//1个消息
-                    result.setMsgAllBean(repository.searchMessages(key, session.getGid(), session.getFrom_uid()));
+        if (!TextUtils.isEmpty(key)) {
+            searchFriends = repository.searchFriends(key);
+            searchGroups = repository.searchGroups(key);
+            searchFriends.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<UserInfo>>() {
+                @Override
+                public void onChange(RealmResults<UserInfo> userInfos, OrderedCollectionChangeSet changeSet) {
+                    if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {//初次加载完成刷新
+                        isLoadNewRecord.setValue(true);
+                    }
                 }
-                sids.add(session.getSid());
-                sessionSearch.put(session.getSid(), result);
-                if (sids.size() > 20) {
-                    searchSessions.addAll(repository.getSessionDetails(sids.toArray(new String[sids.size()])));
-                    isLoadNewRecord.setValue(true);
-                    sids.clear();
+            });
+            searchGroups.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<Group>>() {
+                @Override
+                public void onChange(RealmResults<Group> userInfos, OrderedCollectionChangeSet changeSet) {
+                    if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {//初次加载完成刷新
+                        isLoadNewRecord.setValue(true);
+                    }
                 }
-            }
+            });
+
+            DaoUtil.executeTransactionAsync(repository.getRealm(), new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    int limit = 20;
+                    long timeStamp = System.currentTimeMillis();
+                    RealmResults<Session> sessions = repository.searchSessions(realm, timeStamp, limit);
+                    //单独用 list,保证顺序
+                    List<String> sids = new ArrayList<>();
+                    while (sessions.size() > 0) {
+                        for (Session session : sessions) {
+                            long count = repository.searchMessagesCount(realm, key, session.getGid(), session.getFrom_uid());
+                            if (count > 0) {
+                                SessionSearch result = new SessionSearch(count, session.getGid(), session.getFrom_uid());
+                                if (count == 1) {//1个消息
+                                    result.setMsgAllBean(repository.searchMessages(realm, key, session.getGid(), session.getFrom_uid()));
+                                }
+                                sids.add(session.getSid());
+                                sessionSearch.put(session.getSid(), result);
+                            }
+                        }
+                        if (sids.size() > 0) {
+                            searchSessions.addAll(repository.getSessionDetails(realm, sids.toArray(new String[sids.size()])));
+                            isLoadNewRecord.postValue(true);
+                        }
+                        sids.clear();
+                        timeStamp = sessions.get(sessions.size() - 1).getUp_time();
+                        sessions = repository.searchSessions(realm, timeStamp, limit);
+                    }
+                }
+            }, new Realm.Transaction.OnSuccess() {
+                @Override
+                public void onSuccess() {
+
+                }
+            }, new Realm.Transaction.OnError() {
+                @Override
+                public void onError(Throwable error) {
+                    error.printStackTrace();
+
+                }
+            });
         }
-        if (sids.size() > 0) {
-            searchSessions.addAll(repository.getSessionDetails(sids.toArray(new String[sids.size()])));
-            isLoadNewRecord.setValue(true);
-        }
-        sids.clear();
-        sids = null;
     }
 
     public int getSearchFriendsSize() {
