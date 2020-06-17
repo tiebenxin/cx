@@ -224,7 +224,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 startActivityForResult(headIntent, IMAGE_HEAD);
                 break;
             case R.id.layout_change_phone_num:
-//                startActivity(new Intent(MyselfInfoActivity.this,ChangePhoneNumActivity.class));
+                startActivity(new Intent(MyselfInfoActivity.this,ChangePhoneNumActivity.class));
                 break;
         }
     }

@@ -16,6 +16,7 @@ import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 /**
  * @createAuthor Raleigh.Luo
@@ -29,6 +30,10 @@ public class MsgSearchLocalDataSource {
         realm = DaoUtil.open();
     }
 
+    public Realm getRealm() {
+        return realm;
+    }
+
     private String getKey(String searchKey) {
         return String.format("*%s*", searchKey);
 
@@ -40,11 +45,19 @@ public class MsgSearchLocalDataSource {
      * @param key
      * @return
      */
-    public RealmResults<UserInfo> searchFriends(String key) {
+    public RealmResults<UserInfo> searchFriends(String key, Integer limit) {
         String searchKey = getKey(key);
-        return realm.where(UserInfo.class).like("name", searchKey, Case.INSENSITIVE)
-                .or().like("mkName", searchKey, Case.INSENSITIVE)
-                .findAll();
+        if (limit == null) {//查询所有
+            return realm.where(UserInfo.class).like("name", searchKey, Case.INSENSITIVE)
+                    .or().like("mkName", searchKey, Case.INSENSITIVE)
+                    .findAllAsync();
+        } else {//查询部分
+            return realm.where(UserInfo.class).like("name", searchKey, Case.INSENSITIVE)
+                    .or().like("mkName", searchKey, Case.INSENSITIVE)
+                    .limit(limit)
+                    .findAllAsync();
+        }
+
     }
 
     /**
@@ -53,13 +66,21 @@ public class MsgSearchLocalDataSource {
      * @param key
      * @return
      */
-    public RealmResults<Group> searchGroups(String key) {
+    public RealmResults<Group> searchGroups(String key, Integer limit) {
         String searchKey = getKey(key);
-        return realm.where(Group.class).like("name", searchKey).or()
-                .like("members.membername", searchKey, Case.INSENSITIVE)
-                .or().like("members.name", searchKey, Case.INSENSITIVE)
-                .findAll();
+        if (limit == null) {//查询所有
+            return realm.where(Group.class).like("name", searchKey).or()
+                    .like("members.membername", searchKey, Case.INSENSITIVE)
+                    .or().like("members.name", searchKey, Case.INSENSITIVE)
+                    .findAllAsync();
+        } else {//查询部分
+            return realm.where(Group.class).like("name", searchKey).or()
+                    .like("members.membername", searchKey, Case.INSENSITIVE)
+                    .or().like("members.name", searchKey, Case.INSENSITIVE)
+                    .findAllAsync();
+        }
     }
+
 
     /**
      * 搜索所有session
@@ -67,7 +88,9 @@ public class MsgSearchLocalDataSource {
      * @return
      */
     public RealmResults<Session> searchSessions() {
-        return realm.where(Session.class).findAll();
+        return realm.where(Session.class)
+                .sort("up_time", Sort.DESCENDING)
+                .findAllAsync();
     }
 
     /**
@@ -75,12 +98,11 @@ public class MsgSearchLocalDataSource {
      *
      * @return
      */
-    public List<SessionDetail> getSessionDetails(String[] sids) {
-        RealmResults<SessionDetail> results = realm.where(SessionDetail.class).in("sid", sids).findAll();
+    public SessionDetail getSessionDetail(Realm realm, String sid) {
+         SessionDetail results = realm.where(SessionDetail.class).equalTo("sid", sid).findFirst();
         return results == null ? null : realm.copyFromRealm(results);
     }
-
-    private RealmQuery<MsgAllBean> searchMessagesQuery(String key, String gid, long uid) {
+    private RealmQuery<MsgAllBean> searchMessagesQuery(Realm realm, String key, String gid, long uid) {
         String searchKey = getKey(key);
         if (TextUtils.isEmpty(gid)) {
             return realm.where(MsgAllBean.class)
@@ -129,8 +151,8 @@ public class MsgSearchLocalDataSource {
      * @param key
      * @return
      */
-    public long searchMessagesCount(String key, String gid, long uid) {
-        return searchMessagesQuery(key, gid, uid).count();
+    public long searchMessagesCount(Realm realm, String key, String gid, long uid) {
+        return searchMessagesQuery(realm, key, gid, uid).count();
     }
 
     /**
@@ -139,8 +161,9 @@ public class MsgSearchLocalDataSource {
      * @param key
      * @return
      */
-    public MsgAllBean searchMessages(String key, String gid, long uid) {
-        return searchMessagesQuery(key, gid, uid).findFirstAsync();
+    public MsgAllBean searchMessages(Realm realm, String key, String gid, long uid) {
+        MsgAllBean msgAllBean = searchMessagesQuery(realm, key, gid, uid).findFirst();
+        return msgAllBean == null ? null : realm.copyFromRealm(msgAllBean);
     }
 
     /**

@@ -3,6 +3,7 @@ package com.yanlong.im.user.ui;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -34,14 +35,17 @@ import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.google.gson.Gson;
 import com.hm.cxpay.utils.DateUtils;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.glide.CustomGlideModule;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yanlong.im.BuildConfig;
 import com.yanlong.im.MyAppLication;
@@ -73,6 +77,7 @@ import com.yanlong.im.location.LocationPersimmions;
 import com.yanlong.im.location.LocationService;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.CollectionInfo;
+import com.yanlong.im.utils.ChatBitmapCache;
 import com.yanlong.im.utils.CommonUtils;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.ExpressionUtil;
@@ -85,6 +90,7 @@ import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.FileConfig;
 import net.cb.cb.library.utils.FileUtils;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -287,30 +293,61 @@ public class CollectDetailsActivity extends AppActivity {
                             CollectImageMessage bean2 = new Gson().fromJson(collectionInfo.getData(), CollectImageMessage.class);
                             if (bean2 != null) { //显示预览图或者缩略图
                                 String thumbnail = bean2.getThumbnailShow();
+                                String gif = bean2.getPreview();
                                 if (isGif(thumbnail)) { //动图加载
-                                    String gif = bean2.getPreview();
-                                    Glide.with(this)
-                                            .load(gif)
-                                            .listener(new RequestListener<Drawable>() {
-                                                @Override
-                                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                                    return false;
-                                                }
+                                    //有网情况走网络请求，无网情况拿缓存
+                                    if(NetUtil.isNetworkConnected()){
+                                        Glide.with(this)
+                                                .load(gif)
+                                                .listener(new RequestListener<Drawable>() {
+                                                    @Override
+                                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                                        return false;
+                                                    }
 
-                                                @Override
-                                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                                    return false;
-                                                }
-                                            })
-                                            .apply(GlideOptionsUtil.notDefImageOptions())
-                                            .into(ivPic);
+                                                    @Override
+                                                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                                        return false;
+                                                    }
+                                                })
+                                                .apply(GlideOptionsUtil.notDefImageOptions())
+                                                .into(ivPic);
+
+                                    }else {
+                                        File local = CustomGlideModule.getCacheFile(gif);
+                                        if (local == null) {
+                                            Glide.with(this)
+                                                    .load(gif)
+                                                    .listener(new RequestListener<Drawable>() {
+                                                        @Override
+                                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                                            return false;
+                                                        }
+
+                                                        @Override
+                                                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                                            return false;
+                                                        }
+                                                    })
+                                                    .apply(GlideOptionsUtil.notDefImageOptions())
+                                                    .into(ivPic);
+                                        } else {
+                                            Glide.with(this)
+                                                    .load(local)
+                                                    .apply(GlideOptionsUtil.notDefImageOptions())
+                                                    .into(ivPic);
+                                        }
+                                    }
                                 } else {
-                                    if (!TextUtils.isEmpty(bean2.getPreview())) {
-                                        Glide.with(CollectDetailsActivity.this).load(bean2.getPreview())
-                                                .apply(GlideOptionsUtil.notDefImageOptions()).into(ivPic);
-                                    } else if (!TextUtils.isEmpty(bean2.getThumbnail())) {
-                                        Glide.with(CollectDetailsActivity.this).load(bean2.getThumbnail())
-                                                .apply(GlideOptionsUtil.notDefImageOptions()).into(ivPic);
+                                    Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(thumbnail);
+                                    if (localBitmap == null) {
+                                        Glide.with(CollectDetailsActivity.this)
+                                                .asBitmap()
+                                                .load(thumbnail)
+                                                .apply(GlideOptionsUtil.notDefImageOptions())
+                                                .into(ivPic);
+                                    } else {
+                                        ivPic.setImageBitmap(localBitmap);
                                     }
                                 }
                                 ivPic.setOnClickListener(new View.OnClickListener() {
@@ -370,9 +407,24 @@ public class CollectDetailsActivity extends AppActivity {
                             layoutTop.setVisibility(VISIBLE);
                             CollectVideoMessage bean4 = new Gson().fromJson(collectionInfo.getData(), CollectVideoMessage.class);
                             if (bean4 != null) {
-                                if (!TextUtils.isEmpty(bean4.getVideoBgURL())) {
-                                    Glide.with(CollectDetailsActivity.this).load(bean4.getVideoBgURL())
-                                            .apply(GlideOptionsUtil.headImageOptions()).into(ivPic);
+                                String bgUrl = bean4.getVideoBgURL();
+                                //有网情况走网络请求，无网情况拿缓存
+                                if(NetUtil.isNetworkConnected()){
+                                    if (!TextUtils.isEmpty(bgUrl)) {
+                                        Glide.with(CollectDetailsActivity.this).load(bgUrl)
+                                                .apply(GlideOptionsUtil.defaultImageOptions()).into(ivPic);
+                                    }
+                                }else {
+                                    Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(bgUrl);
+                                    if (localBitmap == null) {
+                                        Glide.with(CollectDetailsActivity.this)
+                                                .asBitmap()
+                                                .load(bgUrl)
+                                                .apply(GlideOptionsUtil.defaultImageOptions())
+                                                .into(ivPic);
+                                    } else {
+                                        ivPic.setImageBitmap(localBitmap);
+                                    }
                                 }
                             }
                             layoutPic.setOnClickListener(new View.OnClickListener() {
@@ -991,4 +1043,6 @@ public class CollectDetailsActivity extends AppActivity {
         super.onWindowFocusChanged(hasFocus);
 
     }
+
+
 }

@@ -136,6 +136,8 @@ public class MessageManager {
      */
     private Map<Long, Long> readTimeMap = new HashMap<>();
 
+    private boolean isMicrophoneUsing = false;
+
     private List<MsgBean.UniversalMessage> toDoMsg = new ArrayList<>();
 
 
@@ -568,7 +570,7 @@ public class MessageManager {
                     eventLoginOut4Conflict.setMsg("您已成功重置密码，请使用新密码重新登录");
                 } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.USER_DEACTIVATING) {//注销账号
                     eventLoginOut4Conflict.setMsg("工作人员将在30天内处理您的申请并删除账号下所有数据。在此期间，请不要登录常信。");
-                }else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.BOUND_PHONE_CHANGED) {//修改手机
+                } else if (wrapMessage.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.BOUND_PHONE_CHANGED) {//修改手机
                     eventLoginOut4Conflict.setMsg("更换绑定手机号成功，请新手机号重新登录");
                 }
                 EventBus.getDefault().post(eventLoginOut4Conflict);
@@ -1689,8 +1691,12 @@ public class MessageManager {
         if (System.currentTimeMillis() - playTimeOld < 500) {
             return;
         }
+        if (isMicrophoneUsing) {
+            return;
+        }
+        LogUtil.getLog().i(TAG, "--使用麦克风-playDingDong");
         playTimeOld = System.currentTimeMillis();
-        MediaBackUtil.palydingdong(AppConfig.getContext());
+        MediaBackUtil.playDingDong(AppConfig.getContext());
     }
 
     private UserInfo updateUserOnlineStatus(MsgBean.UniversalMessage.WrapMessage msg) {
@@ -1699,7 +1705,7 @@ public class MessageManager {
         if (message == null) {
             return null;
         }
-        LogUtil.getLog().d(TAG, ">>>在线状态改变---uid=" + msg.getFromUid() + "--onlineType=" + message.getActiveTypeValue());
+//        LogUtil.getLog().d(TAG, ">>>在线状态改变---uid=" + msg.getFromUid() + "--onlineType=" + message.getActiveTypeValue());
         fetchTimeDiff(message.getTimestamp());
         if (message.getActiveTypeValue() == 1) {
             SocketData.setPreServerAckTime(message.getTimestamp());
@@ -2253,6 +2259,12 @@ public class MessageManager {
             }
         }
         return false;
+    }
+
+    public void setMicrophoneUsing(boolean b) {
+        isMicrophoneUsing = b;
+        LogUtil.getLog().i(TAG, "--改变麦克风使用状态-isMicrophoneUsing=" + isMicrophoneUsing);
+
     }
 
 }

@@ -24,6 +24,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.content.Context.CONNECTIVITY_SERVICE;
@@ -79,6 +80,7 @@ public class NetUtil {
 //                .baseUrl(AppConfig.getUrlHost())
                 .baseUrl(AppHostUtil.getHttpHost())
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(httpClient)
                 .build() : retrofit;
 
@@ -92,6 +94,7 @@ public class NetUtil {
         retrofit = new Retrofit.Builder()
                 .baseUrl(AppHostUtil.getHttpHost())
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(httpClient)
 
                 .build();
@@ -111,6 +114,7 @@ public class NetUtil {
             Retrofit newRT = new Retrofit.Builder()
                     .baseUrl(host)
                     .addConverterFactory(GsonConverterFactory.create())
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .client(httpClient)
                     .build();
 

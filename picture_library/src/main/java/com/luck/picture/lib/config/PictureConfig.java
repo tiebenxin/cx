@@ -25,11 +25,13 @@ public final class PictureConfig {
     public final static String EXTRA_CONFIG = "PictureSelectorConfig";
     public final static String IMAGE = "image";
     public final static String VIDEO = "video";
+    public final static String FROM_WHERE = "from_where";
 
 
     public final static int UPDATE_FLAG = 2774;// 预览界面更新选中数据 标识
     public final static int CLOSE_PREVIEW_FLAG = 2770;// 关闭预览界面 标识
     public final static int PREVIEW_DATA_FLAG = 2771;// 预览界面图片 标识
+    public final static int GUESS_YOU_LIKE = 2772;// 预览猜你想要发送图片
     public final static int TYPE_ALL = 0;
     public final static int TYPE_IMAGE = 1;
     public final static int TYPE_VIDEO = 2;
@@ -43,6 +45,7 @@ public final class PictureConfig {
     public final static int MULTIPLE = 2;
 
     public final static int CHOOSE_REQUEST = 188;
+    public final static int PREVIEW_FROM_CHAT = 199;
     public final static int REQUEST_CAMERA = 909;
     public final static int READ_EXTERNAL_STORAGE = 0x01;
     public final static int CAMERA = 0x02;

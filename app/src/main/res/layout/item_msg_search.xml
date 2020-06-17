@@ -155,12 +155,31 @@
             </LinearLayout>
 
 
-            <View style="@style/app_line" />
+
 
         </LinearLayout>
 
     </LinearLayout>
-
+    <View style="@style/app_line"
+        />
+    <TextView
+        android:id="@+id/txt_more"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:text="更多联系人"
+        android:visibility="visible"
+        android:textSize="13sp"
+        android:paddingLeft="15dip"
+        android:paddingRight="15dip"
+        android:paddingTop="12dip"
+        android:clickable="true"
+        android:paddingBottom="12dip"
+        android:drawableLeft="@mipmap/search_msg"
+        android:drawableRight="@mipmap/ic_btn_goto"
+        android:drawablePadding="11dip"
+        android:textColor="@color/green_500"
+        />
     <View
         android:id="@+id/vBottomLine"
         android:layout_width="wrap_content"

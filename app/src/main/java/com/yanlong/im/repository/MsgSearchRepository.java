@@ -9,6 +9,7 @@ import com.yanlong.im.user.bean.UserInfo;
 
 import java.util.List;
 
+import io.realm.Realm;
 import io.realm.RealmResults;
 
 /**
@@ -26,17 +27,18 @@ public class MsgSearchRepository {
      * @param searchKey
      * @return
      */
-    public RealmResults<UserInfo> searchFriends(String searchKey){
-        return localDataSource.searchFriends(searchKey);
+    public RealmResults<UserInfo> searchFriends(String searchKey,Integer limit){
+        return localDataSource.searchFriends(searchKey,limit);
     }
     /**
      * 搜索群名 和群成员名
      * @param searchKey
      * @return
      */
-    public RealmResults<Group> searchGroups(String searchKey){
-        return localDataSource.searchGroups(searchKey);
+    public RealmResults<Group> searchGroups(String searchKey,Integer limit){
+        return localDataSource.searchGroups(searchKey,limit);
     }
+
     /**
      * 搜索所有session
      *
@@ -45,13 +47,14 @@ public class MsgSearchRepository {
     public RealmResults<Session> searchSessions() {
         return localDataSource.searchSessions();
     }
+
     /**
      * 获取满足条件的sessionDetail
      *
      * @return
      */
-    public List<SessionDetail> getSessionDetails(String[] sids) {
-        return localDataSource.getSessionDetails(sids);
+    public SessionDetail getSessionDetail(Realm realm,String sid) {
+        return localDataSource.getSessionDetail(realm,sid);
     }
     /**
      * 搜索聊天记录
@@ -60,8 +63,8 @@ public class MsgSearchRepository {
      * @param searchKey
      * @return
      */
-    public long searchMessagesCount(String searchKey,String gid,long uid) {
-        return localDataSource.searchMessagesCount(searchKey,gid,uid);
+    public long searchMessagesCount(Realm realm,String searchKey,String gid,long uid) {
+        return localDataSource.searchMessagesCount(realm,searchKey,gid,uid);
     }
     /**
      * 搜索聊天记录匹配数量为1时的消息
@@ -69,10 +72,13 @@ public class MsgSearchRepository {
      * @param key
      * @return
      */
-    public MsgAllBean searchMessages(String key, String gid, long uid) {
-        return localDataSource.searchMessages(key, gid, uid);
+    public MsgAllBean searchMessages(Realm realm,String key, String gid, long uid) {
+        return localDataSource.searchMessages(realm,key, gid, uid);
     }
     public void onDestory() {
         localDataSource.onDestory();
+    }
+    public Realm getRealm() {
+        return localDataSource.getRealm();
     }
 }

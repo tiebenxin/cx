@@ -31,9 +31,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import io.realm.RealmChangeListener;
-import io.realm.RealmModel;
-
 /**
  * @createAuthor Raleigh.Luo
  * @createDate 2020/5/22 0022
@@ -43,15 +40,107 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
 
     public MsgSearchViewModel viewModel;
     private Context context;
+    private SearchType searchType;
 
-    public MsgSearchAdapter(Context context, MsgSearchViewModel viewModel) {
+    public enum SearchType {
+        ALL,//搜索所有
+        FRIENDS,//搜索好友
+        GROUPS,//搜索群
+        SESSIONS//搜索会话
+    }
+
+    public MsgSearchAdapter(Context context, MsgSearchViewModel viewModel, SearchType type) {
         this.context = context;
         this.viewModel = viewModel;
+        this.searchType = type;
+    }
+
+    /**
+     * 搜索所有时，检查是否还有更多
+     *
+     * @param size
+     * @return
+     */
+    public boolean checkAllSearchHasMore(int size) {
+        return searchType == SearchType.ALL ? size >= viewModel.MIN_LIMIT : false;
+    }
+
+    /**
+     * 搜索所有时，最大size为viewModel.MIN_LIMIT - 1 即3
+     *
+     * @param size
+     * @return
+     */
+    public int getDisplaySize(int size) {
+        if (searchType == SearchType.ALL) {
+            return size < viewModel.MIN_LIMIT ? size : viewModel.MIN_LIMIT - 1;
+        } else {
+            return size;
+        }
     }
 
     @Override
     public int getItemCount() {
-        return viewModel.getSearchFriendsSize() + viewModel.getSearchGroupsSize() + viewModel.getSearchSessionsSize();
+        int size = 0;
+        switch (searchType) {
+            case ALL:
+                size = getDisplaySize(viewModel.getSearchFriendsSize()) + getDisplaySize(viewModel.getSearchGroupsSize())
+                        + getDisplaySize(viewModel.getSearchSessionsSize());
+                break;
+            case GROUPS:
+                size = getDisplaySize(viewModel.getSearchGroupsSize());
+                break;
+            case FRIENDS:
+                size = getDisplaySize(viewModel.getSearchFriendsSize());
+                break;
+            case SESSIONS:
+                size = getDisplaySize(viewModel.getSearchSessionsSize());
+                break;
+
+        }
+        return size;
+    }
+
+    public boolean isFriendItem(int position) {
+        boolean result = false;
+        switch (searchType) {
+            case ALL:
+                result = position < getDisplaySize(viewModel.getSearchFriendsSize());
+                break;
+            case GROUPS:
+                result = false;
+                break;
+            case FRIENDS:
+                result = true;
+                break;
+            case SESSIONS:
+                result = false;
+                break;
+
+        }
+        return result;
+    }
+
+    public boolean isGroupItem(int position) {
+        boolean result = false;
+        switch (searchType) {
+            case ALL:
+                result = position < (getDisplaySize(viewModel.getSearchFriendsSize()) +
+                        getDisplaySize(viewModel.getSearchGroupsSize()));
+                break;
+            case GROUPS:
+                result = true;
+                break;
+            case FRIENDS:
+                result = false;
+                break;
+            case SESSIONS:
+                result = false;
+                break;
+
+        }
+        return result;
+
     }
 
     /**
@@ -83,9 +172,13 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
     public void onBindViewHolder(final RCViewHolder holder, int position) {
         int firstPosition = 0;
         int lastPostion = 0;
-        if (position < viewModel.getSearchFriendsSize()) {//单人
+        if (isFriendItem(position)) {//单人
+
             firstPosition = 0;
-            lastPostion = viewModel.getSearchFriendsSize() - 1;
+            lastPostion = getDisplaySize(viewModel.getSearchFriendsSize()) - 1;
+            holder.tvMore.setVisibility(position == lastPostion && checkAllSearchHasMore(viewModel.getSearchFriendsSize()) ?
+                    View.VISIBLE : View.GONE);
+            holder.tvMore.setText("更多联系人");
             holder.tvTitle.setText("联系人");
 
 
@@ -114,16 +207,26 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
                     );
                 }
             });
+            holder.tvMore.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    context.startActivity(new Intent(context, FriendsSearchActivity.class)
+                            .putExtra(SearchMsgActivity.AGM_SEARCH_KEY, viewModel.key.getValue())
+                    );
+                }
+            });
+        } else if (isGroupItem(position)) {
 
-        } else if (position < (viewModel.getSearchFriendsSize() + viewModel.getSearchGroupsSize())) {
             /*****群 昵称/成员包含****************************************************************************/
             holder.tvTitle.setText("群聊");
-            firstPosition = viewModel.getSearchFriendsSize();
-            lastPostion = firstPosition + viewModel.getSearchGroupsSize() - 1;
-
+            firstPosition = getDisplaySize(viewModel.getSearchFriendsSize());
+            lastPostion = firstPosition + getDisplaySize(viewModel.getSearchGroupsSize()) - 1;
+            holder.tvMore.setVisibility(position == lastPostion && checkAllSearchHasMore(viewModel.getSearchGroupsSize()) ?
+                    View.VISIBLE : View.GONE);
+            holder.tvMore.setText("更多群聊");
 
             holder.vInfoPanel.setVisibility(View.VISIBLE);
-            Group group = viewModel.searchGroups.get(position - viewModel.searchFriends.size());
+            Group group = viewModel.searchGroups.get(position - getDisplaySize(viewModel.getSearchFriendsSize()));
             int i = group.getUsers().size();
             i = i > 9 ? 9 : i;
             //头像地址
@@ -172,14 +275,25 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
                     );
                 }
             });
+            holder.tvMore.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    context.startActivity(new Intent(context, GroupsSearchActivity.class)
+                            .putExtra(SearchMsgActivity.AGM_SEARCH_KEY, viewModel.key.getValue())
+                    );
+                }
+            });
         } else {
             /*****聊天记录 内容包含****************************************************************************/
             holder.tvTitle.setText("聊天记录");
-            firstPosition = viewModel.getSearchFriendsSize() + viewModel.getSearchGroupsSize();
+            firstPosition = getDisplaySize(viewModel.getSearchFriendsSize()) + getDisplaySize(viewModel.getSearchGroupsSize());
             lastPostion = getItemCount() - 1;
+            holder.tvMore.setVisibility(position == lastPostion && checkAllSearchHasMore(viewModel.getSearchSessionsSize()) ?
+                    View.VISIBLE : View.GONE);
+            holder.tvMore.setText("更多聊天记录");
 
             holder.vInfoPanel.setVisibility(View.VISIBLE);
-            int p = position - viewModel.searchFriends.size() - viewModel.getSearchGroupsSize();
+            int p = position - getDisplaySize(viewModel.getSearchFriendsSize()) - getDisplaySize(viewModel.getSearchGroupsSize());
             SessionDetail sessionDetail = viewModel.searchSessions.get(p);
 
             //头像地址
@@ -205,38 +319,17 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
             if (viewModel.sessionSearch.containsKey(sessionDetail.getSid())) {
                 MsgSearchViewModel.SessionSearch sessionSearch = viewModel.sessionSearch.get(sessionDetail.getSid());
                 if (sessionSearch.getCount() == 1) {//1条记录，直接进入聊天界面
-                    if (sessionSearch.getMsgAllBean().isLoaded()) {
-                        sessionSearch.getMsgAllBean().removeAllChangeListeners();
-                        String msg = SocketData.getMsg(sessionSearch.getMsgAllBean(), viewModel.key.getValue());
-                        hightKey(holder.txtInfo, msg, sessionSearch.getMsgAllBean().getMsg_typeTitle());
-                    } else {
-                        sessionSearch.getMsgAllBean().addChangeListener(new RealmChangeListener<RealmModel>() {
-                            @Override
-                            public void onChange(RealmModel realmModel) {
-                                String msg = SocketData.getMsg(sessionSearch.getMsgAllBean(), viewModel.key.getValue());
-                                hightKey(holder.txtInfo, msg, sessionSearch.getMsgAllBean().getMsg_typeTitle());
-                                sessionSearch.getMsgAllBean().removeAllChangeListeners();
-                            }
-                        });
-                        holder.txtInfo.setText(sessionSearch.getCount() + "条相关的聊天记录");
-                    }
+                    String msg = SocketData.getMsg(sessionSearch.getMsgAllBean(), viewModel.key.getValue());
+                    hightKey(holder.txtInfo, msg, sessionSearch.getMsgAllBean().getMsg_typeTitle());
                     holder.viewIt.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            if (sessionSearch.getMsgAllBean().isLoaded()) {
-                                context.startActivity(new Intent(context, ChatActivity.class)
-                                        .putExtra(ChatActivity.AGM_TOGID, sessionSearch.getGid())
-                                        .putExtra(ChatActivity.AGM_TOUID, sessionSearch.getUid())
-                                        .putExtra(ChatActivity.SEARCH_TIME, sessionSearch.getMsgAllBean().getTimestamp())
-                                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                );
-                            } else {
-                                context.startActivity(new Intent(context, SearchMsgActivity.class)
-                                        .putExtra(SearchMsgActivity.AGM_GID, sessionSearch.getGid())
-                                        .putExtra(SearchMsgActivity.AGM_FUID, sessionSearch.getUid())
-                                        .putExtra(SearchMsgActivity.AGM_SEARCH_KEY, viewModel.key.getValue())
-                                );
-                            }
+                            context.startActivity(new Intent(context, ChatActivity.class)
+                                    .putExtra(ChatActivity.AGM_TOGID, sessionSearch.getGid())
+                                    .putExtra(ChatActivity.AGM_TOUID, sessionSearch.getUid())
+                                    .putExtra(ChatActivity.SEARCH_TIME, sessionSearch.getMsgAllBean().getTimestamp())
+                                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            );
                         }
                     });
 
@@ -253,9 +346,18 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
                         }
                     });
                 }
+                holder.tvMore.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        context.startActivity(new Intent(context, SessionSearchActivity.class)
+                                .putExtra(SearchMsgActivity.AGM_SEARCH_KEY, viewModel.key.getValue())
+                        );
+                    }
+                });
             } else {
                 holder.txtInfo.setText("");
                 holder.viewIt.setOnClickListener(null);
+                holder.tvMore.setOnClickListener(null);
             }
         }
 
@@ -363,12 +465,13 @@ public class MsgSearchAdapter extends RecyclerView.Adapter<MsgSearchAdapter.RCVi
 
         private View viewIt, vInfoPanel, vBottomLine, vTitleLine;
         private TextView txtName;
-        private TextView txtInfo, tvTitle;
+        private TextView txtInfo, tvTitle, tvMore;
 //            private final TextView tv_num;
 
         //自动寻找ViewHold
         public RCViewHolder(View convertView) {
             super(convertView);
+            tvMore = convertView.findViewById(R.id.txt_more);
             tvTitle = convertView.findViewById(R.id.tvTitle);
             vBottomLine = convertView.findViewById(R.id.vBottomLine);
             vTitleLine = convertView.findViewById(R.id.vTitleLine);

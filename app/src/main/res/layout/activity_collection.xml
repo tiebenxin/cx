@@ -41,6 +41,7 @@
                             style="@style/app_edt1"
                             android:background="@color/transparent"
                             android:hint="请输入搜索内容"
+                            android:singleLine="true"
                             android:imeOptions="actionSearch" />
                     </LinearLayout>
                 </RelativeLayout>

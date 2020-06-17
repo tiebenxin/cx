@@ -89,22 +89,25 @@ public class MsgSearchActivity extends AppActivity {
 
             }
         });
-        adapter = new MsgSearchAdapter(this, viewModel);
+        adapter = new MsgSearchAdapter(this, viewModel, MsgSearchAdapter.SearchType.ALL);
         mtListView.init(adapter);
         mtListView.getLoadView().setStateNormal();
         edtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean result = false;
                 if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
                     String key = edtSearch.getText().toString();
                     viewModel.key.setValue(key);
                     InputUtil.hideKeyboard(MsgSearchActivity.this);
+                    result = true;
                 } else if (event != null && (KeyEvent.KEYCODE_ENTER == event.getKeyCode() || KeyEvent.ACTION_DOWN == event.getAction())) {
                     String key = edtSearch.getText().toString();
                     viewModel.key.setValue(key);
                     InputUtil.hideKeyboard(MsgSearchActivity.this);
+                    result = true;
                 }
-                return false;
+                return result;
             }
         });
 
