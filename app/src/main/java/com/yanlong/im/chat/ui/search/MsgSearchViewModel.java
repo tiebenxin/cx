@@ -18,6 +18,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
@@ -34,10 +38,12 @@ public class MsgSearchViewModel extends ViewModel {
     public MutableLiveData<String> key = new MutableLiveData<String>();
     public RealmResults<UserInfo> searchFriends = null;
     public RealmResults<Group> searchGroups = null;
-    public List<SessionDetail> searchSessions = new ArrayList<>();
-    public Map<String, SessionSearch> sessionSearch = new HashMap<>();
+    public List<SessionDetail> searchSessions = new CopyOnWriteArrayList<>();
+    public Map<String, SessionSearch> sessionSearch = new ConcurrentHashMap<>();
     public MutableLiveData<Boolean> isLoadNewRecord = new MutableLiveData<>();
     public int MIN_LIMIT = 4;
+    public ThreadPoolExecutor executor = null;
+    private RealmResults<Session> allSessions = null;
 
     public void clear() {
         if (repository.getRealm().isInTransaction()) {
@@ -45,10 +51,12 @@ public class MsgSearchViewModel extends ViewModel {
         }
         if (searchFriends != null) searchFriends.removeAllChangeListeners();
         if (searchGroups != null) searchGroups.removeAllChangeListeners();
+        if (allSessions != null) allSessions.removeAllChangeListeners();
         sessionSearch.clear();
 
         searchFriends = null;
         searchGroups = null;
+        allSessions = null;
         searchSessions.clear();
         isLoadNewRecord.postValue(true);
     }
@@ -96,7 +104,7 @@ public class MsgSearchViewModel extends ViewModel {
                         break;
                     }
                     if (sessions.size() == limit) {//有下一页
-                        timeStamp = sessions.get(sessions.size() - 1).getUp_time()+1;
+                        timeStamp = sessions.get(sessions.size() - 1).getUp_time() + 1;
                         sessions = repository.searchSessions(realm, timeStamp, limit);
                     } else {//没有下一个
                         if (sids.size() > 0) {
@@ -140,46 +148,40 @@ public class MsgSearchViewModel extends ViewModel {
 
     public void searchSessions(String key) {
         if (!TextUtils.isEmpty(key)) {
-            DaoUtil.executeTransactionAsync(repository.getRealm(), realm -> {
-                int limit = 20;
-                long timeStamp = System.currentTimeMillis();
-                RealmResults<Session> sessions = repository.searchSessions(realm, timeStamp, limit);
-                //单独用 list,保证顺序
-                Set<String> sids = new HashSet<>();
-                while (sessions != null && sessions.size() > 0) {
-                    for (Session session : sessions) {
-                        //已经包含过了，不再重复
-                        long count = repository.searchMessagesCount(realm, key, session.getGid(), session.getFrom_uid());
-                        if (count > 0) {
-                            SessionSearch result = new SessionSearch(count, session.getGid(), session.getFrom_uid());
-                            if (count == 1) {//1个消息
-                                result.setMsgAllBean(repository.searchMessages(realm, key, session.getGid(), session.getFrom_uid()));
+            if (executor == null) {
+                executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+            }
+            allSessions = repository.searchSessions();
+            if (allSessions != null)
+                allSessions.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<Session>>() {
+                    @Override
+                    public void onChange(RealmResults<Session> sessions, OrderedCollectionChangeSet changeSet) {
+                        if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
+                            for (Session session : sessions) {
+                                executor.execute(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Realm realm = DaoUtil.open();
+                                        try {
+                                            long count = repository.searchMessagesCount(realm, key, session.getGid(), session.getFrom_uid());
+                                            if (count > 0) {
+                                                SessionSearch result = new SessionSearch(count, session.getGid(), session.getFrom_uid());
+                                                if (count == 1) {//1个消息
+                                                    result.setMsgAllBean(repository.searchMessages(realm, key, session.getGid(), session.getFrom_uid()));
+                                                }
+                                                sessionSearch.put(session.getSid(), result);
+                                                searchSessions.add(repository.getSessionDetail(realm, session.getSid()));
+                                                isLoadNewRecord.postValue(true);
+                                            }
+                                        } finally {
+                                            DaoUtil.close(realm);
+                                        }
+                                    }
+                                });
                             }
-                            sids.add(session.getSid());
-                            sessionSearch.put(session.getSid(), result);
                         }
                     }
-                    if (sids.size() > limit) {
-                        searchSessions.addAll(repository.getSessionDetails(realm, sids.toArray(new String[sids.size()])));
-                        sids.clear();
-                        isLoadNewRecord.postValue(true);
-                    }
-                    if (sessions.size() == limit) {//有下一页
-                        timeStamp = sessions.get(sessions.size() - 1).getUp_time()+1;
-                        sessions = repository.searchSessions(realm, timeStamp, limit);
-                    } else {//没有下一页
-                        if (sids.size() > 0) {//保存数据
-                            searchSessions.addAll(repository.getSessionDetails(realm, sids.toArray(new String[sids.size()])));
-                            sids.clear();
-                            isLoadNewRecord.postValue(true);
-                        }
-                        sessions = null;
-                    }
-                }
-            }, () -> {
-
-            }, error -> {
-            });
+                });
         }
     }
 

@@ -47,12 +47,28 @@ public class MsgSearchRepository {
         return localDataSource.searchSessions(realm,timeStamp,limit);
     }
     /**
+     * 搜索所有session
+     *
+     * @return
+     */
+    public RealmResults<Session> searchSessions() {
+        return localDataSource.searchSessions();
+    }
+    /**
      * 获取满足条件的sessionDetail
      *
      * @return
      */
     public List<SessionDetail> getSessionDetails(Realm realm,String[] sids) {
         return localDataSource.getSessionDetails(realm,sids);
+    }
+    /**
+     * 获取满足条件的sessionDetail
+     *
+     * @return
+     */
+    public SessionDetail getSessionDetail(Realm realm,String sid) {
+        return localDataSource.getSessionDetail(realm,sid);
     }
     /**
      * 搜索聊天记录
