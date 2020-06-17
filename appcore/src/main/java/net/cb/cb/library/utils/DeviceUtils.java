@@ -130,31 +130,34 @@ public class DeviceUtils {
         String imei = "";
         try {
             TelephonyManager tm = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && Build.VERSION.SDK_INT < 29) {
+                    Method method = tm.getClass().getMethod("getImei");
+                    imei = (String) method.invoke(tm);
+                    if (TextUtils.isEmpty(imei)) {
+                        imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+                    }
+                } else if (Build.VERSION.SDK_INT >= 29) {
                     imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-                    return imei;
                 }
+            } else {
                 if (!TextUtils.isEmpty(tm.getDeviceId())) {
                     imei = tm.getDeviceId();
                 } else {
                     imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
                 }
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && Build.VERSION.SDK_INT < 29) {
-                Method method = tm.getClass().getMethod("getImei");
-                imei = (String) method.invoke(tm);
-                if (TextUtils.isEmpty(imei)) {
+            }
+            if (TextUtils.isEmpty(imei) || imei.equals("unknown")) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && Build.VERSION.SDK_INT < 29) {
+                    Method method = tm.getClass().getMethod("getImei");
+                    imei = (String) method.invoke(tm);
+                    if (TextUtils.isEmpty(imei)) {
+                        imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+                    }
+                } else if (Build.VERSION.SDK_INT >= 29) {
                     imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
                 }
-            } else if (Build.VERSION.SDK_INT >= 29) {
-                imei = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
             }
         } catch (Exception e) {
             e.printStackTrace();

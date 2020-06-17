@@ -14,9 +14,9 @@ import com.yanlong.im.chat.dao.MsgDao;
 public class MediaBackUtil {
 
     public static Vibrator playVibration(Context context, long time) {
-        UserSeting seting = new MsgDao().userSetingGet();
+        UserSeting setting = new MsgDao().userSetingGet();
 
-        if (!seting.isShake()) {//读配置,来控制是否振动
+        if (!setting.isShake()) {//读配置,来控制是否振动
             return null;
         }
 
@@ -28,9 +28,9 @@ public class MediaBackUtil {
     }
 
 
-    public static void palydingdong(Context context) {
-        UserSeting seting = new MsgDao().userSetingGet();
-        if (!seting.isVoice()) {//读配置,来控制是否声音
+    public static void playDingDong(Context context) {
+        UserSeting setting = new MsgDao().userSetingGet();
+        if (!setting.isVoice()) {//读配置,来控制是否声音
             return;
         }
 
