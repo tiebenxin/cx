@@ -6,9 +6,11 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.yanlong.im.R;
@@ -17,7 +19,6 @@ import com.yanlong.im.chat.bean.AdMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.utils.ChatBitmapCache;
 
-import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 
@@ -48,7 +49,15 @@ public class ChatCellAd extends ChatCellBase {
     protected void showMessage(MsgAllBean message) {
         super.showMessage(message);
         contentMessage = message.getAdMessage();
+        resetSize();
         showContent(contentMessage);
+    }
+
+    private void resetSize() {
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.width = 430;
+        lp.height = 300;
+        ivImage.setLayoutParams(lp);
     }
 
     private void showContent(AdMessage message) {
@@ -62,10 +71,11 @@ public class ChatCellAd extends ChatCellBase {
             ivImage.setImageResource(R.mipmap.ic_image_bg);
             Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(message.getThumbnail());
             if (localBitmap == null) {
-                RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
+                RequestOptions mRequestOptions = RequestOptions.centerCropTransform()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .skipMemoryCache(false)
-                        .centerCrop();
+                        .centerCrop()
+                        .format(DecodeFormat.PREFER_ARGB_8888);
                 Glide.with(getContext())
                         .asBitmap()
                         .load(message.getThumbnail())

@@ -9,6 +9,7 @@ import com.yanlong.im.user.bean.UserInfo;
 
 import java.util.List;
 
+import io.realm.Realm;
 import io.realm.RealmResults;
 
 /**
@@ -42,16 +43,16 @@ public class MsgSearchRepository {
      *
      * @return
      */
-    public RealmResults<Session> searchSessions() {
-        return localDataSource.searchSessions();
+    public RealmResults<Session> searchSessions(Realm realm,long timeStamp, int limit) {
+        return localDataSource.searchSessions(realm,timeStamp,limit);
     }
     /**
      * 获取满足条件的sessionDetail
      *
      * @return
      */
-    public List<SessionDetail> getSessionDetails(String[] sids) {
-        return localDataSource.getSessionDetails(sids);
+    public List<SessionDetail> getSessionDetails(Realm realm,String[] sids) {
+        return localDataSource.getSessionDetails(realm,sids);
     }
     /**
      * 搜索聊天记录
@@ -60,8 +61,8 @@ public class MsgSearchRepository {
      * @param searchKey
      * @return
      */
-    public long searchMessagesCount(String searchKey,String gid,long uid) {
-        return localDataSource.searchMessagesCount(searchKey,gid,uid);
+    public long searchMessagesCount(Realm realm,String searchKey,String gid,long uid) {
+        return localDataSource.searchMessagesCount(realm,searchKey,gid,uid);
     }
     /**
      * 搜索聊天记录匹配数量为1时的消息
@@ -69,10 +70,13 @@ public class MsgSearchRepository {
      * @param key
      * @return
      */
-    public MsgAllBean searchMessages(String key, String gid, long uid) {
-        return localDataSource.searchMessages(key, gid, uid);
+    public MsgAllBean searchMessages(Realm realm,String key, String gid, long uid) {
+        return localDataSource.searchMessages(realm,key, gid, uid);
     }
     public void onDestory() {
         localDataSource.onDestory();
+    }
+    public Realm getRealm() {
+        return localDataSource.getRealm();
     }
 }
