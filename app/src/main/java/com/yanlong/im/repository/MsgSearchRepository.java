@@ -27,16 +27,16 @@ public class MsgSearchRepository {
      * @param searchKey
      * @return
      */
-    public RealmResults<UserInfo> searchFriends(String searchKey){
-        return localDataSource.searchFriends(searchKey);
+    public RealmResults<UserInfo> searchFriends(String searchKey,Integer limit){
+        return localDataSource.searchFriends(searchKey,limit);
     }
     /**
      * 搜索群名 和群成员名
      * @param searchKey
      * @return
      */
-    public RealmResults<Group> searchGroups(String searchKey){
-        return localDataSource.searchGroups(searchKey);
+    public RealmResults<Group> searchGroups(String searchKey,Integer limit){
+        return localDataSource.searchGroups(searchKey,limit);
     }
     /**
      * 搜索所有session

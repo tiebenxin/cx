@@ -202,7 +202,7 @@ public class RecordButtonView extends FrameLayout implements CaptureListener {
             listener.recordEnd(time);
         }
         startAlphaAnimation();
-        startTypeBtnAnimator();
+//        startTypeBtnAnimator();
     }
 
     @Override

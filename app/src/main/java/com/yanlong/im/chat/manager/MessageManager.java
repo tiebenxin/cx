@@ -130,6 +130,8 @@ public class MessageManager {
      */
     private Map<Long, Long> readTimeMap = new HashMap<>();
 
+    private boolean isMicrophoneUsing = false;
+
 
     public static MessageManager getInstance() {
         if (INSTANCE == null) {
@@ -1611,8 +1613,12 @@ public class MessageManager {
         if (System.currentTimeMillis() - playTimeOld < 500) {
             return;
         }
+        if (isMicrophoneUsing) {
+            return;
+        }
+        LogUtil.getLog().i(TAG, "--使用麦克风-playDingDong");
         playTimeOld = System.currentTimeMillis();
-        MediaBackUtil.palydingdong(AppConfig.getContext());
+        MediaBackUtil.playDingDong(AppConfig.getContext());
     }
 
     private UserInfo updateUserOnlineStatus(MsgBean.UniversalMessage.WrapMessage msg) {
@@ -1621,7 +1627,7 @@ public class MessageManager {
         if (message == null) {
             return null;
         }
-        LogUtil.getLog().d(TAG, ">>>在线状态改变---uid=" + msg.getFromUid() + "--onlineType=" + message.getActiveTypeValue());
+//        LogUtil.getLog().d(TAG, ">>>在线状态改变---uid=" + msg.getFromUid() + "--onlineType=" + message.getActiveTypeValue());
         fetchTimeDiff(message.getTimestamp());
         if (message.getActiveTypeValue() == 1) {
             SocketData.setPreServerAckTime(message.getTimestamp());
@@ -2176,6 +2182,12 @@ public class MessageManager {
             }
         }
         return false;
+    }
+
+    public void setMicrophoneUsing(boolean b) {
+        isMicrophoneUsing = b;
+        LogUtil.getLog().i(TAG, "--改变麦克风使用状态-isMicrophoneUsing=" + isMicrophoneUsing);
+
     }
 
 }

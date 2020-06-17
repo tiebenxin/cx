@@ -893,7 +893,9 @@ public class SocketUtil {
     public void clearThread() {
         LogUtil.getLog().i(TAG, "clearThread--终止SocketThread");
         //取消心跳线程
-        heardSchedule.cancel(true);
+        if (heardSchedule != null) {
+            heardSchedule.cancel(true);
+        }
         ExecutorManager.INSTANCE.getWriteThread().shutdown();
         ExecutorManager.INSTANCE.getReadThread().shutdown();
         ExecutorManager.INSTANCE.getSocketThread().shutdown();

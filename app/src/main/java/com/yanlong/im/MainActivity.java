@@ -786,12 +786,14 @@ public class MainActivity extends AppActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void stopJPushResumeEvent(EventFactory.StopJPushResumeEvent event) {
         // TODO 处理部分手机收到音视频消息后，多个铃声在播放问题
+        MessageManager.getInstance().setMicrophoneUsing(true);
         JPushInterface.stopPush(this);
         if (!isFinishing()) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     JPushInterface.resumePush(MainActivity.this);
+                    MessageManager.getInstance().setMicrophoneUsing(false);
                 }
             }, 500);
         }
