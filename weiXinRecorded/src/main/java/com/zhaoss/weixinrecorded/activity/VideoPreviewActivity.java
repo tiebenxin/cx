@@ -57,8 +57,8 @@ public class VideoPreviewActivity extends BaseActivity implements SurfaceHolder.
                 }
 
                 Intent intentMas = new Intent();
-                intentMas.putExtra(RecordedActivity.INTENT_PATH, mPath);
-                intentMas.putExtra(RecordedActivity.INTENT_PATH_TIME, (int) Long.parseLong(getVideoAtt(mPath)));
+                intentMas.putExtra(CameraActivity.INTENT_PATH, mPath);
+                intentMas.putExtra(CameraActivity.INTENT_PATH_TIME, Long.parseLong(getVideoAtt(mPath)));
                 setResult(RESULT_OK, intentMas);
                 finish();
             }

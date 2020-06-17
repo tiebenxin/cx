@@ -248,7 +248,7 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
                 intentMas.putExtra(CameraActivity.INTENT_PATH, data.getStringExtra(INTENT_PATH));
                 intentMas.putExtra(INTENT_VIDEO_WIDTH, mCameraView.getVideoWidth());
                 intentMas.putExtra(INTENT_PATH_HEIGHT, mCameraView.getVideoHeight());
-                intentMas.putExtra(INTENT_PATH_TIME, data.getIntExtra(INTENT_PATH_TIME, 0));
+                intentMas.putExtra(INTENT_PATH_TIME, data.getLongExtra(INTENT_PATH_TIME, 0));
                 intentMas.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
                 setResult(RESULT_OK, intentMas);
                 finish();
