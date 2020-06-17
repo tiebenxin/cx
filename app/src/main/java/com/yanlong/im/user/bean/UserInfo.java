@@ -87,6 +87,8 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
     private boolean isChecked = false;
 
     private String bankReqSignKey;//支付签名
+    private int lockedFunctions;//封锁功能：0 不封，1 封
+
 
     public String getPinyin() {
         return pinyin;
@@ -517,6 +519,14 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo>, IUser
 
     public void setBankReqSignKey(String bankReqSignKey) {
         this.bankReqSignKey = bankReqSignKey;
+    }
+
+    public int getLockedFunctions() {
+        return lockedFunctions;
+    }
+
+    public void setLockedFunctions(int lockedFunctions) {
+        this.lockedFunctions = lockedFunctions;
     }
 
     @Override

@@ -2884,7 +2884,7 @@ public class ChatActivity extends AppActivity implements IActionTagClickListener
                 case VIDEO_RP:
                     int dataType = data.getIntExtra(CameraActivity.INTENT_DATA_TYPE, CameraActivity.RESULT_TYPE_VIDEO);
                     MsgAllBean videoMsgBean = null;
-                    if (dataType == RecordedActivity.RESULT_TYPE_VIDEO) {
+                    if (dataType == CameraActivity.RESULT_TYPE_VIDEO) {
 //                        if (!checkNetConnectStatus()) {
                         String file = data.getStringExtra(CameraActivity.INTENT_PATH);
                         LogUtil.getLog().i(TAG, "--视频Chat--" + file);
