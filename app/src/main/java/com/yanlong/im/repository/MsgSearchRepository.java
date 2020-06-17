@@ -38,14 +38,7 @@ public class MsgSearchRepository {
     public RealmResults<Group> searchGroups(String searchKey,Integer limit){
         return localDataSource.searchGroups(searchKey,limit);
     }
-    /**
-     * 搜索所有session
-     *
-     * @return
-     */
-    public RealmResults<Session> searchSessions(Realm realm,long timeStamp, int limit) {
-        return localDataSource.searchSessions(realm,timeStamp,limit);
-    }
+
     /**
      * 搜索所有session
      *
@@ -54,14 +47,7 @@ public class MsgSearchRepository {
     public RealmResults<Session> searchSessions() {
         return localDataSource.searchSessions();
     }
-    /**
-     * 获取满足条件的sessionDetail
-     *
-     * @return
-     */
-    public List<SessionDetail> getSessionDetails(Realm realm,String[] sids) {
-        return localDataSource.getSessionDetails(realm,sids);
-    }
+
     /**
      * 获取满足条件的sessionDetail
      *

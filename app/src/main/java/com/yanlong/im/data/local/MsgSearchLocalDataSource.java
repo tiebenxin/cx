@@ -81,17 +81,7 @@ public class MsgSearchLocalDataSource {
         }
     }
 
-    /**
-     * 搜索所有session
-     *
-     * @return
-     */
-    public RealmResults<Session> searchSessions(Realm realm, long timeStamp, int limit) {
-        return realm.where(Session.class)
-                .lessThanOrEqualTo("up_time", timeStamp)
-                .sort("up_time", Sort.DESCENDING)
-                .limit(limit).findAll();
-    }
+
     /**
      * 搜索所有session
      *
@@ -102,15 +92,7 @@ public class MsgSearchLocalDataSource {
                 .sort("up_time", Sort.DESCENDING)
                 .findAllAsync();
     }
-    /**
-     * 获取满足条件的sessionDetail
-     *
-     * @return
-     */
-    public List<SessionDetail> getSessionDetails(Realm realm, String[] sids) {
-        RealmResults<SessionDetail> results = realm.where(SessionDetail.class).in("sid", sids).findAll();
-        return results == null ? null : realm.copyFromRealm(results);
-    }
+
     /**
      * 获取满足条件的sessionDetail
      *
