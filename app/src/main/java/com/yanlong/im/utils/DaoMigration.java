@@ -653,17 +653,9 @@ public class DaoMigration implements RealmMigration {
         schema.get("UserInfo")
                 .addField("pinyin", String.class);
     }
-    //新增收藏操作表、收藏删除操作表，用于支持离线收藏功能
-    private final void updateV34(RealmSchema schema) {
-        schema.create("OfflineCollect")
-                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
-                .addRealmObjectField("collectionInfo", schema.get("CollectionInfo"));
-        schema.create("OfflineDelete")
-                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY);
-    }
 
     //新增小助手广告消息
-    private final void updateV35(RealmSchema schema) {
+    private final void updateV34(RealmSchema schema) {
         schema.create("AdMessage")
                 .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
                 .addField("title", String.class)
@@ -677,6 +669,16 @@ public class DaoMigration implements RealmMigration {
         schema.get("MsgAllBean")
                 .addRealmObjectField("adMessage", schema.get("AdMessage"));
     }
+    //新增收藏操作表、收藏删除操作表，用于支持离线收藏功能
+    private final void updateV35(RealmSchema schema) {
+        schema.create("OfflineCollect")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addRealmObjectField("collectionInfo", schema.get("CollectionInfo"));
+        schema.create("OfflineDelete")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY);
+    }
+
+
 
     @Override
     public boolean equals(@Nullable Object obj) {
