@@ -76,51 +76,25 @@ public class MsgSearchViewModel extends ViewModel {
                 }
             });
 
-            DaoUtil.executeTransactionAsync(repository.getRealm(), realm -> {
-                int limit = 50;
-                long timeStamp = System.currentTimeMillis();
-                RealmResults<Session> sessions = repository.searchSessions(realm, timeStamp, limit);
-                //单独用 list,保证顺序
-                Set<String> sids = new HashSet<>();
-                while (sessions != null && sessions.size() > 0) {
-                    for (Session session : sessions) {
-                        long count = repository.searchMessagesCount(realm, key, session.getGid(), session.getFrom_uid());
-                        if (count > 0) {
-                            SessionSearch result = new SessionSearch(count, session.getGid(), session.getFrom_uid());
-                            if (count == 1) {//1个消息
-                                result.setMsgAllBean(repository.searchMessages(realm, key, session.getGid(), session.getFrom_uid()));
+            if (executor == null) {
+                executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+            }
+            allSessions = repository.searchSessions();
+            if (allSessions != null)
+                allSessions.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<Session>>() {
+                    @Override
+                    public void onChange(RealmResults<Session> sessions, OrderedCollectionChangeSet changeSet) {
+                        if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
+                            for (Session session : sessions) {
+                                String gid = session.getGid();
+                                Long uid = session.getFrom_uid();
+                                String sid = session.getSid();
+                                //开始并发查询
+                                startConcurrentTask(key, gid, uid, sid);
                             }
-                            sids.add(session.getSid());
-                            sessionSearch.put(session.getSid(), result);
-                        }
-                        if (sids.size() >= MIN_LIMIT) {//
-                            searchSessions.addAll(repository.getSessionDetails(realm, sids.toArray(new String[sids.size()])));
-                            isLoadNewRecord.postValue(true);
-                            sids.clear();
-                            break;
                         }
                     }
-                    if (searchSessions.size() >= MIN_LIMIT) {
-                        break;
-                    }
-                    if (sessions.size() == limit) {//有下一页
-                        timeStamp = sessions.get(sessions.size() - 1).getUp_time() + 1;
-                        sessions = repository.searchSessions(realm, timeStamp, limit);
-                    } else {//没有下一个
-                        if (sids.size() > 0) {
-                            searchSessions.addAll(repository.getSessionDetails(realm, sids.toArray(new String[sids.size()])));
-                            isLoadNewRecord.postValue(true);
-                            sids.clear();
-                        }
-                        sessions = null;
-                    }
-                }
-
-
-            }, () -> {
-
-            }, error -> {
-            });
+                });
         }
     }
 
@@ -158,31 +132,43 @@ public class MsgSearchViewModel extends ViewModel {
                     public void onChange(RealmResults<Session> sessions, OrderedCollectionChangeSet changeSet) {
                         if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
                             for (Session session : sessions) {
-                                executor.execute(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Realm realm = DaoUtil.open();
-                                        try {
-                                            long count = repository.searchMessagesCount(realm, key, session.getGid(), session.getFrom_uid());
-                                            if (count > 0) {
-                                                SessionSearch result = new SessionSearch(count, session.getGid(), session.getFrom_uid());
-                                                if (count == 1) {//1个消息
-                                                    result.setMsgAllBean(repository.searchMessages(realm, key, session.getGid(), session.getFrom_uid()));
-                                                }
-                                                sessionSearch.put(session.getSid(), result);
-                                                searchSessions.add(repository.getSessionDetail(realm, session.getSid()));
-                                                isLoadNewRecord.postValue(true);
-                                            }
-                                        } finally {
-                                            DaoUtil.close(realm);
-                                        }
-                                    }
-                                });
+                                String gid = session.getGid();
+                                Long uid = session.getFrom_uid();
+                                String sid = session.getSid();
+                                startConcurrentTask(key, gid, uid, sid);
                             }
                         }
                     }
                 });
         }
+    }
+
+    /**
+     * 开始并发查询session聊天记录
+     *
+     * @param key
+     * @param gid
+     * @param uid
+     * @param sid
+     */
+    private void startConcurrentTask(String key, String gid, Long uid, String sid) {
+        executor.execute(() -> {
+            Realm realm = DaoUtil.open();
+            try {
+                long count = repository.searchMessagesCount(realm, key, gid, uid);
+                if (count > 0) {
+                    SessionSearch result = new SessionSearch(count, gid, uid);
+                    if (count == 1) {//1个消息
+                        result.setMsgAllBean(repository.searchMessages(realm, key, gid, uid));
+                    }
+                    sessionSearch.put(sid, result);
+                    searchSessions.add(repository.getSessionDetail(realm, sid));
+                    isLoadNewRecord.postValue(true);
+                }
+            } finally {
+                DaoUtil.close(realm);
+            }
+        });
     }
 
     public int getSearchFriendsSize() {
