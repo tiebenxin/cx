@@ -339,16 +339,27 @@ public class CollectDetailsActivity extends AppActivity {
                                         }
                                     }
                                 } else {
-                                    Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(thumbnail);
-                                    if (localBitmap == null) {
-                                        Glide.with(CollectDetailsActivity.this)
-                                                .asBitmap()
+                                    //有网情况走网络请求，无网情况拿缓存
+//                                    if(NetUtil.isNetworkConnected()){
+                                    //TODO 无需再取缓存多余处理，既然点击大图可以正常显示，说明Glide已经缓存好了，直接复用即可
+                                    Glide.with(this)
                                                 .load(thumbnail)
                                                 .apply(GlideOptionsUtil.notDefImageOptions())
                                                 .into(ivPic);
-                                    } else {
-                                        ivPic.setImageBitmap(localBitmap);
-                                    }
+//                                    }else {
+//                                        Bitmap localBitmap = ChatBitmapCache.getInstance().getAndGlideCache(thumbnail);
+//                                        //TODO 重置宽高，避免尺寸不对，暂行处理方法
+//                                        localBitmap = CommonUtils.imageScale(localBitmap,(int)width,(int)height);
+//                                        if (localBitmap == null) {
+//                                            Glide.with(CollectDetailsActivity.this)
+//                                                    .asBitmap()
+//                                                    .load(thumbnail)
+//                                                    .apply(GlideOptionsUtil.notDefImageOptions())
+//                                                    .into(ivPic);
+//                                        } else {
+//                                            ivPic.setImageBitmap(localBitmap);
+//                                        }
+//                                    }
                                 }
                                 ivPic.setOnClickListener(new View.OnClickListener() {
                                     @Override
