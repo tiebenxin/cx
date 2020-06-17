@@ -130,6 +130,15 @@ public class CameraActivity extends BaseActivity implements CameraCallBack {
             @Override
             public void recordEnd(long time) {
                 stopRecording();
+                recordView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intentPre = new Intent(mContext, VideoPreviewActivity.class);
+                        intentPre.putExtra(INTENT_PATH, mp4FilePath);
+                        startActivityForResult(intentPre, REQUEST_CODE_PREVIEW);
+                    }
+                }, 500);
+
             }
 
             @Override
