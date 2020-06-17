@@ -94,12 +94,12 @@ public class NetIntrtceptor implements Interceptor {
 
                 json = gson.toJson(objs);
 
-
+                RequestBody nbody = RequestBody.create(mediaType, json);
+                request = request.newBuilder()
+                        .method(request.method(), nbody)
+                        .build();
             }
-            RequestBody nbody = RequestBody.create(mediaType, json);
-            request = request.newBuilder()
-                    .method(request.method(), nbody)
-                    .build();
+
 
         }
 

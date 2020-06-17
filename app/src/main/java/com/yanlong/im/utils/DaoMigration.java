@@ -156,6 +156,10 @@ public class DaoMigration implements RealmMigration {
                 updateV34(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 34) {
+                updateV35(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -665,6 +669,16 @@ public class DaoMigration implements RealmMigration {
         schema.get("MsgAllBean")
                 .addRealmObjectField("adMessage", schema.get("AdMessage"));
     }
+    //新增收藏操作表、收藏删除操作表，用于支持离线收藏功能
+    private final void updateV35(RealmSchema schema) {
+        schema.create("OfflineCollect")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addRealmObjectField("collectionInfo", schema.get("CollectionInfo"));
+        schema.create("OfflineDelete")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY);
+    }
+
+
 
     @Override
     public boolean equals(@Nullable Object obj) {
