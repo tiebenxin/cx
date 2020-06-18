@@ -7,13 +7,14 @@
         android:layout_height="match_parent"
         app:headview_title="收藏">
 
-        <LinearLayout
-            android:id="@+id/layout_main"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <LinearLayout style="@style/app_layout_list2">
+            <LinearLayout
+                android:id="@+id/layout_top"
+                style="@style/app_layout_list2">
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
@@ -49,6 +50,7 @@
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_view"
+                android:layout_below="@+id/layout_top"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="1dp" />
@@ -57,6 +59,30 @@
                 android:id="@+id/view_nodata"
                 layout="@layout/view_no_data"
                 android:visibility="gone" />
-        </LinearLayout>
+
+            <!--多选删除底部悬浮块-->
+            <RelativeLayout
+                android:id="@+id/layout_bottom"
+                android:layout_width="match_parent"
+                android:background="@color/white"
+                android:layout_alignParentBottom="true"
+                android:visibility="gone"
+                android:layout_height="45dp">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:background="@color/c_dcdddd"/>
+
+                <ImageView
+                    android:id="@+id/iv_delete_more"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:src="@drawable/ic_delete_collect" />
+            </RelativeLayout>
+        </RelativeLayout>
     </net.cb.cb.library.view.HeadView>
 </layout>
