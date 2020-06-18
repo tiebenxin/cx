@@ -121,7 +121,9 @@ public class RechargeActivity extends AppActivity {
             }
         });
         //显示余额
-        tvBalance.setText("当前零钱余额  ¥ " + UIUtils.getYuan(Long.valueOf(PayEnvironment.getInstance().getUser().getBalance())));
+        if (PayEnvironment.getInstance().getUser() != null) {
+            tvBalance.setText("当前零钱余额  ¥ " + UIUtils.getYuan(Long.valueOf(PayEnvironment.getInstance().getUser().getBalance())));
+        }
 
         tvSubmit.setOnClickListener(new View.OnClickListener() {
             @Override

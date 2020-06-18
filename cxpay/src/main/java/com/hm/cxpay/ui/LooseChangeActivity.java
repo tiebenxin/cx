@@ -13,19 +13,14 @@ import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.UrlBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.controller.ControllerPaySetting;
-import com.hm.cxpay.dailog.ChangeSelectDialog;
-import com.hm.cxpay.eventbus.PayResultEvent;
-import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.ui.bank.BindBankActivity;
 import com.hm.cxpay.ui.bill.BillDetailListActivity;
 import com.hm.cxpay.ui.change.ChangeDetailListActivity;
 import com.hm.cxpay.ui.identification.IdentificationInfoActivity;
-import com.hm.cxpay.ui.payword.SetPaywordActivity;
 import com.hm.cxpay.ui.recharege.RechargeActivity;
 import com.hm.cxpay.ui.withdraw.WithdrawActivity;
 import com.hm.cxpay.utils.UIUtils;
@@ -35,10 +30,6 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.HeadView;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * 零钱首页
@@ -57,6 +48,7 @@ public class LooseChangeActivity extends BasePayActivity {
     private LinearLayout layoutWithdrawDeposit;//提现
     private Activity activity;
     private UserBean userBean;
+    boolean isBalanceChange = false;//是否余额可能改变
 
 
     @Override
@@ -64,9 +56,9 @@ public class LooseChangeActivity extends BasePayActivity {
         super.onCreate(savedInstanceState);
         LogUtil.getLog().i(TAG, "onCreate");
         setContentView(R.layout.activity_loose_change);
-        if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this);
-        }
+//        if (!EventBus.getDefault().isRegistered(this)) {
+//            EventBus.getDefault().register(this);
+//        }
         activity = this;
         initView();
         initEvent();
@@ -77,6 +69,10 @@ public class LooseChangeActivity extends BasePayActivity {
     protected void onResume() {
         super.onResume();
         LogUtil.getLog().i(TAG, "onResume");
+        if (isBalanceChange) {
+            httpGetUserInfo();
+            isBalanceChange = false;
+        }
     }
 
 
@@ -103,7 +99,7 @@ public class LooseChangeActivity extends BasePayActivity {
     protected void onDestroy() {
         super.onDestroy();
         LogUtil.getLog().i(TAG, "onPause");
-        EventBus.getDefault().unregister(this);
+//        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -148,6 +144,7 @@ public class LooseChangeActivity extends BasePayActivity {
                 layoutRecharge.setEnabled(false);
                 // 1 已设置支付密码 -> 允许跳转
                 startActivity(new Intent(activity, RechargeActivity.class));
+                isBalanceChange = true;
             }
         });
         //提现
@@ -156,6 +153,7 @@ public class LooseChangeActivity extends BasePayActivity {
             public void onClick(View view) {
                 //1 已设置支付密码 -> 允许跳转
                 startActivity(new Intent(activity, WithdrawActivity.class));
+                isBalanceChange = true;
             }
         });
         //零钱明细
@@ -286,12 +284,12 @@ public class LooseChangeActivity extends BasePayActivity {
                 });
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventPayResult(PayResultEvent event) {
-        if (event.getResult() == PayEnum.EPayResult.SUCCESS) {
-            httpGetUserInfo();
-        }
-    }
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void eventPayResult(PayResultEvent event) {
+//        if (event.getResult() == PayEnum.EPayResult.SUCCESS) {
+//            httpGetUserInfo();
+//        }
+//    }
 
     /**
      * 请求->绑定的银行卡列表
