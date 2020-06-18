@@ -69,7 +69,7 @@ public class MsgSearchViewModel extends ViewModel {
         searchGroups = null;
         allSessions = null;
         searchSessions.clear();
-        isLoadNewRecord.postValue(false);
+        isLoadNewRecord.setValue(false);
     }
 
     /**
@@ -123,16 +123,17 @@ public class MsgSearchViewModel extends ViewModel {
             searchFriends = repository.searchFriends(key, MIN_LIMIT);
             searchFriends.addChangeListener((userInfos, changeSet) -> {
                 if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {//初次加载完成刷新
-                    isLoadNewRecord.setValue(true);
                     isFriendLoadCompleted = true;
+                    isLoadNewRecord.setValue(true);
+
                 }
             });
             /**查询群*******************************************************************************/
             searchGroups = repository.searchGroups(key, MIN_LIMIT);
             searchGroups.addChangeListener((userInfos, changeSet) -> {
                 if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {//初次加载完成刷新
-                    isLoadNewRecord.setValue(true);
                     isGroupLoadCompleted = true;
+                    isLoadNewRecord.setValue(true);
                 }
             });
 
@@ -169,7 +170,9 @@ public class MsgSearchViewModel extends ViewModel {
             searchFriends = repository.searchFriends(key, null);
             searchFriends.addChangeListener((userInfos, changeSet) -> {
                 if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {//初次加载完成刷新
+                    isFriendLoadCompleted = true;
                     isLoadNewRecord.setValue(true);
+
                 }
             });
         }
@@ -180,7 +183,9 @@ public class MsgSearchViewModel extends ViewModel {
             searchGroups = repository.searchGroups(key, null);
             searchGroups.addChangeListener((userInfos, changeSet) -> {
                 if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {//初次加载完成刷新
+                    isGroupLoadCompleted = true;
                     isLoadNewRecord.setValue(true);
+
                 }
             });
         }
@@ -233,12 +238,12 @@ public class MsgSearchViewModel extends ViewModel {
 
                     sessionSearch.put(sid, result);
                     searchSessions.add(repository.getSessionDetail(realm, sid));
-                    isLoadNewRecord.postValue(true);
                     if (maxCount != null && sessionSearch.size() >= maxCount) {
                         isSessionLoadCompleted = true;
                         //搜索全部时，最大数量只要查4个就够了，停止并发任务
                         stopConcurrentTask();
                     }
+                    isLoadNewRecord.postValue(true);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

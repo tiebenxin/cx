@@ -54,18 +54,21 @@ public class MsgSearchActivity extends AppActivity {
         viewModel.isLoadNewRecord.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(@Nullable Boolean aBoolean) {
+                boolean isLoadCompleted = viewModel.isLoadCompleted(MsgSearchAdapter.SearchType.ALL);
                 if (aBoolean) {//关闭列表加载动画
-                    mtListView.getLoadView().setStateNormal();
-                    //必须在setEvent后调用
-                    mtListView.getSwipeLayout().setEnabled(false);
+                    if (adapter.getItemCount() > 0 || isLoadCompleted) {
+                        mtListView.getLoadView().setStateNormal();
+                        //必须在setEvent后调用
+                        mtListView.getSwipeLayout().setEnabled(false);
+                    }
                 } else {//显示列表加载动画
                     mtListView.getLoadView().setStateLoading();
                     //必须在setEvent后调用
                     mtListView.getSwipeLayout().setEnabled(true);
                 }
-                if(viewModel.isLoadCompleted(MsgSearchAdapter.SearchType.ALL)){
+                if (isLoadCompleted) {
                     mtListView.notifyDataSetChange();
-                }else{
+                } else {
                     mtListView.getListView().getAdapter().notifyDataSetChanged();
                 }
             }
