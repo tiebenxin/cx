@@ -43,8 +43,14 @@ public class MessageRemoteDataSource {
     public void clear(){
         userService = null;
         msgService = null;
-        userService = NetUtil.getNet().create(UserServer.class);
-        msgService = NetUtil.getNet().create(MsgServer.class);
+    }
+
+    /**
+     * 检查sevice 是否需要重新构建
+     */
+    public void checkService(){
+        if(userService==null)userService = NetUtil.getNet().create(UserServer.class);
+        if(msgService==null)msgService = NetUtil.getNet().create(MsgServer.class);
     }
 
     /**
@@ -54,6 +60,7 @@ public class MessageRemoteDataSource {
      * @param saveToDB          保存好友信息到数据库
      */
     public void getRequestFriends(String friendContactName, Function<ApplyBean, Boolean> saveToDB) {
+        checkService();
         //同步请求
         NetUtil.getNet().exec(userService.requestFriendsGet(), new CallBack<ReturnBean<List<ApplyBean>>>() {
             @Override
@@ -87,6 +94,7 @@ public class MessageRemoteDataSource {
      * 拉取服务器的自己的信息到数据库
      */
     public void getMyInfo(Long usrid, String imid, Function<UserBean, Boolean> saveToDB) {
+        checkService();
         //同步请求
         NetUtil.getNet().exec(userService.getUserBean(usrid), new CallBack<ReturnBean<UserBean>>() {
             @Override
@@ -117,6 +125,7 @@ public class MessageRemoteDataSource {
      * 更新好友信息
      */
     public void getFriend(Long usrid, Function<UserInfo, Boolean> saveToDB) {
+        checkService();
         if(usrid == null)
             return;
         if(loadingFriends.contains(usrid))
@@ -162,6 +171,7 @@ public class MessageRemoteDataSource {
      * @param gid
      */
     public void getGroupInfo(final String gid, Function<Group, Boolean> saveToDB) {
+        checkService();
         if (TextUtils.isEmpty(gid)) {
             return;
         }
