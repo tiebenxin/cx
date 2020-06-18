@@ -38,6 +38,16 @@ public class MessageRemoteDataSource {
     private MsgServer msgService = NetUtil.getNet().create(MsgServer.class);
 
     /**
+     * 切换环境时，service得重置
+     */
+    public void clear(){
+        userService = null;
+        msgService = null;
+        userService = NetUtil.getNet().create(UserServer.class);
+        msgService = NetUtil.getNet().create(MsgServer.class);
+    }
+
+    /**
      * 获取申请添加好友的列表
      *
      * @param friendContactName 好友备注名，可为null

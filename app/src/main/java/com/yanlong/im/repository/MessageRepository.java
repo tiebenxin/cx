@@ -94,6 +94,9 @@ public class MessageRepository {
         this.isOffline = isOffline;
 
     }
+    public void clear(){
+        remoteDataSource.clear();
+    }
 
 
     /**

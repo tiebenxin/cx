@@ -68,6 +68,7 @@ public class OfflineMessage extends DispatchMessage {
 
     @Override
     public void clear() {
+        repository.clear();
         //停止离线任务，
         if (executor != null && executor.getActiveCount() > 0) {
             executor.shutdown();

@@ -27,6 +27,7 @@ public class OnlineMessage extends DispatchMessage {
 
     @Override
     public void clear() {
+        repository.clear();
     }
     /**
      * 过滤消息 -不接收或不接收重复消息
