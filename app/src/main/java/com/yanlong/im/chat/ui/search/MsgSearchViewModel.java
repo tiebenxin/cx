@@ -23,6 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
@@ -45,10 +46,20 @@ public class MsgSearchViewModel extends ViewModel {
     public int MIN_LIMIT = 4;
     public ThreadPoolExecutor executor = null;
     private RealmResults<Session> allSessions = null;
+    //是否进主页显示加载动画
+    private boolean isFriendLoadCompleted = false;
+    private boolean isGroupLoadCompleted = false;
+    private boolean isSessionLoadCompleted = false;
+    private AtomicInteger searchCompletedCount = new AtomicInteger(0);
+
 
     public void clear() {
+        isFriendLoadCompleted = false;
+        isGroupLoadCompleted = false;
+        isSessionLoadCompleted = false;
         //停止并发任务
         stopConcurrentTask();
+        searchCompletedCount.set(0);
         if (searchFriends != null) searchFriends.removeAllChangeListeners();
         if (searchGroups != null) searchGroups.removeAllChangeListeners();
         if (allSessions != null) allSessions.removeAllChangeListeners();
@@ -58,7 +69,32 @@ public class MsgSearchViewModel extends ViewModel {
         searchGroups = null;
         allSessions = null;
         searchSessions.clear();
-        isLoadNewRecord.postValue(true);
+        isLoadNewRecord.postValue(false);
+    }
+
+    /**
+     * 是否所有都搜索完了
+     *
+     * @return
+     */
+    public boolean isLoadCompleted(MsgSearchAdapter.SearchType type) {
+        boolean result = false;
+        switch (type) {
+            case ALL:
+                result = isFriendLoadCompleted && isGroupLoadCompleted && isSessionLoadCompleted;
+                break;
+            case GROUPS:
+                result = isGroupLoadCompleted;
+                break;
+            case FRIENDS:
+                result = isFriendLoadCompleted;
+                break;
+            case SESSIONS:
+                result = isSessionLoadCompleted;
+                break;
+        }
+        return result;
+
     }
 
     /**
@@ -88,6 +124,7 @@ public class MsgSearchViewModel extends ViewModel {
             searchFriends.addChangeListener((userInfos, changeSet) -> {
                 if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {//初次加载完成刷新
                     isLoadNewRecord.setValue(true);
+                    isFriendLoadCompleted = true;
                 }
             });
             /**查询群*******************************************************************************/
@@ -95,6 +132,7 @@ public class MsgSearchViewModel extends ViewModel {
             searchGroups.addChangeListener((userInfos, changeSet) -> {
                 if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {//初次加载完成刷新
                     isLoadNewRecord.setValue(true);
+                    isGroupLoadCompleted = true;
                 }
             });
 
@@ -108,6 +146,7 @@ public class MsgSearchViewModel extends ViewModel {
                     if (changeSet.getState() == OrderedCollectionChangeSet.State.INITIAL) {
                         for (Session session : sessions) {
                             if (sessionSearch.size() >= MIN_LIMIT) {//已经查到4个了，直接不启动并发任务了
+                                isSessionLoadCompleted = true;
                                 //搜索全部时，最大数量只要查4个就够了，停止并发任务
                                 stopConcurrentTask();
                                 break;
@@ -116,7 +155,7 @@ public class MsgSearchViewModel extends ViewModel {
                                 Long uid = session.getFrom_uid();
                                 String sid = session.getSid();
                                 //开始并发查询
-                                startConcurrentTask(key, gid, uid, sid, MIN_LIMIT);
+                                startConcurrentTask(key, gid, uid, sid, MIN_LIMIT, sessions.size());
 
                             }
                         }
@@ -162,7 +201,7 @@ public class MsgSearchViewModel extends ViewModel {
                                 String gid = session.getGid();
                                 Long uid = session.getFrom_uid();
                                 String sid = session.getSid();
-                                startConcurrentTask(key, gid, uid, sid, null);
+                                startConcurrentTask(key, gid, uid, sid, null, sessions.size());
                             }
                         }
                     }
@@ -179,11 +218,13 @@ public class MsgSearchViewModel extends ViewModel {
      * @param uid
      * @param sid
      */
-    private void startConcurrentTask(String key, String gid, Long uid, String sid, Integer maxCount) {
-        if(executor!=null)executor.execute(() -> {
+    private void startConcurrentTask(String key, String gid, Long uid, String sid, Integer maxCount, int totalSession) {
+        if (executor != null) executor.execute(() -> {
             Realm realm = DaoUtil.open();
             try {
                 long count = repository.searchMessagesCount(realm, key, gid, uid);
+                //并发线程自增
+                searchCompletedCount.getAndIncrement();
                 if (count > 0) {
                     SessionSearch result = new SessionSearch(count, gid, uid);
                     if (count == 1) {//1个消息
@@ -194,13 +235,18 @@ public class MsgSearchViewModel extends ViewModel {
                     searchSessions.add(repository.getSessionDetail(realm, sid));
                     isLoadNewRecord.postValue(true);
                     if (maxCount != null && sessionSearch.size() >= maxCount) {
+                        isSessionLoadCompleted = true;
                         //搜索全部时，最大数量只要查4个就够了，停止并发任务
                         stopConcurrentTask();
                     }
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             } finally {
+                if (searchCompletedCount.get() == totalSession) {//查完了所有session
+                    isSessionLoadCompleted = true;
+                    isLoadNewRecord.postValue(true);
+                }
                 DaoUtil.close(realm);
             }
         });
