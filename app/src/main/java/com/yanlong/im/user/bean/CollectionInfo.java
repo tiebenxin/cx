@@ -3,6 +3,7 @@ package com.yanlong.im.user.bean;
 import com.yanlong.im.chat.ChatEnum;
 
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
 /**
@@ -20,6 +21,11 @@ public class CollectionInfo extends RealmObject {
     private long id;//数据id
     @ChatEnum.EMessageType
     private int type;//消息类型
+
+    @Ignore
+    private boolean showEdit = false;//是否显示编辑，多选删除
+    @Ignore
+    private boolean checked = false;//是否选中
 
     public String getMsgId() {
         return msgId;
@@ -91,5 +97,21 @@ public class CollectionInfo extends RealmObject {
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    public boolean isShowEdit() {
+        return showEdit;
+    }
+
+    public void setShowEdit(boolean showEdit) {
+        this.showEdit = showEdit;
+    }
+
+    public boolean isChecked() {
+        return checked;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
     }
 }
