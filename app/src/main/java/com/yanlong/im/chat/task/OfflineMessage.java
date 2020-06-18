@@ -169,13 +169,14 @@ public class OfflineMessage extends DispatchMessage {
      */
     private void checkBatchMessageCompleted(Realm realm, String requestId, int batchTotalCount, int msgFrom) {
         if (mBatchCompletedCount.get() == batchTotalCount) {//全部处理完成
+            mBatchCompletedCount.set(0);
             if (mBatchSuccessMsgIds.size() >= batchTotalCount) {//全部成功
                 //批量保存消息对象
                 boolean result = repository.insertOfflineMessages(realm);
                 if (result) {
                     //全部保存成功，消息回执
-//                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, SocketData.isEnough(batchTotalCount)), null, requestId);
-                    Log.e("raleigh_test", "checkBatchMessageCompleted Success" );
+                    SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(requestId, null, msgFrom, false, SocketData.isEnough(batchTotalCount)), null, requestId);
+                    Log.e("raleigh_test", "checkBatchMessageCompleted Success");
                     //在线，表示能回执成功，清除掉MsgId
                     if (SocketUtil.getSocketUtil().getOnLineState()) mBatchSuccessMsgIds.clear();
                 }
@@ -190,7 +191,7 @@ public class OfflineMessage extends DispatchMessage {
                 //检测所有离线消息是否接收完成
                 checkReceivedAllOfflineCompleted(realm, batchTotalCount, false);
             }
-            mBatchCompletedCount.set(0);
+
         }
     }
 
